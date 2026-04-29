@@ -71,7 +71,7 @@
 - [x] Add Korean tag parser tests
 - [x] Avoid parsing Markdown headings as tags
 - [x] Avoid parsing URL fragments as tags
-- [ ] Reindex tags on note save
+- [x] Reindex tags on note save
 - [ ] Add tag list screen
 - [ ] Add tag count display
 - [ ] Add filter notes by selected tag

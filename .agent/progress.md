@@ -183,3 +183,38 @@ Next task:
 
 Risks or blockers:
 - None encountered in this loop
+
+---
+
+## 2026-04-29 - Reindex tags on note save
+
+Selected task:
+- Reindex tags on note save (Phase 3)
+
+Files changed:
+- app/src/main/java/com/markleaf/notes/domain/model/Tag.kt (new)
+- app/src/main/java/com/markleaf/notes/domain/repository/TagRepository.kt (new)
+- app/src/main/java/com/markleaf/notes/data/repository/LocalTagRepository.kt (new)
+
+Commands run:
+- ./gradlew assembleDebug
+
+Build/test result:
+- BUILD SUCCESSFUL in 38s
+- 36 actionable tasks: 6 executed, 30 up-to-date
+- No android.permission.INTERNET found
+
+Commit:
+- (pending) feat: add tag domain model and reindex tags on note save
+
+Notes:
+- Created Tag domain model (id: Long, name, normalizedName, createdAt)
+- Created TagRepository interface with reindexTagsForNote, getTagsForNote, observeTagsForNote, getAllTags, observeAllTags, getTagByName
+- Implemented LocalTagRepository with Room DAO integration
+- ReindexTagsForNote parses tags from note content, clears old tags, creates new tags, and creates cross-references
+
+Next task:
+- [ ] Add tag list screen
+
+Risks or blockers:
+- None encountered in this loop

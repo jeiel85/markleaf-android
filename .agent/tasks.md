@@ -45,7 +45,7 @@
 - [x] Add Room dependencies
 - [x] Add Note domain model
 - [x] Add NoteEntity
-- [ ] Add NoteDao
+- [x] Add NoteDao
 - [ ] Add AppDatabase
 - [ ] Add entity-domain mapper
 - [ ] Add NoteRepository interface

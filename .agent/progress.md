@@ -21,29 +21,52 @@
   - No proprietary SDK
   - F-Droid-friendly direction
 
-## Progress Log Template
-
-```markdown
-## YYYY-MM-DD - Loop N
+## 2026-04-29 - Loop 1
 
 Selected task:
-- 
+- Initialize Android project with Kotlin and Jetpack Compose
 
 Files changed:
-- 
+- build.gradle.kts (project-level)
+- settings.gradle.kts
+- gradle.properties
+- local.properties
+- gradlew
+- gradlew.bat
+- gradle/wrapper/gradle-wrapper.properties
+- gradle/wrapper/gradle-wrapper.jar
+- app/build.gradle.kts
+- app/src/main/AndroidManifest.xml
+- app/src/main/java/com/markleaf/notes/MainActivity.kt
+- app/src/main/java/com/markleaf/notes/ui/theme/Theme.kt
+- app/src/main/res/values/strings.xml
+- app/src/main/res/values/styles.xml
+- .gitignore
 
 Commands run:
-- 
+- ./gradlew assembleDebug
 
-Result:
-- 
+Build/test result:
+- BUILD SUCCESSFUL in 50s
+- 34 actionable tasks executed
+- No android.permission.INTERNET found
 
 Commit:
-- 
+- cbc4146: chore: initialize android project with kotlin and compose
 
 Notes:
-- 
+- Used Kotlin 1.9.22, Compose BOM 2024.02.02, Compose compiler 1.5.8
+- Min SDK 26, Target SDK 34
+- Used Material 3 theme with custom color scheme
+- Basic package structure created: com.markleaf.notes with app, ui.theme subpackages
+- Removed AppCompat dependency since using Compose-only approach
 
 Next task:
-- 
-```
+- Set `applicationId` to `com.markleaf.notes` (already done during initialization)
+- Configure Gradle Kotlin DSL (already done)
+- Add Material 3 theme structure (already done)
+- Add basic package structure (already done)
+- Next: Add app navigation skeleton
+
+Risks or blockers:
+- None encountered in this loop

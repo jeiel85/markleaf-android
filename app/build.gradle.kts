@@ -57,6 +57,9 @@ dependencies {
     // Activity Compose
     implementation("androidx.activity:activity-compose:1.8.2")
     
+    // Navigation Compose
+    implementation("androidx.navigation:navigation-compose:2.7.0")
+    
     // Test
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

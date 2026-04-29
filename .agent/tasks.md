@@ -23,11 +23,11 @@
 ## Phase 1 - Project Foundation
 
 - [x] Initialize Android project with Kotlin and Jetpack Compose
-- [ ] Set `applicationId` to `com.markleaf.notes`
-- [ ] Configure Gradle Kotlin DSL
-- [ ] Add Material 3 theme structure
-- [ ] Add basic package structure
-- [ ] Add app navigation skeleton
+- [x] Set `applicationId` to `com.markleaf.notes`
+- [x] Configure Gradle Kotlin DSL
+- [x] Add Material 3 theme structure
+- [x] Add basic package structure
+- [x] Add app navigation skeleton
 - [ ] Add empty Notes List screen
 - [ ] Add placeholder Editor screen
 - [ ] Add placeholder Tags screen

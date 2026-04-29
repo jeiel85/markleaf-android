@@ -89,7 +89,7 @@
 - [x] Add restore from trash
 - [x] Add delete forever confirmation
 - [x] Add empty states
-- [ ] Add tests for trash repository behavior
+- [x] Add tests for trash repository behavior
 
 ---
 

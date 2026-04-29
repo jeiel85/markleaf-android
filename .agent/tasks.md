@@ -86,7 +86,7 @@
 - [x] Add search result screen
 - [x] Add move to trash behavior
 - [x] Add trash screen data source
-- [ ] Add restore from trash
+- [x] Add restore from trash
 - [ ] Add delete forever confirmation
 - [ ] Add empty states
 - [ ] Add tests for trash repository behavior

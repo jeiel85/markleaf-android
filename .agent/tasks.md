@@ -51,7 +51,7 @@
 - [x] Add NoteRepository interface
 - [x] Add LocalNoteRepository implementation
 - [x] Add observe notes flow
-- [ ] Add create note flow
+- [x] Add create note flow
 - [ ] Add edit note flow
 - [ ] Add auto-save with debounce
 - [ ] Add title extraction utility

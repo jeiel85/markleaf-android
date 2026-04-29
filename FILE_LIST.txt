@@ -1,0 +1,13 @@
+.agent/RALPH_PROMPT.md
+.agent/REVIEW_PROMPT.md
+.agent/decisions.md
+.agent/progress.md
+.agent/tasks.md
+AGENTS.md
+README.md
+docs/AGENT_SPEC.md
+docs/ARCHITECTURE.md
+docs/BRANDING.md
+docs/PRIVACY.md
+docs/ROADMAP.md
+docs/SECURITY.md

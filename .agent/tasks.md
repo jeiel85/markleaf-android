@@ -1,0 +1,121 @@
+# Markleaf Tasks
+
+이 파일은 랄프 루프에서 사용할 작업 목록입니다.  
+에이전트는 매 루프마다 가장 위의 unchecked task 하나만 선택해 구현합니다.
+
+---
+
+## Phase 0 - Repository Preparation
+
+- [ ] Add `docs/AGENT_SPEC.md`
+- [ ] Add `AGENTS.md`
+- [ ] Add `.agent/tasks.md`
+- [ ] Add `.agent/progress.md`
+- [ ] Add `.agent/decisions.md`
+- [ ] Add `.agent/RALPH_PROMPT.md`
+- [ ] Add root `README.md`
+- [ ] Add `docs/ARCHITECTURE.md`
+- [ ] Add `docs/ROADMAP.md`
+- [ ] Add `docs/BRANDING.md`
+
+---
+
+## Phase 1 - Project Foundation
+
+- [ ] Initialize Android project with Kotlin and Jetpack Compose
+- [ ] Set `applicationId` to `com.markleaf.notes`
+- [ ] Configure Gradle Kotlin DSL
+- [ ] Add Material 3 theme structure
+- [ ] Add basic package structure
+- [ ] Add app navigation skeleton
+- [ ] Add empty Notes List screen
+- [ ] Add placeholder Editor screen
+- [ ] Add placeholder Tags screen
+- [ ] Add placeholder Search screen
+- [ ] Add placeholder Trash screen
+- [ ] Add placeholder Settings screen
+- [ ] Add GitHub Actions Android build workflow
+- [ ] Verify no `android.permission.INTERNET` exists
+- [ ] Run initial Gradle build
+
+---
+
+## Phase 2 - Local Notes
+
+- [ ] Add Room dependencies
+- [ ] Add Note domain model
+- [ ] Add NoteEntity
+- [ ] Add NoteDao
+- [ ] Add AppDatabase
+- [ ] Add entity-domain mapper
+- [ ] Add NoteRepository interface
+- [ ] Add LocalNoteRepository implementation
+- [ ] Add observe notes flow
+- [ ] Add create note flow
+- [ ] Add edit note flow
+- [ ] Add auto-save with debounce
+- [ ] Add title extraction utility
+- [ ] Add excerpt generation utility
+- [ ] Add tests for title extraction
+- [ ] Verify notes persist after app restart
+
+---
+
+## Phase 3 - Tags
+
+- [ ] Add Tag domain model
+- [ ] Add TagEntity
+- [ ] Add NoteTagCrossRef
+- [ ] Add TagDao
+- [ ] Add tag parser utility
+- [ ] Add Korean tag parser tests
+- [ ] Avoid parsing Markdown headings as tags
+- [ ] Avoid parsing URL fragments as tags
+- [ ] Reindex tags on note save
+- [ ] Add tag list screen
+- [ ] Add tag count display
+- [ ] Add filter notes by selected tag
+
+---
+
+## Phase 4 - Search and Trash
+
+- [ ] Add search UI
+- [ ] Add debounced search state
+- [ ] Add Room LIKE search for title, excerpt, and Markdown content
+- [ ] Add search result screen
+- [ ] Add move to trash behavior
+- [ ] Add trash screen data source
+- [ ] Add restore from trash
+- [ ] Add delete forever confirmation
+- [ ] Add empty states
+- [ ] Add tests for trash repository behavior
+
+---
+
+## Phase 5 - Export and Polish
+
+- [ ] Add slug generation utility
+- [ ] Add tests for slug generation
+- [ ] Add single note Markdown export
+- [ ] Add export all notes with Android Storage Access Framework
+- [ ] Add share note action
+- [ ] Add settings screen content
+- [ ] Add app version display
+- [ ] Polish typography and spacing
+- [ ] Verify no `android.permission.INTERNET` exists
+- [ ] Review dependencies for F-Droid friendliness
+- [ ] Run final `./gradlew test`
+- [ ] Run final `./gradlew assembleDebug`
+
+---
+
+## Later Versions
+
+- [ ] Evaluate Markdown preview renderer
+- [ ] Evaluate SQLite FTS
+- [ ] Evaluate image attachments
+- [ ] Evaluate `[[note links]]`
+- [ ] Evaluate tablet two-pane layout
+- [ ] Evaluate optional backup strategy
+- [ ] Evaluate whether any network feature is necessary

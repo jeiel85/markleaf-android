@@ -46,7 +46,7 @@
 - [x] Add Note domain model
 - [x] Add NoteEntity
 - [x] Add NoteDao
-- [ ] Add AppDatabase
+- [x] Add AppDatabase
 - [ ] Add entity-domain mapper
 - [ ] Add NoteRepository interface
 - [ ] Add LocalNoteRepository implementation

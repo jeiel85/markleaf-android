@@ -21,52 +21,43 @@
   - No proprietary SDK
   - F-Droid-friendly direction
 
-## 2026-04-29 - Loop 1
+## 2026-04-29 - Loop 2
 
 Selected task:
-- Initialize Android project with Kotlin and Jetpack Compose
+- Add app navigation skeleton
 
 Files changed:
-- build.gradle.kts (project-level)
-- settings.gradle.kts
-- gradle.properties
-- local.properties
-- gradlew
-- gradlew.bat
-- gradle/wrapper/gradle-wrapper.properties
-- gradle/wrapper/gradle-wrapper.jar
-- app/build.gradle.kts
-- app/src/main/AndroidManifest.xml
-- app/src/main/java/com/markleaf/notes/MainActivity.kt
-- app/src/main/java/com/markleaf/notes/ui/theme/Theme.kt
-- app/src/main/res/values/strings.xml
-- app/src/main/res/values/styles.xml
-- .gitignore
+- app/build.gradle.kts (added Navigation Compose dependency)
+- app/src/main/java/com/markleaf/notes/MainActivity.kt (updated to use NavHost)
+- app/src/main/java/com/markleaf/notes/navigation/NavRoutes.kt (new)
+- app/src/main/java/com/markleaf/notes/navigation/MarkleafNavHost.kt (new)
+- app/src/main/java/com/markleaf/notes/navigation/Placeholders.kt (new)
 
 Commands run:
 - ./gradlew assembleDebug
 
 Build/test result:
-- BUILD SUCCESSFUL in 50s
-- 34 actionable tasks executed
+- BUILD SUCCESSFUL in 33s
+- 34 actionable tasks: 7 executed, 27 up-to-date
 - No android.permission.INTERNET found
 
 Commit:
-- cbc4146: chore: initialize android project with kotlin and compose
+- bf76448: chore: add compose navigation skeleton
 
 Notes:
-- Used Kotlin 1.9.22, Compose BOM 2024.02.02, Compose compiler 1.5.8
-- Min SDK 26, Target SDK 34
-- Used Material 3 theme with custom color scheme
-- Basic package structure created: com.markleaf.notes with app, ui.theme subpackages
-- Removed AppCompat dependency since using Compose-only approach
+- Added Navigation Compose 2.7.0 dependency
+- Created navigation routes for Notes, Editor, Tags, Search, Trash, Settings
+- Set up NavHost with placeholder composables for each screen
+- MainActivity now uses NavController and MarkleafNavHost
+- Placeholder screens just display their name centered on screen
 
 Next task:
-- Set `applicationId` to `com.markleaf.notes` (already done during initialization)
-- Configure Gradle Kotlin DSL (already done)
-- Add Material 3 theme structure (already done)
-- Add basic package structure (already done)
-- Next: Add app navigation skeleton
+- [ ] Add empty Notes List screen
+- [ ] Add placeholder Editor screen
+- [ ] Add placeholder Tags screen
+- [ ] Add placeholder Search screen
+- [ ] Add placeholder Trash screen
+- [ ] Add placeholder Settings screen
 
 Risks or blockers:
 - None encountered in this loop

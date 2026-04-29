@@ -80,8 +80,8 @@
 
 ## Phase 4 - Search and Trash
 
-- [ ] Add search UI
-- [ ] Add debounced search state
+- [x] Add search UI
+- [x] Add debounced search state
 - [ ] Add Room LIKE search for title, excerpt, and Markdown content
 - [ ] Add search result screen
 - [ ] Add move to trash behavior

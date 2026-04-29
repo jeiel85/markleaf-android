@@ -2,6 +2,7 @@ package com.markleaf.notes.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.markleaf.notes.domain.model.Note
 import java.time.Instant
 
 @Entity(tableName = "notes")
@@ -17,25 +18,25 @@ data class NoteEntity(
     val archived: Boolean = false,
     val trashed: Boolean = false,
     val deletedAt: Long? = null
-) {
-    fun toDomain(): com.markleaf.notes.domain.model.Note {
-        return com.markleaf.notes.domain.model.Note(
-            id = id,
-            title = title,
-            contentMarkdown = contentMarkdown,
-            excerpt = excerpt,
-            createdAt = Instant.ofEpochMilli(createdAt),
-            updatedAt = Instant.ofEpochMilli(updatedAt),
-            pinned = pinned,
-            archived = archived,
-            trashed = trashed,
-            deletedAt = deletedAt?.let { Instant.ofEpochMilli(it) },
-            tags = emptyList()
-        )
-    }
+)
+
+fun NoteEntity.toDomain(): Note {
+    return Note(
+        id = id,
+        title = title,
+        contentMarkdown = contentMarkdown,
+        excerpt = excerpt,
+        createdAt = Instant.ofEpochMilli(createdAt),
+        updatedAt = Instant.ofEpochMilli(updatedAt),
+        pinned = pinned,
+        archived = archived,
+        trashed = trashed,
+        deletedAt = deletedAt?.let { Instant.ofEpochMilli(it) },
+        tags = emptyList()
+    )
 }
 
-fun com.markleaf.notes.domain.model.Note.toEntity(): NoteEntity {
+fun Note.toEntity(): NoteEntity {
     return NoteEntity(
         id = id,
         title = title,

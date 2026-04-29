@@ -49,7 +49,7 @@
 - [x] Add AppDatabase
 - [x] Add entity-domain mapper
 - [x] Add NoteRepository interface
-- [ ] Add LocalNoteRepository implementation
+- [x] Add LocalNoteRepository implementation
 - [ ] Add observe notes flow
 - [ ] Add create note flow
 - [ ] Add edit note flow

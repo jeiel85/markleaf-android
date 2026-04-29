@@ -43,7 +43,7 @@ object TitleExtractor {
     fun generateExcerpt(content: String, maxLength: Int = 100): String {
         val clean = content
             .replace(Regex("#+\\s*"), "") // Remove headings
-            .replace(Regex("\\*\\*|__|~~|`"), "") // Remove bold, italic, strikethrough, code
+            .replace(Regex("\\*+|__|~~|`+"), "") // Remove bold, italic, strikethrough, code
             .trim()
         
         return if (clean.length <= maxLength) clean else clean.take(maxLength) + "..."

@@ -14,8 +14,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -25,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
 import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.repository.LocalNoteRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,15 +38,33 @@ fun EditorScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
-    val content = remember { mutableStateOf("") }
+    var content by remember { mutableStateOf("") }
+    var saveTrigger by remember { mutableStateOf(0) }
 
     // Load note if editing
     if (noteId != null) {
         val db = AppDatabase.getInstance(context)
         val repo = LocalNoteRepository(db)
         val note = runBlocking { repo.getNote(noteId) }
-        if (note != null) {
-            content.value = note.contentMarkdown
+        if (note != null && content.isEmpty()) {
+            content = note.contentMarkdown
+        }
+    }
+
+    // Auto-save with debounce
+    LaunchedEffect(saveTrigger) {
+        if (noteId != null && content.isNotEmpty()) {
+            delay(1000) // 1 second debounce
+            val db = AppDatabase.getInstance(context)
+            val repo = LocalNoteRepository(db)
+            val currentNote = runBlocking { repo.getNote(noteId) }
+            if (currentNote != null) {
+                val updatedNote = currentNote.copy(
+                    contentMarkdown = content,
+                    updatedAt = java.time.Instant.now()
+                )
+                runBlocking { repo.updateNote(updatedNote) }
+            }
         }
     }
 
@@ -78,14 +100,17 @@ fun EditorScreen(
             contentAlignment = Alignment.TopStart
         ) {
             BasicTextField(
-                value = content.value,
-                onValueChange = { content.value = it },
+                value = content,
+                onValueChange = {
+                    content = it
+                    saveTrigger++ // Trigger auto-save
+                },
                 modifier = Modifier.fillMaxWidth(),
                 textStyle = TextStyle(
                     color = MaterialTheme.colorScheme.onBackground
                 ),
                 decorationBox = { innerTextField ->
-                    if (content.value.isEmpty()) {
+                    if (content.isEmpty()) {
                         Text(
                             text = "Start writing...",
                             style = MaterialTheme.typography.bodyLarge,

@@ -52,7 +52,7 @@
 - [x] Add LocalNoteRepository implementation
 - [x] Add observe notes flow
 - [x] Add create note flow
-- [ ] Add edit note flow
+- [x] Add edit note flow
 - [ ] Add auto-save with debounce
 - [ ] Add title extraction utility
 - [ ] Add excerpt generation utility

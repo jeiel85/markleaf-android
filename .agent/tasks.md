@@ -67,10 +67,10 @@
 - [x] Add TagEntity
 - [x] Add NoteTagCrossRef
 - [x] Add TagDao
-- [ ] Add tag parser utility
-- [ ] Add Korean tag parser tests
-- [ ] Avoid parsing Markdown headings as tags
-- [ ] Avoid parsing URL fragments as tags
+- [x] Add tag parser utility
+- [x] Add Korean tag parser tests
+- [x] Avoid parsing Markdown headings as tags
+- [x] Avoid parsing URL fragments as tags
 - [ ] Reindex tags on note save
 - [ ] Add tag list screen
 - [ ] Add tag count display

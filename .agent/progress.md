@@ -146,3 +146,40 @@ Next phase:
 
 Risks or blockers:
 - None encountered in this loop
+
+---
+
+## 2026-04-29 - Phase 3 TagParser
+
+Selected task:
+- Add tag parser utility with Korean support
+
+Files changed:
+- app/src/main/java/com/markleaf/notes/util/TagParser.kt (new)
+- app/src/test/java/com/markleaf/notes/util/TagParserTest.kt (new)
+
+Commands run:
+- ./gradlew test
+
+Build/test result:
+- BUILD SUCCESSFUL in 33s
+- 52 actionable tasks: 7 executed, 45 up-to-date
+- All 18 tests passed (including 10 TagParser tests)
+
+Commit:
+- (pending) feat: add tag parser with Korean support and tests
+
+Notes:
+- Created TagParser utility that extracts #tags from note content
+- Handles Korean tags correctly
+- Avoids parsing Markdown headings (e.g., # Heading) as tags
+- Avoids parsing URL fragments (e.g., https://example.com#fragment) as tags
+- Excludes empty tag names
+- Includes normalizeTagName function for tag normalization
+- Created comprehensive test suite with 10 test cases
+
+Next task:
+- [ ] Reindex tags on note save
+
+Risks or blockers:
+- None encountered in this loop

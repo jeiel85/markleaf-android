@@ -55,7 +55,7 @@
 - [x] Add edit note flow
 - [x] Add auto-save with debounce
 - [x] Add title extraction utility
-- [ ] Add excerpt generation utility
+- [x] Add excerpt generation utility
 - [ ] Add tests for title extraction
 - [ ] Verify notes persist after app restart
 

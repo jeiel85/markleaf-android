@@ -28,8 +28,8 @@
 - [x] Add Material 3 theme structure
 - [x] Add basic package structure
 - [x] Add app navigation skeleton
-- [ ] Add empty Notes List screen
-- [ ] Add placeholder Editor screen
+- [x] Add empty Notes List screen
+- [x] Add placeholder Editor screen
 - [ ] Add placeholder Tags screen
 - [ ] Add placeholder Search screen
 - [ ] Add placeholder Trash screen

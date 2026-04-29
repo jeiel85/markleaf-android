@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.markleaf.notes.feature.editor.EditorScreenPlaceholder
 import com.markleaf.notes.feature.notes.NotesListScreen
 
 @Composable
@@ -14,16 +15,12 @@ fun MarkleafNavHost(navController: NavHostController) {
     ) {
         composable(NavRoutes.NOTES) {
             NotesListScreen(
-                onNoteClick = { noteId ->
-                    // TODO: Navigate to editor
-                },
-                onFabClick = {
-                    // TODO: Create new note and navigate to editor
-                }
+                onNoteClick = { /* TODO: navigate to editor */ },
+                onFabClick = { /* TODO: create note and navigate */ }
             )
         }
         composable(NavRoutes.EDITOR) {
-            EditorScreenPlaceholder()
+            EditorScreenPlaceholder(noteId = null, onBack = { /* TODO: navigate back */ })
         }
         composable(NavRoutes.TAGS) {
             TagsScreenPlaceholder()

@@ -64,9 +64,9 @@
 ## Phase 3 - Tags
 
 - [ ] Add Tag domain model
-- [ ] Add TagEntity
-- [ ] Add NoteTagCrossRef
-- [ ] Add TagDao
+- [x] Add TagEntity
+- [x] Add NoteTagCrossRef
+- [x] Add TagDao
 - [ ] Add tag parser utility
 - [ ] Add Korean tag parser tests
 - [ ] Avoid parsing Markdown headings as tags

@@ -95,8 +95,8 @@
 
 ## Phase 5 - Export and Polish
 
-- [ ] Add slug generation utility
-- [ ] Add tests for slug generation
+- [x] Add slug generation utility
+- [x] Add tests for slug generation
 - [ ] Add single note Markdown export
 - [ ] Add export all notes with Android Storage Access Framework
 - [ ] Add share note action

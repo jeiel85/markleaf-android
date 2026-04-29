@@ -57,7 +57,7 @@
 - [x] Add title extraction utility
 - [x] Add excerpt generation utility
 - [x] Add tests for title extraction
-- [ ] Verify notes persist after app restart
+- [x] Verify notes persist after app restart
 
 ---
 

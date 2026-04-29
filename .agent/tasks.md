@@ -7,22 +7,22 @@
 
 ## Phase 0 - Repository Preparation
 
-- [ ] Add `docs/AGENT_SPEC.md`
-- [ ] Add `AGENTS.md`
-- [ ] Add `.agent/tasks.md`
-- [ ] Add `.agent/progress.md`
-- [ ] Add `.agent/decisions.md`
-- [ ] Add `.agent/RALPH_PROMPT.md`
-- [ ] Add root `README.md`
-- [ ] Add `docs/ARCHITECTURE.md`
-- [ ] Add `docs/ROADMAP.md`
-- [ ] Add `docs/BRANDING.md`
+- [x] Add `docs/AGENT_SPEC.md`
+- [x] Add `AGENTS.md`
+- [x] Add `.agent/tasks.md`
+- [x] Add `.agent/progress.md`
+- [x] Add `.agent/decisions.md`
+- [x] Add `.agent/RALPH_PROMPT.md`
+- [x] Add root `README.md`
+- [x] Add `docs/ARCHITECTURE.md`
+- [x] Add `docs/ROADMAP.md`
+- [x] Add `docs/BRANDING.md`
 
 ---
 
 ## Phase 1 - Project Foundation
 
-- [ ] Initialize Android project with Kotlin and Jetpack Compose
+- [x] Initialize Android project with Kotlin and Jetpack Compose
 - [ ] Set `applicationId` to `com.markleaf.notes`
 - [ ] Configure Gradle Kotlin DSL
 - [ ] Add Material 3 theme structure

@@ -18,7 +18,9 @@ fun MarkleafNavHost(navController: NavHostController) {
         startDestination = NavRoutes.NOTES
     ) {
         composable(NavRoutes.NOTES) {
+            val viewModel = androidx.lifecycle.viewmodel.compose.viewModel<com.markleaf.notes.ui.viewmodel.NotesViewModel>()
             NotesListScreen(
+                viewModel = viewModel,
                 onNoteClick = { /* TODO: navigate to editor */ },
                 onFabClick = { /* TODO: create note and navigate */ }
             )

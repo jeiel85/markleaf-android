@@ -50,7 +50,7 @@
 - [x] Add entity-domain mapper
 - [x] Add NoteRepository interface
 - [x] Add LocalNoteRepository implementation
-- [ ] Add observe notes flow
+- [x] Add observe notes flow
 - [ ] Add create note flow
 - [ ] Add edit note flow
 - [ ] Add auto-save with debounce

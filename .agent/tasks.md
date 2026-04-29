@@ -83,7 +83,7 @@
 - [x] Add search UI
 - [x] Add debounced search state
 - [x] Add Room LIKE search for title, excerpt, and Markdown content
-- [ ] Add search result screen
+- [x] Add search result screen
 - [ ] Add move to trash behavior
 - [ ] Add trash screen data source
 - [ ] Add restore from trash

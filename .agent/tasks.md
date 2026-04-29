@@ -30,6 +30,10 @@
 - [x] Add app navigation skeleton
 - [x] Add empty Notes List screen
 - [x] Add placeholder Editor screen
+- [x] Add placeholder Tags screen
+- [x] Add placeholder Search screen
+- [x] Add placeholder Trash screen
+- [x] Add placeholder Settings screen
 - [ ] Add placeholder Tags screen
 - [ ] Add placeholder Search screen
 - [ ] Add placeholder Trash screen

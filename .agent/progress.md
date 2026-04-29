@@ -80,7 +80,7 @@ Build/test result:
 - Warning: Parameter 'onBack' is never used (expected for placeholder)
 
 Commit:
-- (pending) feat: add placeholder editor screen
+- 661d31f: feat: add placeholder editor screen
 
 Notes:
 - Created EditorScreen.kt in feature/editor package with Scaffold and BasicTextField
@@ -93,6 +93,56 @@ Next task:
 - [ ] Add placeholder Search screen
 - [ ] Add placeholder Trash screen
 - [ ] Add placeholder Settings screen
+
+Risks or blockers:
+- None encountered in this loop
+
+---
+
+## 2026-04-29 - Loop 5
+
+Selected task:
+- Add placeholder Tags, Search, Trash, Settings screens (Phase 1 Tasks 33-36)
+
+Files changed:
+- app/src/main/java/com/markleaf/notes/feature/tags/TagsScreen.kt (new)
+- app/src/main/java/com/markleaf/notes/feature/search/SearchScreen.kt (new)
+- app/src/main/java/com/markleaf/notes/feature/trash/TrashScreen.kt (new)
+- app/src/main/java/com/markleaf/notes/feature/settings/SettingsScreen.kt (new)
+- app/src/main/java/com/markleaf/notes/navigation/MarkleafNavHost.kt (updated to use all real screens)
+- app/src/main/java/com/markleaf/notes/navigation/Placeholders.kt (deleted)
+- app/src/main/java/com/markleaf/notes/feature/editor/EditorScreen.kt (renamed function from EditorScreenPlaceholder to EditorScreen)
+
+Commands run:
+- ./gradlew assembleDebug
+
+Build/test result:
+- BUILD SUCCESSFUL in 1m 6s
+- 34 actionable tasks: 9 executed, 25 up-to-date
+- No android.permission.INTERNET found
+
+Commit:
+- (pending) feat: add placeholder screens for tags, search, trash, settings
+
+Notes:
+- Created TagsScreen, SearchScreen, TrashScreen, SettingsScreen in respective feature packages
+- All screens follow same pattern: Scaffold with TopAppBar + centered placeholder text
+- Removed unnecessary Placeholders.kt file from navigation package
+- Fixed EditorScreen function name mismatch
+- All navigation routes now point to real composables instead of placeholders
+
+Phase 1 tasks completed:
+- [x] Add placeholder Editor screen (Task 32)
+- [x] Add placeholder Tags screen (Task 33)
+- [x] Add placeholder Search screen (Task 34)
+- [x] Add placeholder Trash screen (Task 35)
+- [x] Add placeholder Settings screen (Task 36)
+
+Next phase:
+- Phase 2: Implement Notes List screen with real data
+- Create Note data model
+- Set up Room database
+- Implement note list with real notes
 
 Risks or blockers:
 - None encountered in this loop

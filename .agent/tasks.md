@@ -43,8 +43,8 @@
 ## Phase 2 - Local Notes
 
 - [x] Add Room dependencies
-- [ ] Add Note domain model
-- [ ] Add NoteEntity
+- [x] Add Note domain model
+- [x] Add NoteEntity
 - [ ] Add NoteDao
 - [ ] Add AppDatabase
 - [ ] Add entity-domain mapper

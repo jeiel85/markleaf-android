@@ -46,7 +46,8 @@ fun MarkleafNavHost(navController: NavHostController) {
             SearchScreen(viewModel = viewModel)
         }
         composable(NavRoutes.TRASH) {
-            TrashScreen()
+            val viewModel = androidx.lifecycle.viewmodel.compose.viewModel<com.markleaf.notes.ui.viewmodel.TrashViewModel>()
+            TrashScreen(viewModel = viewModel)
         }
         composable(NavRoutes.SETTINGS) {
             SettingsScreen()

@@ -85,7 +85,7 @@
 - [x] Add Room LIKE search for title, excerpt, and Markdown content
 - [x] Add search result screen
 - [x] Add move to trash behavior
-- [ ] Add trash screen data source
+- [x] Add trash screen data source
 - [ ] Add restore from trash
 - [ ] Add delete forever confirmation
 - [ ] Add empty states

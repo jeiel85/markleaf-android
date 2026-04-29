@@ -47,8 +47,8 @@
 - [x] Add NoteEntity
 - [x] Add NoteDao
 - [x] Add AppDatabase
-- [ ] Add entity-domain mapper
-- [ ] Add NoteRepository interface
+- [x] Add entity-domain mapper
+- [x] Add NoteRepository interface
 - [ ] Add LocalNoteRepository implementation
 - [ ] Add observe notes flow
 - [ ] Add create note flow

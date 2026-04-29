@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
@@ -109,7 +111,8 @@ fun NotesListScreen(
                 items(notes) { note ->
                     NoteItem(
                         note = note,
-                        onClick = { onNoteClick(note.id) }
+                        onClick = { onNoteClick(note.id) },
+                        onMoveToTrash = { viewModel.moveToTrash(note.id) }
                     )
                 }
             }
@@ -117,22 +120,35 @@ fun NotesListScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NoteItem(
     note: Note,
-    onClick: (String) -> Unit
+    onClick: (String) -> Unit,
+    onMoveToTrash: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 12.dp)
+            .combinedClickable(
+                onClick = { onClick(note.id) },
+                onLongClick = { onMoveToTrash(note.id) }
+            )
     ) {
-        Text(
-            text = note.title.ifEmpty { "Untitled" },
-            style = MaterialTheme.typography.titleMedium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = note.title.ifEmpty { "Untitled" },
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+        }
         if (note.excerpt.isNotEmpty()) {
             Spacer(modifier = Modifier.height(4.dp))
             Text(

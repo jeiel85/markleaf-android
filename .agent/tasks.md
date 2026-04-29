@@ -87,7 +87,7 @@
 - [x] Add move to trash behavior
 - [x] Add trash screen data source
 - [x] Add restore from trash
-- [ ] Add delete forever confirmation
+- [x] Add delete forever confirmation
 - [ ] Add empty states
 - [ ] Add tests for trash repository behavior
 

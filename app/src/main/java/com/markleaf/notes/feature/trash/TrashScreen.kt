@@ -11,14 +11,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -37,6 +41,9 @@ fun TrashScreen(
         }
     }
     val trashedNotes = trashedNotesState.value
+
+    var noteToDelete by remember { mutableStateOf<Note?>(null) }
+    val showDeleteConfirm = remember { mutableStateOf(false) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -89,7 +96,10 @@ fun TrashScreen(
                                     Text("Restore")
                                 }
                                 Spacer(modifier = Modifier.height(8.dp))
-                                Button(onClick = { viewModel.deleteForever(note.id) }) {
+                                Button(onClick = {
+                                    noteToDelete = note
+                                    showDeleteConfirm.value = true
+                                }) {
                                     Text("Delete")
                                 }
                             }
@@ -107,5 +117,26 @@ fun TrashScreen(
                 }
             }
         }
+    }
+
+    if (showDeleteConfirm.value) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm.value = false },
+            title = { Text("Delete forever?") },
+            text = { Text("This note will be permanently deleted and cannot be recovered.") },
+            confirmButton = {
+                Button(onClick = {
+                    noteToDelete?.let { viewModel.deleteForever(it.id) }
+                    showDeleteConfirm.value = false
+                }) {
+                    Text("Delete Forever")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm.value = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }

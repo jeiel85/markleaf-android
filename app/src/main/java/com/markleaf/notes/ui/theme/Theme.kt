@@ -41,20 +41,68 @@ private val DarkColorScheme = darkColorScheme(
     onSurfaceVariant = androidx.compose.ui.graphics.Color(0xFFC2C9BD),
 )
 
+import android.os.Build
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.ui.platform.LocalContext
+
 @Composable
 fun MarkleafTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = true, // Enable dynamic color by default
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) {
-        DarkColorScheme
-    } else {
-        LightColorScheme
+    val context = LocalContext.current
+    val colorScheme = when {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        }
+        darkTheme -> DarkColorScheme
+        else -> LightColorScheme
     }
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = androidx.compose.material3.Typography(),
+        typography = Typography, // Use custom Typography
         content = content
     )
 }
+
+val Typography = androidx.compose.material3.Typography(
+    headlineLarge = androidx.compose.ui.text.TextStyle(
+        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+        fontSize = 32.sp,
+        lineHeight = 40.sp,
+        letterSpacing = 0.sp
+    ),
+    headlineMedium = androidx.compose.ui.text.TextStyle(
+        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+        fontSize = 28.sp,
+        lineHeight = 36.sp,
+        letterSpacing = 0.sp
+    ),
+    titleLarge = androidx.compose.ui.text.TextStyle(
+        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+        fontSize = 22.sp,
+        lineHeight = 28.sp,
+        letterSpacing = 0.sp
+    ),
+    bodyLarge = androidx.compose.ui.text.TextStyle(
+        fontWeight = androidx.compose.ui.text.font.FontWeight.Normal,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.5.sp
+    ),
+    bodyMedium = androidx.compose.ui.text.TextStyle(
+        fontWeight = androidx.compose.ui.text.font.FontWeight.Normal,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.25.sp
+    ),
+    labelMedium = androidx.compose.ui.text.TextStyle(
+        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp
+    )
+)

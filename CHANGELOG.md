@@ -2,16 +2,20 @@
 
 All notable changes to Markleaf are documented in this file.
 
-## v0.4.0 - 2026-04-30
+## v1.0.0 - 2026-04-30
 
 ### Added
-- 노트 간 링크(`[[Note Title]]`) 위키 링크 기능 추가.
-- 프리뷰 모드에서 링크 클릭 시 해당 제목으로 검색 화면 이동 기능 구현.
-- 링크 관계 저장을 위한 `note_links` 테이블 및 데이터 모델 구축.
+- **정식 출시 (First Major Release)**
+- **Tablet Two-Pane Layout**: 큰 화면에서 목록과 에디터를 동시에 볼 수 있는 최적화된 레이아웃 지원.
+- **Backlinks**: 현재 노트를 참조하는 다른 노트들의 목록을 에디터에서 바로 확인 및 이동 가능.
+- **Backup & Restore**: 모든 노트와 이미지 에셋을 포함한 ZIP 파일 백업 및 전체 복구 기능.
+- **Material You**: Android 12 이상 기기에서 시스템 배경화면에 맞춘 다이내믹 컬러 테마 지원.
+- **Search & Performance**: SQLite FTS4 기반의 초고속 전문 검색 엔진 완성.
+- **Media Support**: 이미지 첨부 및 에디터 내 실시간 미리보기 기능 안정화.
 
 ### Changed
-- 데이터베이스 스키마 버전 업그레이드 (v3 -> v4).
-- 프리뷰어 파싱 로직 개선 (위키 링크 인식).
+- 전반적인 UI/UX 폴리싱 및 간격 조정.
+- 데이터베이스 스키마 최종 안정화 (v4).
 
 
 ### Changed

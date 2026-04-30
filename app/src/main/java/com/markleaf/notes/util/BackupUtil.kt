@@ -138,7 +138,8 @@ object BackupUtil {
                                     val tag = TagEntity(
                                         id = obj.optLong("id", 0L),
                                         name = obj.getString("name")
-                                    )                                    db.tagDao().insertTag(tag)
+                                    )
+                                    db.tagDao().insertTag(tag)
                                 }
                             }
                             

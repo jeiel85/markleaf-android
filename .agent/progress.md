@@ -116,3 +116,23 @@ Commands run:
 
 Build/test result:
 - Pending on next CI run after push
+
+---
+
+## 2026-04-30 - Node 20 Deprecation Warning Mitigation
+Selected task:
+- Resolve GitHub Actions Node 20 deprecation warnings
+
+What was implemented:
+- Updated workflow action majors:
+  - actions/checkout: v4 -> v5
+  - actions/setup-java: v4 -> v5
+  - gradle/actions/setup-gradle: v3 -> v6
+  - actions/upload-artifact: v4 -> v7
+- Added `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` at job level
+
+Files changed:
+- .github/workflows/android-build.yml
+
+Build/test result:
+- Pending CI verification after push

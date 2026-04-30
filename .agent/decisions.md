@@ -102,3 +102,12 @@ Implications:
 - `assembleDebug` 이후 `app-debug.apk` 파일 존재를 워크플로우에서 강제 검증
 - Actions artifact 업로드 실패 시 CI 실패 처리
 - 릴리즈 전 artifact 다운로드 가능 여부를 확인 가능하게 유지
+
+### D008 - Actions Runtime Baseline
+
+GitHub Actions 워크플로우는 Node 24 지원 버전을 기본으로 유지한다.
+
+Implications:
+
+- 공식 액션은 Node 24 지원 메이저를 우선 사용
+- 전환기 동안 `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`를 설정해 런타임 경고를 선제 대응

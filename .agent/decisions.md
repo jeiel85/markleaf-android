@@ -82,3 +82,13 @@ Priority:
 - 이미지 첨부 지원 여부
 - tablet two-pane layout 도입 시점
 - Play Store와 F-Droid flavor 분리 필요 여부
+
+### D006 - Documentation Baseline Integration
+
+템플릿 기반 운영 문서를 프로젝트 루트에 통합한다.
+
+Implications:
+
+- `CHANGELOG.md`를 사용자 영향 변경의 공식 요약 문서로 사용
+- `HISTORY.md`를 작업/검증 이력 문서로 사용
+- 기존 Markleaf 전용 정책(`AGENTS.md`, `docs/AGENT_SPEC.md`)을 우선 적용

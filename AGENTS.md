@@ -104,3 +104,16 @@ feat: add tag parser
 test: add tag parser tests
 docs: update project decisions
 ```
+
+## Documentation And History
+
+공통 템플릿 문서를 이 프로젝트에 통합해 아래 문서를 운영한다.
+
+- `CHANGELOG.md`: 사용자에게 공개 가능한 변경 요약
+- `HISTORY.md`: 작업 과정, 검증, 후속 작업 기록
+
+코드 변경 시 문서 반영 원칙:
+
+- 사용자 영향 변경은 `CHANGELOG.md`에 기록
+- 작업 단위 이력은 `HISTORY.md`에 기록
+- 중요한 기술 결정은 `.agent/decisions.md`에 기록

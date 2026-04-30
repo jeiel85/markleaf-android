@@ -70,3 +70,28 @@ Remaining next task:
 Risks or blockers:
 - All Phase 1-5 MVP tasks completed successfully ✅
 - Ready to move to Later Versions tasks or commit and push
+
+---
+
+## 2026-04-30 - Template Guidelines Integration
+Selected task:
+- Integrate reusable markdown guideline templates from `.templates` into this project documentation
+
+What was implemented:
+- Added root `CHANGELOG.md`
+- Added root `HISTORY.md`
+- Updated `README.md` document index to include new docs
+- Updated `AGENTS.md` with Documentation/History 운영 섹션
+
+Files changed:
+- AGENTS.md
+- README.md
+- CHANGELOG.md
+- HISTORY.md
+
+Commands run:
+- git pull --rebase --autostash
+- git status
+
+Build/test result:
+- Not run (documentation-only changes)

@@ -55,6 +55,8 @@ com.markleaf.notes
 - `docs/ROADMAP.md`: 개발 로드맵
 - `docs/BRANDING.md`: 브랜딩 가이드
 - `AGENTS.md`: AI 에이전트 작업 규칙
+- `CHANGELOG.md`: 사용자 관점 변경 로그
+- `HISTORY.md`: 작업 이력 및 검증 기록
 - `.agent/tasks.md`: 랄프 루프 작업 목록
 - `.agent/progress.md`: 진행 기록
 - `.agent/decisions.md`: 결정 사항 기록

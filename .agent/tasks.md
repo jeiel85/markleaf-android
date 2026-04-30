@@ -117,7 +117,7 @@
 
 - [x] [#5] Evaluate tablet two-pane layout (P0)
 - [x] [#1] Evaluate Markdown preview renderer
-- [ ] [#2] Evaluate SQLite FTS
+- [x] [#2] Evaluate SQLite FTS
 - [ ] [#3] Evaluate image attachments
 - [ ] [#4] Evaluate `[[note links]]`
 - [ ] [#6] Evaluate optional backup strategy

@@ -182,3 +182,17 @@ Commands run:
 Build/test result:
 - Local failed due missing Android SDK path (`sdk.dir` / `ANDROID_HOME` not configured in this environment)
 - CI verification required
+
+---
+
+## 2026-04-30 - Issue #2 SQLite FTS Evaluation Complete
+Selected task:
+- [#2] Evaluate SQLite FTS
+
+What was implemented:
+- Added `docs/SQLITE_FTS_EVALUATION.md`
+- Defined phased adoption plan (additive migration + dual query path)
+- Marked #2 complete in `.agent/tasks.md`
+
+Build/test result:
+- Not run (evaluation/documentation task)

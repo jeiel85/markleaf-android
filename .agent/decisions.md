@@ -131,3 +131,13 @@ Implications:
 - 초기 범위는 heading, bullet, checkbox 중심의 lightweight preview
 - 복잡한 markdown spec 전체 지원은 후속 이슈로 확장
 - 로컬 우선/F-Droid 친화 원칙 유지
+
+### D011 - SQLite FTS Phased Adoption
+
+검색 품질/성능 향상을 위해 FTS를 단계적으로 도입한다.
+
+Implications:
+
+- 기존 LIKE 경로를 즉시 제거하지 않고 fallback 유지
+- 스키마 변경은 additive migration으로 진행
+- 실제 데이터셋 성능 측정 후 기본 경로 전환

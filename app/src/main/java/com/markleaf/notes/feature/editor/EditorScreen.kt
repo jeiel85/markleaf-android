@@ -1,12 +1,21 @@
 package com.markleaf.notes.feature.editor
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,17 +32,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.markleaf.notes.R
 import com.markleaf.notes.core.markdown.PreviewLineType
 import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
 import com.markleaf.notes.data.local.AppDatabase
+import com.markleaf.notes.data.local.entity.AttachmentEntity
 import com.markleaf.notes.data.repository.LocalNoteRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,6 +59,40 @@ fun EditorScreen(
     var content by remember { mutableStateOf("") }
     var saveTrigger by remember { mutableStateOf(0) }
     var isPreviewMode by remember { mutableStateOf(false) }
+
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null && noteId != null) {
+            try {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            } catch (e: Exception) {
+                // Ignore if not possible
+            }
+            
+            val attachmentId = UUID.randomUUID().toString()
+            val fileName = "image_${System.currentTimeMillis()}"
+            val attachment = AttachmentEntity(
+                id = attachmentId,
+                noteId = noteId,
+                uri = uri.toString(),
+                fileName = fileName,
+                mimeType = "image/*",
+                createdAt = System.currentTimeMillis()
+            )
+            
+            runBlocking {
+                AppDatabase.getInstance(context).attachmentDao().insertAttachment(attachment)
+            }
+            
+            val imageMarkdown = "\n![$fileName]($uri)\n"
+            content += imageMarkdown
+            saveTrigger++
+        }
+    }
 
     // Load note if editing
     if (noteId != null) {
@@ -91,6 +139,13 @@ fun EditorScreen(
                     }
                 },
                 actions = {
+                    if (!isPreviewMode && noteId != null) {
+                        IconButton(onClick = { 
+                            imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                        }) {
+                            Icon(Icons.Default.Image, contentDescription = "Add Image")
+                        }
+                    }
                     IconButton(onClick = { isPreviewMode = !isPreviewMode }) {
                         Text(
                             text = if (isPreviewMode) "Edit" else "Preview",
@@ -115,6 +170,26 @@ fun EditorScreen(
             ) {
                 items(previewLines) { line ->
                     when (line.type) {
+                        PreviewLineType.IMAGE -> {
+                            Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                                AsyncImage(
+                                    model = line.extra,
+                                    contentDescription = line.text,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(200.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                                    contentScale = ContentScale.Crop
+                                )
+                                Text(
+                                    text = line.text,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(top = 4.dp, start = 4.dp)
+                                )
+                            }
+                        }
                         PreviewLineType.H1 -> Text(
                             text = line.text,
                             style = MaterialTheme.typography.headlineMedium,

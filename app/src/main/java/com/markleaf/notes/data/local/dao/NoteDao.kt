@@ -35,6 +35,14 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE trashed = 1 ORDER BY deletedAt DESC")
     fun observeTrashedNotes(): Flow<List<NoteEntity>>
 
+    @Query("""
+        SELECT notes.* FROM notes 
+        JOIN notes_fts ON notes.title = notes_fts.title 
+        WHERE notes.trashed = 0 AND notes_fts MATCH :query 
+        ORDER BY notes.pinned DESC, notes.updatedAt DESC
+    """)
+    fun searchNotesFts(query: String): Flow<List<NoteEntity>>
+
     @Query("SELECT * FROM notes WHERE trashed = 0 AND (title LIKE '%' || :query || '%' OR contentMarkdown LIKE '%' || :query || '%' OR excerpt LIKE '%' || :query || '%') ORDER BY pinned DESC, updatedAt DESC")
     fun searchNotes(query: String): Flow<List<NoteEntity>>
 }

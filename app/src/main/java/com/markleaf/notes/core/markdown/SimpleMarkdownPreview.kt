@@ -7,13 +7,15 @@ enum class PreviewLineType {
     BULLET,
     CHECKBOX_DONE,
     CHECKBOX_TODO,
+    IMAGE,
     BODY,
     EMPTY
 }
 
 data class PreviewLine(
     val text: String,
-    val type: PreviewLineType
+    val type: PreviewLineType,
+    val extra: String? = null // For image URI or other metadata
 )
 
 object SimpleMarkdownPreview {
@@ -27,6 +29,11 @@ object SimpleMarkdownPreview {
                     line.startsWith("### ") -> PreviewLine(line.removePrefix("### ").trim(), PreviewLineType.H3)
                     line.startsWith("## ") -> PreviewLine(line.removePrefix("## ").trim(), PreviewLineType.H2)
                     line.startsWith("# ") -> PreviewLine(line.removePrefix("# ").trim(), PreviewLineType.H1)
+                    line.startsWith("![") && line.contains("](") && line.endsWith(")") -> {
+                        val alt = line.substringAfter("![").substringBefore("]")
+                        val uri = line.substringAfter("](").substringBeforeLast(")")
+                        PreviewLine(alt, PreviewLineType.IMAGE, extra = uri)
+                    }
                     line.startsWith("- [x] ", ignoreCase = true) -> PreviewLine(
                         line.removePrefix("- [x] ").trim(),
                         PreviewLineType.CHECKBOX_DONE

@@ -10,14 +10,25 @@ import com.markleaf.notes.data.local.entity.NoteEntity
 import com.markleaf.notes.data.local.entity.NoteTagCrossRef
 import com.markleaf.notes.data.local.entity.TagEntity
 
+import com.markleaf.notes.data.local.dao.AttachmentDao
+import com.markleaf.notes.data.local.entity.AttachmentEntity
+import com.markleaf.notes.data.local.entity.NoteFtsEntity
+
 @Database(
-    entities = [NoteEntity::class, TagEntity::class, NoteTagCrossRef::class],
-    version = 1,
+    entities = [
+        NoteEntity::class, 
+        TagEntity::class, 
+        NoteTagCrossRef::class, 
+        NoteFtsEntity::class,
+        AttachmentEntity::class
+    ],
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun noteDao(): NoteDao
     abstract fun tagDao(): TagDao
+    abstract fun attachmentDao(): AttachmentDao
 
     companion object {
         @Volatile

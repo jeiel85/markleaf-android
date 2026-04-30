@@ -13,7 +13,7 @@ android {
         minSdk = 26
         targetSdk = 34
         versionCode = 1
-        versionName = "0.1.0"
+        versionName = "0.3.0"
     }
 
     buildTypes {
@@ -57,6 +57,9 @@ dependencies {
     
     // Activity Compose
     implementation("androidx.activity:activity-compose:1.8.2")
+    
+    // Coil (Image Loading)
+    implementation("io.coil-kt:coil-compose:2.5.0")
     
     // Navigation Compose
     implementation("androidx.navigation:navigation-compose:2.7.0")

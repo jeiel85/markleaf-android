@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -26,6 +28,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
+import com.markleaf.notes.core.markdown.PreviewLineType
+import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
 import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.repository.LocalNoteRepository
 import kotlinx.coroutines.delay
@@ -40,6 +44,7 @@ fun EditorScreen(
     val context = LocalContext.current
     var content by remember { mutableStateOf("") }
     var saveTrigger by remember { mutableStateOf(0) }
+    var isPreviewMode by remember { mutableStateOf(false) }
 
     // Load note if editing
     if (noteId != null) {
@@ -73,7 +78,7 @@ fun EditorScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = if (noteId != null) "Edit Note" else "New Note",
+                        text = if (isPreviewMode) "Preview" else if (noteId != null) "Edit Note" else "New Note",
                         style = MaterialTheme.typography.headlineMedium
                     )
                 },
@@ -85,6 +90,14 @@ fun EditorScreen(
                         )
                     }
                 },
+                actions = {
+                    IconButton(onClick = { isPreviewMode = !isPreviewMode }) {
+                        Text(
+                            text = if (isPreviewMode) "Edit" else "Preview",
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
                     titleContentColor = MaterialTheme.colorScheme.onBackground
@@ -92,34 +105,89 @@ fun EditorScreen(
             )
         }
     ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
-            contentAlignment = Alignment.TopStart
-        ) {
-            BasicTextField(
-                value = content,
-                onValueChange = {
-                    content = it
-                    saveTrigger++ // Trigger auto-save
-                },
-                modifier = Modifier.fillMaxWidth(),
-                textStyle = TextStyle(
-                    color = MaterialTheme.colorScheme.onBackground
-                ),
-                decorationBox = { innerTextField ->
-                    if (content.isEmpty()) {
-                        Text(
-                            text = "Start writing...",
+        if (isPreviewMode) {
+            val previewLines = SimpleMarkdownPreview.parse(content)
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+                items(previewLines) { line ->
+                    when (line.type) {
+                        PreviewLineType.H1 -> Text(
+                            text = line.text,
+                            style = MaterialTheme.typography.headlineMedium,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        PreviewLineType.H2 -> Text(
+                            text = line.text,
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier.padding(top = 8.dp, bottom = 6.dp)
+                        )
+                        PreviewLineType.H3 -> Text(
+                            text = line.text,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.padding(top = 6.dp, bottom = 4.dp)
+                        )
+                        PreviewLineType.BULLET -> Text(
+                            text = "• ${line.text}",
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            modifier = Modifier.padding(vertical = 2.dp)
+                        )
+                        PreviewLineType.CHECKBOX_DONE -> Text(
+                            text = "☑ ${line.text}",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(vertical = 2.dp)
+                        )
+                        PreviewLineType.CHECKBOX_TODO -> Text(
+                            text = "☐ ${line.text}",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(vertical = 2.dp)
+                        )
+                        PreviewLineType.BODY -> Text(
+                            text = line.text,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(vertical = 2.dp)
+                        )
+                        PreviewLineType.EMPTY -> Text(
+                            text = "",
+                            modifier = Modifier.padding(vertical = 4.dp)
                         )
                     }
-                    innerTextField()
                 }
-            )
+            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp),
+                contentAlignment = Alignment.TopStart
+            ) {
+                BasicTextField(
+                    value = content,
+                    onValueChange = {
+                        content = it
+                        saveTrigger++ // Trigger auto-save
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    textStyle = TextStyle(
+                        color = MaterialTheme.colorScheme.onBackground
+                    ),
+                    decorationBox = { innerTextField ->
+                        if (content.isEmpty()) {
+                            Text(
+                                text = "Start writing...",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        innerTextField()
+                    }
+                )
+            }
         }
     }
 }

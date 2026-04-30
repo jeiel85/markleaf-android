@@ -155,3 +155,30 @@ Files changed:
 
 Build/test result:
 - Not run (documentation/planning change)
+
+---
+
+## 2026-04-30 - Issue #1 Markdown Preview Implemented
+Selected task:
+- [#1] Evaluate Markdown preview renderer
+
+What was implemented:
+- Added basic local markdown preview parser (`SimpleMarkdownPreview`)
+- Added editor preview mode toggle (Edit/Preview)
+- Added styled rendering for headings, bullet lists, and checkboxes
+- Added parser unit tests
+- Marked `#1` task as complete in `.agent/tasks.md`
+
+Files changed:
+- app/src/main/java/com/markleaf/notes/core/markdown/SimpleMarkdownPreview.kt
+- app/src/main/java/com/markleaf/notes/feature/editor/EditorScreen.kt
+- app/src/test/java/com/markleaf/notes/core/markdown/SimpleMarkdownPreviewTest.kt
+- .agent/tasks.md
+
+Commands run:
+- ./gradlew test
+- ./gradlew assembleDebug
+
+Build/test result:
+- Local failed due missing Android SDK path (`sdk.dir` / `ANDROID_HOME` not configured in this environment)
+- CI verification required

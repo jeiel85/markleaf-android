@@ -116,7 +116,7 @@
 - 각 루프마다 아래 unchecked 항목의 첫 번째 1개만 수행한다.
 
 - [x] [#5] Evaluate tablet two-pane layout (P0)
-- [ ] [#1] Evaluate Markdown preview renderer
+- [x] [#1] Evaluate Markdown preview renderer
 - [ ] [#2] Evaluate SQLite FTS
 - [ ] [#3] Evaluate image attachments
 - [ ] [#4] Evaluate `[[note links]]`

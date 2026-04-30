@@ -121,3 +121,13 @@ Implications:
 - `Medium/Expanded` 폭에서 리스트+에디터 2-pane 레이아웃을 우선 도입
 - `Compact`는 기존 phone 네비게이션 UX를 유지
 - 초기 도입은 최소 침습(기존 route 구조 보존) 방식으로 진행
+
+### D010 - Basic Local Markdown Preview Adoption
+
+Editor에 외부 네트워크/SDK 없이 동작하는 기본 Markdown Preview 모드를 도입한다.
+
+Implications:
+
+- 초기 범위는 heading, bullet, checkbox 중심의 lightweight preview
+- 복잡한 markdown spec 전체 지원은 후속 이슈로 확장
+- 로컬 우선/F-Droid 친화 원칙 유지

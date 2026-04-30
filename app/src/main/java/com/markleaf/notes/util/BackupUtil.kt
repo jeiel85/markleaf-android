@@ -164,7 +164,7 @@ object BackupUtil {
                                 for (i in 0 until linksArray.length()) {
                                     val obj = linksArray.getJSONObject(i)
                                     val link = NoteLinkEntity(
-                                        id = obj.optLong("id"),
+                                        id = obj.optLong("id", 0L),
                                         sourceNoteId = obj.getString("sourceNoteId"),
                                         targetNoteId = obj.optString("targetNoteId").takeIf { it.isNotEmpty() },
                                         rawLabel = obj.getString("rawLabel"),

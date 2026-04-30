@@ -253,3 +253,19 @@ What was implemented:
 
 Build/test result:
 - Not run (evaluation/documentation task)
+
+---
+
+## 2026-04-30 - Release APK Asset Automation Added
+Selected task:
+- Ensure APK is attached to GitHub release
+
+What was implemented:
+- Uploaded APK asset to existing `v0.1.0` release
+- Added `.github/workflows/release-apk.yml` for tag-based APK release upload automation
+
+Files changed:
+- .github/workflows/release-apk.yml
+
+Build/test result:
+- Not run locally (workflow/config change)

@@ -181,3 +181,12 @@ Implications:
 - `android.permission.INTERNET` 미사용 정책 유지
 - 계정/원격 동기화/API 연동은 후속 재평가 전까지 보류
 - 도입 재검토 시 개인정보/운영/배포 가드레일 선충족 필요
+
+### D016 - Release Asset Policy
+
+태그 릴리즈(`v*`) 시 debug APK를 릴리즈 자산에 자동 첨부한다.
+
+Implications:
+
+- Actions artifact와 별개로 Release page에서 직접 APK 다운로드 가능
+- 수동 누락 방지

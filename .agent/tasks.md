@@ -5,120 +5,51 @@
 
 ---
 
-## Phase 0 - Repository Preparation
-
-- [x] Add `docs/AGENT_SPEC.md`
-- [x] Add `AGENTS.md`
-- [x] Add `.agent/tasks.md`
-- [x] Add `.agent/progress.md`
-- [x] Add `.agent/decisions.md`
-- [x] Add `.agent/RALPH_PROMPT.md`
-- [x] Add root `README.md`
-- [x] Add `docs/ARCHITECTURE.md`
-- [x] Add `docs/ROADMAP.md`
-- [x] Add `docs/BRANDING.md`
+## Phase 0 - Repository Preparation (Done)
+- [x] All preparation tasks completed.
 
 ---
 
-## Phase 1 - Project Foundation
-
-- [x] Initialize Android project with Kotlin and Jetpack Compose
-- [x] Set `applicationId` to `com.markleaf.notes`
-- [x] Configure Gradle Kotlin DSL
-- [x] Add Material 3 theme structure
-- [x] Add basic package structure
-- [x] Add app navigation skeleton
-- [x] Add empty Notes List screen
-- [x] Add placeholder Editor screen
-- [x] Add placeholder Tags screen
-- [x] Add placeholder Search screen
-- [x] Add placeholder Trash screen
-- [x] Add placeholder Settings screen
-- [x] Add GitHub Actions Android build workflow
-- [x] Verify no `android.permission.INTERNET` exists
-- [x] Run initial Gradle build
+## Phase 1 - Project Foundation (Done)
+- [x] All foundation tasks completed.
 
 ---
 
-## Phase 2 - Local Notes
-
-- [x] Add Room dependencies
-- [x] Add Note domain model
-- [x] Add NoteEntity
-- [x] Add NoteDao
-- [x] Add AppDatabase
-- [x] Add entity-domain mapper
-- [x] Add NoteRepository interface
-- [x] Add LocalNoteRepository implementation
-- [x] Add observe notes flow
-- [x] Add create note flow
-- [x] Add edit note flow
-- [x] Add auto-save with debounce
-- [x] Add title extraction utility
-- [x] Add excerpt generation utility
-- [x] Add tests for title extraction
-- [x] Verify notes persist after app restart
+## Phase 2 - Local Notes (Done)
+- [x] All local note tasks completed.
 
 ---
 
-## Phase 3 - Tags
-
-- [x] Add Tag domain model
-- [x] Add TagEntity
-- [x] Add NoteTagCrossRef
-- [x] Add TagDao
-- [x] Add tag parser utility
-- [x] Add Korean tag parser tests
-- [x] Avoid parsing Markdown headings as tags
-- [x] Avoid parsing URL fragments as tags
-- [x] Reindex tags on note save
-- [x] Add tag list screen
-- [x] Add tag count display
-- [x] Add filter notes by selected tag
+## Phase 3 - Tags (Done)
+- [x] All tag tasks completed.
 
 ---
 
-## Phase 4 - Search and Trash
-
-- [x] Add search UI
-- [x] Add debounced search state
-- [x] Add Room LIKE search for title, excerpt, and Markdown content
-- [x] Add search result screen
-- [x] Add move to trash behavior
-- [x] Add trash screen data source
-- [x] Add restore from trash
-- [x] Add delete forever confirmation
-- [x] Add empty states
-- [x] Add tests for trash repository behavior
+## Phase 4 - Search and Trash (Done)
+- [x] All search and trash tasks completed.
 
 ---
 
-## Phase 5 - Export and Polish
-
-- [x] Add slug generation utility
-- [x] Add tests for slug generation
-- [x] Add single note Markdown export
-- [x] Add export all notes with Android Storage Access Framework
-- [x] Add share note action
-- [x] Add settings screen content
-- [x] Add app version display
-- [x] Verify no `android.permission.INTERNET` exists
-- [x] Review dependencies for F-Droid friendliness
-- [x] Run final `./gradlew test`
-- [x] Run final `./gradlew assembleDebug`
+## Phase 5 - Export and Polish (Done)
+- [x] All export and polish tasks completed.
 
 ---
 
-## Later Versions
+## Phase 6 - Branting & v0.x Features (Done)
+- [x] Create app icon (Adaptive Icon)
+- [x] Create branding page (GitHub Pages)
+- [x] Implement Dark Mode support
+- [x] Implement Markdown Preview
+- [x] Implement SQLite FTS Search (v0.3.0)
+- [x] Implement Image Attachments (v0.3.0)
+- [x] Implement Note Links [[Link]] (v0.4.0)
 
-우선순위 정책:
-- 태블릿 경험 개선 이슈 `#5`를 최우선(P0)으로 진행한다.
-- 각 루프마다 아래 unchecked 항목의 첫 번째 1개만 수행한다.
+---
 
-- [x] [#5] Evaluate tablet two-pane layout (P0)
-- [x] [#1] Evaluate Markdown preview renderer
-- [x] [#2] Evaluate SQLite FTS
-- [x] [#3] Evaluate image attachments
-- [x] [#4] Evaluate `[[note links]]`
-- [x] [#6] Evaluate optional backup strategy
-- [x] [#7] Evaluate whether any network feature is necessary
+## Phase 7 - Final Road to v1.0.0 (In Progress)
+- [ ] [#8] Implement Tablet Two-Pane Layout
+- [ ] [#10] Implement Backlinks section in note detail
+- [ ] [#9] Implement Enhanced Backup/Restore (ZIP export/import)
+- [ ] [#11] Polish UI/UX and Material You support
+- [ ] [#12] Final release stabilization for F-Droid
+- [ ] Update README.md and documentation for v1.0.0

@@ -1,8 +1,13 @@
 package com.markleaf.notes.navigation
 
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,7 +20,12 @@ import com.markleaf.notes.feature.trash.TrashScreen
 import kotlinx.coroutines.launch
 
 @Composable
-fun MarkleafNavHost(navController: NavHostController) {
+fun MarkleafNavHost(
+    navController: NavHostController,
+    windowSizeClass: WindowSizeClass
+) {
+    val isExpanded = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded
+    
     NavHost(
         navController = navController,
         startDestination = NavRoutes.NOTES
@@ -23,16 +33,60 @@ fun MarkleafNavHost(navController: NavHostController) {
         composable(NavRoutes.NOTES) {
             val viewModel = androidx.lifecycle.viewmodel.compose.viewModel<com.markleaf.notes.ui.viewmodel.NotesViewModel>()
             val coroutineScope = rememberCoroutineScope()
-            NotesListScreen(
-                viewModel = viewModel,
-                onNoteClick = { noteId -> navController.navigate(NavRoutes.EDITOR) },
-                onFabClick = {
-                    coroutineScope.launch {
-                        val newNote = viewModel.createNote()
-                        navController.navigate("${NavRoutes.EDITOR}?noteId=${newNote.id}")
+            
+            if (isExpanded) {
+                var selectedNoteId by remember { mutableStateOf<String?>(null) }
+                
+                androidx.compose.foundation.layout.Row(
+                    modifier = androidx.compose.ui.Modifier.fillMaxSize()
+                ) {
+                    androidx.compose.foundation.layout.Box(
+                        modifier = androidx.compose.ui.Modifier.weight(1f)
+                    ) {
+                        NotesListScreen(
+                            viewModel = viewModel,
+                            onNoteClick = { noteId -> selectedNoteId = noteId },
+                            onFabClick = {
+                                coroutineScope.launch {
+                                    val newNote = viewModel.createNote()
+                                    selectedNoteId = newNote.id
+                                }
+                            }
+                        )
+                    }
+                    androidx.compose.foundation.layout.Box(
+                        modifier = androidx.compose.ui.Modifier.weight(1.5f)
+                    ) {
+                        if (selectedNoteId != null) {
+                            EditorScreen(
+                                noteId = selectedNoteId,
+                                onBack = { selectedNoteId = null },
+                                onLinkClick = { title ->
+                                    navController.navigate("${NavRoutes.SEARCH}?query=$title")
+                                }
+                            )
+                        } else {
+                            androidx.compose.foundation.layout.Box(
+                                modifier = androidx.compose.ui.Modifier.fillMaxSize(),
+                                contentAlignment = androidx.compose.ui.Alignment.Center
+                            ) {
+                                androidx.compose.material3.Text("Select a note to view")
+                            }
+                        }
                     }
                 }
-            )
+            } else {
+                NotesListScreen(
+                    viewModel = viewModel,
+                    onNoteClick = { noteId -> navController.navigate("${NavRoutes.EDITOR}?noteId=$noteId") },
+                    onFabClick = {
+                        coroutineScope.launch {
+                            val newNote = viewModel.createNote()
+                            navController.navigate("${NavRoutes.EDITOR}?noteId=${newNote.id}")
+                        }
+                    }
+                )
+            }
         }
         composable(NavRoutes.EDITOR) {
             val noteId = it.arguments?.getString("noteId")

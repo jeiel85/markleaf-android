@@ -1,4 +1,41 @@
 ---
+## 2026-04-30 - Release Rule Violation Fix
+Selected task:
+- Fix release workflow so GitHub Releases contain only signed release APKs
+
+What was found:
+- `v1.0.2` release contained both `app-release.apk` and `app-debug.apk`
+- `.github/workflows/release-apk.yml` uploaded the debug APK on tag pushes
+- `gh release create` asset label did not rename the uploaded release APK file
+
+What was implemented:
+- Removed the duplicate debug APK release workflow
+- Updated Android Build release job to copy the signed APK to `markleaf-${GITHUB_REF_NAME}.apk`
+- Updated app version to `1.0.3` / `versionCode = 4`
+- Updated changelog, history, and release asset decision
+
+Files changed:
+- .github/workflows/release-apk.yml
+- .github/workflows/android-build.yml
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/progress.md
+- .agent/decisions.md
+
+Commands run:
+- `gh release delete-asset v1.0.2 app-debug.apk --repo jeiel85/markleaf-android --yes`
+- `./gradlew.bat test`
+- `./gradlew.bat assembleDebug`
+- `./gradlew.bat assembleRelease`
+
+Build/test result:
+- Removed incorrect `app-debug.apk` asset from `v1.0.2`
+- `test` passed
+- `assembleDebug` passed
+- `assembleRelease` passed
+
+---
 ## 2026-04-30 - Release Signing Automation
 Selected task:
 - Configure release keystore usage and GitHub Release automation

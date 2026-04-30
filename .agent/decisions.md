@@ -194,9 +194,9 @@ Implications:
 
 ### D016 - Release Asset Policy
 
-태그 릴리즈(`v*`) 시 debug APK를 릴리즈 자산에 자동 첨부한다.
+태그 릴리즈(`v*`) 시 signed release APK만 GitHub Release 자산에 자동 첨부한다.
 
 Implications:
 
-- Actions artifact와 별개로 Release page에서 직접 APK 다운로드 가능
-- 수동 누락 방지
+- Debug APK는 CI artifact로만 보관하고 GitHub Release 자산에는 올리지 않는다.
+- Release page에서는 `markleaf-vX.Y.Z.apk` 파일명으로 signed APK를 직접 다운로드 가능하게 유지한다.

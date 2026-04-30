@@ -2,6 +2,13 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.0.3 - 2026-04-30
+
+### Fixed
+- GitHub Release now attaches only the signed release APK.
+- Release APK asset name is normalized to `markleaf-vX.Y.Z.apk`.
+- Removed duplicate debug APK upload workflow from tag releases.
+
 ## v1.0.0 - 2026-04-30
 
 ### Added

@@ -101,12 +101,11 @@
 - [ ] Add export all notes with Android Storage Access Framework
 - [ ] Add share note action
 - [x] Add settings screen content
-- [ ] Add app version display
-- [ ] Polish typography and spacing
-- [ ] Verify no `android.permission.INTERNET` exists
-- [ ] Review dependencies for F-Droid friendliness
-- [ ] Run final `./gradlew test`
-- [ ] Run final `./gradlew assembleDebug`
+- [x] Add app version display
+- [x] Verify no `android.permission.INTERNET` exists
+- [x] Review dependencies for F-Droid friendliness
+- [x] Run final `./gradlew test`
+- [x] Run final `./gradlew assembleDebug`
 
 ---
 

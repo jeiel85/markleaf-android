@@ -97,7 +97,7 @@
 
 - [x] Add slug generation utility
 - [x] Add tests for slug generation
-- [ ] Add single note Markdown export
+- [x] Add single note Markdown export
 - [ ] Add export all notes with Android Storage Access Framework
 - [ ] Add share note action
 - [ ] Add settings screen content

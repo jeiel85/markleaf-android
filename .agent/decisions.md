@@ -171,3 +171,13 @@ Implications:
 - 자동 원격 전송 없이 zip 패키지 기반 백업 제공
 - 복원 전 dry-run/conflict preview 필요
 - 포맷 버전 관리로 향후 호환성 유지
+
+### D015 - Network Features Deferred
+
+현재 제품 단계에서는 네트워크 기능 도입이 필요하지 않다.
+
+Implications:
+
+- `android.permission.INTERNET` 미사용 정책 유지
+- 계정/원격 동기화/API 연동은 후속 재평가 전까지 보류
+- 도입 재검토 시 개인정보/운영/배포 가드레일 선충족 필요

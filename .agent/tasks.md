@@ -121,4 +121,4 @@
 - [x] [#3] Evaluate image attachments
 - [x] [#4] Evaluate `[[note links]]`
 - [x] [#6] Evaluate optional backup strategy
-- [ ] [#7] Evaluate whether any network feature is necessary
+- [x] [#7] Evaluate whether any network feature is necessary

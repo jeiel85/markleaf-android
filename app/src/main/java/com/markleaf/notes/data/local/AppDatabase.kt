@@ -4,16 +4,16 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.markleaf.notes.data.local.dao.AttachmentDao
 import com.markleaf.notes.data.local.dao.NoteDao
-import com.markleaf.notes.data.local.dao.TagDao
-import com.markleaf.notes.data.local.entity.NoteEntity
-import com.markleaf.notes.data.local.entity.NoteTagCrossRef
-import com.markleaf.notes.data.local.entity.TagEntity
-
 import com.markleaf.notes.data.local.dao.NoteLinkDao
+import com.markleaf.notes.data.local.dao.TagDao
 import com.markleaf.notes.data.local.entity.AttachmentEntity
+import com.markleaf.notes.data.local.entity.NoteEntity
 import com.markleaf.notes.data.local.entity.NoteFtsEntity
 import com.markleaf.notes.data.local.entity.NoteLinkEntity
+import com.markleaf.notes.data.local.entity.NoteTagCrossRef
+import com.markleaf.notes.data.local.entity.TagEntity
 
 @Database(
     entities = [

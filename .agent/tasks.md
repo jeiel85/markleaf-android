@@ -34,7 +34,7 @@
 - [x] Add placeholder Search screen
 - [x] Add placeholder Trash screen
 - [x] Add placeholder Settings screen
-- [ ] Add GitHub Actions Android build workflow
+- [x] Add GitHub Actions Android build workflow
 - [ ] Verify no `android.permission.INTERNET` exists
 - [ ] Run initial Gradle build
 
@@ -72,9 +72,9 @@
 - [x] Avoid parsing Markdown headings as tags
 - [x] Avoid parsing URL fragments as tags
 - [x] Reindex tags on note save
-- [ ] Add tag list screen
-- [ ] Add tag count display
-- [ ] Add filter notes by selected tag
+- [x] Add tag list screen
+- [x] Add tag count display
+- [x] Add filter notes by selected tag
 
 ---
 

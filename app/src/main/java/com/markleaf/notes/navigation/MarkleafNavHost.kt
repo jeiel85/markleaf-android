@@ -36,7 +36,13 @@ fun MarkleafNavHost(navController: NavHostController) {
         }
         composable(NavRoutes.EDITOR) {
             val noteId = it.arguments?.getString("noteId")
-            EditorScreen(noteId = noteId, onBack = { navController.popBackStack() })
+            EditorScreen(
+                noteId = noteId, 
+                onBack = { navController.popBackStack() },
+                onLinkClick = { title ->
+                    navController.navigate("${NavRoutes.SEARCH}?query=$title")
+                }
+            )
         }
         composable(NavRoutes.TAGS) {
             TagsScreen()

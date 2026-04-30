@@ -4,6 +4,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -53,7 +54,8 @@ import java.util.UUID
 @Composable
 fun EditorScreen(
     noteId: String? = null,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onLinkClick: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
     var content by remember { mutableStateOf("") }
@@ -170,6 +172,17 @@ fun EditorScreen(
             ) {
                 items(previewLines) { line ->
                     when (line.type) {
+                        PreviewLineType.LINK -> Text(
+                            text = "[[${line.text}]]",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .padding(vertical = 4.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f))
+                                .padding(horizontal = 4.dp, vertical = 2.dp)
+                                .clickable { onLinkClick(line.text) }
+                        )
                         PreviewLineType.IMAGE -> {
                             Column(modifier = Modifier.padding(vertical = 8.dp)) {
                                 AsyncImage(

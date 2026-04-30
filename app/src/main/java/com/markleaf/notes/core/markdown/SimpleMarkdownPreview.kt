@@ -8,6 +8,7 @@ enum class PreviewLineType {
     CHECKBOX_DONE,
     CHECKBOX_TODO,
     IMAGE,
+    LINK,
     BODY,
     EMPTY
 }
@@ -33,6 +34,10 @@ object SimpleMarkdownPreview {
                         val alt = line.substringAfter("![").substringBefore("]")
                         val uri = line.substringAfter("](").substringBeforeLast(")")
                         PreviewLine(alt, PreviewLineType.IMAGE, extra = uri)
+                    }
+                    line.startsWith("[[") && line.contains("]]") -> {
+                        val title = line.substringAfter("[[").substringBefore("]]").trim()
+                        PreviewLine(title, PreviewLineType.LINK)
                     }
                     line.startsWith("- [x] ", ignoreCase = true) -> PreviewLine(
                         line.removePrefix("- [x] ").trim(),

@@ -8,6 +8,12 @@
 /captures
 .externalNativeBuild
 .cxx
-*.jks
-signing.properties
 
+# Release signing secrets
+/.secrets/
+/signing.properties
+/release-signing.properties
+*.jks
+*.keystore
+*.p12
+*.pfx

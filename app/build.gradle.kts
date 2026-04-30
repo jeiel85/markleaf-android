@@ -1,32 +1,44 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
 }
 
+val releaseSigningPropertiesFile = rootProject.file("release-signing.properties")
+val legacySigningPropertiesFile = rootProject.file("signing.properties")
+val releaseSigningProperties = Properties().apply {
+    when {
+        releaseSigningPropertiesFile.exists() -> releaseSigningPropertiesFile.inputStream().use(::load)
+        legacySigningPropertiesFile.exists() -> legacySigningPropertiesFile.inputStream().use(::load)
+    }
+}
+
+fun signingValue(name: String, legacyName: String): String? =
+    providers.environmentVariable(name).orNull
+        ?: providers.environmentVariable(legacyName).orNull
+        ?: releaseSigningProperties.getProperty(name)
+        ?: releaseSigningProperties.getProperty(legacyName)
+
+val releaseStoreFile = signingValue("MARKLEAF_RELEASE_STORE_FILE", "STORE_FILE")
+    ?: providers.environmentVariable("RELEASE_STORE_FILE").orNull
+val releaseStorePassword = signingValue("MARKLEAF_RELEASE_STORE_PASSWORD", "STORE_PASSWORD")
+    ?: providers.environmentVariable("RELEASE_STORE_PASSWORD").orNull
+val releaseKeyAlias = signingValue("MARKLEAF_RELEASE_KEY_ALIAS", "KEY_ALIAS")
+    ?: providers.environmentVariable("RELEASE_KEY_ALIAS").orNull
+val releaseKeyPassword = signingValue("MARKLEAF_RELEASE_KEY_PASSWORD", "KEY_PASSWORD")
+    ?: providers.environmentVariable("RELEASE_KEY_PASSWORD").orNull
+val hasReleaseSigningConfig = listOf(
+    releaseStoreFile,
+    releaseStorePassword,
+    releaseKeyAlias,
+    releaseKeyPassword,
+).all { !it.isNullOrBlank() }
+
 android {
     namespace = "com.markleaf.notes"
     compileSdk = 34
-
-    val signingPropsFile = rootProject.file("signing.properties")
-    val signingProps = java.util.Properties()
-    if (signingPropsFile.exists()) {
-        signingProps.load(signingPropsFile.inputStream())
-    }
-
-    signingConfigs {
-        create("release") {
-            storeFile = if (signingProps.containsKey("STORE_FILE")) {
-                rootProject.file(signingProps["STORE_FILE"] as String)
-            } else {
-                val path = System.getenv("RELEASE_STORE_FILE")
-                if (path != null) file(path) else null
-            }
-            storePassword = (signingProps["STORE_PASSWORD"] as? String) ?: System.getenv("RELEASE_STORE_PASSWORD")
-            keyAlias = (signingProps["KEY_ALIAS"] as? String) ?: System.getenv("RELEASE_KEY_ALIAS")
-            keyPassword = (signingProps["KEY_PASSWORD"] as? String) ?: System.getenv("RELEASE_KEY_PASSWORD")
-        }
-    }
 
     defaultConfig {
         applicationId = "com.markleaf.notes"
@@ -34,17 +46,25 @@ android {
         targetSdk = 34
         versionCode = 3
         versionName = "1.0.2"
-        
-        signingConfig = signingConfigs.getByName("release")
+    }
+
+    signingConfigs {
+        if (hasReleaseSigningConfig) {
+            create("release") {
+                storeFile = rootProject.file(releaseStoreFile!!)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
     }
 
     buildTypes {
-        getByName("debug") {
-            signingConfig = signingConfigs.getByName("release")
-        }
         getByName("release") {
             isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("release")
+            if (hasReleaseSigningConfig) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 

@@ -1,4 +1,37 @@
 ---
+## 2026-04-30 - Release Signing Automation
+Selected task:
+- Configure release keystore usage and GitHub Release automation
+
+What was implemented:
+- Added optional release signing configuration in Gradle using environment variables or local `release-signing.properties`
+- Added GitHub Actions tag release workflow for `v*` tags
+- Added release keystore secret restore step from `MARKLEAF_RELEASE_KEYSTORE_BASE64`
+- Added release documentation
+- Added signing secret files and keystore extensions to `.gitignore`
+
+Files changed:
+- app/build.gradle.kts
+- .github/workflows/android-build.yml
+- .gitignore
+- docs/RELEASE.md
+- .agent/progress.md
+- .agent/decisions.md
+
+Commands run:
+- `keytool -genkeypair` for `.secrets/markleaf-release.p12`
+- `./gradlew.bat test`
+- `./gradlew.bat assembleDebug`
+- `./gradlew.bat assembleRelease`
+- `rg "android.permission.INTERNET" -n .`
+
+Build/test result:
+- `test` passed
+- `assembleDebug` passed
+- `assembleRelease` passed and produced `app/build/outputs/apk/release/app-release.apk`
+- No `android.permission.INTERNET` declaration found in app source or manifest
+
+---
 ## 2026-04-30 - Phase 3 Tags Tasks Complete
 Selected task:
 - Complete all Phase 3 tag-related tasks

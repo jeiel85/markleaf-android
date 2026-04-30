@@ -71,6 +71,16 @@ Priority:
 5. 데이터 소유권
 6. 태그 기반 정리
 
+### D006 - Release Signing Secrets
+
+릴리즈 키스토어와 서명 비밀번호는 저장소에 커밋하지 않는다.
+
+Implications:
+
+- 로컬 서명은 `release-signing.properties` 또는 환경변수로만 활성화한다.
+- GitHub Actions는 `MARKLEAF_RELEASE_KEYSTORE_BASE64` 시크릿을 복원해 태그 릴리즈에서만 signed APK를 생성한다.
+- 일반 PR/main 빌드는 debug 빌드와 테스트만 수행해 공개 소스 빌드 가능성을 유지한다.
+
 ---
 
 ## Pending Decisions

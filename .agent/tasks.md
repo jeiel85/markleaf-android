@@ -46,10 +46,21 @@
 
 ---
 
-## Phase 7 - Final Road to v1.0.0 (In Progress)
-- [ ] [#8] Implement Tablet Two-Pane Layout
-- [ ] [#10] Implement Backlinks section in note detail
-- [ ] [#9] Implement Enhanced Backup/Restore (ZIP export/import)
-- [ ] [#11] Polish UI/UX and Material You support
-- [ ] [#12] Final release stabilization for F-Droid
-- [ ] Update README.md and documentation for v1.0.0
+## Phase 7 - Final Road to v1.0.0 (Done)
+- [x] [#8] Implement Tablet Two-Pane Layout
+- [x] [#10] Implement Backlinks section in note detail
+- [x] [#9] Implement Enhanced Backup/Restore (ZIP export/import)
+- [x] [#11] Polish UI/UX and Material You support
+- [x] [#12] Final release stabilization for F-Droid
+- [x] Update README.md and documentation for v1.0.0
+
+---
+
+## Phase 8 - Post v1.0.0 & Future (Backlog)
+- [ ] Implement WebDAV sync (Optional)
+- [ ] Implement Google Drive backup (Optional)
+- [ ] Advanced Markdown support (Tables, KaTeX)
+- [ ] Note version history (Snapshots)
+- [ ] Performance optimization for 10k+ notes
+- [ ] Multi-language support (i18n)
+

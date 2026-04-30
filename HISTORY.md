@@ -1,6 +1,22 @@
 # HISTORY
 
 ## 2026-04-30
+- Work: 릴리즈 노트 규칙을 `CHANGELOG.md` 기준으로 강제하도록 수정.
+- Changed files:
+  - `.github/workflows/android-build.yml` (release notes extraction from `CHANGELOG.md`)
+  - `app/build.gradle.kts` (updated to v1.0.4 / versionCode 5)
+  - `CHANGELOG.md` (added v1.0.4 and backfilled v1.0.2)
+  - `HISTORY.md` (updated)
+  - `.agent/decisions.md` (release note policy added)
+  - `.agent/progress.md` (updated)
+- Verification:
+  - `./gradlew.bat test`
+  - `./gradlew.bat assembleDebug`
+  - `./gradlew.bat assembleRelease`
+  - Updated existing `v1.0.2` and `v1.0.3` GitHub Release notes from `CHANGELOG.md`
+- Result: 릴리즈 본문이 GitHub auto-generated notes 대신 프로젝트 changelog를 따르도록 정리 완료
+
+## 2026-04-30
 - Work: 릴리즈 규칙 위반 확인 및 수정. `v1.0.2`에 debug APK가 함께 첨부된 원인을 별도 `Release APK` workflow로 확인.
 - Changed files:
   - `.github/workflows/release-apk.yml` (removed)

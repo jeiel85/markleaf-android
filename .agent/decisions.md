@@ -200,3 +200,13 @@ Implications:
 
 - Debug APK는 CI artifact로만 보관하고 GitHub Release 자산에는 올리지 않는다.
 - Release page에서는 `markleaf-vX.Y.Z.apk` 파일명으로 signed APK를 직접 다운로드 가능하게 유지한다.
+
+### D017 - Release Notes Source
+
+GitHub Release 본문은 해당 버전의 `CHANGELOG.md` 섹션을 기준으로 작성한다.
+
+Implications:
+
+- 태그 릴리즈 workflow는 `--generate-notes`를 사용하지 않는다.
+- `vX.Y.Z` 태그를 만들기 전에 `CHANGELOG.md`에 `## vX.Y.Z` 섹션이 있어야 한다.
+- 릴리즈 본문이 비어 있거나 changelog 섹션을 찾지 못하면 workflow가 실패해야 한다.

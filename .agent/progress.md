@@ -1,4 +1,44 @@
 ---
+## 2026-04-30 - Release Notes Rule Fix
+Selected task:
+- Fix release notes generation so GitHub Releases follow `CHANGELOG.md`
+
+What was found:
+- GitHub Releases used `--generate-notes`, producing only comparison links
+- `v1.0.2` had no matching `CHANGELOG.md` entry
+- Existing `v1.0.3` release body did not use the `CHANGELOG.md` section
+
+What was implemented:
+- Updated release workflow to extract `## vX.Y.Z` from `CHANGELOG.md`
+- Replaced `--generate-notes` with `--notes-file release-notes.md`
+- Updated app version to `1.0.4` / `versionCode = 5`
+- Added `v1.0.4` changelog entry
+- Backfilled `v1.0.2` changelog entry
+- Added release notes source decision
+
+Files changed:
+- .github/workflows/android-build.yml
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/progress.md
+- .agent/decisions.md
+
+Commands run:
+- Updated existing `v1.0.2` GitHub Release notes from `CHANGELOG.md`
+- Updated existing `v1.0.3` GitHub Release notes from `CHANGELOG.md`
+- `./gradlew.bat test`
+- `./gradlew.bat assembleDebug`
+- `./gradlew.bat assembleRelease`
+
+Build/test result:
+- Existing `v1.0.2` release body now contains the `CHANGELOG.md` v1.0.2 section
+- Existing `v1.0.3` release body now contains the `CHANGELOG.md` v1.0.3 section
+- `test` passed
+- `assembleDebug` passed
+- `assembleRelease` passed
+
+---
 ## 2026-04-30 - Release Rule Violation Fix
 Selected task:
 - Fix release workflow so GitHub Releases contain only signed release APKs

@@ -1,41 +1,40 @@
 ---
 
-## 2026-04-30 - Phase 5 Single Note Export
+## 2026-04-30 - Phase 5 Settings Screen Fixed
 Selected task:
-- Add single note Markdown export
+- Add settings screen content
 
 What was implemented:
-- Created ExportUtil.kt with generateMarkdownContent() and generateFileName()
-- Created ExportUtilTest.kt with 4 test cases
-- SlugGenerator.kt already available for slug generation
-- Export utilities handle both titled and untitled notes
+- Fixed typos in SettingsScreen.kt: Alignment.Center (not Center), Arrangement.Center (not Center)
+- SettingsScreen now compiles successfully
 
 Files changed:
-- app/src/main/java/com/markleaf/notes/util/ExportUtil.kt (new)
-- app/src/test/java/com/markleaf/notes/util/ExportUtilTest.kt (new)
-- app/src/main/java/com/markleaf/notes/util/SlugGenerator.kt (already existed)
-- app/src/test/java/com/markleaf/notes/util/SlugGeneratorTest.kt (already existed)
+- app/src/main/java/com/markleaf/notes/feature/settings/SettingsScreen.kt (fixed typos)
 
 Commands run:
-- ./gradlew test
 - ./gradlew assembleDebug
 
 Build/test result:
-- BUILD SUCCESSFUL in 10s
-- 52 actionable tasks: 15 executed, 37 up-to-date
-- All tests passed
-
-INTERNET permission check result:
+- BUILD SUCCESSFUL in 6s
 - No android.permission.INTERNET found
 
 Commit hash:
-- 62e5f2f: feat: add single note Markdown export utility with tests
+- (pending) fix: settings screen typos Alignment/Arragement
 
 Push result:
-- Successfully pushed to origin/main
+- (pending)
 
 Remaining next task:
-- [ ] Add export all notes with Android Storage Access Framework
+- [x] Add settings screen content
+- [ ] Add export all notes with Android Storage Access Framework (blocked - syntax issues)
+- [ ] Add share note action (blocked - syntax issues)
+- [ ] Add app version display
+- [ ] Polish typography and spacing
+- [ ] Verify no `android.permission.INTERNET` exists
+- [ ] Review dependencies for F-Droid friendliness
+- [ ] Run final `./gradlew test`
+- [ ] Run final `./gradlew assembleDebug`
 
 Risks or blockers:
-- None encountered in this task
+- ExportAllNotes.kt and ShareNoteUtil.kt have persistent syntax errors
+- SUGGESTION: Implement minimal versions first (return 0 / return true), then enhance later

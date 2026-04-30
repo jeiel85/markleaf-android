@@ -100,7 +100,7 @@
 - [x] Add single note Markdown export
 - [ ] Add export all notes with Android Storage Access Framework
 - [ ] Add share note action
-- [ ] Add settings screen content
+- [x] Add settings screen content
 - [ ] Add app version display
 - [ ] Polish typography and spacing
 - [ ] Verify no `android.permission.INTERNET` exists

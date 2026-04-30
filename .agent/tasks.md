@@ -57,6 +57,7 @@
 ---
 
 ## Phase 8 - Post v1.0.0 & Future (Backlog)
+- [ ] Implement fixed Signing Keystore (Prevent Update Conflict)
 - [ ] Implement WebDAV sync (Optional)
 - [ ] Implement Google Drive backup (Optional)
 - [ ] Advanced Markdown support (Tables, KaTeX)

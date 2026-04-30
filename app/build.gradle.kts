@@ -8,17 +8,43 @@ android {
     namespace = "com.markleaf.notes"
     compileSdk = 34
 
+    val signingPropsFile = rootProject.file("signing.properties")
+    val signingProps = java.util.Properties()
+    if (signingPropsFile.exists()) {
+        signingProps.load(signingPropsFile.inputStream())
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = if (signingProps.containsKey("STORE_FILE")) {
+                rootProject.file(signingProps["STORE_FILE"] as String)
+            } else {
+                val path = System.getenv("RELEASE_STORE_FILE")
+                if (path != null) file(path) else null
+            }
+            storePassword = (signingProps["STORE_PASSWORD"] as? String) ?: System.getenv("RELEASE_STORE_PASSWORD")
+            keyAlias = (signingProps["KEY_ALIAS"] as? String) ?: System.getenv("RELEASE_KEY_ALIAS")
+            keyPassword = (signingProps["KEY_PASSWORD"] as? String) ?: System.getenv("RELEASE_KEY_PASSWORD")
+        }
+    }
+
     defaultConfig {
         applicationId = "com.markleaf.notes"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 3
+        versionName = "1.0.2"
+        
+        signingConfig = signingConfigs.getByName("release")
     }
 
     buildTypes {
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("release")
+        }
         getByName("release") {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 

@@ -8,3 +8,6 @@
 /captures
 .externalNativeBuild
 .cxx
+*.jks
+signing.properties
+

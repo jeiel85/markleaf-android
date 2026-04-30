@@ -53,4 +53,10 @@ class LocalNoteRepository(
             entities.map { it.toDomain() }
         }
     }
+
+    override fun getBacklinks(noteId: String): Flow<List<Note>> {
+        return database.noteDao().getBacklinkingNotes(noteId).map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
 }

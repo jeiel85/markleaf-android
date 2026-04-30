@@ -13,4 +13,5 @@ interface NoteRepository {
     suspend fun deleteForever(noteId: String)
     fun observeTrashedNotes(): Flow<List<Note>>
     fun searchNotes(query: String): Flow<List<Note>>
+    fun getBacklinks(noteId: String): Flow<List<Note>>
 }

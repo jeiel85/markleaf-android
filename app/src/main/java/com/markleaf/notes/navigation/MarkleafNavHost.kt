@@ -63,6 +63,9 @@ fun MarkleafNavHost(
                                 onBack = { selectedNoteId = null },
                                 onLinkClick = { title ->
                                     navController.navigate("${NavRoutes.SEARCH}?query=$title")
+                                },
+                                onNoteClick = { noteId ->
+                                    selectedNoteId = noteId
                                 }
                             )
                         } else {
@@ -95,6 +98,9 @@ fun MarkleafNavHost(
                 onBack = { navController.popBackStack() },
                 onLinkClick = { title ->
                     navController.navigate("${NavRoutes.SEARCH}?query=$title")
+                },
+                onNoteClick = { targetId ->
+                    navController.navigate("${NavRoutes.EDITOR}?noteId=$targetId")
                 }
             )
         }

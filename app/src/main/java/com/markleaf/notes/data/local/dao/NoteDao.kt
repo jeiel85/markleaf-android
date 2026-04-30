@@ -45,4 +45,11 @@ interface NoteDao {
 
     @Query("SELECT * FROM notes WHERE trashed = 0 AND (title LIKE '%' || :query || '%' OR contentMarkdown LIKE '%' || :query || '%' OR excerpt LIKE '%' || :query || '%') ORDER BY pinned DESC, updatedAt DESC")
     fun searchNotes(query: String): Flow<List<NoteEntity>>
+
+    @Query("""
+        SELECT notes.* FROM notes
+        JOIN note_links ON notes.id = note_links.sourceNoteId
+        WHERE note_links.targetNoteId = :targetNoteId AND notes.trashed = 0
+    """)
+    fun getBacklinkingNotes(targetNoteId: String): Flow<List<NoteEntity>>
 }

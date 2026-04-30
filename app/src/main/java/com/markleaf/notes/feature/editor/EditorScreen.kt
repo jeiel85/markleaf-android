@@ -50,17 +50,31 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import java.util.UUID
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.material3.Divider
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditorScreen(
     noteId: String? = null,
     onBack: () -> Unit,
-    onLinkClick: (String) -> Unit = {}
+    onLinkClick: (String) -> Unit = {},
+    onNoteClick: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
+    val db = remember { AppDatabase.getInstance(context) }
+    val repo = remember { LocalNoteRepository(db) }
+    
     var content by remember { mutableStateOf("") }
     var saveTrigger by remember { mutableStateOf(0) }
     var isPreviewMode by remember { mutableStateOf(false) }
+
+    val backlinks by if (noteId != null) {
+        repo.getBacklinks(noteId).collectAsState(initial = emptyList())
+    } else {
+        remember { mutableStateOf(emptyList<com.markleaf.notes.domain.model.Note>()) }
+    }
 
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
@@ -248,36 +262,93 @@ fun EditorScreen(
                         )
                     }
                 }
+
+                if (backlinks.isNotEmpty()) {
+                    item {
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Divider()
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Backlinks",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                    items(backlinks) { backlink ->
+                        Text(
+                            text = backlink.title,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onNoteClick(backlink.id) }
+                                .padding(vertical = 8.dp)
+                        )
+                    }
+                }
             }
         } else {
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(16.dp),
-                contentAlignment = Alignment.TopStart
+                    .padding(16.dp)
             ) {
-                BasicTextField(
-                    value = content,
-                    onValueChange = {
-                        content = it
-                        saveTrigger++ // Trigger auto-save
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    textStyle = TextStyle(
-                        color = MaterialTheme.colorScheme.onBackground
-                    ),
-                    decorationBox = { innerTextField ->
-                        if (content.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f),
+                    contentAlignment = Alignment.TopStart
+                ) {
+                    BasicTextField(
+                        value = content,
+                        onValueChange = {
+                            content = it
+                            saveTrigger++ // Trigger auto-save
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        textStyle = TextStyle(
+                            color = MaterialTheme.colorScheme.onBackground
+                        ),
+                        decorationBox = { innerTextField ->
+                            if (content.isEmpty()) {
+                                Text(
+                                    text = "Start writing...",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            innerTextField()
+                        }
+                    )
+                }
+
+                if (backlinks.isNotEmpty()) {
+                    Divider()
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Backlinks",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp)
+                    ) {
+                        items(backlinks) { backlink ->
                             Text(
-                                text = "Start writing...",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                text = backlink.title,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onNoteClick(backlink.id) }
+                                    .padding(vertical = 4.dp)
                             )
                         }
-                        innerTextField()
                     }
-                )
+                }
             }
         }
     }

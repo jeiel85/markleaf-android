@@ -136,10 +136,9 @@ object BackupUtil {
                                 for (i in 0 until tagsArray.length()) {
                                     val obj = tagsArray.getJSONObject(i)
                                     val tag = TagEntity(
-                                        id = obj.getString("id"),
+                                        id = obj.optLong("id", 0L),
                                         name = obj.getString("name")
-                                    )
-                                    db.tagDao().insertTag(tag)
+                                    )                                    db.tagDao().insertTag(tag)
                                 }
                             }
                             

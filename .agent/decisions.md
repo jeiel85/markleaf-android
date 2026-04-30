@@ -111,3 +111,13 @@ Implications:
 
 - 공식 액션은 Node 24 지원 메이저를 우선 사용
 - 전환기 동안 `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`를 설정해 런타임 경고를 선제 대응
+
+### D009 - Tablet UX Priority and Adaptive Two-Pane Direction
+
+태블릿 경험을 Later Versions의 최우선(P0)으로 지정한다.
+
+Implications:
+
+- `Medium/Expanded` 폭에서 리스트+에디터 2-pane 레이아웃을 우선 도입
+- `Compact`는 기존 phone 네비게이션 UX를 유지
+- 초기 도입은 최소 침습(기존 route 구조 보존) 방식으로 진행

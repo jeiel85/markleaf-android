@@ -111,10 +111,14 @@
 
 ## Later Versions
 
-- [ ] Evaluate Markdown preview renderer
-- [ ] Evaluate SQLite FTS
-- [ ] Evaluate image attachments
-- [ ] Evaluate `[[note links]]`
-- [ ] Evaluate tablet two-pane layout
-- [ ] Evaluate optional backup strategy
-- [ ] Evaluate whether any network feature is necessary
+우선순위 정책:
+- 태블릿 경험 개선 이슈 `#5`를 최우선(P0)으로 진행한다.
+- 각 루프마다 아래 unchecked 항목의 첫 번째 1개만 수행한다.
+
+- [x] [#5] Evaluate tablet two-pane layout (P0)
+- [ ] [#1] Evaluate Markdown preview renderer
+- [ ] [#2] Evaluate SQLite FTS
+- [ ] [#3] Evaluate image attachments
+- [ ] [#4] Evaluate `[[note links]]`
+- [ ] [#6] Evaluate optional backup strategy
+- [ ] [#7] Evaluate whether any network feature is necessary

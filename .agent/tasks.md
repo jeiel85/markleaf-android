@@ -119,6 +119,6 @@
 - [x] [#1] Evaluate Markdown preview renderer
 - [x] [#2] Evaluate SQLite FTS
 - [x] [#3] Evaluate image attachments
-- [ ] [#4] Evaluate `[[note links]]`
+- [x] [#4] Evaluate `[[note links]]`
 - [ ] [#6] Evaluate optional backup strategy
 - [ ] [#7] Evaluate whether any network feature is necessary

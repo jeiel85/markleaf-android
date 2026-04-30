@@ -151,3 +151,13 @@ Implications:
 - 원격 업로드/동기화 없이 메타데이터+로컬 URI 참조 모델 사용
 - 내보내기 시 markdown과 자산 파일 구조를 함께 정의
 - 고급 미디어 편집은 후속 단계로 연기
+
+### D013 - Wiki Links with ID-backed Resolution
+
+`[[note links]]`는 표시 텍스트와 내부 식별자를 분리한 ID 기반으로 도입한다.
+
+Implications:
+
+- 제목 변경 시 링크 무결성 유지 가능
+- 저장 시 링크 인덱스 재생성 필요
+- 미해결/중복 제목 케이스에 대한 UX 제공 필요

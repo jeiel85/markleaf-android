@@ -210,3 +210,17 @@ What was implemented:
 
 Build/test result:
 - Not run (evaluation/documentation task)
+
+---
+
+## 2026-04-30 - Issue #4 Note Links Evaluation Complete
+Selected task:
+- [#4] Evaluate `[[note links]]`
+
+What was implemented:
+- Added `docs/NOTE_LINKS_EVALUATION.md`
+- Chose ID-backed link resolution with phased UX rollout
+- Marked #4 complete in `.agent/tasks.md`
+
+Build/test result:
+- Not run (evaluation/documentation task)

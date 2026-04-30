@@ -24,6 +24,12 @@ interface TagDao {
     @Query("SELECT * FROM tags ORDER BY name ASC")
     fun getAllTags(): Flow<List<TagEntity>>
 
+    @Query("SELECT * FROM tags ORDER BY name ASC")
+    fun observeAllTags(): Flow<List<TagEntity>>
+
+    @Query("SELECT * FROM tags")
+    suspend fun getAllTagsList(): List<TagEntity>
+
     @Query("SELECT * FROM tags WHERE name = :name LIMIT 1")
     suspend fun getTagByName(name: String): TagEntity?
 

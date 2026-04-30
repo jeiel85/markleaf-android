@@ -7,6 +7,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,6 +30,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,10 +53,6 @@ import com.markleaf.notes.data.repository.LocalNoteRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import java.util.UUID
-
-import androidx.compose.runtime.collectAsState
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.material3.Divider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,7 +86,7 @@ fun EditorScreen(
                     android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
             } catch (e: Exception) {
-                // Ignore if not possible
+                // Ignore
             }
             
             val attachmentId = UUID.randomUUID().toString()
@@ -101,38 +101,32 @@ fun EditorScreen(
             )
             
             runBlocking {
-                AppDatabase.getInstance(context).attachmentDao().insertAttachment(attachment)
+                db.attachmentDao().insertAttachment(attachment)
             }
             
-            val imageMarkdown = "\n![$fileName]($uri)\n"
-            content += imageMarkdown
+            content += "\n![$fileName]($uri)\n"
             saveTrigger++
         }
     }
 
-    // Load note if editing
-    if (noteId != null) {
-        val db = AppDatabase.getInstance(context)
-        val repo = LocalNoteRepository(db)
+    // Load note
+    if (noteId != null && content.isEmpty()) {
         val note = runBlocking { repo.getNote(noteId) }
-        if (note != null && content.isEmpty()) {
+        if (note != null) {
             content = note.contentMarkdown
         }
     }
 
-    // Auto-save with debounce
+    // Auto-save
     LaunchedEffect(saveTrigger) {
         if (noteId != null && content.isNotEmpty()) {
-            delay(1000) // 1 second debounce
-            val db = AppDatabase.getInstance(context)
-            val repo = LocalNoteRepository(db)
-            val currentNote = runBlocking { repo.getNote(noteId) }
+            delay(1000)
+            val currentNote = repo.getNote(noteId)
             if (currentNote != null) {
-                val updatedNote = currentNote.copy(
+                repo.updateNote(currentNote.copy(
                     contentMarkdown = content,
                     updatedAt = java.time.Instant.now()
-                )
-                runBlocking { repo.updateNote(updatedNote) }
+                ))
             }
         }
     }
@@ -148,10 +142,7 @@ fun EditorScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_back),
-                            contentDescription = "Back"
-                        )
+                        Icon(painterResource(R.drawable.ic_back), "Back")
                     }
                 },
                 actions = {
@@ -159,14 +150,11 @@ fun EditorScreen(
                         IconButton(onClick = { 
                             imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                         }) {
-                            Icon(Icons.Default.Image, contentDescription = "Add Image")
+                            Icon(Icons.Default.Image, "Add Image")
                         }
                     }
                     IconButton(onClick = { isPreviewMode = !isPreviewMode }) {
-                        Text(
-                            text = if (isPreviewMode) "Edit" else "Preview",
-                            style = MaterialTheme.typography.labelLarge
-                        )
+                        Text(if (isPreviewMode) "Edit" else "Preview", style = MaterialTheme.typography.labelLarge)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -235,89 +223,42 @@ fun EditorScreen(
                             color = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.padding(top = 6.dp, bottom = 4.dp)
                         )
-                        PreviewLineType.BULLET -> Text(
-                            text = "• ${line.text}",
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(vertical = 2.dp)
-                        )
-                        PreviewLineType.CHECKBOX_DONE -> Text(
-                            text = "☑ ${line.text}",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(vertical = 2.dp)
-                        )
-                        PreviewLineType.CHECKBOX_TODO -> Text(
-                            text = "☐ ${line.text}",
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(vertical = 2.dp)
-                        )
-                        PreviewLineType.BODY -> Text(
-                            text = line.text,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(vertical = 2.dp)
-                        )
-                        PreviewLineType.EMPTY -> Text(
-                            text = "",
-                            modifier = Modifier.padding(vertical = 4.dp)
-                        )
+                        PreviewLineType.BULLET -> Text("• ${line.text}", style = MaterialTheme.typography.bodyLarge)
+                        PreviewLineType.CHECKBOX_DONE -> Text("☑ ${line.text}", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        PreviewLineType.CHECKBOX_TODO -> Text("☐ ${line.text}", style = MaterialTheme.typography.bodyLarge)
+                        PreviewLineType.BODY -> Text(line.text, style = MaterialTheme.typography.bodyLarge)
+                        PreviewLineType.EMPTY -> Spacer(Modifier.height(8.dp))
                     }
                 }
 
                 if (backlinks.isNotEmpty()) {
                     item {
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(Modifier.height(24.dp))
                         Divider()
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Backlinks",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.secondary
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(Modifier.height(16.dp))
+                        Text("Backlinks", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.secondary)
+                        Spacer(Modifier.height(8.dp))
                     }
                     items(backlinks) { backlink ->
                         Text(
                             text = backlink.title,
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onNoteClick(backlink.id) }
-                                .padding(vertical = 8.dp)
+                            modifier = Modifier.fillMaxWidth().clickable { onNoteClick(backlink.id) }.padding(vertical = 8.dp)
                         )
                     }
                 }
             }
         } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(16.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f),
-                    contentAlignment = Alignment.TopStart
-                ) {
+            Column(Modifier.fillMaxSize().padding(paddingValues).padding(16.dp)) {
+                Box(Modifier.weight(1f), contentAlignment = Alignment.TopStart) {
                     BasicTextField(
                         value = content,
-                        onValueChange = {
-                            content = it
-                            saveTrigger++ // Trigger auto-save
-                        },
+                        onValueChange = { content = it; saveTrigger++ },
                         modifier = Modifier.fillMaxWidth(),
-                        textStyle = TextStyle(
-                            color = MaterialTheme.colorScheme.onBackground
-                        ),
+                        textStyle = TextStyle(color = MaterialTheme.colorScheme.onBackground),
                         decorationBox = { innerTextField ->
-                            if (content.isEmpty()) {
-                                Text(
-                                    text = "Start writing...",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
+                            if (content.isEmpty()) Text("Start writing...", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             innerTextField()
                         }
                     )
@@ -325,26 +266,15 @@ fun EditorScreen(
 
                 if (backlinks.isNotEmpty()) {
                     Divider()
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Backlinks",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(100.dp)
-                    ) {
+                    Spacer(Modifier.height(8.dp))
+                    Text("Backlinks", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.secondary)
+                    LazyColumn(Modifier.fillMaxWidth().height(100.dp)) {
                         items(backlinks) { backlink ->
                             Text(
                                 text = backlink.title,
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { onNoteClick(backlink.id) }
-                                    .padding(vertical = 4.dp)
+                                modifier = Modifier.fillMaxWidth().clickable { onNoteClick(backlink.id) }.padding(vertical = 4.dp)
                             )
                         }
                     }

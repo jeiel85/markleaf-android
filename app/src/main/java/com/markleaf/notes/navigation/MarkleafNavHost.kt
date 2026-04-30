@@ -1,5 +1,9 @@
 package com.markleaf.notes.navigation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
@@ -8,6 +12,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -37,12 +43,8 @@ fun MarkleafNavHost(
             if (isExpanded) {
                 var selectedNoteId by remember { mutableStateOf<String?>(null) }
                 
-                androidx.compose.foundation.layout.Row(
-                    modifier = androidx.compose.ui.Modifier.fillMaxSize()
-                ) {
-                    androidx.compose.foundation.layout.Box(
-                        modifier = androidx.compose.ui.Modifier.weight(1f)
-                    ) {
+                Row(modifier = Modifier.fillMaxSize()) {
+                    Box(modifier = Modifier.weight(1f)) {
                         NotesListScreen(
                             viewModel = viewModel,
                             onNoteClick = { noteId -> selectedNoteId = noteId },
@@ -54,9 +56,7 @@ fun MarkleafNavHost(
                             }
                         )
                     }
-                    androidx.compose.foundation.layout.Box(
-                        modifier = androidx.compose.ui.Modifier.weight(1.5f)
-                    ) {
+                    Box(modifier = Modifier.weight(1.5f)) {
                         if (selectedNoteId != null) {
                             EditorScreen(
                                 noteId = selectedNoteId,
@@ -69,11 +69,11 @@ fun MarkleafNavHost(
                                 }
                             )
                         } else {
-                            androidx.compose.foundation.layout.Box(
-                                modifier = androidx.compose.ui.Modifier.fillMaxSize(),
-                                contentAlignment = androidx.compose.ui.Alignment.Center
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
                             ) {
-                                androidx.compose.material3.Text("Select a note to view")
+                                Text("Select a note to view")
                             }
                         }
                     }

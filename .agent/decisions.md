@@ -210,3 +210,20 @@ Implications:
 - 태그 릴리즈 workflow는 `--generate-notes`를 사용하지 않는다.
 - `vX.Y.Z` 태그를 만들기 전에 `CHANGELOG.md`에 `## vX.Y.Z` 섹션이 있어야 한다.
 - 릴리즈 본문이 비어 있거나 changelog 섹션을 찾지 못하면 workflow가 실패해야 한다.
+- GitHub Release 본문에 들어가는 changelog 섹션은 한글로 작성한다.
+
+### D018 - Release Title Source
+
+GitHub Release 제목은 `CHANGELOG.md`의 해당 버전 heading에서 가져온다.
+
+Format:
+
+```text
+## vX.Y.Z - 한국어 제목 (English Title) - YYYY-MM-DD
+```
+
+Implications:
+
+- GitHub Release 제목은 trailing date를 제거한 `vX.Y.Z - 한국어 제목 (English Title)` 형식을 사용한다.
+- Workflow에서 `Markleaf vX.Y.Z` 같은 고정 title을 사용하지 않는다.
+- `v1.0.0 - 정식 출시 (First Major Release)` 형식을 이후 릴리즈에도 유지한다.

@@ -104,11 +104,22 @@ jobs:
           VERSION="${GITHUB_REF_NAME#v}"
           awk -v version="$VERSION" '
             BEGIN { heading = "## v" version }
+            index($0, heading) == 1 && (length($0) == length(heading) || substr($0, length(heading) + 1, 1) == " " || substr($0, length(heading) + 1, 1) == "-") {
+              sub(/^## /, "")
+              sub(/ - [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]$/, "")
+              print
+              exit
+            }
+          ' CHANGELOG.md > release-title.txt
+          test -s release-title.txt
+          awk -v version="$VERSION" '
+            BEGIN { heading = "## v" version }
             index($0, heading) == 1 && (length($0) == length(heading) || substr($0, length(heading) + 1, 1) == " " || substr($0, length(heading) + 1, 1) == "-") { found = 1; next }
             found && /^## / { exit }
             found { print }
           ' CHANGELOG.md > release-notes.md
           test -s release-notes.md
+          cat release-title.txt
           cat release-notes.md
 
       - name: Create GitHub release
@@ -118,5 +129,5 @@ jobs:
           gh release create "$GITHUB_REF_NAME" \
             "markleaf-${GITHUB_REF_NAME}.apk" \
             --repo "$GITHUB_REPOSITORY" \
-            --title "Markleaf ${GITHUB_REF_NAME}" \
+            --title "$(cat release-title.txt)" \
             --notes-file release-notes.md

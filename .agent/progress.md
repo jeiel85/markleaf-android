@@ -1,4 +1,69 @@
 ---
+## 2026-04-30 - Release Title Rule Fix
+Selected task:
+- Restore release title rule used by `v1.0.0`
+
+What was found:
+- `v1.0.0` used `v1.0.0 - 정식 출시 (First Major Release)`
+- Current workflow used fixed titles like `Markleaf v1.0.4`
+
+What was implemented:
+- Updated release workflow to extract the GitHub Release title from the `CHANGELOG.md` version heading
+- Normalized changelog headings to `## vX.Y.Z - 한국어 제목 (English Title) - YYYY-MM-DD`
+- Updated app version to `1.0.5` / `versionCode = 6`
+- Added release title source decision
+
+Files changed:
+- .github/workflows/android-build.yml
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/progress.md
+- .agent/decisions.md
+
+Commands run:
+- Updated existing `v1.0.2` GitHub Release notes to Korean
+- Updated existing `v1.0.3` GitHub Release notes to Korean
+- Updated existing `v1.0.4` GitHub Release notes to Korean
+
+Build/test result:
+- Existing release note bodies now use Korean `CHANGELOG.md` sections
+
+---
+## 2026-04-30 - Korean Release Notes Rule Fix
+Selected task:
+- Ensure GitHub Release notes are written in Korean
+
+What was found:
+- Release title format was documented, but release note body language was not explicit
+- Existing post-1.0.0 release notes used English changelog text
+
+What was implemented:
+- Converted `v1.0.2` through `v1.0.5` changelog release notes to Korean
+- Added Korean release note body rule to release decisions
+- Updated existing `v1.0.2`, `v1.0.3`, and `v1.0.4` GitHub Release notes to Korean
+
+Files changed:
+- CHANGELOG.md
+- HISTORY.md
+- .agent/progress.md
+- .agent/decisions.md
+
+Commands run:
+- Updated existing `v1.0.2`, `v1.0.3`, and `v1.0.4` GitHub Release titles
+- Renamed existing `v1.0.2` release asset from `app-release.apk` to `markleaf-v1.0.2.apk`
+- `./gradlew.bat test`
+- `./gradlew.bat assembleDebug`
+- `./gradlew.bat assembleRelease`
+
+Build/test result:
+- Existing post-1.0.0 release titles now use `vX.Y.Z - 한국어 제목 (English Title)`
+- Existing `v1.0.2` asset now uses `markleaf-v1.0.2.apk`
+- `test` passed
+- `assembleDebug` passed
+- `assembleRelease` passed
+
+---
 ## 2026-04-30 - Release Notes Rule Fix
 Selected task:
 - Fix release notes generation so GitHub Releases follow `CHANGELOG.md`

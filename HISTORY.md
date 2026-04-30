@@ -1,6 +1,34 @@
 # HISTORY
 
 ## 2026-04-30
+- Work: 릴리즈 제목 규칙을 `vX.Y.Z - 한국어 제목 (English Title)` 형식으로 복구.
+- Changed files:
+  - `.github/workflows/android-build.yml` (release title extraction from `CHANGELOG.md`)
+  - `app/build.gradle.kts` (updated to v1.0.5 / versionCode 6)
+  - `CHANGELOG.md` (added v1.0.5 and normalized release headings)
+  - `HISTORY.md` (updated)
+  - `.agent/decisions.md` (release title policy added)
+  - `.agent/progress.md` (updated)
+- Verification:
+  - `./gradlew.bat test`
+  - `./gradlew.bat assembleDebug`
+  - `./gradlew.bat assembleRelease`
+  - Updated existing `v1.0.2`, `v1.0.3`, and `v1.0.4` GitHub Release titles
+  - Renamed existing `v1.0.2` release asset to `markleaf-v1.0.2.apk`
+- Result: GitHub Release 제목이 changelog heading을 따르도록 정리 완료
+
+## 2026-04-30
+- Work: 릴리즈 노트 본문을 한글 changelog 기준으로 보정.
+- Changed files:
+  - `CHANGELOG.md` (converted v1.0.2-v1.0.5 release notes to Korean)
+  - `.agent/decisions.md` (added Korean release note body rule)
+  - `.agent/progress.md` (updated)
+  - `HISTORY.md` (updated)
+- Verification:
+  - Updated existing `v1.0.2`, `v1.0.3`, and `v1.0.4` GitHub Release notes to Korean
+- Result: GitHub Release 본문은 한글 changelog 섹션을 사용하도록 정리
+
+## 2026-04-30
 - Work: 릴리즈 노트 규칙을 `CHANGELOG.md` 기준으로 강제하도록 수정.
 - Changed files:
   - `.github/workflows/android-build.yml` (release notes extraction from `CHANGELOG.md`)

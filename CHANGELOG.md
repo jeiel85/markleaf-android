@@ -2,37 +2,50 @@
 
 All notable changes to Markleaf are documented in this file.
 
-## v1.0.4 - 2026-04-30
+## v1.0.5 - 릴리즈 제목 규칙 보정 (Release Title Rule Fix) - 2026-04-30
 
-### Fixed
-- GitHub Release notes now use the matching `CHANGELOG.md` version section instead of GitHub auto-generated notes.
-- Existing `v1.0.2` and `v1.0.3` release notes were corrected to match the documented release history.
+### 수정
+- GitHub Release 제목이 `v1.0.0 - 정식 출시 (First Major Release)`와 같은 changelog heading 형식을 따르도록 수정했습니다.
+- 릴리즈 workflow가 changelog heading에서 끝의 날짜만 제거해 GitHub Release 제목으로 사용하도록 변경했습니다.
+- `v1.0.2` 이후 기존 릴리즈 제목을 같은 형식으로 보정했습니다.
+- 릴리즈 노트 본문은 한글로 작성하는 규칙을 명문화했습니다.
 
-### Verification
+### 검증
 - `./gradlew.bat test`
 - `./gradlew.bat assembleDebug`
 - `./gradlew.bat assembleRelease`
 
-## v1.0.3 - 2026-04-30
+## v1.0.4 - 릴리즈 노트 규칙 보정 (Release Notes Rule Fix) - 2026-04-30
 
-### Fixed
-- GitHub Release now attaches only the signed release APK.
-- Release APK asset name is normalized to `markleaf-vX.Y.Z.apk`.
-- Removed duplicate debug APK upload workflow from tag releases.
+### 수정
+- GitHub 자동 생성 노트 대신 `CHANGELOG.md`의 해당 버전 섹션을 GitHub Release 본문으로 사용하도록 수정했습니다.
+- 기존 `v1.0.2`, `v1.0.3` 릴리즈 노트를 문서화된 릴리즈 이력에 맞게 보정했습니다.
 
-### Verification
+### 검증
 - `./gradlew.bat test`
 - `./gradlew.bat assembleDebug`
 - `./gradlew.bat assembleRelease`
 
-## v1.0.2 - 2026-04-30
+## v1.0.3 - 릴리즈 자산 규칙 보정 (Release Asset Rule Fix) - 2026-04-30
 
-### Changed
-- Added release signing automation for GitHub tag releases.
-- Added optional local release signing configuration through ignored signing properties.
-- Added release signing documentation.
+### 수정
+- GitHub Release에는 signed release APK만 첨부되도록 수정했습니다.
+- 릴리즈 APK 파일명을 `markleaf-vX.Y.Z.apk` 형식으로 정규화했습니다.
+- 태그 릴리즈에서 debug APK를 중복 업로드하던 별도 workflow를 제거했습니다.
 
-## v1.0.0 - 2026-04-30
+### 검증
+- `./gradlew.bat test`
+- `./gradlew.bat assembleDebug`
+- `./gradlew.bat assembleRelease`
+
+## v1.0.2 - 릴리즈 서명 자동화 (Release Signing Automation) - 2026-04-30
+
+### 변경
+- GitHub 태그 릴리즈에서 release APK를 자동 서명하도록 구성했습니다.
+- 커밋되지 않는 signing properties를 통해 로컬 release 서명을 선택적으로 사용할 수 있게 했습니다.
+- 릴리즈 서명 및 GitHub Secrets 설정 문서를 추가했습니다.
+
+## v1.0.0 - 정식 출시 (First Major Release) - 2026-04-30
 
 ### Added
 - **정식 출시 (First Major Release)**

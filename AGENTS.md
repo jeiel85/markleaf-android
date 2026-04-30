@@ -76,6 +76,12 @@ com.markleaf.notes
 ./gradlew assembleDebug
 ```
 
+CI 또는 릴리즈 검증 시에는 APK 산출물 확인을 반드시 포함한다.
+
+- `app/build/outputs/apk/debug/app-debug.apk` 파일 존재 여부 확인
+- GitHub Actions artifact에서 APK 다운로드 가능 여부 확인
+- 다운로드한 APK 파일 크기가 0보다 큰지 확인
+
 Android 프로젝트가 아직 초기화되지 않았다면 먼저 표준 Kotlin + Jetpack Compose Android 프로젝트를 생성한다.
 
 ## Stop Conditions

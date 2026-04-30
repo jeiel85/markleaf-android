@@ -92,3 +92,13 @@ Implications:
 - `CHANGELOG.md`를 사용자 영향 변경의 공식 요약 문서로 사용
 - `HISTORY.md`를 작업/검증 이력 문서로 사용
 - 기존 Markleaf 전용 정책(`AGENTS.md`, `docs/AGENT_SPEC.md`)을 우선 적용
+
+### D007 - CI APK Verification Policy
+
+CI 성공 판정에 APK 산출물 존재 및 다운로드 가능 여부를 포함한다.
+
+Implications:
+
+- `assembleDebug` 이후 `app-debug.apk` 파일 존재를 워크플로우에서 강제 검증
+- Actions artifact 업로드 실패 시 CI 실패 처리
+- 릴리즈 전 artifact 다운로드 가능 여부를 확인 가능하게 유지

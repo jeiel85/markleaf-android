@@ -95,3 +95,24 @@ Commands run:
 
 Build/test result:
 - Not run (documentation-only changes)
+
+---
+
+## 2026-04-30 - CI APK Artifact Verification Added
+Selected task:
+- Add APK artifact verification and download-check guidance to build process
+
+What was implemented:
+- Updated GitHub Actions workflow to verify debug APK existence
+- Added APK artifact upload step (`markleaf-debug-apk`)
+- Updated `AGENTS.md` quality checks with APK verification requirements
+
+Files changed:
+- .github/workflows/android-build.yml
+- AGENTS.md
+
+Commands run:
+- gh run watch (previous run)
+
+Build/test result:
+- Pending on next CI run after push

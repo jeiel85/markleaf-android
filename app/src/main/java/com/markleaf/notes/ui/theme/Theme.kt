@@ -1,11 +1,17 @@
 package com.markleaf.notes.ui.theme
 
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 
 private val LightColorScheme = lightColorScheme(
     primary = androidx.compose.ui.graphics.Color(0xFF2E7D32), // 브랜딩 컬러 반영 (Green)
@@ -41,10 +47,44 @@ private val DarkColorScheme = darkColorScheme(
     onSurfaceVariant = androidx.compose.ui.graphics.Color(0xFFC2C9BD),
 )
 
-import android.os.Build
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.ui.platform.LocalContext
+val Typography = androidx.compose.material3.Typography(
+    headlineLarge = TextStyle(
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 32.sp,
+        lineHeight = 40.sp,
+        letterSpacing = 0.sp
+    ),
+    headlineMedium = TextStyle(
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 28.sp,
+        lineHeight = 36.sp,
+        letterSpacing = 0.sp
+    ),
+    titleLarge = TextStyle(
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 22.sp,
+        lineHeight = 28.sp,
+        letterSpacing = 0.sp
+    ),
+    bodyLarge = TextStyle(
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.5.sp
+    ),
+    bodyMedium = TextStyle(
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.25.sp
+    ),
+    labelMedium = TextStyle(
+        fontWeight = FontWeight.Medium,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp
+    )
+)
 
 @Composable
 fun MarkleafTheme(
@@ -63,46 +103,7 @@ fun MarkleafTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography, // Use custom Typography
+        typography = Typography,
         content = content
     )
 }
-
-val Typography = androidx.compose.material3.Typography(
-    headlineLarge = androidx.compose.ui.text.TextStyle(
-        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-        fontSize = 32.sp,
-        lineHeight = 40.sp,
-        letterSpacing = 0.sp
-    ),
-    headlineMedium = androidx.compose.ui.text.TextStyle(
-        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-        fontSize = 28.sp,
-        lineHeight = 36.sp,
-        letterSpacing = 0.sp
-    ),
-    titleLarge = androidx.compose.ui.text.TextStyle(
-        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
-    ),
-    bodyLarge = androidx.compose.ui.text.TextStyle(
-        fontWeight = androidx.compose.ui.text.font.FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    ),
-    bodyMedium = androidx.compose.ui.text.TextStyle(
-        fontWeight = androidx.compose.ui.text.font.FontWeight.Normal,
-        fontSize = 14.sp,
-        lineHeight = 20.sp,
-        letterSpacing = 0.25.sp
-    ),
-    labelMedium = androidx.compose.ui.text.TextStyle(
-        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
-        fontSize = 12.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
-    )
-)

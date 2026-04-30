@@ -196,3 +196,17 @@ What was implemented:
 
 Build/test result:
 - Not run (evaluation/documentation task)
+
+---
+
+## 2026-04-30 - Issue #3 Image Attachments Evaluation Complete
+Selected task:
+- [#3] Evaluate image attachments
+
+What was implemented:
+- Added `docs/IMAGE_ATTACHMENTS_EVALUATION.md`
+- Defined local-first constrained attachment scope
+- Marked #3 complete in `.agent/tasks.md`
+
+Build/test result:
+- Not run (evaluation/documentation task)

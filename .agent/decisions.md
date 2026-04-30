@@ -141,3 +141,13 @@ Implications:
 - 기존 LIKE 경로를 즉시 제거하지 않고 fallback 유지
 - 스키마 변경은 additive migration으로 진행
 - 실제 데이터셋 성능 측정 후 기본 경로 전환
+
+### D012 - Local-First Image Attachment Scope
+
+이미지 첨부는 로컬 저장 기반의 최소 범위로 도입한다.
+
+Implications:
+
+- 원격 업로드/동기화 없이 메타데이터+로컬 URI 참조 모델 사용
+- 내보내기 시 markdown과 자산 파일 구조를 함께 정의
+- 고급 미디어 편집은 후속 단계로 연기

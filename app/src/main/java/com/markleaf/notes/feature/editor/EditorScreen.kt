@@ -118,16 +118,19 @@ fun EditorScreen(
                         PreviewLineType.H1 -> Text(
                             text = line.text,
                             style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
                         PreviewLineType.H2 -> Text(
                             text = line.text,
                             style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.padding(top = 8.dp, bottom = 6.dp)
                         )
                         PreviewLineType.H3 -> Text(
                             text = line.text,
                             style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.padding(top = 6.dp, bottom = 4.dp)
                         )
                         PreviewLineType.BULLET -> Text(

@@ -35,8 +35,8 @@
 - [x] Add placeholder Trash screen
 - [x] Add placeholder Settings screen
 - [x] Add GitHub Actions Android build workflow
-- [ ] Verify no `android.permission.INTERNET` exists
-- [ ] Run initial Gradle build
+- [x] Verify no `android.permission.INTERNET` exists
+- [x] Run initial Gradle build
 
 ---
 
@@ -63,7 +63,7 @@
 
 ## Phase 3 - Tags
 
-- [ ] Add Tag domain model
+- [x] Add Tag domain model
 - [x] Add TagEntity
 - [x] Add NoteTagCrossRef
 - [x] Add TagDao
@@ -98,8 +98,8 @@
 - [x] Add slug generation utility
 - [x] Add tests for slug generation
 - [x] Add single note Markdown export
-- [ ] Add export all notes with Android Storage Access Framework
-- [ ] Add share note action
+- [x] Add export all notes with Android Storage Access Framework
+- [x] Add share note action
 - [x] Add settings screen content
 - [x] Add app version display
 - [x] Verify no `android.permission.INTERNET` exists

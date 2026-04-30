@@ -67,6 +67,9 @@ dependencies {
     implementation("androidx.room:room-ktx:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")
     
+    // DocumentFile (Storage Access Framework)
+    implementation("androidx.documentfile:documentfile:1.0.1")
+    
     // Test
     testImplementation("junit:junit:4.13.2")
     testImplementation("androidx.arch.core:core-testing:2.2.0")

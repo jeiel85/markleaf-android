@@ -32,7 +32,7 @@ fun TagsScreen() {
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    text = "Tag management coming soon",
+                    text = "Tag list coming soon",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant

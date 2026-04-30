@@ -120,5 +120,5 @@
 - [x] [#2] Evaluate SQLite FTS
 - [x] [#3] Evaluate image attachments
 - [x] [#4] Evaluate `[[note links]]`
-- [ ] [#6] Evaluate optional backup strategy
+- [x] [#6] Evaluate optional backup strategy
 - [ ] [#7] Evaluate whether any network feature is necessary

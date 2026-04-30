@@ -224,3 +224,17 @@ What was implemented:
 
 Build/test result:
 - Not run (evaluation/documentation task)
+
+---
+
+## 2026-04-30 - Issue #6 Backup Strategy Evaluation Complete
+Selected task:
+- [#6] Evaluate optional backup strategy
+
+What was implemented:
+- Added `docs/BACKUP_STRATEGY_EVALUATION.md`
+- Defined manual local backup + restore preview model
+- Marked #6 complete in `.agent/tasks.md`
+
+Build/test result:
+- Not run (evaluation/documentation task)

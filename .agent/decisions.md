@@ -161,3 +161,13 @@ Implications:
 - 제목 변경 시 링크 무결성 유지 가능
 - 저장 시 링크 인덱스 재생성 필요
 - 미해결/중복 제목 케이스에 대한 UX 제공 필요
+
+### D014 - Manual Local Backup Strategy
+
+백업은 사용자 주도형 로컬 백업/복원으로 시작한다.
+
+Implications:
+
+- 자동 원격 전송 없이 zip 패키지 기반 백업 제공
+- 복원 전 dry-run/conflict preview 필요
+- 포맷 버전 관리로 향후 호환성 유지

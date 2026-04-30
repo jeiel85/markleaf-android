@@ -1,14 +1,18 @@
 # HISTORY
 
 ## 2026-04-30
-- Work: Synced latest source from `origin/main` and integrated reusable markdown guideline templates into project docs.
+- Work: 앱 정체성을 담은 새로운 아이콘(Adaptive Icon) 제작 및 GitHub Pages용 브랜딩 페이지 생성.
 - Changed files:
-  - `CHANGELOG.md` (created)
-  - `HISTORY.md` (created)
-  - `README.md` (updated)
-  - `AGENTS.md` (updated)
+  - `app/src/main/res/drawable/ic_launcher_background.xml` (created)
+  - `app/src/main/res/drawable/ic_launcher_foreground.xml` (created)
+  - `app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml` (created)
+  - `app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml` (created)
+  - `app/src/main/AndroidManifest.xml` (updated)
+  - `docs/index.html` (created)
+  - `docs/style.css` (created)
+  - `docs/assets/logo.svg` (created)
 - Verification:
-  - `git status`
+  - XML 리소스 구조 확인
+  - Manifest 설정 확인
 - Result: Success
-- Follow-up:
-  - Keep `CHANGELOG.md` and `HISTORY.md` updated on every meaningful change.
+

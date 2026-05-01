@@ -57,12 +57,15 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.markleaf.notes.R
 import com.markleaf.notes.core.markdown.MarkdownEditActions
+import com.markleaf.notes.core.markdown.MarkdownSyntaxColors
+import com.markleaf.notes.core.markdown.MarkdownSyntaxVisualTransformation
 import com.markleaf.notes.core.markdown.PreviewInlineType
 import com.markleaf.notes.core.markdown.PreviewLineType
 import com.markleaf.notes.core.markdown.PreviewLine
@@ -72,6 +75,9 @@ import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.local.entity.AttachmentEntity
 import com.markleaf.notes.data.repository.LocalNoteRepository
 import com.markleaf.notes.data.repository.LocalTagRepository
+import com.markleaf.notes.data.settings.AppSettings
+import com.markleaf.notes.data.settings.AppSettingsRepository
+import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -88,6 +94,8 @@ fun EditorScreen(
     val db = remember { AppDatabase.getInstance(context) }
     val repo = remember { LocalNoteRepository(db) }
     val tagRepo = remember { LocalTagRepository(db) }
+    val settingsRepository = remember { AppSettingsRepository(context.applicationContext) }
+    val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
     val coroutineScope = rememberCoroutineScope()
     
     var editorState by remember(noteId) { mutableStateOf(TextFieldValue("")) }
@@ -274,6 +282,20 @@ fun EditorScreen(
             }
         } else {
             Column(Modifier.fillMaxSize().padding(paddingValues).padding(16.dp)) {
+                val colorScheme = MaterialTheme.colorScheme
+                val markdownVisualTransformation = if (appSettings.markdownSyntaxVisibility == MarkdownSyntaxVisibility.SHOW) {
+                    MarkdownSyntaxVisualTransformation(
+                        MarkdownSyntaxColors(
+                            heading = colorScheme.primary,
+                            emphasis = colorScheme.tertiary,
+                            link = colorScheme.primary,
+                            syntax = colorScheme.onSurfaceVariant,
+                            checkbox = colorScheme.secondary
+                        )
+                    )
+                } else {
+                    VisualTransformation.None
+                }
                 Box(Modifier.weight(1f), contentAlignment = Alignment.TopStart) {
                     BasicTextField(
                         value = editorState,
@@ -285,6 +307,7 @@ fun EditorScreen(
                             .fillMaxWidth()
                             .semantics { contentDescription = "Note content" },
                         textStyle = TextStyle(color = MaterialTheme.colorScheme.onBackground),
+                        visualTransformation = markdownVisualTransformation,
                         decorationBox = { innerTextField ->
                             if (editorState.text.isEmpty()) Text("Start writing...", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             innerTextField()

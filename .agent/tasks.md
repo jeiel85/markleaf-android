@@ -73,6 +73,7 @@
 - [x] Improve editor Markdown toolbar (#18)
 - [x] Tablet note list collapse and constrained editor width (#19)
 - [x] Settings foundation for Markdown visibility and line width (#20)
+- [x] Live Markdown editor inline syntax highlighting (#21)
 - [ ] Improve note list and editor empty states
 - [ ] Add quick-open search for notes, tags, and links
 - [ ] Improve tag screen counts and navigation

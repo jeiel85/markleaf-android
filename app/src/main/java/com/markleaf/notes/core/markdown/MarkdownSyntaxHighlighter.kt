@@ -1,0 +1,128 @@
+package com.markleaf.notes.core.markdown
+
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+
+data class MarkdownSyntaxColors(
+    val heading: Color,
+    val emphasis: Color,
+    val link: Color,
+    val syntax: Color,
+    val checkbox: Color
+)
+
+object MarkdownSyntaxHighlighter {
+    fun highlight(text: String, colors: MarkdownSyntaxColors): AnnotatedString {
+        val builder = AnnotatedString.Builder(text)
+
+        addLineStyles(builder, text, colors)
+        addInlineStyles(builder, text, colors)
+
+        return builder.toAnnotatedString()
+    }
+
+    private fun addLineStyles(
+        builder: AnnotatedString.Builder,
+        text: String,
+        colors: MarkdownSyntaxColors
+    ) {
+        HEADING_REGEX.findAll(text).forEach { match ->
+            builder.addStyle(
+                SpanStyle(color = colors.heading, fontWeight = FontWeight.SemiBold),
+                match.range.first,
+                match.range.last + 1
+            )
+            builder.addStyle(
+                SpanStyle(color = colors.syntax),
+                match.range.first,
+                match.range.first + match.value.takeWhile { it == '#' }.length
+            )
+        }
+
+        CHECKBOX_REGEX.findAll(text).forEach { match ->
+            builder.addStyle(
+                SpanStyle(color = colors.checkbox),
+                match.range.first,
+                match.range.last + 1
+            )
+            val markerStart = match.value.indexOf("[")
+            if (markerStart >= 0) {
+                val start = match.range.first + markerStart
+                builder.addStyle(
+                    SpanStyle(color = colors.syntax, fontWeight = FontWeight.SemiBold),
+                    start,
+                    start + 3
+                )
+            }
+        }
+    }
+
+    private fun addInlineStyles(
+        builder: AnnotatedString.Builder,
+        text: String,
+        colors: MarkdownSyntaxColors
+    ) {
+        BOLD_REGEX.findAll(text).forEach { match ->
+            builder.addStyle(
+                SpanStyle(color = colors.emphasis, fontWeight = FontWeight.SemiBold),
+                match.range.first,
+                match.range.last + 1
+            )
+            styleMarker(builder, colors, match.range.first, 2)
+            styleMarker(builder, colors, match.range.last - 1, 2)
+        }
+
+        ITALIC_REGEX.findAll(text).forEach { match ->
+            builder.addStyle(
+                SpanStyle(color = colors.emphasis, fontStyle = FontStyle.Italic),
+                match.range.first,
+                match.range.last + 1
+            )
+            styleMarker(builder, colors, match.range.first, 1)
+            styleMarker(builder, colors, match.range.last, 1)
+        }
+
+        MARKDOWN_LINK_REGEX.findAll(text).forEach { match ->
+            builder.addStyle(
+                SpanStyle(color = colors.link, textDecoration = TextDecoration.Underline),
+                match.range.first,
+                match.range.last + 1
+            )
+            styleMarker(builder, colors, match.range.first, 1)
+            match.value.indexOf("](").takeIf { it >= 0 }?.let { localIndex ->
+                styleMarker(builder, colors, match.range.first + localIndex, 2)
+            }
+            styleMarker(builder, colors, match.range.last, 1)
+        }
+
+        WIKI_LINK_REGEX.findAll(text).forEach { match ->
+            builder.addStyle(
+                SpanStyle(color = colors.link, textDecoration = TextDecoration.Underline),
+                match.range.first,
+                match.range.last + 1
+            )
+            styleMarker(builder, colors, match.range.first, 2)
+            styleMarker(builder, colors, match.range.last - 1, 2)
+        }
+    }
+
+    private fun styleMarker(
+        builder: AnnotatedString.Builder,
+        colors: MarkdownSyntaxColors,
+        start: Int,
+        length: Int
+    ) {
+        builder.addStyle(SpanStyle(color = colors.syntax), start, start + length)
+    }
+
+    private val HEADING_REGEX = Regex("""(?m)^#{1,6}\s.+$""")
+    private val CHECKBOX_REGEX = Regex("""(?m)^-\s\[[ xX]]\s.+$""")
+    private val BOLD_REGEX = Regex("""\*\*[^*\n]+?\*\*""")
+    private val ITALIC_REGEX = Regex("""(?<!\*)\*[^*\n]+?\*(?!\*)""")
+    private val MARKDOWN_LINK_REGEX = Regex("""\[[^\]\n]+]\([^) \n][^)\n]*\)""")
+    private val WIKI_LINK_REGEX = Regex("""\[\[[^\]\n]+]]""")
+}

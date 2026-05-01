@@ -1,4 +1,34 @@
 ---
+## 2026-05-01 - Issue #21 Live Markdown Highlighting
+Selected task:
+- [#21] 라이브 Markdown 에디터 1단계: inline syntax highlighting
+
+What was implemented:
+- Added Markdown syntax highlighter for headings, bold, italic, wiki links, Markdown links, and checkboxes
+- Added identity-offset visual transformation for editor highlighting
+- Connected Markdown syntax visibility setting to Edit mode highlighting
+- Updated app version to `1.0.13` / `versionCode = 14`
+
+Files changed:
+- app/src/main/java/com/markleaf/notes/core/markdown/MarkdownSyntaxHighlighter.kt
+- app/src/main/java/com/markleaf/notes/core/markdown/MarkdownSyntaxVisualTransformation.kt
+- app/src/main/java/com/markleaf/notes/feature/editor/EditorScreen.kt
+- app/src/test/java/com/markleaf/notes/core/markdown/MarkdownSyntaxHighlighterTest.kt
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/tasks.md
+- .agent/progress.md
+
+Build/test result:
+- `./gradlew.bat test` passed
+- `./gradlew.bat lintDebug` passed
+- `./gradlew.bat assembleDebug assembleRelease` passed
+- Lenovo TB320FC Android 15 `v1.0.13` release APK install and launch check passed
+- No `android.permission.INTERNET` declaration found in app source
+
+---
+
 ## 2026-05-01 - Issue #20 Settings Foundation
 Selected task:
 - [#20] 설정 옵션 기반 추가: Markdown 표시와 line width

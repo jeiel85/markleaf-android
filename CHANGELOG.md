@@ -2,6 +2,22 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.0.13 - 라이브 Markdown 하이라이팅 (Live Markdown Highlighting) - 2026-05-01
+
+### 추가
+- Edit 화면에서 Markdown 원문을 유지한 채 heading, bold, italic, link, checkbox 문법을 실시간으로 하이라이팅합니다.
+- Preview 토글은 그대로 유지하고, 편집 중인 원문 저장 구조는 변경하지 않았습니다.
+
+### 개선
+- 설정의 Markdown syntax 표시 옵션이 Edit 화면 하이라이팅에 반영되도록 연결했습니다.
+- 하이라이팅은 문자 변환 없이 동일 offset을 유지해 커서와 선택 흐름이 깨지지 않도록 했습니다.
+
+### 검증
+- `./gradlew.bat test`
+- `./gradlew.bat lintDebug`
+- `./gradlew.bat assembleDebug assembleRelease`
+- Lenovo TB320FC Android 15 실기기에서 `v1.0.13` release APK 설치 및 실행 확인
+
 ## v1.0.12 - 설정 옵션 기반 추가 (Settings Foundation) - 2026-05-01
 
 ### 추가

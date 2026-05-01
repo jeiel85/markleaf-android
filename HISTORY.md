@@ -1,6 +1,22 @@
 # HISTORY
 
 ## 2026-05-01
+- Work: 라이브 Markdown 에디터 1단계 inline syntax highlighting. GitHub Issue #21 등록 후 구현.
+- Changed files:
+  - `app/src/main/java/com/markleaf/notes/core/markdown/MarkdownSyntaxHighlighter.kt` (raw Markdown text highlighting)
+  - `app/src/main/java/com/markleaf/notes/core/markdown/MarkdownSyntaxVisualTransformation.kt` (identity-offset editor transformation)
+  - `app/src/main/java/com/markleaf/notes/feature/editor/EditorScreen.kt` (Edit mode live highlighting)
+  - `app/src/test/java/com/markleaf/notes/core/markdown/MarkdownSyntaxHighlighterTest.kt` (highlighter tests)
+  - `app/build.gradle.kts` and `CHANGELOG.md` (v1.0.13)
+- Verification:
+  - `./gradlew.bat test`
+  - `./gradlew.bat lintDebug`
+  - `./gradlew.bat assembleDebug assembleRelease`
+  - Lenovo TB320FC Android 15 `v1.0.13` release APK install and launch check
+  - `rg "android.permission.INTERNET" -n app\src`
+- Result: Edit 화면에서 Markdown 원문을 보존하면서 heading, emphasis, link, checkbox 문법을 실시간으로 하이라이팅
+
+## 2026-05-01
 - Work: 설정 옵션 기반 추가. GitHub Issue #20 등록 후 구현.
 - Changed files:
   - `app/src/main/java/com/markleaf/notes/data/settings/AppSettings.kt` (settings model)

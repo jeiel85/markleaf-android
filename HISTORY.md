@@ -1,6 +1,24 @@
 # HISTORY
 
 ## 2026-05-01
+- Work: Bear 벤치마크 기반 제품 갭을 정리하고 첫 실행 샘플 노트 온보딩을 추가. GitHub Issue #15 등록 후 구현.
+- Changed files:
+  - `app/src/main/java/com/markleaf/notes/data/onboarding/StarterNotesSeeder.kt` (first-run starter notes)
+  - `app/src/main/java/com/markleaf/notes/MainActivity.kt` (startup seeding)
+  - `app/src/main/java/com/markleaf/notes/data/local/dao/NoteDao.kt` (note count query)
+  - `app/src/test/java/com/markleaf/notes/data/onboarding/StarterNotesSeederTest.kt` (seed tests)
+  - `docs/BEAR_BENCHMARK_GAP.md` (Bear-class product gap review)
+  - `docs/ROADMAP.md` and `.agent/tasks.md` (Phase 9 plan)
+  - `app/build.gradle.kts` and `CHANGELOG.md` (v1.0.8)
+- Verification:
+  - `./gradlew.bat test`
+  - `./gradlew.bat lintDebug`
+  - `./gradlew.bat assembleDebug assembleRelease`
+  - Lenovo TB320FC Android 15 `v1.0.8` release APK install and launch check
+  - `./gradlew.bat connectedDebugAndroidTest` was not completed because the signed release APK on the tablet rejected debug APK update due to signature mismatch
+- Result: 신규 설치 사용자가 빈 화면 대신 Markdown/태그/링크/백업 예시 노트로 앱을 시작할 수 있게 함
+
+## 2026-05-01
 - Work: 안정성 및 MVP 스펙 보강. GitHub Issue #14 등록 후 저장/태그/내비게이션/테스트 라인을 수정.
 - Changed files:
   - `app/src/main/java/com/markleaf/notes/feature/editor/EditorScreen.kt` (title/excerpt/tag/backlink save path)

@@ -65,3 +65,15 @@
 - [ ] Performance optimization for 10k+ notes
 - [ ] Multi-language support (i18n)
 
+---
+
+## Phase 9 - Bear-Class Product Polish (Backlog)
+- [x] [#15] Add first-run starter notes onboarding
+- [ ] Improve editor Markdown toolbar
+- [ ] Improve note list and editor empty states
+- [ ] Add quick-open search for notes, tags, and links
+- [ ] Improve tag screen counts and navigation
+- [ ] Improve backlinks with context snippets
+- [ ] Improve export and backup status messages
+- [ ] Add large dataset performance checks
+

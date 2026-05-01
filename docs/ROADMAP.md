@@ -178,3 +178,26 @@ Markleaf는 기능 수보다 빠른 글쓰기 경험, 디자인, 로컬 저장, 
 - Play Store flavor
 
 네트워크 기능은 반드시 별도 설계 검토 후 결정한다.
+
+---
+
+## Phase 9 - Bear-Class Product Polish
+
+목표:
+
+- Android에서 Bear급으로 느껴지는 로컬 Markdown 글쓰기 경험을 만든다.
+- 기능적 유사성은 허용하되, 이름, 아이콘, 색상, 화면 구성, 문구, 브랜딩은 복제하지 않는다.
+- MVP의 no-INTERNET, no-API, no-login, no-analytics 원칙은 유지한다.
+
+작업:
+
+- 첫 실행 샘플 노트 온보딩
+- Markdown 편집 툴바 개선
+- 노트 목록과 편집기 빈 상태 개선
+- 노트, 태그, 링크를 빠르게 찾는 quick-open 검색
+- 태그 화면의 카운트와 탐색 개선
+- 백링크 문맥 표시 개선
+- 백업/내보내기 상태 메시지 개선
+- 대량 노트 성능 점검
+
+상세 평가는 `docs/BEAR_BENCHMARK_GAP.md`에 기록한다.

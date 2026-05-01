@@ -1,4 +1,36 @@
 ---
+## 2026-05-01 - Issue #15 Starter Notes Onboarding Implemented
+Selected task:
+- [#15] Add first-run starter notes onboarding
+
+What was implemented:
+- Added first-run starter notes seeding for empty installs
+- Added four Korean starter notes covering Markdown, tags, wiki links, backup/export, and local-first privacy
+- Added a local SharedPreferences guard so deleted starter notes are not recreated on every launch
+- Added Bear-class product gap review and Phase 9 product polish roadmap
+- Created GitHub Issue #16 for the remaining Phase 9 roadmap
+
+Files changed:
+- app/src/main/java/com/markleaf/notes/data/onboarding/StarterNotesSeeder.kt
+- app/src/main/java/com/markleaf/notes/MainActivity.kt
+- app/src/main/java/com/markleaf/notes/data/local/dao/NoteDao.kt
+- app/src/test/java/com/markleaf/notes/data/onboarding/StarterNotesSeederTest.kt
+- docs/BEAR_BENCHMARK_GAP.md
+- docs/ROADMAP.md
+- .agent/tasks.md
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+
+Build/test result:
+- `./gradlew.bat test` passed
+- `./gradlew.bat lintDebug` passed
+- `./gradlew.bat assembleDebug assembleRelease` passed
+- Lenovo TB320FC Android 15 release APK install and launch check passed
+- `./gradlew.bat connectedDebugAndroidTest` not completed because the installed signed release APK rejected debug APK update due to signature mismatch
+
+---
+
 ## 2026-05-01 - Issue #14 Stability and MVP Spec Hardening
 Selected task:
 - Stabilize implemented MVP behavior and fix spec gaps found in review

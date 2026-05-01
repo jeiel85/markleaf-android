@@ -7,6 +7,28 @@
 
 ## Confirmed Decisions
 
+### D020 - Bear-Class Experience Without Brand Copying
+
+Markleaf can intentionally pursue feature-level parity with high-quality Markdown note apps when the feature is a common product expectation.
+
+Implications:
+
+- Markdown editing, tags, wiki links, backlinks, search, export, backup, and polished phone/tablet flows are valid product goals.
+- Bear's name, icon, brand identity, color system, exact layout, marketing copy, and distinctive visual expression must not be copied.
+- The product bar is "Bear-class Android local Markdown experience," while the implementation and visual identity remain independent.
+- MVP privacy constraints remain active: no INTERNET permission, no API, no login, no analytics, no ads, no proprietary crash reporting.
+
+### D021 - First-Run Starter Notes
+
+New empty installs should start with local starter notes instead of a blank note list.
+
+Implications:
+
+- Starter notes demonstrate Markdown, tags, wiki links, backup/export, and local-first privacy.
+- Starter notes are seeded only when the local database is empty and the starter-notes flag has not been set.
+- If a user deletes starter notes, app restart must not recreate them.
+- Starter notes are regular local notes and can be edited, exported, backed up, or deleted by the user.
+
 ### D001 - Repository
 
 Final repository:

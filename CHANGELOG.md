@@ -2,6 +2,23 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.0.8 - 첫 실행 샘플 노트 온보딩 (Starter Notes Onboarding) - 2026-05-01
+
+### 추가
+- 새 설치에서 Markleaf의 핵심 기능을 바로 이해할 수 있도록 샘플 노트 4개를 자동 생성합니다.
+- 샘플 노트는 Markdown 작성, 태그, 위키 링크, 백업/내보내기, 로컬 우선 개인정보 원칙을 안내합니다.
+- 사용자가 샘플 노트를 삭제한 뒤 앱을 다시 실행해도 자동으로 다시 생성되지 않도록 재시드 방지 플래그를 추가했습니다.
+
+### 문서
+- Bear급 Android Markdown 경험을 목표로 하는 갭 리뷰와 Phase 9 제품 개선 계획을 추가했습니다.
+- 기능적 유사성은 허용하되, 이름/아이콘/색상/화면 구성/문구/브랜딩은 복제하지 않는 기준을 명확히 했습니다.
+
+### 검증
+- `./gradlew.bat test`
+- `./gradlew.bat lintDebug`
+- `./gradlew.bat assembleDebug assembleRelease`
+- Lenovo TB320FC Android 15 실기기에서 `v1.0.8` release APK 설치 및 실행 확인
+
 ## v1.0.7 - 안정성 및 MVP 스펙 보강 (Stability and MVP Spec Hardening) - 2026-05-01
 
 ### 수정

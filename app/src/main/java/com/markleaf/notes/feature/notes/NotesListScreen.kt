@@ -13,10 +13,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Label
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -42,7 +48,11 @@ import com.markleaf.notes.ui.viewmodel.NotesViewModel
 fun NotesListScreen(
     viewModel: NotesViewModel,
     onNoteClick: (String?) -> Unit,
-    onFabClick: () -> Unit
+    onFabClick: () -> Unit,
+    onSearchClick: () -> Unit = {},
+    onTagsClick: () -> Unit = {},
+    onTrashClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {}
 ) {
     val notesState = remember { mutableStateOf<List<Note>>(emptyList()) }
     LaunchedEffect(Unit) {
@@ -61,6 +71,20 @@ fun NotesListScreen(
                         style = MaterialTheme.typography.headlineMedium
                     )
                 },
+                actions = {
+                    IconButton(onClick = onSearchClick) {
+                        Icon(Icons.Default.Search, contentDescription = "Search")
+                    }
+                    IconButton(onClick = onTagsClick) {
+                        Icon(Icons.Default.Label, contentDescription = "Tags")
+                    }
+                    IconButton(onClick = onTrashClick) {
+                        Icon(Icons.Default.Delete, contentDescription = "Trash")
+                    }
+                    IconButton(onClick = onSettingsClick) {
+                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
                     titleContentColor = MaterialTheme.colorScheme.onBackground
@@ -73,7 +97,7 @@ fun NotesListScreen(
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_add),
-                    contentDescription = "Create new note"
+                    contentDescription = "Add Note"
                 )
             }
         },

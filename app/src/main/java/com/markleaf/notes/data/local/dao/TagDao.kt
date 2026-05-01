@@ -42,8 +42,8 @@ interface TagDao {
         INNER JOIN note_tag_cross_ref ON tags.id = note_tag_cross_ref.tagId 
         WHERE note_tag_cross_ref.noteId = :noteId
     """)
-    fun getTagsForNote(noteId: Long): Flow<List<TagEntity>>
+    fun getTagsForNote(noteId: String): Flow<List<TagEntity>>
 
     @Query("DELETE FROM note_tag_cross_ref WHERE noteId = :noteId")
-    suspend fun clearTagsForNote(noteId: Long)
+    suspend fun clearTagsForNote(noteId: String)
 }

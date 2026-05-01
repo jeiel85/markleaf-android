@@ -10,11 +10,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -25,10 +27,18 @@ import com.markleaf.notes.ui.viewmodel.SearchViewModel
 
 @Composable
 fun SearchScreen(
-    viewModel: SearchViewModel
+    viewModel: SearchViewModel,
+    initialQuery: String = "",
+    onNoteClick: (String) -> Unit = {}
 ) {
     val searchQuery by viewModel.searchQuery.collectAsState()
     val searchResults by viewModel.searchResults.collectAsState()
+
+    LaunchedEffect(initialQuery) {
+        if (initialQuery.isNotBlank() && searchQuery != initialQuery) {
+            viewModel.setSearchQuery(initialQuery)
+        }
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -74,7 +84,10 @@ fun SearchScreen(
                 ) {
                     items(searchResults) { note ->
                         Column(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .clickable { onNoteClick(note.id) }
                         ) {
                             Text(
                                 text = if (note.title.isBlank()) "(Untitled)" else note.title,

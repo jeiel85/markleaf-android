@@ -227,3 +227,13 @@ Implications:
 - GitHub Release 제목은 trailing date를 제거한 `vX.Y.Z - 한국어 제목 (English Title)` 형식을 사용한다.
 - Workflow에서 `Markleaf vX.Y.Z` 같은 고정 title을 사용하지 않는다.
 - `v1.0.0 - 정식 출시 (First Major Release)` 형식을 이후 릴리즈에도 유지한다.
+
+### D019 - No Destructive Migration After Release
+
+릴리즈 이후 앱 DB는 `fallbackToDestructiveMigration()`을 사용하지 않는다.
+
+Implications:
+
+- 스키마 변경은 명시적 Room migration으로 처리한다.
+- 메모 앱의 핵심 데이터인 노트, 태그, 링크는 앱 업데이트 때문에 삭제되면 안 된다.
+- 오래된 개발 빌드와 호환이 불가능한 경우에도 정식 릴리즈 경로는 데이터 보존을 우선한다.

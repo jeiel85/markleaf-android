@@ -1,5 +1,6 @@
 package com.markleaf.notes.navigation
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,8 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.markleaf.notes.feature.editor.EditorScreen
 import com.markleaf.notes.feature.notes.NotesListScreen
 import com.markleaf.notes.feature.search.SearchScreen
@@ -59,7 +62,11 @@ fun MarkleafNavHost(
                                     val newNote = viewModel.createNote()
                                     selectedNoteId = newNote.id
                                 }
-                            }
+                            },
+                            onSearchClick = { navController.navigate(NavRoutes.SEARCH) },
+                            onTagsClick = { navController.navigate(NavRoutes.TAGS) },
+                            onTrashClick = { navController.navigate(NavRoutes.TRASH) },
+                            onSettingsClick = { navController.navigate(NavRoutes.SETTINGS) }
                         )
                     }
                     Box(modifier = Modifier.weight(1.5f)) {
@@ -68,7 +75,7 @@ fun MarkleafNavHost(
                                 noteId = selectedNoteId,
                                 onBack = { selectedNoteId = null },
                                 onLinkClick = { title ->
-                                    navController.navigate("${NavRoutes.SEARCH}?query=$title")
+                                    navController.navigate("${NavRoutes.SEARCH}?query=${Uri.encode(title)}")
                                 },
                                 onNoteClick = { noteId ->
                                     selectedNoteId = noteId
@@ -87,13 +94,19 @@ fun MarkleafNavHost(
             } else {
                 NotesListScreen(
                     viewModel = viewModel,
-                    onNoteClick = { noteId -> navController.navigate("${NavRoutes.EDITOR}?noteId=$noteId") },
+                    onNoteClick = { noteId ->
+                        if (noteId != null) navController.navigate(NavRoutes.editorRoute(noteId))
+                    },
                     onFabClick = {
                         coroutineScope.launch {
                             val newNote = viewModel.createNote()
-                            navController.navigate("${NavRoutes.EDITOR}?noteId=${newNote.id}")
+                            navController.navigate(NavRoutes.editorRoute(newNote.id))
                         }
-                    }
+                    },
+                    onSearchClick = { navController.navigate(NavRoutes.SEARCH) },
+                    onTagsClick = { navController.navigate(NavRoutes.TAGS) },
+                    onTrashClick = { navController.navigate(NavRoutes.TRASH) },
+                    onSettingsClick = { navController.navigate(NavRoutes.SETTINGS) }
                 )
             }
         }
@@ -103,19 +116,34 @@ fun MarkleafNavHost(
                 noteId = noteId, 
                 onBack = { navController.popBackStack() },
                 onLinkClick = { title ->
-                    navController.navigate("${NavRoutes.SEARCH}?query=$title")
+                    navController.navigate("${NavRoutes.SEARCH}?query=${Uri.encode(title)}")
                 },
                 onNoteClick = { targetId ->
-                    navController.navigate("${NavRoutes.EDITOR}?noteId=$targetId")
+                    navController.navigate(NavRoutes.editorRoute(targetId))
                 }
             )
         }
         composable(NavRoutes.TAGS) {
-            TagsScreen()
+            TagsScreen(
+                onTagClick = { tagQuery ->
+                    navController.navigate("${NavRoutes.SEARCH}?query=${Uri.encode(tagQuery)}")
+                }
+            )
         }
-        composable(NavRoutes.SEARCH) {
+        composable(
+            route = "${NavRoutes.SEARCH}?query={query}",
+            arguments = listOf(navArgument("query") {
+                type = NavType.StringType
+                defaultValue = ""
+            })
+        ) {
             val viewModel = viewModel<SearchViewModel>(factory = viewModelFactory)
-            SearchScreen(viewModel = viewModel)
+            val query = it.arguments?.getString("query").orEmpty()
+            SearchScreen(
+                viewModel = viewModel,
+                initialQuery = query,
+                onNoteClick = { noteId -> navController.navigate(NavRoutes.editorRoute(noteId)) }
+            )
         }
         composable(NavRoutes.TRASH) {
             val viewModel = viewModel<TrashViewModel>(factory = viewModelFactory)

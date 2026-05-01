@@ -3,10 +3,10 @@ package com.markleaf.notes.util
 import android.content.Context
 import android.net.Uri
 import com.markleaf.notes.data.local.AppDatabase
+import com.markleaf.notes.data.repository.LocalTagRepository
 import com.markleaf.notes.data.local.entity.AttachmentEntity
 import com.markleaf.notes.data.local.entity.NoteEntity
 import com.markleaf.notes.data.local.entity.NoteLinkEntity
-import com.markleaf.notes.data.local.entity.NoteTagCrossRef
 import com.markleaf.notes.data.local.entity.TagEntity
 import kotlinx.coroutines.flow.first
 import org.json.JSONArray
@@ -14,7 +14,6 @@ import org.json.JSONObject
 import java.io.BufferedOutputStream
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import java.time.Instant
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
@@ -102,6 +101,7 @@ object BackupUtil {
 
     suspend fun restoreBackup(context: Context, zipUri: Uri): Boolean {
         val db = AppDatabase.getInstance(context)
+        val tagRepository = LocalTagRepository(db)
         return try {
             context.contentResolver.openInputStream(zipUri)?.use { isStream ->
                 ZipInputStream(isStream).use { zis ->
@@ -128,6 +128,7 @@ object BackupUtil {
                                         deletedAt = if (obj.optLong("deletedAt") == 0L) null else obj.getLong("deletedAt")
                                     )
                                     db.noteDao().insertNote(note)
+                                    tagRepository.reindexTagsForNote(note.id, note.contentMarkdown)
                                 }
                             }
                             

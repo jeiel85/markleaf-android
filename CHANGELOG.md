@@ -2,6 +2,25 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.0.7 - 안정성 및 MVP 스펙 보강 (Stability and MVP Spec Hardening) - 2026-05-01
+
+### 수정
+- 노트 저장 시 제목, 요약, 태그 인덱스가 함께 갱신되도록 수정했습니다.
+- 태그와 노트의 관계 테이블이 실제 문자열 노트 ID를 사용하도록 정리했습니다.
+- 검색, 태그, 휴지통, 설정 화면으로 이동할 수 있는 상단 액션을 추가했습니다.
+- 휴대폰 레이아웃에서 에디터 route가 잘못 생성되던 문제를 수정했습니다.
+- DB 스키마 변경 시 사용자 데이터를 삭제할 수 있는 destructive migration을 제거하고 v4에서 v5로 명시 migration을 추가했습니다.
+- 위키 링크 저장 시 backlink 인덱스가 갱신되도록 보강했습니다.
+- 태블릿 에디터 상단의 Preview/Edit 액션이 잘리는 문제를 줄였습니다.
+- 설정 화면 버전 표시가 실제 앱 버전을 따르도록 수정했습니다.
+
+### 검증
+- `./gradlew.bat test`
+- `./gradlew.bat lintDebug`
+- `./gradlew.bat assembleDebug assembleRelease`
+- `./gradlew.bat connectedDebugAndroidTest`
+- Lenovo TB320FC Android 15 실기기에서 `v1.0.7` release APK 실행 확인
+
 ## v1.0.6 - 앱 시작 크래시 수정 (Startup Crash Fix) - 2026-05-01
 
 ### 수정

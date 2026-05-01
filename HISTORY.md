@@ -1,6 +1,25 @@
 # HISTORY
 
 ## 2026-05-01
+- Work: 안정성 및 MVP 스펙 보강. GitHub Issue #14 등록 후 저장/태그/내비게이션/테스트 라인을 수정.
+- Changed files:
+  - `app/src/main/java/com/markleaf/notes/feature/editor/EditorScreen.kt` (title/excerpt/tag/backlink save path)
+  - `app/src/main/java/com/markleaf/notes/data/local/AppDatabase.kt` (v5 migration, destructive migration removal)
+  - `app/src/main/java/com/markleaf/notes/data/local/entity/NoteTagCrossRef.kt` (string note IDs)
+  - `app/src/main/java/com/markleaf/notes/feature/notes/NotesListScreen.kt` (top-level navigation actions)
+  - `app/src/main/java/com/markleaf/notes/feature/tags/TagsScreen.kt` (local tag list)
+  - `app/src/main/java/com/markleaf/notes/navigation/MarkleafNavHost.kt` (route fixes)
+  - `app/build.gradle.kts` (v1.0.7, test runner, androidTest dependencies)
+  - repository and instrumentation tests
+- Verification:
+  - `./gradlew.bat test`
+  - `./gradlew.bat lintDebug`
+  - `./gradlew.bat assembleDebug assembleRelease`
+  - `./gradlew.bat connectedDebugAndroidTest`
+  - Lenovo TB320FC Android 15 `v1.0.7` release APK launch check
+- Result: 앱 시작, 기본 작성/검색 진입/태그 저장/기기 테스트 라인을 안정화
+
+## 2026-05-01
 - Work: 앱 실행 직후 종료되는 시작 크래시 수정. GitHub Issue #13 등록 후 수정 진행.
 - Changed files:
   - `app/src/main/java/com/markleaf/notes/MainActivity.kt` (root repository/factory wiring)

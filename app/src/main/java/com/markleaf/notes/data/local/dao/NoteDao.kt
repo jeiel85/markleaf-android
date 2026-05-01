@@ -17,6 +17,9 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE id = :id")
     suspend fun getNoteById(id: String): NoteEntity?
 
+    @Query("SELECT * FROM notes WHERE title = :title AND trashed = 0 LIMIT 1")
+    suspend fun getNoteByTitle(title: String): NoteEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNote(note: NoteEntity)
 

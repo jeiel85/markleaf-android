@@ -27,6 +27,6 @@ import androidx.room.Index
     ]
 )
 data class NoteTagCrossRef(
-    val noteId: Long,
+    val noteId: String,
     val tagId: Long
 )

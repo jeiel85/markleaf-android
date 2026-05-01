@@ -1,6 +1,7 @@
 package com.markleaf.notes.data.repository
 
 import com.markleaf.notes.data.local.AppDatabase
+import com.markleaf.notes.data.local.entity.NoteLinkEntity
 import com.markleaf.notes.data.local.entity.toEntity
 import com.markleaf.notes.data.local.entity.toDomain
 import com.markleaf.notes.domain.model.Note
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.map
 class LocalNoteRepository(
     private val database: AppDatabase
 ) : NoteRepository {
+    private val wikiLinkPattern = Regex("""\[\[([^\]]+)]]""")
 
     override fun observeNotes(): Flow<List<Note>> {
         return database.noteDao().observeNotes().map { entities ->
@@ -28,6 +30,7 @@ class LocalNoteRepository(
 
     override suspend fun updateNote(note: Note) {
         database.noteDao().updateNote(note.toEntity())
+        reindexNoteLinks(note)
     }
 
     override suspend fun moveToTrash(noteId: String) {
@@ -58,5 +61,23 @@ class LocalNoteRepository(
         return database.noteDao().getBacklinkingNotes(noteId).map { entities ->
             entities.map { it.toDomain() }
         }
+    }
+
+    private suspend fun reindexNoteLinks(note: Note) {
+        database.noteLinkDao().deleteLinksFromNote(note.id)
+        wikiLinkPattern.findAll(note.contentMarkdown)
+            .map { it.groupValues[1].trim() }
+            .filter { it.isNotBlank() }
+            .distinct()
+            .forEach { rawLabel ->
+                val targetNoteId = database.noteDao().getNoteByTitle(rawLabel)?.id
+                database.noteLinkDao().insertLink(
+                    NoteLinkEntity(
+                        sourceNoteId = note.id,
+                        targetNoteId = targetNoteId,
+                        rawLabel = rawLabel
+                    )
+                )
+            }
     }
 }

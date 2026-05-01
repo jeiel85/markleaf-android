@@ -19,7 +19,7 @@ class AppIntegrationTest {
 
         // 2. 에디터에서 텍스트 입력
         val testContent = "# Integration Test\nThis is a test note."
-        composeTestRule.onNodeWithText("Start writing...").performTextReplacement(testContent)
+        composeTestRule.onNodeWithContentDescription("Note content").performTextReplacement(testContent)
 
         // 3. 자동 저장을 기다린 후 뒤로가기
         // (저장 로직은 debounce 1초이므로 넉넉히 대기)

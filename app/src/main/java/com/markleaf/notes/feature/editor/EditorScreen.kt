@@ -26,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -34,6 +35,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,17 +43,21 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.markleaf.notes.R
 import com.markleaf.notes.core.markdown.PreviewLineType
 import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
+import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.local.entity.AttachmentEntity
 import com.markleaf.notes.data.repository.LocalNoteRepository
+import com.markleaf.notes.data.repository.LocalTagRepository
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,10 +71,13 @@ fun EditorScreen(
     val context = LocalContext.current
     val db = remember { AppDatabase.getInstance(context) }
     val repo = remember { LocalNoteRepository(db) }
+    val tagRepo = remember { LocalTagRepository(db) }
+    val coroutineScope = rememberCoroutineScope()
     
-    var content by remember { mutableStateOf("") }
-    var saveTrigger by remember { mutableStateOf(0) }
-    var isPreviewMode by remember { mutableStateOf(false) }
+    var content by remember(noteId) { mutableStateOf("") }
+    var saveTrigger by remember(noteId) { mutableStateOf(0) }
+    var isLoaded by remember(noteId) { mutableStateOf(noteId == null) }
+    var isPreviewMode by remember(noteId) { mutableStateOf(false) }
 
     val backlinks by if (noteId != null) {
         repo.getBacklinks(noteId).collectAsState(initial = emptyList())
@@ -100,33 +109,37 @@ fun EditorScreen(
                 createdAt = System.currentTimeMillis()
             )
             
-            runBlocking {
+            coroutineScope.launch {
                 db.attachmentDao().insertAttachment(attachment)
+                content += "\n![$fileName]($uri)\n"
+                saveTrigger++
             }
-            
-            content += "\n![$fileName]($uri)\n"
-            saveTrigger++
         }
     }
 
-    // Load note
-    if (noteId != null && content.isEmpty()) {
-        val note = runBlocking { repo.getNote(noteId) }
-        if (note != null) {
-            content = note.contentMarkdown
+    LaunchedEffect(noteId) {
+        if (noteId == null) {
+            isLoaded = true
+        } else {
+            content = repo.getNote(noteId)?.contentMarkdown.orEmpty()
+            isLoaded = true
         }
     }
 
     // Auto-save
-    LaunchedEffect(saveTrigger) {
-        if (noteId != null && content.isNotEmpty()) {
+    LaunchedEffect(noteId, saveTrigger, isLoaded) {
+        if (noteId != null && isLoaded && saveTrigger > 0) {
             delay(1000)
             val currentNote = repo.getNote(noteId)
             if (currentNote != null) {
-                repo.updateNote(currentNote.copy(
+                val updatedNote = currentNote.copy(
+                    title = TitleExtractor.extractTitle(content),
                     contentMarkdown = content,
+                    excerpt = TitleExtractor.generateExcerpt(content),
                     updatedAt = java.time.Instant.now()
-                ))
+                )
+                repo.updateNote(updatedNote)
+                tagRepo.reindexTagsForNote(noteId, content)
             }
         }
     }
@@ -153,7 +166,7 @@ fun EditorScreen(
                             Icon(Icons.Default.Image, "Add Image")
                         }
                     }
-                    IconButton(onClick = { isPreviewMode = !isPreviewMode }) {
+                    TextButton(onClick = { isPreviewMode = !isPreviewMode }) {
                         Text(if (isPreviewMode) "Edit" else "Preview", style = MaterialTheme.typography.labelLarge)
                     }
                 },
@@ -254,8 +267,13 @@ fun EditorScreen(
                 Box(Modifier.weight(1f), contentAlignment = Alignment.TopStart) {
                     BasicTextField(
                         value = content,
-                        onValueChange = { content = it; saveTrigger++ },
-                        modifier = Modifier.fillMaxWidth(),
+                        onValueChange = {
+                            content = it
+                            if (isLoaded) saveTrigger++
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .semantics { contentDescription = "Note content" },
                         textStyle = TextStyle(color = MaterialTheme.colorScheme.onBackground),
                         decorationBox = { innerTextField ->
                             if (content.isEmpty()) Text("Start writing...", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)

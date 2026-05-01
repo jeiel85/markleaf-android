@@ -1,4 +1,48 @@
 ---
+## 2026-05-01 - Issue #14 Stability and MVP Spec Hardening
+Selected task:
+- Stabilize implemented MVP behavior and fix spec gaps found in review
+
+Issue:
+- https://github.com/jeiel85/markleaf-android/issues/14
+
+What was found:
+- Editor saved only markdown content and updatedAt, leaving title/excerpt/tags stale
+- Tag cross reference used `Long` note IDs while notes use `String` IDs
+- Search, Tags, Trash, and Settings routes existed without top-level UI access
+- Phone editor navigation built invalid route strings
+- Database used destructive migration
+- Android instrumentation runner was not configured, so device UI tests could not run
+- Settings showed a hardcoded old version
+
+What was implemented:
+- Editor auto-save now updates title, excerpt, content, tags, and backlinks
+- Tag cross-ref note IDs now use `String`
+- Added Room migration from schema v4 to v5 and removed destructive migration
+- Added top app bar actions for Search, Tags, Trash, and Settings
+- Implemented basic Tags screen backed by stored tags
+- Fixed editor route generation and query encoding
+- Fixed androidTest runner/BOM dependencies and updated UI test selectors
+- Added repository tests for tag reindexing and wiki-link backlinks
+- Updated app version to `1.0.7` / `versionCode = 8`
+
+Commands run:
+- `./gradlew.bat test`
+- `./gradlew.bat lintDebug`
+- `./gradlew.bat assembleDebug assembleRelease`
+- `./gradlew.bat connectedDebugAndroidTest`
+- `rg "android.permission.INTERNET" -n app\src\main app\src\debug app\src\release`
+- Lenovo TB320FC Android 15 release APK install/start logcat check
+
+Build/test result:
+- Unit tests passed
+- Lint passed
+- Debug and release APK builds passed
+- 6 connected instrumentation tests passed on tablet
+- `v1.0.7` release APK starts on tablet with no FATAL/ANR log
+- No `android.permission.INTERNET` declaration found in app source
+
+---
 ## 2026-05-01 - Issue #13 Startup Crash Fix
 Selected task:
 - Fix app exiting immediately on launch

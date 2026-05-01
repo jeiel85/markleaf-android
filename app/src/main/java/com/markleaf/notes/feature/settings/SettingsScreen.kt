@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.markleaf.notes.BuildConfig
 import com.markleaf.notes.util.BackupUtil
 import kotlinx.coroutines.launch
 
@@ -81,7 +82,7 @@ fun SettingsScreen() {
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
-                    text = "Version 1.0.0",
+                    text = "Version ${BuildConfig.VERSION_NAME}",
                     style = MaterialTheme.typography.bodySmall,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant

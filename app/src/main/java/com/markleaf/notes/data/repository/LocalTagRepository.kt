@@ -15,7 +15,7 @@ class LocalTagRepository(
     private val db: AppDatabase
 ) : TagRepository {
 
-    override suspend fun reindexTagsForNote(noteId: Long, content: String) {
+    override suspend fun reindexTagsForNote(noteId: String, content: String) {
         val tagNames = TagParser.parseTags(content)
         
         // Clear existing tags for this note
@@ -42,13 +42,13 @@ class LocalTagRepository(
         }
     }
 
-    override suspend fun getTagsForNote(noteId: Long): List<Tag> {
+    override suspend fun getTagsForNote(noteId: String): List<Tag> {
         return db.tagDao().getTagsForNote(noteId)
             .map { entities -> entities.map { it.toDomainModel() } }
             .first()
     }
 
-    override fun observeTagsForNote(noteId: Long): Flow<List<Tag>> {
+    override fun observeTagsForNote(noteId: String): Flow<List<Tag>> {
         return db.tagDao().getTagsForNote(noteId)
             .map { entities -> entities.map { it.toDomainModel() } }
     }

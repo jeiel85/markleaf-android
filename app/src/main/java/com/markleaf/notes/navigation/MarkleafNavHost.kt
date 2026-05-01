@@ -1,5 +1,6 @@
 package com.markleaf.notes.navigation
 
+import androidx.compose.foundation.background
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -71,12 +73,24 @@ fun MarkleafNavHost(
             if (isExpanded) {
                 var selectedNoteId by remember { mutableStateOf<String?>(null) }
                 var isNoteListCollapsed by remember { mutableStateOf(false) }
+                val listPaneColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.24f)
+                val editorPaneColor = MaterialTheme.colorScheme.background
+                val dividerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.56f)
                 
-                Row(modifier = Modifier.fillMaxSize()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(editorPaneColor)
+                ) {
                     if (isNoteListCollapsed) {
                         CollapsedNoteListRail(onExpandClick = { isNoteListCollapsed = false })
                     } else {
-                        Box(modifier = Modifier.weight(1f)) {
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .background(listPaneColor)
+                        ) {
                             NotesListScreen(
                                 viewModel = viewModel,
                                 onNoteClick = { noteId -> selectedNoteId = noteId },
@@ -90,12 +104,23 @@ fun MarkleafNavHost(
                                 onTagsClick = { navController.navigate(NavRoutes.TAGS) },
                                 onTrashClick = { navController.navigate(NavRoutes.TRASH) },
                                 onSettingsClick = { navController.navigate(NavRoutes.SETTINGS) },
-                                onCollapseClick = { isNoteListCollapsed = true }
+                                onCollapseClick = { isNoteListCollapsed = true },
+                                selectedNoteId = selectedNoteId,
+                                containerColor = listPaneColor
                             )
                         }
                     }
                     Box(
-                        modifier = Modifier.weight(if (isNoteListCollapsed) 1f else 1.5f),
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(1.dp)
+                            .background(dividerColor)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .weight(if (isNoteListCollapsed) 1f else 1.5f)
+                            .fillMaxHeight()
+                            .background(editorPaneColor),
                         contentAlignment = Alignment.TopCenter
                     ) {
                         if (selectedNoteId != null) {
@@ -197,7 +222,7 @@ fun MarkleafNavHost(
 private fun CollapsedNoteListRail(
     onExpandClick: () -> Unit
 ) {
-    Surface {
+    Surface(color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.28f)) {
         Box(
             modifier = Modifier
                 .fillMaxHeight()

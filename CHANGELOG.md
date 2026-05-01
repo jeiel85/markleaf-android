@@ -2,6 +2,20 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.0.15 - 태블릿 2패널 시각 구분 개선 (Tablet Two-Pane Visual Polish) - 2026-05-01
+
+### 개선
+- 태블릿 expanded 화면에서 노트 목록 pane과 에디터 pane의 배경 톤을 분리했습니다.
+- 두 pane 사이에 얇은 divider를 추가해 편집 상태에서도 영역 경계가 더 명확하게 보이도록 했습니다.
+- 선택된 노트 row에 subtle highlight를 추가했습니다.
+- 접힌 목록 rail에도 별도 표면 톤을 적용했습니다.
+
+### 검증
+- `./gradlew.bat test`
+- `./gradlew.bat lintDebug`
+- `./gradlew.bat assembleDebug assembleRelease`
+- `rg "android.permission.INTERNET" -n app\src`
+
 ## v1.0.14 - 한국어 다국어 지원 (Korean Localization) - 2026-05-01
 
 ### 추가

@@ -1,4 +1,33 @@
 ---
+## 2026-05-01 - Issue #23 Tablet Two-Pane Visual Polish
+Selected task:
+- [#23] 태블릿 2패널 편집 화면 시각적 구분 개선
+
+What was implemented:
+- Added a separate tablet list pane background tone
+- Kept the editor pane on the main background tone
+- Added a subtle divider between list and editor panes
+- Added selected note row highlight in the list
+- Updated app version to `1.0.15` / `versionCode = 16`
+
+Files changed:
+- app/src/main/java/com/markleaf/notes/navigation/MarkleafNavHost.kt
+- app/src/main/java/com/markleaf/notes/feature/notes/NotesListScreen.kt
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/tasks.md
+- .agent/progress.md
+
+Build/test result:
+- `./gradlew.bat test` passed
+- `./gradlew.bat lintDebug` passed
+- `./gradlew.bat assembleDebug assembleRelease` passed
+- No `android.permission.INTERNET` declaration found in app source
+- Device visual check was not run because no ADB device was listed
+
+---
+
 ## 2026-05-01 - Issue #22 Korean Localization
 Selected task:
 - [#22] 영어 기본 및 한국어 다국어 지원

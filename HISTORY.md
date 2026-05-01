@@ -1,6 +1,19 @@
 # HISTORY
 
 ## 2026-05-01
+- Work: 태블릿 2패널 편집 화면 시각적 구분 개선. GitHub Issue #23 등록 후 구현.
+- Changed files:
+  - `app/src/main/java/com/markleaf/notes/navigation/MarkleafNavHost.kt` (tablet pane background tones and divider)
+  - `app/src/main/java/com/markleaf/notes/feature/notes/NotesListScreen.kt` (selected note highlight and configurable container color)
+  - `app/build.gradle.kts` and `CHANGELOG.md` (v1.0.15)
+- Verification:
+  - `./gradlew.bat test`
+  - `./gradlew.bat lintDebug`
+  - `./gradlew.bat assembleDebug assembleRelease`
+  - `rg "android.permission.INTERNET" -n app\src`
+- Result: Tablet list/editor panes are visually separated without copying another app's brand or exact layout
+
+## 2026-05-01
 - Work: 영어 기본 및 한국어 다국어 지원. GitHub Issue #22 등록 후 구현.
 - Changed files:
   - `app/src/main/res/values/strings.xml` (default English strings and starter notes)

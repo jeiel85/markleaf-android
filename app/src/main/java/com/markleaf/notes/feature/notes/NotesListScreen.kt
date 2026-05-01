@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -37,6 +38,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -55,7 +58,9 @@ fun NotesListScreen(
     onTagsClick: () -> Unit = {},
     onTrashClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
-    onCollapseClick: (() -> Unit)? = null
+    onCollapseClick: (() -> Unit)? = null,
+    selectedNoteId: String? = null,
+    containerColor: Color = MaterialTheme.colorScheme.background
 ) {
     val notesState = remember { mutableStateOf<List<Note>>(emptyList()) }
     LaunchedEffect(Unit) {
@@ -66,6 +71,7 @@ fun NotesListScreen(
     val notes = notesState.value
 
     Scaffold(
+        containerColor = containerColor,
         topBar = {
             TopAppBar(
                 title = {
@@ -94,7 +100,7 @@ fun NotesListScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
+                    containerColor = containerColor,
                     titleContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
@@ -143,6 +149,7 @@ fun NotesListScreen(
                 items(notes) { note ->
                     NoteItem(
                         note = note,
+                        selected = note.id == selectedNoteId,
                         onClick = { onNoteClick(note.id) },
                         onMoveToTrash = { viewModel.moveToTrash(note.id) }
                     )
@@ -156,17 +163,26 @@ fun NotesListScreen(
 @Composable
 fun NoteItem(
     note: Note,
+    selected: Boolean = false,
     onClick: (String) -> Unit,
     onMoveToTrash: (String) -> Unit
 ) {
+    val itemBackground = if (selected) {
+        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.36f)
+    } else {
+        Color.Transparent
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(horizontal = 12.dp, vertical = 4.dp)
+            .clip(MaterialTheme.shapes.medium)
+            .background(itemBackground)
             .combinedClickable(
                 onClick = { onClick(note.id) },
                 onLongClick = { onMoveToTrash(note.id) }
             )
+            .padding(horizontal = 12.dp, vertical = 10.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),

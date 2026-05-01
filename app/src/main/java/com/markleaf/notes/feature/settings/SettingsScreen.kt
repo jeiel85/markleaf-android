@@ -35,6 +35,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.BuildConfig
@@ -63,7 +64,7 @@ fun SettingsScreen(
         if (uri != null) {
             scope.launch {
                 val success = BackupUtil.createBackup(context, uri)
-                statusMessage = if (success) "ZIP backup created." else "Backup failed."
+                statusMessage = if (success) context.getString(R.string.backup_created) else context.getString(R.string.backup_failed)
             }
         }
     }
@@ -74,7 +75,7 @@ fun SettingsScreen(
         if (uri != null) {
             scope.launch {
                 val success = BackupUtil.restoreBackup(context, uri)
-                statusMessage = if (success) "ZIP backup restored." else "Restore failed."
+                statusMessage = if (success) context.getString(R.string.backup_restored) else context.getString(R.string.restore_failed)
             }
         }
     }
@@ -82,10 +83,10 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
+                title = { Text(stringResource(R.string.settings)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(painterResource(R.drawable.ic_back), contentDescription = "Back")
+                        Icon(painterResource(R.drawable.ic_back), contentDescription = stringResource(R.string.back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -108,19 +109,19 @@ fun SettingsScreen(
                     .padding(horizontal = 20.dp, vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                SettingsSection(title = "Data") {
+                SettingsSection(title = stringResource(R.string.settings_data)) {
                     Text(
-                        text = "Create a local ZIP backup or restore one you selected. Markleaf does not upload notes automatically.",
+                        text = stringResource(R.string.settings_data_description),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(Modifier.height(12.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(onClick = { backupLauncher.launch("markleaf_backup.zip") }) {
-                            Text("Create Backup")
+                            Text(stringResource(R.string.create_backup))
                         }
                         OutlinedButton(onClick = { restoreLauncher.launch(arrayOf("application/zip")) }) {
-                            Text("Restore")
+                            Text(stringResource(R.string.restore))
                         }
                     }
                     statusMessage?.let {
@@ -133,10 +134,10 @@ fun SettingsScreen(
                     }
                 }
 
-                SettingsSection(title = "Markdown") {
+                SettingsSection(title = stringResource(R.string.settings_markdown)) {
                     SettingsSwitchRow(
-                        title = "Show Markdown syntax",
-                        description = "The live editor can use this later to show or hide Markdown characters.",
+                        title = stringResource(R.string.show_markdown_syntax),
+                        description = stringResource(R.string.show_markdown_syntax_description),
                         checked = appSettings.markdownSyntaxVisibility == MarkdownSyntaxVisibility.SHOW,
                         onCheckedChange = { checked ->
                             scope.launch {
@@ -148,7 +149,7 @@ fun SettingsScreen(
                     )
                     Spacer(Modifier.height(12.dp))
                     Text(
-                        text = "Line width",
+                        text = stringResource(R.string.line_width),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onBackground
@@ -159,7 +160,7 @@ fun SettingsScreen(
                             val selected = appSettings.lineWidth == lineWidth
                             if (selected) {
                                 Button(onClick = {}) {
-                                    Text(lineWidth.label)
+                                    Text(lineWidth.localizedLabel())
                                 }
                             } else {
                                 OutlinedButton(
@@ -169,26 +170,26 @@ fun SettingsScreen(
                                         }
                                     }
                                 ) {
-                                    Text(lineWidth.label)
+                                    Text(lineWidth.localizedLabel())
                                 }
                             }
                         }
                     }
                     Spacer(Modifier.height(12.dp))
-                    SettingLine("Preview supports headings, lists, checkboxes, images, note links, and inline Markdown links.")
-                    SettingLine("External web links are shown as links but are not opened automatically in the MVP.")
-                    SettingLine("Use [[Note Title]] or [label](Note Title) to jump through local search.")
+                    SettingLine(stringResource(R.string.markdown_preview_support))
+                    SettingLine(stringResource(R.string.external_links_mvp))
+                    SettingLine(stringResource(R.string.local_link_hint))
                 }
 
-                SettingsSection(title = "Privacy") {
-                    SettingLine("No account, analytics, ads, remote config, or proprietary crash reporting SDK.")
-                    SettingLine("No INTERNET permission is declared for the MVP.")
-                    SettingLine("Notes leave the device only when you explicitly export, share, or back them up.")
+                SettingsSection(title = stringResource(R.string.settings_privacy)) {
+                    SettingLine(stringResource(R.string.privacy_no_tracking))
+                    SettingLine(stringResource(R.string.privacy_no_internet))
+                    SettingLine(stringResource(R.string.privacy_local_first))
                 }
 
-                SettingsSection(title = "App") {
-                    SettingLine("Version ${BuildConfig.VERSION_NAME}")
-                    SettingLine("Application ID ${BuildConfig.APPLICATION_ID}")
+                SettingsSection(title = stringResource(R.string.settings_app)) {
+                    SettingLine(stringResource(R.string.version_format, BuildConfig.VERSION_NAME))
+                    SettingLine(stringResource(R.string.application_id_format, BuildConfig.APPLICATION_ID))
                 }
             }
         }
@@ -254,4 +255,13 @@ private fun SettingLine(text: String) {
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(vertical = 3.dp)
     )
+}
+
+@Composable
+private fun EditorLineWidth.localizedLabel(): String {
+    return when (this) {
+        EditorLineWidth.NARROW -> stringResource(R.string.line_width_narrow)
+        EditorLineWidth.COMFORTABLE -> stringResource(R.string.line_width_comfortable)
+        EditorLineWidth.WIDE -> stringResource(R.string.line_width_wide)
+    }
 }

@@ -1,6 +1,24 @@
 # HISTORY
 
 ## 2026-05-01
+- Work: 영어 기본 및 한국어 다국어 지원. GitHub Issue #22 등록 후 구현.
+- Changed files:
+  - `app/src/main/res/values/strings.xml` (default English strings and starter notes)
+  - `app/src/main/res/values-ko/strings.xml` (Korean strings)
+  - `app/src/main/res/raw/starter_notes.md` (default English starter notes)
+  - `app/src/main/res/raw-ko/starter_notes.md` (Korean starter notes)
+  - Compose screen files (localized visible labels, empty states, buttons, content descriptions)
+  - `app/src/main/java/com/markleaf/notes/data/onboarding/StarterNotesSeeder.kt` (locale resource-backed starter notes)
+  - `app/build.gradle.kts` and `CHANGELOG.md` (v1.0.14)
+- Verification:
+  - `./gradlew.bat test`
+  - `./gradlew.bat lintDebug`
+  - `./gradlew.bat assembleDebug assembleRelease`
+  - `rg "android.permission.INTERNET" -n app\src`
+  - Device install was not run because no ADB device was listed after build
+- Result: English remains the default language, and Korean devices receive Korean UI and starter notes
+
+## 2026-05-01
 - Work: 라이브 Markdown 에디터 1단계 inline syntax highlighting. GitHub Issue #21 등록 후 구현.
 - Changed files:
   - `app/src/main/java/com/markleaf/notes/core/markdown/MarkdownSyntaxHighlighter.kt` (raw Markdown text highlighting)

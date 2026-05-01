@@ -2,6 +2,23 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.0.14 - 한국어 다국어 지원 (Korean Localization) - 2026-05-01
+
+### 추가
+- Android string resource 기반 다국어 구조를 추가했습니다.
+- 기본 언어는 영어로 유지하고, 한국어 기기에서는 한국어 UI 문구가 표시되도록 `values-ko` 리소스를 추가했습니다.
+- 첫 실행 샘플 노트도 영어 기본/한국어 로케일별 본문으로 분리했습니다.
+
+### 개선
+- 주요 화면의 제목, 버튼, 빈 상태, 설정 설명, 접근성 문구를 리소스 기반으로 전환했습니다.
+- 설정의 line width 선택지도 한국어 환경에서 한국어로 표시되도록 했습니다.
+
+### 검증
+- `./gradlew.bat test`
+- `./gradlew.bat lintDebug`
+- `./gradlew.bat assembleDebug assembleRelease`
+- `rg "android.permission.INTERNET" -n app\src`
+
 ## v1.0.13 - 라이브 Markdown 하이라이팅 (Live Markdown Highlighting) - 2026-05-01
 
 ### 추가

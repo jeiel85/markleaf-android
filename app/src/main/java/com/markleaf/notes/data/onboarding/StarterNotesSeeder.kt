@@ -1,6 +1,7 @@
 package com.markleaf.notes.data.onboarding
 
 import android.content.Context
+import com.markleaf.notes.R
 import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.repository.LocalNoteRepository
@@ -26,7 +27,7 @@ object StarterNotesSeeder {
         val noteRepository = LocalNoteRepository(database)
         val tagRepository = LocalTagRepository(database)
 
-        starterNotes().forEach { note ->
+        starterNotes(context).forEach { note ->
             noteRepository.createNote(note)
             tagRepository.reindexTagsForNote(note.id, note.contentMarkdown)
         }
@@ -34,69 +35,90 @@ object StarterNotesSeeder {
         prefs.edit().putBoolean(KEY_STARTER_NOTES_SEEDED, true).apply()
     }
 
-    internal fun starterNotes(now: Instant = Instant.now()): List<Note> {
-        val contents = listOf(
-            """
-            # Markleaf에 오신 것을 환영합니다
-
-            Markleaf는 Android용 로컬 우선 Markdown 노트 앱입니다. 빠르게 열고, 바로 쓰고, 나중에 Markdown 파일로 가져갈 수 있도록 설계했습니다.
-
-            ## 먼저 해볼 것
-
-            - 새 노트를 만들어 생각을 바로 적기
-            - 본문 안에 #아이디어 같은 태그 붙이기
-            - `[[Markdown으로 예쁘게 쓰기]]`처럼 노트끼리 연결하기
-            - 설정에서 ZIP 백업 만들기
-
-            이 샘플 노트들은 자유롭게 수정하거나 삭제해도 됩니다. #시작 #가이드
-            """.trimIndent(),
-            """
-            # Markdown으로 예쁘게 쓰기
-
-            Markdown은 글을 꾸미면서도 원본을 plain text로 보관하는 방식입니다.
-
-            ## 자주 쓰는 문법
-
-            - **굵게**
-            - _기울임_
-            - `코드`
-            - [ ] 할 일
-            - [x] 완료한 일
-
-            > 중요한 문장은 인용문으로 따로 세울 수 있습니다.
-
-            편집 화면의 Preview 모드에서 어떻게 보이는지 확인해 보세요. #markdown #쓰기
-            """.trimIndent(),
-            """
-            # 태그와 링크로 정리하기
-
-            Markleaf는 폴더보다 태그와 링크를 중심으로 정리합니다.
-
-            ## 태그
-
-            본문에 #프로젝트, #회의, #독서처럼 적으면 태그 화면에서 모아볼 수 있습니다. 한 노트에 여러 태그를 붙여도 됩니다.
-
-            ## 위키 링크
-
-            다른 노트 제목을 `[[로컬 우선 백업과 내보내기]]`처럼 감싸면 연결된 노트로 이동할 수 있습니다.
-
-            이 노트는 `[[Markleaf에 오신 것을 환영합니다]]`와도 이어져 있습니다. #정리 #링크
-            """.trimIndent(),
-            """
-            # 로컬 우선 백업과 내보내기
-
-            MVP에서 Markleaf는 계정, 분석, 광고, 서버 연동 없이 기기 안에 노트를 저장합니다.
-
-            ## 데이터 가져가기
-
-            - 단일 노트는 Markdown으로 공유할 수 있습니다.
-            - 전체 노트는 Markdown 파일로 내보낼 수 있습니다.
-            - 설정에서 ZIP 백업을 만들고 복원할 수 있습니다.
-
-            사용자가 직접 export/share 하기 전까지 노트 내용은 기기 밖으로 나가지 않는 것이 기본 원칙입니다. #백업 #프라이버시
-            """.trimIndent()
+    internal fun starterNotes(
+        context: Context,
+        now: Instant = Instant.now()
+    ): List<Note> {
+        return starterNotes(
+            contents = context.resources.openRawResource(R.raw.starter_notes)
+                .bufferedReader()
+                .use { reader -> reader.readText() }
+                .split(STARTER_NOTE_SEPARATOR)
+                .map { content -> content.trim() }
+                .filter { content -> content.isNotBlank() },
+            now = now
         )
+    }
 
+    internal fun starterNotes(now: Instant = Instant.now()): List<Note> {
+        return starterNotes(
+            contents = listOf(
+            """
+            # Welcome to Markleaf
+
+            Markleaf is a local-first Markdown notes app for Android. It is designed to open quickly, let you write immediately, and keep your notes portable as Markdown files.
+
+            ## Try first
+
+            - Create a new note and capture an idea
+            - Add tags like #idea inside the body
+            - Link notes with `[[Write beautifully with Markdown]]`
+            - Create a ZIP backup from Settings
+
+            You can edit or delete these starter notes at any time. #start #guide
+            """.trimIndent(),
+            """
+            # Write beautifully with Markdown
+
+            Markdown keeps your writing readable as plain text while still supporting structure and style.
+
+            ## Common syntax
+
+            - **Bold**
+            - _Italic_
+            - `Code`
+            - [ ] Todo
+            - [x] Done
+
+            Use Preview mode to see how the note renders. #markdown #writing
+            """.trimIndent(),
+            """
+            # Organize with tags and links
+
+            Markleaf is organized around tags and links instead of folders.
+
+            ## Tags
+
+            Write tags such as #project, #meeting, or #reading in the body to collect related notes. A note can have multiple tags.
+
+            ## Wiki links
+
+            Wrap another note title like `[[Local-first backup and export]]` to connect notes.
+
+            This note also links back to `[[Welcome to Markleaf]]`. #organize #links
+            """.trimIndent(),
+            """
+            # Local-first backup and export
+
+            In the MVP, Markleaf stores notes on your device without accounts, analytics, ads, or server integration.
+
+            ## Take your data with you
+
+            - Share a single note as Markdown.
+            - Export all notes as Markdown files.
+            - Create and restore ZIP backups from Settings.
+
+            By default, your notes do not leave the device until you explicitly export, share, or back them up. #backup #privacy
+            """.trimIndent()
+            ),
+            now = now
+        )
+    }
+
+    private fun starterNotes(
+        contents: List<String>,
+        now: Instant
+    ): List<Note> {
         return contents.mapIndexed { index, content ->
             Note(
                 id = "starter-note-${index + 1}",
@@ -109,4 +131,6 @@ object StarterNotesSeeder {
             )
         }
     }
+
+    private const val STARTER_NOTE_SEPARATOR = "---markleaf-note---"
 }

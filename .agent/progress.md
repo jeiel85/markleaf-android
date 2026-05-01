@@ -1,4 +1,44 @@
 ---
+## 2026-05-01 - Issue #22 Korean Localization
+Selected task:
+- [#22] 영어 기본 및 한국어 다국어 지원
+
+What was implemented:
+- Added default English string resources
+- Added Korean `values-ko` string resources
+- Localized major UI labels, empty states, buttons, settings copy, and accessibility descriptions
+- Moved first-run starter notes to locale-backed resources
+- Updated app version to `1.0.14` / `versionCode = 15`
+
+Files changed:
+- app/src/main/res/values/strings.xml
+- app/src/main/res/values-ko/strings.xml
+- app/src/main/res/raw/starter_notes.md
+- app/src/main/res/raw-ko/starter_notes.md
+- app/src/main/java/com/markleaf/notes/data/onboarding/StarterNotesSeeder.kt
+- app/src/main/java/com/markleaf/notes/feature/editor/EditorScreen.kt
+- app/src/main/java/com/markleaf/notes/feature/notes/NotesListScreen.kt
+- app/src/main/java/com/markleaf/notes/feature/search/SearchScreen.kt
+- app/src/main/java/com/markleaf/notes/feature/settings/SettingsScreen.kt
+- app/src/main/java/com/markleaf/notes/feature/tags/TagsScreen.kt
+- app/src/main/java/com/markleaf/notes/feature/trash/TrashScreen.kt
+- app/src/main/java/com/markleaf/notes/navigation/MarkleafNavHost.kt
+- app/src/test/java/com/markleaf/notes/data/onboarding/StarterNotesSeederTest.kt
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/tasks.md
+- .agent/progress.md
+
+Build/test result:
+- `./gradlew.bat test` passed
+- `./gradlew.bat lintDebug` passed
+- `./gradlew.bat assembleDebug assembleRelease` passed
+- No `android.permission.INTERNET` declaration found in app source
+- Device install was not run because no ADB device was listed after build
+
+---
+
 ## 2026-05-01 - Issue #21 Live Markdown Highlighting
 Selected task:
 - [#21] 라이브 Markdown 에디터 1단계: inline syntax highlighting

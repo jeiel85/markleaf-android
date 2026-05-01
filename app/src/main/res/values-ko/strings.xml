@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Markleaf</string>
+    <string name="notes_title">노트</string>
+    <string name="collapse_note_list">노트 목록 접기</string>
+    <string name="expand_note_list">노트 목록 펼치기</string>
+    <string name="search">검색</string>
+    <string name="tags">태그</string>
+    <string name="trash">휴지통</string>
+    <string name="settings">설정</string>
+    <string name="add_note">노트 추가</string>
+    <string name="no_notes_yet">아직 노트가 없습니다</string>
+    <string name="create_first_note_hint">+ 버튼을 눌러 첫 노트를 만들어보세요</string>
+    <string name="untitled">제목 없음</string>
+    <string name="untitled_parenthesized">(제목 없음)</string>
+    <string name="select_note_to_view">볼 노트를 선택하세요</string>
+
+    <string name="preview">미리보기</string>
+    <string name="edit">편집</string>
+    <string name="edit_note">노트 편집</string>
+    <string name="new_note">새 노트</string>
+    <string name="back">뒤로</string>
+    <string name="backlinks">백링크</string>
+    <string name="note_content">노트 본문</string>
+    <string name="start_writing">바로 작성해보세요...</string>
+    <string name="bold">굵게</string>
+    <string name="italic">기울임</string>
+    <string name="checkbox">체크박스</string>
+    <string name="markdown_link">Markdown 링크</string>
+    <string name="wiki_link">위키 링크</string>
+    <string name="image">이미지</string>
+
+    <string name="search_notes_hint">노트 검색...</string>
+    <string name="type_to_search_notes">검색어를 입력하세요</string>
+    <string name="no_results_found">검색 결과가 없습니다</string>
+    <string name="no_tags_yet">아직 태그가 없습니다</string>
+    <string name="tags_empty_hint">노트에 #태그를 입력해 정리해보세요</string>
+
+    <string name="trash_empty">휴지통이 비어 있습니다</string>
+    <string name="trash_empty_hint">삭제한 노트가 여기에 표시됩니다</string>
+    <string name="restore">복원</string>
+    <string name="delete">삭제</string>
+    <string name="delete_forever_title">영구 삭제할까요?</string>
+    <string name="delete_forever_message">이 노트는 영구 삭제되며 복구할 수 없습니다.</string>
+    <string name="delete_forever">영구 삭제</string>
+    <string name="cancel">취소</string>
+
+    <string name="settings_data">데이터</string>
+    <string name="settings_data_description">로컬 ZIP 백업을 만들거나 선택한 백업을 복원합니다. Markleaf는 노트를 자동 업로드하지 않습니다.</string>
+    <string name="create_backup">백업 만들기</string>
+    <string name="backup_created">ZIP 백업을 만들었습니다.</string>
+    <string name="backup_failed">백업에 실패했습니다.</string>
+    <string name="backup_restored">ZIP 백업을 복원했습니다.</string>
+    <string name="restore_failed">복원에 실패했습니다.</string>
+    <string name="settings_markdown">Markdown</string>
+    <string name="show_markdown_syntax">Markdown 문법 표시</string>
+    <string name="show_markdown_syntax_description">라이브 에디터에서 작성 중 Markdown 문자를 하이라이팅합니다.</string>
+    <string name="line_width">본문 폭</string>
+    <string name="line_width_narrow">좁게</string>
+    <string name="line_width_comfortable">편안하게</string>
+    <string name="line_width_wide">넓게</string>
+    <string name="markdown_preview_support">미리보기는 제목, 목록, 체크박스, 이미지, 노트 링크, inline Markdown 링크를 지원합니다.</string>
+    <string name="external_links_mvp">외부 웹 링크는 링크처럼 표시하지만 MVP에서는 자동으로 열지 않습니다.</string>
+    <string name="local_link_hint">[[노트 제목]] 또는 [라벨](노트 제목)을 사용해 로컬 검색으로 이동할 수 있습니다.</string>
+    <string name="settings_privacy">개인정보</string>
+    <string name="privacy_no_tracking">계정, 분석, 광고, 원격 설정, 독점 크래시 리포팅 SDK가 없습니다.</string>
+    <string name="privacy_no_internet">MVP에서는 INTERNET 권한을 선언하지 않습니다.</string>
+    <string name="privacy_local_first">노트는 사용자가 직접 내보내기, 공유, 백업할 때만 기기 밖으로 나갑니다.</string>
+    <string name="settings_app">앱</string>
+    <string name="version_format">버전 %1$s</string>
+    <string name="application_id_format">Application ID %1$s</string>
+
+</resources>

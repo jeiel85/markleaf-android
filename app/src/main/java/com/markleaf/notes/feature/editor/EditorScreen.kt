@@ -51,6 +51,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -174,18 +175,27 @@ fun EditorScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = if (isPreviewMode) "Preview" else if (noteId != null) "Edit Note" else "New Note",
+                        text = if (isPreviewMode) {
+                            stringResource(R.string.preview)
+                        } else if (noteId != null) {
+                            stringResource(R.string.edit_note)
+                        } else {
+                            stringResource(R.string.new_note)
+                        },
                         style = MaterialTheme.typography.headlineMedium
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(painterResource(R.drawable.ic_back), "Back")
+                        Icon(painterResource(R.drawable.ic_back), stringResource(R.string.back))
                     }
                 },
                 actions = {
                     TextButton(onClick = { isPreviewMode = !isPreviewMode }) {
-                        Text(if (isPreviewMode) "Edit" else "Preview", style = MaterialTheme.typography.labelLarge)
+                        Text(
+                            if (isPreviewMode) stringResource(R.string.edit) else stringResource(R.string.preview),
+                            style = MaterialTheme.typography.labelLarge
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -267,7 +277,7 @@ fun EditorScreen(
                         Spacer(Modifier.height(24.dp))
                         HorizontalDivider()
                         Spacer(Modifier.height(16.dp))
-                        Text("Backlinks", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.secondary)
+                        Text(stringResource(R.string.backlinks), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.secondary)
                         Spacer(Modifier.height(8.dp))
                     }
                     items(backlinks) { backlink ->
@@ -305,11 +315,11 @@ fun EditorScreen(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .semantics { contentDescription = "Note content" },
+                            .semantics { contentDescription = context.getString(R.string.note_content) },
                         textStyle = TextStyle(color = MaterialTheme.colorScheme.onBackground),
                         visualTransformation = markdownVisualTransformation,
                         decorationBox = { innerTextField ->
-                            if (editorState.text.isEmpty()) Text("Start writing...", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            if (editorState.text.isEmpty()) Text(stringResource(R.string.start_writing), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             innerTextField()
                         }
                     )
@@ -345,7 +355,7 @@ fun EditorScreen(
                 if (backlinks.isNotEmpty()) {
                     HorizontalDivider()
                     Spacer(Modifier.height(8.dp))
-                    Text("Backlinks", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.secondary)
+                    Text(stringResource(R.string.backlinks), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.secondary)
                     LazyColumn(Modifier.fillMaxWidth().height(100.dp)) {
                         items(backlinks) { backlink ->
                             Text(
@@ -381,25 +391,25 @@ private fun MarkdownToolbar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = onBold) {
-            Icon(Icons.Default.FormatBold, contentDescription = "Bold")
+            Icon(Icons.Default.FormatBold, contentDescription = stringResource(R.string.bold))
         }
         IconButton(onClick = onItalic) {
-            Icon(Icons.Default.FormatItalic, contentDescription = "Italic")
+            Icon(Icons.Default.FormatItalic, contentDescription = stringResource(R.string.italic))
         }
         IconButton(onClick = onCheckbox) {
-            Icon(Icons.Default.CheckBox, contentDescription = "Checkbox")
+            Icon(Icons.Default.CheckBox, contentDescription = stringResource(R.string.checkbox))
         }
         IconButton(onClick = onMarkdownLink) {
-            Icon(Icons.Default.Link, contentDescription = "Markdown Link")
+            Icon(Icons.Default.Link, contentDescription = stringResource(R.string.markdown_link))
         }
         IconButton(onClick = onWikiLink) {
-            Icon(Icons.Default.Link, contentDescription = "Wiki Link")
+            Icon(Icons.Default.Link, contentDescription = stringResource(R.string.wiki_link))
         }
         IconButton(
             onClick = onImage,
             enabled = imageEnabled
         ) {
-            Icon(Icons.Default.Image, contentDescription = "Image")
+            Icon(Icons.Default.Image, contentDescription = stringResource(R.string.image))
         }
     }
 }

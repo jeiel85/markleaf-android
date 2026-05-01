@@ -26,7 +26,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.markleaf.notes.R
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -122,7 +124,7 @@ fun MarkleafNavHost(
                                     .fillMaxHeight(),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text("Select a note to view")
+                                Text(stringResource(R.string.select_note_to_view))
                             }
                         }
                     }
@@ -203,7 +205,7 @@ private fun CollapsedNoteListRail(
             contentAlignment = Alignment.TopCenter
         ) {
             IconButton(onClick = onExpandClick) {
-                Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Expand note list")
+                Icon(Icons.Default.KeyboardArrowRight, contentDescription = stringResource(R.string.expand_note_list))
             }
         }
     }

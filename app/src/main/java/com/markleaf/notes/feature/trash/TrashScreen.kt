@@ -26,8 +26,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.markleaf.notes.R
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.ui.viewmodel.TrashViewModel
 
@@ -60,12 +62,12 @@ fun TrashScreen(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "Trash is empty",
+                        text = stringResource(R.string.trash_empty),
                         style = MaterialTheme.typography.headlineMedium,
                         textAlign = TextAlign.Center
                     )
                     Text(
-                        text = "Notes you delete appear here",
+                        text = stringResource(R.string.trash_empty_hint),
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -88,20 +90,20 @@ fun TrashScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = if (note.title.isBlank()) "(Untitled)" else note.title,
+                                text = if (note.title.isBlank()) stringResource(R.string.untitled_parenthesized) else note.title,
                                 style = MaterialTheme.typography.titleMedium,
                                 maxLines = 1
                             )
                             Row {
                                 Button(onClick = { viewModel.restoreFromTrash(note.id) }) {
-                                    Text("Restore")
+                                    Text(stringResource(R.string.restore))
                                 }
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Button(onClick = {
                                     noteToDelete = note
                                     showDeleteConfirm.value = true
                                 }) {
-                                    Text("Delete")
+                                    Text(stringResource(R.string.delete))
                                 }
                             }
                         }
@@ -123,19 +125,19 @@ fun TrashScreen(
     if (showDeleteConfirm.value) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirm.value = false },
-            title = { Text("Delete forever?") },
-            text = { Text("This note will be permanently deleted and cannot be recovered.") },
+            title = { Text(stringResource(R.string.delete_forever_title)) },
+            text = { Text(stringResource(R.string.delete_forever_message)) },
             confirmButton = {
                 Button(onClick = {
                     noteToDelete?.let { viewModel.deleteForever(it.id) }
                     showDeleteConfirm.value = false
                 }) {
-                    Text("Delete Forever")
+                    Text(stringResource(R.string.delete_forever))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirm.value = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )

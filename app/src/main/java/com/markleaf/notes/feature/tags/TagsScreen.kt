@@ -19,9 +19,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.markleaf.notes.R
 import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.repository.LocalTagRepository
 
@@ -39,7 +41,7 @@ fun TagsScreen(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             Text(
-                text = "Tags",
+                text = stringResource(R.string.tags),
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.padding(16.dp)
             )
@@ -54,12 +56,12 @@ fun TagsScreen(
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = "No tags yet",
+                            text = stringResource(R.string.no_tags_yet),
                             style = MaterialTheme.typography.titleMedium,
                             textAlign = TextAlign.Center
                         )
                         Text(
-                            text = "Type #tags in a note to organize it",
+                            text = stringResource(R.string.tags_empty_hint),
                             style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onSurfaceVariant

@@ -21,8 +21,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.markleaf.notes.R
 import com.markleaf.notes.ui.viewmodel.SearchViewModel
 
 @Composable
@@ -51,7 +53,7 @@ fun SearchScreen(
                 value = searchQuery,
                 onValueChange = { viewModel.setSearchQuery(it) },
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
-                placeholder = { Text("Search notes...") },
+                placeholder = { Text(stringResource(R.string.search_notes_hint)) },
                 singleLine = true
             )
 
@@ -61,7 +63,7 @@ fun SearchScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Type to search notes",
+                        text = stringResource(R.string.type_to_search_notes),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -72,7 +74,7 @@ fun SearchScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No results found",
+                        text = stringResource(R.string.no_results_found),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -90,7 +92,7 @@ fun SearchScreen(
                                 .clickable { onNoteClick(note.id) }
                         ) {
                             Text(
-                                text = if (note.title.isBlank()) "(Untitled)" else note.title,
+                                text = if (note.title.isBlank()) stringResource(R.string.untitled_parenthesized) else note.title,
                                 style = MaterialTheme.typography.titleMedium
                             )
                             if (note.excerpt.isNotBlank()) {

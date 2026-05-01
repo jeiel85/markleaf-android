@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
@@ -69,27 +70,27 @@ fun NotesListScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Notes",
+                        text = stringResource(R.string.notes_title),
                         style = MaterialTheme.typography.headlineMedium
                     )
                 },
                 actions = {
                     if (onCollapseClick != null) {
                         IconButton(onClick = onCollapseClick) {
-                            Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "Collapse note list")
+                            Icon(Icons.Default.KeyboardArrowLeft, contentDescription = stringResource(R.string.collapse_note_list))
                         }
                     }
                     IconButton(onClick = onSearchClick) {
-                        Icon(Icons.Default.Search, contentDescription = "Search")
+                        Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
                     }
                     IconButton(onClick = onTagsClick) {
-                        Icon(Icons.Default.Label, contentDescription = "Tags")
+                        Icon(Icons.Default.Label, contentDescription = stringResource(R.string.tags))
                     }
                     IconButton(onClick = onTrashClick) {
-                        Icon(Icons.Default.Delete, contentDescription = "Trash")
+                        Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.trash))
                     }
                     IconButton(onClick = onSettingsClick) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                        Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.settings))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -104,7 +105,7 @@ fun NotesListScreen(
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_add),
-                    contentDescription = "Add Note"
+                    contentDescription = stringResource(R.string.add_note)
                 )
             }
         },
@@ -121,12 +122,12 @@ fun NotesListScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "No notes yet",
+                        text = stringResource(R.string.no_notes_yet),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "Tap + to create your first note",
+                        text = stringResource(R.string.create_first_note_hint),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 8.dp)
@@ -173,7 +174,7 @@ fun NoteItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = note.title.ifEmpty { "Untitled" },
+                text = note.title.ifEmpty { stringResource(R.string.untitled) },
                 style = MaterialTheme.typography.titleMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

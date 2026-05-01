@@ -48,4 +48,24 @@ class SimpleMarkdownPreviewTest {
         assertEquals(3, lines.size)
         assertTrue(lines[1].type == PreviewLineType.EMPTY)
     }
+
+    @Test
+    fun parse_parsesInlineNoteLinksInBodyText() {
+        val lines = SimpleMarkdownPreview.parse("See [[Target Note]] for details")
+
+        assertEquals(PreviewLineType.BODY, lines.first().type)
+        assertEquals(3, lines.first().segments.size)
+        assertEquals(PreviewInlineType.NOTE_LINK, lines.first().segments[1].type)
+        assertEquals("Target Note", lines.first().segments[1].target)
+    }
+
+    @Test
+    fun parse_parsesInlineMarkdownLinksInBodyText() {
+        val lines = SimpleMarkdownPreview.parse("Open [Project](Project Note) next")
+
+        assertEquals(PreviewLineType.BODY, lines.first().type)
+        assertEquals(3, lines.first().segments.size)
+        assertEquals(PreviewInlineType.MARKDOWN_LINK, lines.first().segments[1].type)
+        assertEquals("Project Note", lines.first().segments[1].target)
+    }
 }

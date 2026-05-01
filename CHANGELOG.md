@@ -2,6 +2,24 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.0.9 - Markdown 링크 및 설정 화면 개선 (Markdown Links and Settings Polish) - 2026-05-01
+
+### 수정
+- Preview 모드에서 문장 중간의 `[[노트 링크]]`를 링크처럼 표시하도록 개선했습니다.
+- 일반 Markdown 링크 `[label](target)`도 Preview 모드에서 링크처럼 표시하도록 개선했습니다.
+- 로컬 노트 링크 대상은 기존 검색 흐름으로 연결하고, 외부 URL은 MVP 개인정보/네트워크 원칙에 따라 자동으로 열지 않도록 했습니다.
+
+### 개선
+- 설정 화면에 상단 뒤로가기 버튼을 추가했습니다.
+- 설정 화면을 데이터 관리, Markdown 안내, 개인정보, 앱 정보 섹션으로 재구성했습니다.
+- 백업/복원 실행 후 간단한 결과 메시지를 표시합니다.
+
+### 검증
+- `./gradlew.bat test`
+- `./gradlew.bat lintDebug`
+- `./gradlew.bat assembleDebug assembleRelease`
+- Lenovo TB320FC Android 15 실기기에서 `v1.0.9` release APK 설치 및 실행 확인
+
 ## v1.0.8 - 첫 실행 샘플 노트 온보딩 (Starter Notes Onboarding) - 2026-05-01
 
 ### 추가

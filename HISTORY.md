@@ -1,6 +1,23 @@
 # HISTORY
 
 ## 2026-05-01
+- Work: Markdown 링크 Preview 처리와 설정 화면 보강. GitHub Issue #17 등록 후 구현.
+- Changed files:
+  - `app/src/main/java/com/markleaf/notes/core/markdown/SimpleMarkdownPreview.kt` (inline note/markdown link parsing)
+  - `app/src/main/java/com/markleaf/notes/feature/editor/EditorScreen.kt` (clickable inline link rendering)
+  - `app/src/main/java/com/markleaf/notes/feature/settings/SettingsScreen.kt` (back button and settings sections)
+  - `app/src/main/java/com/markleaf/notes/navigation/MarkleafNavHost.kt` (settings back navigation)
+  - `app/src/test/java/com/markleaf/notes/core/markdown/SimpleMarkdownPreviewTest.kt` (inline link tests)
+  - `app/build.gradle.kts` and `CHANGELOG.md` (v1.0.9)
+- Verification:
+  - `./gradlew.bat test`
+  - `./gradlew.bat lintDebug`
+  - `./gradlew.bat assembleDebug assembleRelease`
+  - Lenovo TB320FC Android 15 `v1.0.9` release APK install and launch check
+  - `rg "android.permission.INTERNET" -n app\src`
+- Result: Preview 모드의 문장 중간 노트 링크와 Markdown 링크 표시를 개선하고 설정 화면의 닫기/정보 구조를 보강
+
+## 2026-05-01
 - Work: Bear 벤치마크 기반 제품 갭을 정리하고 첫 실행 샘플 노트 온보딩을 추가. GitHub Issue #15 등록 후 구현.
 - Changed files:
   - `app/src/main/java/com/markleaf/notes/data/onboarding/StarterNotesSeeder.kt` (first-run starter notes)

@@ -17,10 +17,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Image
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,10 +47,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.markleaf.notes.R
+import com.markleaf.notes.core.markdown.PreviewInlineType
 import com.markleaf.notes.core.markdown.PreviewLineType
+import com.markleaf.notes.core.markdown.PreviewLine
 import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
 import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.data.local.AppDatabase
@@ -239,7 +246,7 @@ fun EditorScreen(
                         PreviewLineType.BULLET -> Text("• ${line.text}", style = MaterialTheme.typography.bodyLarge)
                         PreviewLineType.CHECKBOX_DONE -> Text("☑ ${line.text}", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         PreviewLineType.CHECKBOX_TODO -> Text("☐ ${line.text}", style = MaterialTheme.typography.bodyLarge)
-                        PreviewLineType.BODY -> Text(line.text, style = MaterialTheme.typography.bodyLarge)
+                        PreviewLineType.BODY -> InlineMarkdownText(line = line, onLinkClick = onLinkClick)
                         PreviewLineType.EMPTY -> Spacer(Modifier.height(8.dp))
                     }
                 }
@@ -247,7 +254,7 @@ fun EditorScreen(
                 if (backlinks.isNotEmpty()) {
                     item {
                         Spacer(Modifier.height(24.dp))
-                        Divider()
+                        HorizontalDivider()
                         Spacer(Modifier.height(16.dp))
                         Text("Backlinks", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.secondary)
                         Spacer(Modifier.height(8.dp))
@@ -283,7 +290,7 @@ fun EditorScreen(
                 }
 
                 if (backlinks.isNotEmpty()) {
-                    Divider()
+                    HorizontalDivider()
                     Spacer(Modifier.height(8.dp))
                     Text("Backlinks", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.secondary)
                     LazyColumn(Modifier.fillMaxWidth().height(100.dp)) {
@@ -300,4 +307,64 @@ fun EditorScreen(
             }
         }
     }
+}
+
+@Composable
+private fun InlineMarkdownText(
+    line: PreviewLine,
+    onLinkClick: (String) -> Unit
+) {
+    val primary = MaterialTheme.colorScheme.primary
+    val annotated = buildAnnotatedString {
+        line.segments.forEach { segment ->
+            when (segment.type) {
+                PreviewInlineType.TEXT -> append(segment.text)
+                PreviewInlineType.NOTE_LINK -> {
+                    val target = segment.target.orEmpty()
+                    pushStringAnnotation(tag = "note-link", annotation = target)
+                    withStyle(
+                        SpanStyle(
+                            color = primary,
+                            textDecoration = TextDecoration.Underline
+                        )
+                    ) {
+                        append(segment.text)
+                    }
+                    pop()
+                }
+                PreviewInlineType.MARKDOWN_LINK -> {
+                    val target = segment.target.orEmpty()
+                    pushStringAnnotation(tag = "markdown-link", annotation = target)
+                    withStyle(
+                        SpanStyle(
+                            color = primary,
+                            textDecoration = TextDecoration.Underline
+                        )
+                    ) {
+                        append(segment.text)
+                    }
+                    pop()
+                }
+            }
+        }
+    }
+
+    ClickableText(
+        text = annotated,
+        style = MaterialTheme.typography.bodyLarge.copy(
+            color = MaterialTheme.colorScheme.onBackground
+        ),
+        modifier = Modifier.padding(vertical = 2.dp),
+        onClick = { offset ->
+            annotated.getStringAnnotations("note-link", offset, offset).firstOrNull()?.let {
+                onLinkClick(it.item)
+                return@ClickableText
+            }
+            annotated.getStringAnnotations("markdown-link", offset, offset).firstOrNull()?.let {
+                if (!it.item.startsWith("http://") && !it.item.startsWith("https://")) {
+                    onLinkClick(it.item)
+                }
+            }
+        }
+    )
 }

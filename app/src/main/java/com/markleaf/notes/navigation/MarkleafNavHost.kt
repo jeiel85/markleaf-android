@@ -150,7 +150,7 @@ fun MarkleafNavHost(
             TrashScreen(viewModel = viewModel)
         }
         composable(NavRoutes.SETTINGS) {
-            SettingsScreen()
+            SettingsScreen(onBack = { navController.popBackStack() })
         }
     }
 }

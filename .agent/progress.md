@@ -1,4 +1,35 @@
 ---
+## 2026-05-01 - Issue #17 Markdown Link Preview and Settings Polish
+Selected task:
+- [#17] Improve Markdown link preview and settings navigation
+
+What was implemented:
+- Added inline parsing for `[[note links]]` inside normal body text
+- Added inline parsing for `[label](target)` Markdown links
+- Rendered inline links as clickable text in Preview mode
+- Kept external web URLs non-opening to preserve MVP no-INTERNET behavior
+- Rebuilt Settings with a top app bar back button and Data, Markdown, Privacy, and App sections
+- Added backup/restore status messages
+
+Files changed:
+- app/src/main/java/com/markleaf/notes/core/markdown/SimpleMarkdownPreview.kt
+- app/src/main/java/com/markleaf/notes/feature/editor/EditorScreen.kt
+- app/src/main/java/com/markleaf/notes/feature/settings/SettingsScreen.kt
+- app/src/main/java/com/markleaf/notes/navigation/MarkleafNavHost.kt
+- app/src/test/java/com/markleaf/notes/core/markdown/SimpleMarkdownPreviewTest.kt
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+
+Build/test result:
+- `./gradlew.bat test` passed
+- `./gradlew.bat lintDebug` passed
+- `./gradlew.bat assembleDebug assembleRelease` passed
+- Lenovo TB320FC Android 15 `v1.0.9` release APK install and launch check passed
+- No `android.permission.INTERNET` declaration found in app source
+
+---
+
 ## 2026-05-01 - Issue #15 Starter Notes Onboarding Implemented
 Selected task:
 - [#15] Add first-run starter notes onboarding

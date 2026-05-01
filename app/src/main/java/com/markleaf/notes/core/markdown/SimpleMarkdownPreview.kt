@@ -13,13 +13,28 @@ enum class PreviewLineType {
     EMPTY
 }
 
+enum class PreviewInlineType {
+    TEXT,
+    NOTE_LINK,
+    MARKDOWN_LINK
+}
+
+data class PreviewInlineSegment(
+    val text: String,
+    val type: PreviewInlineType,
+    val target: String? = null
+)
+
 data class PreviewLine(
     val text: String,
     val type: PreviewLineType,
-    val extra: String? = null // For image URI or other metadata
+    val extra: String? = null, // For image URI or other metadata
+    val segments: List<PreviewInlineSegment> = emptyList()
 )
 
 object SimpleMarkdownPreview {
+    private val inlineLinkPattern = Regex("""\[\[([^\]]+)]]|\[([^\]]+)]\(([^)]+)\)""")
+
     fun parse(markdown: String): List<PreviewLine> {
         return markdown
             .lines()
@@ -48,8 +63,53 @@ object SimpleMarkdownPreview {
                         PreviewLineType.CHECKBOX_TODO
                     )
                     line.startsWith("- ") -> PreviewLine(line.removePrefix("- ").trim(), PreviewLineType.BULLET)
-                    else -> PreviewLine(line, PreviewLineType.BODY)
+                    else -> PreviewLine(line, PreviewLineType.BODY, segments = parseInlineSegments(line))
                 }
             }
+    }
+
+    fun parseInlineSegments(text: String): List<PreviewInlineSegment> {
+        val matches = inlineLinkPattern.findAll(text).toList()
+        if (matches.isEmpty()) {
+            return listOf(PreviewInlineSegment(text, PreviewInlineType.TEXT))
+        }
+
+        val segments = mutableListOf<PreviewInlineSegment>()
+        var cursor = 0
+
+        matches.forEach { match ->
+            if (match.range.first > cursor) {
+                segments += PreviewInlineSegment(
+                    text = text.substring(cursor, match.range.first),
+                    type = PreviewInlineType.TEXT
+                )
+            }
+
+            val noteTitle = match.groups[1]?.value?.trim()
+            val markdownLabel = match.groups[2]?.value
+            val markdownTarget = match.groups[3]?.value?.trim()
+
+            if (!noteTitle.isNullOrBlank()) {
+                segments += PreviewInlineSegment(
+                    text = noteTitle,
+                    type = PreviewInlineType.NOTE_LINK,
+                    target = noteTitle
+                )
+            } else if (!markdownLabel.isNullOrBlank() && !markdownTarget.isNullOrBlank()) {
+                segments += PreviewInlineSegment(
+                    text = markdownLabel,
+                    type = PreviewInlineType.MARKDOWN_LINK,
+                    target = markdownTarget
+                )
+            }
+
+            cursor = match.range.last + 1
+        }
+
+        if (cursor < text.length) {
+            segments += PreviewInlineSegment(text.substring(cursor), PreviewInlineType.TEXT)
+        }
+
+        return segments
     }
 }

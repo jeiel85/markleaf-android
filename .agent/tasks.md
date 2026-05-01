@@ -69,6 +69,7 @@
 
 ## Phase 9 - Bear-Class Product Polish (Backlog)
 - [x] [#15] Add first-run starter notes onboarding
+- [x] [#17] Improve Markdown link preview and settings navigation
 - [ ] Improve editor Markdown toolbar
 - [ ] Improve note list and editor empty states
 - [ ] Add quick-open search for notes, tags, and links

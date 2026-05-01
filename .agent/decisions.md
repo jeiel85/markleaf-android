@@ -7,6 +7,16 @@
 
 ## Confirmed Decisions
 
+### D022 - External Markdown Links Are Display-Only In MVP
+
+Preview can recognize external Markdown links, but it must not automatically open web URLs in the MVP.
+
+Implications:
+
+- `[[Note Title]]` and `[label](Note Title)` are treated as local note navigation through the existing search flow.
+- `http://` and `https://` targets are visually marked as links but do not launch a browser.
+- Adding browser launching or remote content behavior requires a separate network/privacy review.
+
 ### D020 - Bear-Class Experience Without Brand Copying
 
 Markleaf can intentionally pursue feature-level parity with high-quality Markdown note apps when the feature is a common product expectation.

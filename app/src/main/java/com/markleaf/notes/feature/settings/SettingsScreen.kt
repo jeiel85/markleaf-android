@@ -3,38 +3,59 @@ package com.markleaf.notes.feature.settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.BuildConfig
+import com.markleaf.notes.R
 import com.markleaf.notes.util.BackupUtil
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen() {
-    val context = LocalContext.current
+fun SettingsScreen(
+    onBack: () -> Unit
+) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val scope = rememberCoroutineScope()
+    var statusMessage by remember { mutableStateOf<String?>(null) }
 
     val backupLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/zip")
     ) { uri ->
         if (uri != null) {
             scope.launch {
-                BackupUtil.createBackup(context, uri)
+                val success = BackupUtil.createBackup(context, uri)
+                statusMessage = if (success) "ZIP backup created." else "Backup failed."
             }
         }
     }
@@ -44,50 +65,112 @@ fun SettingsScreen() {
     ) { uri ->
         if (uri != null) {
             scope.launch {
-                BackupUtil.restoreBackup(context, uri)
+                val success = BackupUtil.restoreBackup(context, uri)
+                statusMessage = if (success) "ZIP backup restored." else "Restore failed."
             }
         }
     }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Settings") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(painterResource(R.drawable.ic_back), contentDescription = "Back")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                )
+            )
+        }
+    ) { padding ->
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            color = MaterialTheme.colorScheme.background
         ) {
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 20.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                Text(
-                    text = "Settings",
-                    style = MaterialTheme.typography.headlineMedium,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Button(onClick = { backupLauncher.launch("markleaf_backup.zip") }) {
-                    Text("Create ZIP Backup")
+                SettingsSection(title = "Data") {
+                    Text(
+                        text = "Create a local ZIP backup or restore one you selected. Markleaf does not upload notes automatically.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = { backupLauncher.launch("markleaf_backup.zip") }) {
+                            Text("Create Backup")
+                        }
+                        OutlinedButton(onClick = { restoreLauncher.launch(arrayOf("application/zip")) }) {
+                            Text("Restore")
+                        }
+                    }
+                    statusMessage?.let {
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Button(onClick = { restoreLauncher.launch(arrayOf("application/zip")) }) {
-                    Text("Restore from ZIP")
+                SettingsSection(title = "Markdown") {
+                    SettingLine("Preview supports headings, lists, checkboxes, images, note links, and inline Markdown links.")
+                    SettingLine("External web links are shown as links but are not opened automatically in the MVP.")
+                    SettingLine("Use [[Note Title]] or [label](Note Title) to jump through local search.")
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                SettingsSection(title = "Privacy") {
+                    SettingLine("No account, analytics, ads, remote config, or proprietary crash reporting SDK.")
+                    SettingLine("No INTERNET permission is declared for the MVP.")
+                    SettingLine("Notes leave the device only when you explicitly export, share, or back them up.")
+                }
 
-                Text(
-                    text = "Version ${BuildConfig.VERSION_NAME}",
-                    style = MaterialTheme.typography.bodySmall,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                SettingsSection(title = "App") {
+                    SettingLine("Version ${BuildConfig.VERSION_NAME}")
+                    SettingLine("Application ID ${BuildConfig.APPLICATION_ID}")
+                }
             }
         }
     }
+}
+
+@Composable
+private fun SettingsSection(
+    title: String,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Spacer(Modifier.height(8.dp))
+        Column(content = content)
+        Spacer(Modifier.height(16.dp))
+        HorizontalDivider()
+    }
+}
+
+@Composable
+private fun SettingLine(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(vertical = 3.dp)
+    )
 }

@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,6 +25,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -38,6 +40,8 @@ import com.markleaf.notes.feature.search.SearchScreen
 import com.markleaf.notes.feature.settings.SettingsScreen
 import com.markleaf.notes.feature.tags.TagsScreen
 import com.markleaf.notes.feature.trash.TrashScreen
+import com.markleaf.notes.data.settings.AppSettings
+import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.ui.viewmodel.NotesViewModel
 import com.markleaf.notes.ui.viewmodel.SearchViewModel
 import com.markleaf.notes.ui.viewmodel.TrashViewModel
@@ -50,6 +54,9 @@ fun MarkleafNavHost(
     viewModelFactory: ViewModelProvider.Factory
 ) {
     val isExpanded = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded
+    val context = LocalContext.current
+    val settingsRepository = remember { AppSettingsRepository(context.applicationContext) }
+    val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
     
     NavHost(
         navController = navController,
@@ -92,7 +99,7 @@ fun MarkleafNavHost(
                         if (selectedNoteId != null) {
                             Box(
                                 modifier = Modifier
-                                    .widthIn(max = 800.dp)
+                                    .widthIn(max = appSettings.lineWidth.maxWidthDp.dp)
                                     .fillMaxWidth()
                                     .fillMaxHeight()
                             ) {
@@ -110,7 +117,7 @@ fun MarkleafNavHost(
                         } else {
                             Box(
                                 modifier = Modifier
-                                    .widthIn(max = 800.dp)
+                                    .widthIn(max = appSettings.lineWidth.maxWidthDp.dp)
                                     .fillMaxWidth()
                                     .fillMaxHeight(),
                                 contentAlignment = Alignment.Center

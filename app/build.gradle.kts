@@ -44,8 +44,8 @@ android {
         applicationId = "com.markleaf.notes"
         minSdk = 26
         targetSdk = 34
-        versionCode = 12
-        versionName = "1.0.11"
+        versionCode = 13
+        versionName = "1.0.12"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -128,6 +128,9 @@ dependencies {
     
     // DocumentFile (Storage Access Framework)
     implementation("androidx.documentfile:documentfile:1.0.1")
+
+    // Settings
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
     
     // Test
     testImplementation("junit:junit:4.13.2")

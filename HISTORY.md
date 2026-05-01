@@ -1,6 +1,22 @@
 # HISTORY
 
 ## 2026-05-01
+- Work: 설정 옵션 기반 추가. GitHub Issue #20 등록 후 구현.
+- Changed files:
+  - `app/src/main/java/com/markleaf/notes/data/settings/AppSettings.kt` (settings model)
+  - `app/src/main/java/com/markleaf/notes/data/settings/AppSettingsRepository.kt` (DataStore preferences repository)
+  - `app/src/main/java/com/markleaf/notes/feature/settings/SettingsScreen.kt` (Markdown syntax and line width controls)
+  - `app/src/main/java/com/markleaf/notes/navigation/MarkleafNavHost.kt` (line width applied to tablet editor pane)
+  - `app/build.gradle.kts` and `CHANGELOG.md` (v1.0.12)
+- Verification:
+  - `./gradlew.bat test`
+  - `./gradlew.bat lintDebug`
+  - `./gradlew.bat assembleDebug assembleRelease`
+  - Lenovo TB320FC Android 15 `v1.0.12` release APK install and launch check
+  - `rg "android.permission.INTERNET" -n app\src`
+- Result: Markdown 표시 방식과 line width 설정을 저장할 수 있고, line width가 태블릿 에디터 폭에 반영됨
+
+## 2026-05-01
 - Work: 태블릿 왼쪽 노트 목록 접기/펼치기. GitHub Issue #19 등록 후 구현.
 - Changed files:
   - `app/src/main/java/com/markleaf/notes/navigation/MarkleafNavHost.kt` (tablet collapse state, rail, constrained editor width)

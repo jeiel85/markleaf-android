@@ -22,10 +22,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +39,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.BuildConfig
 import com.markleaf.notes.R
+import com.markleaf.notes.data.settings.AppSettings
+import com.markleaf.notes.data.settings.AppSettingsRepository
+import com.markleaf.notes.data.settings.EditorLineWidth
+import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import com.markleaf.notes.util.BackupUtil
 import kotlinx.coroutines.launch
 
@@ -47,6 +53,8 @@ fun SettingsScreen(
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val scope = rememberCoroutineScope()
+    val settingsRepository = remember { AppSettingsRepository(context.applicationContext) }
+    val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
     var statusMessage by remember { mutableStateOf<String?>(null) }
 
     val backupLauncher = rememberLauncherForActivityResult(
@@ -126,6 +134,47 @@ fun SettingsScreen(
                 }
 
                 SettingsSection(title = "Markdown") {
+                    SettingsSwitchRow(
+                        title = "Show Markdown syntax",
+                        description = "The live editor can use this later to show or hide Markdown characters.",
+                        checked = appSettings.markdownSyntaxVisibility == MarkdownSyntaxVisibility.SHOW,
+                        onCheckedChange = { checked ->
+                            scope.launch {
+                                settingsRepository.setMarkdownSyntaxVisibility(
+                                    if (checked) MarkdownSyntaxVisibility.SHOW else MarkdownSyntaxVisibility.HIDE
+                                )
+                            }
+                        }
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        text = "Line width",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        EditorLineWidth.entries.forEach { lineWidth ->
+                            val selected = appSettings.lineWidth == lineWidth
+                            if (selected) {
+                                Button(onClick = {}) {
+                                    Text(lineWidth.label)
+                                }
+                            } else {
+                                OutlinedButton(
+                                    onClick = {
+                                        scope.launch {
+                                            settingsRepository.setLineWidth(lineWidth)
+                                        }
+                                    }
+                                ) {
+                                    Text(lineWidth.label)
+                                }
+                            }
+                        }
+                    }
+                    Spacer(Modifier.height(12.dp))
                     SettingLine("Preview supports headings, lists, checkboxes, images, note links, and inline Markdown links.")
                     SettingLine("External web links are shown as links but are not opened automatically in the MVP.")
                     SettingLine("Use [[Note Title]] or [label](Note Title) to jump through local search.")
@@ -143,6 +192,38 @@ fun SettingsScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun SettingsSwitchRow(
+    title: String,
+    description: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange
+        )
     }
 }
 

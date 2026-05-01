@@ -2,6 +2,23 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.0.12 - 설정 옵션 기반 추가 (Settings Foundation) - 2026-05-01
+
+### 추가
+- DataStore Preferences 기반 앱 설정 저장 구조를 추가했습니다.
+- 설정 화면에 Markdown syntax 표시/숨김 옵션을 추가했습니다.
+- 설정 화면에 Line width 옵션을 추가했습니다: Narrow, Comfortable, Wide.
+
+### 개선
+- 태블릿 에디터 최대 폭이 Line width 설정값을 따르도록 연결했습니다.
+- 기본 line width는 Comfortable 800dp로 유지합니다.
+
+### 검증
+- `./gradlew.bat test`
+- `./gradlew.bat lintDebug`
+- `./gradlew.bat assembleDebug assembleRelease`
+- Lenovo TB320FC Android 15 실기기에서 `v1.0.12` release APK 설치 및 실행 확인
+
 ## v1.0.11 - 태블릿 노트 목록 접기 (Collapsible Tablet Note List) - 2026-05-01
 
 ### 추가

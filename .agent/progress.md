@@ -1,4 +1,34 @@
 ---
+## 2026-05-01 - Issue #20 Settings Foundation
+Selected task:
+- [#20] 설정 옵션 기반 추가: Markdown 표시와 line width
+
+What was implemented:
+- Added DataStore Preferences dependency
+- Added app settings model and repository
+- Added Markdown syntax visibility setting
+- Added line width setting with Narrow, Comfortable, and Wide options
+- Applied line width to the tablet editor pane max width
+
+Files changed:
+- app/src/main/java/com/markleaf/notes/data/settings/AppSettings.kt
+- app/src/main/java/com/markleaf/notes/data/settings/AppSettingsRepository.kt
+- app/src/main/java/com/markleaf/notes/feature/settings/SettingsScreen.kt
+- app/src/main/java/com/markleaf/notes/navigation/MarkleafNavHost.kt
+- app/src/test/java/com/markleaf/notes/data/settings/AppSettingsTest.kt
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+
+Build/test result:
+- `./gradlew.bat test` passed
+- `./gradlew.bat lintDebug` passed
+- `./gradlew.bat assembleDebug assembleRelease` passed
+- Lenovo TB320FC Android 15 `v1.0.12` release APK install and launch check passed
+- No `android.permission.INTERNET` declaration found in app source
+
+---
+
 ## 2026-05-01 - Issue #19 Tablet Note List Collapse
 Selected task:
 - [#19] 태블릿 왼쪽 노트 목록 접기/펼치기

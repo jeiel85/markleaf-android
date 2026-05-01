@@ -15,6 +15,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Label
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -52,7 +53,8 @@ fun NotesListScreen(
     onSearchClick: () -> Unit = {},
     onTagsClick: () -> Unit = {},
     onTrashClick: () -> Unit = {},
-    onSettingsClick: () -> Unit = {}
+    onSettingsClick: () -> Unit = {},
+    onCollapseClick: (() -> Unit)? = null
 ) {
     val notesState = remember { mutableStateOf<List<Note>>(emptyList()) }
     LaunchedEffect(Unit) {
@@ -72,6 +74,11 @@ fun NotesListScreen(
                     )
                 },
                 actions = {
+                    if (onCollapseClick != null) {
+                        IconButton(onClick = onCollapseClick) {
+                            Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "Collapse note list")
+                        }
+                    }
                     IconButton(onClick = onSearchClick) {
                         Icon(Icons.Default.Search, contentDescription = "Search")
                     }

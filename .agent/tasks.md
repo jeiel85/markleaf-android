@@ -71,6 +71,7 @@
 - [x] [#15] Add first-run starter notes onboarding
 - [x] [#17] Improve Markdown link preview and settings navigation
 - [x] Improve editor Markdown toolbar (#18)
+- [x] Tablet note list collapse and constrained editor width (#19)
 - [ ] Improve note list and editor empty states
 - [ ] Add quick-open search for notes, tags, and links
 - [ ] Improve tag screen counts and navigation

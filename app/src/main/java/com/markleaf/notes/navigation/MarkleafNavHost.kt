@@ -3,7 +3,16 @@ package com.markleaf.notes.navigation
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -15,6 +24,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -51,39 +61,58 @@ fun MarkleafNavHost(
             
             if (isExpanded) {
                 var selectedNoteId by remember { mutableStateOf<String?>(null) }
+                var isNoteListCollapsed by remember { mutableStateOf(false) }
                 
                 Row(modifier = Modifier.fillMaxSize()) {
-                    Box(modifier = Modifier.weight(1f)) {
-                        NotesListScreen(
-                            viewModel = viewModel,
-                            onNoteClick = { noteId -> selectedNoteId = noteId },
-                            onFabClick = {
-                                coroutineScope.launch {
-                                    val newNote = viewModel.createNote()
-                                    selectedNoteId = newNote.id
-                                }
-                            },
-                            onSearchClick = { navController.navigate(NavRoutes.SEARCH) },
-                            onTagsClick = { navController.navigate(NavRoutes.TAGS) },
-                            onTrashClick = { navController.navigate(NavRoutes.TRASH) },
-                            onSettingsClick = { navController.navigate(NavRoutes.SETTINGS) }
-                        )
-                    }
-                    Box(modifier = Modifier.weight(1.5f)) {
-                        if (selectedNoteId != null) {
-                            EditorScreen(
-                                noteId = selectedNoteId,
-                                onBack = { selectedNoteId = null },
-                                onLinkClick = { title ->
-                                    navController.navigate("${NavRoutes.SEARCH}?query=${Uri.encode(title)}")
+                    if (isNoteListCollapsed) {
+                        CollapsedNoteListRail(onExpandClick = { isNoteListCollapsed = false })
+                    } else {
+                        Box(modifier = Modifier.weight(1f)) {
+                            NotesListScreen(
+                                viewModel = viewModel,
+                                onNoteClick = { noteId -> selectedNoteId = noteId },
+                                onFabClick = {
+                                    coroutineScope.launch {
+                                        val newNote = viewModel.createNote()
+                                        selectedNoteId = newNote.id
+                                    }
                                 },
-                                onNoteClick = { noteId ->
-                                    selectedNoteId = noteId
-                                }
+                                onSearchClick = { navController.navigate(NavRoutes.SEARCH) },
+                                onTagsClick = { navController.navigate(NavRoutes.TAGS) },
+                                onTrashClick = { navController.navigate(NavRoutes.TRASH) },
+                                onSettingsClick = { navController.navigate(NavRoutes.SETTINGS) },
+                                onCollapseClick = { isNoteListCollapsed = true }
                             )
+                        }
+                    }
+                    Box(
+                        modifier = Modifier.weight(if (isNoteListCollapsed) 1f else 1.5f),
+                        contentAlignment = Alignment.TopCenter
+                    ) {
+                        if (selectedNoteId != null) {
+                            Box(
+                                modifier = Modifier
+                                    .widthIn(max = 800.dp)
+                                    .fillMaxWidth()
+                                    .fillMaxHeight()
+                            ) {
+                                EditorScreen(
+                                    noteId = selectedNoteId,
+                                    onBack = { selectedNoteId = null },
+                                    onLinkClick = { title ->
+                                        navController.navigate("${NavRoutes.SEARCH}?query=${Uri.encode(title)}")
+                                    },
+                                    onNoteClick = { noteId ->
+                                        selectedNoteId = noteId
+                                    }
+                                )
+                            }
                         } else {
                             Box(
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier
+                                    .widthIn(max = 800.dp)
+                                    .fillMaxWidth()
+                                    .fillMaxHeight(),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text("Select a note to view")
@@ -151,6 +180,24 @@ fun MarkleafNavHost(
         }
         composable(NavRoutes.SETTINGS) {
             SettingsScreen(onBack = { navController.popBackStack() })
+        }
+    }
+}
+
+@Composable
+private fun CollapsedNoteListRail(
+    onExpandClick: () -> Unit
+) {
+    Surface {
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(56.dp),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            IconButton(onClick = onExpandClick) {
+                Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Expand note list")
+            }
         }
     }
 }

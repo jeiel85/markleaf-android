@@ -1,4 +1,31 @@
 ---
+## 2026-05-01 - Issue #19 Tablet Note List Collapse
+Selected task:
+- [#19] 태블릿 왼쪽 노트 목록 접기/펼치기
+
+What was implemented:
+- Added an optional collapse action to the Notes top app bar
+- Added a narrow tablet rail for expanding the note list again
+- Preserved the selected note while collapsing and expanding the list
+- Constrained the editor pane to a maximum width of 800dp on expanded screens
+- Left the phone single-pane flow unchanged
+
+Files changed:
+- app/src/main/java/com/markleaf/notes/navigation/MarkleafNavHost.kt
+- app/src/main/java/com/markleaf/notes/feature/notes/NotesListScreen.kt
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+
+Build/test result:
+- `./gradlew.bat test` passed
+- `./gradlew.bat lintDebug` passed
+- `./gradlew.bat assembleDebug assembleRelease` passed
+- Lenovo TB320FC Android 15 `v1.0.11` release APK install and launch check passed
+- No `android.permission.INTERNET` declaration found in app source
+
+---
+
 ## 2026-05-01 - Issue #18 Markdown Editing Toolbar
 Selected task:
 - [#18] Markdown 편집 툴바 개선

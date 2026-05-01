@@ -2,6 +2,23 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.0.11 - 태블릿 노트 목록 접기 (Collapsible Tablet Note List) - 2026-05-01
+
+### 추가
+- 태블릿 two-pane 화면에서 왼쪽 노트 목록을 접고 펼칠 수 있는 버튼을 추가했습니다.
+- 목록을 접은 상태에서도 다시 펼칠 수 있는 좁은 rail 버튼을 제공합니다.
+
+### 개선
+- 목록 접힘 상태에서도 선택된 노트를 유지합니다.
+- 넓은 화면에서 에디터가 과도하게 넓어지지 않도록 본문 영역을 최대 800dp 폭으로 중앙 정렬했습니다.
+- 폰 화면의 단일 pane 흐름은 변경하지 않았습니다.
+
+### 검증
+- `./gradlew.bat test`
+- `./gradlew.bat lintDebug`
+- `./gradlew.bat assembleDebug assembleRelease`
+- Lenovo TB320FC Android 15 실기기에서 `v1.0.11` release APK 설치 및 실행 확인
+
 ## v1.0.10 - Markdown 편집 툴바 추가 (Markdown Editing Toolbar) - 2026-05-01
 
 ### 추가

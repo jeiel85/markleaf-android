@@ -1,6 +1,20 @@
 # HISTORY
 
 ## 2026-05-01
+- Work: 태블릿 왼쪽 노트 목록 접기/펼치기. GitHub Issue #19 등록 후 구현.
+- Changed files:
+  - `app/src/main/java/com/markleaf/notes/navigation/MarkleafNavHost.kt` (tablet collapse state, rail, constrained editor width)
+  - `app/src/main/java/com/markleaf/notes/feature/notes/NotesListScreen.kt` (optional collapse action)
+  - `app/build.gradle.kts` and `CHANGELOG.md` (v1.0.11)
+- Verification:
+  - `./gradlew.bat test`
+  - `./gradlew.bat lintDebug`
+  - `./gradlew.bat assembleDebug assembleRelease`
+  - Lenovo TB320FC Android 15 `v1.0.11` release APK install and launch check
+  - `rg "android.permission.INTERNET" -n app\src`
+- Result: 태블릿에서 왼쪽 목록을 접을 수 있고, 접힘 상태에서도 에디터 폭을 최대 800dp로 제한
+
+## 2026-05-01
 - Work: Markdown 편집 툴바 개선. GitHub Issue #18 등록 후 구현.
 - Changed files:
   - `app/src/main/java/com/markleaf/notes/core/markdown/MarkdownEditActions.kt` (toolbar insertion logic)

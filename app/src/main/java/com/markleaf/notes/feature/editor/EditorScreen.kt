@@ -5,7 +5,9 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,13 +15,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckBox
+import androidx.compose.material.icons.filled.FormatBold
+import androidx.compose.material.icons.filled.FormatItalic
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -49,11 +56,13 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.markleaf.notes.R
+import com.markleaf.notes.core.markdown.MarkdownEditActions
 import com.markleaf.notes.core.markdown.PreviewInlineType
 import com.markleaf.notes.core.markdown.PreviewLineType
 import com.markleaf.notes.core.markdown.PreviewLine
@@ -81,7 +90,7 @@ fun EditorScreen(
     val tagRepo = remember { LocalTagRepository(db) }
     val coroutineScope = rememberCoroutineScope()
     
-    var content by remember(noteId) { mutableStateOf("") }
+    var editorState by remember(noteId) { mutableStateOf(TextFieldValue("")) }
     var saveTrigger by remember(noteId) { mutableStateOf(0) }
     var isLoaded by remember(noteId) { mutableStateOf(noteId == null) }
     var isPreviewMode by remember(noteId) { mutableStateOf(false) }
@@ -118,7 +127,7 @@ fun EditorScreen(
             
             coroutineScope.launch {
                 db.attachmentDao().insertAttachment(attachment)
-                content += "\n![$fileName]($uri)\n"
+                editorState = MarkdownEditActions.image(editorState, fileName, uri.toString())
                 saveTrigger++
             }
         }
@@ -128,7 +137,7 @@ fun EditorScreen(
         if (noteId == null) {
             isLoaded = true
         } else {
-            content = repo.getNote(noteId)?.contentMarkdown.orEmpty()
+            editorState = TextFieldValue(repo.getNote(noteId)?.contentMarkdown.orEmpty())
             isLoaded = true
         }
     }
@@ -139,6 +148,7 @@ fun EditorScreen(
             delay(1000)
             val currentNote = repo.getNote(noteId)
             if (currentNote != null) {
+                val content = editorState.text
                 val updatedNote = currentNote.copy(
                     title = TitleExtractor.extractTitle(content),
                     contentMarkdown = content,
@@ -166,13 +176,6 @@ fun EditorScreen(
                     }
                 },
                 actions = {
-                    if (!isPreviewMode && noteId != null) {
-                        IconButton(onClick = { 
-                            imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                        }) {
-                            Icon(Icons.Default.Image, "Add Image")
-                        }
-                    }
                     TextButton(onClick = { isPreviewMode = !isPreviewMode }) {
                         Text(if (isPreviewMode) "Edit" else "Preview", style = MaterialTheme.typography.labelLarge)
                     }
@@ -185,7 +188,7 @@ fun EditorScreen(
         }
     ) { paddingValues ->
         if (isPreviewMode) {
-            val previewLines = SimpleMarkdownPreview.parse(content)
+            val previewLines = SimpleMarkdownPreview.parse(editorState.text)
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -273,9 +276,9 @@ fun EditorScreen(
             Column(Modifier.fillMaxSize().padding(paddingValues).padding(16.dp)) {
                 Box(Modifier.weight(1f), contentAlignment = Alignment.TopStart) {
                     BasicTextField(
-                        value = content,
+                        value = editorState,
                         onValueChange = {
-                            content = it
+                            editorState = it
                             if (isLoaded) saveTrigger++
                         },
                         modifier = Modifier
@@ -283,11 +286,38 @@ fun EditorScreen(
                             .semantics { contentDescription = "Note content" },
                         textStyle = TextStyle(color = MaterialTheme.colorScheme.onBackground),
                         decorationBox = { innerTextField ->
-                            if (content.isEmpty()) Text("Start writing...", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            if (editorState.text.isEmpty()) Text("Start writing...", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             innerTextField()
                         }
                     )
                 }
+
+                MarkdownToolbar(
+                    imageEnabled = noteId != null,
+                    onBold = {
+                        editorState = MarkdownEditActions.bold(editorState)
+                        if (isLoaded) saveTrigger++
+                    },
+                    onItalic = {
+                        editorState = MarkdownEditActions.italic(editorState)
+                        if (isLoaded) saveTrigger++
+                    },
+                    onCheckbox = {
+                        editorState = MarkdownEditActions.checkbox(editorState)
+                        if (isLoaded) saveTrigger++
+                    },
+                    onMarkdownLink = {
+                        editorState = MarkdownEditActions.markdownLink(editorState)
+                        if (isLoaded) saveTrigger++
+                    },
+                    onWikiLink = {
+                        editorState = MarkdownEditActions.wikiLink(editorState)
+                        if (isLoaded) saveTrigger++
+                    },
+                    onImage = {
+                        imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                    }
+                )
 
                 if (backlinks.isNotEmpty()) {
                     HorizontalDivider()
@@ -305,6 +335,48 @@ fun EditorScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun MarkdownToolbar(
+    imageEnabled: Boolean,
+    onBold: () -> Unit,
+    onItalic: () -> Unit,
+    onCheckbox: () -> Unit,
+    onMarkdownLink: () -> Unit,
+    onWikiLink: () -> Unit,
+    onImage: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(top = 8.dp, bottom = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = onBold) {
+            Icon(Icons.Default.FormatBold, contentDescription = "Bold")
+        }
+        IconButton(onClick = onItalic) {
+            Icon(Icons.Default.FormatItalic, contentDescription = "Italic")
+        }
+        IconButton(onClick = onCheckbox) {
+            Icon(Icons.Default.CheckBox, contentDescription = "Checkbox")
+        }
+        IconButton(onClick = onMarkdownLink) {
+            Icon(Icons.Default.Link, contentDescription = "Markdown Link")
+        }
+        IconButton(onClick = onWikiLink) {
+            Icon(Icons.Default.Link, contentDescription = "Wiki Link")
+        }
+        IconButton(
+            onClick = onImage,
+            enabled = imageEnabled
+        ) {
+            Icon(Icons.Default.Image, contentDescription = "Image")
         }
     }
 }

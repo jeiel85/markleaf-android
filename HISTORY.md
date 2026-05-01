@@ -1,6 +1,21 @@
 # HISTORY
 
 ## 2026-05-01
+- Work: Markdown 편집 툴바 개선. GitHub Issue #18 등록 후 구현.
+- Changed files:
+  - `app/src/main/java/com/markleaf/notes/core/markdown/MarkdownEditActions.kt` (toolbar insertion logic)
+  - `app/src/main/java/com/markleaf/notes/feature/editor/EditorScreen.kt` (TextFieldValue editor state and toolbar UI)
+  - `app/src/test/java/com/markleaf/notes/core/markdown/MarkdownEditActionsTest.kt` (toolbar insertion tests)
+  - `app/build.gradle.kts` and `CHANGELOG.md` (v1.0.10)
+- Verification:
+  - `./gradlew.bat test`
+  - `./gradlew.bat lintDebug`
+  - `./gradlew.bat assembleDebug assembleRelease`
+  - Lenovo TB320FC Android 15 `v1.0.10` release APK install and launch check
+  - `rg "android.permission.INTERNET" -n app\src`
+- Result: Bold, Italic, Checkbox, Markdown Link, Wiki Link, Image 액션을 에디터 툴바에서 사용할 수 있게 함
+
+## 2026-05-01
 - Work: Markdown 링크 Preview 처리와 설정 화면 보강. GitHub Issue #17 등록 후 구현.
 - Changed files:
   - `app/src/main/java/com/markleaf/notes/core/markdown/SimpleMarkdownPreview.kt` (inline note/markdown link parsing)

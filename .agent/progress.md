@@ -1,4 +1,32 @@
 ---
+## 2026-05-01 - Issue #18 Markdown Editing Toolbar
+Selected task:
+- [#18] Markdown 편집 툴바 개선
+
+What was implemented:
+- Added a Markdown editing toolbar to the editor
+- Added Bold, Italic, Checkbox, Markdown Link, Wiki Link, and Image actions
+- Switched editor input state to `TextFieldValue` so selection-aware toolbar actions can work
+- Moved image insertion into the editing toolbar
+- Added unit tests for toolbar insertion behavior
+
+Files changed:
+- app/src/main/java/com/markleaf/notes/core/markdown/MarkdownEditActions.kt
+- app/src/main/java/com/markleaf/notes/feature/editor/EditorScreen.kt
+- app/src/test/java/com/markleaf/notes/core/markdown/MarkdownEditActionsTest.kt
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+
+Build/test result:
+- `./gradlew.bat test` passed
+- `./gradlew.bat lintDebug` passed
+- `./gradlew.bat assembleDebug assembleRelease` passed
+- Lenovo TB320FC Android 15 `v1.0.10` release APK install and launch check passed
+- No `android.permission.INTERNET` declaration found in app source
+
+---
+
 ## 2026-05-01 - Issue #17 Markdown Link Preview and Settings Polish
 Selected task:
 - [#17] Improve Markdown link preview and settings navigation

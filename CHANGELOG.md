@@ -2,6 +2,23 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.0.10 - Markdown 편집 툴바 추가 (Markdown Editing Toolbar) - 2026-05-01
+
+### 추가
+- Edit 화면 하단에 Markdown 편집 툴바를 추가했습니다.
+- Bold, Italic, Checkbox, Markdown Link, Wiki Link, Image 삽입 액션을 제공합니다.
+- 선택 영역이 있으면 해당 텍스트를 Markdown 문법으로 감싸고, 선택 영역이 없으면 기본 placeholder를 삽입합니다.
+
+### 개선
+- 에디터 입력 상태를 선택 영역까지 추적하도록 `TextFieldValue` 기반으로 전환했습니다.
+- 이미지 삽입 액션을 편집 툴바로 통합했습니다.
+
+### 검증
+- `./gradlew.bat test`
+- `./gradlew.bat lintDebug`
+- `./gradlew.bat assembleDebug assembleRelease`
+- Lenovo TB320FC Android 15 실기기에서 `v1.0.10` release APK 설치 및 실행 확인
+
 ## v1.0.9 - Markdown 링크 및 설정 화면 개선 (Markdown Links and Settings Polish) - 2026-05-01
 
 ### 수정

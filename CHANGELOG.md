@@ -2,6 +2,18 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.0.6 - 앱 시작 크래시 수정 (Startup Crash Fix) - 2026-05-01
+
+### 수정
+- 첫 화면에서 repository 인자가 필요한 ViewModel을 기본 factory로 생성하던 문제를 수정했습니다.
+- 앱 시작 시 `NotesViewModel` 생성 실패로 즉시 종료될 수 있던 경로를 명시적인 `MarkleafViewModelFactory`로 교체했습니다.
+- Notes, Search, Trash 화면이 동일한 repository 주입 경로를 사용하도록 정리했습니다.
+
+### 검증
+- `./gradlew.bat test`
+- `./gradlew.bat assembleDebug`
+- `./gradlew.bat assembleRelease`
+
 ## v1.0.5 - 릴리즈 제목 규칙 보정 (Release Title Rule Fix) - 2026-04-30
 
 ### 수정

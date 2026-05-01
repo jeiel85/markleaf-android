@@ -1,4 +1,53 @@
 ---
+## 2026-05-01 - Issue #13 Startup Crash Fix
+Selected task:
+- Fix app exiting immediately on launch
+
+Issue:
+- https://github.com/jeiel85/markleaf-android/issues/13
+
+What was found:
+- `NotesViewModel`, `SearchViewModel`, and `TrashViewModel` require `NoteRepository`
+- `MarkleafNavHost` used default `viewModel()` calls without a factory
+- The default factory cannot construct these ViewModels, which can crash on the first Notes route
+- `adb` was not available in this environment, so direct logcat verification was not possible
+
+What was implemented:
+- Added `MarkleafViewModelFactory`
+- Wired `MainActivity` to create `AppDatabase`, `LocalNoteRepository`, and one ViewModel factory
+- Passed the factory into `MarkleafNavHost`
+- Updated Notes/Search/Trash routes to use the explicit factory
+- Added factory regression tests for the three repository-backed ViewModels
+- Updated app version to `1.0.6` / `versionCode = 7`
+
+Files changed:
+- app/src/main/java/com/markleaf/notes/MainActivity.kt
+- app/src/main/java/com/markleaf/notes/navigation/MarkleafNavHost.kt
+- app/src/main/java/com/markleaf/notes/ui/viewmodel/MarkleafViewModelFactory.kt
+- app/src/test/java/com/markleaf/notes/ui/viewmodel/MarkleafViewModelFactoryTest.kt
+- app/src/test/java/com/markleaf/notes/MainActivityLaunchTest.kt
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/progress.md
+
+Commands run:
+- `gh issue create`
+- `./gradlew.bat test`
+- `./gradlew.bat assembleDebug`
+- `./gradlew.bat assembleRelease`
+- `rg "android.permission.INTERNET" -n app`
+
+Build/test result:
+- First test run exposed missing JVM Main dispatcher setup in the new test
+- Latest `test` passed after adding test dispatcher setup
+- `MainActivityLaunchTest` now verifies activity creation without crashing under Robolectric
+- `assembleDebug` passed
+- `assembleRelease` passed
+- No `android.permission.INTERNET` declaration found in app source
+
+---
+---
 ## 2026-04-30 - Release Title Rule Fix
 Selected task:
 - Restore release title rule used by `v1.0.0`

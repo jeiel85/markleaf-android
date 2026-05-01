@@ -1,5 +1,22 @@
 # HISTORY
 
+## 2026-05-01
+- Work: 앱 실행 직후 종료되는 시작 크래시 수정. GitHub Issue #13 등록 후 수정 진행.
+- Changed files:
+  - `app/src/main/java/com/markleaf/notes/MainActivity.kt` (root repository/factory wiring)
+  - `app/src/main/java/com/markleaf/notes/navigation/MarkleafNavHost.kt` (explicit ViewModel factory usage)
+  - `app/src/main/java/com/markleaf/notes/ui/viewmodel/MarkleafViewModelFactory.kt` (added)
+  - `app/src/test/java/com/markleaf/notes/ui/viewmodel/MarkleafViewModelFactoryTest.kt` (added)
+  - `app/build.gradle.kts` (updated to v1.0.6 / versionCode 7)
+  - `CHANGELOG.md` (added v1.0.6)
+  - `.agent/progress.md` (updated)
+- Verification:
+  - `./gradlew.bat test`
+  - `./gradlew.bat assembleDebug`
+  - `./gradlew.bat assembleRelease`
+  - `rg "android.permission.INTERNET" -n app`
+- Result: 앱 시작 경로의 ViewModel 생성 실패를 수정 완료
+
 ## 2026-04-30
 - Work: 릴리즈 제목 규칙을 `vX.Y.Z - 한국어 제목 (English Title)` 형식으로 복구.
 - Changed files:

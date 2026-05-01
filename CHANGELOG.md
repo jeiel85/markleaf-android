@@ -2,6 +2,18 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.0.16 - 노트 목록/편집기 빈 상태 개선 (Improve Empty States) - 2026-05-02
+
+### 추가
+- 노트 목록 빈 상태에 📝 아이콘과 안내 문구 개선
+- 편집기 빈 상태에 ✏️ 아이콘과 안내 문구 추가
+- 빈 상태 레이아웃에 중앙 정렬 및 여백 개선
+
+### 검증
+- `./gradlew.bat test`
+- `./gradlew.bat assembleDebug assembleRelease`
+- `rg "android.permission.INTERNET" -n app\src`
+
 ## v1.0.15 - 태블릿 2패널 시각 구분 개선 (Tablet Two-Pane Visual Polish) - 2026-05-01
 
 ### 개선

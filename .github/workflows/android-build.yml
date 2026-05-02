@@ -106,8 +106,11 @@ jobs:
           test -f "$APK"
           APKSIGNER="$ANDROID_HOME/build-tools/$(ls -1 "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)/apksigner"
           "$APKSIGNER" verify --print-certs "$APK" > signing-report.txt
+          cat signing-report.txt
           ACTUAL_SHA256="$(awk -F': ' '/certificate SHA-256 digest/ { print tolower($2); exit }' signing-report.txt)"
           EXPECTED_SHA256="$(printf '%s' "$MARKLEAF_RELEASE_CERT_SHA256" | tr 'A-F' 'a-f')"
+          printf 'ACTUAL_SHA256=%s\n' "$ACTUAL_SHA256"
+          printf 'EXPECTED_SHA256=%s\n' "$EXPECTED_SHA256"
           test -n "$ACTUAL_SHA256"
           test "$ACTUAL_SHA256" = "$EXPECTED_SHA256"
 

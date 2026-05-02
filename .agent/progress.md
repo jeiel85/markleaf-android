@@ -1,4 +1,45 @@
 ---
+## 2026-05-02 - Tag Counts And Navigation
+Selected task:
+- Improve tag screen counts and navigation
+
+What was implemented:
+- Added a Room projection for tags with active note counts
+- Added a local tag summary flow
+- Updated Tags screen rows to show tag name, active note count text, and a count badge
+- Kept tag row taps navigating to `#tag` search
+- Added English, Korean, and Spanish strings for tag note counts
+- Added repository test coverage for active-note tag counts excluding trashed notes
+- Updated app version to `1.0.25` / `versionCode = 26`
+
+Files changed:
+- app/src/main/java/com/markleaf/notes/data/local/dao/TagDao.kt
+- app/src/main/java/com/markleaf/notes/data/repository/LocalTagRepository.kt
+- app/src/main/java/com/markleaf/notes/domain/model/Tag.kt
+- app/src/main/java/com/markleaf/notes/feature/tags/TagsScreen.kt
+- app/src/main/res/values/strings.xml
+- app/src/main/res/values-ko/strings.xml
+- app/src/main/res/values-es/strings.xml
+- app/src/test/java/com/markleaf/notes/data/repository/LocalTagRepositoryTest.kt
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/tasks.md
+- .agent/progress.md
+
+Build/test result:
+- `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.data.repository.LocalTagRepositoryTest --tests com.markleaf.notes.res.ResourceParityTest` passed
+- `./gradlew.bat test` passed
+- `./gradlew.bat lintDebug` passed
+- `./gradlew.bat assembleDebug assembleRelease` passed
+- `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'` passed
+- `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk` showed certificate SHA-256 `0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a`
+- Release APK installed and launched on Lenovo TB320FC Android 15 (`HA238R8V`)
+- Installed package reports `versionName=1.0.25` and `versionCode=26`
+- Startup logcat smoke check found no `FATAL EXCEPTION`, `AndroidRuntime`, or `ANR` for Markleaf
+- No `android.permission.INTERNET` declaration found in app source
+
+---
 ## 2026-05-02 - Theme Contrast Audit
 Selected task:
 - Audit theme application and improve note list title contrast

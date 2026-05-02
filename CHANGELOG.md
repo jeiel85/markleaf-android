@@ -2,6 +2,27 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.0.25 - 태그 화면 개선 (Tag Counts and Navigation) - 2026-05-02
+
+### 개선
+- Tags 화면에서 각 태그가 연결된 활성 노트 수를 함께 표시합니다.
+- 태그 행을 누르면 기존처럼 `#태그` 검색으로 이동해 해당 태그의 노트를 바로 탐색할 수 있습니다.
+- 휴지통으로 이동한 노트는 태그 카운트에서 제외합니다.
+
+### 테스트
+- 태그별 활성 노트 수 집계를 검증하는 repository 테스트를 추가했습니다.
+- 기본/한국어/Spanish string resource parity를 유지했습니다.
+
+### 검증
+- `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.data.repository.LocalTagRepositoryTest --tests com.markleaf.notes.res.ResourceParityTest`
+- `./gradlew.bat test`
+- `./gradlew.bat lintDebug`
+- `./gradlew.bat assembleDebug assembleRelease`
+- `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+- `rg "android.permission.INTERNET" -n app\src`
+- `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk`
+- Lenovo TB320FC Android 15 실기기에서 `v1.0.25` release APK 설치 및 실행 확인
+
 ## v1.0.24 - 테마 대비 점검 (Theme Contrast Audit) - 2026-05-02
 
 ### 수정

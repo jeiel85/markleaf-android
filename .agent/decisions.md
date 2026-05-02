@@ -7,6 +7,16 @@
 
 ## Confirmed Decisions
 
+### D031 - Tag Counts Include Active Notes Only
+
+Tag list counts should describe currently visible, active notes.
+
+Implications:
+
+- Trashed notes do not contribute to tag counts.
+- Tag rows navigate to the existing local `#tag` search instead of introducing a separate tag detail route.
+- The tag screen remains a lightweight index over local Room data.
+
 ### D030 - Markleaf Uses A Stable App Color Scheme By Default
 
 Markleaf should use its own theme colors by default instead of letting Android dynamic color replace the core palette.

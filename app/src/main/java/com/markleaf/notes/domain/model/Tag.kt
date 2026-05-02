@@ -8,3 +8,8 @@ data class Tag(
     val normalizedName: String,
     val createdAt: Instant
 )
+
+data class TagSummary(
+    val tag: Tag,
+    val noteCount: Int
+)

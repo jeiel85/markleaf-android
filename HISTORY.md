@@ -1,6 +1,27 @@
 # HISTORY
 
 ## 2026-05-02
+- Work: Tag screen counts and navigation. Tags 화면에서 태그별 활성 노트 수를 표시하고 태그 검색 이동을 명확화.
+- Changed files:
+  - `app/src/main/java/com/markleaf/notes/data/local/dao/TagDao.kt` (tag count projection)
+  - `app/src/main/java/com/markleaf/notes/data/repository/LocalTagRepository.kt` (tag summary flow)
+  - `app/src/main/java/com/markleaf/notes/domain/model/Tag.kt` (tag summary model)
+  - `app/src/main/java/com/markleaf/notes/feature/tags/TagsScreen.kt` (count row UI)
+  - locale string resources for count labels
+  - `app/src/test/java/com/markleaf/notes/data/repository/LocalTagRepositoryTest.kt`
+  - `app/build.gradle.kts`, `.agent/tasks.md`, `CHANGELOG.md`
+- Verification:
+  - `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.data.repository.LocalTagRepositoryTest --tests com.markleaf.notes.res.ResourceParityTest`
+  - `./gradlew.bat test`
+  - `./gradlew.bat lintDebug`
+  - `./gradlew.bat assembleDebug assembleRelease`
+  - `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+  - `rg "android.permission.INTERNET" -n app\src`
+  - `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk`
+  - Lenovo TB320FC Android 15 `v1.0.25` release APK install and launch check
+- Result: 태그 목록에서 연결된 활성 노트 수를 바로 확인하고 태그 검색으로 이동 가능
+
+## 2026-05-02
 - Work: Theme contrast audit. 노트 목록 제목 대비와 전체 테마 적용 경로 점검.
 - Changed files:
   - `app/src/main/java/com/markleaf/notes/ui/theme/Theme.kt` (fixed Markleaf color scheme by default and normalized typography letter spacing)

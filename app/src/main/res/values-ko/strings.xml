@@ -49,6 +49,7 @@
     <string name="link_reference_count_format">참조 %1$d개</string>
     <string name="no_tags_yet">아직 태그가 없습니다</string>
     <string name="tags_empty_hint">노트에 #태그를 입력해 정리해보세요</string>
+    <string name="tag_note_count_format">%1$d개 노트</string>
 
     <string name="trash_empty">휴지통이 비어 있습니다</string>
     <string name="trash_empty_hint">삭제한 노트가 여기에 표시됩니다</string>

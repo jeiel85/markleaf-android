@@ -4,9 +4,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -33,7 +36,7 @@ fun TagsScreen(
 ) {
     val context = LocalContext.current
     val tagRepository = remember { LocalTagRepository(AppDatabase.getInstance(context)) }
-    val tags by tagRepository.observeAllTags().collectAsState(initial = emptyList())
+    val tagSummaries by tagRepository.observeTagSummaries().collectAsState(initial = emptyList())
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -46,7 +49,7 @@ fun TagsScreen(
                 modifier = Modifier.padding(16.dp)
             )
 
-            if (tags.isEmpty()) {
+            if (tagSummaries.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -72,20 +75,59 @@ fun TagsScreen(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(tags) { tag ->
-                        Text(
-                            text = "#${tag.name}",
-                            style = MaterialTheme.typography.titleMedium,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
+                    items(tagSummaries, key = { it.tag.id }) { summary ->
+                        TagRow(
+                            tagName = summary.tag.name,
+                            noteCount = summary.noteCount,
+                            onClick = { onTagClick("#${summary.tag.name}") },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { onTagClick("#${tag.name}") }
                                 .padding(horizontal = 16.dp, vertical = 12.dp)
                         )
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun TagRow(
+    tagName: String,
+    noteCount: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.clickable(onClick = onClick),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = "#$tagName",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = stringResource(R.string.tag_note_count_format, noteCount),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1
+            )
+        }
+        Spacer(modifier = Modifier.width(12.dp))
+        Surface(
+            color = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            shape = MaterialTheme.shapes.small
+        ) {
+            Text(
+                text = noteCount.toString(),
+                style = MaterialTheme.typography.labelMedium,
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+            )
         }
     }
 }

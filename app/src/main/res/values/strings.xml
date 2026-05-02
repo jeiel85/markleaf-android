@@ -49,6 +49,7 @@
     <string name="link_reference_count_format">%1$d references</string>
     <string name="no_tags_yet">No tags yet</string>
     <string name="tags_empty_hint">Type #tags in a note to organize it</string>
+    <string name="tag_note_count_format">%1$d notes</string>
 
     <string name="trash_empty">Trash is empty</string>
     <string name="trash_empty_hint">Notes you delete appear here</string>

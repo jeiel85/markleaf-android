@@ -10,6 +10,13 @@ import com.markleaf.notes.data.local.entity.TagEntity
 import com.markleaf.notes.data.local.entity.NoteTagCrossRef
 import kotlinx.coroutines.flow.Flow
 
+data class TagWithCount(
+    val id: Long,
+    val name: String,
+    val createdAt: Long,
+    val noteCount: Int
+)
+
 @Dao
 interface TagDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -26,6 +33,16 @@ interface TagDao {
 
     @Query("SELECT * FROM tags ORDER BY name ASC")
     fun observeAllTags(): Flow<List<TagEntity>>
+
+    @Query("""
+        SELECT tags.id, tags.name, tags.createdAt, COUNT(notes.id) AS noteCount
+        FROM tags
+        LEFT JOIN note_tag_cross_ref ON tags.id = note_tag_cross_ref.tagId
+        LEFT JOIN notes ON notes.id = note_tag_cross_ref.noteId AND notes.trashed = 0
+        GROUP BY tags.id, tags.name, tags.createdAt
+        ORDER BY tags.name ASC
+    """)
+    fun observeTagsWithCounts(): Flow<List<TagWithCount>>
 
     @Query("SELECT * FROM tags")
     suspend fun getAllTagsList(): List<TagEntity>

@@ -4,6 +4,7 @@ import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.local.entity.NoteTagCrossRef
 import com.markleaf.notes.data.local.entity.TagEntity
 import com.markleaf.notes.domain.model.Tag
+import com.markleaf.notes.domain.model.TagSummary
 import com.markleaf.notes.domain.repository.TagRepository
 import com.markleaf.notes.util.TagParser
 import kotlinx.coroutines.flow.Flow
@@ -62,6 +63,23 @@ class LocalTagRepository(
     override fun observeAllTags(): Flow<List<Tag>> {
         return db.tagDao().getAllTags()
             .map { entities -> entities.map { it.toDomainModel() } }
+    }
+
+    fun observeTagSummaries(): Flow<List<TagSummary>> {
+        return db.tagDao().observeTagsWithCounts()
+            .map { entities ->
+                entities.map { entity ->
+                    TagSummary(
+                        tag = Tag(
+                            id = entity.id,
+                            name = entity.name,
+                            normalizedName = TagParser.normalizeTagName(entity.name),
+                            createdAt = Instant.ofEpochMilli(entity.createdAt)
+                        ),
+                        noteCount = entity.noteCount
+                    )
+                }
+            }
     }
 
     override suspend fun getTagByName(name: String): Tag? {

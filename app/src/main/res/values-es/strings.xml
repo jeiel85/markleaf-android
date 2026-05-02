@@ -49,6 +49,7 @@
     <string name="link_reference_count_format">%1$d referencias</string>
     <string name="no_tags_yet">Aun no hay etiquetas</string>
     <string name="tags_empty_hint">Escribe #etiquetas en una nota para organizarla</string>
+    <string name="tag_note_count_format">%1$d notas</string>
 
     <string name="trash_empty">La papelera esta vacia</string>
     <string name="trash_empty_hint">Las notas que elimines apareceran aqui</string>

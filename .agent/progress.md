@@ -1,4 +1,27 @@
 ---
+## 2026-05-02 - Release Workflow Recovery Complete
+Selected task:
+- Recover failed tag release publishing and ship a fresh monotonic version
+
+What was implemented:
+- Confirmed the tag release failures were caused by the unquoted `-Pmarkleaf.requireReleaseSigning=true` argument in `.github/workflows/android-build.yml`
+- Kept the minimal workflow fix that quotes the Gradle property for the release build step
+- Bumped app version to `1.1.3` / `versionCode = 33` instead of reusing failed `v1.1.2`
+- Synced `CHANGELOG.md`, `HISTORY.md`, and `.agent/decisions.md` for the recovery release path
+
+Files changed:
+- .github/workflows/android-build.yml
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/progress.md
+- .agent/decisions.md
+
+Build/test result:
+- `./gradlew.bat :app:assembleRelease '-Pmarkleaf.requireReleaseSigning=true'` passed locally
+- Failed GitHub Actions release run `25246920678` confirmed the original malformed Gradle invocation as root cause
+
+---
 ## 2026-05-02 - Version Sync and Workflow Recovery
 Selected task:
 - Restore release workflow descriptive titles and sync project versioning

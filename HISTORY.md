@@ -1,10 +1,20 @@
 # HISTORY
 
 ## 2026-05-02
+- Work: v1.1.3 Release Workflow Recovery Complete. 태그 릴리즈 실패 원인 수정 후 새 버전으로 복구 릴리즈 준비.
+- Changed files:
+  - `.github/workflows/android-build.yml` (quoted release-signing Gradle property for tag releases)
+  - `app/build.gradle.kts` (versionCode 33, versionName 1.1.3)
+  - `CHANGELOG.md`, `HISTORY.md`, `.agent/progress.md`, `.agent/decisions.md`
+- Verification:
+  - `./gradlew.bat :app:assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+  - Release workflow root cause confirmed from failed GitHub Actions run `25246920678`
+
+## 2026-05-02
 - Work: v1.1.2 Version Sync and Workflow Recovery. 워크플로우 퇴행 복구 및 문서/버전 정합성 맞춤.
 - Changed files:
   - `.github/workflows/android-build.yml` (Restored title extraction)
-  - `app/build.gradle.kts` (versionCode 31, versionName 1.1.2)
+  - `app/build.gradle.kts` (versionCode 32, versionName 1.1.2)
   - `CHANGELOG.md`, `HISTORY.md`, `.agent/progress.md`
 - Verification: GitHub Actions Triggered upon push
 

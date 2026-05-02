@@ -7,6 +7,16 @@
 
 ## Confirmed Decisions
 
+### D034 - Failed Public Releases Recover With A New Monotonic Version
+
+When a public tag release fails before publishing correctly, Markleaf should recover with a new app version and tag instead of rewriting or reusing the failed tag.
+
+Implications:
+
+- Android `versionCode` remains strictly increasing even if a failed build artifact was shared or cached externally.
+- Git tags and GitHub Releases preserve an auditable history of failed versus successful release attempts.
+- Release workflow fixes should be validated on the next fresh tag release, not bypassed by a manual-only publication path.
+
 ### D033 - Backup Status Should Report Local Operation Counts
 
 Backup and restore feedback should describe what happened locally, not only success or failure.

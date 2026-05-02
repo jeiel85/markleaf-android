@@ -2,6 +2,13 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.1.3 - 릴리즈 워크플로우 복구 완료 (Release Workflow Recovery Complete) - 2026-05-02
+
+### 수정
+- **태그 릴리즈 복구:** GitHub Actions release job에서 `-Pmarkleaf.requireReleaseSigning=true` 인자를 안전하게 전달하도록 수정해 `v1.1.0`~`v1.1.2` 태그 릴리즈 실패 원인을 제거했습니다.
+- **새 복구 버전 발행:** Android 업데이트 계보를 안전하게 이어가기 위해 `versionCode`를 `33`으로 올리고 `versionName`을 `1.1.3`으로 상향했습니다.
+- **릴리즈 이력 정리:** 실패한 기존 태그를 재사용하지 않고 새 태그 릴리즈로 복구하도록 문서와 작업 기록을 정리했습니다.
+
 ## v1.1.2 - 버전 불일치 및 워크플로우 복구 (Version Sync and Workflow Recovery) - 2026-05-02
 
 ### 수정

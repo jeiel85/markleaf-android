@@ -7,6 +7,16 @@
 
 ## Confirmed Decisions
 
+### D032 - Backlinks Show Local Context
+
+Backlinks should show the source note title and a short local snippet around the link occurrence.
+
+Implications:
+
+- The editor can explain why a note links here without opening the source note first.
+- Snippets are generated from local Markdown content and do not require search indexing or network services.
+- Existing backlink navigation stays unchanged: tapping a backlink opens the source note.
+
 ### D031 - Tag Counts Include Active Notes Only
 
 Tag list counts should describe currently visible, active notes.

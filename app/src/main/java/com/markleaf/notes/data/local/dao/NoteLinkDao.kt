@@ -21,6 +21,9 @@ interface NoteLinkDao {
     @Query("SELECT * FROM note_links WHERE targetNoteId = :targetNoteId")
     fun getBacklinksToNote(targetNoteId: String): Flow<List<NoteLinkEntity>>
 
+    @Query("SELECT * FROM note_links WHERE targetNoteId = :targetNoteId")
+    suspend fun getBacklinksToNoteList(targetNoteId: String): List<NoteLinkEntity>
+
     @Query("""
         SELECT rawLabel, targetNoteId, COUNT(*) AS sourceCount
         FROM note_links

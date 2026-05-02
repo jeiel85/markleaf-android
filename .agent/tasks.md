@@ -80,7 +80,7 @@
 - [x] Add quick-open search for notes, tags, and links
 - [x] Audit theme application and improve note list title contrast
 - [x] Improve tag screen counts and navigation
-- [ ] Improve backlinks with context snippets
+- [x] Improve backlinks with context snippets
 - [ ] Improve export and backup status messages
 - [x] Add large dataset performance checks
 

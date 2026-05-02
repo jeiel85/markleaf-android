@@ -6,6 +6,7 @@ import com.markleaf.notes.data.local.entity.NoteLinkEntity
 import com.markleaf.notes.data.local.entity.NoteSnapshotEntity
 import com.markleaf.notes.data.local.entity.toEntity
 import com.markleaf.notes.data.local.entity.toDomain
+import com.markleaf.notes.domain.model.BacklinkSnippet
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.domain.model.NoteSnapshot
 import com.markleaf.notes.domain.repository.NoteRepository
@@ -73,6 +74,23 @@ class LocalNoteRepository(
     override fun getBacklinks(noteId: String): Flow<List<Note>> {
         return database.noteDao().getBacklinkingNotes(noteId).map { entities ->
             entities.map { it.toDomain() }
+        }
+    }
+
+    fun getBacklinkSnippets(noteId: String): Flow<List<BacklinkSnippet>> {
+        return database.noteDao().getBacklinkingNotes(noteId).map { entities ->
+            val linksBySource = database.noteLinkDao()
+                .getBacklinksToNoteList(noteId)
+                .groupBy { it.sourceNoteId }
+
+            entities.map { entity ->
+                val note = entity.toDomain()
+                val rawLabel = linksBySource[note.id]?.firstOrNull()?.rawLabel.orEmpty()
+                BacklinkSnippet(
+                    note = note,
+                    snippet = buildBacklinkSnippet(note, rawLabel)
+                )
+            }
         }
     }
 
@@ -164,6 +182,31 @@ class LocalNoteRepository(
             excerpt != nextNote.excerpt
     }
 
+    private fun buildBacklinkSnippet(note: Note, rawLabel: String): String {
+        val content = note.contentMarkdown.replace(Regex("\\s+"), " ").trim()
+        val fallback = note.excerpt.ifBlank { content }.trim()
+        if (content.isEmpty()) return fallback
+
+        val candidates = listOf("[[$rawLabel]]", rawLabel).filter { it.isNotBlank() }
+        val matchIndex = candidates
+            .asSequence()
+            .map { candidate -> content.indexOf(candidate, ignoreCase = true) }
+            .firstOrNull { it >= 0 }
+            ?: -1
+
+        if (matchIndex < 0) return fallback.takeSnippet()
+
+        val start = (matchIndex - snippetContextLength).coerceAtLeast(0)
+        val end = (matchIndex + rawLabel.length + snippetContextLength).coerceAtMost(content.length)
+        val prefix = if (start > 0) "..." else ""
+        val suffix = if (end < content.length) "..." else ""
+        return "$prefix${content.substring(start, end).trim()}$suffix"
+    }
+
+    private fun String.takeSnippet(): String {
+        return if (length <= maxSnippetLength) this else take(maxSnippetLength).trimEnd() + "..."
+    }
+
     private fun String.toFtsPrefixQuery(): String {
         return split(Regex("\\s+"))
             .map { token ->
@@ -173,5 +216,10 @@ class LocalNoteRepository(
             }
             .filter { it.isNotBlank() }
             .joinToString(separator = " ") { "$it*" }
+    }
+
+    private companion object {
+        const val snippetContextLength = 56
+        const val maxSnippetLength = 140
     }
 }

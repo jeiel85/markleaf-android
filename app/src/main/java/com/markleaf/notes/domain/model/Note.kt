@@ -15,3 +15,8 @@ data class Note(
     val deletedAt: Instant? = null,
     val tags: List<Tag> = emptyList()
 )
+
+data class BacklinkSnippet(
+    val note: Note,
+    val snippet: String
+)

@@ -68,6 +68,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -87,6 +88,7 @@ import com.markleaf.notes.data.repository.LocalTagRepository
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
+import com.markleaf.notes.domain.model.BacklinkSnippet
 import com.markleaf.notes.domain.model.NoteSnapshot
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -118,9 +120,9 @@ fun EditorScreen(
     var snapshots by remember(noteId) { mutableStateOf<List<NoteSnapshot>>(emptyList()) }
 
     val backlinks by if (noteId != null) {
-        repo.getBacklinks(noteId).collectAsState(initial = emptyList())
+        repo.getBacklinkSnippets(noteId).collectAsState(initial = emptyList())
     } else {
-        remember { mutableStateOf(emptyList<com.markleaf.notes.domain.model.Note>()) }
+        remember { mutableStateOf(emptyList<BacklinkSnippet>()) }
     }
 
     val imagePicker = rememberLauncherForActivityResult(
@@ -309,11 +311,13 @@ fun EditorScreen(
                         Spacer(Modifier.height(8.dp))
                     }
                     items(backlinks) { backlink ->
-                        Text(
-                            text = backlink.title,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.fillMaxWidth().clickable { onNoteClick(backlink.id) }.padding(vertical = 8.dp)
+                        BacklinkSnippetRow(
+                            backlink = backlink,
+                            titleStyle = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onNoteClick(backlink.note.id) }
+                                .padding(vertical = 8.dp)
                         )
                     }
                 }
@@ -410,13 +414,15 @@ fun EditorScreen(
                     HorizontalDivider()
                     Spacer(Modifier.height(8.dp))
                     Text(stringResource(R.string.backlinks), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.secondary)
-                    LazyColumn(Modifier.fillMaxWidth().height(100.dp)) {
+                    LazyColumn(Modifier.fillMaxWidth().height(140.dp)) {
                         items(backlinks) { backlink ->
-                            Text(
-                                text = backlink.title,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.fillMaxWidth().clickable { onNoteClick(backlink.id) }.padding(vertical = 4.dp)
+                            BacklinkSnippetRow(
+                                backlink = backlink,
+                                titleStyle = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onNoteClick(backlink.note.id) }
+                                    .padding(vertical = 4.dp)
                             )
                         }
                     }
@@ -441,6 +447,33 @@ fun EditorScreen(
                 }
             }
         )
+    }
+}
+
+@Composable
+private fun BacklinkSnippetRow(
+    backlink: BacklinkSnippet,
+    titleStyle: TextStyle,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = backlink.note.title,
+            style = titleStyle,
+            color = MaterialTheme.colorScheme.primary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        if (backlink.snippet.isNotBlank()) {
+            Text(
+                text = backlink.snippet,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
     }
 }
 

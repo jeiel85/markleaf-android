@@ -1,4 +1,41 @@
 ---
+## 2026-05-02 - Backlink Context Snippets
+Selected task:
+- Improve backlinks with context snippets
+
+What was implemented:
+- Added a `BacklinkSnippet` domain model
+- Added local backlink link lookup for raw labels
+- Added repository snippet generation around the wiki link occurrence
+- Updated preview and edit backlink rows to show source note title and context snippet
+- Added repository test coverage for backlink snippet context
+- Updated app version to `1.0.26` / `versionCode = 27`
+
+Files changed:
+- app/src/main/java/com/markleaf/notes/domain/model/Note.kt
+- app/src/main/java/com/markleaf/notes/data/local/dao/NoteLinkDao.kt
+- app/src/main/java/com/markleaf/notes/data/repository/LocalNoteRepository.kt
+- app/src/main/java/com/markleaf/notes/feature/editor/EditorScreen.kt
+- app/src/test/java/com/markleaf/notes/data/repository/LocalNoteRepositoryTest.kt
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/tasks.md
+- .agent/progress.md
+
+Build/test result:
+- `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.data.repository.LocalNoteRepositoryTest` passed
+- `./gradlew.bat test` passed
+- `./gradlew.bat lintDebug` passed
+- `./gradlew.bat assembleDebug assembleRelease` passed
+- `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'` passed
+- `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk` showed certificate SHA-256 `0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a`
+- Release APK installed and launched on Lenovo TB320FC Android 15 (`192.168.45.31:5555`)
+- Installed package reports `versionName=1.0.26` and `versionCode=27`
+- Startup logcat smoke check found no `FATAL EXCEPTION`, `AndroidRuntime`, or `ANR` for Markleaf
+- No `android.permission.INTERNET` declaration found in app source
+
+---
 ## 2026-05-02 - Tag Counts And Navigation
 Selected task:
 - Improve tag screen counts and navigation

@@ -63,6 +63,36 @@ class LocalNoteRepositoryTest {
     }
 
     @Test
+    fun `getBacklinkSnippets includes context around wiki link`() = runTest {
+        val now = Instant.ofEpochMilli(1L)
+        val target = Note(
+            id = "target-note",
+            title = "Target",
+            contentMarkdown = "# Target",
+            excerpt = "Target",
+            createdAt = now,
+            updatedAt = now
+        )
+        val source = Note(
+            id = "source-note",
+            title = "Source",
+            contentMarkdown = "Before context explains why [[Target]] matters after context.",
+            excerpt = "Before context",
+            createdAt = now,
+            updatedAt = now
+        )
+
+        repository.createNote(target)
+        repository.createNote(source)
+        repository.updateNote(source)
+
+        val backlinks = repository.getBacklinkSnippets("target-note").first()
+        assertEquals(listOf("source-note"), backlinks.map { it.note.id })
+        assertTrue(backlinks.first().snippet.contains("[[Target]]"))
+        assertTrue(backlinks.first().snippet.contains("after context"))
+    }
+
+    @Test
     fun `updateNote stores previous content as snapshot`() = runTest {
         val now = Instant.ofEpochMilli(1L)
         val note = Note(

@@ -1,6 +1,26 @@
 # HISTORY
 
 ## 2026-05-02
+- Work: Backlink context snippets. 에디터 백링크 목록에 링크 주변 문맥 표시 추가.
+- Changed files:
+  - `app/src/main/java/com/markleaf/notes/domain/model/Note.kt` (backlink snippet model)
+  - `app/src/main/java/com/markleaf/notes/data/local/dao/NoteLinkDao.kt` (backlink link lookup)
+  - `app/src/main/java/com/markleaf/notes/data/repository/LocalNoteRepository.kt` (snippet generation)
+  - `app/src/main/java/com/markleaf/notes/feature/editor/EditorScreen.kt` (title + snippet backlink rows)
+  - `app/src/test/java/com/markleaf/notes/data/repository/LocalNoteRepositoryTest.kt`
+  - `app/build.gradle.kts`, `.agent/tasks.md`, `CHANGELOG.md`
+- Verification:
+  - `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.data.repository.LocalNoteRepositoryTest`
+  - `./gradlew.bat test`
+  - `./gradlew.bat lintDebug`
+  - `./gradlew.bat assembleDebug assembleRelease`
+  - `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+  - `rg "android.permission.INTERNET" -n app\src`
+  - `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk`
+  - Lenovo TB320FC Android 15 `v1.0.26` release APK install and launch check
+- Result: 백링크 목록에서 어떤 문맥에서 현재 노트가 참조됐는지 바로 확인 가능
+
+## 2026-05-02
 - Work: Tag screen counts and navigation. Tags 화면에서 태그별 활성 노트 수를 표시하고 태그 검색 이동을 명확화.
 - Changed files:
   - `app/src/main/java/com/markleaf/notes/data/local/dao/TagDao.kt` (tag count projection)

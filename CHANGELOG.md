@@ -2,6 +2,26 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.0.26 - 백링크 문맥 표시 (Backlink Context Snippets) - 2026-05-02
+
+### 개선
+- 에디터 백링크 목록에서 링크가 등장한 주변 문맥을 함께 표시합니다.
+- Preview/Edit 화면의 백링크 항목을 제목 + snippet 구조로 정리했습니다.
+- 기존 백링크 제목 탭 이동은 유지했습니다.
+
+### 테스트
+- wiki link 주변 문맥이 backlink snippet에 포함되는지 검증하는 repository 테스트를 추가했습니다.
+
+### 검증
+- `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.data.repository.LocalNoteRepositoryTest`
+- `./gradlew.bat test`
+- `./gradlew.bat lintDebug`
+- `./gradlew.bat assembleDebug assembleRelease`
+- `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+- `rg "android.permission.INTERNET" -n app\src`
+- `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk`
+- Lenovo TB320FC Android 15 실기기에서 `v1.0.26` release APK 설치 및 실행 확인
+
 ## v1.0.25 - 태그 화면 개선 (Tag Counts and Navigation) - 2026-05-02
 
 ### 개선

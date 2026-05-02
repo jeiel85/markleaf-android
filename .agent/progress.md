@@ -1,4 +1,26 @@
 ---
+## 2026-05-02 - Release Tag Recovery Complete
+Selected task:
+- Correct Ubuntu tag-release argument ordering and publish a fresh recovery tag
+
+What was implemented:
+- Observed that the quoted property still failed on GitHub Actions Ubuntu because Gradle received the property token after the task path
+- Updated `.github/workflows/android-build.yml` to pass `-Pmarkleaf.requireReleaseSigning=true` before `:app:assembleRelease`
+- Bumped app version again to `1.1.4` / `versionCode = 34` so the next public recovery tag stays monotonic
+- Synced release history documents for the failed `v1.1.3` attempt and the fresh `v1.1.4` retry
+
+Files changed:
+- .github/workflows/android-build.yml
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/progress.md
+
+Build/test result:
+- GitHub Actions run `25250226582` isolated the remaining bash-side Gradle argument parsing failure
+- Recovery retag plan moved to `v1.1.4`
+
+---
 ## 2026-05-02 - Release Workflow Recovery Complete
 Selected task:
 - Recover failed tag release publishing and ship a fresh monotonic version

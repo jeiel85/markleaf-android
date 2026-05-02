@@ -1,6 +1,16 @@
 # HISTORY
 
 ## 2026-05-02
+- Work: v1.1.4 Release Tag Recovery Complete. bash 기반 tag release 인자 순서 보정 후 새 버전으로 재복구.
+- Changed files:
+  - `.github/workflows/android-build.yml` (move release-signing Gradle property before release task)
+  - `app/build.gradle.kts` (versionCode 34, versionName 1.1.4)
+  - `CHANGELOG.md`, `HISTORY.md`, `.agent/progress.md`
+- Verification:
+  - GitHub Actions run `25250226582` failed with task parsing on Ubuntu bash
+  - Recovery path updated to publish a fresh `v1.1.4` tag instead of reusing failed `v1.1.3`
+
+## 2026-05-02
 - Work: v1.1.3 Release Workflow Recovery Complete. 태그 릴리즈 실패 원인 수정 후 새 버전으로 복구 릴리즈 준비.
 - Changed files:
   - `.github/workflows/android-build.yml` (quoted release-signing Gradle property for tag releases)

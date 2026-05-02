@@ -2,6 +2,13 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.1.4 - 릴리즈 태그 복구 완료 (Release Tag Recovery Complete) - 2026-05-02
+
+### 수정
+- **bash 인자 순서 보정:** GitHub Actions의 Ubuntu runner에서 Gradle project property가 task 이름에 흡수되지 않도록 `-Pmarkleaf.requireReleaseSigning=true`를 release task 앞에 배치했습니다.
+- **재복구 버전 발행:** 실패한 `v1.1.3` 태그를 재사용하지 않고 `versionCode`를 `34`, `versionName`을 `1.1.4`로 올려 새 복구 릴리즈를 발행합니다.
+- **복구 기록 정리:** `v1.1.3` 실패 시도와 `v1.1.4` 성공 경로를 구분할 수 있도록 작업 이력과 릴리즈 문서를 갱신했습니다.
+
 ## v1.1.3 - 릴리즈 워크플로우 복구 완료 (Release Workflow Recovery Complete) - 2026-05-02
 
 ### 수정

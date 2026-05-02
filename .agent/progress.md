@@ -1,4 +1,27 @@
 ---
+## 2026-05-02 - Release Gradle Execution Recovery Complete
+Selected task:
+- Recover the tag release job so it actually runs assembleRelease and publish a fresh automated release
+
+What was implemented:
+- Confirmed `v1.1.8` still failed because the release build step executed `:help` instead of `:app:assembleRelease`
+- Updated `.github/workflows/android-build.yml` to use the valid Gradle CLI form `./gradlew -Pmarkleaf.requireReleaseSigning=true :app:assembleRelease`
+- Kept the broader APK discovery logic for the follow-up signing verification and asset upload steps
+- Bumped app version again to `1.1.9` / `versionCode = 39` for a fresh monotonic automated retry tag
+
+Files changed:
+- .github/workflows/android-build.yml
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/progress.md
+- .agent/decisions.md
+
+Build/test result:
+- GitHub Actions run `25250550935` isolated the remaining Gradle command invocation failure
+- Recovery retag plan moved to `v1.1.9`
+
+---
 ## 2026-05-02 - Release APK Full Build Tree Discovery Complete
 Selected task:
 - Recover the release job from release-subtree-only APK discovery assumptions and publish a fresh tag

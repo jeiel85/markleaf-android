@@ -2,6 +2,13 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.1.9 - 릴리즈 Gradle 실행 복구 완료 (Release Gradle Execution Recovery Complete) - 2026-05-02
+
+### 수정
+- **release Gradle 실행 복구:** GitHub Actions release job이 `-Pmarkleaf.requireReleaseSigning=true`를 올바른 Gradle project property로 해석하도록 실행 구문을 `./gradlew -Pmarkleaf.requireReleaseSigning=true :app:assembleRelease`로 바로잡았습니다.
+- **새 복구 버전 발행:** 기존 `v1.1.8` 수동 릴리즈는 유지하고, 자동 릴리즈 녹색 복구용으로 `versionCode`를 `39`, `versionName`을 `1.1.9`로 올렸습니다.
+- **자동 릴리즈 경로 정합성 보강:** 이제 tag release job은 실제 release task를 수행한 뒤 APK 탐색/서명 확인/asset 업로드 단계로 이어지도록 정합성을 맞췄습니다.
+
 ## v1.1.8 - 릴리즈 APK 전체 경로 탐색 복구 완료 (Release APK Full Build Tree Discovery Complete) - 2026-05-02
 
 ### 수정

@@ -1,6 +1,16 @@
 # HISTORY
 
 ## 2026-05-02
+- Work: v1.1.9 Release Gradle Execution Recovery Complete. tag release step이 실제 assembleRelease를 수행하도록 복구.
+- Changed files:
+  - `.github/workflows/android-build.yml` (use valid Gradle property/task ordering without quoting the property)
+  - `app/build.gradle.kts` (versionCode 39, versionName 1.1.9)
+  - `CHANGELOG.md`, `HISTORY.md`, `.agent/progress.md`, `.agent/decisions.md`
+- Verification:
+  - GitHub Actions run `25250550935` proved the prior command executed `:help` instead of `:app:assembleRelease`
+  - Recovery path updated to publish a fresh automated tag release as `v1.1.9`
+
+## 2026-05-02
 - Work: v1.1.8 Release APK Full Build Tree Discovery Complete. release output subtree 가정을 제거하고 app/build 전체에서 APK를 탐색하도록 workflow 복구.
 - Changed files:
   - `.github/workflows/android-build.yml` (discover release APK anywhere under app/build)

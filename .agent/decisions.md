@@ -7,6 +7,16 @@
 
 ## Confirmed Decisions
 
+### D039 - Tag Release Gradle Invocation Must Use Native CLI Ordering
+
+GitHub Actions tag release steps must pass Gradle project properties using the normal CLI ordering instead of quoted pseudo-task forms.
+
+Implications:
+
+- `-P...` flags appear before the target task path in release automation.
+- The release job must execute the real `:app:assembleRelease` task rather than silently falling back to `:help` or malformed task parsing.
+- Subsequent signing verification and asset upload only make sense after the real release task has run.
+
 ### D038 - Release Automation Searches The Full App Build Tree
 
 GitHub release automation should search the full app build tree for APK outputs when narrower output directory assumptions fail in CI.

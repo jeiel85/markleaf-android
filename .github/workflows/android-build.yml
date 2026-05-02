@@ -94,7 +94,13 @@ jobs:
           MARKLEAF_RELEASE_STORE_PASSWORD: ${{ secrets.MARKLEAF_RELEASE_STORE_PASSWORD }}
           MARKLEAF_RELEASE_KEY_ALIAS: ${{ secrets.MARKLEAF_RELEASE_KEY_ALIAS }}
           MARKLEAF_RELEASE_KEY_PASSWORD: ${{ secrets.MARKLEAF_RELEASE_KEY_PASSWORD }}
-        run: ./gradlew assembleRelease -Pmarkleaf.requireReleaseSigning=true
+        run: |
+          ./gradlew :app:assembleRelease \
+            -Pmarkleaf.requireReleaseSigning=true \
+            -Pandroid.injected.signing.store.file="$MARKLEAF_RELEASE_STORE_FILE" \
+            -Pandroid.injected.signing.store.password="$MARKLEAF_RELEASE_STORE_PASSWORD" \
+            -Pandroid.injected.signing.key.alias="$MARKLEAF_RELEASE_KEY_ALIAS" \
+            -Pandroid.injected.signing.key.password="$MARKLEAF_RELEASE_KEY_PASSWORD"
 
       - name: Verify release signing certificate
         run: |

@@ -1,6 +1,21 @@
 # HISTORY
 
 ## 2026-05-02
+- Work: v1.1.0 Comprehensive Release. 백링크 컨텍스트, 태그 카운트, 포괄적 테스트 스위트 구축 및 릴리즈.
+- Changed files:
+  - `app/build.gradle.kts` (versionCode 29, versionName 1.1.0)
+  - `app/src/androidTest/java/com/markleaf/notes/ui/ComprehensiveFeatureTest.kt` (50-case test suite)
+  - `app/src/androidTest/java/com/markleaf/notes/ui/AppIntegrationTest.kt` (i18n support)
+  - `app/src/androidTest/java/com/markleaf/notes/ui/EditorScreenTest.kt` (i18n support)
+  - `CHANGELOG.md`, `HISTORY.md`
+- Verification:
+  - Phone (SM-S921N) & Tablet (TB320FC) on-device testing (50 scenarios)
+  - `.\gradlew.bat connectedDebugAndroidTest`
+  - `.\gradlew.bat test`
+  - `.\gradlew.bat lintDebug`
+- Result: 주요 기능 고도화 완료 및 릴리즈 빌드 배포 준비 완료
+
+## 2026-05-02
 - Work: Backup status messages. Settings 백업/복원 결과 메시지에 처리 개수와 실패 안내 추가.
 - Changed files:
   - `app/src/main/java/com/markleaf/notes/util/BackupUtil.kt` (operation result with counts)

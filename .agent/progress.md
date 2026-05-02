@@ -1,4 +1,27 @@
 ---
+## 2026-05-02 - Release Gradle Environment Recovery Complete
+Selected task:
+- Remove shell-sensitive Gradle property passing and publish a fresh automated tag release
+
+What was implemented:
+- Confirmed `v1.1.9` still failed because bash/Gradle CLI parsing in the release job fell back to `:help`
+- Updated `.github/workflows/android-build.yml` to pass `markleaf.requireReleaseSigning=true` via `ORG_GRADLE_PROJECT_markleaf.requireReleaseSigning`
+- Kept the broader APK discovery logic after the real release task runs
+- Bumped app version again to `1.1.10` / `versionCode = 40` for a fresh monotonic automated retry tag
+
+Files changed:
+- .github/workflows/android-build.yml
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/progress.md
+- .agent/decisions.md
+
+Build/test result:
+- GitHub Actions run `25250909236` isolated the remaining shell-sensitive Gradle CLI property passing failure
+- Recovery retag plan moved to `v1.1.10`
+
+---
 ## 2026-05-02 - Release Gradle Execution Recovery Complete
 Selected task:
 - Recover the tag release job so it actually runs assembleRelease and publish a fresh automated release

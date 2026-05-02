@@ -1,6 +1,16 @@
 # HISTORY
 
 ## 2026-05-02
+- Work: v1.1.10 Release Gradle Environment Recovery Complete. bash 인자 파싱 의존성을 제거하고 환경변수 기반으로 tag release 복구.
+- Changed files:
+  - `.github/workflows/android-build.yml` (pass required release-signing property via ORG_GRADLE_PROJECT environment)
+  - `app/build.gradle.kts` (versionCode 40, versionName 1.1.10)
+  - `CHANGELOG.md`, `HISTORY.md`, `.agent/progress.md`, `.agent/decisions.md`
+- Verification:
+  - GitHub Actions run `25250909236` proved direct CLI property passing still invoked `:help` in the release job shell
+  - Recovery path updated to publish a fresh automated tag release as `v1.1.10`
+
+## 2026-05-02
 - Work: v1.1.9 Release Gradle Execution Recovery Complete. tag release step이 실제 assembleRelease를 수행하도록 복구.
 - Changed files:
   - `.github/workflows/android-build.yml` (use valid Gradle property/task ordering without quoting the property)

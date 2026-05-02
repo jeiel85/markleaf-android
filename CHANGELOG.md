@@ -2,6 +2,13 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.1.10 - 릴리즈 Gradle 환경변수 복구 완료 (Release Gradle Environment Recovery Complete) - 2026-05-02
+
+### 수정
+- **Gradle property 전달 방식 교체:** GitHub Actions release job이 bash 인자 해석에 의존하지 않도록 `ORG_GRADLE_PROJECT_markleaf.requireReleaseSigning=true` 환경변수로 release signing 필수 플래그를 전달하도록 수정했습니다.
+- **새 복구 버전 발행:** 실패한 `v1.1.9` 태그를 재사용하지 않고 `versionCode`를 `40`, `versionName`을 `1.1.10`으로 올려 새 자동 릴리즈 태그를 발행합니다.
+- **자동 release 안정성 강화:** release task 실행, APK 탐색, 서명 검증, GitHub Release asset 업로드가 모두 shell 인자 파싱 영향 없이 이어지도록 정리했습니다.
+
 ## v1.1.9 - 릴리즈 Gradle 실행 복구 완료 (Release Gradle Execution Recovery Complete) - 2026-05-02
 
 ### 수정

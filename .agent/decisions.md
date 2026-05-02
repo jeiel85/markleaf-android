@@ -7,6 +7,16 @@
 
 ## Confirmed Decisions
 
+### D040 - Tag Release Gradle Flags Use Environment Properties
+
+GitHub Actions tag release automation should pass required Gradle project properties through `ORG_GRADLE_PROJECT_*` environment variables when shell argument parsing proves unreliable.
+
+Implications:
+
+- Required release flags no longer depend on bash quoting or task/option ordering.
+- The release job executes the intended task graph consistently across CI runners.
+- Signing verification and asset upload can rely on the release task having actually run.
+
 ### D039 - Tag Release Gradle Invocation Must Use Native CLI Ordering
 
 GitHub Actions tag release steps must pass Gradle project properties using the normal CLI ordering instead of quoted pseudo-task forms.

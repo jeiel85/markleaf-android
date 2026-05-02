@@ -1,6 +1,16 @@
 # HISTORY
 
 ## 2026-05-02
+- Work: v1.1.6 Release APK Discovery Recovery Complete. metadata 부재 환경에서도 실제 release APK를 탐색하도록 workflow 복구.
+- Changed files:
+  - `.github/workflows/android-build.yml` (discover release APK from release output directory glob)
+  - `app/build.gradle.kts` (versionCode 36, versionName 1.1.6)
+  - `CHANGELOG.md`, `HISTORY.md`, `.agent/progress.md`, `.agent/decisions.md`
+- Verification:
+  - GitHub Actions run `25250418933` proved the release build succeeded but `output-metadata.json` was absent in the release job workspace
+  - Recovery path updated to use discovered release APK files instead of metadata-only lookup
+
+## 2026-05-02
 - Work: v1.1.5 Release Artifact Path Recovery Complete. release APK 고정 경로 가정을 제거하고 metadata 기반 경로로 복구.
 - Changed files:
   - `.github/workflows/android-build.yml` (resolve release APK path from output-metadata.json)

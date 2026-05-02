@@ -2,6 +2,13 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.1.6 - 릴리즈 APK 탐색 복구 완료 (Release APK Discovery Recovery Complete) - 2026-05-02
+
+### 수정
+- **APK 탐색 방식 보강:** GitHub Actions release job이 metadata 파일 존재를 가정하지 않고, `app/build/outputs/apk/release/*.apk`에서 실제 생성된 release APK를 직접 찾아 사용하도록 수정했습니다.
+- **새 복구 버전 발행:** 실패한 `v1.1.5` 태그를 재사용하지 않고 `versionCode`를 `36`, `versionName`을 `1.1.6`으로 올려 새 태그 릴리즈를 발행합니다.
+- **릴리즈 경로 단순화:** 서명 검증과 release asset 준비가 동일한 실제 APK 파일 탐색 로직을 공유하도록 맞췄습니다.
+
 ## v1.1.5 - 릴리즈 산출물 경로 복구 완료 (Release Artifact Path Recovery Complete) - 2026-05-02
 
 ### 수정

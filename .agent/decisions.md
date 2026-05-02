@@ -7,6 +7,16 @@
 
 ## Confirmed Decisions
 
+### D036 - Release Automation Discovers The Built APK Directly
+
+GitHub release automation should be able to find the produced release APK even when AGP does not emit auxiliary metadata files in CI.
+
+Implications:
+
+- Release signing verification and asset upload discover the first real `*.apk` inside the release output directory.
+- Tag release automation no longer depends on `output-metadata.json` being present in the CI workspace.
+- Release publication remains tied to the actual built APK file, not to a guessed filename or optional metadata sidecar.
+
 ### D035 - Release APK Path Comes From Output Metadata
 
 GitHub release automation should resolve the produced APK path from Gradle output metadata instead of assuming a fixed filename.

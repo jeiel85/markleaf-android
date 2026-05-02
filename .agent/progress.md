@@ -1,4 +1,27 @@
 ---
+## 2026-05-02 - Release APK Discovery Recovery Complete
+Selected task:
+- Recover the release job from metadata-file assumptions and publish a fresh tag
+
+What was implemented:
+- Confirmed `v1.1.5` still failed after a successful release build because `output-metadata.json` was not present in the GitHub Actions release workspace
+- Updated `.github/workflows/android-build.yml` to discover the built release APK directly from `app/build/outputs/apk/release/*.apk`
+- Reused the discovered APK path for both signing verification and GitHub Release asset preparation
+- Bumped app version again to `1.1.6` / `versionCode = 36` for a fresh monotonic retry tag
+
+Files changed:
+- .github/workflows/android-build.yml
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/progress.md
+- .agent/decisions.md
+
+Build/test result:
+- GitHub Actions run `25250418933` isolated the remaining metadata-file assumption failure
+- Recovery retag plan moved to `v1.1.6`
+
+---
 ## 2026-05-02 - Release Artifact Path Recovery Complete
 Selected task:
 - Recover the release job from fixed APK path assumptions and ship a fresh tag

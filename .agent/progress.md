@@ -1,4 +1,50 @@
 ---
+## 2026-05-02 - Release APK Full Build Tree Discovery Complete
+Selected task:
+- Recover the release job from release-subtree-only APK discovery assumptions and publish a fresh tag
+
+What was implemented:
+- Confirmed `v1.1.7` still failed after a successful release build because no APK was discoverable under the narrower release output subtree
+- Updated `.github/workflows/android-build.yml` to discover the built APK anywhere under `app/build/**/*.apk`
+- Reused the full-build-tree-discovered APK path for both signing verification and GitHub Release asset preparation
+- Bumped app version again to `1.1.8` / `versionCode = 38` for a fresh monotonic retry tag
+
+Files changed:
+- .github/workflows/android-build.yml
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/progress.md
+- .agent/decisions.md
+
+Build/test result:
+- GitHub Actions run `25250479341` isolated the remaining release-subtree APK discovery failure
+- Recovery retag plan moved to `v1.1.8`
+
+---
+## 2026-05-02 - Release APK Recursive Discovery Recovery Complete
+Selected task:
+- Recover the release job from shallow APK discovery assumptions and publish a fresh tag
+
+What was implemented:
+- Confirmed `v1.1.6` still failed after a successful release build because no APK existed directly under `app/build/outputs/apk/release/`
+- Updated `.github/workflows/android-build.yml` to recursively discover the built release APK under `app/build/outputs/apk/release/**/*.apk`
+- Reused the recursively discovered APK path for both signing verification and GitHub Release asset preparation
+- Bumped app version again to `1.1.7` / `versionCode = 37` for a fresh monotonic retry tag
+
+Files changed:
+- .github/workflows/android-build.yml
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/progress.md
+- .agent/decisions.md
+
+Build/test result:
+- GitHub Actions run `25250479341` isolated the remaining shallow APK discovery failure
+- Recovery retag plan moved to `v1.1.7`
+
+---
 ## 2026-05-02 - Release APK Discovery Recovery Complete
 Selected task:
 - Recover the release job from metadata-file assumptions and publish a fresh tag

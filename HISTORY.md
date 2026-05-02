@@ -1,6 +1,26 @@
 # HISTORY
 
 ## 2026-05-02
+- Work: v1.1.8 Release APK Full Build Tree Discovery Complete. release output subtree 가정을 제거하고 app/build 전체에서 APK를 탐색하도록 workflow 복구.
+- Changed files:
+  - `.github/workflows/android-build.yml` (discover release APK anywhere under app/build)
+  - `app/build.gradle.kts` (versionCode 38, versionName 1.1.8)
+  - `CHANGELOG.md`, `HISTORY.md`, `.agent/progress.md`, `.agent/decisions.md`
+- Verification:
+  - GitHub Actions run `25250479341` proved the release build succeeded but no APK was found under the prior release subtree assumption
+  - Recovery path updated to search the full app build tree for APK outputs before signing verification
+
+## 2026-05-02
+- Work: v1.1.7 Release APK Recursive Discovery Recovery Complete. release 하위 경로까지 포함해 실제 APK를 재귀 탐색하도록 workflow 복구.
+- Changed files:
+  - `.github/workflows/android-build.yml` (discover release APK recursively under release output tree)
+  - `app/build.gradle.kts` (versionCode 37, versionName 1.1.7)
+  - `CHANGELOG.md`, `HISTORY.md`, `.agent/progress.md`, `.agent/decisions.md`
+- Verification:
+  - GitHub Actions run `25250479341` proved the release build succeeded but no APK existed directly under `app/build/outputs/apk/release/`
+  - Recovery path updated to recursively discover release APK outputs before signing verification
+
+## 2026-05-02
 - Work: v1.1.6 Release APK Discovery Recovery Complete. metadata 부재 환경에서도 실제 release APK를 탐색하도록 workflow 복구.
 - Changed files:
   - `.github/workflows/android-build.yml` (discover release APK from release output directory glob)

@@ -7,6 +7,26 @@
 
 ## Confirmed Decisions
 
+### D038 - Release Automation Searches The Full App Build Tree
+
+GitHub release automation should search the full app build tree for APK outputs when narrower output directory assumptions fail in CI.
+
+Implications:
+
+- Release verification survives AGP output layout differences across runners and plugin behaviors.
+- Release asset upload uses the same full-build-tree APK discovery as signing verification.
+- The release workflow prefers a real produced APK over any directory-layout assumption.
+
+### D037 - Release Automation Recursively Discovers APK Outputs
+
+GitHub release automation should search the full release output tree for APK files instead of assuming the final APK sits directly in the top-level release directory.
+
+Implications:
+
+- Release verification tolerates AGP layouts that place the final APK in nested subdirectories.
+- Asset upload uses the same recursively discovered APK path as certificate verification.
+- Release automation remains resilient to output layout changes across CI environments.
+
 ### D036 - Release Automation Discovers The Built APK Directly
 
 GitHub release automation should be able to find the produced release APK even when AGP does not emit auxiliary metadata files in CI.

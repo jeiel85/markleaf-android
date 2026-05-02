@@ -1,4 +1,25 @@
 ---
+## 2026-05-02 - Release Certificate Diagnostics
+Selected task:
+- Expose the remaining release certificate verification failure directly in CI logs
+
+What was implemented:
+- Confirmed `v1.1.12` narrowed the automated tag release failure to the final certificate verification step
+- Updated `.github/workflows/android-build.yml` to print `signing-report.txt` and both actual/expected SHA-256 digests before asserting equality
+- Bumped app version again to `1.1.13` / `versionCode = 43` for a fresh monotonic diagnostic tag run
+
+Files changed:
+- .github/workflows/android-build.yml
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/progress.md
+
+Build/test result:
+- GitHub Actions run `25251141305` isolated certificate verification as the sole remaining automated release failure
+- Diagnostic retag plan moved to `v1.1.13`
+
+---
 ## 2026-05-02 - Release APK Fixed Path Priority Recovery Complete
 Selected task:
 - Recover automated tag release verification by preferring the canonical release APK path

@@ -2,6 +2,13 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.1.13 - 릴리즈 인증서 진단 출력 추가 (Release Certificate Diagnostics) - 2026-05-02
+
+### 수정
+- **서명 진단 로그 추가:** GitHub Actions release job이 `signing-report.txt`, actual digest, expected digest를 로그에 직접 출력하도록 수정해 인증서 불일치 여부를 즉시 확인할 수 있게 했습니다.
+- **새 진단 버전 발행:** 실패한 `v1.1.12` 태그를 재사용하지 않고 `versionCode`를 `43`, `versionName`을 `1.1.13`으로 올려 새 자동 진단 태그를 발행합니다.
+- **release 검증 가시성 강화:** release signing step이 실패해도 원인을 로그만으로 판별할 수 있도록 했습니다.
+
 ## v1.1.12 - 릴리즈 APK 고정 경로 우선 복구 완료 (Release APK Fixed Path Priority Recovery Complete) - 2026-05-02
 
 ### 수정

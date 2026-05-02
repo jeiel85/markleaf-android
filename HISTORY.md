@@ -1,6 +1,16 @@
 # HISTORY
 
 ## 2026-05-02
+- Work: v1.1.13 Release Certificate Diagnostics. CI release certificate mismatch 여부를 로그로 즉시 판별하도록 진단 출력 추가.
+- Changed files:
+  - `.github/workflows/android-build.yml` (print signing report plus actual/expected release certificate digest)
+  - `app/build.gradle.kts` (versionCode 43, versionName 1.1.13)
+  - `CHANGELOG.md`, `HISTORY.md`, `.agent/progress.md`
+- Verification:
+  - GitHub Actions run `25251141305` proved the release task and APK path worked, leaving certificate verification as the remaining failure point
+  - Recovery path updated to emit certificate diagnostics on the next automated tag run
+
+## 2026-05-02
 - Work: v1.1.12 Release APK Fixed Path Priority Recovery Complete. 일반적인 release APK 경로를 우선 사용하도록 workflow 복구.
 - Changed files:
   - `.github/workflows/android-build.yml` (prefer app/build/outputs/apk/release/app-release.apk before fallback discovery)

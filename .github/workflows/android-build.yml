@@ -98,9 +98,14 @@ jobs:
 
       - name: Verify release signing certificate
         run: |
-          METADATA="app/build/outputs/apk/release/output-metadata.json"
-          APK_FILE="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["elements"][0]["outputFile"])' "$METADATA")"
-          APK="$(dirname "$METADATA")/$APK_FILE"
+          APK=""
+          for candidate in app/build/outputs/apk/release/*.apk; do
+            if [ -f "$candidate" ]; then
+              APK="$candidate"
+              break
+            fi
+          done
+          test -n "$APK"
           test -f "$APK"
           APKSIGNER="$ANDROID_HOME/build-tools/$(ls -1 "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)/apksigner"
           "$APKSIGNER" verify --print-certs "$APK" > signing-report.txt
@@ -111,9 +116,14 @@ jobs:
 
       - name: Prepare release asset
         run: |
-          METADATA="app/build/outputs/apk/release/output-metadata.json"
-          APK_FILE="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["elements"][0]["outputFile"])' "$METADATA")"
-          APK="$(dirname "$METADATA")/$APK_FILE"
+          APK=""
+          for candidate in app/build/outputs/apk/release/*.apk; do
+            if [ -f "$candidate" ]; then
+              APK="$candidate"
+              break
+            fi
+          done
+          test -n "$APK"
           test -f "$APK"
           cp "$APK" "markleaf-${GITHUB_REF_NAME}.apk"
           test -s "markleaf-${GITHUB_REF_NAME}.apk"

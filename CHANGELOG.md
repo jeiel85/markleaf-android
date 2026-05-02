@@ -2,6 +2,13 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.1.11 - 릴리즈 APK 선택 복구 완료 (Release APK Selection Recovery Complete) - 2026-05-02
+
+### 수정
+- **release APK 선택 보정:** GitHub Actions release job이 `app/build/**/*.apk` 중 debug APK가 아니라 `release` 경로 또는 이름을 가진 APK만 선택하도록 수정했습니다.
+- **새 복구 버전 발행:** 실패한 `v1.1.10` 태그를 재사용하지 않고 `versionCode`를 `41`, `versionName`을 `1.1.11`로 올려 새 자동 릴리즈 태그를 발행합니다.
+- **서명 검증 정확성 강화:** release asset 준비와 서명 확인이 동일한 release APK 선택 규칙을 사용하도록 맞췄습니다.
+
 ## v1.1.10 - 릴리즈 Gradle 환경변수 복구 완료 (Release Gradle Environment Recovery Complete) - 2026-05-02
 
 ### 수정

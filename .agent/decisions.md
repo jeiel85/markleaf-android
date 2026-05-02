@@ -7,6 +7,16 @@
 
 ## Confirmed Decisions
 
+### D041 - Release Verification Must Exclude Debug APKs
+
+GitHub release automation should never let debug APKs participate in release signing verification or release asset upload.
+
+Implications:
+
+- APK selection in CI filters for release-specific filenames or directory segments.
+- Release signing checks validate the production-signed artifact only.
+- GitHub Release assets cannot accidentally ship a debug-signed build.
+
 ### D040 - Tag Release Gradle Flags Use Environment Properties
 
 GitHub Actions tag release automation should pass required Gradle project properties through `ORG_GRADLE_PROJECT_*` environment variables when shell argument parsing proves unreliable.

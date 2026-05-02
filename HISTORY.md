@@ -1,6 +1,16 @@
 # HISTORY
 
 ## 2026-05-02
+- Work: v1.1.11 Release APK Selection Recovery Complete. release job이 debug APK를 집지 않도록 selection 규칙 복구.
+- Changed files:
+  - `.github/workflows/android-build.yml` (select only release APK candidates from app/build tree)
+  - `app/build.gradle.kts` (versionCode 41, versionName 1.1.11)
+  - `CHANGELOG.md`, `HISTORY.md`, `.agent/progress.md`, `.agent/decisions.md`
+- Verification:
+  - GitHub Actions run `25250977005` proved the release task ran but signing verification still failed after broad APK discovery
+  - Recovery path updated to choose only release APK candidates before verification and upload
+
+## 2026-05-02
 - Work: v1.1.10 Release Gradle Environment Recovery Complete. bash 인자 파싱 의존성을 제거하고 환경변수 기반으로 tag release 복구.
 - Changed files:
   - `.github/workflows/android-build.yml` (pass required release-signing property via ORG_GRADLE_PROJECT environment)

@@ -1,4 +1,27 @@
 ---
+## 2026-05-02 - Release APK Selection Recovery Complete
+Selected task:
+- Recover automated tag release verification so it selects the signed release APK instead of debug outputs
+
+What was implemented:
+- Confirmed `v1.1.10` still failed because broad APK discovery could pick a non-release APK before certificate verification
+- Updated `.github/workflows/android-build.yml` to select only APKs whose path or filename indicates `release`
+- Reused that release-only APK selection for both signing verification and GitHub Release asset preparation
+- Bumped app version again to `1.1.11` / `versionCode = 41` for a fresh monotonic automated retry tag
+
+Files changed:
+- .github/workflows/android-build.yml
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/progress.md
+- .agent/decisions.md
+
+Build/test result:
+- GitHub Actions run `25250977005` isolated the remaining APK selection failure after release task execution recovered
+- Recovery retag plan moved to `v1.1.11`
+
+---
 ## 2026-05-02 - Release Gradle Environment Recovery Complete
 Selected task:
 - Remove shell-sensitive Gradle property passing and publish a fresh automated tag release

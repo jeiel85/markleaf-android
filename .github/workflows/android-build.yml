@@ -98,7 +98,10 @@ jobs:
 
       - name: Verify release signing certificate
         run: |
-          APK="app/build/outputs/apk/release/app-release.apk"
+          METADATA="app/build/outputs/apk/release/output-metadata.json"
+          APK_FILE="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["elements"][0]["outputFile"])' "$METADATA")"
+          APK="$(dirname "$METADATA")/$APK_FILE"
+          test -f "$APK"
           APKSIGNER="$ANDROID_HOME/build-tools/$(ls -1 "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)/apksigner"
           "$APKSIGNER" verify --print-certs "$APK" > signing-report.txt
           ACTUAL_SHA256="$(awk -F': ' '/certificate SHA-256 digest/ { print tolower($2); exit }' signing-report.txt)"
@@ -108,7 +111,11 @@ jobs:
 
       - name: Prepare release asset
         run: |
-          cp app/build/outputs/apk/release/app-release.apk "markleaf-${GITHUB_REF_NAME}.apk"
+          METADATA="app/build/outputs/apk/release/output-metadata.json"
+          APK_FILE="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["elements"][0]["outputFile"])' "$METADATA")"
+          APK="$(dirname "$METADATA")/$APK_FILE"
+          test -f "$APK"
+          cp "$APK" "markleaf-${GITHUB_REF_NAME}.apk"
           test -s "markleaf-${GITHUB_REF_NAME}.apk"
           ls -lh "markleaf-${GITHUB_REF_NAME}.apk"
 

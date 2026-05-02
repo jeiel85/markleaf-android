@@ -57,14 +57,25 @@ fun SettingsScreen(
     val settingsRepository = remember { AppSettingsRepository(context.applicationContext) }
     val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
     var statusMessage by remember { mutableStateOf<String?>(null) }
+    var statusIsError by remember { mutableStateOf(false) }
 
     val backupLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/zip")
     ) { uri ->
         if (uri != null) {
             scope.launch {
-                val success = BackupUtil.createBackup(context, uri)
-                statusMessage = if (success) context.getString(R.string.backup_created) else context.getString(R.string.backup_failed)
+                val result = BackupUtil.createBackupResult(context, uri)
+                statusIsError = !result.success
+                statusMessage = if (result.success) {
+                    context.getString(
+                        R.string.backup_created_detail,
+                        result.noteCount,
+                        result.attachmentCount,
+                        result.linkCount
+                    )
+                } else {
+                    context.getString(R.string.backup_failed_detail)
+                }
             }
         }
     }
@@ -74,8 +85,18 @@ fun SettingsScreen(
     ) { uri ->
         if (uri != null) {
             scope.launch {
-                val success = BackupUtil.restoreBackup(context, uri)
-                statusMessage = if (success) context.getString(R.string.backup_restored) else context.getString(R.string.restore_failed)
+                val result = BackupUtil.restoreBackupResult(context, uri)
+                statusIsError = !result.success
+                statusMessage = if (result.success) {
+                    context.getString(
+                        R.string.backup_restored_detail,
+                        result.noteCount,
+                        result.attachmentCount,
+                        result.linkCount
+                    )
+                } else {
+                    context.getString(R.string.restore_failed_detail)
+                }
             }
         }
     }
@@ -129,7 +150,11 @@ fun SettingsScreen(
                         Text(
                             text = it,
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary
+                            color = if (statusIsError) {
+                                MaterialTheme.colorScheme.error
+                            } else {
+                                MaterialTheme.colorScheme.primary
+                            }
                         )
                     }
                 }

@@ -67,6 +67,10 @@
     <string name="backup_failed">No se pudo crear la copia.</string>
     <string name="backup_restored">Copia ZIP restaurada.</string>
     <string name="restore_failed">No se pudo restaurar.</string>
+    <string name="backup_created_detail">Copia ZIP creada: %1$d notas, %2$d adjuntos, %3$d enlaces.</string>
+    <string name="backup_failed_detail">No se pudo crear la copia. Elige otra ubicacion e intenta de nuevo.</string>
+    <string name="backup_restored_detail">Copia ZIP restaurada: %1$d notas, %2$d adjuntos, %3$d enlaces.</string>
+    <string name="restore_failed_detail">No se pudo restaurar. Comprueba que el archivo sea una copia ZIP de Markleaf.</string>
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Mostrar sintaxis Markdown</string>
     <string name="show_markdown_syntax_description">El editor resalta caracteres Markdown mientras escribes.</string>

@@ -2,6 +2,24 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.0.27 - 백업 상태 메시지 개선 (Backup Status Messages) - 2026-05-02
+
+### 개선
+- Settings의 ZIP 백업/복원 결과 메시지에 처리된 노트, 첨부, 링크 개수를 표시합니다.
+- 백업/복원 실패 시 사용자가 다음에 확인할 수 있는 구체적인 안내 문구를 표시합니다.
+- 실패 메시지는 error 색상으로 표시해 성공 상태와 구분합니다.
+
+### 검증
+- `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.res.ResourceParityTest`
+- `./gradlew.bat compileDebugKotlin`
+- `./gradlew.bat test`
+- `./gradlew.bat lintDebug`
+- `./gradlew.bat assembleDebug assembleRelease`
+- `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+- `rg "android.permission.INTERNET" -n app\src`
+- `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk`
+- Lenovo TB320FC Android 15 실기기에서 `v1.0.27` release APK 설치 및 실행 확인
+
 ## v1.0.26 - 백링크 문맥 표시 (Backlink Context Snippets) - 2026-05-02
 
 ### 개선

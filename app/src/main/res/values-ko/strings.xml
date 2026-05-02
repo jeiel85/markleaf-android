@@ -67,6 +67,10 @@
     <string name="backup_failed">백업에 실패했습니다.</string>
     <string name="backup_restored">ZIP 백업을 복원했습니다.</string>
     <string name="restore_failed">복원에 실패했습니다.</string>
+    <string name="backup_created_detail">ZIP 백업 완료: 노트 %1$d개, 첨부 %2$d개, 링크 %3$d개.</string>
+    <string name="backup_failed_detail">백업에 실패했습니다. 다른 위치를 선택해 다시 시도하세요.</string>
+    <string name="backup_restored_detail">ZIP 백업 복원 완료: 노트 %1$d개, 첨부 %2$d개, 링크 %3$d개.</string>
+    <string name="restore_failed_detail">복원에 실패했습니다. 선택한 파일이 Markleaf ZIP 백업인지 확인하세요.</string>
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Markdown 문법 표시</string>
     <string name="show_markdown_syntax_description">라이브 에디터에서 작성 중 Markdown 문자를 하이라이팅합니다.</string>

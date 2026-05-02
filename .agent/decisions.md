@@ -7,6 +7,16 @@
 
 ## Confirmed Decisions
 
+### D033 - Backup Status Should Report Local Operation Counts
+
+Backup and restore feedback should describe what happened locally, not only success or failure.
+
+Implications:
+
+- Settings shows note, attachment, and link counts after ZIP backup/restore.
+- Failed backup/restore attempts use error styling and actionable copy.
+- Status feedback remains local and does not add telemetry or network reporting.
+
 ### D032 - Backlinks Show Local Context
 
 Backlinks should show the source note title and a short local snippet around the link occurrence.

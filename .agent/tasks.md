@@ -81,6 +81,6 @@
 - [x] Audit theme application and improve note list title contrast
 - [x] Improve tag screen counts and navigation
 - [x] Improve backlinks with context snippets
-- [ ] Improve export and backup status messages
+- [x] Improve export and backup status messages
 - [x] Add large dataset performance checks
 

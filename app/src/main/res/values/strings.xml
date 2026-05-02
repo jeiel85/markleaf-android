@@ -67,6 +67,10 @@
     <string name="backup_failed">Backup failed.</string>
     <string name="backup_restored">ZIP backup restored.</string>
     <string name="restore_failed">Restore failed.</string>
+    <string name="backup_created_detail">ZIP backup created: %1$d notes, %2$d attachments, %3$d links.</string>
+    <string name="backup_failed_detail">Backup failed. Choose another location and try again.</string>
+    <string name="backup_restored_detail">ZIP backup restored: %1$d notes, %2$d attachments, %3$d links.</string>
+    <string name="restore_failed_detail">Restore failed. Check that the selected file is a Markleaf ZIP backup.</string>
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Show Markdown syntax</string>
     <string name="show_markdown_syntax_description">The live editor highlights Markdown characters while you write.</string>

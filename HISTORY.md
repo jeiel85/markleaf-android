@@ -1,6 +1,25 @@
 # HISTORY
 
 ## 2026-05-02
+- Work: Backup status messages. Settings 백업/복원 결과 메시지에 처리 개수와 실패 안내 추가.
+- Changed files:
+  - `app/src/main/java/com/markleaf/notes/util/BackupUtil.kt` (operation result with counts)
+  - `app/src/main/java/com/markleaf/notes/feature/settings/SettingsScreen.kt` (detailed success/error messages)
+  - locale string resources for detailed backup/restore status
+  - `app/build.gradle.kts`, `.agent/tasks.md`, `CHANGELOG.md`
+- Verification:
+  - `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.res.ResourceParityTest`
+  - `./gradlew.bat compileDebugKotlin`
+  - `./gradlew.bat test`
+  - `./gradlew.bat lintDebug`
+  - `./gradlew.bat assembleDebug assembleRelease`
+  - `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+  - `rg "android.permission.INTERNET" -n app\src`
+  - `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk`
+  - Lenovo TB320FC Android 15 `v1.0.27` release APK install and launch check
+- Result: 백업/복원 결과가 성공/실패뿐 아니라 처리 규모와 다음 행동을 명확히 표시
+
+## 2026-05-02
 - Work: Backlink context snippets. 에디터 백링크 목록에 링크 주변 문맥 표시 추가.
 - Changed files:
   - `app/src/main/java/com/markleaf/notes/domain/model/Note.kt` (backlink snippet model)

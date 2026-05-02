@@ -18,8 +18,19 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
+data class BackupOperationResult(
+    val success: Boolean,
+    val noteCount: Int = 0,
+    val attachmentCount: Int = 0,
+    val linkCount: Int = 0
+)
+
 object BackupUtil {
     suspend fun createBackup(context: Context, zipUri: Uri): Boolean {
+        return createBackupResult(context, zipUri).success
+    }
+
+    suspend fun createBackupResult(context: Context, zipUri: Uri): BackupOperationResult {
         val db = AppDatabase.getInstance(context)
         val notes = db.noteDao().observeNotes().first()
         val trashedNotes = db.noteDao().observeTrashedNotes().first()
@@ -35,8 +46,11 @@ object BackupUtil {
             links.addAll(db.noteLinkDao().getLinksFromNote(note.id).first())
         }
         
-        return try {
-            context.contentResolver.openOutputStream(zipUri)?.use { os ->
+        try {
+            val outputStream = context.contentResolver.openOutputStream(zipUri)
+                ?: return BackupOperationResult(success = false)
+
+            outputStream.use { os ->
                 ZipOutputStream(BufferedOutputStream(os)).use { zos ->
                     val dataJson = JSONObject().apply {
                         put("notes", JSONArray().apply {
@@ -92,22 +106,40 @@ object BackupUtil {
                     zos.closeEntry()
                 }
             }
-            true
+            return BackupOperationResult(
+                success = true,
+                noteCount = allNotes.size,
+                attachmentCount = attachments.size,
+                linkCount = links.size
+            )
         } catch (e: Exception) {
             e.printStackTrace()
-            false
+            return BackupOperationResult(success = false)
         }
     }
 
     suspend fun restoreBackup(context: Context, zipUri: Uri): Boolean {
+        return restoreBackupResult(context, zipUri).success
+    }
+
+    suspend fun restoreBackupResult(context: Context, zipUri: Uri): BackupOperationResult {
         val db = AppDatabase.getInstance(context)
         val tagRepository = LocalTagRepository(db)
-        return try {
-            context.contentResolver.openInputStream(zipUri)?.use { isStream ->
+        var restoredNotes = 0
+        var restoredAttachments = 0
+        var restoredLinks = 0
+        var foundData = false
+
+        try {
+            val inputStream = context.contentResolver.openInputStream(zipUri)
+                ?: return BackupOperationResult(success = false)
+
+            inputStream.use { isStream ->
                 ZipInputStream(isStream).use { zis ->
                     var entry = zis.nextEntry
                     while (entry != null) {
                         if (entry.name == "data.json") {
+                            foundData = true
                             val reader = BufferedReader(InputStreamReader(zis))
                             val content = reader.readText()
                             val dataJson = JSONObject(content)
@@ -129,6 +161,7 @@ object BackupUtil {
                                     )
                                     db.noteDao().insertNote(note)
                                     tagRepository.reindexTagsForNote(note.id, note.contentMarkdown)
+                                    restoredNotes++
                                 }
                             }
                             
@@ -157,6 +190,7 @@ object BackupUtil {
                                         createdAt = obj.getLong("createdAt")
                                     )
                                     db.attachmentDao().insertAttachment(att)
+                                    restoredAttachments++
                                 }
                             }
                             
@@ -172,6 +206,7 @@ object BackupUtil {
                                         createdAt = obj.getLong("createdAt")
                                     )
                                     db.noteLinkDao().insertLink(link)
+                                    restoredLinks++
                                 }
                             }
                         }
@@ -180,10 +215,15 @@ object BackupUtil {
                     }
                 }
             }
-            true
+            return BackupOperationResult(
+                success = foundData,
+                noteCount = restoredNotes,
+                attachmentCount = restoredAttachments,
+                linkCount = restoredLinks
+            )
         } catch (e: Exception) {
             e.printStackTrace()
-            false
+            return BackupOperationResult(success = false)
         }
     }
 }

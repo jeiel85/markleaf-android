@@ -14,10 +14,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.Label
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -62,7 +62,8 @@ fun NotesListScreen(
     onSettingsClick: () -> Unit = {},
     onCollapseClick: (() -> Unit)? = null,
     selectedNoteId: String? = null,
-    containerColor: Color = MaterialTheme.colorScheme.background
+    containerColor: Color = MaterialTheme.colorScheme.background,
+    contentColor: Color = MaterialTheme.colorScheme.onBackground
 ) {
     val notesState = remember { mutableStateOf<List<Note>>(emptyList()) }
     LaunchedEffect(Unit) {
@@ -74,6 +75,7 @@ fun NotesListScreen(
 
     Scaffold(
         containerColor = containerColor,
+        contentColor = contentColor,
         topBar = {
             TopAppBar(
                 title = {
@@ -85,14 +87,14 @@ fun NotesListScreen(
                 actions = {
                     if (onCollapseClick != null) {
                         IconButton(onClick = onCollapseClick) {
-                            Icon(Icons.Default.KeyboardArrowLeft, contentDescription = stringResource(R.string.collapse_note_list))
+                            Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(R.string.collapse_note_list))
                         }
                     }
                     IconButton(onClick = onSearchClick) {
                         Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
                     }
                     IconButton(onClick = onTagsClick) {
-                        Icon(Icons.Default.Label, contentDescription = stringResource(R.string.tags))
+                        Icon(Icons.AutoMirrored.Filled.Label, contentDescription = stringResource(R.string.tags))
                     }
                     IconButton(onClick = onTrashClick) {
                         Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.trash))
@@ -103,7 +105,9 @@ fun NotesListScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = containerColor,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                    titleContentColor = contentColor,
+                    actionIconContentColor = contentColor,
+                    navigationIconContentColor = contentColor
                 )
             )
         },
@@ -208,6 +212,11 @@ fun NoteItem(
             Text(
                 text = note.title.ifEmpty { stringResource(R.string.untitled) },
                 style = MaterialTheme.typography.titleMedium,
+                color = if (selected) {
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                } else {
+                    MaterialTheme.colorScheme.primary
+                },
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)

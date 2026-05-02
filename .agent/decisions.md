@@ -7,6 +7,16 @@
 
 ## Confirmed Decisions
 
+### D030 - Markleaf Uses A Stable App Color Scheme By Default
+
+Markleaf should use its own theme colors by default instead of letting Android dynamic color replace the core palette.
+
+Implications:
+
+- Note list titles and prominent navigation text can use predictable theme contrast across devices.
+- Dynamic color can still be reintroduced later as an explicit setting if it is tested against all key surfaces.
+- Pane backgrounds should pair a `colorScheme` surface role with the matching content role instead of alpha-blending unrelated surfaces.
+
 ### D029 - Search Screen As Quick Open
 
 The existing Search screen is the quick-open surface for local navigation.

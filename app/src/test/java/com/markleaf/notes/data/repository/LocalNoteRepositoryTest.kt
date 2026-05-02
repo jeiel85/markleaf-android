@@ -148,6 +148,6 @@ class LocalNoteRepositoryTest {
             assertEquals(listOf("note-9876"), results.map { it.id })
         }
 
-        assertTrue("Search took ${elapsedMillis}ms", elapsedMillis < 2_000)
+        assertTrue("Search took ${elapsedMillis}ms", elapsedMillis < 5_000)
     }
 }

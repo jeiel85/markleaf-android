@@ -78,6 +78,7 @@
 - [x] Tablet two-pane visual separation polish (#23)
 - [x] Improve note list and editor empty states
 - [x] Add quick-open search for notes, tags, and links
+- [x] Audit theme application and improve note list title contrast
 - [ ] Improve tag screen counts and navigation
 - [ ] Improve backlinks with context snippets
 - [ ] Improve export and backup status messages

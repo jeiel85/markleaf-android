@@ -1,6 +1,24 @@
 # HISTORY
 
 ## 2026-05-02
+- Work: Theme contrast audit. 노트 목록 제목 대비와 전체 테마 적용 경로 점검.
+- Changed files:
+  - `app/src/main/java/com/markleaf/notes/ui/theme/Theme.kt` (fixed Markleaf color scheme by default and normalized typography letter spacing)
+  - `app/src/main/java/com/markleaf/notes/feature/notes/NotesListScreen.kt` (explicit themed title/content colors)
+  - `app/src/main/java/com/markleaf/notes/navigation/MarkleafNavHost.kt` (consistent surface/content color pairing for tablet list pane)
+  - `app/src/test/java/com/markleaf/notes/data/repository/LocalNoteRepositoryTest.kt` (less flaky 10k search timing guard)
+  - `app/build.gradle.kts`, `.agent/tasks.md`, `.agent/decisions.md`, `CHANGELOG.md`
+- Verification:
+  - `./gradlew.bat test`
+  - `./gradlew.bat lintDebug`
+  - `./gradlew.bat assembleDebug assembleRelease`
+  - `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+  - `rg "android.permission.INTERNET" -n app\src`
+  - `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk`
+  - Lenovo TB320FC Android 15 `v1.0.24` release APK install and launch check
+- Result: 노트 목록 제목이 앱 테마 색상으로 더 명확히 보이고, tablet list pane의 surface/content 색상 관계가 일관화됨
+
+## 2026-05-02
 - Work: Quick-open search. Search 화면에서 notes, tags, wiki-link labels를 함께 탐색하도록 확장.
 - Changed files:
   - `app/src/main/java/com/markleaf/notes/feature/search/SearchScreen.kt` (sectioned quick-open results)

@@ -2,6 +2,27 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.0.24 - 테마 대비 점검 (Theme Contrast Audit) - 2026-05-02
+
+### 수정
+- 노트 목록 제목 색상을 앱 테마의 primary/onPrimaryContainer 색상으로 명시해 목록에서 더 잘 보이도록 개선했습니다.
+- 태블릿 2-pane에서 선택된 노트가 없을 때 표시되는 안내 문구가 어두운 배경에서도 보이도록 색상을 명시했습니다.
+- 태블릿 2-pane 목록 영역이 `surfaceVariant`와 `onSurfaceVariant`를 일관되게 사용하도록 조정했습니다.
+- 앱 고유 색상 체계가 기기 동적 색상에 덮이지 않도록 기본 테마 설정을 고정했습니다.
+- Typography letter spacing을 0으로 정리해 화면 전반의 텍스트 렌더링을 일관화했습니다.
+
+### 테스트
+- 10k 노트 검색 성능 테스트의 시간 임계값을 로컬/CI 부하에 덜 흔들리는 회귀 방지 기준으로 조정했습니다.
+
+### 검증
+- `./gradlew.bat test`
+- `./gradlew.bat lintDebug`
+- `./gradlew.bat assembleDebug assembleRelease`
+- `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+- `rg "android.permission.INTERNET" -n app\src`
+- `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk`
+- Lenovo TB320FC Android 15 실기기에서 `v1.0.24` release APK 설치 및 실행 확인
+
 ## v1.0.23 - 빠른 열기 검색 (Quick Open Search) - 2026-05-02
 
 ### 추가

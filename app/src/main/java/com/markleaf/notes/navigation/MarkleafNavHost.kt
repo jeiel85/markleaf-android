@@ -9,8 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -73,9 +73,10 @@ fun MarkleafNavHost(
             if (isExpanded) {
                 var selectedNoteId by remember { mutableStateOf<String?>(null) }
                 var isNoteListCollapsed by remember { mutableStateOf(false) }
-                val listPaneColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.24f)
+                val listPaneColor = MaterialTheme.colorScheme.surfaceVariant
+                val listPaneContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 val editorPaneColor = MaterialTheme.colorScheme.background
-                val dividerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.56f)
+                val dividerColor = MaterialTheme.colorScheme.outlineVariant
                 
                 Row(
                     modifier = Modifier
@@ -85,11 +86,12 @@ fun MarkleafNavHost(
                     if (isNoteListCollapsed) {
                         CollapsedNoteListRail(onExpandClick = { isNoteListCollapsed = false })
                     } else {
-                        Box(
+                        Surface(
                             modifier = Modifier
                                 .weight(1f)
-                                .fillMaxHeight()
-                                .background(listPaneColor)
+                                .fillMaxHeight(),
+                            color = listPaneColor,
+                            contentColor = listPaneContentColor
                         ) {
                             NotesListScreen(
                                 viewModel = viewModel,
@@ -106,7 +108,8 @@ fun MarkleafNavHost(
                                 onSettingsClick = { navController.navigate(NavRoutes.SETTINGS) },
                                 onCollapseClick = { isNoteListCollapsed = true },
                                 selectedNoteId = selectedNoteId,
-                                containerColor = listPaneColor
+                                containerColor = listPaneColor,
+                                contentColor = listPaneContentColor
                             )
                         }
                     }
@@ -149,7 +152,10 @@ fun MarkleafNavHost(
                                     .fillMaxHeight(),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(stringResource(R.string.select_note_to_view))
+                                Text(
+                                    text = stringResource(R.string.select_note_to_view),
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
                             }
                         }
                     }
@@ -222,7 +228,10 @@ fun MarkleafNavHost(
 private fun CollapsedNoteListRail(
     onExpandClick: () -> Unit
 ) {
-    Surface(color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.28f)) {
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxHeight()
@@ -230,7 +239,7 @@ private fun CollapsedNoteListRail(
             contentAlignment = Alignment.TopCenter
         ) {
             IconButton(onClick = onExpandClick) {
-                Icon(Icons.Default.KeyboardArrowRight, contentDescription = stringResource(R.string.expand_note_list))
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = stringResource(R.string.expand_note_list))
             }
         }
     }

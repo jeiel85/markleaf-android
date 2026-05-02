@@ -7,6 +7,16 @@
 
 ## Confirmed Decisions
 
+### D043 - Editor Toolbar Icons Must Explain Ambiguous Actions
+
+Ambiguous editor toolbar actions should combine distinct visual affordances with Material tooltips.
+
+Implications:
+
+- Markdown link keeps the common chain icon because it represents inline link insertion.
+- Wiki link uses the local `[[ ]]` syntax as its visible affordance instead of reusing the same chain icon.
+- Icon-only editor toolbar actions expose plain tooltips for long press and hover without adding network, account, or external service behavior.
+
 ### D042 - Release Automation Prefers Canonical APK Output Path
 
 GitHub release automation should prefer the canonical AGP release APK path before falling back to broader discovery heuristics.

@@ -1,6 +1,18 @@
 # HISTORY
 
 ## 2026-05-02
+- Work: Editor link toolbar affordance polish. Markdown 링크와 위키 링크 버튼을 시각적으로 구분하고 툴바 아이콘 설명을 추가.
+- Changed files:
+  - `app/src/main/java/com/markleaf/notes/feature/editor/EditorScreen.kt` (wrap toolbar icon buttons in Material tooltip anchors and show wiki links as `[[ ]]`)
+  - `CHANGELOG.md`, `HISTORY.md`, `.agent/tasks.md`, `.agent/progress.md`, `.agent/decisions.md`
+- Verification:
+  - `./gradlew.bat compileDebugKotlin` passed
+  - `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.res.ResourceParityTest` passed
+  - `./gradlew.bat assembleDebug` passed and produced `app/build/outputs/apk/debug/app-debug.apk` (17,471,736 bytes)
+  - `rg "android.permission.INTERNET" -n app/src` found no declarations
+  - Initial parallel Gradle verification hit a Windows/KSP generated-output race; sequential reruns passed
+
+## 2026-05-02
 - Work: v1.1.14 Release Certificate Parsing Recovery Complete. CI release certificate digest를 실제 값으로 비교하도록 복구.
 - Changed files:
   - `.github/workflows/android-build.yml` (read actual SHA-256 digest from the third field of apksigner output)

@@ -37,11 +37,15 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -542,6 +546,7 @@ private fun formatSnapshotTimestamp(snapshot: NoteSnapshot): String {
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 private fun MarkdownToolbar(
     imageEnabled: Boolean,
     onBold: () -> Unit,
@@ -559,26 +564,74 @@ private fun MarkdownToolbar(
         horizontalArrangement = Arrangement.spacedBy(2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = onBold) {
+        ToolbarTooltipIconButton(
+            label = stringResource(R.string.bold),
+            onClick = onBold
+        ) {
             Icon(Icons.Default.FormatBold, contentDescription = stringResource(R.string.bold))
         }
-        IconButton(onClick = onItalic) {
+        ToolbarTooltipIconButton(
+            label = stringResource(R.string.italic),
+            onClick = onItalic
+        ) {
             Icon(Icons.Default.FormatItalic, contentDescription = stringResource(R.string.italic))
         }
-        IconButton(onClick = onCheckbox) {
+        ToolbarTooltipIconButton(
+            label = stringResource(R.string.checkbox),
+            onClick = onCheckbox
+        ) {
             Icon(Icons.Default.CheckBox, contentDescription = stringResource(R.string.checkbox))
         }
-        IconButton(onClick = onMarkdownLink) {
+        ToolbarTooltipIconButton(
+            label = stringResource(R.string.markdown_link),
+            onClick = onMarkdownLink
+        ) {
             Icon(Icons.Default.Link, contentDescription = stringResource(R.string.markdown_link))
         }
-        IconButton(onClick = onWikiLink) {
-            Icon(Icons.Default.Link, contentDescription = stringResource(R.string.wiki_link))
+        ToolbarTooltipIconButton(
+            label = stringResource(R.string.wiki_link),
+            onClick = onWikiLink
+        ) {
+            Text(
+                text = "[[ ]]",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
         }
-        IconButton(
+        ToolbarTooltipIconButton(
+            label = stringResource(R.string.image),
             onClick = onImage,
             enabled = imageEnabled
         ) {
             Icon(Icons.Default.Image, contentDescription = stringResource(R.string.image))
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun ToolbarTooltipIconButton(
+    label: String,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    content: @Composable () -> Unit
+) {
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        tooltip = {
+            PlainTooltip {
+                Text(label)
+            }
+        },
+        state = rememberTooltipState()
+    ) {
+        IconButton(
+            modifier = Modifier.semantics { contentDescription = label },
+            onClick = onClick,
+            enabled = enabled
+        ) {
+            content()
         }
     }
 }

@@ -1,4 +1,29 @@
 ---
+## 2026-05-02 - Editor Link Toolbar Clarification
+Selected task:
+- Clarify editor link toolbar buttons with distinct affordances and tooltips
+
+What was implemented:
+- Added Material plain tooltips to editor Markdown toolbar buttons so long press/hover explains each icon action
+- Kept Markdown link as the chain icon and changed Wiki link to a visible `[[ ]]` syntax affordance so the two link actions are no longer identical
+- Preserved local-first/F-Droid scope with no network, API, or dependency changes
+
+Files changed:
+- app/src/main/java/com/markleaf/notes/feature/editor/EditorScreen.kt
+- CHANGELOG.md
+- HISTORY.md
+- .agent/tasks.md
+- .agent/progress.md
+- .agent/decisions.md
+
+Build/test result:
+- `./gradlew.bat compileDebugKotlin` passed
+- `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.res.ResourceParityTest` passed
+- `./gradlew.bat assembleDebug` passed and produced `app/build/outputs/apk/debug/app-debug.apk` (17,471,736 bytes)
+- `rg "android.permission.INTERNET" -n app/src` found no declarations
+- Initial parallel Gradle run failed from a Windows/KSP generated-output race; sequential reruns passed
+
+---
 ## 2026-05-02 - Release Certificate Parsing Recovery Complete
 Selected task:
 - Recover automated tag release certificate verification by parsing the actual SHA-256 digest correctly

@@ -1,6 +1,14 @@
 # HISTORY
 
 ## 2026-05-02
+- Work: v1.1.1 CI Release Stability. CI 워크플로우 문법 오류 수정 및 성능 테스트 제거로 빌드 안정화.
+- Changed files:
+  - `app/build.gradle.kts` (versionCode 30, versionName 1.1.1)
+  - `.github/workflows/android-build.yml`
+  - `CHANGELOG.md`, `HISTORY.md`
+- Verification: GitHub Actions 모니터링 예정
+
+## 2026-05-02
 - Work: v1.1.0 Comprehensive Release. 백링크 컨텍스트, 태그 카운트, 포괄적 테스트 스위트 구축 및 릴리즈.
 - Changed files:
   - `app/build.gradle.kts` (versionCode 29, versionName 1.1.0)

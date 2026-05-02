@@ -94,13 +94,7 @@ jobs:
           MARKLEAF_RELEASE_STORE_PASSWORD: ${{ secrets.MARKLEAF_RELEASE_STORE_PASSWORD }}
           MARKLEAF_RELEASE_KEY_ALIAS: ${{ secrets.MARKLEAF_RELEASE_KEY_ALIAS }}
           MARKLEAF_RELEASE_KEY_PASSWORD: ${{ secrets.MARKLEAF_RELEASE_KEY_PASSWORD }}
-        run: |
-          ./gradlew :app:assembleRelease \
-            -Pmarkleaf.requireReleaseSigning=true \
-            -Pandroid.injected.signing.store.file="$MARKLEAF_RELEASE_STORE_FILE" \
-            -Pandroid.injected.signing.store.password="$MARKLEAF_RELEASE_STORE_PASSWORD" \
-            -Pandroid.injected.signing.key.alias="$MARKLEAF_RELEASE_KEY_ALIAS" \
-            -Pandroid.injected.signing.key.password="$MARKLEAF_RELEASE_KEY_PASSWORD"
+        run: ./gradlew assembleRelease -Pmarkleaf.requireReleaseSigning=true
 
       - name: Verify release signing certificate
         run: |
@@ -124,22 +118,13 @@ jobs:
           awk -v version="$VERSION" '
             BEGIN { heading = "## v" version }
             index($0, heading) == 1 && (length($0) == length(heading) || substr($0, length(heading) + 1, 1) == " " || substr($0, length(heading) + 1, 1) == "-") {
-              sub(/^## /, "")
-              sub(/ - [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]$/, "")
-              print
-              exit
+              found = 1; next
             }
-          ' CHANGELOG.md > release-title.txt
-          test -s release-title.txt
-          awk -v version="$VERSION" '
-            BEGIN { heading = "## v" version }
-            index($0, heading) == 1 && (length($0) == length(heading) || substr($0, length(heading) + 1, 1) == " " || substr($0, length(heading) + 1, 1) == "-") { found = 1; next }
             found && /^## / { exit }
             found { print }
           ' CHANGELOG.md > release-notes.md
           test -s release-notes.md
-          cat release-title.txt
-          cat release-notes.md
+          echo "v$VERSION" > release-title.txt
 
       - name: Create GitHub release
         env:

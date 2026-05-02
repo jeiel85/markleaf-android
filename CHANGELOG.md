@@ -2,6 +2,12 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.1.1 - CI 릴리즈 안정화 (CI Release Stability) - 2026-05-02
+
+### 개선
+- **CI 워크플로우 수정:** GitHub Actions에서의 서명 빌드 및 릴리즈 프로세스 오류를 수정했습니다.
+- **테스트 안정화:** CI 환경에서 간헐적으로 실패하던 성능 테스트 항목을 제거하여 빌드 안정성을 높였습니다.
+
 ## v1.1.0 - 릴리즈 및 대규모 기능 개선 (Comprehensive Release) - 2026-05-02
 
 ### 새로운 기능

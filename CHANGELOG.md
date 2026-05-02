@@ -2,6 +2,12 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.1.2 - 버전 불일치 및 워크플로우 복구 (Version Sync and Workflow Recovery) - 2026-05-02
+
+### 수정
+- **릴리즈 워크플로우 복구:** `v1.1.1`에서 퇴행된 상세 릴리즈 제목 추출 로직을 복원했습니다.
+- **문서 동기화:** 누락된 `v1.1.0` 및 `v1.1.1` 작업 내역을 `progress.md`에 반영하여 문서 정합성을 맞췄습니다.
+
 ## v1.1.1 - CI 릴리즈 안정화 (CI Release Stability) - 2026-05-02
 
 ### 개선

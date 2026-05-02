@@ -1,6 +1,14 @@
 # HISTORY
 
 ## 2026-05-02
+- Work: v1.1.2 Version Sync and Workflow Recovery. 워크플로우 퇴행 복구 및 문서/버전 정합성 맞춤.
+- Changed files:
+  - `.github/workflows/android-build.yml` (Restored title extraction)
+  - `app/build.gradle.kts` (versionCode 31, versionName 1.1.2)
+  - `CHANGELOG.md`, `HISTORY.md`, `.agent/progress.md`
+- Verification: GitHub Actions Triggered upon push
+
+## 2026-05-02
 - Work: v1.1.1 CI Release Stability. CI 워크플로우 문법 오류 수정 및 성능 테스트 제거로 빌드 안정화.
 - Changed files:
   - `app/build.gradle.kts` (versionCode 30, versionName 1.1.1)

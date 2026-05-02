@@ -11,6 +11,7 @@
     <string name="add_note">Add Note</string>
     <string name="no_notes_yet">No notes yet</string>
     <string name="create_first_note_hint">Tap + to create your first note</string>
+    <string name="create_note">Create note</string>
     <string name="untitled">Untitled</string>
     <string name="untitled_parenthesized">(Untitled)</string>
     <string name="select_note_to_view">Select a note to view</string>
@@ -23,16 +24,29 @@
     <string name="backlinks">Backlinks</string>
     <string name="note_content">Note content</string>
     <string name="start_writing">Start writing...</string>
+    <string name="editor_empty_title">A quiet page is ready</string>
+    <string name="editor_empty_hint">Use Markdown, #tags, links, checkboxes, and images. Markleaf saves locally as you write.</string>
     <string name="bold">Bold</string>
     <string name="italic">Italic</string>
     <string name="checkbox">Checkbox</string>
     <string name="markdown_link">Markdown Link</string>
     <string name="wiki_link">Wiki Link</string>
     <string name="image">Image</string>
+    <string name="version_history">Version History</string>
+    <string name="no_versions_yet">No saved versions yet</string>
+    <string name="restore_version">Restore</string>
+    <string name="version_item_format">%1$s · %2$s</string>
 
     <string name="search_notes_hint">Search notes...</string>
     <string name="type_to_search_notes">Type to search notes</string>
     <string name="no_results_found">No results found</string>
+    <string name="quick_open">Quick Open</string>
+    <string name="matching_notes">Notes</string>
+    <string name="matching_tags">Tags</string>
+    <string name="matching_links">Links</string>
+    <string name="tag_result_format">#%1$s</string>
+    <string name="link_result_format">[[%1$s]]</string>
+    <string name="link_reference_count_format">%1$d references</string>
     <string name="no_tags_yet">No tags yet</string>
     <string name="tags_empty_hint">Type #tags in a note to organize it</string>
 
@@ -59,7 +73,7 @@
     <string name="line_width_narrow">Narrow</string>
     <string name="line_width_comfortable">Comfortable</string>
     <string name="line_width_wide">Wide</string>
-    <string name="markdown_preview_support">Preview supports headings, lists, checkboxes, images, note links, and inline Markdown links.</string>
+    <string name="markdown_preview_support">Preview supports headings, lists, checkboxes, tables, math notation, images, note links, and inline Markdown links.</string>
     <string name="external_links_mvp">External web links are shown as links but are not opened automatically in the MVP.</string>
     <string name="local_link_hint">Use [[Note Title]] or [label](Note Title) to jump through local search.</string>
     <string name="settings_privacy">Privacy</string>

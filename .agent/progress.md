@@ -1,4 +1,263 @@
 ---
+## 2026-05-02 - Quick Open Search
+Selected task:
+- Add quick-open search for notes, tags, and links
+
+What was implemented:
+- Extended Search screen with sectioned notes, tags, and wiki-link label results
+- Added local tag filtering from `LocalTagRepository`
+- Added distinct wiki-link label query from `NoteLinkDao`
+- Added direct open behavior for resolved wiki links and query refinement for unresolved links
+- Added English, Korean, and Spanish strings for quick-open sections
+- Updated app version to `1.0.23` / `versionCode = 24`
+
+Files changed:
+- app/src/main/java/com/markleaf/notes/feature/search/SearchScreen.kt
+- app/src/main/java/com/markleaf/notes/data/local/dao/NoteLinkDao.kt
+- app/src/main/res/values/strings.xml
+- app/src/main/res/values-ko/strings.xml
+- app/src/main/res/values-es/strings.xml
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/tasks.md
+- .agent/decisions.md
+- .agent/progress.md
+
+Build/test result:
+- `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.res.ResourceParityTest` passed
+- `./gradlew.bat test` passed
+- `./gradlew.bat lintDebug` passed
+- `./gradlew.bat assembleDebug assembleRelease` passed
+- `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'` passed
+- `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk` showed certificate SHA-256 `0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a`
+- Release APK installed and launched on Lenovo TB320FC Android 15
+- Installed package reports `versionName=1.0.23` and `versionCode=24`
+- Startup logcat smoke check found no `FATAL EXCEPTION`, `AndroidRuntime`, or `ANR` for Markleaf
+- No `android.permission.INTERNET` declaration found in app source
+
+---
+## 2026-05-02 - Empty State Polish
+Selected task:
+- Improve note list and editor empty states
+
+What was implemented:
+- Added an explicit create-note button to the empty notes list
+- Added a richer empty editor hint for Markdown, tags, links, checkboxes, images, and local autosave
+- Added English, Korean, and Spanish strings for the new copy
+- Updated app version to `1.0.22` / `versionCode = 23`
+
+Files changed:
+- app/src/main/java/com/markleaf/notes/feature/notes/NotesListScreen.kt
+- app/src/main/java/com/markleaf/notes/feature/editor/EditorScreen.kt
+- app/src/main/res/values/strings.xml
+- app/src/main/res/values-ko/strings.xml
+- app/src/main/res/values-es/strings.xml
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/tasks.md
+- .agent/decisions.md
+- .agent/progress.md
+
+Build/test result:
+- `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.res.ResourceParityTest` passed
+- `./gradlew.bat test` passed
+- `./gradlew.bat lintDebug` passed
+- `./gradlew.bat assembleDebug assembleRelease` passed after stopping competing Gradle daemons
+- `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'` passed
+- `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk` showed certificate SHA-256 `0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a`
+- Release APK installed and launched on Lenovo TB320FC Android 15
+- Installed package reports `versionName=1.0.22` and `versionCode=23`
+- Startup logcat smoke check found no `FATAL EXCEPTION`, `AndroidRuntime`, or `ANR` for Markleaf
+- No `android.permission.INTERNET` declaration found in app source
+
+---
+## 2026-05-02 - Expanded i18n
+Selected task:
+- Multi-language support (i18n)
+
+What was implemented:
+- Added Spanish UI string resources
+- Added Spanish first-run starter notes
+- Updated Markdown preview support text in default English and Korean resources
+- Added resource parity tests for default, Korean, and Spanish string keys
+- Added starter note resource availability test
+- Updated app version to `1.0.21` / `versionCode = 22`
+
+Files changed:
+- app/src/main/res/values-es/strings.xml
+- app/src/main/res/raw-es/starter_notes.md
+- app/src/main/res/values/strings.xml
+- app/src/main/res/values-ko/strings.xml
+- app/src/test/java/com/markleaf/notes/res/ResourceParityTest.kt
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/tasks.md
+- .agent/decisions.md
+- .agent/progress.md
+
+Build/test result:
+- `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.res.ResourceParityTest` passed
+- `./gradlew.bat test` passed
+- `./gradlew.bat lintDebug` passed
+- `./gradlew.bat assembleDebug assembleRelease` passed
+- `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'` passed
+- `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk` showed certificate SHA-256 `0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a`
+- Release APK installed and launched on Lenovo TB320FC Android 15
+- Installed package reports `versionName=1.0.21` and `versionCode=22`
+- Startup logcat smoke check found no `FATAL EXCEPTION`, `AndroidRuntime`, or `ANR` for Markleaf
+- No `android.permission.INTERNET` declaration found in app source
+
+---
+## 2026-05-02 - 10k Notes Performance
+Selected task:
+- Performance optimization for 10k+ notes
+- Add large dataset performance checks
+
+What was implemented:
+- Added SQLite indexes for active notes list, trash ordering, and title lookup
+- Added schema v7 migration with index creation and FTS rebuild
+- Changed FTS search to rowid join instead of title join
+- Capped search results to 200 rows for predictable UI rendering
+- Added FTS prefix query path in repository
+- Added 10,000 note repository search performance regression test
+- Updated app version to `1.0.20` / `versionCode = 21`
+
+Files changed:
+- app/src/main/java/com/markleaf/notes/data/local/entity/NoteEntity.kt
+- app/src/main/java/com/markleaf/notes/data/local/dao/NoteDao.kt
+- app/src/main/java/com/markleaf/notes/data/local/AppDatabase.kt
+- app/src/main/java/com/markleaf/notes/data/repository/LocalNoteRepository.kt
+- app/src/test/java/com/markleaf/notes/data/repository/LocalNoteRepositoryTest.kt
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/tasks.md
+- .agent/decisions.md
+- .agent/progress.md
+
+Build/test result:
+- `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.data.repository.LocalNoteRepositoryTest` passed
+- `./gradlew.bat test` passed
+- `./gradlew.bat lintDebug` passed
+- `./gradlew.bat assembleDebug assembleRelease` passed
+- `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'` passed
+- `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk` showed certificate SHA-256 `0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a`
+- Release APK installed and launched on Lenovo TB320FC Android 15
+- Installed package reports `versionName=1.0.20` and `versionCode=21`
+- Startup logcat smoke check found no `FATAL EXCEPTION`, `AndroidRuntime`, or `ANR` for Markleaf
+- No `android.permission.INTERNET` declaration found in app source
+
+---
+## 2026-05-02 - Note Version History
+Selected task:
+- Note version history (Snapshots)
+
+What was implemented:
+- Added local Room snapshot entity, DAO, and schema v6 migration
+- Added domain model for note snapshots
+- Added repository snapshot creation before meaningful note updates
+- Rate-limited autosave snapshots and pruned snapshots to the latest 50 per note
+- Added snapshot restore flow that preserves the current version before restoring
+- Added editor version history dialog with restore action
+- Added English and Korean strings
+- Updated app version to `1.0.19` / `versionCode = 20`
+
+Files changed:
+- app/src/main/java/com/markleaf/notes/domain/model/NoteSnapshot.kt
+- app/src/main/java/com/markleaf/notes/data/local/entity/NoteSnapshotEntity.kt
+- app/src/main/java/com/markleaf/notes/data/local/dao/NoteSnapshotDao.kt
+- app/src/main/java/com/markleaf/notes/data/local/AppDatabase.kt
+- app/src/main/java/com/markleaf/notes/data/repository/LocalNoteRepository.kt
+- app/src/main/java/com/markleaf/notes/feature/editor/EditorScreen.kt
+- app/src/main/res/values/strings.xml
+- app/src/main/res/values-ko/strings.xml
+- app/src/test/java/com/markleaf/notes/data/repository/LocalNoteRepositoryTest.kt
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/tasks.md
+- .agent/decisions.md
+- .agent/progress.md
+
+Build/test result:
+- `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.data.repository.LocalNoteRepositoryTest` passed
+- `./gradlew.bat test` passed
+- `./gradlew.bat lintDebug` passed
+- `./gradlew.bat assembleDebug assembleRelease` passed
+- `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'` passed after rerun without parallel release build file-lock contention
+- Release APK installed and launched on Lenovo TB320FC Android 15
+- Installed package reports `versionName=1.0.19` and `versionCode=20`
+- Startup logcat smoke check found no `FATAL EXCEPTION`, `AndroidRuntime`, or `ANR` for Markleaf
+- No `android.permission.INTERNET` declaration found in app source
+
+---
+## 2026-05-02 - Advanced Markdown Preview
+Selected task:
+- Advanced Markdown support (Tables, KaTeX)
+
+What was implemented:
+- Added Markdown table parsing with divider-row skipping
+- Added Compose rendering for table headers and table rows
+- Added inline `$...$` math notation parsing and styled preview rendering
+- Added display `$$...$$` math block parsing and styled preview rendering
+- Deferred full KaTeX engine integration to avoid network/proprietary/F-Droid compatibility risk
+- Updated app version to `1.0.18` / `versionCode = 19`
+
+Files changed:
+- app/src/main/java/com/markleaf/notes/core/markdown/SimpleMarkdownPreview.kt
+- app/src/main/java/com/markleaf/notes/feature/editor/EditorScreen.kt
+- app/src/test/java/com/markleaf/notes/core/markdown/SimpleMarkdownPreviewTest.kt
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/tasks.md
+- .agent/decisions.md
+- .agent/progress.md
+
+Build/test result:
+- `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.core.markdown.SimpleMarkdownPreviewTest` passed
+- `./gradlew.bat test` passed
+- `./gradlew.bat lintDebug` passed
+- `./gradlew.bat assembleDebug assembleRelease` passed
+- `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'` passed
+- `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk` showed certificate SHA-256 `0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a`
+- Debug APK exists at `app/build/outputs/apk/debug/app-debug.apk` and release APK exists at `app/build/outputs/apk/release/app-release.apk`
+- No `android.permission.INTERNET` declaration found in app source
+
+---
+## 2026-05-02 - Fixed Release Signing Certificate
+Selected task:
+- Implement fixed Signing Keystore (Prevent Update Conflict)
+
+What was implemented:
+- Added `-Pmarkleaf.requireReleaseSigning=true` Gradle guard for release builds that must be signed
+- Added GitHub Actions release keystore presence checks
+- Added APK signing certificate SHA-256 verification before GitHub Release creation
+- Documented the fixed production release certificate fingerprint and keystore replacement risk
+- Updated app version to `1.0.17` / `versionCode = 18`
+
+Files changed:
+- app/build.gradle.kts
+- .github/workflows/android-build.yml
+- docs/RELEASE.md
+- CHANGELOG.md
+- HISTORY.md
+- .agent/tasks.md
+- .agent/decisions.md
+- .agent/progress.md
+
+Build/test result:
+- `./gradlew.bat test` passed
+- `./gradlew.bat lintDebug` passed
+- `./gradlew.bat assembleDebug assembleRelease` passed
+- `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'` passed
+- `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk` showed certificate SHA-256 `0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a`
+- No `android.permission.INTERNET` declaration found in app source
+
+---
 ## 2026-05-01 - Issue #23 Tablet Two-Pane Visual Polish
 Selected task:
 - [#23] 태블릿 2패널 편집 화면 시각적 구분 개선

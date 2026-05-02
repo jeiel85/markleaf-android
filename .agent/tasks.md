@@ -57,13 +57,13 @@
 ---
 
 ## Phase 8 - Post v1.0.0 & Future (Backlog)
-- [ ] Implement fixed Signing Keystore (Prevent Update Conflict)
+- [x] Implement fixed Signing Keystore (Prevent Update Conflict)
 - [ ] Implement WebDAV sync (Optional)
 - [ ] Implement Google Drive backup (Optional)
-- [ ] Advanced Markdown support (Tables, KaTeX)
-- [ ] Note version history (Snapshots)
-- [ ] Performance optimization for 10k+ notes
-- [ ] Multi-language support (i18n)
+- [x] Advanced Markdown support (Tables, KaTeX-style math notation preview)
+- [x] Note version history (Snapshots)
+- [x] Performance optimization for 10k+ notes
+- [x] Multi-language support (i18n)
 
 ---
 
@@ -76,10 +76,10 @@
 - [x] Live Markdown editor inline syntax highlighting (#21)
 - [x] English default and Korean localization (#22)
 - [x] Tablet two-pane visual separation polish (#23)
-- [ ] Improve note list and editor empty states
-- [ ] Add quick-open search for notes, tags, and links
+- [x] Improve note list and editor empty states
+- [x] Add quick-open search for notes, tags, and links
 - [ ] Improve tag screen counts and navigation
 - [ ] Improve backlinks with context snippets
 - [ ] Improve export and backup status messages
-- [ ] Add large dataset performance checks
+- [x] Add large dataset performance checks
 

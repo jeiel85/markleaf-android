@@ -7,6 +7,85 @@
 
 ## Confirmed Decisions
 
+### D029 - Search Screen As Quick Open
+
+The existing Search screen is the quick-open surface for local navigation.
+
+Implications:
+
+- A single query can surface notes, tags, and wiki-link labels.
+- Tags refine the current query to `#tag`.
+- Resolved wiki links open the target note directly; unresolved labels refine the query.
+- Quick-open remains fully local and uses existing Room/Flow sources.
+
+### D028 - Empty States Should Offer Direct Next Actions
+
+Empty states should guide the next useful local action instead of only describing absence.
+
+Implications:
+
+- The empty note list includes a direct create-note action in addition to the floating action button.
+- The empty editor explains the local Markdown writing affordances without sending users to external help.
+- Empty-state copy is covered by locale resource parity checks.
+
+### D027 - Locale Resource Parity
+
+Every supported UI locale must keep the same string resource keys as the default locale.
+
+Implications:
+
+- Default English, Korean, and Spanish resources are maintained through Android resource qualifiers.
+- Starter notes are localized through raw resource qualifiers where a locale-specific file exists.
+- A unit test verifies localized string key parity and starter note file availability.
+
+### D026 - Indexed Search Path For Large Local Datasets
+
+Markleaf should use indexed local database paths for large note collections.
+
+Implications:
+
+- Notes list/trash/title lookup paths have explicit SQLite indexes.
+- Search uses the local FTS table with rowid-based joins instead of title-based joins or full LIKE scans.
+- Search results are capped to 200 rows to keep UI rendering predictable on large local datasets.
+- Large dataset regressions are covered by a 10,000 note repository search test.
+
+### D025 - Bounded Local Note Snapshots
+
+Note version history is stored locally in Room as bounded note snapshots.
+
+Implications:
+
+- Markleaf snapshots the previous note body before meaningful title/content/excerpt updates.
+- Autosave does not create unlimited versions; snapshots are rate-limited to about one per five minutes and pruned to the latest 50 per note.
+- Restoring a snapshot stores the current version first, then restores the selected local snapshot.
+- Snapshots are deleted with their parent note through Room cascade behavior.
+
+### D024 - Local Advanced Markdown Preview Scope
+
+Advanced Markdown preview should stay local and dependency-light.
+
+Implications:
+
+- Tables are parsed and rendered directly in Compose.
+- Inline `$...$` and display `$$...$$` math notation are shown as readable local math blocks/segments.
+- A full KaTeX-compatible rendering engine is deferred until it can be added without network access, proprietary SDKs, or F-Droid compatibility risk.
+
+### D023 - Fixed Production Signing Certificate
+
+Release APKs must continue to use the same production signing certificate.
+
+Certificate SHA-256 digest:
+
+```text
+0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a
+```
+
+Implications:
+
+- Tag release builds require release signing values through `-Pmarkleaf.requireReleaseSigning=true`.
+- GitHub Actions verifies the signed APK certificate digest before creating a GitHub Release.
+- Replacing the production keystore is not allowed for normal releases because Android users would hit update conflicts.
+
 ### D022 - External Markdown Links Are Display-Only In MVP
 
 Preview can recognize external Markdown links, but it must not automatically open web URLs in the MVP.

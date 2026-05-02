@@ -1,5 +1,130 @@
 # HISTORY
 
+## 2026-05-02
+- Work: Quick-open search. Search 화면에서 notes, tags, wiki-link labels를 함께 탐색하도록 확장.
+- Changed files:
+  - `app/src/main/java/com/markleaf/notes/feature/search/SearchScreen.kt` (sectioned quick-open results)
+  - `app/src/main/java/com/markleaf/notes/data/local/dao/NoteLinkDao.kt` (distinct link label projection)
+  - locale string resources for quick-open section labels
+  - `app/build.gradle.kts`, `.agent/tasks.md`, `.agent/decisions.md`, `CHANGELOG.md`
+- Verification:
+  - `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.res.ResourceParityTest`
+  - `./gradlew.bat test`
+  - `./gradlew.bat lintDebug`
+  - `./gradlew.bat assembleDebug assembleRelease`
+  - `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+  - `rg "android.permission.INTERNET" -n app\src`
+  - `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk`
+  - Lenovo TB320FC Android 15 `v1.0.23` release APK install and launch check
+- Result: Search now works as local quick-open across notes, tags, and note-link labels
+
+## 2026-05-02
+- Work: Empty state polish. 노트 목록과 에디터 빈 상태에 다음 행동과 작성 힌트 추가.
+- Changed files:
+  - `app/src/main/java/com/markleaf/notes/feature/notes/NotesListScreen.kt` (empty state create button)
+  - `app/src/main/java/com/markleaf/notes/feature/editor/EditorScreen.kt` (empty editor writing hint)
+  - `app/src/main/res/values/strings.xml`, `app/src/main/res/values-ko/strings.xml`, `app/src/main/res/values-es/strings.xml`
+  - `app/build.gradle.kts`, `.agent/tasks.md`, `.agent/decisions.md`, `CHANGELOG.md`
+- Verification:
+  - `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.res.ResourceParityTest`
+  - `./gradlew.bat test`
+  - `./gradlew.bat lintDebug`
+  - `./gradlew.bat assembleDebug assembleRelease`
+  - `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+  - `rg "android.permission.INTERNET" -n app\src`
+  - Lenovo TB320FC Android 15 `v1.0.22` release APK install and launch check
+- Result: 빈 목록과 빈 에디터가 다음 행동을 더 명확히 안내
+
+## 2026-05-02
+- Work: Multi-language support expansion. Spanish locale와 리소스 parity 테스트 추가.
+- Changed files:
+  - `app/src/main/res/values-es/strings.xml` (Spanish UI strings)
+  - `app/src/main/res/raw-es/starter_notes.md` (Spanish starter notes)
+  - `app/src/main/res/values/strings.xml`, `app/src/main/res/values-ko/strings.xml` (Markdown preview support copy update)
+  - `app/src/test/java/com/markleaf/notes/res/ResourceParityTest.kt` (locale key parity and starter note checks)
+  - `app/build.gradle.kts`, `.agent/tasks.md`, `.agent/decisions.md`, `CHANGELOG.md`
+- Verification:
+  - `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.res.ResourceParityTest`
+  - `./gradlew.bat test`
+  - `./gradlew.bat lintDebug`
+  - `./gradlew.bat assembleDebug assembleRelease`
+  - `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+  - `rg "android.permission.INTERNET" -n app\src`
+  - Lenovo TB320FC Android 15 `v1.0.21` release APK install and launch check
+- Result: English, Korean, and Spanish locale resources now stay aligned by test
+
+## 2026-05-02
+- Work: 10k+ notes performance optimization. 검색/목록 경로 index와 FTS 검색 경로 정리.
+- Changed files:
+  - `app/src/main/java/com/markleaf/notes/data/local/entity/NoteEntity.kt` (notes indexes)
+  - `app/src/main/java/com/markleaf/notes/data/local/dao/NoteDao.kt` (FTS rowid join and search result limit)
+  - `app/src/main/java/com/markleaf/notes/data/local/AppDatabase.kt` (schema v7 migration and FTS rebuild)
+  - `app/src/main/java/com/markleaf/notes/data/repository/LocalNoteRepository.kt` (FTS prefix query path)
+  - `app/src/test/java/com/markleaf/notes/data/repository/LocalNoteRepositoryTest.kt` (10k note search test)
+  - `app/build.gradle.kts`, `.agent/tasks.md`, `.agent/decisions.md`, `CHANGELOG.md`
+- Verification:
+  - `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.data.repository.LocalNoteRepositoryTest`
+  - `./gradlew.bat test`
+  - `./gradlew.bat lintDebug`
+  - `./gradlew.bat assembleDebug assembleRelease`
+  - `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+  - `rg "android.permission.INTERNET" -n app\src`
+  - Lenovo TB320FC Android 15 `v1.0.20` release APK install and launch check
+- Result: 10,000개 로컬 노트에서 검색 회귀를 확인하는 테스트와 indexed query path 추가
+
+## 2026-05-02
+- Work: Note version history. Room 기반 local snapshot 저장과 에디터 복원 UI 추가.
+- Changed files:
+  - `app/src/main/java/com/markleaf/notes/data/local/entity/NoteSnapshotEntity.kt` (snapshot entity)
+  - `app/src/main/java/com/markleaf/notes/data/local/dao/NoteSnapshotDao.kt` (snapshot DAO)
+  - `app/src/main/java/com/markleaf/notes/domain/model/NoteSnapshot.kt` (domain model)
+  - `app/src/main/java/com/markleaf/notes/data/local/AppDatabase.kt` (schema v6 migration)
+  - `app/src/main/java/com/markleaf/notes/data/repository/LocalNoteRepository.kt` (snapshot creation and restore)
+  - `app/src/main/java/com/markleaf/notes/feature/editor/EditorScreen.kt` (version history dialog)
+  - `app/src/main/res/values/strings.xml`, `app/src/main/res/values-ko/strings.xml`
+  - `app/src/test/java/com/markleaf/notes/data/repository/LocalNoteRepositoryTest.kt`
+- Verification:
+  - `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.data.repository.LocalNoteRepositoryTest`
+  - `./gradlew.bat test`
+  - `./gradlew.bat lintDebug`
+  - `./gradlew.bat assembleDebug assembleRelease`
+  - `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+  - `rg "android.permission.INTERNET" -n app\src`
+  - Lenovo TB320FC Android 15 `v1.0.19` release APK install and launch check
+- Result: 노트 수정 전 버전을 로컬 DB에 제한적으로 보존하고 에디터에서 복원 가능
+
+## 2026-05-02
+- Work: Advanced Markdown preview. 로컬 preview parser/rendering에 table과 수식 표기 지원 추가.
+- Changed files:
+  - `app/src/main/java/com/markleaf/notes/core/markdown/SimpleMarkdownPreview.kt` (table rows, inline math, display math parsing)
+  - `app/src/main/java/com/markleaf/notes/feature/editor/EditorScreen.kt` (Compose table and math preview rendering)
+  - `app/src/test/java/com/markleaf/notes/core/markdown/SimpleMarkdownPreviewTest.kt` (table/math parser tests)
+  - `app/build.gradle.kts`, `.agent/tasks.md`, `.agent/decisions.md`, `CHANGELOG.md`
+- Verification:
+  - `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.core.markdown.SimpleMarkdownPreviewTest`
+  - `./gradlew.bat test`
+  - `./gradlew.bat lintDebug`
+  - `./gradlew.bat assembleDebug assembleRelease`
+  - `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+  - `rg "android.permission.INTERNET" -n app\src`
+  - `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk`
+- Result: Preview mode can display Markdown tables and local math notation without adding network/API behavior or proprietary dependencies
+
+## 2026-05-02
+- Work: 릴리즈 APK 업데이트 충돌 방지를 위해 production signing certificate를 고정 검증하도록 릴리즈 파이프라인 보강.
+- Changed files:
+  - `.github/workflows/android-build.yml` (tag release keystore presence and certificate SHA-256 verification)
+  - `app/build.gradle.kts` (required release signing property and v1.0.17)
+  - `docs/RELEASE.md` (fixed certificate fingerprint and keystore replacement warning)
+  - `.agent/tasks.md`, `.agent/decisions.md`, `CHANGELOG.md`
+- Verification:
+  - `./gradlew.bat test`
+  - `./gradlew.bat lintDebug`
+  - `./gradlew.bat assembleDebug assembleRelease`
+  - `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+  - `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk`
+- Result: 태그 릴리즈가 누락되거나 다른 keystore로 서명된 APK를 GitHub Release에 올리기 전에 실패하도록 설정
+
 ## 2026-05-01
 - Work: 태블릿 2패널 편집 화면 시각적 구분 개선. GitHub Issue #23 등록 후 구현.
 - Changed files:

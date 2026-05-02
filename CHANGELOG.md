@@ -2,6 +2,136 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.0.23 - 빠른 열기 검색 (Quick Open Search) - 2026-05-02
+
+### 추가
+- Search 화면에서 노트, 태그, 위키 링크 라벨을 함께 표시하는 quick-open 결과를 추가했습니다.
+- 태그 결과를 누르면 `#태그` 검색으로 바로 전환됩니다.
+- 해결된 위키 링크는 대상 노트로 바로 열고, 미해결 링크는 해당 라벨 검색으로 전환합니다.
+
+### 검증
+- `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.res.ResourceParityTest`
+- `./gradlew.bat test`
+- `./gradlew.bat lintDebug`
+- `./gradlew.bat assembleDebug assembleRelease`
+- `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+- `rg "android.permission.INTERNET" -n app\src`
+- `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk`
+- Lenovo TB320FC Android 15 실기기에서 `v1.0.23` release APK 설치 및 실행 확인
+
+## v1.0.22 - 빈 상태 개선 (Empty State Polish) - 2026-05-02
+
+### 개선
+- 노트 목록 빈 상태에 명시적인 노트 만들기 버튼을 추가했습니다.
+- 에디터 빈 상태에 Markdown, 태그, 링크, 체크박스, 이미지 사용 힌트를 추가했습니다.
+- 새 빈 상태 문구를 영어, 한국어, Spanish 리소스에 반영했습니다.
+
+### 검증
+- `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.res.ResourceParityTest`
+- `./gradlew.bat test`
+- `./gradlew.bat lintDebug`
+- `./gradlew.bat assembleDebug assembleRelease`
+- `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+- `rg "android.permission.INTERNET" -n app\src`
+- `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk`
+- Lenovo TB320FC Android 15 실기기에서 `v1.0.22` release APK 설치 및 실행 확인
+
+## v1.0.21 - 다국어 지원 확장 (Expanded i18n) - 2026-05-02
+
+### 추가
+- Spanish UI string resources를 추가했습니다.
+- Spanish starter notes raw resource를 추가했습니다.
+- 기본/한국어/Spanish 문자열 리소스 key parity를 검증하는 테스트를 추가했습니다.
+
+### 개선
+- Markdown preview 지원 설명에 표와 수식 표기 지원을 반영했습니다.
+
+### 검증
+- `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.res.ResourceParityTest`
+- `./gradlew.bat test`
+- `./gradlew.bat lintDebug`
+- `./gradlew.bat assembleDebug assembleRelease`
+- `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+- `rg "android.permission.INTERNET" -n app\src`
+- `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk`
+- Lenovo TB320FC Android 15 실기기에서 `v1.0.21` release APK 설치 및 실행 확인
+
+## v1.0.20 - 10k 노트 성능 최적화 (10k Notes Performance) - 2026-05-02
+
+### 개선
+- 노트 목록, 휴지통, 제목 조회에 사용하는 SQLite index를 추가했습니다.
+- 검색이 기존 LIKE 전체 스캔 대신 local FTS rowid join 경로를 사용하도록 정리했습니다.
+- 검색 결과를 최대 200개로 제한해 큰 데이터셋에서도 화면 렌더링 부담을 줄였습니다.
+
+### 테스트
+- 10,000개 노트 데이터셋에서 FTS 검색 결과를 검증하는 repository 테스트를 추가했습니다.
+
+### 검증
+- `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.data.repository.LocalNoteRepositoryTest`
+- `./gradlew.bat test`
+- `./gradlew.bat lintDebug`
+- `./gradlew.bat assembleDebug assembleRelease`
+- `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+- `rg "android.permission.INTERNET" -n app\src`
+- `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk`
+- Lenovo TB320FC Android 15 실기기에서 `v1.0.20` release APK 설치 및 실행 확인
+
+## v1.0.19 - 노트 버전 기록 (Note Version History) - 2026-05-02
+
+### 추가
+- 노트 수정 전 이전 본문을 로컬 snapshot으로 저장합니다.
+- 에디터 상단의 version history 버튼에서 최근 snapshot 목록을 볼 수 있습니다.
+- 선택한 snapshot을 현재 노트로 복원할 수 있습니다.
+
+### 개선
+- 자동 저장이 너무 많은 버전을 만들지 않도록 snapshot 생성을 5분 단위로 제한하고 노트당 최근 50개만 유지합니다.
+- snapshot 복원 전에 현재 버전을 다시 snapshot으로 보존합니다.
+
+### 검증
+- `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.data.repository.LocalNoteRepositoryTest`
+- `./gradlew.bat test`
+- `./gradlew.bat lintDebug`
+- `./gradlew.bat assembleDebug assembleRelease`
+- `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+- `rg "android.permission.INTERNET" -n app\src`
+- Lenovo TB320FC Android 15 실기기에서 `v1.0.19` release APK 설치 및 실행 확인
+
+## v1.0.18 - 고급 Markdown 미리보기 (Advanced Markdown Preview) - 2026-05-02
+
+### 추가
+- Preview 모드에서 Markdown table을 header와 row로 렌더링합니다.
+- Inline 수식 표기 `$...$`를 본문 안에서 구분해 표시합니다.
+- Display 수식 표기 `$$...$$`를 별도 block으로 표시합니다.
+
+### 결정
+- 네트워크, WebView 기반 원격 리소스, 폐쇄 SDK 없이 동작하도록 전체 KaTeX 엔진 대신 로컬 수식 표기 preview로 구현했습니다.
+
+### 검증
+- `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.core.markdown.SimpleMarkdownPreviewTest`
+- `./gradlew.bat test`
+- `./gradlew.bat lintDebug`
+- `./gradlew.bat assembleDebug assembleRelease`
+- `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+- `rg "android.permission.INTERNET" -n app\src`
+- `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk`
+
+## v1.0.17 - 릴리즈 서명 인증서 고정 (Fixed Release Signing Certificate) - 2026-05-02
+
+### 수정
+- 태그 릴리즈에서 release signing 값이 누락되면 빌드가 실패하도록 강제했습니다.
+- GitHub Release 생성 전에 APK 서명 인증서 SHA-256이 고정 production 인증서와 일치하는지 검증합니다.
+- 잘못된 키스토어로 빌드된 APK가 배포되어 기존 설치 앱과 업데이트 충돌을 일으키는 위험을 줄였습니다.
+
+### 문서
+- production release 인증서 SHA-256과 키스토어 교체 금지 기준을 `docs/RELEASE.md`에 기록했습니다.
+
+### 검증
+- `./gradlew.bat test`
+- `./gradlew.bat lintDebug`
+- `./gradlew.bat assembleDebug assembleRelease`
+- `./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'`
+- `apksigner verify --print-certs app\build\outputs\apk\release\app-release.apk`
+
 ## v1.0.16 - 노트 목록/편집기 빈 상태 개선 (Improve Empty States) - 2026-05-02
 
 ### 추가

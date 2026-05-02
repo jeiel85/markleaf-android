@@ -1,18 +1,24 @@
 package com.markleaf.notes.data.repository
 
 import com.markleaf.notes.data.local.AppDatabase
+import com.markleaf.notes.data.local.entity.NoteEntity
 import com.markleaf.notes.data.local.entity.NoteLinkEntity
+import com.markleaf.notes.data.local.entity.NoteSnapshotEntity
 import com.markleaf.notes.data.local.entity.toEntity
 import com.markleaf.notes.data.local.entity.toDomain
 import com.markleaf.notes.domain.model.Note
+import com.markleaf.notes.domain.model.NoteSnapshot
 import com.markleaf.notes.domain.repository.NoteRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.util.UUID
 
 class LocalNoteRepository(
     private val database: AppDatabase
 ) : NoteRepository {
     private val wikiLinkPattern = Regex("""\[\[([^\]]+)]]""")
+    private val snapshotIntervalMillis = 5 * 60 * 1000L
+    private val maxSnapshotsPerNote = 50
 
     override fun observeNotes(): Flow<List<Note>> {
         return database.noteDao().observeNotes().map { entities ->
@@ -29,6 +35,7 @@ class LocalNoteRepository(
     }
 
     override suspend fun updateNote(note: Note) {
+        maybeSnapshotCurrentNote(note)
         database.noteDao().updateNote(note.toEntity())
         reindexNoteLinks(note)
     }
@@ -52,7 +59,13 @@ class LocalNoteRepository(
     }
 
     override fun searchNotes(query: String): Flow<List<Note>> {
-        return database.noteDao().searchNotes(query).map { entities ->
+        val ftsQuery = query.toFtsPrefixQuery()
+        val searchFlow = if (ftsQuery.isBlank()) {
+            database.noteDao().searchNotesLike(query)
+        } else {
+            database.noteDao().searchNotesFts(ftsQuery)
+        }
+        return searchFlow.map { entities ->
             entities.map { it.toDomain() }
         }
     }
@@ -61,6 +74,44 @@ class LocalNoteRepository(
         return database.noteDao().getBacklinkingNotes(noteId).map { entities ->
             entities.map { it.toDomain() }
         }
+    }
+
+    suspend fun getSnapshots(noteId: String): List<NoteSnapshot> {
+        return database.noteSnapshotDao().getSnapshotsForNote(noteId).map { it.toDomain() }
+    }
+
+    suspend fun getSnapshot(snapshotId: String): NoteSnapshot? {
+        return database.noteSnapshotDao().getSnapshotById(snapshotId)?.toDomain()
+    }
+
+    suspend fun restoreSnapshot(snapshotId: String): Note? {
+        val snapshot = database.noteSnapshotDao().getSnapshotById(snapshotId) ?: return null
+        val current = database.noteDao().getNoteById(snapshot.noteId) ?: return null
+        val now = System.currentTimeMillis()
+
+        if (current.contentMarkdown != snapshot.contentMarkdown || current.title != snapshot.title) {
+            database.noteSnapshotDao().insertSnapshot(
+                NoteSnapshotEntity(
+                    id = UUID.randomUUID().toString(),
+                    noteId = current.id,
+                    title = current.title,
+                    contentMarkdown = current.contentMarkdown,
+                    excerpt = current.excerpt,
+                    createdAt = now
+                )
+            )
+        }
+
+        val restoredNote = current.copy(
+            title = snapshot.title,
+            contentMarkdown = snapshot.contentMarkdown,
+            excerpt = snapshot.excerpt,
+            updatedAt = now
+        ).toDomain()
+        database.noteDao().updateNote(restoredNote.toEntity())
+        reindexNoteLinks(restoredNote)
+        database.noteSnapshotDao().pruneSnapshotsForNote(current.id, maxSnapshotsPerNote)
+        return restoredNote
     }
 
     private suspend fun reindexNoteLinks(note: Note) {
@@ -79,5 +130,48 @@ class LocalNoteRepository(
                     )
                 )
             }
+    }
+
+    private suspend fun maybeSnapshotCurrentNote(nextNote: Note) {
+        val current = database.noteDao().getNoteById(nextNote.id) ?: return
+        if (!current.hasUserContentChange(nextNote)) return
+
+        val snapshots = database.noteSnapshotDao().getSnapshotsForNote(nextNote.id)
+        val latestSnapshot = snapshots.firstOrNull()
+        val latestAlreadyMatchesCurrent = latestSnapshot?.contentMarkdown == current.contentMarkdown &&
+            latestSnapshot.title == current.title
+        val latestIsRecent = latestSnapshot != null &&
+            current.updatedAt - latestSnapshot.createdAt < snapshotIntervalMillis
+
+        if (latestAlreadyMatchesCurrent || latestIsRecent) return
+
+        database.noteSnapshotDao().insertSnapshot(
+            NoteSnapshotEntity(
+                id = UUID.randomUUID().toString(),
+                noteId = current.id,
+                title = current.title,
+                contentMarkdown = current.contentMarkdown,
+                excerpt = current.excerpt,
+                createdAt = current.updatedAt
+            )
+        )
+        database.noteSnapshotDao().pruneSnapshotsForNote(current.id, maxSnapshotsPerNote)
+    }
+
+    private fun NoteEntity.hasUserContentChange(nextNote: Note): Boolean {
+        return title != nextNote.title ||
+            contentMarkdown != nextNote.contentMarkdown ||
+            excerpt != nextNote.excerpt
+    }
+
+    private fun String.toFtsPrefixQuery(): String {
+        return split(Regex("\\s+"))
+            .map { token ->
+                token.filter { char ->
+                    char.isLetterOrDigit() || char == '_' || char == '-'
+                }
+            }
+            .filter { it.isNotBlank() }
+            .joinToString(separator = " ") { "$it*" }
     }
 }

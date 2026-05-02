@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Markleaf</string>
+    <string name="notes_title">Notas</string>
+    <string name="collapse_note_list">Contraer lista de notas</string>
+    <string name="expand_note_list">Expandir lista de notas</string>
+    <string name="search">Buscar</string>
+    <string name="tags">Etiquetas</string>
+    <string name="trash">Papelera</string>
+    <string name="settings">Ajustes</string>
+    <string name="add_note">Agregar nota</string>
+    <string name="no_notes_yet">Aun no hay notas</string>
+    <string name="create_first_note_hint">Toca + para crear tu primera nota</string>
+    <string name="create_note">Crear nota</string>
+    <string name="untitled">Sin titulo</string>
+    <string name="untitled_parenthesized">(Sin titulo)</string>
+    <string name="select_note_to_view">Selecciona una nota para verla</string>
+
+    <string name="preview">Vista previa</string>
+    <string name="edit">Editar</string>
+    <string name="edit_note">Editar nota</string>
+    <string name="new_note">Nueva nota</string>
+    <string name="back">Atras</string>
+    <string name="backlinks">Enlaces entrantes</string>
+    <string name="note_content">Contenido de la nota</string>
+    <string name="start_writing">Empieza a escribir...</string>
+    <string name="editor_empty_title">Una pagina tranquila esta lista</string>
+    <string name="editor_empty_hint">Usa Markdown, #etiquetas, enlaces, casillas e imagenes. Markleaf guarda localmente mientras escribes.</string>
+    <string name="bold">Negrita</string>
+    <string name="italic">Cursiva</string>
+    <string name="checkbox">Casilla</string>
+    <string name="markdown_link">Enlace Markdown</string>
+    <string name="wiki_link">Enlace wiki</string>
+    <string name="image">Imagen</string>
+    <string name="version_history">Historial de versiones</string>
+    <string name="no_versions_yet">Aun no hay versiones guardadas</string>
+    <string name="restore_version">Restaurar</string>
+    <string name="version_item_format">%1$s · %2$s</string>
+
+    <string name="search_notes_hint">Buscar notas...</string>
+    <string name="type_to_search_notes">Escribe para buscar notas</string>
+    <string name="no_results_found">No se encontraron resultados</string>
+    <string name="quick_open">Apertura rapida</string>
+    <string name="matching_notes">Notas</string>
+    <string name="matching_tags">Etiquetas</string>
+    <string name="matching_links">Enlaces</string>
+    <string name="tag_result_format">#%1$s</string>
+    <string name="link_result_format">[[%1$s]]</string>
+    <string name="link_reference_count_format">%1$d referencias</string>
+    <string name="no_tags_yet">Aun no hay etiquetas</string>
+    <string name="tags_empty_hint">Escribe #etiquetas en una nota para organizarla</string>
+
+    <string name="trash_empty">La papelera esta vacia</string>
+    <string name="trash_empty_hint">Las notas que elimines apareceran aqui</string>
+    <string name="restore">Restaurar</string>
+    <string name="delete">Eliminar</string>
+    <string name="delete_forever_title">Eliminar para siempre?</string>
+    <string name="delete_forever_message">Esta nota se eliminara permanentemente y no se podra recuperar.</string>
+    <string name="delete_forever">Eliminar para siempre</string>
+    <string name="cancel">Cancelar</string>
+
+    <string name="settings_data">Datos</string>
+    <string name="settings_data_description">Crea una copia ZIP local o restaura una que hayas seleccionado. Markleaf no sube notas automaticamente.</string>
+    <string name="create_backup">Crear copia</string>
+    <string name="backup_created">Copia ZIP creada.</string>
+    <string name="backup_failed">No se pudo crear la copia.</string>
+    <string name="backup_restored">Copia ZIP restaurada.</string>
+    <string name="restore_failed">No se pudo restaurar.</string>
+    <string name="settings_markdown">Markdown</string>
+    <string name="show_markdown_syntax">Mostrar sintaxis Markdown</string>
+    <string name="show_markdown_syntax_description">El editor resalta caracteres Markdown mientras escribes.</string>
+    <string name="line_width">Ancho de linea</string>
+    <string name="line_width_narrow">Estrecho</string>
+    <string name="line_width_comfortable">Comodo</string>
+    <string name="line_width_wide">Ancho</string>
+    <string name="markdown_preview_support">La vista previa admite encabezados, listas, casillas, tablas, matematicas, imagenes, enlaces de notas y enlaces Markdown inline.</string>
+    <string name="external_links_mvp">Los enlaces web externos se muestran como enlaces, pero no se abren automaticamente en el MVP.</string>
+    <string name="local_link_hint">Usa [[Titulo de nota]] o [etiqueta](Titulo de nota) para saltar mediante busqueda local.</string>
+    <string name="settings_privacy">Privacidad</string>
+    <string name="privacy_no_tracking">Sin cuenta, analiticas, anuncios, configuracion remota ni SDK propietario de fallos.</string>
+    <string name="privacy_no_internet">El MVP no declara permiso INTERNET.</string>
+    <string name="privacy_local_first">Las notas salen del dispositivo solo cuando las exportas, compartes o respaldas explicitamente.</string>
+    <string name="settings_app">Aplicacion</string>
+    <string name="version_format">Version %1$s</string>
+    <string name="application_id_format">Application ID %1$s</string>
+</resources>

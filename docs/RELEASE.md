@@ -3,6 +3,14 @@
 Markleaf release builds are signed only when release signing values are supplied.
 The release keystore is a secret and must not be committed.
 
+The production release certificate is fixed. GitHub tag releases verify the signed APK against this SHA-256 certificate digest before creating a release:
+
+```text
+0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a
+```
+
+Do not replace the production keystore for normal releases. Android treats APKs signed with a different certificate as a different update lineage, so existing users cannot update over the previously installed app.
+
 ## Local Signed Release Build
 
 Create a local `release-signing.properties` file:
@@ -20,6 +28,18 @@ Then build:
 
 ```bash
 ./gradlew assembleRelease
+```
+
+For release-candidate verification, require signing explicitly:
+
+```bash
+./gradlew assembleRelease -Pmarkleaf.requireReleaseSigning=true
+```
+
+On PowerShell, quote the Gradle property:
+
+```powershell
+./gradlew.bat assembleRelease '-Pmarkleaf.requireReleaseSigning=true'
 ```
 
 The signed APK is written to:
@@ -42,6 +62,7 @@ MARKLEAF_RELEASE_KEY_PASSWORD
 `MARKLEAF_RELEASE_KEYSTORE_BASE64` is the Base64-encoded PKCS12 keystore file.
 
 On tag pushes matching `v*`, GitHub Actions runs tests, builds the signed release APK, and creates a GitHub Release with the APK attached.
+The release job fails before publishing if the keystore secret is missing or if the APK certificate SHA-256 digest differs from the fixed production certificate.
 
 Example:
 

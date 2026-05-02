@@ -11,6 +11,7 @@
     <string name="add_note">노트 추가</string>
     <string name="no_notes_yet">아직 노트가 없습니다</string>
     <string name="create_first_note_hint">+ 버튼을 눌러 첫 노트를 만들어보세요</string>
+    <string name="create_note">노트 만들기</string>
     <string name="untitled">제목 없음</string>
     <string name="untitled_parenthesized">(제목 없음)</string>
     <string name="select_note_to_view">볼 노트를 선택하세요</string>
@@ -23,16 +24,29 @@
     <string name="backlinks">백링크</string>
     <string name="note_content">노트 본문</string>
     <string name="start_writing">바로 작성해보세요...</string>
+    <string name="editor_empty_title">조용한 빈 페이지가 준비되었습니다</string>
+    <string name="editor_empty_hint">Markdown, #태그, 링크, 체크박스, 이미지를 사용할 수 있습니다. 작성하는 동안 로컬에 저장됩니다.</string>
     <string name="bold">굵게</string>
     <string name="italic">기울임</string>
     <string name="checkbox">체크박스</string>
     <string name="markdown_link">Markdown 링크</string>
     <string name="wiki_link">위키 링크</string>
     <string name="image">이미지</string>
+    <string name="version_history">버전 기록</string>
+    <string name="no_versions_yet">저장된 이전 버전이 없습니다</string>
+    <string name="restore_version">복원</string>
+    <string name="version_item_format">%1$s · %2$s</string>
 
     <string name="search_notes_hint">노트 검색...</string>
     <string name="type_to_search_notes">검색어를 입력하세요</string>
     <string name="no_results_found">검색 결과가 없습니다</string>
+    <string name="quick_open">빠른 열기</string>
+    <string name="matching_notes">노트</string>
+    <string name="matching_tags">태그</string>
+    <string name="matching_links">링크</string>
+    <string name="tag_result_format">#%1$s</string>
+    <string name="link_result_format">[[%1$s]]</string>
+    <string name="link_reference_count_format">참조 %1$d개</string>
     <string name="no_tags_yet">아직 태그가 없습니다</string>
     <string name="tags_empty_hint">노트에 #태그를 입력해 정리해보세요</string>
 
@@ -59,7 +73,7 @@
     <string name="line_width_narrow">좁게</string>
     <string name="line_width_comfortable">편안하게</string>
     <string name="line_width_wide">넓게</string>
-    <string name="markdown_preview_support">미리보기는 제목, 목록, 체크박스, 이미지, 노트 링크, inline Markdown 링크를 지원합니다.</string>
+    <string name="markdown_preview_support">미리보기는 제목, 목록, 체크박스, 표, 수식 표기, 이미지, 노트 링크, inline Markdown 링크를 지원합니다.</string>
     <string name="external_links_mvp">외부 웹 링크는 링크처럼 표시하지만 MVP에서는 자동으로 열지 않습니다.</string>
     <string name="local_link_hint">[[노트 제목]] 또는 [라벨](노트 제목)을 사용해 로컬 검색으로 이동할 수 있습니다.</string>
     <string name="settings_privacy">개인정보</string>

@@ -58,6 +58,7 @@ jobs:
       contents: write
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      MARKLEAF_RELEASE_CERT_SHA256: 0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a
 
     steps:
       - name: Checkout repository
@@ -79,8 +80,10 @@ jobs:
         env:
           MARKLEAF_RELEASE_KEYSTORE_BASE64: ${{ secrets.MARKLEAF_RELEASE_KEYSTORE_BASE64 }}
         run: |
+          test -n "$MARKLEAF_RELEASE_KEYSTORE_BASE64"
           mkdir -p release
           printf '%s' "$MARKLEAF_RELEASE_KEYSTORE_BASE64" | base64 -d > release/markleaf-release.p12
+          test -s release/markleaf-release.p12
 
       - name: Run tests
         run: ./gradlew test
@@ -91,7 +94,17 @@ jobs:
           MARKLEAF_RELEASE_STORE_PASSWORD: ${{ secrets.MARKLEAF_RELEASE_STORE_PASSWORD }}
           MARKLEAF_RELEASE_KEY_ALIAS: ${{ secrets.MARKLEAF_RELEASE_KEY_ALIAS }}
           MARKLEAF_RELEASE_KEY_PASSWORD: ${{ secrets.MARKLEAF_RELEASE_KEY_PASSWORD }}
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleRelease -Pmarkleaf.requireReleaseSigning=true
+
+      - name: Verify release signing certificate
+        run: |
+          APK="app/build/outputs/apk/release/app-release.apk"
+          APKSIGNER="$ANDROID_HOME/build-tools/$(ls -1 "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)/apksigner"
+          "$APKSIGNER" verify --print-certs "$APK" > signing-report.txt
+          ACTUAL_SHA256="$(awk -F': ' '/certificate SHA-256 digest/ { print tolower($2); exit }' signing-report.txt)"
+          EXPECTED_SHA256="$(printf '%s' "$MARKLEAF_RELEASE_CERT_SHA256" | tr 'A-F' 'a-f')"
+          test -n "$ACTUAL_SHA256"
+          test "$ACTUAL_SHA256" = "$EXPECTED_SHA256"
 
       - name: Prepare release asset
         run: |

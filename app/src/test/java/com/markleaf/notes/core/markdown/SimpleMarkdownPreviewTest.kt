@@ -68,4 +68,52 @@ class SimpleMarkdownPreviewTest {
         assertEquals(PreviewInlineType.MARKDOWN_LINK, lines.first().segments[1].type)
         assertEquals("Project Note", lines.first().segments[1].target)
     }
+
+    @Test
+    fun parse_parsesMarkdownTablesAndSkipsDivider() {
+        val markdown = """
+            | Name | Count |
+            | --- | ---: |
+            | Ideas | 3 |
+            | Drafts | 2 |
+        """.trimIndent()
+
+        val lines = SimpleMarkdownPreview.parse(markdown)
+
+        assertEquals(3, lines.size)
+        assertEquals(PreviewLineType.TABLE_HEADER, lines[0].type)
+        assertEquals(listOf("Name", "Count"), lines[0].cells)
+        assertEquals(PreviewLineType.TABLE_ROW, lines[1].type)
+        assertEquals(listOf("Ideas", "3"), lines[1].cells)
+        assertEquals(PreviewLineType.TABLE_ROW, lines[2].type)
+    }
+
+    @Test
+    fun parse_parsesInlineMathSegments() {
+        val lines = SimpleMarkdownPreview.parse("Use \$a^2 + b^2 = c^2\$ in notes")
+
+        assertEquals(PreviewLineType.BODY, lines.first().type)
+        assertEquals(3, lines.first().segments.size)
+        assertEquals(PreviewInlineType.INLINE_MATH, lines.first().segments[1].type)
+        assertEquals("a^2 + b^2 = c^2", lines.first().segments[1].text)
+    }
+
+    @Test
+    fun parse_parsesDisplayMathBlocks() {
+        val markdown = """
+            Before
+            $$
+            E = mc^2
+            $$
+            After
+        """.trimIndent()
+
+        val lines = SimpleMarkdownPreview.parse(markdown)
+
+        assertEquals(3, lines.size)
+        assertEquals(PreviewLineType.BODY, lines[0].type)
+        assertEquals(PreviewLineType.MATH_BLOCK, lines[1].type)
+        assertEquals("E = mc^2", lines[1].text)
+        assertEquals(PreviewLineType.BODY, lines[2].type)
+    }
 }

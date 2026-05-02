@@ -35,6 +35,22 @@ val hasReleaseSigningConfig = listOf(
     releaseKeyAlias,
     releaseKeyPassword,
 ).all { !it.isNullOrBlank() }
+val requireReleaseSigning = providers.gradleProperty("markleaf.requireReleaseSigning")
+    .map(String::toBoolean)
+    .orElse(false)
+    .get()
+
+if (requireReleaseSigning && !hasReleaseSigningConfig) {
+    throw GradleException(
+        "Release signing is required, but one or more signing values are missing. " +
+            "Set MARKLEAF_RELEASE_STORE_FILE, MARKLEAF_RELEASE_STORE_PASSWORD, " +
+            "MARKLEAF_RELEASE_KEY_ALIAS, and MARKLEAF_RELEASE_KEY_PASSWORD."
+    )
+}
+
+if (requireReleaseSigning && !rootProject.file(releaseStoreFile!!).exists()) {
+    throw GradleException("Release signing is required, but the keystore file does not exist: $releaseStoreFile")
+}
 
 android {
     namespace = "com.markleaf.notes"
@@ -44,8 +60,8 @@ android {
         applicationId = "com.markleaf.notes"
         minSdk = 26
         targetSdk = 34
-        versionCode = 17
-        versionName = "1.0.16"
+        versionCode = 24
+        versionName = "1.0.23"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

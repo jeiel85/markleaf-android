@@ -26,6 +26,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -147,6 +148,12 @@ fun NotesListScreen(
                         modifier = Modifier.padding(top = 8.dp),
                         textAlign = TextAlign.Center
                     )
+                    Button(
+                        onClick = onFabClick,
+                        modifier = Modifier.padding(top = 20.dp)
+                    ) {
+                        Text(stringResource(R.string.create_note))
+                    }
                 }
             }
         } else {

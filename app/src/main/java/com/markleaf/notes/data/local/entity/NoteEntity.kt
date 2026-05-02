@@ -1,11 +1,19 @@
 package com.markleaf.notes.data.local.entity
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.markleaf.notes.domain.model.Note
 import java.time.Instant
 
-@Entity(tableName = "notes")
+@Entity(
+    tableName = "notes",
+    indices = [
+        Index(value = ["trashed", "pinned", "updatedAt"]),
+        Index(value = ["trashed", "deletedAt"]),
+        Index(value = ["title", "trashed"])
+    ]
+)
 data class NoteEntity(
     @PrimaryKey
     val id: String,

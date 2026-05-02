@@ -4,6 +4,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,8 +27,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckBox
 import androidx.compose.material.icons.filled.FormatBold
 import androidx.compose.material.icons.filled.FormatItalic
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Link
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -57,6 +62,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -80,8 +87,11 @@ import com.markleaf.notes.data.repository.LocalTagRepository
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
+import com.markleaf.notes.domain.model.NoteSnapshot
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -104,6 +114,8 @@ fun EditorScreen(
     var saveTrigger by remember(noteId) { mutableStateOf(0) }
     var isLoaded by remember(noteId) { mutableStateOf(noteId == null) }
     var isPreviewMode by remember(noteId) { mutableStateOf(false) }
+    var showVersionHistory by remember(noteId) { mutableStateOf(false) }
+    var snapshots by remember(noteId) { mutableStateOf<List<NoteSnapshot>>(emptyList()) }
 
     val backlinks by if (noteId != null) {
         repo.getBacklinks(noteId).collectAsState(initial = emptyList())
@@ -192,6 +204,18 @@ fun EditorScreen(
                     }
                 },
                 actions = {
+                    if (noteId != null) {
+                        IconButton(
+                            onClick = {
+                                coroutineScope.launch {
+                                    snapshots = repo.getSnapshots(noteId)
+                                    showVersionHistory = true
+                                }
+                            }
+                        ) {
+                            Icon(Icons.Default.History, contentDescription = stringResource(R.string.version_history))
+                        }
+                    }
                     TextButton(onClick = { isPreviewMode = !isPreviewMode }) {
                         Text(
                             if (isPreviewMode) stringResource(R.string.edit) else stringResource(R.string.preview),
@@ -265,9 +289,12 @@ fun EditorScreen(
                             color = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.padding(top = 6.dp, bottom = 4.dp)
                         )
+                        PreviewLineType.TABLE_HEADER -> MarkdownTableRow(line = line, isHeader = true)
+                        PreviewLineType.TABLE_ROW -> MarkdownTableRow(line = line, isHeader = false)
                         PreviewLineType.BULLET -> Text("• ${line.text}", style = MaterialTheme.typography.bodyLarge)
                         PreviewLineType.CHECKBOX_DONE -> Text("☑ ${line.text}", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         PreviewLineType.CHECKBOX_TODO -> Text("☐ ${line.text}", style = MaterialTheme.typography.bodyLarge)
+                        PreviewLineType.MATH_BLOCK -> MarkdownMathBlock(line.text)
                         PreviewLineType.BODY -> InlineMarkdownText(line = line, onLinkClick = onLinkClick)
                         PreviewLineType.EMPTY -> Spacer(Modifier.height(8.dp))
                     }
@@ -332,10 +359,17 @@ fun EditorScreen(
                                         modifier = Modifier.padding(bottom = 16.dp)
                                     )
                                     Text(
-                                        text = stringResource(R.string.start_writing),
-                                        style = MaterialTheme.typography.bodyLarge,
+                                        text = stringResource(R.string.editor_empty_title),
+                                        style = MaterialTheme.typography.titleMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         textAlign = TextAlign.Center
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.editor_empty_hint),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.padding(top = 8.dp)
                                     )
                                 }
                             } else {
@@ -390,6 +424,88 @@ fun EditorScreen(
             }
         }
     }
+
+    if (showVersionHistory && noteId != null) {
+        VersionHistoryDialog(
+            snapshots = snapshots,
+            onDismiss = { showVersionHistory = false },
+            onRestore = { snapshot ->
+                coroutineScope.launch {
+                    val restored = repo.restoreSnapshot(snapshot.id)
+                    if (restored != null) {
+                        editorState = TextFieldValue(restored.contentMarkdown)
+                        tagRepo.reindexTagsForNote(restored.id, restored.contentMarkdown)
+                        snapshots = repo.getSnapshots(restored.id)
+                    }
+                    showVersionHistory = false
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun VersionHistoryDialog(
+    snapshots: List<NoteSnapshot>,
+    onDismiss: () -> Unit,
+    onRestore: (NoteSnapshot) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.version_history)) },
+        text = {
+            if (snapshots.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.no_versions_yet),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                LazyColumn(modifier = Modifier.height(280.dp)) {
+                    items(snapshots) { snapshot ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 6.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = snapshot.title.ifBlank { stringResource(R.string.untitled) },
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = stringResource(
+                                        R.string.version_item_format,
+                                        formatSnapshotTimestamp(snapshot),
+                                        snapshot.excerpt.ifBlank { snapshot.contentMarkdown.take(48) }
+                                    ),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Button(onClick = { onRestore(snapshot) }) {
+                                Text(stringResource(R.string.restore_version))
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
+}
+
+private fun formatSnapshotTimestamp(snapshot: NoteSnapshot): String {
+    return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+        .withZone(ZoneId.systemDefault())
+        .format(snapshot.createdAt)
 }
 
 @Composable
@@ -470,6 +586,16 @@ private fun InlineMarkdownText(
                     }
                     pop()
                 }
+                PreviewInlineType.INLINE_MATH -> {
+                    withStyle(
+                        SpanStyle(
+                            color = MaterialTheme.colorScheme.tertiary,
+                            fontFamily = FontFamily.Monospace
+                        )
+                    ) {
+                        append(segment.text)
+                    }
+                }
             }
         }
     }
@@ -491,5 +617,60 @@ private fun InlineMarkdownText(
                 }
             }
         }
+    )
+}
+
+@Composable
+private fun MarkdownTableRow(
+    line: PreviewLine,
+    isHeader: Boolean
+) {
+    val backgroundColor = if (isHeader) {
+        MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.45f)
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
+    val textColor = if (isHeader) {
+        MaterialTheme.colorScheme.onSecondaryContainer
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
+    val borderColor = MaterialTheme.colorScheme.outlineVariant
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(vertical = if (isHeader) 6.dp else 0.dp)
+    ) {
+        line.cells.forEach { cell ->
+            Text(
+                text = cell,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = if (isHeader) FontWeight.SemiBold else FontWeight.Normal
+                ),
+                color = textColor,
+                modifier = Modifier
+                    .border(1.dp, borderColor)
+                    .background(backgroundColor)
+                    .padding(horizontal = 10.dp, vertical = 8.dp)
+                    .widthIn(min = 96.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun MarkdownMathBlock(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
+        color = MaterialTheme.colorScheme.tertiary,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .clip(RoundedCornerShape(6.dp))
+            .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.35f))
+            .padding(horizontal = 12.dp, vertical = 10.dp)
     )
 }

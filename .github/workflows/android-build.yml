@@ -99,7 +99,7 @@ jobs:
 
       - name: Verify release signing certificate
         run: |
-          APK="$(python3 -c 'import glob, sys; paths = sorted(glob.glob("app/build/**/*.apk", recursive=True)); print(paths[0] if paths else ""); sys.exit(0 if paths else 1)')"
+          APK="$(python3 -c 'import glob, os, sys; paths = sorted(p for p in glob.glob("app/build/**/*.apk", recursive=True) if "release" in os.path.basename(p).lower() or "/release/" in p.replace("\\", "/").lower()); print(paths[0] if paths else ""); sys.exit(0 if paths else 1)')"
           test -f "$APK"
           APKSIGNER="$ANDROID_HOME/build-tools/$(ls -1 "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)/apksigner"
           "$APKSIGNER" verify --print-certs "$APK" > signing-report.txt
@@ -110,7 +110,7 @@ jobs:
 
       - name: Prepare release asset
         run: |
-          APK="$(python3 -c 'import glob, sys; paths = sorted(glob.glob("app/build/**/*.apk", recursive=True)); print(paths[0] if paths else ""); sys.exit(0 if paths else 1)')"
+          APK="$(python3 -c 'import glob, os, sys; paths = sorted(p for p in glob.glob("app/build/**/*.apk", recursive=True) if "release" in os.path.basename(p).lower() or "/release/" in p.replace("\\", "/").lower()); print(paths[0] if paths else ""); sys.exit(0 if paths else 1)')"
           test -f "$APK"
           cp "$APK" "markleaf-${GITHUB_REF_NAME}.apk"
           test -s "markleaf-${GITHUB_REF_NAME}.apk"

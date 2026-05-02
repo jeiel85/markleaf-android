@@ -1,6 +1,17 @@
 # HISTORY
 
 ## 2026-05-02
+- Work: v1.1.15 Editor Link Toolbar Clarification. 편집기 링크 툴바 개선을 공개 릴리즈 버전으로 승격.
+- Changed files:
+  - `app/build.gradle.kts` (versionCode 45, versionName 1.1.15)
+  - `CHANGELOG.md` (promote the editor toolbar entry to `v1.1.15`)
+  - `HISTORY.md`, `.agent/progress.md`, `.agent/tasks.md`
+- Verification:
+  - `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.res.ResourceParityTest` passed
+  - `./gradlew.bat assembleDebug` passed and produced `app/build/outputs/apk/debug/app-debug.apk` (17,471,984 bytes)
+  - `rg "android.permission.INTERNET" -n app/src` found no declarations
+
+## 2026-05-02
 - Work: Editor link toolbar affordance polish. Markdown 링크와 위키 링크 버튼을 시각적으로 구분하고 툴바 아이콘 설명을 추가.
 - Changed files:
   - `app/src/main/java/com/markleaf/notes/feature/editor/EditorScreen.kt` (wrap toolbar icon buttons in Material tooltip anchors and show wiki links as `[[ ]]`)

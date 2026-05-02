@@ -72,6 +72,7 @@
 - [x] [#17] Improve Markdown link preview and settings navigation
 - [x] Improve editor Markdown toolbar (#18)
 - [x] Clarify editor link toolbar buttons with distinct affordances and tooltips
+- [x] Publish editor link toolbar clarification as v1.1.15
 - [x] Tablet note list collapse and constrained editor width (#19)
 - [x] Settings foundation for Markdown visibility and line width (#20)
 - [x] Live Markdown editor inline syntax highlighting (#21)

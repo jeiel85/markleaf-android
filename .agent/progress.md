@@ -1,4 +1,26 @@
 ---
+## 2026-05-02 - v1.1.15 Version Bump
+Selected task:
+- Publish the editor link toolbar clarification as the next GitHub release version
+
+What was implemented:
+- Bumped app version from `1.1.14` / `versionCode = 44` to `1.1.15` / `versionCode = 45`
+- Promoted the editor link toolbar changelog entry from Unreleased to the `v1.1.15` release heading
+- Prepared the branch for a `v1.1.15` tag release using the existing GitHub Actions release workflow
+
+Files changed:
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/progress.md
+- .agent/tasks.md
+
+Build/test result:
+- `./gradlew.bat testDebugUnitTest --tests com.markleaf.notes.res.ResourceParityTest` passed
+- `./gradlew.bat assembleDebug` passed and produced `app/build/outputs/apk/debug/app-debug.apk` (17,471,984 bytes)
+- `rg "android.permission.INTERNET" -n app/src` found no declarations
+
+---
 ## 2026-05-02 - Editor Link Toolbar Clarification
 Selected task:
 - Clarify editor link toolbar buttons with distinct affordances and tooltips

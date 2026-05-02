@@ -2,7 +2,7 @@
 
 All notable changes to Markleaf are documented in this file.
 
-## Unreleased
+## v1.1.15 - 편집기 링크 툴바 명확화 (Editor Link Toolbar Clarification) - 2026-05-02
 
 ### 개선
 - **편집기 링크 툴바 명확화:** Markdown 링크와 위키 링크 버튼이 같은 체인 아이콘으로 연속 표시되지 않도록 위키 링크 버튼을 `[[ ]]` 문법 표시로 바꾸고, 편집 툴바 아이콘에 길게 누르기/hover 설명을 추가했습니다.

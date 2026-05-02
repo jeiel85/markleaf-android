@@ -1,4 +1,27 @@
 ---
+## 2026-05-02 - Release APK Fixed Path Priority Recovery Complete
+Selected task:
+- Recover automated tag release verification by preferring the canonical release APK path
+
+What was implemented:
+- Confirmed `v1.1.11` still failed after release task execution because APK selection remained ambiguous during verification
+- Updated `.github/workflows/android-build.yml` to prefer `app/build/outputs/apk/release/app-release.apk` before falling back to broader release APK discovery
+- Reused the same fixed-path-first rule for both signing verification and GitHub Release asset preparation
+- Bumped app version again to `1.1.12` / `versionCode = 42` for a fresh monotonic automated retry tag
+
+Files changed:
+- .github/workflows/android-build.yml
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/progress.md
+- .agent/decisions.md
+
+Build/test result:
+- GitHub Actions run `25251058101` isolated the remaining release APK selection failure after release-only filtering
+- Recovery retag plan moved to `v1.1.12`
+
+---
 ## 2026-05-02 - Release APK Selection Recovery Complete
 Selected task:
 - Recover automated tag release verification so it selects the signed release APK instead of debug outputs

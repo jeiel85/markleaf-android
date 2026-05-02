@@ -1,6 +1,16 @@
 # HISTORY
 
 ## 2026-05-02
+- Work: v1.1.12 Release APK Fixed Path Priority Recovery Complete. 일반적인 release APK 경로를 우선 사용하도록 workflow 복구.
+- Changed files:
+  - `.github/workflows/android-build.yml` (prefer app/build/outputs/apk/release/app-release.apk before fallback discovery)
+  - `app/build.gradle.kts` (versionCode 42, versionName 1.1.12)
+  - `CHANGELOG.md`, `HISTORY.md`, `.agent/progress.md`, `.agent/decisions.md`
+- Verification:
+  - GitHub Actions run `25251058101` proved release task ran but release APK selection still failed inside verification
+  - Recovery path updated to prefer the canonical release APK output path before any fallback search
+
+## 2026-05-02
 - Work: v1.1.11 Release APK Selection Recovery Complete. release job이 debug APK를 집지 않도록 selection 규칙 복구.
 - Changed files:
   - `.github/workflows/android-build.yml` (select only release APK candidates from app/build tree)

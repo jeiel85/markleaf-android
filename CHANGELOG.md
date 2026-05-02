@@ -2,6 +2,13 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.1.12 - 릴리즈 APK 고정 경로 우선 복구 완료 (Release APK Fixed Path Priority Recovery Complete) - 2026-05-02
+
+### 수정
+- **고정 release 경로 우선 사용:** GitHub Actions release job이 먼저 `app/build/outputs/apk/release/app-release.apk`를 사용하고, 없을 때만 fallback 탐색을 하도록 수정했습니다.
+- **새 복구 버전 발행:** 실패한 `v1.1.11` 태그를 재사용하지 않고 `versionCode`를 `42`, `versionName`을 `1.1.12`로 올려 새 자동 릴리즈 태그를 발행합니다.
+- **release 검증 안정성 보강:** 일반적인 AGP release APK 경로를 우선 사용해 debug/release 선택 혼선을 줄였습니다.
+
 ## v1.1.11 - 릴리즈 APK 선택 복구 완료 (Release APK Selection Recovery Complete) - 2026-05-02
 
 ### 수정

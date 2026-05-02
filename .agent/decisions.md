@@ -7,6 +7,16 @@
 
 ## Confirmed Decisions
 
+### D042 - Release Automation Prefers Canonical APK Output Path
+
+GitHub release automation should prefer the canonical AGP release APK path before falling back to broader discovery heuristics.
+
+Implications:
+
+- The common `app/build/outputs/apk/release/app-release.apk` path is treated as the first-class source for signing verification and asset upload.
+- Fallback discovery remains available only for unexpected AGP layout differences.
+- Release automation minimizes ambiguity between debug, release, and nested APK outputs.
+
 ### D041 - Release Verification Must Exclude Debug APKs
 
 GitHub release automation should never let debug APKs participate in release signing verification or release asset upload.

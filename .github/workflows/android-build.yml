@@ -94,7 +94,7 @@ jobs:
           MARKLEAF_RELEASE_STORE_PASSWORD: ${{ secrets.MARKLEAF_RELEASE_STORE_PASSWORD }}
           MARKLEAF_RELEASE_KEY_ALIAS: ${{ secrets.MARKLEAF_RELEASE_KEY_ALIAS }}
           MARKLEAF_RELEASE_KEY_PASSWORD: ${{ secrets.MARKLEAF_RELEASE_KEY_PASSWORD }}
-        run: ./gradlew :app:assembleRelease "-Pmarkleaf.requireReleaseSigning=true"
+        run: ./gradlew "-Pmarkleaf.requireReleaseSigning=true" :app:assembleRelease
 
       - name: Verify release signing certificate
         run: |

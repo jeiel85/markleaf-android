@@ -7,6 +7,16 @@
 
 ## Confirmed Decisions
 
+### D035 - Release APK Path Comes From Output Metadata
+
+GitHub release automation should resolve the produced APK path from Gradle output metadata instead of assuming a fixed filename.
+
+Implications:
+
+- Certificate verification and release asset upload both use the same metadata-derived APK path.
+- AGP output filename changes do not silently break tag release publication.
+- Release workflow validation remains tied to the actual built artifact, not a guessed path.
+
 ### D034 - Failed Public Releases Recover With A New Monotonic Version
 
 When a public tag release fails before publishing correctly, Markleaf should recover with a new app version and tag instead of rewriting or reusing the failed tag.

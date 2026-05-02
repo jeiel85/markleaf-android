@@ -1,6 +1,16 @@
 # HISTORY
 
 ## 2026-05-02
+- Work: v1.1.5 Release Artifact Path Recovery Complete. release APK 고정 경로 가정을 제거하고 metadata 기반 경로로 복구.
+- Changed files:
+  - `.github/workflows/android-build.yml` (resolve release APK path from output-metadata.json)
+  - `app/build.gradle.kts` (versionCode 35, versionName 1.1.5)
+  - `CHANGELOG.md`, `HISTORY.md`, `.agent/progress.md`, `.agent/decisions.md`
+- Verification:
+  - GitHub Actions run `25250335060` proved the release build succeeded but fixed-path certificate verification failed
+  - Local release metadata confirmed APK output version `1.1.5` / `35` before retagging
+
+## 2026-05-02
 - Work: v1.1.4 Release Tag Recovery Complete. bash 기반 tag release 인자 순서 보정 후 새 버전으로 재복구.
 - Changed files:
   - `.github/workflows/android-build.yml` (move release-signing Gradle property before release task)

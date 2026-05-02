@@ -1,4 +1,27 @@
 ---
+## 2026-05-02 - Release Artifact Path Recovery Complete
+Selected task:
+- Recover the release job from fixed APK path assumptions and ship a fresh tag
+
+What was implemented:
+- Confirmed `v1.1.4` built successfully on GitHub Actions but failed afterward because the workflow assumed a fixed `app-release.apk` path
+- Updated `.github/workflows/android-build.yml` to read the actual release APK filename from `app/build/outputs/apk/release/output-metadata.json`
+- Reused the metadata-derived APK path in both certificate verification and GitHub Release asset preparation
+- Bumped app version again to `1.1.5` / `versionCode = 35` for a fresh monotonic retry tag
+
+Files changed:
+- .github/workflows/android-build.yml
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/progress.md
+- .agent/decisions.md
+
+Build/test result:
+- GitHub Actions run `25250335060` isolated the remaining fixed-path release artifact failure
+- Local `output-metadata.json` and APK metadata confirmed `versionCode = 35` and `versionName = 1.1.5`
+
+---
 ## 2026-05-02 - Release Tag Recovery Complete
 Selected task:
 - Correct Ubuntu tag-release argument ordering and publish a fresh recovery tag

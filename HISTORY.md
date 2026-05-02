@@ -1,6 +1,16 @@
 # HISTORY
 
 ## 2026-05-02
+- Work: v1.1.14 Release Certificate Parsing Recovery Complete. CI release certificate digest를 실제 값으로 비교하도록 복구.
+- Changed files:
+  - `.github/workflows/android-build.yml` (read actual SHA-256 digest from the third field of apksigner output)
+  - `app/build.gradle.kts` (versionCode 44, versionName 1.1.14)
+  - `CHANGELOG.md`, `HISTORY.md`, `.agent/progress.md`
+- Verification:
+  - GitHub Actions run `25251224431` proved the release APK and production certificate matched, but the workflow compared the wrong parsed field
+  - Recovery path updated to publish a fresh automated tag release as `v1.1.14`
+
+## 2026-05-02
 - Work: v1.1.13 Release Certificate Diagnostics. CI release certificate mismatch 여부를 로그로 즉시 판별하도록 진단 출력 추가.
 - Changed files:
   - `.github/workflows/android-build.yml` (print signing report plus actual/expected release certificate digest)

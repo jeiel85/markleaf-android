@@ -1,4 +1,25 @@
 ---
+## 2026-05-02 - Release Certificate Parsing Recovery Complete
+Selected task:
+- Recover automated tag release certificate verification by parsing the actual SHA-256 digest correctly
+
+What was implemented:
+- Confirmed `v1.1.13` already produced the correct production-signed release APK in CI
+- Updated `.github/workflows/android-build.yml` to read the third `: `-separated field from `apksigner` output, which is the real SHA-256 digest value
+- Bumped app version again to `1.1.14` / `versionCode = 44` for the fresh monotonic automated retry tag
+
+Files changed:
+- .github/workflows/android-build.yml
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/progress.md
+
+Build/test result:
+- GitHub Actions run `25251224431` proved the release APK digest matched the expected production certificate once printed
+- Recovery retag plan moved to `v1.1.14`
+
+---
 ## 2026-05-02 - Release Certificate Diagnostics
 Selected task:
 - Expose the remaining release certificate verification failure directly in CI logs

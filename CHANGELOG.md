@@ -2,6 +2,13 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.1.14 - 릴리즈 인증서 파싱 복구 완료 (Release Certificate Parsing Recovery Complete) - 2026-05-02
+
+### 수정
+- **인증서 digest 파싱 수정:** GitHub Actions release job이 `apksigner verify --print-certs` 출력에서 실제 SHA-256 digest 값(`$3`)을 읽도록 수정했습니다.
+- **새 복구 버전 발행:** 실패한 `v1.1.13` 태그를 재사용하지 않고 `versionCode`를 `44`, `versionName`을 `1.1.14`로 올려 새 자동 릴리즈 태그를 발행합니다.
+- **자동 release 마무리 정합성 보강:** release APK 생성, 선택, 서명 검증, asset 업로드가 모두 동일한 production certificate 기준으로 이어지도록 정리했습니다.
+
 ## v1.1.13 - 릴리즈 인증서 진단 출력 추가 (Release Certificate Diagnostics) - 2026-05-02
 
 ### 수정

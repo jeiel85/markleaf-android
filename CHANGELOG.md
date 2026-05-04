@@ -2,10 +2,21 @@
 
 All notable changes to Markleaf are documented in this file.
 
-## v1.1.15 - 편집기 링크 툴바 명확화 (Editor Link Toolbar Clarification) - 2026-05-02
+## v1.1.16 - 마크다운 에디터 개선 (Markdown Editor Enhancements) - 2026-05-04
 
 ### 개선
-- **편집기 링크 툴바 명확화:** Markdown 링크와 위키 링크 버튼이 같은 체인 아이콘으로 연속 표시되지 않도록 위키 링크 버튼을 `[[ ]]` 문법 표시로 바꾸고, 편집 툴바 아이콘에 길게 누르기/hover 설명을 추가했습니다.
+- **마크다운 구문 하이라이팅 강화:** Bold, Italic, Strikethrough, Inline Code, Markdown Link, Wiki Link, Heading, Checkbox 하이라이팅을 추가했습니다.
+- **SimpleMarkdownPreview 파서 개선:** 테이블 파싱(헤더, 행, 셀), Blockquote 지원, Ordered List 처리, Math Block 렌더링, 인라인 세그먼트 파싱(중첩 해결 포함)을 개선했습니다.
+- **에디터 개선:** 인라인 마크다운 텍스트 렌더링, 테이블 표시, 수식 블록 시각화, 백링크 스니펫 표시를 추가했습니다.
+- **편집 툴�� 확장:** Strikethrough 및 Inline Code 삽입 액션을 편집 툴��에 추가했습니다.
+
+### 테스트
+- 마크다운 파서, 구문 하이라이터, 편집 액션에 대한 포괄적 단위 테스트를 추가했습니다.
+
+## v1.1.15 - 편집기 링크 툴�� 명확화 (Editor Link Toolbar Clarification) - 2026-05-02
+
+### 개선
+- **편집기 링크 툴�� 명확화:** Markdown 링크와 위키 링크 버튼이 같은 체인 아이콘으로 연속 표시되지 않도록 위키 링크 버튼을 `[[ ]]` 문법 표시로 바꾸고, 편집 툴�� 아이콘에 길게 누르기/hover 설명을 추가했습니다.
 
 ## v1.1.14 - 릴리즈 인증서 파싱 복구 완료 (Release Certificate Parsing Recovery Complete) - 2026-05-02
 
@@ -19,7 +30,7 @@ All notable changes to Markleaf are documented in this file.
 ### 수정
 - **서명 진단 로그 추가:** GitHub Actions release job이 `signing-report.txt`, actual digest, expected digest를 로그에 직접 출력하도록 수정해 인증서 불일치 여부를 즉시 확인할 수 있게 했습니다.
 - **새 진단 버전 발행:** 실패한 `v1.1.12` 태그를 재사용하지 않고 `versionCode`를 `43`, `versionName`을 `1.1.13`으로 올려 새 자동 진단 태그를 발행합니다.
-- **release 검증 가시성 강화:** release signing step이 실패해도 원인을 로그만으로 판별할 수 있도록 했습니다.
+- **release 검증 가시성 강화:** release signing step이 실패필도 원인을 로그만으로 판별할 수 있도록 했습니다.
 
 ## v1.1.12 - 릴리즈 APK 고정 경로 우선 복구 완료 (Release APK Fixed Path Priority Recovery Complete) - 2026-05-02
 
@@ -425,16 +436,16 @@ All notable changes to Markleaf are documented in this file.
 - `./gradlew.bat assembleDebug assembleRelease`
 - Lenovo TB320FC Android 15 실기기에서 `v1.0.11` release APK 설치 및 실행 확인
 
-## v1.0.10 - Markdown 편집 툴바 추가 (Markdown Editing Toolbar) - 2026-05-01
+## v1.0.10 - Markdown 편집 툴�� 추가 (Markdown Editing Toolbar) - 2026-05-01
 
 ### 추가
-- Edit 화면 하단에 Markdown 편집 툴바를 추가했습니다.
+- Edit 화면 하단에 Markdown 편집 툴��를 추가했습니다.
 - Bold, Italic, Checkbox, Markdown Link, Wiki Link, Image 삽입 액션을 제공합니다.
 - 선택 영역이 있으면 해당 텍스트를 Markdown 문법으로 감싸고, 선택 영역이 없으면 기본 placeholder를 삽입합니다.
 
 ### 개선
 - 에디터 입력 상태를 선택 영역까지 추적하도록 `TextFieldValue` 기반으로 전환했습니다.
-- 이미지 삽입 액션을 편집 툴바로 통합했습니다.
+- 이미지 삽입 액션을 편집 툴��로 통합했습니다.
 
 ### 검증
 - `./gradlew.bat test`

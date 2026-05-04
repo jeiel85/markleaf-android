@@ -89,4 +89,9 @@
     <string name="version_format">버전 %1$s</string>
     <string name="application_id_format">Application ID %1$s</string>
 
+    <!-- Dashboard -->
+    <string name="dashboard_total_notes">노트</string>
+    <string name="dashboard_pinned_notes">고정됨</string>
+    <string name="dashboard_total_tags">태그</string>
+
 </resources>

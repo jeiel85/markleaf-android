@@ -97,4 +97,9 @@
     <string name="version_format">Version %1$s</string>
     <string name="application_id_format">Application ID %1$s</string>
 
+    <!-- Dashboard -->
+    <string name="dashboard_total_notes">Notes</string>
+    <string name="dashboard_pinned_notes">Pinned</string>
+    <string name="dashboard_total_tags">Tags</string>
+
 </resources>

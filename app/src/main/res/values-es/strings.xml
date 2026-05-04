@@ -88,4 +88,9 @@
     <string name="settings_app">Aplicacion</string>
     <string name="version_format">Version %1$s</string>
     <string name="application_id_format">Application ID %1$s</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_total_notes">Notas</string>
+    <string name="dashboard_pinned_notes">Fijadas</string>
+    <string name="dashboard_total_tags">Etiquetas</string>
 </resources>

@@ -87,6 +87,20 @@ cd markleaf-android
 
 ---
 
+## 🔒 No-Cloud Certified
+
+Markleaf is certified as a **100% No-Cloud Application**. Your data never leaves your device:
+
+- ✅ No INTERNET permission declared
+- ✅ No analytics or tracking
+- ✅ No cloud synchronization
+- ✅ No proprietary SDKs
+- ✅ Fully open source and auditable
+
+[View Certification](docs/NOCLOUD_CERTIFICATION.md)
+
+---
+
 ## 🗺 로드맵
 
 - [x] 기본적인 Markdown 편집 및 저장

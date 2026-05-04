@@ -103,4 +103,24 @@
     <!-- Widget -->
     <string name="quick_note_widget_label">Nota rapida</string>
     <string name="quick_note_widget_description">Toca para crear rapidamente una nueva nota</string>
+
+    <!-- Privacy Dashboard -->
+    <string name="privacy_dashboard_title">Panel de privacidad</string>
+    <string name="privacy_guarantee_title">Tus datos se quedan locales</string>
+    <string name="privacy_guarantee_desc">Markleaf esta disenado con la privacidad como nucleo. Tus notas nunca abandonan tu dispositivo a menos que elijas exportarlas o compartirlas explicitamente.</string>
+    <string name="privacy_data_storage_title">Almacenamiento local primero</string>
+    <string name="privacy_data_storage_desc">Todas tus notas, etiquetas y archivos adjuntos se almacenan localmente en tu dispositivo usando la base de datos segura Room de Android. Sin servidores en la nube, sin subidas de datos.</string>
+    <string name="privacy_no_cloud_title">Sin dependencias de la nube</string>
+    <string name="privacy_no_cloud_desc">No usamos servicios en la nube para la funcionalidad principal. Sin sincronizacion con Google Drive, sin integracion con Dropbox, sin servidores backend propietarios.</string>
+    <string name="privacy_no_tracking_title">Rastreo cero</string>
+    <string name="privacy_no_tracking_desc">Sin analiticas, sin SDKs de reporte de fallos, sin redes publicitarias. No tenemos idea de como usas la aplicacion, y nos gusta asi.</string>
+    <string name="privacy_verification_title">Verificacion de privacidad</string>
+    <string name="privacy_verify_no_internet">Permiso INTERNET no declarado</string>
+    <string name="privacy_verify_local_only">Procesamiento de datos 100% local</string>
+    <string name="privacy_verify_no_ads">Sin anuncios ni rastreadores</string>
+    <string name="privacy_verify_no_analytics">Sin analiticas ni telemetria</string>
+    <string name="privacy_verify_open_source">Codigo abierto y auditable</string>
+    <string name="privacy_app_info_title">Acerca de esta version</string>
+    <string name="privacy_app_info_desc">Version %1$s\n\nEsta version de Markleaf mantiene estrictos estandares de privacidad. Todas las caracteristicas funcionan completamente sin conexion.</string>
+    <string name="privacy_dashboard_button">Ver panel de privacidad</string>
 </resources>

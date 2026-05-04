@@ -8,7 +8,8 @@ object NavRoutes {
     const val SEARCH = "search"
     const val TRASH = "trash"
     const val SETTINGS = "settings"
-    
+    const val PRIVACY = "privacy"
+
     fun editorRoute(noteId: String? = null): String {
         return if (noteId != null) {
             "editor/$noteId"

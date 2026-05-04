@@ -58,7 +58,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onPrivacyClick: () -> Unit = {}
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val scope = rememberCoroutineScope()
@@ -352,6 +353,13 @@ fun SettingsScreen(
                     SettingLine(stringResource(R.string.privacy_no_tracking))
                     SettingLine(stringResource(R.string.privacy_no_internet))
                     SettingLine(stringResource(R.string.privacy_local_first))
+                    Spacer(Modifier.height(12.dp))
+                    Button(
+                        onClick = onPrivacyClick,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.privacy_dashboard_button))
+                    }
                 }
 
                 SettingsSection(title = stringResource(R.string.settings_permissions)) {

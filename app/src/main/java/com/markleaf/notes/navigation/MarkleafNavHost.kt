@@ -228,7 +228,16 @@ fun MarkleafNavHost(
             TrashScreen(viewModel = viewModel)
         }
         composable(NavRoutes.SETTINGS) {
-            SettingsScreen(onBack = { navController.popBackStack() })
+            SettingsScreen(
+                onBack = { navController.popBackStack() },
+                onPrivacyClick = { navController.navigate(NavRoutes.PRIVACY) }
+            )
+        }
+
+        composable(NavRoutes.PRIVACY) {
+            com.markleaf.notes.feature.privacy.PrivacyDashboardScreen(
+                onBack = { navController.popBackStack() }
+            )
         }
     }
 }

@@ -104,4 +104,24 @@
     <string name="quick_note_widget_label">빠른 노트</string>
     <string name="quick_note_widget_description">탭하여 새 노트를 빠르게 생성합니다</string>
 
+    <!-- Privacy Dashboard -->
+    <string name="privacy_dashboard_title">개인정보 대시보드</string>
+    <string name="privacy_guarantee_title">데이터는 기기에만 저장됩니다</string>
+    <string name="privacy_guarantee_desc">Markleaf는 개인정보 보호를 핵심으로 설계되었습니다. 노트는 사용자가 직접 날짜내거나 공유하지 않는 한 기기를 벗어나지 않습니다.</string>
+    <string name="privacy_data_storage_title">로컬 우선 저장</string>
+    <string name="privacy_data_storage_desc">모든 노트, 태그, 첨부 파일은 Android의 안전한 Room 데이터베이스를 사용하여 기기에 로컬로 저장됩니다. 클라우드 서버 없음, 데이터 업로드 없음.</string>
+    <string name="privacy_no_cloud_title">클우드 의존성 없음</string>
+    <string name="privacy_no_cloud_desc">핵심 기능에 클라우드 서비스를 사용하지 않습니다. Google Drive 동기화 없음, Dropbox 통합 없음, 독점 백엔드 서버 없음.</string>
+    <string name="privacy_no_tracking_title">제로 추적</string>
+    <string name="privacy_no_tracking_desc">분석 도구 없음, 크래시 리포팅 SDK 없음, 광고 네트워크 없음. 사용자가 앱을 어떻게 사용하는지 전혀 모륾며, 그것이 우리가 원하는 방식입니다.</string>
+    <string name="privacy_verification_title">개인정보 검증</string>
+    <string name="privacy_verify_no_internet">INTERNET 권한 미선언</string>
+    <string name="privacy_verify_local_only">100% 로컬 데이터 처리</string>
+    <string name="privacy_verify_no_ads">광고 및 추적기 없음</string>
+    <string name="privacy_verify_no_analytics">분석 및 원격 측정 없음</string>
+    <string name="privacy_verify_open_source">오픈 소스 및 감사 가능</string>
+    <string name="privacy_app_info_title">이 빌드에 대하여</string>
+    <string name="privacy_app_info_desc">버전 %1$s\n\n이 Markleaf 빌드는 엄격한 개인정보 보호 표준을 유지합니다. 모든 기능이 완전히 오프라인에서 작동합니다.</string>
+    <string name="privacy_dashboard_button">개인정보 대시보드 보기</string>
+
 </resources>

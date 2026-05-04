@@ -112,4 +112,24 @@
     <string name="quick_note_widget_label">Quick Note</string>
     <string name="quick_note_widget_description">Tap to quickly create a new note</string>
 
+    <!-- Privacy Dashboard -->
+    <string name="privacy_dashboard_title">Privacy Dashboard</string>
+    <string name="privacy_guarantee_title">Your Data Stays Local</string>
+    <string name="privacy_guarantee_desc">Markleaf is designed with privacy at its core. Your notes never leave your device unless you explicitly choose to export or share them.</string>
+    <string name="privacy_data_storage_title">Local-First Storage</string>
+    <string name="privacy_data_storage_desc">All your notes, tags, and attachments are stored locally on your device using Android\'s secure Room database. No cloud servers, no data uploads.</string>
+    <string name="privacy_no_cloud_title">No Cloud Dependencies</string>
+    <string name="privacy_no_cloud_desc">We don\'t use any cloud services for core functionality. No Google Drive sync, no Dropbox integration, no proprietary backend servers.</string>
+    <string name="privacy_no_tracking_title">Zero Tracking</string>
+    <string name="privacy_no_tracking_desc">No analytics, no crash reporting SDKs, no ad networks. We have no idea how you use the app, and we like it that way.</string>
+    <string name="privacy_verification_title">Privacy Verification</string>
+    <string name="privacy_verify_no_internet">No INTERNET permission declared</string>
+    <string name="privacy_verify_local_only">100% local data processing</string>
+    <string name="privacy_verify_no_ads">No advertisements or trackers</string>
+    <string name="privacy_verify_no_analytics">No analytics or telemetry</string>
+    <string name="privacy_verify_open_source">Open source and auditable</string>
+    <string name="privacy_app_info_title">About This Build</string>
+    <string name="privacy_app_info_desc">Version %1$s\n\nThis build of Markleaf maintains strict privacy standards. All features work completely offline.</string>
+    <string name="privacy_dashboard_button">View Privacy Dashboard</string>
+
 </resources>

@@ -97,4 +97,7 @@
     <!-- Toolbar Customization -->
     <string name="toolbar_customization">편집기 툴 바</string>
 
+    <!-- Drag and Drop -->
+    <string name="drag_to_reorder">드래그하여 재정렬</string>
+
 </resources>

@@ -96,4 +96,7 @@
 
     <!-- Toolbar Customization -->
     <string name="toolbar_customization">Barra de herramientas del editor</string>
+
+    <!-- Drag and Drop -->
+    <string name="drag_to_reorder">Arrastrar para reordenar</string>
 </resources>

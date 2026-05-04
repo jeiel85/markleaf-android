@@ -47,4 +47,11 @@ class NotesViewModel(
             noteRepository.moveToTrash(noteId)
         }
     }
+
+    fun reorderNotes(reorderedNotes: List<Note>) {
+        viewModelScope.launch {
+            _notes.value = reorderedNotes
+            noteRepository.reorderNotes(reorderedNotes)
+        }
+    }
 }

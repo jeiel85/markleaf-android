@@ -105,4 +105,7 @@
     <!-- Toolbar Customization -->
     <string name="toolbar_customization">Editor Toolbar</string>
 
+    <!-- Drag and Drop -->
+    <string name="drag_to_reorder">Drag to reorder</string>
+
 </resources>

@@ -14,10 +14,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.PushPin
@@ -37,18 +39,24 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.markleaf.notes.R
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.ui.viewmodel.NotesViewModel
@@ -170,20 +178,67 @@ fun NotesListScreen(
                 }
             }
         } else {
+            var dragList by remember { mutableStateOf(notes) }
+            var draggedItemIndex by remember { mutableIntStateOf(-1) }
+            var dragOffsetY by remember { mutableFloatStateOf(0f) }
+            val itemHeight = 72f // Approximate item height in pixels
+            
+            LaunchedEffect(notes) {
+                if (draggedItemIndex == -1) {
+                    dragList = notes
+                }
+            }
+            
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
                 item {
-                    NoteCountDashboard(notes = notes)
+                    NoteCountDashboard(notes = dragList)
                 }
-                items(notes) { note ->
+                items(dragList.size, key = { dragList[it].id }) { index ->
+                    val note = dragList[index]
+                    val isDragging = index == draggedItemIndex
+                    
                     NoteItem(
                         note = note,
                         selected = note.id == selectedNoteId,
+                        isDragging = isDragging,
+                        dragOffset = if (isDragging) dragOffsetY else 0f,
                         onClick = { onNoteClick(note.id) },
-                        onMoveToTrash = { viewModel.moveToTrash(note.id) }
+                        onMoveToTrash = { viewModel.moveToTrash(note.id) },
+                        onDragStart = {
+                            draggedItemIndex = index
+                            dragOffsetY = 0f
+                            HapticFeedback.medium(context)
+                        },
+                        onDrag = { deltaY ->
+                            dragOffsetY += deltaY
+                            
+                            // Calculate new position based on drag offset
+                            val itemOffset = (dragOffsetY / itemHeight).toInt()
+                            val newIndex = (draggedItemIndex + itemOffset)
+                                .coerceIn(0, dragList.size - 1)
+                            
+                            if (newIndex != draggedItemIndex) {
+                                // Reorder the list
+                                val mutableList = dragList.toMutableList()
+                                val item = mutableList.removeAt(draggedItemIndex)
+                                mutableList.add(newIndex, item)
+                                dragList = mutableList
+                                draggedItemIndex = newIndex
+                                dragOffsetY = 0f // Reset offset after reordering
+                                HapticFeedback.light(context)
+                            }
+                        },
+                        onDragEnd = {
+                            if (draggedItemIndex != -1) {
+                                viewModel.reorderNotes(dragList)
+                            }
+                            draggedItemIndex = -1
+                            dragOffsetY = 0f
+                        }
                     )
                 }
             }
@@ -287,28 +342,59 @@ fun CountItem(
 fun NoteItem(
     note: Note,
     selected: Boolean = false,
+    isDragging: Boolean = false,
+    dragOffset: Float = 0f,
     onClick: (String) -> Unit,
-    onMoveToTrash: (String) -> Unit
+    onMoveToTrash: (String) -> Unit,
+    onDragStart: (() -> Unit)? = null,
+    onDrag: ((Float) -> Unit)? = null,
+    onDragEnd: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
     val itemBackground = if (selected) {
         MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.36f)
+    } else if (isDragging) {
+        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
     } else {
         Color.Transparent
     }
+    
+    val dragModifier = if (onDragStart != null && onDrag != null && onDragEnd != null) {
+        Modifier.pointerInput(Unit) {
+            detectDragGesturesAfterLongPress(
+                onDragStart = { onDragStart() },
+                onDrag = { change, dragAmount ->
+                    change.consume()
+                    onDrag(dragAmount.y)
+                },
+                onDragEnd = { onDragEnd() },
+                onDragCancel = { onDragEnd() }
+            )
+        }
+    } else {
+        Modifier
+    }
+    
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 4.dp)
+            .zIndex(if (isDragging) 1f else 0f)
+            .graphicsLayer {
+                translationY = dragOffset
+            }
             .clip(MaterialTheme.shapes.medium)
             .background(itemBackground)
             .combinedClickable(
                 onClick = { onClick(note.id) },
                 onLongClick = {
-                    HapticFeedback.error(context)
-                    onMoveToTrash(note.id)
+                    if (onDragStart == null) {
+                        HapticFeedback.error(context)
+                        onMoveToTrash(note.id)
+                    }
                 }
             )
+            .then(dragModifier)
             .padding(horizontal = 12.dp, vertical = 10.dp)
     ) {
         Row(
@@ -316,12 +402,24 @@ fun NoteItem(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = note.title.ifEmpty { stringResource(R.string.untitled) },
-                style = MaterialTheme.typography.titleMedium,
-                color = if (selected) {
-                    MaterialTheme.colorScheme.onPrimaryContainer
-                } else {
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (onDragStart != null) {
+                    Icon(
+                        imageVector = Icons.Default.DragHandle,
+                        contentDescription = stringResource(R.string.drag_to_reorder),
+                        modifier = Modifier.padding(end = 8.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Text(
+                    text = note.title.ifEmpty { stringResource(R.string.untitled) },
+                    style = MaterialTheme.typography.titleMedium,
+                    color = if (selected) {
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    } else {
                     MaterialTheme.colorScheme.primary
                 },
                 maxLines = 1,

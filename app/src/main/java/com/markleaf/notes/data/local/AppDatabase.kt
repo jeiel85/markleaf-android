@@ -29,7 +29,7 @@ import com.markleaf.notes.data.local.entity.TagEntity
         NoteLinkEntity::class,
         NoteSnapshotEntity::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -50,7 +50,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "markleaf.db"
                 )
-                .addMigrations(MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
+                .addMigrations(MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
                 .build().also { INSTANCE = it }
             }
         }
@@ -110,6 +110,15 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_notes_trashed_deletedAt` ON `notes` (`trashed`, `deletedAt`)")
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_notes_title_trashed` ON `notes` (`title`, `trashed`)")
                 db.execSQL("INSERT INTO `notes_fts`(`notes_fts`) VALUES ('rebuild')")
+            }
+        }
+
+        private val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `notes` ADD COLUMN `sortOrder` INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_notes_trashed_pinned_sortOrder` ON `notes` (`trashed`, `pinned`, `sortOrder`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_notes_sortOrder` ON `notes` (`sortOrder`)")
+                db.execSQL("DROP INDEX IF EXISTS `index_notes_trashed_pinned_updatedAt`")
             }
         }
     }

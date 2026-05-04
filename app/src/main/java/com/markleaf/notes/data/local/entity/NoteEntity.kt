@@ -9,9 +9,10 @@ import java.time.Instant
 @Entity(
     tableName = "notes",
     indices = [
-        Index(value = ["trashed", "pinned", "updatedAt"]),
+        Index(value = ["trashed", "pinned", "sortOrder"]),
         Index(value = ["trashed", "deletedAt"]),
-        Index(value = ["title", "trashed"])
+        Index(value = ["title", "trashed"]),
+        Index(value = ["sortOrder"])
     ]
 )
 data class NoteEntity(
@@ -25,7 +26,8 @@ data class NoteEntity(
     val pinned: Boolean = false,
     val archived: Boolean = false,
     val trashed: Boolean = false,
-    val deletedAt: Long? = null
+    val deletedAt: Long? = null,
+    val sortOrder: Int = 0
 )
 
 fun NoteEntity.toDomain(): Note {
@@ -40,7 +42,8 @@ fun NoteEntity.toDomain(): Note {
         archived = archived,
         trashed = trashed,
         deletedAt = deletedAt?.let { Instant.ofEpochMilli(it) },
-        tags = emptyList()
+        tags = emptyList(),
+        sortOrder = sortOrder
     )
 }
 
@@ -55,6 +58,7 @@ fun Note.toEntity(): NoteEntity {
         pinned = pinned,
         archived = archived,
         trashed = trashed,
-        deletedAt = deletedAt?.toEpochMilli()
+        deletedAt = deletedAt?.toEpochMilli(),
+        sortOrder = sortOrder
     )
 }

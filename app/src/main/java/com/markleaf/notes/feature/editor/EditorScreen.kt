@@ -78,6 +78,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.markleaf.notes.R
+import com.markleaf.notes.core.markdown.ChecklistParser
 import com.markleaf.notes.core.markdown.MarkdownEditActions
 import com.markleaf.notes.core.markdown.MarkdownSyntaxColors
 import com.markleaf.notes.core.markdown.MarkdownSyntaxVisualTransformation
@@ -95,6 +96,7 @@ import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import com.markleaf.notes.domain.model.BacklinkSnippet
 import com.markleaf.notes.domain.model.NoteSnapshot
+import com.markleaf.notes.feature.notes.ChecklistProgressIndicator
 import com.markleaf.notes.util.HapticFeedback
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -411,6 +413,19 @@ fun EditorScreen(
                             }
                         }
                     )
+                }
+
+                // Show checklist progress if content contains checklists
+                val checklistProgress = remember(editorState.text) {
+                    ChecklistParser.parseProgress(editorState.text)
+                }
+                if (checklistProgress.total > 0) {
+                    Spacer(Modifier.height(8.dp))
+                    ChecklistProgressIndicator(
+                        progress = checklistProgress,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                    Spacer(Modifier.height(4.dp))
                 }
 
                 MarkdownToolbar(

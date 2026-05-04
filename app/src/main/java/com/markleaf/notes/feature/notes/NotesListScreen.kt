@@ -58,10 +58,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.markleaf.notes.R
+import com.markleaf.notes.core.markdown.ChecklistParser
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.ui.viewmodel.NotesViewModel
 import com.markleaf.notes.util.HapticFeedback
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -437,5 +440,66 @@ fun NoteItem(
                 overflow = TextOverflow.Ellipsis
             )
         }
+        
+        // Show checklist progress if note contains checklists
+        val checklistProgress = remember(note.contentMarkdown) {
+            ChecklistParser.parseProgress(note.contentMarkdown)
+        }
+        if (checklistProgress.total > 0) {
+            Spacer(modifier = Modifier.height(8.dp))
+            ChecklistProgressIndicator(progress = checklistProgress)
+        }
+    }
+}
+
+@Composable
+fun ChecklistProgressIndicator(
+    progress: ChecklistParser.ChecklistProgress,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Progress percentage text
+        Text(
+            text = "${progress.percentage}%",
+            style = MaterialTheme.typography.labelSmall,
+            color = if (progress.percentage == 100) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            }
+        )
+        
+        // Linear progress indicator
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(4.dp)
+                .clip(MaterialTheme.shapes.small)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(progress.percentage / 100f)
+                    .background(
+                        if (progress.percentage == 100) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                        }
+                    )
+            )
+        }
+        
+        // Checklist count
+        Text(
+            text = "${progress.checked}/${progress.total}",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }

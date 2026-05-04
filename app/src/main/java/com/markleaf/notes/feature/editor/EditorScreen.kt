@@ -95,6 +95,7 @@ import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import com.markleaf.notes.domain.model.BacklinkSnippet
 import com.markleaf.notes.domain.model.NoteSnapshot
+import com.markleaf.notes.util.HapticFeedback
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.ZoneId
@@ -416,26 +417,32 @@ fun EditorScreen(
                     config = appSettings.toolbarConfig,
                     imageEnabled = noteId != null,
                     onBold = {
+                        HapticFeedback.light(context)
                         editorState = MarkdownEditActions.bold(editorState)
                         if (isLoaded) saveTrigger++
                     },
                     onItalic = {
+                        HapticFeedback.light(context)
                         editorState = MarkdownEditActions.italic(editorState)
                         if (isLoaded) saveTrigger++
                     },
                     onCheckbox = {
+                        HapticFeedback.light(context)
                         editorState = MarkdownEditActions.checkbox(editorState)
                         if (isLoaded) saveTrigger++
                     },
                     onMarkdownLink = {
+                        HapticFeedback.light(context)
                         editorState = MarkdownEditActions.markdownLink(editorState)
                         if (isLoaded) saveTrigger++
                     },
                     onWikiLink = {
+                        HapticFeedback.light(context)
                         editorState = MarkdownEditActions.wikiLink(editorState)
                         if (isLoaded) saveTrigger++
                     },
                     onImage = {
+                        HapticFeedback.medium(context)
                         imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                     }
                 )

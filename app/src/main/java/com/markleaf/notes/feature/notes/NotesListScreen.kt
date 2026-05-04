@@ -52,6 +52,8 @@ import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.ui.viewmodel.NotesViewModel
+import com.markleaf.notes.util.HapticFeedback
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,6 +70,7 @@ fun NotesListScreen(
     containerColor: Color = MaterialTheme.colorScheme.background,
     contentColor: Color = MaterialTheme.colorScheme.onBackground
 ) {
+    val context = LocalContext.current
     val notesState = remember { mutableStateOf<List<Note>>(emptyList()) }
     LaunchedEffect(Unit) {
         viewModel.notes.collect { noteList ->
@@ -116,7 +119,10 @@ fun NotesListScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = onFabClick
+                onClick = {
+                    HapticFeedback.medium(context)
+                    onFabClick()
+                }
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_add),
@@ -284,6 +290,7 @@ fun NoteItem(
     onClick: (String) -> Unit,
     onMoveToTrash: (String) -> Unit
 ) {
+    val context = LocalContext.current
     val itemBackground = if (selected) {
         MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.36f)
     } else {
@@ -297,7 +304,10 @@ fun NoteItem(
             .background(itemBackground)
             .combinedClickable(
                 onClick = { onClick(note.id) },
-                onLongClick = { onMoveToTrash(note.id) }
+                onLongClick = {
+                    HapticFeedback.error(context)
+                    onMoveToTrash(note.id)
+                }
             )
             .padding(horizontal = 12.dp, vertical = 10.dp)
     ) {

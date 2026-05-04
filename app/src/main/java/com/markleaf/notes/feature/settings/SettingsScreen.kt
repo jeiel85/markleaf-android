@@ -51,6 +51,7 @@ import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.EditorLineWidth
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import com.markleaf.notes.util.BackupUtil
+import com.markleaf.notes.util.HapticFeedback
 import com.markleaf.notes.util.PermissionUtils
 import kotlinx.coroutines.launch
 
@@ -81,6 +82,11 @@ fun SettingsScreen(
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
+    }
+
+    val performToggle: (Boolean, () -> Unit) -> Unit = { checked, action ->
+        HapticFeedback.light(context)
+        action()
     }
 
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
@@ -205,10 +211,12 @@ fun SettingsScreen(
                         description = stringResource(R.string.show_markdown_syntax_description),
                         checked = appSettings.markdownSyntaxVisibility == MarkdownSyntaxVisibility.SHOW,
                         onCheckedChange = { checked ->
-                            scope.launch {
-                                settingsRepository.setMarkdownSyntaxVisibility(
-                                    if (checked) MarkdownSyntaxVisibility.SHOW else MarkdownSyntaxVisibility.HIDE
-                                )
+                            performToggle(checked) {
+                                scope.launch {
+                                    settingsRepository.setMarkdownSyntaxVisibility(
+                                        if (checked) MarkdownSyntaxVisibility.SHOW else MarkdownSyntaxVisibility.HIDE
+                                    )
+                                }
                             }
                         }
                     )
@@ -259,10 +267,12 @@ fun SettingsScreen(
                         description = null,
                         checked = appSettings.toolbarConfig.showBold,
                         onCheckedChange = { checked ->
-                            scope.launch {
-                                settingsRepository.setToolbarConfig(
-                                    appSettings.toolbarConfig.copy(showBold = checked)
-                                )
+                            performToggle(checked) {
+                                scope.launch {
+                                    settingsRepository.setToolbarConfig(
+                                        appSettings.toolbarConfig.copy(showBold = checked)
+                                    )
+                                }
                             }
                         }
                     )
@@ -271,10 +281,12 @@ fun SettingsScreen(
                         description = null,
                         checked = appSettings.toolbarConfig.showItalic,
                         onCheckedChange = { checked ->
-                            scope.launch {
-                                settingsRepository.setToolbarConfig(
-                                    appSettings.toolbarConfig.copy(showItalic = checked)
-                                )
+                            performToggle(checked) {
+                                scope.launch {
+                                    settingsRepository.setToolbarConfig(
+                                        appSettings.toolbarConfig.copy(showItalic = checked)
+                                    )
+                                }
                             }
                         }
                     )
@@ -283,10 +295,12 @@ fun SettingsScreen(
                         description = null,
                         checked = appSettings.toolbarConfig.showCheckbox,
                         onCheckedChange = { checked ->
-                            scope.launch {
-                                settingsRepository.setToolbarConfig(
-                                    appSettings.toolbarConfig.copy(showCheckbox = checked)
-                                )
+                            performToggle(checked) {
+                                scope.launch {
+                                    settingsRepository.setToolbarConfig(
+                                        appSettings.toolbarConfig.copy(showCheckbox = checked)
+                                    )
+                                }
                             }
                         }
                     )
@@ -295,10 +309,12 @@ fun SettingsScreen(
                         description = null,
                         checked = appSettings.toolbarConfig.showMarkdownLink,
                         onCheckedChange = { checked ->
-                            scope.launch {
-                                settingsRepository.setToolbarConfig(
-                                    appSettings.toolbarConfig.copy(showMarkdownLink = checked)
-                                )
+                            performToggle(checked) {
+                                scope.launch {
+                                    settingsRepository.setToolbarConfig(
+                                        appSettings.toolbarConfig.copy(showMarkdownLink = checked)
+                                    )
+                                }
                             }
                         }
                     )
@@ -307,10 +323,12 @@ fun SettingsScreen(
                         description = null,
                         checked = appSettings.toolbarConfig.showWikiLink,
                         onCheckedChange = { checked ->
-                            scope.launch {
-                                settingsRepository.setToolbarConfig(
-                                    appSettings.toolbarConfig.copy(showWikiLink = checked)
-                                )
+                            performToggle(checked) {
+                                scope.launch {
+                                    settingsRepository.setToolbarConfig(
+                                        appSettings.toolbarConfig.copy(showWikiLink = checked)
+                                    )
+                                }
                             }
                         }
                     )
@@ -319,10 +337,12 @@ fun SettingsScreen(
                         description = null,
                         checked = appSettings.toolbarConfig.showImage,
                         onCheckedChange = { checked ->
-                            scope.launch {
-                                settingsRepository.setToolbarConfig(
-                                    appSettings.toolbarConfig.copy(showImage = checked)
-                                )
+                            performToggle(checked) {
+                                scope.launch {
+                                    settingsRepository.setToolbarConfig(
+                                        appSettings.toolbarConfig.copy(showImage = checked)
+                                    )
+                                }
                             }
                         }
                     )

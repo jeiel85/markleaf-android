@@ -93,4 +93,7 @@
     <string name="dashboard_total_notes">Notas</string>
     <string name="dashboard_pinned_notes">Fijadas</string>
     <string name="dashboard_total_tags">Etiquetas</string>
+
+    <!-- Toolbar Customization -->
+    <string name="toolbar_customization">Barra de herramientas del editor</string>
 </resources>

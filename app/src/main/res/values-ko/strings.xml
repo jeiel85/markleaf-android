@@ -94,4 +94,7 @@
     <string name="dashboard_pinned_notes">고정됨</string>
     <string name="dashboard_total_tags">태그</string>
 
+    <!-- Toolbar Customization -->
+    <string name="toolbar_customization">편집기 툴 바</string>
+
 </resources>

@@ -102,4 +102,7 @@
     <string name="dashboard_pinned_notes">Pinned</string>
     <string name="dashboard_total_tags">Tags</string>
 
+    <!-- Toolbar Customization -->
+    <string name="toolbar_customization">Editor Toolbar</string>
+
 </resources>

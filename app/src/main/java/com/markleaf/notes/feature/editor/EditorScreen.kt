@@ -413,6 +413,7 @@ fun EditorScreen(
                 }
 
                 MarkdownToolbar(
+                    config = appSettings.toolbarConfig,
                     imageEnabled = noteId != null,
                     onBold = {
                         editorState = MarkdownEditActions.bold(editorState)
@@ -573,6 +574,7 @@ private fun formatSnapshotTimestamp(snapshot: NoteSnapshot): String {
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun MarkdownToolbar(
+    config: com.markleaf.notes.data.settings.ToolbarConfig,
     imageEnabled: Boolean,
     onBold: () -> Unit,
     onItalic: () -> Unit,
@@ -589,47 +591,59 @@ private fun MarkdownToolbar(
         horizontalArrangement = Arrangement.spacedBy(2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.bold),
-            onClick = onBold
-        ) {
-            Icon(Icons.Default.FormatBold, contentDescription = stringResource(R.string.bold))
+        if (config.showBold) {
+            ToolbarTooltipIconButton(
+                label = stringResource(R.string.bold),
+                onClick = onBold
+            ) {
+                Icon(Icons.Default.FormatBold, contentDescription = stringResource(R.string.bold))
+            }
         }
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.italic),
-            onClick = onItalic
-        ) {
-            Icon(Icons.Default.FormatItalic, contentDescription = stringResource(R.string.italic))
+        if (config.showItalic) {
+            ToolbarTooltipIconButton(
+                label = stringResource(R.string.italic),
+                onClick = onItalic
+            ) {
+                Icon(Icons.Default.FormatItalic, contentDescription = stringResource(R.string.italic))
+            }
         }
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.checkbox),
-            onClick = onCheckbox
-        ) {
-            Icon(Icons.Default.CheckBox, contentDescription = stringResource(R.string.checkbox))
+        if (config.showCheckbox) {
+            ToolbarTooltipIconButton(
+                label = stringResource(R.string.checkbox),
+                onClick = onCheckbox
+            ) {
+                Icon(Icons.Default.CheckBox, contentDescription = stringResource(R.string.checkbox))
+            }
         }
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.markdown_link),
-            onClick = onMarkdownLink
-        ) {
-            Icon(Icons.Default.Link, contentDescription = stringResource(R.string.markdown_link))
+        if (config.showMarkdownLink) {
+            ToolbarTooltipIconButton(
+                label = stringResource(R.string.markdown_link),
+                onClick = onMarkdownLink
+            ) {
+                Icon(Icons.Default.Link, contentDescription = stringResource(R.string.markdown_link))
+            }
         }
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.wiki_link),
-            onClick = onWikiLink
-        ) {
-            Text(
-                text = "[[ ]]",
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+        if (config.showWikiLink) {
+            ToolbarTooltipIconButton(
+                label = stringResource(R.string.wiki_link),
+                onClick = onWikiLink
+            ) {
+                Text(
+                    text = "[[ ]]",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.image),
-            onClick = onImage,
-            enabled = imageEnabled
-        ) {
-            Icon(Icons.Default.Image, contentDescription = stringResource(R.string.image))
+        if (config.showImage) {
+            ToolbarTooltipIconButton(
+                label = stringResource(R.string.image),
+                onClick = onImage,
+                enabled = imageEnabled
+            ) {
+                Icon(Icons.Default.Image, contentDescription = stringResource(R.string.image))
+            }
         }
     }
 }

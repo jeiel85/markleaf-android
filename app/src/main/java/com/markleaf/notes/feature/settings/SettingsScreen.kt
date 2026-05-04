@@ -244,6 +244,88 @@ fun SettingsScreen(
                     SettingLine(stringResource(R.string.markdown_preview_support))
                     SettingLine(stringResource(R.string.external_links_mvp))
                     SettingLine(stringResource(R.string.local_link_hint))
+                    Spacer(Modifier.height(16.dp))
+                    HorizontalDivider()
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        text = stringResource(R.string.toolbar_customization),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    SettingsSwitchRow(
+                        title = stringResource(R.string.bold),
+                        description = null,
+                        checked = appSettings.toolbarConfig.showBold,
+                        onCheckedChange = { checked ->
+                            scope.launch {
+                                settingsRepository.setToolbarConfig(
+                                    appSettings.toolbarConfig.copy(showBold = checked)
+                                )
+                            }
+                        }
+                    )
+                    SettingsSwitchRow(
+                        title = stringResource(R.string.italic),
+                        description = null,
+                        checked = appSettings.toolbarConfig.showItalic,
+                        onCheckedChange = { checked ->
+                            scope.launch {
+                                settingsRepository.setToolbarConfig(
+                                    appSettings.toolbarConfig.copy(showItalic = checked)
+                                )
+                            }
+                        }
+                    )
+                    SettingsSwitchRow(
+                        title = stringResource(R.string.checkbox),
+                        description = null,
+                        checked = appSettings.toolbarConfig.showCheckbox,
+                        onCheckedChange = { checked ->
+                            scope.launch {
+                                settingsRepository.setToolbarConfig(
+                                    appSettings.toolbarConfig.copy(showCheckbox = checked)
+                                )
+                            }
+                        }
+                    )
+                    SettingsSwitchRow(
+                        title = stringResource(R.string.markdown_link),
+                        description = null,
+                        checked = appSettings.toolbarConfig.showMarkdownLink,
+                        onCheckedChange = { checked ->
+                            scope.launch {
+                                settingsRepository.setToolbarConfig(
+                                    appSettings.toolbarConfig.copy(showMarkdownLink = checked)
+                                )
+                            }
+                        }
+                    )
+                    SettingsSwitchRow(
+                        title = stringResource(R.string.wiki_link),
+                        description = null,
+                        checked = appSettings.toolbarConfig.showWikiLink,
+                        onCheckedChange = { checked ->
+                            scope.launch {
+                                settingsRepository.setToolbarConfig(
+                                    appSettings.toolbarConfig.copy(showWikiLink = checked)
+                                )
+                            }
+                        }
+                    )
+                    SettingsSwitchRow(
+                        title = stringResource(R.string.image),
+                        description = null,
+                        checked = appSettings.toolbarConfig.showImage,
+                        onCheckedChange = { checked ->
+                            scope.launch {
+                                settingsRepository.setToolbarConfig(
+                                    appSettings.toolbarConfig.copy(showImage = checked)
+                                )
+                            }
+                        }
+                    )
                 }
 
                 SettingsSection(title = stringResource(R.string.settings_privacy)) {

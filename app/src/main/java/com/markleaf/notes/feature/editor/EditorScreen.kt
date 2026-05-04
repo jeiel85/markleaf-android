@@ -302,6 +302,7 @@ fun EditorScreen(
                         PreviewLineType.CHECKBOX_DONE -> Text("☑ ${line.text}", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         PreviewLineType.CHECKBOX_TODO -> Text("☐ ${line.text}", style = MaterialTheme.typography.bodyLarge)
                         PreviewLineType.MATH_BLOCK -> MarkdownMathBlock(line.text)
+                        PreviewLineType.CODE_BLOCK -> MarkdownCodeBlock(line.text, line.extra)
                         PreviewLineType.BODY -> InlineMarkdownText(line = line, onLinkClick = onLinkClick)
                         PreviewLineType.BLOCKQUOTE -> {
                             Column(
@@ -813,4 +814,30 @@ private fun MarkdownMathBlock(text: String) {
             .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.35f))
             .padding(horizontal = 12.dp, vertical = 10.dp)
     )
+}
+
+@Composable
+private fun MarkdownCodeBlock(text: String, language: String?) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .clip(RoundedCornerShape(6.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(horizontal = 12.dp, vertical = 10.dp)
+    ) {
+        if (!language.isNullOrEmpty()) {
+            Text(
+                text = language,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+        }
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
 }

@@ -86,6 +86,14 @@
     <string name="privacy_no_internet">No INTERNET permission is declared for the MVP.</string>
     <string name="privacy_local_first">Notes leave the device only when you explicitly export, share, or back them up.</string>
     <string name="settings_app">App</string>
+    <string name="settings_permissions">Permissions</string>
+    <string name="permission_notifications">Notifications</string>
+    <string name="permission_notifications_desc">Allow notifications for reminders and updates.</string>
+    <string name="permission_storage">Storage</string>
+    <string name="permission_storage_desc">Allow storage access to attach images and export backups.</string>
+    <string name="permission_granted">Granted</string>
+    <string name="permission_request">Request</string>
+    <string name="permission_settings">Open Settings</string>
     <string name="version_format">Version %1$s</string>
     <string name="application_id_format">Application ID %1$s</string>
 

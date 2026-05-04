@@ -12,7 +12,11 @@ class MarkdownSyntaxHighlighterTest {
         link = Color.Green,
         syntax = Color.Gray,
         checkbox = Color.Magenta,
-        code = Color.Cyan
+        code = Color.Cyan,
+        codeBlock = Color.Yellow,
+        table = Color.DarkGray,
+        blockquote = Color.LightGray,
+        horizontalRule = Color.Black
     )
 
     @Test
@@ -65,5 +69,45 @@ class MarkdownSyntaxHighlighterTest {
 
         assertEquals(markdown, result.text)
         assertTrue(result.spanStyles.any { it.item.color == Color.Cyan })
+    }
+
+    @Test
+    fun highlight_addsStylesForCodeBlock() {
+        val markdown = "```kotlin\nval x = 1\n```"
+
+        val result = MarkdownSyntaxHighlighter.highlight(markdown, colors)
+
+        assertEquals(markdown, result.text)
+        assertTrue(result.spanStyles.any { it.item.background == Color.Yellow.copy(alpha = 0.1f) })
+    }
+
+    @Test
+    fun highlight_addsStylesForTable() {
+        val markdown = "| Header |\n| --- |\n| Cell |"
+
+        val result = MarkdownSyntaxHighlighter.highlight(markdown, colors)
+
+        assertEquals(markdown, result.text)
+        assertTrue(result.spanStyles.any { it.item.color == Color.DarkGray })
+    }
+
+    @Test
+    fun highlight_addsStylesForBlockquote() {
+        val markdown = "> This is a quote"
+
+        val result = MarkdownSyntaxHighlighter.highlight(markdown, colors)
+
+        assertEquals(markdown, result.text)
+        assertTrue(result.spanStyles.any { it.item.color == Color.LightGray })
+    }
+
+    @Test
+    fun highlight_addsStylesForHorizontalRule() {
+        val markdown = "---"
+
+        val result = MarkdownSyntaxHighlighter.highlight(markdown, colors)
+
+        assertEquals(markdown, result.text)
+        assertTrue(result.spanStyles.any { it.item.color == Color.Black })
     }
 }

@@ -16,7 +16,8 @@ enum class PreviewLineType {
     ORDERED_LIST,
     HORIZONTAL_RULE,
     BODY,
-    EMPTY
+    EMPTY,
+    CODE_BLOCK
 }
 
 enum class PreviewInlineType {
@@ -114,6 +115,23 @@ object SimpleMarkdownPreview {
                         type = PreviewLineType.MATH_BLOCK
                     )
                     index++
+                }
+                line.trim().startsWith("```") -> {
+                    val language = line.trim().removePrefix("```").trim()
+                    val codeLines = mutableListOf<String>()
+                    index++
+                    while (index < rawLines.size && !rawLines[index].trim().startsWith("```")) {
+                        codeLines += rawLines[index]
+                        index++
+                    }
+                    if (index < rawLines.size && rawLines[index].trim().startsWith("```")) {
+                        index++
+                    }
+                    result += PreviewLine(
+                        text = codeLines.joinToString("\n"),
+                        type = PreviewLineType.CODE_BLOCK,
+                        extra = language.takeIf { it.isNotEmpty() }
+                    )
                 }
                 else -> {
                     result += parseLine(line)

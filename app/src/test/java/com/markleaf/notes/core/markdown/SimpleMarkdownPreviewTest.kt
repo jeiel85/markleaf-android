@@ -225,4 +225,41 @@ class SimpleMarkdownPreviewTest {
         assertEquals("E = mc^2", lines[1].text)
         assertEquals(PreviewLineType.BODY, lines[2].type)
     }
+
+    @Test
+    fun parse_parsesFencedCodeBlocks() {
+        val markdown = """
+            Before
+            ```kotlin
+            val a = 1
+            val b = 2
+            ```
+            After
+        """.trimIndent()
+
+        val lines = SimpleMarkdownPreview.parse(markdown)
+
+        assertEquals(3, lines.size)
+        assertEquals(PreviewLineType.BODY, lines[0].type)
+        assertEquals(PreviewLineType.CODE_BLOCK, lines[1].type)
+        assertEquals("val a = 1\nval b = 2", lines[1].text)
+        assertEquals("kotlin", lines[1].extra)
+        assertEquals(PreviewLineType.BODY, lines[2].type)
+    }
+
+    @Test
+    fun parse_parsesFencedCodeBlocksWithoutLanguage() {
+        val markdown = """
+            ```
+            plain text
+            ```
+        """.trimIndent()
+
+        val lines = SimpleMarkdownPreview.parse(markdown)
+
+        assertEquals(1, lines.size)
+        assertEquals(PreviewLineType.CODE_BLOCK, lines[0].type)
+        assertEquals("plain text", lines[0].text)
+        assertEquals(null, lines[0].extra)
+    }
 }

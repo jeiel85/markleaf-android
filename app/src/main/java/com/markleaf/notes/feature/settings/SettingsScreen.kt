@@ -1,5 +1,11 @@
 package com.markleaf.notes.feature.settings
 
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import android.Manifest
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -45,6 +51,7 @@ import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.EditorLineWidth
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import com.markleaf.notes.util.BackupUtil
+import com.markleaf.notes.util.PermissionUtils
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,6 +65,39 @@ fun SettingsScreen(
     val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
     var statusMessage by remember { mutableStateOf<String?>(null) }
     var statusIsError by remember { mutableStateOf(false) }
+
+    var hasNotificationPermission by remember { mutableStateOf(PermissionUtils.hasNotificationPermission(context)) }
+    var hasStoragePermission by remember { mutableStateOf(PermissionUtils.hasStoragePermission(context)) }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                hasNotificationPermission = PermissionUtils.hasNotificationPermission(context)
+                hasStoragePermission = PermissionUtils.hasStoragePermission(context)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasNotificationPermission = isGranted
+        if (!isGranted) {
+            // If denied, we could show a message, but the UI will just show the "Request" button again
+            // which will then probably need to go to settings if permanently denied.
+        }
+    }
+
+    val storagePermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        hasStoragePermission = PermissionUtils.hasStoragePermission(context)
+    }
 
     val backupLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/zip")
@@ -212,9 +252,95 @@ fun SettingsScreen(
                     SettingLine(stringResource(R.string.privacy_local_first))
                 }
 
+                SettingsSection(title = stringResource(R.string.settings_permissions)) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        PermissionRow(
+                            title = stringResource(R.string.permission_notifications),
+                            description = stringResource(R.string.permission_notifications_desc),
+                            isGranted = hasNotificationPermission,
+                            onRequest = {
+                                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            },
+                            onOpenSettings = {
+                                PermissionUtils.openAppSettings(context)
+                            }
+                        )
+                        Spacer(Modifier.height(12.dp))
+                    }
+                    PermissionRow(
+                        title = stringResource(R.string.permission_storage),
+                        description = stringResource(R.string.permission_storage_desc),
+                        isGranted = hasStoragePermission,
+                        onRequest = {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                storagePermissionLauncher.launch(
+                                    arrayOf(
+                                        Manifest.permission.READ_MEDIA_IMAGES,
+                                        Manifest.permission.READ_MEDIA_VIDEO
+                                    )
+                                )
+                            } else {
+                                storagePermissionLauncher.launch(
+                                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+                                )
+                            }
+                        },
+                        onOpenSettings = {
+                            PermissionUtils.openAppSettings(context)
+                        }
+                    )
+                }
+
                 SettingsSection(title = stringResource(R.string.settings_app)) {
                     SettingLine(stringResource(R.string.version_format, BuildConfig.VERSION_NAME))
                     SettingLine(stringResource(R.string.application_id_format, BuildConfig.APPLICATION_ID))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PermissionRow(
+    title: String,
+    description: String,
+    isGranted: Boolean,
+    onRequest: () -> Unit,
+    onOpenSettings: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f).padding(end = 16.dp)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+        if (isGranted) {
+            Text(
+                text = stringResource(R.string.permission_granted),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Medium
+            )
+        } else {
+            Column(horizontalAlignment = androidx.compose.ui.Alignment.End) {
+                OutlinedButton(onClick = onRequest) {
+                    Text(stringResource(R.string.permission_request))
+                }
+                androidx.compose.material3.TextButton(onClick = onOpenSettings) {
+                    Text(stringResource(R.string.permission_settings))
                 }
             }
         }

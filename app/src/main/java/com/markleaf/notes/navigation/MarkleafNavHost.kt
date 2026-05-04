@@ -55,7 +55,8 @@ import kotlinx.coroutines.launch
 fun MarkleafNavHost(
     navController: NavHostController,
     windowSizeClass: WindowSizeClass,
-    viewModelFactory: ViewModelProvider.Factory
+    viewModelFactory: ViewModelProvider.Factory,
+    shouldCreateNote: Boolean = false
 ) {
     val isExpanded = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded
     val context = LocalContext.current
@@ -69,7 +70,15 @@ fun MarkleafNavHost(
         composable(NavRoutes.NOTES) {
             val viewModel = viewModel<NotesViewModel>(factory = viewModelFactory)
             val coroutineScope = rememberCoroutineScope()
-            
+
+            // Handle widget quick note creation
+            androidx.compose.runtime.LaunchedEffect(shouldCreateNote) {
+                if (shouldCreateNote) {
+                    val newNote = viewModel.createNote()
+                    navController.navigate("${NavRoutes.EDIT}?noteId=${newNote.id}")
+                }
+            }
+
             if (isExpanded) {
                 var selectedNoteId by remember { mutableStateOf<String?>(null) }
                 var isNoteListCollapsed by remember { mutableStateOf(false) }

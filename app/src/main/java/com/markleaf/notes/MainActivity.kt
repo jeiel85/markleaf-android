@@ -1,5 +1,6 @@
 package com.markleaf.notes
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,6 +15,7 @@ import com.markleaf.notes.data.repository.LocalNoteRepository
 import com.markleaf.notes.navigation.MarkleafNavHost
 import com.markleaf.notes.ui.theme.MarkleafTheme
 import com.markleaf.notes.ui.viewmodel.MarkleafViewModelFactory
+import com.markleaf.notes.widget.QuickNoteWidget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -25,6 +27,10 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             StarterNotesSeeder.seedIfNeeded(applicationContext, database)
         }
+
+        // Check if launched from widget to create a new note
+        val shouldCreateNote = intent.action == QuickNoteWidget.ACTION_CREATE_NOTE
+
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
             val viewModelFactory = remember {
@@ -35,9 +41,19 @@ class MainActivity : ComponentActivity() {
                 MarkleafNavHost(
                     navController = navController,
                     windowSizeClass = windowSizeClass,
-                    viewModelFactory = viewModelFactory
+                    viewModelFactory = viewModelFactory,
+                    shouldCreateNote = shouldCreateNote
                 )
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        // Handle widget click when activity is already running
+        if (intent?.action == QuickNoteWidget.ACTION_CREATE_NOTE) {
+            // Recreate activity to handle the new intent
+            recreate()
         }
     }
 }

@@ -99,4 +99,8 @@
 
     <!-- Drag and Drop -->
     <string name="drag_to_reorder">Arrastrar para reordenar</string>
+
+    <!-- Widget -->
+    <string name="quick_note_widget_label">Nota rapida</string>
+    <string name="quick_note_widget_description">Toca para crear rapidamente una nueva nota</string>
 </resources>

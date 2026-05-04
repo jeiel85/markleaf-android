@@ -100,4 +100,8 @@
     <!-- Drag and Drop -->
     <string name="drag_to_reorder">드래그하여 재정렬</string>
 
+    <!-- Widget -->
+    <string name="quick_note_widget_label">빠른 노트</string>
+    <string name="quick_note_widget_description">탭하여 새 노트를 빠르게 생성합니다</string>
+
 </resources>

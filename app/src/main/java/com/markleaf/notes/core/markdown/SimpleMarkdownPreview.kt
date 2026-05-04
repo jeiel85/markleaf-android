@@ -12,12 +12,20 @@ enum class PreviewLineType {
     IMAGE,
     LINK,
     MATH_BLOCK,
+    BLOCKQUOTE,
+    ORDERED_LIST,
+    HORIZONTAL_RULE,
     BODY,
     EMPTY
 }
 
 enum class PreviewInlineType {
     TEXT,
+    BOLD,
+    ITALIC,
+    BOLD_ITALIC,
+    STRIKETHROUGH,
+    INLINE_CODE,
     NOTE_LINK,
     MARKDOWN_LINK,
     INLINE_MATH
@@ -38,8 +46,25 @@ data class PreviewLine(
 )
 
 object SimpleMarkdownPreview {
-    private val inlinePattern = Regex("""\[\[([^\]]+)]]|\[([^\]]+)]\(([^)]+)\)|(?<!\\)\$([^$\n]+)(?<!\\)\$""")
+    private data class InlineMatch(
+        val start: Int,
+        val end: Int,
+        val type: PreviewInlineType,
+        val displayText: String,
+        val target: String? = null
+    )
+
     private val tableDividerPattern = Regex("""^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$""")
+
+    private val boldItalicRegex = Regex("""\*\*\*(.+?)\*\*\*""")
+    private val boldRegex = Regex("""\*\*(.+?)\*\*""")
+    private val italicStarRegex = Regex("""(?<!\*)\*([^*\n]+?)\*(?!\*)""")
+    private val italicUnderscoreRegex = Regex("""(?<!\w)_([^_\n]+?)_(?!\w)""")
+    private val strikethroughRegex = Regex("""~~(.+?)~~""")
+    private val inlineCodeRegex = Regex("""`([^`\n]+?)`""")
+    private val wikiLinkRegex = Regex("""\[\[([^\]]+)]]""")
+    private val markdownLinkRegex = Regex("""\[([^\]]+)\]\(([^)]+)\)""")
+    private val inlineMathRegex = Regex("""(?<!\\)\$([^$\n]+?)(?<!\\)\$""")
 
     fun parse(markdown: String): List<PreviewLine> {
         val rawLines = markdown.lines()
@@ -101,54 +126,79 @@ object SimpleMarkdownPreview {
     }
 
     fun parseInlineSegments(text: String): List<PreviewInlineSegment> {
-        val matches = inlinePattern.findAll(text).toList()
-        if (matches.isEmpty()) {
-            return listOf(PreviewInlineSegment(text, PreviewInlineType.TEXT))
+        val allMatches = mutableListOf<InlineMatch>()
+
+        boldItalicRegex.findAll(text).forEach { match ->
+            allMatches += InlineMatch(match.range.first, match.range.last, PreviewInlineType.BOLD_ITALIC, match.groupValues[1])
         }
 
+        boldRegex.findAll(text).forEach { match ->
+            allMatches += InlineMatch(match.range.first, match.range.last, PreviewInlineType.BOLD, match.groupValues[1])
+        }
+
+        italicStarRegex.findAll(text).forEach { match ->
+            allMatches += InlineMatch(match.range.first, match.range.last, PreviewInlineType.ITALIC, match.groupValues[1])
+        }
+
+        italicUnderscoreRegex.findAll(text).forEach { match ->
+            allMatches += InlineMatch(match.range.first, match.range.last, PreviewInlineType.ITALIC, match.groupValues[1])
+        }
+
+        strikethroughRegex.findAll(text).forEach { match ->
+            allMatches += InlineMatch(match.range.first, match.range.last, PreviewInlineType.STRIKETHROUGH, match.groupValues[1])
+        }
+
+        inlineCodeRegex.findAll(text).forEach { match ->
+            allMatches += InlineMatch(match.range.first, match.range.last, PreviewInlineType.INLINE_CODE, match.groupValues[1])
+        }
+
+        wikiLinkRegex.findAll(text).forEach { match ->
+            val title = match.groupValues[1].trim()
+            allMatches += InlineMatch(match.range.first, match.range.last, PreviewInlineType.NOTE_LINK, title, title)
+        }
+
+        markdownLinkRegex.findAll(text).forEach { match ->
+            allMatches += InlineMatch(match.range.first, match.range.last, PreviewInlineType.MARKDOWN_LINK, match.groupValues[1], match.groupValues[2].trim())
+        }
+
+        inlineMathRegex.findAll(text).forEach { match ->
+            allMatches += InlineMatch(match.range.first, match.range.last, PreviewInlineType.INLINE_MATH, match.groupValues[1].trim())
+        }
+
+        // Sort by start position, then longer matches first for same start
+        allMatches.sortWith(compareBy({ it.start }, { -(it.end - it.start) }))
+
+        // Resolve overlaps: keep non-overlapping matches from left to right
+        val resolvedMatches = mutableListOf<InlineMatch>()
+        var lastEnd = -1
+        for (match in allMatches) {
+            if (match.start > lastEnd) {
+                resolvedMatches += match
+                lastEnd = match.end
+            }
+        }
+
+        // Build segments from resolved matches
         val segments = mutableListOf<PreviewInlineSegment>()
         var cursor = 0
 
-        matches.forEach { match ->
-            if (match.range.first > cursor) {
-                segments += PreviewInlineSegment(
-                    text = text.substring(cursor, match.range.first),
-                    type = PreviewInlineType.TEXT
-                )
+        for (match in resolvedMatches) {
+            if (match.start > cursor) {
+                segments += PreviewInlineSegment(text.substring(cursor, match.start), PreviewInlineType.TEXT)
             }
-
-            val noteTitle = match.groups[1]?.value?.trim()
-            val markdownLabel = match.groups[2]?.value
-            val markdownTarget = match.groups[3]?.value?.trim()
-            val inlineMath = match.groups[4]?.value?.trim()
-
-            if (!noteTitle.isNullOrBlank()) {
-                segments += PreviewInlineSegment(
-                    text = noteTitle,
-                    type = PreviewInlineType.NOTE_LINK,
-                    target = noteTitle
-                )
-            } else if (!markdownLabel.isNullOrBlank() && !markdownTarget.isNullOrBlank()) {
-                segments += PreviewInlineSegment(
-                    text = markdownLabel,
-                    type = PreviewInlineType.MARKDOWN_LINK,
-                    target = markdownTarget
-                )
-            } else if (!inlineMath.isNullOrBlank()) {
-                segments += PreviewInlineSegment(
-                    text = inlineMath,
-                    type = PreviewInlineType.INLINE_MATH
-                )
-            }
-
-            cursor = match.range.last + 1
+            segments += PreviewInlineSegment(text = match.displayText, type = match.type, target = match.target)
+            cursor = match.end + 1
         }
 
         if (cursor < text.length) {
             segments += PreviewInlineSegment(text.substring(cursor), PreviewInlineType.TEXT)
         }
 
-        return segments
+        return if (segments.isEmpty()) {
+            listOf(PreviewInlineSegment(text, PreviewInlineType.TEXT))
+        } else {
+            segments
+        }
     }
 
     private fun parseLine(line: String): PreviewLine {
@@ -175,6 +225,16 @@ object SimpleMarkdownPreview {
                 PreviewLineType.CHECKBOX_TODO
             )
             line.startsWith("- ") -> PreviewLine(line.removePrefix("- ").trim(), PreviewLineType.BULLET)
+            line.startsWith("> ") -> PreviewLine(line.removePrefix("> ").trim(), PreviewLineType.BLOCKQUOTE, segments = parseInlineSegments(line.removePrefix("> ").trim()))
+            line.matches(Regex("""^\d+\.\s+.+""")) -> {
+                val match = Regex("""^(\d+)\.\s+(.+)""").find(line)
+                PreviewLine(
+                    text = match!!.groupValues[2],
+                    type = PreviewLineType.ORDERED_LIST,
+                    extra = match.groupValues[1]
+                )
+            }
+            line.matches(Regex("""^(---|\*\*\*|___)\s*$""")) -> PreviewLine("", PreviewLineType.HORIZONTAL_RULE)
             else -> PreviewLine(line, PreviewLineType.BODY, segments = parseInlineSegments(line))
         }
     }

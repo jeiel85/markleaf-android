@@ -12,7 +12,8 @@ data class MarkdownSyntaxColors(
     val emphasis: Color,
     val link: Color,
     val syntax: Color,
-    val checkbox: Color
+    val checkbox: Color,
+    val code: Color = Color.Gray
 )
 
 object MarkdownSyntaxHighlighter {
@@ -66,6 +67,32 @@ object MarkdownSyntaxHighlighter {
         text: String,
         colors: MarkdownSyntaxColors
     ) {
+        INLINE_CODE_REGEX.findAll(text).forEach { match ->
+            builder.addStyle(
+                SpanStyle(
+                    color = colors.code,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                ),
+                match.range.first,
+                match.range.last + 1
+            )
+            styleMarker(builder, colors, match.range.first, 1)
+            styleMarker(builder, colors, match.range.last, 1)
+        }
+
+        STRIKETHROUGH_REGEX.findAll(text).forEach { match ->
+            builder.addStyle(
+                SpanStyle(
+                    color = colors.emphasis,
+                    textDecoration = TextDecoration.LineThrough
+                ),
+                match.range.first,
+                match.range.last + 1
+            )
+            styleMarker(builder, colors, match.range.first, 2)
+            styleMarker(builder, colors, match.range.last - 1, 2)
+        }
+
         BOLD_REGEX.findAll(text).forEach { match ->
             builder.addStyle(
                 SpanStyle(color = colors.emphasis, fontWeight = FontWeight.SemiBold),
@@ -77,6 +104,16 @@ object MarkdownSyntaxHighlighter {
         }
 
         ITALIC_REGEX.findAll(text).forEach { match ->
+            builder.addStyle(
+                SpanStyle(color = colors.emphasis, fontStyle = FontStyle.Italic),
+                match.range.first,
+                match.range.last + 1
+            )
+            styleMarker(builder, colors, match.range.first, 1)
+            styleMarker(builder, colors, match.range.last, 1)
+        }
+
+        ITALIC_UNDERSCORE_REGEX.findAll(text).forEach { match ->
             builder.addStyle(
                 SpanStyle(color = colors.emphasis, fontStyle = FontStyle.Italic),
                 match.range.first,
@@ -121,8 +158,11 @@ object MarkdownSyntaxHighlighter {
 
     private val HEADING_REGEX = Regex("""(?m)^#{1,6}\s.+$""")
     private val CHECKBOX_REGEX = Regex("""(?m)^-\s\[[ xX]]\s.+$""")
+    private val INLINE_CODE_REGEX = Regex("""`[^`\n]+?`""")
+    private val STRIKETHROUGH_REGEX = Regex("""~~[^~\n]+?~~""")
     private val BOLD_REGEX = Regex("""\*\*[^*\n]+?\*\*""")
     private val ITALIC_REGEX = Regex("""(?<!\*)\*[^*\n]+?\*(?!\*)""")
+    private val ITALIC_UNDERSCORE_REGEX = Regex("""(?<!\w)_[^_\n]+?_(?!\w)""")
     private val MARKDOWN_LINK_REGEX = Regex("""\[[^\]\n]+]\([^) \n][^)\n]*\)""")
     private val WIKI_LINK_REGEX = Regex("""\[\[[^\]\n]+]]""")
 }

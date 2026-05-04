@@ -53,4 +53,43 @@ class MarkdownEditActionsTest {
 
         assertEquals("See [[Note]]", result.text)
     }
+
+    @Test
+    fun strikethrough_wrapsSelectedText() {
+        val result = MarkdownEditActions.strikethrough(
+            TextFieldValue("hello world", selection = TextRange(6, 11))
+        )
+
+        assertEquals("hello ~~world~~", result.text)
+        assertEquals(TextRange(15), result.selection)
+    }
+
+    @Test
+    fun strikethrough_insertsPlaceholderWhenSelectionIsEmpty() {
+        val result = MarkdownEditActions.strikethrough(
+            TextFieldValue("hello ", selection = TextRange(6))
+        )
+
+        assertEquals("hello ~~text~~", result.text)
+        assertEquals(TextRange(7), result.selection)
+    }
+
+    @Test
+    fun inlineCode_wrapsSelectedText() {
+        val result = MarkdownEditActions.inlineCode(
+            TextFieldValue("use variable", selection = TextRange(4, 12))
+        )
+
+        assertEquals("use `variable`", result.text)
+    }
+
+    @Test
+    fun inlineCode_insertsPlaceholderWhenSelectionIsEmpty() {
+        val result = MarkdownEditActions.inlineCode(
+            TextFieldValue("hello ", selection = TextRange(6))
+        )
+
+        assertEquals("hello `code`", result.text)
+        assertEquals(TextRange(7), result.selection)
+    }
 }

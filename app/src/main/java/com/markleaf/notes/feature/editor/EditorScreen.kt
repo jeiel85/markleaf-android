@@ -67,6 +67,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -302,6 +303,28 @@ fun EditorScreen(
                         PreviewLineType.CHECKBOX_TODO -> Text("☐ ${line.text}", style = MaterialTheme.typography.bodyLarge)
                         PreviewLineType.MATH_BLOCK -> MarkdownMathBlock(line.text)
                         PreviewLineType.BODY -> InlineMarkdownText(line = line, onLinkClick = onLinkClick)
+                        PreviewLineType.BLOCKQUOTE -> {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp)
+                            ) {
+                                InlineMarkdownText(line = line, onLinkClick = onLinkClick)
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(top = 4.dp),
+                                    thickness = 2.dp,
+                                    color = MaterialTheme.colorScheme.outlineVariant
+                                )
+                            }
+                        }
+                        PreviewLineType.ORDERED_LIST -> Text(
+                            text = "${line.extra ?: "1"}. ${line.text}",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        PreviewLineType.HORIZONTAL_RULE -> HorizontalDivider(
+                            modifier = Modifier.padding(vertical = 8.dp),
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        )
                         PreviewLineType.EMPTY -> Spacer(Modifier.height(8.dp))
                     }
                 }
@@ -336,7 +359,8 @@ fun EditorScreen(
                             emphasis = colorScheme.tertiary,
                             link = colorScheme.primary,
                             syntax = colorScheme.onSurfaceVariant,
-                            checkbox = colorScheme.secondary
+                            checkbox = colorScheme.secondary,
+                            code = colorScheme.tertiary
                         )
                     )
                 } else {
@@ -646,6 +670,36 @@ private fun InlineMarkdownText(
         line.segments.forEach { segment ->
             when (segment.type) {
                 PreviewInlineType.TEXT -> append(segment.text)
+                PreviewInlineType.BOLD -> {
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(segment.text)
+                    }
+                }
+                PreviewInlineType.ITALIC -> {
+                    withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+                        append(segment.text)
+                    }
+                }
+                PreviewInlineType.BOLD_ITALIC -> {
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic)) {
+                        append(segment.text)
+                    }
+                }
+                PreviewInlineType.STRIKETHROUGH -> {
+                    withStyle(SpanStyle(textDecoration = TextDecoration.LineThrough)) {
+                        append(segment.text)
+                    }
+                }
+                PreviewInlineType.INLINE_CODE -> {
+                    withStyle(
+                        SpanStyle(
+                            fontFamily = FontFamily.Monospace,
+                            color = MaterialTheme.colorScheme.tertiary
+                        )
+                    ) {
+                        append(segment.text)
+                    }
+                }
                 PreviewInlineType.NOTE_LINK -> {
                     val target = segment.target.orEmpty()
                     pushStringAnnotation(tag = "note-link", annotation = target)

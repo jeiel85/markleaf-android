@@ -11,7 +11,8 @@ class MarkdownSyntaxHighlighterTest {
         emphasis = Color.Blue,
         link = Color.Green,
         syntax = Color.Gray,
-        checkbox = Color.Magenta
+        checkbox = Color.Magenta,
+        code = Color.Cyan
     )
 
     @Test
@@ -34,5 +35,35 @@ class MarkdownSyntaxHighlighterTest {
         assertTrue(result.spanStyles.any { it.item.color == Color.Green })
         assertTrue(result.spanStyles.any { it.item.color == Color.Magenta })
         assertTrue(result.spanStyles.any { it.item.color == Color.Gray })
+    }
+
+    @Test
+    fun highlight_addsStylesForUnderscoreItalic() {
+        val markdown = "This is _italic_ text"
+
+        val result = MarkdownSyntaxHighlighter.highlight(markdown, colors)
+
+        assertEquals(markdown, result.text)
+        assertTrue(result.spanStyles.any { it.item.color == Color.Blue })
+    }
+
+    @Test
+    fun highlight_addsStylesForStrikethrough() {
+        val markdown = "This is ~~deleted~~ text"
+
+        val result = MarkdownSyntaxHighlighter.highlight(markdown, colors)
+
+        assertEquals(markdown, result.text)
+        assertTrue(result.spanStyles.any { it.item.color == Color.Blue })
+    }
+
+    @Test
+    fun highlight_addsStylesForInlineCode() {
+        val markdown = "Use `code` here"
+
+        val result = MarkdownSyntaxHighlighter.highlight(markdown, colors)
+
+        assertEquals(markdown, result.text)
+        assertTrue(result.spanStyles.any { it.item.color == Color.Cyan })
     }
 }

@@ -99,6 +99,115 @@ class SimpleMarkdownPreviewTest {
     }
 
     @Test
+    fun parse_parsesBoldInline() {
+        val lines = SimpleMarkdownPreview.parse("This is **bold** text")
+
+        assertEquals(PreviewLineType.BODY, lines.first().type)
+        assertEquals(3, lines.first().segments.size)
+        assertEquals(PreviewInlineType.TEXT, lines.first().segments[0].type)
+        assertEquals(PreviewInlineType.BOLD, lines.first().segments[1].type)
+        assertEquals("bold", lines.first().segments[1].text)
+        assertEquals(PreviewInlineType.TEXT, lines.first().segments[2].type)
+    }
+
+    @Test
+    fun parse_parsesItalicStarInline() {
+        val lines = SimpleMarkdownPreview.parse("This is *italic* text")
+
+        assertEquals(PreviewLineType.BODY, lines.first().type)
+        assertEquals(3, lines.first().segments.size)
+        assertEquals(PreviewInlineType.ITALIC, lines.first().segments[1].type)
+        assertEquals("italic", lines.first().segments[1].text)
+    }
+
+    @Test
+    fun parse_parsesItalicUnderscoreInline() {
+        val lines = SimpleMarkdownPreview.parse("This is _italic_ text")
+
+        assertEquals(PreviewLineType.BODY, lines.first().type)
+        assertEquals(3, lines.first().segments.size)
+        assertEquals(PreviewInlineType.ITALIC, lines.first().segments[1].type)
+        assertEquals("italic", lines.first().segments[1].text)
+    }
+
+    @Test
+    fun parse_parsesStrikethroughInline() {
+        val lines = SimpleMarkdownPreview.parse("This is ~~deleted~~ text")
+
+        assertEquals(PreviewLineType.BODY, lines.first().type)
+        assertEquals(3, lines.first().segments.size)
+        assertEquals(PreviewInlineType.STRIKETHROUGH, lines.first().segments[1].type)
+        assertEquals("deleted", lines.first().segments[1].text)
+    }
+
+    @Test
+    fun parse_parsesInlineCode() {
+        val lines = SimpleMarkdownPreview.parse("Use `code` here")
+
+        assertEquals(PreviewLineType.BODY, lines.first().type)
+        assertEquals(3, lines.first().segments.size)
+        assertEquals(PreviewInlineType.INLINE_CODE, lines.first().segments[1].type)
+        assertEquals("code", lines.first().segments[1].text)
+    }
+
+    @Test
+    fun parse_parsesBoldItalicCombined() {
+        val lines = SimpleMarkdownPreview.parse("This is ***bold-italic*** text")
+
+        assertEquals(PreviewLineType.BODY, lines.first().type)
+        assertEquals(3, lines.first().segments.size)
+        assertEquals(PreviewInlineType.BOLD_ITALIC, lines.first().segments[1].type)
+        assertEquals("bold-italic", lines.first().segments[1].text)
+    }
+
+    @Test
+    fun parse_parsesMixedInlineFormats() {
+        val lines = SimpleMarkdownPreview.parse("Start **bold** and *italic* and `code` end")
+
+        assertEquals(PreviewLineType.BODY, lines.first().type)
+        val segments = lines.first().segments
+        assertEquals(7, segments.size)
+        assertEquals(PreviewInlineType.BOLD, segments[1].type)
+        assertEquals(PreviewInlineType.ITALIC, segments[3].type)
+        assertEquals(PreviewInlineType.INLINE_CODE, segments[5].type)
+    }
+
+    @Test
+    fun parse_parsesBlockquote() {
+        val lines = SimpleMarkdownPreview.parse("> This is a quote")
+
+        assertEquals(1, lines.size)
+        assertEquals(PreviewLineType.BLOCKQUOTE, lines[0].type)
+        assertEquals("This is a quote", lines[0].text)
+    }
+
+    @Test
+    fun parse_parsesOrderedList() {
+        val lines = SimpleMarkdownPreview.parse("1. First item")
+
+        assertEquals(1, lines.size)
+        assertEquals(PreviewLineType.ORDERED_LIST, lines[0].type)
+        assertEquals("First item", lines[0].text)
+        assertEquals("1", lines[0].extra)
+    }
+
+    @Test
+    fun parse_parsesHorizontalRule() {
+        val lines = SimpleMarkdownPreview.parse("---")
+
+        assertEquals(1, lines.size)
+        assertEquals(PreviewLineType.HORIZONTAL_RULE, lines[0].type)
+    }
+
+    @Test
+    fun parse_parsesHorizontalRuleAsterisks() {
+        val lines = SimpleMarkdownPreview.parse("***")
+
+        assertEquals(1, lines.size)
+        assertEquals(PreviewLineType.HORIZONTAL_RULE, lines[0].type)
+    }
+
+    @Test
     fun parse_parsesDisplayMathBlocks() {
         val markdown = """
             Before

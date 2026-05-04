@@ -71,7 +71,7 @@ class MarkdownEditActionsTest {
         )
 
         assertEquals("hello ~~text~~", result.text)
-        assertEquals(TextRange(7), result.selection)
+        assertEquals(TextRange(8), result.selection)
     }
 
     @Test

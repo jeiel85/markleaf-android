@@ -61,5 +61,6 @@ class MarkleafViewModelFactoryTest {
         override fun observeTrashedNotes(): Flow<List<Note>> = flowOf(emptyList())
         override fun searchNotes(query: String): Flow<List<Note>> = flowOf(emptyList())
         override fun getBacklinks(noteId: String): Flow<List<Note>> = flowOf(emptyList())
+        override suspend fun reorderNotes(notes: List<Note>) = Unit
     }
 }

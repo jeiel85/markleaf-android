@@ -75,7 +75,7 @@ fun MarkleafNavHost(
             androidx.compose.runtime.LaunchedEffect(shouldCreateNote) {
                 if (shouldCreateNote) {
                     val newNote = viewModel.createNote()
-                    navController.navigate("${NavRoutes.EDIT}?noteId=${newNote.id}")
+                    navController.navigate(NavRoutes.editorRoute(newNote.id))
                 }
             }
 

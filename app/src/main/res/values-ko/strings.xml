@@ -85,6 +85,14 @@
     <string name="privacy_no_tracking">계정, 분석, 광고, 원격 설정, 독점 크래시 리포팅 SDK가 없습니다.</string>
     <string name="privacy_no_internet">MVP에서는 INTERNET 권한을 선언하지 않습니다.</string>
     <string name="privacy_local_first">노트는 사용자가 직접 내보내기, 공유, 백업할 때만 기기 밖으로 나갑니다.</string>
+    <string name="settings_permissions">권한</string>
+    <string name="permission_notifications">알림</string>
+    <string name="permission_notifications_desc">리마인더와 업데이트 알림을 허용합니다.</string>
+    <string name="permission_storage">저장소</string>
+    <string name="permission_storage_desc">이미지 첨부와 백업 내보내기를 위해 저장소 접근을 허용합니다.</string>
+    <string name="permission_granted">허용됨</string>
+    <string name="permission_request">요청</string>
+    <string name="permission_settings">설정 열기</string>
     <string name="settings_app">앱</string>
     <string name="version_format">버전 %1$s</string>
     <string name="application_id_format">Application ID %1$s</string>

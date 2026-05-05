@@ -85,6 +85,14 @@
     <string name="privacy_no_tracking">Sin cuenta, analiticas, anuncios, configuracion remota ni SDK propietario de fallos.</string>
     <string name="privacy_no_internet">El MVP no declara permiso INTERNET.</string>
     <string name="privacy_local_first">Las notas salen del dispositivo solo cuando las exportas, compartes o respaldas explicitamente.</string>
+    <string name="settings_permissions">Permisos</string>
+    <string name="permission_notifications">Notificaciones</string>
+    <string name="permission_notifications_desc">Permite notificaciones para recordatorios y actualizaciones.</string>
+    <string name="permission_storage">Almacenamiento</string>
+    <string name="permission_storage_desc">Permite acceso al almacenamiento para adjuntar imagenes y exportar copias de seguridad.</string>
+    <string name="permission_granted">Concedido</string>
+    <string name="permission_request">Solicitar</string>
+    <string name="permission_settings">Abrir ajustes</string>
     <string name="settings_app">Aplicacion</string>
     <string name="version_format">Version %1$s</string>
     <string name="application_id_format">Application ID %1$s</string>

@@ -60,8 +60,8 @@ android {
         applicationId = "com.markleaf.notes"
         minSdk = 26
         targetSdk = 34
-        versionCode = 45
-        versionName = "1.1.15"
+        versionCode = 46
+        versionName = "1.1.16"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -104,6 +104,8 @@ android {
     }
 
     testOptions {
+        animationsDisabled = true
+
         unitTests {
             isIncludeAndroidResources = true
         }
@@ -129,12 +131,13 @@ dependencies {
     
     // Activity Compose
     implementation("androidx.activity:activity-compose:1.8.2")
+    implementation("androidx.tracing:tracing:1.2.0")
     
     // Coil (Image Loading)
     implementation("io.coil-kt:coil-compose:2.5.0")
     
     // Navigation Compose
-    implementation("androidx.navigation:navigation-compose:2.7.0")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
     
     // Room
     val roomVersion = "2.6.1"
@@ -156,9 +159,10 @@ dependencies {
     testImplementation("org.robolectric:robolectric:4.12.2")
     testImplementation("androidx.room:room-testing:2.6.1")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test:runner:1.5.2")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test:core:1.6.1")
+    androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
     androidTestImplementation(composeBom)
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")

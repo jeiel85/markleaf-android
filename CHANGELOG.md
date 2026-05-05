@@ -2,6 +2,12 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.1.16 - CI 컴파일 복구 완료 (CI Compile Recovery Complete) - 2026-05-05
+
+### 수정
+- **Notes list 컴파일 복구:** `NotesListScreen.kt`에 섞여 있던 미완성 참조와 잘못된 의존을 정리해 GitHub Actions `assembleDebug` 및 `test`가 다시 통과하도록 복구했습니다.
+- **새 복구 버전 발행:** 실패한 빌드 이후 복구 상태를 명확히 하기 위해 `versionCode`를 `46`, `versionName`을 `1.1.16`으로 올렸습니다.
+
 ## v1.1.15 - 편집기 링크 툴바 명확화 (Editor Link Toolbar Clarification) - 2026-05-02
 
 ### 개선

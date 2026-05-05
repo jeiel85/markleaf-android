@@ -1,41 +1,42 @@
 package com.markleaf.notes.feature.notes
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.Label
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -47,10 +48,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -62,9 +63,6 @@ import com.markleaf.notes.core.markdown.ChecklistParser
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.ui.viewmodel.NotesViewModel
 import com.markleaf.notes.util.HapticFeedback
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -104,7 +102,10 @@ fun NotesListScreen(
                 actions = {
                     if (onCollapseClick != null) {
                         IconButton(onClick = onCollapseClick) {
-                            Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(R.string.collapse_note_list))
+                            Icon(
+                                Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                contentDescription = stringResource(R.string.collapse_note_list)
+                            )
                         }
                     }
                     IconButton(onClick = onSearchClick) {
@@ -184,14 +185,14 @@ fun NotesListScreen(
             var dragList by remember { mutableStateOf(notes) }
             var draggedItemIndex by remember { mutableIntStateOf(-1) }
             var dragOffsetY by remember { mutableFloatStateOf(0f) }
-            val itemHeight = 72f // Approximate item height in pixels
-            
+            val itemHeight = 72f
+
             LaunchedEffect(notes) {
                 if (draggedItemIndex == -1) {
                     dragList = notes
                 }
             }
-            
+
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -203,7 +204,7 @@ fun NotesListScreen(
                 items(dragList.size, key = { dragList[it].id }) { index ->
                     val note = dragList[index]
                     val isDragging = index == draggedItemIndex
-                    
+
                     NoteItem(
                         note = note,
                         selected = note.id == selectedNoteId,
@@ -218,20 +219,18 @@ fun NotesListScreen(
                         },
                         onDrag = { deltaY ->
                             dragOffsetY += deltaY
-                            
-                            // Calculate new position based on drag offset
+
                             val itemOffset = (dragOffsetY / itemHeight).toInt()
                             val newIndex = (draggedItemIndex + itemOffset)
                                 .coerceIn(0, dragList.size - 1)
-                            
+
                             if (newIndex != draggedItemIndex) {
-                                // Reorder the list
                                 val mutableList = dragList.toMutableList()
                                 val item = mutableList.removeAt(draggedItemIndex)
                                 mutableList.add(newIndex, item)
                                 dragList = mutableList
                                 draggedItemIndex = newIndex
-                                dragOffsetY = 0f // Reset offset after reordering
+                                dragOffsetY = 0f
                                 HapticFeedback.light(context)
                             }
                         },
@@ -361,7 +360,7 @@ fun NoteItem(
     } else {
         Color.Transparent
     }
-    
+
     val dragModifier = if (onDragStart != null && onDrag != null && onDragEnd != null) {
         Modifier.pointerInput(Unit) {
             detectDragGesturesAfterLongPress(
@@ -377,15 +376,13 @@ fun NoteItem(
     } else {
         Modifier
     }
-    
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 4.dp)
             .zIndex(if (isDragging) 1f else 0f)
-            .graphicsLayer {
-                translationY = dragOffset
-            }
+            .graphicsLayer { translationY = dragOffset }
             .clip(MaterialTheme.shapes.medium)
             .background(itemBackground)
             .combinedClickable(
@@ -423,12 +420,13 @@ fun NoteItem(
                     color = if (selected) {
                         MaterialTheme.colorScheme.onPrimaryContainer
                     } else {
-                    MaterialTheme.colorScheme.primary
-                },
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
-            )
+                        MaterialTheme.colorScheme.primary
+                    },
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
         if (note.excerpt.isNotEmpty()) {
             Spacer(modifier = Modifier.height(4.dp))
@@ -440,8 +438,7 @@ fun NoteItem(
                 overflow = TextOverflow.Ellipsis
             )
         }
-        
-        // Show checklist progress if note contains checklists
+
         val checklistProgress = remember(note.contentMarkdown) {
             ChecklistParser.parseProgress(note.contentMarkdown)
         }
@@ -462,7 +459,6 @@ fun ChecklistProgressIndicator(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Progress percentage text
         Text(
             text = "${progress.percentage}%",
             style = MaterialTheme.typography.labelSmall,
@@ -472,8 +468,7 @@ fun ChecklistProgressIndicator(
                 MaterialTheme.colorScheme.onSurfaceVariant
             }
         )
-        
-        // Linear progress indicator
+
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -494,8 +489,7 @@ fun ChecklistProgressIndicator(
                     )
             )
         }
-        
-        // Checklist count
+
         Text(
             text = "${progress.checked}/${progress.total}",
             style = MaterialTheme.typography.labelSmall,

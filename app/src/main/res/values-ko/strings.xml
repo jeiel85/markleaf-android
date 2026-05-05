@@ -123,5 +123,13 @@
     <string name="privacy_app_info_title">이 빌드에 대하여</string>
     <string name="privacy_app_info_desc">버전 %1$s\n\n이 Markleaf 빌드는 엄격한 개인정보 보호 표준을 유지합니다. 모든 기능이 완전히 오프라인에서 작동합니다.</string>
     <string name="privacy_dashboard_button">개인정보 대시보드 보기</string>
+    <string name="settings_permissions">권한</string>
+    <string name="permission_notifications">알림</string>
+    <string name="permission_notifications_desc">리마인더와 업데이트를 위한 알림을 허용합니다.</string>
+    <string name="permission_storage">저장소</string>
+    <string name="permission_storage_desc">이미지 첨부와 백업 내보내기를 위해 저장소 접근을 허용합니다.</string>
+    <string name="permission_granted">허용됨</string>
+    <string name="permission_request">요청</string>
+    <string name="permission_settings">설정 열기</string>
 
 </resources>

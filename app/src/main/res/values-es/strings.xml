@@ -123,4 +123,12 @@
     <string name="privacy_app_info_title">Acerca de esta version</string>
     <string name="privacy_app_info_desc">Version %1$s\n\nEsta version de Markleaf mantiene estrictos estandares de privacidad. Todas las caracteristicas funcionan completamente sin conexion.</string>
     <string name="privacy_dashboard_button">Ver panel de privacidad</string>
+    <string name="settings_permissions">Permisos</string>
+    <string name="permission_notifications">Notificaciones</string>
+    <string name="permission_notifications_desc">Permite notificaciones para recordatorios y actualizaciones.</string>
+    <string name="permission_storage">Almacenamiento</string>
+    <string name="permission_storage_desc">Permite acceso al almacenamiento para adjuntar imagenes y exportar copias de seguridad.</string>
+    <string name="permission_granted">Concedido</string>
+    <string name="permission_request">Solicitar</string>
+    <string name="permission_settings">Abrir ajustes</string>
 </resources>

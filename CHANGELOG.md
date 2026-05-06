@@ -2,6 +2,12 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.1.19 - 릴리즈 모니터링 버전업 (Release Monitoring Version Bump) - 2026-05-06
+
+### 개선
+- **릴리즈 버전 상향:** GitHub 태그 릴리즈 재실행 및 이력 분리를 위해 `versionCode`를 `49`, `versionName`을 `1.1.19`로 상향했습니다.
+- **릴리즈 모니터링 루프 실행:** 태그 푸시 후 GitHub Actions 빌드/테스트/릴리즈 워크플로우 완료 상태를 추적하는 운영 루프를 적용했습니다.
+
 ## v1.1.18 - 릴리즈 권한 복구 및 대규모 기능 업데이트 (Release Permissions Recovery & Major Feature Update) - 2026-05-06
 
 ### 새로운 기능

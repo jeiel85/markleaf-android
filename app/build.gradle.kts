@@ -60,8 +60,8 @@ android {
         applicationId = "com.markleaf.notes"
         minSdk = 26
         targetSdk = 34
-        versionCode = 48
-        versionName = "1.1.18"
+        versionCode = 49
+        versionName = "1.1.19"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

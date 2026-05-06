@@ -2,6 +2,13 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.1.17 - 이슈 백로그 상세화 및 일괄 등록 (Issue Backlog Refinement & Batch Registration) - 2026-05-06
+
+### 개선
+- **이슈 백로그 고도화:** 기존 53건의 이슈를 기술적으로 구체화하고 50건의 신규 제안을 추가하여 총 103건의 상세 기술 명세(`docs/ISSUE_BACKLOG_DETAIL.md`)를 작성했습니다.
+- **GitHub Issues 일괄 등록:** 작성된 103건의 명세를 GitHub Issues에 자동 등록하여 프로젝트 로드맵 가시성을 확보했습니다.
+- **새 버전 발행:** 최신 소스 기반 빌드 및 이슈 트래킹 동기화를 위해 `versionCode`를 `47`, `versionName`을 `1.1.17`로 올렸습니다.
+
 ## v1.1.16 - CI 컴파일 복구 완료 (CI Compile Recovery Complete) - 2026-05-05
 
 ### 수정

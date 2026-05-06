@@ -1,5 +1,17 @@
 # HISTORY
 
+## 2026-05-06
+- Work: Issue backlog refinement and batch registration. 103 detailed technical specifications created and synced to GitHub Issues.
+- Changed files:
+  - `docs/ISSUE_BACKLOG_DETAIL.md` (103 detailed specs)
+  - `sync_issues.py` (issue sync script)
+  - `app/build.gradle.kts` (versionCode 47, versionName 1.1.17)
+  - `CHANGELOG.md`, `HISTORY.md`
+- Verification:
+  - GitHub Issues sync confirmed (106 total open issues)
+  - `./gradlew.bat assembleDebug` (local verification before push)
+  - `gh auth status` confirmed
+
 ## 2026-05-03
 - Work: Compose UI test environment stabilization. 계측 테스트 런타임과 Compose UI 테스트 하니스를 정리해 테스트 데이터 공유와 AndroidX tracing 충돌을 제거.
 - Changed files:

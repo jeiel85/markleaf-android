@@ -88,6 +88,22 @@
   - This documentation update follows the v1.1.16 release that enhanced the Markdown editor with syntax highlighting, improved preview parser, and extended editing actions
   - GitHub Issue #26 will be closed after push
 
+## 2026-05-03
+- Work: Compose UI test environment stabilization. 계측 테스트 런타임과 Compose UI 테스트 하니스를 정리해 테스트 데이터 공유와 AndroidX tracing 충돌을 제거.
+- Changed files:
+  - `app/build.gradle.kts` (AndroidX test runtime refresh, tracing runtime pin, Navigation Compose patch update, instrumentation animations disabled)
+  - `app/src/debug/AndroidManifest.xml`, `app/src/debug/java/com/markleaf/notes/TestHostActivity.kt` (debug-only Compose test host)
+  - `app/src/androidTest/java/com/markleaf/notes/ui/MarkleafTestHarness.kt` (in-memory app NavHost harness)
+  - `app/src/androidTest/java/com/markleaf/notes/ui/AppIntegrationTest.kt`, `ComprehensiveFeatureTest.kt`, `EditorScreenTest.kt` (isolated test host usage)
+  - `.agent/tasks.md`, `.agent/progress.md`, `.agent/decisions.md`
+- Verification:
+  - `./gradlew.bat :app:assembleDebugAndroidTest` passed
+  - `./gradlew.bat testDebugUnitTest` passed
+  - `./gradlew.bat lintDebug` passed
+  - `./gradlew.bat assembleDebug` passed and produced `app/build/outputs/apk/debug/app-debug.apk` (22,475,845 bytes)
+  - `rg "android.permission.INTERNET" -n app/src` found no declarations
+  - `connectedDebugAndroidTest` is still not green on TB320FC; the device moves the Compose test host Activity to background before Compose hierarchy registration
+
 ## 2026-05-02
 ## 2026-05-04
 - Work: v1.1.16 CHANGELOG Update. 留덊겕?ㅼ슫 ?먮뵒??媛쒖꽑 ?ы빆??CHANGELOG? HISTORY??臾몄꽌??

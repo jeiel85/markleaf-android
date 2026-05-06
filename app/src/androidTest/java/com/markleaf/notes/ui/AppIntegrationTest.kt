@@ -1,18 +1,40 @@
 package com.markleaf.notes.ui
 
 import androidx.compose.ui.test.*
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import com.markleaf.notes.MainActivity
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
+import androidx.test.core.app.ActivityScenario
+import androidx.test.platform.app.InstrumentationRegistry
 import com.markleaf.notes.R
+import com.markleaf.notes.TestHostActivity
+import com.markleaf.notes.data.local.AppDatabase
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 class AppIntegrationTest {
 
     @get:Rule
-    val composeTestRule = createAndroidComposeRule<MainActivity>()
+    val composeTestRule = createEmptyComposeRule()
 
-    private val context get() = composeTestRule.activity
+    private val context = InstrumentationRegistry.getInstrumentation().targetContext
+    private lateinit var database: AppDatabase
+    private var scenario: ActivityScenario<TestHostActivity>? = null
+
+    @Before
+    fun setUp() {
+        database = createInMemoryMarkleafDatabase()
+        TestHostActivity.content = markleafTestContent(database)
+        scenario = ActivityScenario.launch(TestHostActivity::class.java)
+        composeTestRule.waitForIdle()
+    }
+
+    @After
+    fun tearDown() {
+        scenario?.close()
+        TestHostActivity.content = null
+        database.close()
+    }
 
     @Test
     fun testCreateAndSaveNoteFlow() {

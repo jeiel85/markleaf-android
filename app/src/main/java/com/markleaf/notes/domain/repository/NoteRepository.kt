@@ -14,4 +14,5 @@ interface NoteRepository {
     fun observeTrashedNotes(): Flow<List<Note>>
     fun searchNotes(query: String): Flow<List<Note>>
     fun getBacklinks(noteId: String): Flow<List<Note>>
+    suspend fun reorderNotes(notes: List<Note>)
 }

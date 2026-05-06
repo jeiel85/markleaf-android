@@ -13,7 +13,8 @@ data class Note(
     val archived: Boolean = false,
     val trashed: Boolean = false,
     val deletedAt: Instant? = null,
-    val tags: List<Tag> = emptyList()
+    val tags: List<Tag> = emptyList(),
+    val sortOrder: Int = 0
 )
 
 data class BacklinkSnippet(

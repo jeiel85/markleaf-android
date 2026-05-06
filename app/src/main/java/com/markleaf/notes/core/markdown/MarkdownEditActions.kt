@@ -12,6 +12,14 @@ object MarkdownEditActions {
         return wrapSelection(value, "*", "*", "italic")
     }
 
+    fun strikethrough(value: TextFieldValue): TextFieldValue {
+        return wrapSelection(value, "~~", "~~", "text")
+    }
+
+    fun inlineCode(value: TextFieldValue): TextFieldValue {
+        return wrapSelection(value, "`", "`", "code")
+    }
+
     fun checkbox(value: TextFieldValue): TextFieldValue {
         return insertAtLineStart(value, "- [ ] ")
     }

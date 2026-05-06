@@ -218,6 +218,12 @@ class LocalNoteRepository(
             .joinToString(separator = " ") { "$it*" }
     }
 
+    override suspend fun reorderNotes(notes: List<Note>) {
+        notes.forEachIndexed { index, note ->
+            database.noteDao().updateSortOrder(note.id, index)
+        }
+    }
+
     private companion object {
         const val snippetContextLength = 56
         const val maxSnippetLength = 140

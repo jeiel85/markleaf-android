@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NoteDao {
-    @Query("SELECT * FROM notes WHERE trashed = 0 ORDER BY pinned DESC, updatedAt DESC")
+    @Query("SELECT * FROM notes WHERE trashed = 0 ORDER BY pinned DESC, sortOrder ASC, updatedAt DESC")
     fun observeNotes(): Flow<List<NoteEntity>>
 
     @Query("SELECT * FROM notes WHERE id = :id")
@@ -45,12 +45,12 @@ interface NoteDao {
         SELECT notes.* FROM notes
         JOIN notes_fts ON notes.rowid = notes_fts.rowid
         WHERE notes.trashed = 0 AND notes_fts MATCH :query 
-        ORDER BY notes.pinned DESC, notes.updatedAt DESC
+        ORDER BY notes.pinned DESC, notes.sortOrder ASC, notes.updatedAt DESC
         LIMIT 200
     """)
     fun searchNotesFts(query: String): Flow<List<NoteEntity>>
 
-    @Query("SELECT * FROM notes WHERE trashed = 0 AND (title LIKE '%' || :query || '%' OR contentMarkdown LIKE '%' || :query || '%' OR excerpt LIKE '%' || :query || '%') ORDER BY pinned DESC, updatedAt DESC LIMIT 200")
+    @Query("SELECT * FROM notes WHERE trashed = 0 AND (title LIKE '%' || :query || '%' OR contentMarkdown LIKE '%' || :query || '%' OR excerpt LIKE '%' || :query || '%') ORDER BY pinned DESC, sortOrder ASC, updatedAt DESC LIMIT 200")
     fun searchNotesLike(query: String): Flow<List<NoteEntity>>
 
     @Query("""
@@ -59,4 +59,10 @@ interface NoteDao {
         WHERE note_links.targetNoteId = :targetNoteId AND notes.trashed = 0
     """)
     fun getBacklinkingNotes(targetNoteId: String): Flow<List<NoteEntity>>
+
+    @Query("UPDATE notes SET sortOrder = :sortOrder WHERE id = :noteId")
+    suspend fun updateSortOrder(noteId: String, sortOrder: Int)
+
+    @Query("SELECT MAX(sortOrder) FROM notes WHERE trashed = 0")
+    suspend fun getMaxSortOrder(): Int?
 }

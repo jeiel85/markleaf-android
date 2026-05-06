@@ -67,6 +67,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -77,6 +78,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.markleaf.notes.R
+import com.markleaf.notes.core.markdown.ChecklistParser
 import com.markleaf.notes.core.markdown.MarkdownEditActions
 import com.markleaf.notes.core.markdown.MarkdownSyntaxColors
 import com.markleaf.notes.core.markdown.MarkdownSyntaxVisualTransformation
@@ -94,6 +96,8 @@ import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import com.markleaf.notes.domain.model.BacklinkSnippet
 import com.markleaf.notes.domain.model.NoteSnapshot
+import com.markleaf.notes.feature.notes.ChecklistProgressIndicator
+import com.markleaf.notes.util.HapticFeedback
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.ZoneId
@@ -301,7 +305,30 @@ fun EditorScreen(
                         PreviewLineType.CHECKBOX_DONE -> Text("☑ ${line.text}", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         PreviewLineType.CHECKBOX_TODO -> Text("☐ ${line.text}", style = MaterialTheme.typography.bodyLarge)
                         PreviewLineType.MATH_BLOCK -> MarkdownMathBlock(line.text)
+                        PreviewLineType.CODE_BLOCK -> MarkdownCodeBlock(line.text, line.extra)
                         PreviewLineType.BODY -> InlineMarkdownText(line = line, onLinkClick = onLinkClick)
+                        PreviewLineType.BLOCKQUOTE -> {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp)
+                            ) {
+                                InlineMarkdownText(line = line, onLinkClick = onLinkClick)
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(top = 4.dp),
+                                    thickness = 2.dp,
+                                    color = MaterialTheme.colorScheme.outlineVariant
+                                )
+                            }
+                        }
+                        PreviewLineType.ORDERED_LIST -> Text(
+                            text = "${line.extra ?: "1"}. ${line.text}",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        PreviewLineType.HORIZONTAL_RULE -> HorizontalDivider(
+                            modifier = Modifier.padding(vertical = 8.dp),
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        )
                         PreviewLineType.EMPTY -> Spacer(Modifier.height(8.dp))
                     }
                 }
@@ -336,7 +363,8 @@ fun EditorScreen(
                             emphasis = colorScheme.tertiary,
                             link = colorScheme.primary,
                             syntax = colorScheme.onSurfaceVariant,
-                            checkbox = colorScheme.secondary
+                            checkbox = colorScheme.secondary,
+                            code = colorScheme.tertiary
                         )
                     )
                 } else {
@@ -387,29 +415,49 @@ fun EditorScreen(
                     )
                 }
 
+                // Show checklist progress if content contains checklists
+                val checklistProgress = remember(editorState.text) {
+                    ChecklistParser.parseProgress(editorState.text)
+                }
+                if (checklistProgress.total > 0) {
+                    Spacer(Modifier.height(8.dp))
+                    ChecklistProgressIndicator(
+                        progress = checklistProgress,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                    Spacer(Modifier.height(4.dp))
+                }
+
                 MarkdownToolbar(
+                    config = appSettings.toolbarConfig,
                     imageEnabled = noteId != null,
                     onBold = {
+                        HapticFeedback.light(context)
                         editorState = MarkdownEditActions.bold(editorState)
                         if (isLoaded) saveTrigger++
                     },
                     onItalic = {
+                        HapticFeedback.light(context)
                         editorState = MarkdownEditActions.italic(editorState)
                         if (isLoaded) saveTrigger++
                     },
                     onCheckbox = {
+                        HapticFeedback.light(context)
                         editorState = MarkdownEditActions.checkbox(editorState)
                         if (isLoaded) saveTrigger++
                     },
                     onMarkdownLink = {
+                        HapticFeedback.light(context)
                         editorState = MarkdownEditActions.markdownLink(editorState)
                         if (isLoaded) saveTrigger++
                     },
                     onWikiLink = {
+                        HapticFeedback.light(context)
                         editorState = MarkdownEditActions.wikiLink(editorState)
                         if (isLoaded) saveTrigger++
                     },
                     onImage = {
+                        HapticFeedback.medium(context)
                         imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                     }
                 )
@@ -548,6 +596,7 @@ private fun formatSnapshotTimestamp(snapshot: NoteSnapshot): String {
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun MarkdownToolbar(
+    config: com.markleaf.notes.data.settings.ToolbarConfig,
     imageEnabled: Boolean,
     onBold: () -> Unit,
     onItalic: () -> Unit,
@@ -564,47 +613,59 @@ private fun MarkdownToolbar(
         horizontalArrangement = Arrangement.spacedBy(2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.bold),
-            onClick = onBold
-        ) {
-            Icon(Icons.Default.FormatBold, contentDescription = stringResource(R.string.bold))
+        if (config.showBold) {
+            ToolbarTooltipIconButton(
+                label = stringResource(R.string.bold),
+                onClick = onBold
+            ) {
+                Icon(Icons.Default.FormatBold, contentDescription = stringResource(R.string.bold))
+            }
         }
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.italic),
-            onClick = onItalic
-        ) {
-            Icon(Icons.Default.FormatItalic, contentDescription = stringResource(R.string.italic))
+        if (config.showItalic) {
+            ToolbarTooltipIconButton(
+                label = stringResource(R.string.italic),
+                onClick = onItalic
+            ) {
+                Icon(Icons.Default.FormatItalic, contentDescription = stringResource(R.string.italic))
+            }
         }
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.checkbox),
-            onClick = onCheckbox
-        ) {
-            Icon(Icons.Default.CheckBox, contentDescription = stringResource(R.string.checkbox))
+        if (config.showCheckbox) {
+            ToolbarTooltipIconButton(
+                label = stringResource(R.string.checkbox),
+                onClick = onCheckbox
+            ) {
+                Icon(Icons.Default.CheckBox, contentDescription = stringResource(R.string.checkbox))
+            }
         }
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.markdown_link),
-            onClick = onMarkdownLink
-        ) {
-            Icon(Icons.Default.Link, contentDescription = stringResource(R.string.markdown_link))
+        if (config.showMarkdownLink) {
+            ToolbarTooltipIconButton(
+                label = stringResource(R.string.markdown_link),
+                onClick = onMarkdownLink
+            ) {
+                Icon(Icons.Default.Link, contentDescription = stringResource(R.string.markdown_link))
+            }
         }
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.wiki_link),
-            onClick = onWikiLink
-        ) {
-            Text(
-                text = "[[ ]]",
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+        if (config.showWikiLink) {
+            ToolbarTooltipIconButton(
+                label = stringResource(R.string.wiki_link),
+                onClick = onWikiLink
+            ) {
+                Text(
+                    text = "[[ ]]",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.image),
-            onClick = onImage,
-            enabled = imageEnabled
-        ) {
-            Icon(Icons.Default.Image, contentDescription = stringResource(R.string.image))
+        if (config.showImage) {
+            ToolbarTooltipIconButton(
+                label = stringResource(R.string.image),
+                onClick = onImage,
+                enabled = imageEnabled
+            ) {
+                Icon(Icons.Default.Image, contentDescription = stringResource(R.string.image))
+            }
         }
     }
 }
@@ -646,6 +707,36 @@ private fun InlineMarkdownText(
         line.segments.forEach { segment ->
             when (segment.type) {
                 PreviewInlineType.TEXT -> append(segment.text)
+                PreviewInlineType.BOLD -> {
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(segment.text)
+                    }
+                }
+                PreviewInlineType.ITALIC -> {
+                    withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+                        append(segment.text)
+                    }
+                }
+                PreviewInlineType.BOLD_ITALIC -> {
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic)) {
+                        append(segment.text)
+                    }
+                }
+                PreviewInlineType.STRIKETHROUGH -> {
+                    withStyle(SpanStyle(textDecoration = TextDecoration.LineThrough)) {
+                        append(segment.text)
+                    }
+                }
+                PreviewInlineType.INLINE_CODE -> {
+                    withStyle(
+                        SpanStyle(
+                            fontFamily = FontFamily.Monospace,
+                            color = MaterialTheme.colorScheme.tertiary
+                        )
+                    ) {
+                        append(segment.text)
+                    }
+                }
                 PreviewInlineType.NOTE_LINK -> {
                     val target = segment.target.orEmpty()
                     pushStringAnnotation(tag = "note-link", annotation = target)
@@ -759,4 +850,30 @@ private fun MarkdownMathBlock(text: String) {
             .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.35f))
             .padding(horizontal = 12.dp, vertical = 10.dp)
     )
+}
+
+@Composable
+private fun MarkdownCodeBlock(text: String, language: String?) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .clip(RoundedCornerShape(6.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(horizontal = 12.dp, vertical = 10.dp)
+    ) {
+        if (!language.isNullOrEmpty()) {
+            Text(
+                text = language,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+        }
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
 }

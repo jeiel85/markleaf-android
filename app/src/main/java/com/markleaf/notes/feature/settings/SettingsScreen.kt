@@ -1,5 +1,11 @@
 package com.markleaf.notes.feature.settings
 
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import android.Manifest
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -45,12 +51,15 @@ import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.EditorLineWidth
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import com.markleaf.notes.util.BackupUtil
+import com.markleaf.notes.util.HapticFeedback
+import com.markleaf.notes.util.PermissionUtils
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onPrivacyClick: () -> Unit = {}
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val scope = rememberCoroutineScope()
@@ -58,6 +67,44 @@ fun SettingsScreen(
     val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
     var statusMessage by remember { mutableStateOf<String?>(null) }
     var statusIsError by remember { mutableStateOf(false) }
+
+    var hasNotificationPermission by remember { mutableStateOf(PermissionUtils.hasNotificationPermission(context)) }
+    var hasStoragePermission by remember { mutableStateOf(PermissionUtils.hasStoragePermission(context)) }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                hasNotificationPermission = PermissionUtils.hasNotificationPermission(context)
+                hasStoragePermission = PermissionUtils.hasStoragePermission(context)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    val performToggle: (Boolean, () -> Unit) -> Unit = { checked, action ->
+        HapticFeedback.light(context)
+        action()
+    }
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasNotificationPermission = isGranted
+        if (!isGranted) {
+            // If denied, we could show a message, but the UI will just show the "Request" button again
+            // which will then probably need to go to settings if permanently denied.
+        }
+    }
+
+    val storagePermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        hasStoragePermission = PermissionUtils.hasStoragePermission(context)
+    }
 
     val backupLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/zip")
@@ -165,10 +212,12 @@ fun SettingsScreen(
                         description = stringResource(R.string.show_markdown_syntax_description),
                         checked = appSettings.markdownSyntaxVisibility == MarkdownSyntaxVisibility.SHOW,
                         onCheckedChange = { checked ->
-                            scope.launch {
-                                settingsRepository.setMarkdownSyntaxVisibility(
-                                    if (checked) MarkdownSyntaxVisibility.SHOW else MarkdownSyntaxVisibility.HIDE
-                                )
+                            performToggle(checked) {
+                                scope.launch {
+                                    settingsRepository.setMarkdownSyntaxVisibility(
+                                        if (checked) MarkdownSyntaxVisibility.SHOW else MarkdownSyntaxVisibility.HIDE
+                                    )
+                                }
                             }
                         }
                     )
@@ -204,12 +253,152 @@ fun SettingsScreen(
                     SettingLine(stringResource(R.string.markdown_preview_support))
                     SettingLine(stringResource(R.string.external_links_mvp))
                     SettingLine(stringResource(R.string.local_link_hint))
+                    Spacer(Modifier.height(16.dp))
+                    HorizontalDivider()
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        text = stringResource(R.string.toolbar_customization),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    SettingsSwitchRow(
+                        title = stringResource(R.string.bold),
+                        description = null,
+                        checked = appSettings.toolbarConfig.showBold,
+                        onCheckedChange = { checked ->
+                            performToggle(checked) {
+                                scope.launch {
+                                    settingsRepository.setToolbarConfig(
+                                        appSettings.toolbarConfig.copy(showBold = checked)
+                                    )
+                                }
+                            }
+                        }
+                    )
+                    SettingsSwitchRow(
+                        title = stringResource(R.string.italic),
+                        description = null,
+                        checked = appSettings.toolbarConfig.showItalic,
+                        onCheckedChange = { checked ->
+                            performToggle(checked) {
+                                scope.launch {
+                                    settingsRepository.setToolbarConfig(
+                                        appSettings.toolbarConfig.copy(showItalic = checked)
+                                    )
+                                }
+                            }
+                        }
+                    )
+                    SettingsSwitchRow(
+                        title = stringResource(R.string.checkbox),
+                        description = null,
+                        checked = appSettings.toolbarConfig.showCheckbox,
+                        onCheckedChange = { checked ->
+                            performToggle(checked) {
+                                scope.launch {
+                                    settingsRepository.setToolbarConfig(
+                                        appSettings.toolbarConfig.copy(showCheckbox = checked)
+                                    )
+                                }
+                            }
+                        }
+                    )
+                    SettingsSwitchRow(
+                        title = stringResource(R.string.markdown_link),
+                        description = null,
+                        checked = appSettings.toolbarConfig.showMarkdownLink,
+                        onCheckedChange = { checked ->
+                            performToggle(checked) {
+                                scope.launch {
+                                    settingsRepository.setToolbarConfig(
+                                        appSettings.toolbarConfig.copy(showMarkdownLink = checked)
+                                    )
+                                }
+                            }
+                        }
+                    )
+                    SettingsSwitchRow(
+                        title = stringResource(R.string.wiki_link),
+                        description = null,
+                        checked = appSettings.toolbarConfig.showWikiLink,
+                        onCheckedChange = { checked ->
+                            performToggle(checked) {
+                                scope.launch {
+                                    settingsRepository.setToolbarConfig(
+                                        appSettings.toolbarConfig.copy(showWikiLink = checked)
+                                    )
+                                }
+                            }
+                        }
+                    )
+                    SettingsSwitchRow(
+                        title = stringResource(R.string.image),
+                        description = null,
+                        checked = appSettings.toolbarConfig.showImage,
+                        onCheckedChange = { checked ->
+                            performToggle(checked) {
+                                scope.launch {
+                                    settingsRepository.setToolbarConfig(
+                                        appSettings.toolbarConfig.copy(showImage = checked)
+                                    )
+                                }
+                            }
+                        }
+                    )
                 }
 
                 SettingsSection(title = stringResource(R.string.settings_privacy)) {
                     SettingLine(stringResource(R.string.privacy_no_tracking))
                     SettingLine(stringResource(R.string.privacy_no_internet))
                     SettingLine(stringResource(R.string.privacy_local_first))
+                    Spacer(Modifier.height(12.dp))
+                    Button(
+                        onClick = onPrivacyClick,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.privacy_dashboard_button))
+                    }
+                }
+
+                SettingsSection(title = stringResource(R.string.settings_permissions)) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        PermissionRow(
+                            title = stringResource(R.string.permission_notifications),
+                            description = stringResource(R.string.permission_notifications_desc),
+                            isGranted = hasNotificationPermission,
+                            onRequest = {
+                                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            },
+                            onOpenSettings = {
+                                PermissionUtils.openAppSettings(context)
+                            }
+                        )
+                        Spacer(Modifier.height(12.dp))
+                    }
+                    PermissionRow(
+                        title = stringResource(R.string.permission_storage),
+                        description = stringResource(R.string.permission_storage_desc),
+                        isGranted = hasStoragePermission,
+                        onRequest = {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                storagePermissionLauncher.launch(
+                                    arrayOf(
+                                        Manifest.permission.READ_MEDIA_IMAGES,
+                                        Manifest.permission.READ_MEDIA_VIDEO
+                                    )
+                                )
+                            } else {
+                                storagePermissionLauncher.launch(
+                                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+                                )
+                            }
+                        },
+                        onOpenSettings = {
+                            PermissionUtils.openAppSettings(context)
+                        }
+                    )
                 }
 
                 SettingsSection(title = stringResource(R.string.settings_app)) {
@@ -222,9 +411,56 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun SettingsSwitchRow(
+private fun PermissionRow(
     title: String,
     description: String,
+    isGranted: Boolean,
+    onRequest: () -> Unit,
+    onOpenSettings: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f).padding(end = 16.dp)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+        if (isGranted) {
+            Text(
+                text = stringResource(R.string.permission_granted),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Medium
+            )
+        } else {
+            Column(horizontalAlignment = androidx.compose.ui.Alignment.End) {
+                OutlinedButton(onClick = onRequest) {
+                    Text(stringResource(R.string.permission_request))
+                }
+                androidx.compose.material3.TextButton(onClick = onOpenSettings) {
+                    Text(stringResource(R.string.permission_settings))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SettingsSwitchRow(
+    title: String,
+    description: String?,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
@@ -239,12 +475,14 @@ private fun SettingsSwitchRow(
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onBackground
             )
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 2.dp)
-            )
+            if (description != null) {
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
         }
         Switch(
             checked = checked,

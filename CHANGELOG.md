@@ -2,12 +2,25 @@
 
 All notable changes to Markleaf are documented in this file.
 
-## v1.1.17 - 이슈 백로그 상세화 및 일괄 등록 (Issue Backlog Refinement & Batch Registration) - 2026-05-06
+## v1.1.18 - 릴리즈 권한 복구 및 대규모 기능 업데이트 (Release Permissions Recovery & Major Feature Update) - 2026-05-06
+
+### 새로운 기능
+- **No-Cloud 인증 보증:** 앱이 네트워크 권한 없이 동작하며 데이터를 외부로 전송하지 않음을 증명하는 No-Cloud 인증 문서(`docs/NOCLOUD_CERTIFICATION.md`)를 추가했습니다.
+- **인앱 개인정보 대시보드:** 설정에서 앱의 개인정보 보호 원칙과 로컬 데이터 저장 현황을 한눈에 확인할 수 있는 대시보드를 추가했습니다.
+- **체크리스트 진행률 시각화:** 노트 목록과 에디터에서 체크리스트의 완료 상태를 진행 바와 퍼센트로 표시합니다.
+- **홈 화면 위젯 (빠른 작성):** 홈 화면에서 한 번의 탭으로 즉시 새 노트를 작성할 수 있는 위젯을 추가했습니다.
+- **드래그 앤 드롭 노트 재정렬:** 노트 목록에서 롱 프레스 후 드래그하여 수동으로 노트 순서를 변경할 수 있습니다.
 
 ### 개선
 - **이슈 백로그 고도화:** 기존 53건의 이슈를 기술적으로 구체화하고 50건의 신규 제안을 추가하여 총 103건의 상세 기술 명세(`docs/ISSUE_BACKLOG_DETAIL.md`)를 작성했습니다.
 - **GitHub Issues 일괄 등록:** 작성된 103건의 명세를 GitHub Issues에 자동 등록하여 프로젝트 로드맵 가시성을 확보했습니다.
-- **새 버전 발행:** 최신 소스 기반 빌드 및 이슈 트래킹 동기화를 위해 `versionCode`를 `47`, `versionName`을 `1.1.17`로 올렸습니다.
+- **릴리즈 워크플로우 권한 수정:** GitHub Actions의 `GITHUB_TOKEN` 권한을 `contents: write`로 수정하여 자동 릴리즈 생성이 실패하던 문제를 해결했습니다.
+
+### 수정
+- **마크다운 미리보기 파서 안정화:** 테이블, 수식, 인라인 요소 파싱 중 발생하던 비정상 종료 문제를 수정했습니다.
+
+## v1.1.17 - 이슈 백로그 상세화 및 일괄 등록 (Issue Backlog Refinement & Batch Registration) - 2026-05-06 (Release Failed)
+*(이 버전은 GITHUB_TOKEN 권한 부족으로 인해 v1.1.18로 대체되었습니다.)*
 
 ## v1.1.16 - CI 컴파일 복구 완료 (CI Compile Recovery Complete) - 2026-05-05
 

@@ -1,4 +1,23 @@
-﻿## 2026-05-04
+﻿## 2026-05-06
+- Work: v1.1.18 릴리즈 준비 및 GitHub Actions 권한 복구.
+- Changed files:
+  - .github/workflows/android-build.yml (permissions: contents: write 적용)
+  - app/build.gradle.kts (versionCode 48, versionName 1.1.18)
+  - CHANGELOG.md (v1.1.18 섹션 추가 및 누락 기능 통합)
+  - HISTORY.md (이 기록 추가)
+- Context:
+  - v1.1.17 릴리즈 시도가 GitHub Actions의 GITHUB_TOKEN 권한 부족(contents: read)으로 인해 실패했음을 확인.
+  - 워크플로우 파일에 contents: write 권한을 부여하여 gh release create가 가능하도록 수정.
+  - 실패한 v1.1.17을 건너뛰고 v1.1.18로 상향하여 모든 최신 기능과 권한 수정을 포함한 새로운 릴리즈를 발행함.
+- Included Major Features (Cumulative):
+  - No-Cloud Certification documentation (#74)
+  - In-app Privacy Dashboard (#73)
+  - Checklist progress visualization (#69)
+  - Home screen Quick Note widget (#60)
+  - Drag and drop note reordering (#61)
+  - Issue backlog refinement & batch registration (103 issues)
+
+## 2026-05-04
 - Work: Play Store Top 10 진입을 위한 50가지 개선 전략 수립 및 GitHub 이슈 등록.
 - Changed files:
   - HISTORY.md (전략 목록 추가)

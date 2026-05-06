@@ -1,4 +1,41 @@
 ---
+## 2026-05-03 - Compose UI Test Environment Stabilization
+Selected task:
+- Refresh AndroidX test runtime and isolate Compose UI tests with an in-memory app harness
+
+What was implemented:
+- Updated AndroidX instrumentation test dependencies to current 1.6.x/1.2.x compatible versions
+- Added explicit `androidx.tracing:tracing:1.2.0` to fix the AndroidX test platform tracing method mismatch seen in device logs
+- Updated Navigation Compose from `2.7.0` to `2.7.7` to reduce lifecycle race exposure during UI navigation tests
+- Added debug-only `TestHostActivity` and a shared androidTest harness that mounts the real `MarkleafNavHost` with an in-memory Room database
+- Converted `AppIntegrationTest`, `ComprehensiveFeatureTest`, and `EditorScreenTest` away from production `MainActivity`/persistent DB state
+- Disabled animations for debug instrumentation runs
+
+Files changed:
+- app/build.gradle.kts
+- app/src/debug/AndroidManifest.xml
+- app/src/debug/java/com/markleaf/notes/TestHostActivity.kt
+- app/src/androidTest/java/com/markleaf/notes/ui/MarkleafTestHarness.kt
+- app/src/androidTest/java/com/markleaf/notes/ui/AppIntegrationTest.kt
+- app/src/androidTest/java/com/markleaf/notes/ui/ComprehensiveFeatureTest.kt
+- app/src/androidTest/java/com/markleaf/notes/ui/EditorScreenTest.kt
+- .agent/tasks.md
+- .agent/progress.md
+- .agent/decisions.md
+
+Build/test result:
+- `./gradlew.bat :app:assembleDebugAndroidTest` passed
+- `./gradlew.bat testDebugUnitTest` passed
+- `./gradlew.bat lintDebug` passed
+- `./gradlew.bat assembleDebug` passed and produced `app/build/outputs/apk/debug/app-debug.apk` (22,475,845 bytes)
+- `rg "android.permission.INTERNET" -n app/src` found no declarations
+- `./gradlew.bat :app:connectedDebugAndroidTest '-Pandroid.testInstrumentationRunnerArguments.class=com.markleaf.notes.ui.EditorScreenTest'` still failed on Lenovo TB320FC Android 15 because the Compose test host Activity is moved to background before Compose hierarchy registration
+- SM-S921N verification was not available because `adb connect 192.168.45.79:5555` timed out
+
+Remaining next task:
+- Resolve the TB320FC-specific Compose test host lifecycle issue before treating the full connected UI suite as green
+
+---
 ## 2026-05-02 - v1.1.15 Version Bump
 Selected task:
 - Publish the editor link toolbar clarification as the next GitHub release version

@@ -56,6 +56,12 @@
 
 ---
 
+## Phase 10 - Device UI Verification
+- [x] Refresh AndroidX test runtime and isolate Compose UI tests with an in-memory app harness
+- [ ] Resolve Lenovo TB320FC Compose test host lifecycle issue where the host Activity is backgrounded before Compose hierarchy registration
+
+---
+
 ## Phase 8 - Post v1.0.0 & Future (Backlog)
 - [x] Implement fixed Signing Keystore (Prevent Update Conflict)
 - [ ] Implement WebDAV sync (Optional)
@@ -85,4 +91,3 @@
 - [x] Improve backlinks with context snippets
 - [x] Improve export and backup status messages
 - [x] Add large dataset performance checks
-

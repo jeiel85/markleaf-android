@@ -7,6 +7,17 @@
 
 ## Confirmed Decisions
 
+### D044 - Compose UI Tests Use An Isolated Debug Test Host
+
+Device Compose UI tests should not depend on production `MainActivity` state or the persistent Room database.
+
+Implications:
+
+- UI test scenarios can mount the real `MarkleafNavHost` in a debug-only `TestHostActivity`.
+- Activity-based UI tests use an in-memory Room database per test so notes, tags, and trash state do not leak between cases.
+- AndroidX test runtime dependencies stay aligned with the tracing runtime used by the test runner.
+- Production release behavior remains unchanged because the test host exists only in the debug source set.
+
 ### D043 - Editor Toolbar Icons Must Explain Ambiguous Actions
 
 Ambiguous editor toolbar actions should combine distinct visual affordances with Material tooltips.

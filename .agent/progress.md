@@ -1,4 +1,23 @@
 ---
+## 2026-05-07 - Launch Smoke Workflow Script Parsing Fix
+Selected task:
+- Stabilize GitHub Actions launch-smoke execution by avoiding inline shell block parsing failures
+
+What was implemented:
+- Moved launch-smoke adb install/start logic into a dedicated script file at `.github/scripts/launch-smoke.sh`
+- Updated `.github/workflows/android-build.yml` to execute the script instead of an inline multi-line `for ... done` block
+- Preserved adb install retry + adb server restart behavior while removing the syntax-splitting failure mode seen in CI logs
+
+Files changed:
+- .github/workflows/android-build.yml
+- .github/scripts/launch-smoke.sh
+- .agent/progress.md
+
+Build/test result:
+- Local bash syntax check was not runnable in this Windows environment (`bash` not installed in PATH)
+- Validation delegated to GitHub Actions re-run after push
+
+---
 ## 2026-05-07 - v1.1.21 Submission Finalization
 Selected task:
 - Finalize Play Console submission release version and release history alignment

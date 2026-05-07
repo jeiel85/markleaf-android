@@ -1,4 +1,24 @@
 ---
+## 2026-05-07 - Play Store Target API Compliance
+Selected task:
+- Prepare Play Store submission baseline by meeting current target API policy and verifying signed release bundle output
+
+What was implemented:
+- Updated Android SDK targets from 34 to 35 (`compileSdk = 35`, `targetSdk = 35`)
+- Bumped app version to `1.1.20` / `versionCode = 50`
+- Added release notes entry for Play target API compliance in `CHANGELOG.md`
+- Recorded release-prep context in `HISTORY.md`
+
+Files changed:
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+
+Build/test result:
+- `./gradlew.bat clean bundleRelease '-Pmarkleaf.requireReleaseSigning=true'` passed
+- Signed AAB generated at `app/build/outputs/bundle/release/app-release.aab`
+
+---
 ## 2026-05-06 - v1.1.19 Release Monitoring
 Selected task:
 - Bump version and monitor GitHub release pipeline to successful completion

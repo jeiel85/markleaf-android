@@ -2,6 +2,12 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.1.20 - 플레이 스토어 API 레벨 대응 (Play Target API Compliance) - 2026-05-07
+
+### 수정
+- **Play 제출 기준 대응:** `compileSdk`와 `targetSdk`를 `35`로 상향해 2025-08-31 이후 Google Play target API 정책 기준을 충족하도록 맞췄습니다.
+- **릴리즈 버전 상향:** Play 제출용 빌드 계보를 유지하기 위해 `versionCode`를 `50`, `versionName`을 `1.1.20`으로 상향했습니다.
+
 ## v1.1.19 - 릴리즈 모니터링 버전업 (Release Monitoring Version Bump) - 2026-05-06
 
 ### 개선

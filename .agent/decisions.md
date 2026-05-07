@@ -7,6 +7,16 @@
 
 ## Confirmed Decisions
 
+### D045 - Play Distribution Baseline Targets API 35
+
+Markleaf Play Store distributions should target Android 15 (API level 35) or higher.
+
+Implications:
+
+- `compileSdk` and `targetSdk` are set to 35 for release submissions.
+- Version progression continues monotonically for Play upload compatibility.
+- Release validation includes signed AAB generation in addition to APK checks.
+
 ### D044 - Compose UI Tests Use An Isolated Debug Test Host
 
 Device Compose UI tests should not depend on production `MainActivity` state or the persistent Room database.

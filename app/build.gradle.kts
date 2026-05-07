@@ -54,14 +54,14 @@ if (requireReleaseSigning && !rootProject.file(releaseStoreFile!!).exists()) {
 
 android {
     namespace = "com.markleaf.notes"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.markleaf.notes"
         minSdk = 26
-        targetSdk = 34
-        versionCode = 49
-        versionName = "1.1.19"
+        targetSdk = 35
+        versionCode = 50
+        versionName = "1.1.20"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

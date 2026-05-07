@@ -1,3 +1,12 @@
+## 2026-05-07
+- Work: Play Store 출시 준비를 위한 target API 정책 대응 및 AAB 검증.
+- Changed files:
+  - app/build.gradle.kts (`compileSdk/targetSdk` 35, `versionCode` 50, `versionName` 1.1.20)
+  - CHANGELOG.md (v1.1.20 섹션 추가)
+- Context:
+  - 2025-08-31 이후 Google Play 신규/업데이트 제출 기준(API 35+)에 맞춰 배포 차단 가능성을 사전 제거.
+  - 로컬 signed release AAB 빌드로 제출 산출물 생성 경로를 재검증.
+
 ## 2026-05-06
 - Work: v1.1.19 버전업 및 GitHub Actions 성공 모니터링.
 - Changed files:

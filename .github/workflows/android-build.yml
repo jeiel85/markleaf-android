@@ -124,14 +124,14 @@ jobs:
       - name: Run tests
         run: ./gradlew test
 
-      - name: Build signed release APK
+      - name: Build signed release APK and AAB
         env:
           MARKLEAF_RELEASE_STORE_FILE: release/markleaf-release.p12
           MARKLEAF_RELEASE_STORE_PASSWORD: ${{ secrets.MARKLEAF_RELEASE_STORE_PASSWORD }}
           MARKLEAF_RELEASE_KEY_ALIAS: ${{ secrets.MARKLEAF_RELEASE_KEY_ALIAS }}
           MARKLEAF_RELEASE_KEY_PASSWORD: ${{ secrets.MARKLEAF_RELEASE_KEY_PASSWORD }}
           ORG_GRADLE_PROJECT_markleaf.requireReleaseSigning: "true"
-        run: ./gradlew :app:assembleRelease
+        run: ./gradlew :app:assembleRelease :app:bundleRelease
 
       - name: Verify release signing certificate
         run: |
@@ -160,6 +160,20 @@ jobs:
           cp "$APK" "markleaf-${GITHUB_REF_NAME}.apk"
           test -s "markleaf-${GITHUB_REF_NAME}.apk"
           ls -lh "markleaf-${GITHUB_REF_NAME}.apk"
+
+      - name: Verify signed release AAB exists
+        run: |
+          AAB="app/build/outputs/bundle/release/app-release.aab"
+          test -f "$AAB"
+          test -s "$AAB"
+          ls -lh "$AAB"
+
+      - name: Upload signed release AAB artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: markleaf-release-aab
+          path: app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
 
       - name: Prepare release notes
         run: |

@@ -1,4 +1,14 @@
 ## 2026-05-07
+- Work: Play Console 제출 마감본 버전업 및 릴리즈 파이프라인 정리.
+- Changed files:
+  - app/build.gradle.kts (versionCode 51, versionName 1.1.21)
+  - CHANGELOG.md (v1.1.21 섹션 추가)
+  - HISTORY.md (이 기록 추가)
+- Context:
+  - Play Console 제출 마감 단계에서 릴리즈 버전 단조 증가를 유지.
+  - 태그 릴리즈 CI signed AAB artifact 수집 경로 및 스토어 그래픽/정책 입력 준비를 완료.
+
+## 2026-05-07
 - Work: Play Store 출시 준비를 위한 target API 정책 대응 및 AAB 검증.
 - Changed files:
   - app/build.gradle.kts (`compileSdk/targetSdk` 35, `versionCode` 50, `versionName` 1.1.20)

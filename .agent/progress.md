@@ -1,4 +1,23 @@
 ---
+## 2026-05-07 - v1.1.21 Submission Finalization
+Selected task:
+- Finalize Play Console submission release version and release history alignment
+
+What was implemented:
+- Bumped app version to `1.1.21` / `versionCode = 51`
+- Added `v1.1.21` release section to `CHANGELOG.md`
+- Recorded submission-finalization context in `HISTORY.md`
+
+Files changed:
+- app/build.gradle.kts
+- CHANGELOG.md
+- HISTORY.md
+- .agent/progress.md
+
+Build/test result:
+- Version/documentation alignment change; release build validation performed in prior loop
+
+---
 ## 2026-05-07 - Play Store Target API Compliance
 Selected task:
 - Prepare Play Store submission baseline by meeting current target API policy and verifying signed release bundle output

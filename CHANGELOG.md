@@ -2,6 +2,14 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.1.21 - 플레이 콘솔 제출 마감 정리 (Play Console Submission Finalization) - 2026-05-07
+
+### 개선
+- **릴리즈 버전 상향:** 최종 제출 마감본으로 `versionCode`를 `51`, `versionName`을 `1.1.21`로 상향했습니다.
+- **릴리즈 파이프라인 보강:** 태그 릴리즈 CI에서 signed AAB artifact(`markleaf-release-aab`)를 수집할 수 있도록 워크플로우를 정리했습니다.
+- **스토어 등록정보 준비:** Play Console 제출용 아이콘/피처 그래픽 리소스를 추가했습니다.
+- **이슈 가독성 정리:** 깨진 인코딩으로 읽기 어려웠던 GitHub 이슈 제목/본문을 정리했습니다.
+
 ## v1.1.20 - 플레이 스토어 API 레벨 대응 (Play Target API Compliance) - 2026-05-07
 
 ### 수정

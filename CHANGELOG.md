@@ -2,6 +2,19 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.4.0 - 위키링크 부활 (Wikilinks Restored) - 2026-05-08
+
+### 새로운 기능 (v1.2.0 결정 의식적 reversal)
+- **`[[Title]]` 위키링크 부활:** 본문에 `[[다른 노트 제목]]` 을 입력하면 미리보기에서 클릭 가능한 링크로 렌더됩니다 (primary 색 + 밑줄). 클릭하면 해당 제목의 노트로 이동, 없으면 새 노트가 자동 생성됩니다 (Bear/Obsidian 동일 컨벤션).
+- **Backlinks panel:** 미리보기 모드 하단에 *이 노트를 참조한 다른 노트* 섹션이 자동 표시됩니다. 다른 노트가 `[[현재 노트 제목]]` 으로 링크하면 그 노트가 backlinks 목록에 나타나고, 클릭해서 이동 가능.
+- **저장 시 자동 인덱싱:** 노트 1초 디바운스 자동 저장 안에 위키링크 추출이 추가되어, 새 링크/제거된 링크가 즉시 backlinks 그래프에 반영됨. 태그 인덱싱과 동일 패턴.
+
+### 데이터
+- **DB 스키마 v9 → v10:** `note_links` 테이블 재도입. `(sourceNoteId, targetTitle, normalizedTitle, position)` PK + `notes` cascade. v1.x의 동일 이름 테이블이 v9 마이그레이션에서 dropped됐었기 때문에 fresh 생성. 기존 노트는 다음 자동 저장 시 인덱싱됨.
+
+### 이력 정합성
+v1.2.0에서 *명시적으로 제거*된 기능을 사용자의 의식적 결정 (post-MVP, "확장에 가깝다") 으로 부활. 기존 제거 사유였던 "두 번째 두뇌 스타일은 가치관 어긋남" 논거는 MVP-era에 한정됐음을 메모리(`feedback_lightweight_bias`)에 기록.
+
 ## v2.3.0 - 공개 마크다운 파서 (CommonMark library swap) - 2026-05-08
 
 ### 내부 변경 (사용자 화면 영향 미세)

@@ -3,6 +3,7 @@ package com.markleaf.notes.feature.editor
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +43,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -93,6 +95,7 @@ import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
 import com.markleaf.notes.core.markdown.preview.MarkdownPreviewList
 import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.data.local.AppDatabase
+import com.markleaf.notes.data.repository.LocalNoteLinkRepository
 import com.markleaf.notes.data.repository.LocalNoteRepository
 import com.markleaf.notes.data.repository.LocalTagRepository
 import com.markleaf.notes.data.settings.AppSettings
@@ -114,12 +117,14 @@ import kotlin.math.max
 @Composable
 fun EditorScreen(
     noteId: String? = null,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigateToNote: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
     val db = remember { AppDatabase.getInstance(context) }
     val repo = remember { LocalNoteRepository(db) }
     val tagRepo = remember { LocalTagRepository(db) }
+    val linkRepo = remember { LocalNoteLinkRepository(db) }
     val settingsRepository = remember { AppSettingsRepository(context.applicationContext) }
     val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
     val coroutineScope = rememberCoroutineScope()
@@ -193,6 +198,7 @@ fun EditorScreen(
                 )
                 repo.updateNote(updatedNote)
                 tagRepo.reindexTagsForNote(noteId, content)
+                linkRepo.reindexLinksForNote(noteId, content)
                 appSettings.syncFolderUri?.let { uriString ->
                     val uri = runCatching { android.net.Uri.parse(uriString) }.getOrNull()
                     if (uri != null) {
@@ -340,10 +346,48 @@ fun EditorScreen(
     ) { paddingValues ->
         if (isPreviewMode) {
             val previewLines = SimpleMarkdownPreview.parse(editorState.text)
-            MarkdownPreviewList(
-                lines = previewLines,
-                modifier = Modifier.padding(paddingValues)
-            )
+            val currentTitle = remember(editorState.text) {
+                TitleExtractor.extractTitle(editorState.text)
+            }
+            val backlinks by linkRepo.observeBacklinks(currentTitle, noteId.orEmpty())
+                .collectAsState(initial = emptyList())
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                MarkdownPreviewList(
+                    lines = previewLines,
+                    modifier = Modifier.weight(1f, fill = false),
+                    onWikilinkClick = { title ->
+                        coroutineScope.launch {
+                            val existing = db.noteDao().getNoteByTitle(title)
+                            val targetId = if (existing != null) {
+                                existing.id
+                            } else {
+                                val seed = "# $title\n\n"
+                                val newNote = com.markleaf.notes.domain.model.Note(
+                                    id = java.util.UUID.randomUUID().toString(),
+                                    title = title,
+                                    contentMarkdown = seed,
+                                    excerpt = "",
+                                    createdAt = java.time.Instant.now(),
+                                    updatedAt = java.time.Instant.now()
+                                )
+                                repo.createNote(newNote)
+                                newNote.id
+                            }
+                            onNavigateToNote(targetId)
+                        }
+                    }
+                )
+                if (backlinks.isNotEmpty()) {
+                    BacklinksPanel(
+                        backlinks = backlinks,
+                        onClick = { id -> onNavigateToNote(id) }
+                    )
+                }
+            }
         } else {
             Column(Modifier.fillMaxSize().padding(paddingValues).padding(16.dp)) {
                 if (isFindOpen && !isFocusMode) {
@@ -597,6 +641,39 @@ private fun EditorStatsRow(stats: EditorStats) {
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+    }
+}
+
+@Composable
+private fun BacklinksPanel(
+    backlinks: List<com.markleaf.notes.domain.model.Note>,
+    onClick: (String) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = stringResource(R.string.backlinks_section_title),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.SemiBold
+        )
+        Spacer(Modifier.height(6.dp))
+        backlinks.forEach { note ->
+            Text(
+                text = note.title.ifEmpty { stringResource(R.string.untitled) },
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+                    .clickable { onClick(note.id) }
+            )
+        }
     }
 }
 

@@ -13,6 +13,7 @@
     <string name="archive_empty_hint">메인 목록에서 노트를 길게 눌러 "보관"을 선택하면 이곳으로 이동합니다.</string>
     <string name="settings">설정</string>
     <string name="more_options">추가 옵션</string>
+    <string name="backlinks_section_title">이 노트를 참조한 노트</string>
     <string name="add_note">노트 추가</string>
     <string name="no_notes_yet">아직 노트가 없습니다</string>
     <string name="create_first_note_hint">+ 버튼을 눌러 첫 노트를 만들어보세요</string>

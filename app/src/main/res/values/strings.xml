@@ -13,6 +13,7 @@
     <string name="archive_empty_hint">Long-press a note in the main list and choose Archive to move it here.</string>
     <string name="settings">Settings</string>
     <string name="more_options">More options</string>
+    <string name="backlinks_section_title">Linked from</string>
     <string name="add_note">Add Note</string>
     <string name="no_notes_yet">No notes yet</string>
     <string name="create_first_note_hint">Tap + to create your first note</string>

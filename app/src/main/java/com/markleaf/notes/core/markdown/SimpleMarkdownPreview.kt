@@ -25,7 +25,8 @@ enum class PreviewInlineType {
     BOLD_ITALIC,
     STRIKETHROUGH,
     INLINE_CODE,
-    FOOTNOTE_REF
+    FOOTNOTE_REF,
+    WIKILINK
 }
 
 enum class CalloutKind {

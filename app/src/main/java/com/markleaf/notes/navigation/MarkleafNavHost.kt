@@ -157,7 +157,8 @@ fun MarkleafNavHost(
                             ) {
                                 EditorScreen(
                                     noteId = selectedNoteId,
-                                    onBack = { selectedNoteId = null }
+                                    onBack = { selectedNoteId = null },
+                                    onNavigateToNote = { id -> selectedNoteId = id }
                                 )
                             }
                         } else {
@@ -200,7 +201,8 @@ fun MarkleafNavHost(
             val noteId = it.arguments?.getString("noteId")
             EditorScreen(
                 noteId = noteId,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onNavigateToNote = { id -> navController.navigate(NavRoutes.editorRoute(id)) }
             )
         }
         composable(NavRoutes.TAGS) {

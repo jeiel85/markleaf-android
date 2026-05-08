@@ -30,6 +30,7 @@ import org.commonmark.node.StrongEmphasis
 import org.commonmark.node.Text
 import org.commonmark.node.ThematicBreak
 import org.commonmark.parser.Parser
+import com.markleaf.notes.util.WikilinkExtractor
 
 /**
  * Adapts the commonmark-java AST to Markleaf's [PreviewLine] / [PreviewInlineSegment]
@@ -294,7 +295,7 @@ internal object CommonMarkPreviewAdapter {
         var child: Node? = node.firstChild
         while (child != null) {
             when (child) {
-                is Text -> out += PreviewInlineSegment(child.literal, default)
+                is Text -> appendTextSplittingWikilinks(child.literal, default, out)
                 is StrongEmphasis -> appendInlineSegments(child, out, mergeBold(default))
                 is Emphasis -> appendInlineSegments(child, out, mergeItalic(default))
                 is Strikethrough -> appendInlineSegments(child, out, PreviewInlineType.STRIKETHROUGH)
@@ -307,6 +308,36 @@ internal object CommonMarkPreviewAdapter {
                 else -> appendInlineSegments(child, out, default)
             }
             child = child.next
+        }
+    }
+
+    /**
+     * commonmark-java emits raw text nodes that don't know about Bear/Obsidian
+     * `[[Title]]` syntax. We split each Text node on the wikilink regex and
+     * emit alternating TEXT and WIKILINK segments. The WIKILINK segment's
+     * `text` is the link target (e.g. `Title`), which the renderer can use
+     * both as label and click handler input.
+     */
+    private fun appendTextSplittingWikilinks(
+        literal: String,
+        default: PreviewInlineType,
+        out: MutableList<PreviewInlineSegment>
+    ) {
+        if (!WikilinkExtractor.hasAny(literal)) {
+            out += PreviewInlineSegment(literal, default)
+            return
+        }
+        val regex = Regex("""\[\[([^\[\]\n]+?)]]""")
+        var cursor = 0
+        regex.findAll(literal).forEach { match ->
+            if (match.range.first > cursor) {
+                out += PreviewInlineSegment(literal.substring(cursor, match.range.first), default)
+            }
+            out += PreviewInlineSegment(match.groupValues[1].trim(), PreviewInlineType.WIKILINK)
+            cursor = match.range.last + 1
+        }
+        if (cursor < literal.length) {
+            out += PreviewInlineSegment(literal.substring(cursor), default)
         }
     }
 

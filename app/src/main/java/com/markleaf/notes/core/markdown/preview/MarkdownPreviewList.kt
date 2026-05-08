@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -46,25 +47,30 @@ import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
  * Pulled out of [com.markleaf.notes.feature.editor.EditorScreen] so the same
  * rendering can be exercised by snapshot tests independently of the editor
  * scaffolding.
+ *
+ * @param onWikilinkClick called when the user taps a `[[Title]]` segment.
+ *   The argument is the target text inside the brackets (already trimmed).
+ *   Default is a no-op so existing snapshot tests don't need to wire navigation.
  */
 @Composable
 fun MarkdownPreviewList(
     lines: List<PreviewLine>,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp)
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+    onWikilinkClick: (String) -> Unit = {}
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = contentPadding
     ) {
         items(lines) { line ->
-            PreviewLineRenderer(line)
+            PreviewLineRenderer(line, onWikilinkClick = onWikilinkClick)
         }
     }
 }
 
 @Composable
-fun PreviewLineRenderer(line: PreviewLine) {
+fun PreviewLineRenderer(line: PreviewLine, onWikilinkClick: (String) -> Unit = {}) {
     when (line.type) {
         PreviewLineType.H1 -> Text(
             text = line.text,
@@ -92,14 +98,14 @@ fun PreviewLineRenderer(line: PreviewLine) {
         )
         PreviewLineType.CHECKBOX_TODO -> Text("☐ ${line.text}", style = MaterialTheme.typography.bodyLarge)
         PreviewLineType.CODE_BLOCK -> MarkdownCodeBlock(line.text, line.extra)
-        PreviewLineType.BODY -> InlineMarkdownText(line)
+        PreviewLineType.BODY -> InlineMarkdownText(line, onWikilinkClick = onWikilinkClick)
         PreviewLineType.BLOCKQUOTE -> {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)
             ) {
-                InlineMarkdownText(line)
+                InlineMarkdownText(line, onWikilinkClick = onWikilinkClick)
                 HorizontalDivider(
                     modifier = Modifier.padding(top = 4.dp),
                     thickness = 2.dp,
@@ -123,7 +129,7 @@ fun PreviewLineRenderer(line: PreviewLine) {
 }
 
 @Composable
-internal fun InlineMarkdownText(line: PreviewLine) {
+internal fun InlineMarkdownText(line: PreviewLine, onWikilinkClick: (String) -> Unit = {}) {
     val annotated = buildAnnotatedString {
         line.segments.forEach { segment ->
             when (segment.type) {
@@ -161,6 +167,18 @@ internal fun InlineMarkdownText(line: PreviewLine) {
                 ) {
                     append(segment.text)
                 }
+                PreviewInlineType.WIKILINK -> {
+                    pushStringAnnotation(tag = WIKILINK_TAG, annotation = segment.text)
+                    withStyle(
+                        SpanStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            textDecoration = TextDecoration.Underline
+                        )
+                    ) {
+                        append(segment.text)
+                    }
+                    pop()
+                }
             }
         }
     }
@@ -170,9 +188,14 @@ internal fun InlineMarkdownText(line: PreviewLine) {
             color = MaterialTheme.colorScheme.onBackground
         ),
         modifier = Modifier.padding(vertical = 2.dp),
-        onClick = { /* no inline click targets in simplified preview */ }
+        onClick = { offset ->
+            annotated.getStringAnnotations(WIKILINK_TAG, offset, offset).firstOrNull()
+                ?.let { onWikilinkClick(it.item) }
+        }
     )
 }
+
+private const val WIKILINK_TAG = "wikilink"
 
 @Composable
 private fun CalloutBox(line: PreviewLine) {

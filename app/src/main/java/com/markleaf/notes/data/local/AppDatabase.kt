@@ -7,9 +7,11 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.markleaf.notes.data.local.dao.NoteDao
+import com.markleaf.notes.data.local.dao.NoteLinkDao
 import com.markleaf.notes.data.local.dao.TagDao
 import com.markleaf.notes.data.local.entity.NoteEntity
 import com.markleaf.notes.data.local.entity.NoteFtsEntity
+import com.markleaf.notes.data.local.entity.NoteLinkEntity
 import com.markleaf.notes.data.local.entity.NoteTagCrossRef
 import com.markleaf.notes.data.local.entity.TagEntity
 
@@ -18,14 +20,16 @@ import com.markleaf.notes.data.local.entity.TagEntity
         NoteEntity::class,
         TagEntity::class,
         NoteTagCrossRef::class,
-        NoteFtsEntity::class
+        NoteFtsEntity::class,
+        NoteLinkEntity::class
     ],
-    version = 9,
+    version = 10,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun noteDao(): NoteDao
     abstract fun tagDao(): TagDao
+    abstract fun noteLinkDao(): NoteLinkDao
 
     companion object {
         @Volatile
@@ -38,7 +42,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "markleaf.db"
                 )
-                .addMigrations(MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9)
+                .addMigrations(MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10)
                 .build().also { INSTANCE = it }
             }
         }
@@ -115,6 +119,29 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("DROP TABLE IF EXISTS `note_snapshots`")
                 db.execSQL("DROP TABLE IF EXISTS `note_links`")
                 db.execSQL("DROP TABLE IF EXISTS `attachments`")
+            }
+        }
+
+        // v9 → v10: re-introduce `note_links` for v2.4 wikilinks revival.
+        // Schema is fresh (the v9 DROP took the v1.x version with it), and
+        // we point sourceNoteId at the `notes` table with CASCADE so a note
+        // delete cleanly clears its outgoing links.
+        private val MIGRATION_9_10 = object : Migration(9, 10) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `note_links` (
+                        `sourceNoteId` TEXT NOT NULL,
+                        `targetTitle` TEXT NOT NULL,
+                        `normalizedTitle` TEXT NOT NULL,
+                        `position` INTEGER NOT NULL,
+                        PRIMARY KEY(`sourceNoteId`, `position`),
+                        FOREIGN KEY(`sourceNoteId`) REFERENCES `notes`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_note_links_sourceNoteId` ON `note_links` (`sourceNoteId`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_note_links_normalizedTitle` ON `note_links` (`normalizedTitle`)")
             }
         }
     }

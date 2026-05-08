@@ -1,3 +1,28 @@
+## 2026-05-08 (밤) - v2.1.0
+- Work: 가치관 점검에서 사용자가 "결국 다중 기기 지원은 맞고 가치관 뒤집기보다 확장에 가까움"이라 말한 직후 합의된 v1.9 → v2.0 → v2.1 3단계의 마지막. CloudKit식 vendor lock 대신 SAF 폴더 미러 모델(Option D).
+- Changed files:
+  - data/settings/AppSettings.kt — `syncFolderUri: String?`, `syncLastSyncedAt: Long?` 필드 추가
+  - data/settings/AppSettingsRepository.kt — `SYNC_FOLDER_URI`(stringPref) + `SYNC_LAST_SYNCED_AT`(longPref) 키, `setSyncFolderUri(uri)` / `setSyncLastSyncedAt(epochMillis)` setter. 폴더 끌 때 `lastSyncedAt`도 함께 정리.
+  - data/sync/SyncFrontmatter.kt (NEW, ~110 LOC) — YAML frontmatter encoder/decoder. 표준 키(`markleaf_id`/`created_at`/`updated_at`/`pinned`/`archived`) + 알 수 없는 키들의 opaque 보존(round-trip 친화). 자체 YAML 파서 없이 라인 단위 `key: value` 처리, ISO instant 포맷.
+  - data/sync/NoteFolderMirror.kt (NEW, ~170 LOC) — SAF DocumentFile 기반 read/write. `writeNote(context, uri, note)` (idempotent, id-marker 기반 파일 매칭) + `importChanges(context, uri, existing, applyUpdate, applyCreate)` (수동 reconcile, 새 파일은 신규 노트로 import, 기존은 file 타임스탬프가 더 새로울 때만 업데이트). `ImportResult(updated, created, skipped, errors)` 반환.
+  - feature/editor/EditorScreen.kt — 기존 1초 디바운스 자동 저장 LaunchedEffect 안에 `appSettings.syncFolderUri` 가 있을 때 `withContext(IO) { NoteFolderMirror.writeNote(...) }` 호출 추가. `Dispatchers.IO`/`withContext` import 추가.
+  - feature/settings/SettingsScreen.kt — `syncFolderLauncher` (`OpenDocumentTree` SAF launcher, persistable URI permission take + 첫 미러링 seed) 추가. 새 `SyncSection` 컴포저블 — 미선택 상태 / 선택된 상태 둘 다 명시적 카피. "지금 동기화" 버튼은 DB와 폴더 reconcile 후 결과 Toast(`updated/created/skipped`). `humanReadableTreePath()` 헬퍼로 SAF tree URI를 사람 친화 경로로 표시. `formatRelative()` 헬퍼로 마지막 sync 시각 표시.
+  - res/values{,-ko,-es}/strings.xml — sync_title, sync_explainer, sync_recommended_locations, sync_status_unset/folder_format/last_synced_format/last_synced_never, sync_behavior_summary, sync_pick_folder, sync_change_folder, sync_now, sync_stop, sync_seeded_format, sync_done_format, sync_stopped (총 14키 × 3언어). ResourceParityTest 통과.
+  - test/data/sync/SyncFrontmatterTest.kt (NEW) — 8개 단위 테스트: encode shape, full round-trip, frontmatter 없는 파일, 닫지 않은 frontmatter, 알 수 없는 키 보존, quoted values, pinned 키 부재 vs explicit false 등.
+  - app/build.gradle.kts (versionCode 64, versionName 2.1.0)
+  - CHANGELOG.md, HISTORY.md, .agent/tasks.md
+- Context:
+  - 사용자 명시 요청: "이 기능에 대한 명확한 설명이 필요" → Settings UI에서 *동작 원리*를 3-4줄로 풀어서 설명, 권장 폴더 위치를 구체적으로 보여주고, 동작 4줄(자동 저장 / 지금 동기화 / 충돌 / 삭제 미동기화)을 status row 아래 항상 노출.
+  - 검토에서 의도적으로 좁힌 스코프: (a) 노트 *삭제* 동기화는 v2.1.0에서 제외 — 가장 위험한 작업, 잘못되면 데이터 손실 시나리오. (b) 앱 시작 시 자동 reconcile 미구현 — 백그라운드 silent overwrite 회피. 사용자는 "지금 동기화" 명시적 트리거. 두 결정 다 §2.6 안전 기본값에 정렬.
+  - File-id 매칭: 파일명에 `id<id8자>` suffix를 박아 다음 save 때 같은 파일을 빠르게 찾음 (frontmatter 전부 파싱하는 O(n²) 회피). slug 부분이 사용자 친화 + suffix가 머신 친화 = `hello-world-idabcdef12.md`.
+  - SAF persistent URI permission: `takePersistableUriPermission(uri, READ|WRITE)`. 이게 없으면 앱 재시작 시 URI가 만료됨 — v1.6 export-all은 일회성이라 필요 없었지만 v2.1은 영구 필요.
+  - 충돌 슬랙 2초: 일부 클라우드 sync 앱이 파일 타임스탬프를 1초 단위로 반올림하는 경우 false-positive "file newer" 트리거 회피.
+- Verification:
+  - `./gradlew assembleDebug` 통과
+  - `./gradlew test` 통과 — SyncFrontmatterTest 8개 그린, ResourceParityTest 그린, 기존 단위 테스트 모두 그린
+  - `./gradlew assembleDebugAndroidTest` 통과
+  - `./gradlew verifyRoborazziDebug` 통과 (UI 변경이 settings에 국한되어 기존 14+4 골든 영향 없음)
+
 ## 2026-05-08 (밤) - v2.0.0
 - Work: Bear-급 인라인 rich rendering. 사용자가 "Bear의 핵심 체감 차이는 라이브 프리뷰" 라고 명시한 갈증을 직접 응답. 라이브러리 교체는 §2.9 정신에 맞춰 보류.
 - Changed files:

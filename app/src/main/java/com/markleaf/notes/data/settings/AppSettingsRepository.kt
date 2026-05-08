@@ -3,6 +3,7 @@ package com.markleaf.notes.data.settings
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -21,7 +22,9 @@ class AppSettingsRepository(
             lineWidth = preferences[LINE_WIDTH]
                 ?.let { value -> enumValueOrDefault(value, EditorLineWidth.COMFORTABLE) }
                 ?: EditorLineWidth.COMFORTABLE,
-            screenshotProtection = preferences[SCREENSHOT_PROTECTION] ?: false
+            screenshotProtection = preferences[SCREENSHOT_PROTECTION] ?: false,
+            syncFolderUri = preferences[SYNC_FOLDER_URI],
+            syncLastSyncedAt = preferences[SYNC_LAST_SYNCED_AT]
         )
     }
 
@@ -43,6 +46,23 @@ class AppSettingsRepository(
         }
     }
 
+    suspend fun setSyncFolderUri(uri: String?) {
+        context.markleafSettingsDataStore.edit { preferences ->
+            if (uri.isNullOrBlank()) {
+                preferences.remove(SYNC_FOLDER_URI)
+                preferences.remove(SYNC_LAST_SYNCED_AT)
+            } else {
+                preferences[SYNC_FOLDER_URI] = uri
+            }
+        }
+    }
+
+    suspend fun setSyncLastSyncedAt(epochMillis: Long) {
+        context.markleafSettingsDataStore.edit { preferences ->
+            preferences[SYNC_LAST_SYNCED_AT] = epochMillis
+        }
+    }
+
     private fun <T : Enum<T>> enumValueOrDefault(value: String, default: T): T {
         return runCatching {
             java.lang.Enum.valueOf(default.declaringJavaClass, value)
@@ -53,5 +73,7 @@ class AppSettingsRepository(
         val MARKDOWN_SYNTAX_VISIBILITY = stringPreferencesKey("markdown_syntax_visibility")
         val LINE_WIDTH = stringPreferencesKey("line_width")
         val SCREENSHOT_PROTECTION = booleanPreferencesKey("screenshot_protection")
+        val SYNC_FOLDER_URI = stringPreferencesKey("sync_folder_uri")
+        val SYNC_LAST_SYNCED_AT = longPreferencesKey("sync_last_synced_at")
     }
 }

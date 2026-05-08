@@ -2,6 +2,27 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.1.0 - 다중 기기 동기화 (Folder Mirror Sync) - 2026-05-08
+
+### 새로운 기능
+- **다중 기기 동기화 — 우리 서버 0, INTERNET 권한 0:** 사용자가 SAF로 폴더 한 곳을 지정하면, 노트가 저장될 때마다 약 1초 후 그 폴더에 `.md` 파일로 자동 미러링됩니다. 그 폴더가 Dropbox / Drive / Syncthing / OneDrive / NAS 마운트 등으로 동기화되고 있다면, *Markleaf 자체는 네트워크 호출 없이* 다중 기기 작동. CloudKit 같은 잠금형 백엔드 대신 사용자가 자기 데이터의 위치를 정함.
+- **노트 ↔ 파일 라운드트립 가능한 frontmatter:** 각 `.md`에 `markleaf_id`, `created_at`, `updated_at`, `pinned`, `archived` 가 표준 YAML frontmatter로 저장됩니다. Obsidian / VSCode / GitHub 등에서 그대로 열림. 외부 도구가 추가한 임의 키(`obsidian_tag` 등)는 round-trip 시 그대로 보존.
+- **수동 "지금 동기화" 버튼:** 다른 기기에서 수정된 `.md` 변경분을 가져와 DB에 반영합니다. 충돌 시 *최근 수정본 우선* (file `lastModified` vs `updatedAt`, 2초 슬랙).
+
+### 의도된 안전 마진
+- **삭제는 동기화하지 않습니다.** v2.1.0은 *생성·수정만* 양방향 sync. DB→파일 자동 삭제, 파일→DB 자동 삭제는 가장 위험한 작업이라 보류 (가장 나쁜 시나리오 = "다른 기기에 안 지운 사본이 남음" — 회복 가능). 휴지통은 각 기기에서 따로 관리.
+- **앱 시작 시 자동 reconcile 없음.** 다른 기기 변경분을 가져오는 건 사용자가 명시적으로 "지금 동기화" 버튼을 눌러야 작동. 백그라운드에서 silent overwrite 위험 0.
+- **충돌은 최근 우선.** 두 기기 동시 수정 시 가장 최근 `updated_at`이 win. 양 버전 보존 UI는 v2.1.x로 보류.
+
+### 설정 화면
+- 새 "다중 기기 동기화 (폴더 미러)" 섹션 — *동작 원리* 가 명시적으로 설명됨 (3-4줄 카피 + 권장 폴더 위치 예시 + 행동 요약 4줄). 사용자가 세팅 후 어떻게 작동하는지 명확하게 알 수 있도록 의도적으로 carrying.
+- 폴더 선택 / 변경 / 끄기 / 지금 동기화 4개 액션. persistent URI permission 자동 처리.
+
+### §2 가치관 정렬
+- §2.2 *로컬 우선* — INTERNET 권한 추가 0, 우리 서버 0. *spirit 유지*: 사용자가 데이터 위치를 직접 정하고, sync 인프라는 사용자가 신뢰하는 외부 도구가 담당.
+- §2.3 *Plain Text/Markdown* — 노트가 표준 `.md` 파일로 사용자 파일시스템에 그대로. lock-in 0.
+- §2.6 *안전 기본값* — 자동 삭제 sync 의도적 회피, last-write-wins 충돌 규칙 명시.
+
 ## v2.0.0 - 라이브 프리뷰 Bear-급 (Inline Rich Rendering) - 2026-05-08
 
 ### 새로운 기능

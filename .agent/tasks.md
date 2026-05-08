@@ -123,6 +123,24 @@ SimpleMarkdownPreview.kt LOC: 178 → ~210 (한계 ~300 안에 안전).
 
 ---
 
+## Phase 20 - SAF Folder Mirror Sync (Done, 2026-05-08, v2.1.0)
+
+목적: §2.2 로컬 우선 정신 유지하면서 다중 기기 지원. 우리 서버 0, INTERNET 권한 0. 사용자가 폴더 위치를 정하면 OS/타사 앱이 sync를 담당.
+
+- [x] AppSettings에 `syncFolderUri` + `syncLastSyncedAt` 추가, DataStore round-trip
+- [x] `SyncFrontmatter` — `.md` 헤더 encode/decode (markleaf_id, ISO timestamps, pinned, archived, opaque unknown keys 보존)
+- [x] `NoteFolderMirror.writeNote()` — SAF DocumentFile, idempotent, id-marker 파일 매칭
+- [x] `NoteFolderMirror.importChanges()` — 수동 reconcile, 충돌 시 file lastModified vs updatedAt 비교(2초 슬랙)
+- [x] EditorScreen 자동 저장 직후 폴더 미러 (디바운스 1초)
+- [x] Settings *Sync* 섹션 — 동작 원리 명시, 권장 폴더 위치, 폴더 선택/변경/끄기/지금 동기화 4 액션
+- [x] Strings 3언어 동기 (14키), Roborazzi 골든 영향 없음
+- [x] 8개 frontmatter codec 단위 테스트
+
+의도적으로 v2.1.0에서 빼고 v2.1.x로 미룬 것:
+- 노트 *삭제* 동기화 (DB→파일 / 파일→DB) — 데이터 손실 위험 가장 큼
+- 앱 시작 시 자동 reconcile — silent overwrite 회피
+- 충돌 시 양 버전 보존 UI
+
 ## Phase 19 - Inline Rich Rendering (Done, 2026-05-08, v2.0.0)
 
 목적: Bear의 핵심 체감 차이(헤딩이 입력 즉시 *진짜로* 커지고, 굵게가 진짜로 굵어지는 라이브 프리뷰)를 Compose VisualTransformation으로 구현. 가치관 점검에서 사용자가 명시한 갈증의 직접 응답.

@@ -108,6 +108,22 @@
     <string name="export_all_notes">Exportar todas las notas…</string>
     <string name="export_all_notes_description">Elige una carpeta y Markleaf guarda cada nota como un archivo .md independiente. Las notas en la papelera se omiten.</string>
     <string name="export_all_done_format">%1$d notas exportadas.</string>
+
+    <string name="sync_title">Sincronizacion entre dispositivos (carpeta espejo)</string>
+    <string name="sync_explainer">Markleaf nunca se conecta a internet por si mismo. En su lugar, tu eliges una carpeta y Markleaf guarda cada nota como archivo .md ahi. Si esa carpeta la sincroniza otra app — Dropbox, Drive, Syncthing, OneDrive, un NAS — tus notas siguen a tus otros dispositivos.</string>
+    <string name="sync_recommended_locations">Lugares recomendados:\n· /Almacenamiento interno/Dropbox/Markleaf\n· /Almacenamiento interno/Drive/Markleaf\n· /Almacenamiento interno/Sync/Markleaf  (Syncthing)</string>
+    <string name="sync_status_unset">Ninguna carpeta seleccionada.</string>
+    <string name="sync_status_folder_format">Carpeta: %1$s</string>
+    <string name="sync_status_last_synced_format">Ultima sincronizacion: %1$s</string>
+    <string name="sync_status_last_synced_never">Ultima sincronizacion: nunca</string>
+    <string name="sync_behavior_summary">· Guarda en la carpeta ~1 segundo despues de cada edicion.\n· "Sincronizar ahora" trae los cambios de otros dispositivos.\n· Conflictos: gana la edicion mas reciente.\n· Los borrados no se sincronizan — gestiona la papelera en cada dispositivo.</string>
+    <string name="sync_pick_folder">Elegir carpeta</string>
+    <string name="sync_change_folder">Cambiar carpeta</string>
+    <string name="sync_now">Sincronizar ahora</string>
+    <string name="sync_stop">Desactivar sincronizacion</string>
+    <string name="sync_seeded_format">%1$d notas reflejadas en la carpeta.</string>
+    <string name="sync_done_format">Sincronizado — %1$d actualizadas, %2$d nuevas, %3$d sin cambios.</string>
+    <string name="sync_stopped">Sincronizacion desactivada.</string>
     <string name="screenshot_protection">Bloquear capturas y vista previa de Recientes</string>
     <string name="screenshot_protection_description">Oculta el contenido de las notas en capturas de pantalla y en la vista de aplicaciones recientes. Reabre el editor para aplicar el cambio.</string>
     <string name="settings_app">Aplicacion</string>

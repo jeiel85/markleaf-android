@@ -3,7 +3,9 @@ package com.markleaf.notes.data.settings
 data class AppSettings(
     val markdownSyntaxVisibility: MarkdownSyntaxVisibility = MarkdownSyntaxVisibility.SHOW,
     val lineWidth: EditorLineWidth = EditorLineWidth.COMFORTABLE,
-    val screenshotProtection: Boolean = false
+    val screenshotProtection: Boolean = false,
+    val syncFolderUri: String? = null,
+    val syncLastSyncedAt: Long? = null
 )
 
 enum class MarkdownSyntaxVisibility {

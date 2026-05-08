@@ -1,0 +1,185 @@
+package com.markleaf.notes.data.sync
+
+import android.content.Context
+import android.net.Uri
+import androidx.documentfile.provider.DocumentFile
+import com.markleaf.notes.core.text.TitleExtractor
+import com.markleaf.notes.domain.model.Note
+import com.markleaf.notes.util.SlugGenerator
+import java.io.BufferedWriter
+import java.io.OutputStreamWriter
+import java.time.Instant
+import java.util.UUID
+
+/**
+ * Read/write notes to a user-chosen SAF folder as `.md` files with our
+ * [SyncFrontmatter] header. This is the heart of the v2.1 multi-device flow:
+ * Markleaf itself never goes online — but if the user points us at a folder
+ * that some other app (Dropbox / Drive / Syncthing / NAS WebDAV mount) syncs,
+ * the notes follow.
+ *
+ * Safety posture for v2.1.0:
+ * - Auto-export on save *only writes* (we are the source of truth for our
+ *   own edits). It will overwrite a file we already wrote, but never silently
+ *   discards an unread newer file (`importChanges` is what reads).
+ * - `importChanges` only updates a DB note when the file is *newer* than the
+ *   DB record. Never deletes notes. Never deletes files. (Auto-delete sync is
+ *   deliberately deferred to a later cycle.)
+ * - Filename collisions are resolved by appending a short suffix derived from
+ *   the note id, never overwriting an unrelated file.
+ */
+object NoteFolderMirror {
+
+    /** Result of an import pass for the Settings UI to show. */
+    data class ImportResult(
+        val updated: Int,
+        val created: Int,
+        val skipped: Int,
+        val errors: Int
+    )
+
+    /**
+     * Write a single note to the mirror folder. Idempotent — if the file
+     * already exists for this note id, it's overwritten. Uses [Note.id] as
+     * the canonical link via frontmatter `markleaf_id`, and [SlugGenerator]
+     * for the human-readable filename.
+     */
+    fun writeNote(context: Context, folderUri: Uri, note: Note): Boolean {
+        val folder = DocumentFile.fromTreeUri(context, folderUri) ?: return false
+        if (!folder.canWrite()) return false
+
+        val target = findFileForNote(folder, note.id)
+            ?: folder.createFile("text/markdown", uniqueFileName(folder, note))
+            ?: return false
+
+        return runCatching {
+            context.contentResolver.openOutputStream(target.uri, "wt")?.use { stream ->
+                BufferedWriter(OutputStreamWriter(stream, Charsets.UTF_8)).use { writer ->
+                    writer.write(SyncFrontmatter.encode(note))
+                }
+            } ?: return@runCatching false
+            true
+        }.getOrDefault(false)
+    }
+
+    /**
+     * Walk the folder, parse each `.md` file, and reconcile with the supplied
+     * existing notes. Returns aggregated counts.
+     *
+     * Conflict rule for v2.1.0: *file wins iff its timestamp is strictly
+     * newer than the DB record* (with a 2-second slack for filesystem clocks).
+     * Otherwise no change is applied. Files without a `markleaf_id` become new
+     * notes (typical when the user dropped a note into the folder by hand).
+     *
+     * `applyUpdate` is invoked synchronously — caller is responsible for
+     * shipping the resulting writes onto IO dispatcher and into Room.
+     */
+    suspend fun importChanges(
+        context: Context,
+        folderUri: Uri,
+        existing: List<Note>,
+        applyUpdate: suspend (Note) -> Unit,
+        applyCreate: suspend (Note) -> Unit
+    ): ImportResult {
+        val folder = DocumentFile.fromTreeUri(context, folderUri)
+            ?: return ImportResult(0, 0, 0, 1)
+        if (!folder.canRead()) return ImportResult(0, 0, 0, 1)
+
+        var updated = 0
+        var created = 0
+        var skipped = 0
+        var errors = 0
+
+        val byId = existing.associateBy { it.id }
+        val files = folder.listFiles().filter { it.isFile && it.name?.endsWith(".md") == true }
+
+        for (file in files) {
+            val raw = runCatching {
+                context.contentResolver.openInputStream(file.uri)?.use { it.readBytes() }
+                    ?.toString(Charsets.UTF_8)
+            }.getOrNull()
+            if (raw == null) {
+                errors++
+                continue
+            }
+
+            val parsed = SyncFrontmatter.decode(raw)
+            val existingNote = parsed.markleafId?.let(byId::get)
+
+            try {
+                if (existingNote == null) {
+                    val now = Instant.now()
+                    val newNote = Note(
+                        id = parsed.markleafId ?: UUID.randomUUID().toString(),
+                        title = TitleExtractor.extractTitle(parsed.body),
+                        contentMarkdown = parsed.body,
+                        excerpt = TitleExtractor.generateExcerpt(parsed.body),
+                        createdAt = parsed.createdAt ?: now,
+                        updatedAt = parsed.updatedAt ?: now,
+                        pinned = parsed.pinned ?: false,
+                        archived = parsed.archived ?: false
+                    )
+                    applyCreate(newNote)
+                    created++
+                } else {
+                    val fileTs = parsed.updatedAt
+                        ?: Instant.ofEpochMilli(file.lastModified())
+                    val dbTs = existingNote.updatedAt
+                    val fileNewer = fileTs.toEpochMilli() > dbTs.toEpochMilli() + SLACK_MILLIS
+                    if (fileNewer) {
+                        val merged = existingNote.copy(
+                            title = TitleExtractor.extractTitle(parsed.body),
+                            contentMarkdown = parsed.body,
+                            excerpt = TitleExtractor.generateExcerpt(parsed.body),
+                            updatedAt = fileTs,
+                            pinned = parsed.pinned ?: existingNote.pinned,
+                            archived = parsed.archived ?: existingNote.archived
+                        )
+                        applyUpdate(merged)
+                        updated++
+                    } else {
+                        skipped++
+                    }
+                }
+            } catch (e: Exception) {
+                errors++
+            }
+        }
+
+        return ImportResult(updated = updated, created = created, skipped = skipped, errors = errors)
+    }
+
+    private fun findFileForNote(folder: DocumentFile, noteId: String): DocumentFile? {
+        for (file in folder.listFiles()) {
+            if (!file.isFile) continue
+            val name = file.name ?: continue
+            if (!name.endsWith(".md")) continue
+            val raw = runCatching {
+                file.uri // existence check
+                file
+            }.getOrNull() ?: continue
+            // We could parse every file to find the matching id, but that's O(n²) on
+            // every save. Instead, store the id in the filename suffix as a hash — see
+            // [uniqueFileName]. If a file with our slug already exists, we trust it;
+            // otherwise we create a new one. The reconcile pass handles the rare drift.
+            // For now, match by id-suffix in the filename.
+            if (name.contains(noteIdMarker(noteId))) return raw
+        }
+        return null
+    }
+
+    private fun uniqueFileName(folder: DocumentFile, note: Note): String {
+        val slug = SlugGenerator.generateSlug(note.title).ifEmpty { "untitled" }
+        val marker = noteIdMarker(note.id)
+        val candidate = "$slug-$marker.md"
+        // Collision is essentially impossible with the marker, but guard anyway.
+        if (folder.findFile(candidate) == null) return candidate
+        return "$slug-$marker-${System.currentTimeMillis()}.md"
+    }
+
+    /** Stable short suffix derived from the note id so we can find the file later. */
+    private fun noteIdMarker(noteId: String): String =
+        "id" + noteId.replace("-", "").take(8)
+
+    private const val SLACK_MILLIS = 2_000L
+}

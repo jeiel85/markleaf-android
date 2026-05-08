@@ -108,6 +108,22 @@
     <string name="export_all_notes">전체 노트 내보내기</string>
     <string name="export_all_notes_description">폴더를 선택하면 각 노트를 별도의 .md 파일로 저장합니다. 휴지통의 노트는 제외됩니다.</string>
     <string name="export_all_done_format">노트 %1$d개를 내보냈습니다.</string>
+
+    <string name="sync_title">다중 기기 동기화 (폴더 미러)</string>
+    <string name="sync_explainer">Markleaf는 직접 인터넷에 접속하지 않습니다. 대신 사용자가 지정한 폴더에 각 노트를 .md 파일로 저장합니다. 그 폴더를 다른 앱(Dropbox, Drive, Syncthing, OneDrive, NAS 등)이 동기화하면, 노트가 자연스럽게 다른 기기에 따라옵니다.</string>
+    <string name="sync_recommended_locations">권장 위치:\n· /내부 저장공간/Dropbox/Markleaf\n· /내부 저장공간/Drive/Markleaf\n· /내부 저장공간/Sync/Markleaf  (Syncthing)</string>
+    <string name="sync_status_unset">폴더가 아직 선택되지 않았습니다.</string>
+    <string name="sync_status_folder_format">현재 폴더: %1$s</string>
+    <string name="sync_status_last_synced_format">마지막 동기화: %1$s</string>
+    <string name="sync_status_last_synced_never">마지막 동기화: 아직 없음</string>
+    <string name="sync_behavior_summary">· 편집 후 약 1초 뒤 폴더에 자동 저장됩니다.\n· "지금 동기화" — 다른 기기의 변경분을 가져옵니다.\n· 충돌 시 최근 수정본이 우선합니다.\n· 삭제는 동기화되지 않습니다 — 각 기기에서 따로 관리하세요.</string>
+    <string name="sync_pick_folder">동기화 폴더 선택</string>
+    <string name="sync_change_folder">폴더 변경</string>
+    <string name="sync_now">지금 동기화</string>
+    <string name="sync_stop">동기화 끄기</string>
+    <string name="sync_seeded_format">노트 %1$d개를 폴더에 미러링했습니다.</string>
+    <string name="sync_done_format">동기화 완료 — 업데이트 %1$d, 신규 %2$d, 변화 없음 %3$d</string>
+    <string name="sync_stopped">동기화를 껐습니다.</string>
     <string name="screenshot_protection">스크린샷·최근 앱 미리보기 차단</string>
     <string name="screenshot_protection_description">노트 본문이 스크린샷과 최근 앱 화면에 표시되지 않도록 합니다. 변경 사항이 반영되려면 에디터를 다시 열어주세요.</string>
     <string name="settings_app">앱</string>

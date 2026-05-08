@@ -108,6 +108,22 @@
     <string name="export_all_notes">Export all notes…</string>
     <string name="export_all_notes_description">Pick a folder and Markleaf saves every note as a separate .md file. Trashed notes are skipped.</string>
     <string name="export_all_done_format">Exported %1$d notes.</string>
+
+    <string name="sync_title">Multi-device sync (folder mirror)</string>
+    <string name="sync_explainer">Markleaf never goes online itself. Instead, you choose a folder and Markleaf saves each note as a `.md` file in it. If that folder is synced by another app — Dropbox, Drive, Syncthing, OneDrive, a NAS — your notes follow your other devices.</string>
+    <string name="sync_recommended_locations">Good places to point Markleaf at:\n· /Internal storage/Dropbox/Markleaf\n· /Internal storage/Drive/Markleaf\n· /Internal storage/Sync/Markleaf  (Syncthing)</string>
+    <string name="sync_status_unset">No folder selected.</string>
+    <string name="sync_status_folder_format">Folder: %1$s</string>
+    <string name="sync_status_last_synced_format">Last synced: %1$s</string>
+    <string name="sync_status_last_synced_never">Last synced: never</string>
+    <string name="sync_behavior_summary">· Saves to the folder ~1 second after each edit.\n· "Sync now" pulls in changes from other devices.\n· Conflicts: the most recent edit wins.\n· Deletions are not synced — manage trash on each device.</string>
+    <string name="sync_pick_folder">Choose sync folder</string>
+    <string name="sync_change_folder">Change folder</string>
+    <string name="sync_now">Sync now</string>
+    <string name="sync_stop">Stop syncing</string>
+    <string name="sync_seeded_format">Mirrored %1$d notes to the folder.</string>
+    <string name="sync_done_format">Synced — %1$d updated, %2$d new, %3$d unchanged.</string>
+    <string name="sync_stopped">Sync turned off.</string>
     <string name="screenshot_protection">Block screenshots and Recents preview</string>
     <string name="screenshot_protection_description">Hides note content in screenshots and the recent apps screen. Restart the editor screen for the change to take effect.</string>
     <string name="settings_app">App</string>

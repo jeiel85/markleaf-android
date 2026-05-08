@@ -63,6 +63,7 @@ import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -141,6 +142,21 @@ fun EditorScreen(
     var isFindOpen by remember(noteId) { mutableStateOf(false) }
     var findQuery by remember(noteId) { mutableStateOf("") }
     var findIndex by remember(noteId) { mutableStateOf(0) }
+
+    // Wikilink autocomplete: when the user has typed `[[query` without
+    // closing it on the same line, surface matching note titles.
+    val allNotes by repo.observeNotes().collectAsState(initial = emptyList())
+    val wikilinkQuery by remember {
+        derivedStateOf { detectWikilinkQuery(editorState) }
+    }
+    val wikilinkSuggestions = remember(wikilinkQuery, allNotes, noteId) {
+        val q = wikilinkQuery ?: return@remember emptyList()
+        val needle = q.lowercase()
+        allNotes
+            .filter { it.id != noteId && it.title.isNotBlank() }
+            .filter { needle.isEmpty() || it.title.lowercase().contains(needle) }
+            .take(MAX_WIKILINK_SUGGESTIONS)
+    }
     var shareMenuExpanded by remember(noteId) { mutableStateOf(false) }
     var overflowExpanded by remember(noteId) { mutableStateOf(false) }
     var pendingExport by remember(noteId) { mutableStateOf<Note?>(null) }
@@ -525,6 +541,16 @@ fun EditorScreen(
                     )
                 }
 
+                if (wikilinkQuery != null && wikilinkSuggestions.isNotEmpty() && !isFocusMode) {
+                    WikilinkSuggestionsRow(
+                        suggestions = wikilinkSuggestions,
+                        onPick = { title ->
+                            editorState = completeWikilink(editorState, title)
+                            if (isLoaded) saveTrigger++
+                        }
+                    )
+                }
+
                 if (!isFocusMode && editorState.text.isNotEmpty()) {
                     val stats = remember(editorState.text) { computeStats(editorState.text) }
                     EditorStatsRow(stats)
@@ -570,6 +596,39 @@ fun EditorScreen(
             }
         )
     }
+}
+
+private const val MAX_WIKILINK_SUGGESTIONS = 8
+
+/**
+ * If the cursor sits inside an *unclosed* `[[…` wikilink (no `]]` between
+ * the opening `[[` and the cursor, no newline either), return the partial
+ * query text. Returns null when there's nothing to autocomplete.
+ */
+internal fun detectWikilinkQuery(value: TextFieldValue): String? {
+    val cursor = value.selection.start.coerceIn(0, value.text.length)
+    val before = value.text.substring(0, cursor)
+    val openIdx = before.lastIndexOf("[[")
+    if (openIdx < 0) return null
+    val between = before.substring(openIdx + 2)
+    if (between.contains("]]") || between.contains("\n")) return null
+    return between
+}
+
+/**
+ * Replace the open `[[query` segment ending at the cursor with `[[Title]]`
+ * and place the cursor just after `]]`. Used when the user picks a wikilink
+ * autocomplete suggestion.
+ */
+internal fun completeWikilink(value: TextFieldValue, title: String): TextFieldValue {
+    val cursor = value.selection.start.coerceIn(0, value.text.length)
+    val before = value.text.substring(0, cursor)
+    val openIdx = before.lastIndexOf("[[")
+    if (openIdx < 0) return value
+    val replacement = "[[$title]]"
+    val newText = value.text.substring(0, openIdx) + replacement + value.text.substring(cursor)
+    val newCursor = openIdx + replacement.length
+    return value.copy(text = newText, selection = TextRange(newCursor))
 }
 
 internal fun findAllRanges(text: String, query: String): List<IntRange> {
@@ -679,6 +738,41 @@ private fun EditorStatsRow(stats: EditorStats) {
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+    }
+}
+
+@Composable
+private fun WikilinkSuggestionsRow(
+    suggestions: List<com.markleaf.notes.domain.model.Note>,
+    onPick: (String) -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 4.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = MaterialTheme.shapes.small,
+        tonalElevation = 1.dp
+    ) {
+        Column(modifier = Modifier.padding(vertical = 4.dp)) {
+            Text(
+                text = stringResource(R.string.wikilink_suggestions_title),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+            )
+            suggestions.forEach { note ->
+                Text(
+                    text = note.title,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onPick(note.title) }
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                )
+            }
+        }
     }
 }
 

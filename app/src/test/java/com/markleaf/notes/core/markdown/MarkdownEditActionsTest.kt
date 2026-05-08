@@ -7,6 +7,50 @@ import org.junit.Test
 
 class MarkdownEditActionsTest {
     @Test
+    fun detectWikilinkQuery_returnsPartialAfterDoubleBracket() {
+        val value = TextFieldValue("see [[hel", selection = TextRange(9))
+        assertEquals(
+            "hel",
+            com.markleaf.notes.feature.editor.detectWikilinkQuery(value)
+        )
+    }
+
+    @Test
+    fun detectWikilinkQuery_emptyAfterOpening() {
+        val value = TextFieldValue("see [[", selection = TextRange(6))
+        assertEquals(
+            "",
+            com.markleaf.notes.feature.editor.detectWikilinkQuery(value)
+        )
+    }
+
+    @Test
+    fun detectWikilinkQuery_nullWhenClosed() {
+        val value = TextFieldValue("[[done]] cursor", selection = TextRange(15))
+        assertEquals(
+            null,
+            com.markleaf.notes.feature.editor.detectWikilinkQuery(value)
+        )
+    }
+
+    @Test
+    fun detectWikilinkQuery_nullAcrossNewline() {
+        val value = TextFieldValue("[[start\n", selection = TextRange(8))
+        assertEquals(
+            null,
+            com.markleaf.notes.feature.editor.detectWikilinkQuery(value)
+        )
+    }
+
+    @Test
+    fun completeWikilink_replacesPartialAndAddsClosing() {
+        val value = TextFieldValue("see [[hel", selection = TextRange(9))
+        val result = com.markleaf.notes.feature.editor.completeWikilink(value, "Hello World")
+        assertEquals("see [[Hello World]]", result.text)
+        assertEquals(TextRange(19), result.selection)
+    }
+
+    @Test
     fun indent_addsTwoSpacesAtLineStart() {
         val result = MarkdownEditActions.indent(
             TextFieldValue("hello", selection = TextRange(2))

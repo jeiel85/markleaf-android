@@ -14,6 +14,7 @@
     <string name="settings">Ajustes</string>
     <string name="more_options">Mas opciones</string>
     <string name="backlinks_section_title">Enlazado desde</string>
+    <string name="wikilink_suggestions_title">Enlazar a…</string>
     <string name="add_note">Agregar nota</string>
     <string name="no_notes_yet">Aun no hay notas</string>
     <string name="create_first_note_hint">Toca + para crear tu primera nota</string>

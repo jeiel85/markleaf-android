@@ -2,6 +2,27 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.8.1 - 한국어 어법 다듬기 (Korean copy polish) - 2026-05-09
+
+사용자가 "볼 노트를 선택하세요" 같은 영어 직역체를 지적해서, 한국어 strings 14개 항목을 자연스럽게 다듬음. 영어/스페인어는 그대로.
+
+| 키 | Before | After |
+|---|---|---|
+| `select_note_to_view` | 볼 노트를 선택하세요 | 노트를 선택하세요 |
+| `editor_empty_title` | 조용한 빈 페이지가 준비되었습니다 | 새 노트가 준비됐어요 |
+| `editor_empty_hint` | …사용할 수 있습니다. 작성하는 동안 로컬에 저장됩니다. | …쓸 수 있고, 작성하는 동안 자동으로 저장됩니다. |
+| `tag_note_count_format` | %1$d개 노트 | 노트 %1$d개 |
+| `move_to_trash_message` 외 | …휴지통에서 다시 복원할 수 있습니다. | …나중에 다시 꺼낼 수 있습니다. |
+| `show_markdown_syntax_description` | …하이라이팅합니다. | …색으로 강조합니다. |
+| `theme_description` | 시스템 월페이퍼 | 시스템 배경화면 |
+| `privacy_no_internet` | MVP에서는 INTERNET 권한을 선언하지 않습니다. | 이 앱은 INTERNET 권한을 사용하지 않습니다. |
+| `sync_status_unset` | 폴더가 아직 선택되지 않았습니다. | 아직 동기화 폴더를 정하지 않았습니다. |
+| `sync_behavior_summary` | 변경분 / 충돌 시 / 따로 관리 | 변경 내용 / 양쪽에서 바뀌면 / 따로 정리 |
+| `quick_note_widget_description` | 탭하여 새 노트를 빠르게 생성합니다 | 탭해서 새 노트 바로 만들기 |
+| `image_alt_dialog_description` | 화면 낭독기 / 로드되지 않을 때 | 스크린 리더 / 보이지 않을 때 |
+| `archive_empty_hint` | 메인 목록에서 | 노트 목록에서 |
+| `privacy_no_tracking_desc` 외 | 그것이 우리가 원하는 방식입니다 / 엄격한 …표준 | 그게 좋다고 생각합니다 / 원칙을 엄격히 지킵니다 |
+
 ## v2.8.0 - 이미지 alt 편집 다이얼로그 (Image alt edit) - 2026-05-09
 
 ### 새로운 기능

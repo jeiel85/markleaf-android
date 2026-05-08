@@ -10,13 +10,13 @@
     <string name="archive">보관함</string>
     <string name="unarchive">보관 해제</string>
     <string name="archive_empty">보관된 노트가 없습니다</string>
-    <string name="archive_empty_hint">메인 목록에서 노트를 길게 눌러 "보관"을 선택하면 이곳으로 이동합니다.</string>
+    <string name="archive_empty_hint">노트 목록에서 길게 눌러 "보관"을 선택하면 여기로 옮겨집니다.</string>
     <string name="settings">설정</string>
     <string name="more_options">추가 옵션</string>
     <string name="backlinks_section_title">이 노트를 참조한 노트</string>
     <string name="wikilink_suggestions_title">링크할 노트</string>
     <string name="image_alt_dialog_title">이미지 설명 편집</string>
-    <string name="image_alt_dialog_description">대체 텍스트는 화면 낭독기에 도움이 되고, 이미지가 로드되지 않을 때 표시됩니다.</string>
+    <string name="image_alt_dialog_description">대체 텍스트는 스크린 리더 사용자에게 도움이 되고, 이미지가 보이지 않을 때 대신 표시됩니다.</string>
     <string name="image_alt_dialog_label">설명</string>
     <string name="image_alt_dialog_save">저장</string>
     <string name="add_note">노트 추가</string>
@@ -25,7 +25,7 @@
     <string name="create_note">노트 만들기</string>
     <string name="untitled">제목 없음</string>
     <string name="untitled_parenthesized">(제목 없음)</string>
-    <string name="select_note_to_view">볼 노트를 선택하세요</string>
+    <string name="select_note_to_view">노트를 선택하세요</string>
 
     <string name="preview">미리보기</string>
     <string name="edit">편집</string>
@@ -33,8 +33,8 @@
     <string name="new_note">새 노트</string>
     <string name="back">뒤로</string>
     <string name="note_content">노트 본문</string>
-    <string name="editor_empty_title">조용한 빈 페이지가 준비되었습니다</string>
-    <string name="editor_empty_hint">Markdown, #태그, 링크, 체크박스를 사용할 수 있습니다. 작성하는 동안 로컬에 저장됩니다.</string>
+    <string name="editor_empty_title">새 노트가 준비됐어요</string>
+    <string name="editor_empty_hint">Markdown, #태그, 링크, 체크박스를 쓸 수 있고, 작성하는 동안 자동으로 저장됩니다.</string>
     <string name="bold">굵게</string>
     <string name="italic">기울임</string>
     <string name="strikethrough">취소선</string>
@@ -85,7 +85,7 @@
     <string name="tag_result_format">#%1$s</string>
     <string name="no_tags_yet">아직 태그가 없습니다</string>
     <string name="tags_empty_hint">노트에 #태그를 입력해 정리해보세요</string>
-    <string name="tag_note_count_format">%1$d개 노트</string>
+    <string name="tag_note_count_format">노트 %1$d개</string>
 
     <string name="trash_empty">휴지통이 비어 있습니다</string>
     <string name="trash_empty_hint">삭제한 노트가 여기에 표시됩니다</string>
@@ -98,25 +98,25 @@
 
     <string name="move_to_trash">휴지통으로 이동</string>
     <string name="move_to_trash_title">휴지통으로 옮길까요?</string>
-    <string name="move_to_trash_message">\"%1$s\"를 휴지통으로 옮길까요? 휴지통에서 다시 복원할 수 있습니다.</string>
-    <string name="move_to_trash_editor_message">이 노트를 휴지통으로 옮길까요? 휴지통에서 다시 복원할 수 있습니다.</string>
+    <string name="move_to_trash_message">\"%1$s\"를 휴지통으로 옮길까요? 나중에 다시 꺼낼 수 있습니다.</string>
+    <string name="move_to_trash_editor_message">이 노트를 휴지통으로 옮길까요? 나중에 다시 꺼낼 수 있습니다.</string>
 
     <string name="settings_appearance">테마</string>
     <string name="theme_label">테마</string>
     <string name="theme_markleaf_green">Markleaf 그린</string>
     <string name="theme_material_you">Material You</string>
-    <string name="theme_description">Markleaf 그린은 앱 이름의 leaf와 어울리는 원래 색상입니다. Material You는 Android 12 이상에서 시스템 월페이퍼의 색을 따라갑니다.</string>
+    <string name="theme_description">Markleaf 그린은 앱 이름의 leaf와 어울리는 원래 색상입니다. Material You는 Android 12 이상에서 시스템 배경화면의 색을 따라갑니다.</string>
 
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Markdown 문법 표시</string>
-    <string name="show_markdown_syntax_description">라이브 에디터에서 작성 중 Markdown 문자를 하이라이팅합니다.</string>
+    <string name="show_markdown_syntax_description">에디터에서 작성하는 동안 Markdown 기호를 색으로 강조합니다.</string>
     <string name="line_width">본문 폭</string>
     <string name="line_width_narrow">좁게</string>
     <string name="line_width_comfortable">편안하게</string>
     <string name="line_width_wide">넓게</string>
     <string name="settings_privacy">개인정보</string>
     <string name="privacy_no_tracking">계정, 분석, 광고, 원격 설정, 독점 크래시 리포팅 SDK가 없습니다.</string>
-    <string name="privacy_no_internet">MVP에서는 INTERNET 권한을 선언하지 않습니다.</string>
+    <string name="privacy_no_internet">이 앱은 INTERNET 권한을 사용하지 않습니다.</string>
     <string name="privacy_local_first">노트는 사용자가 직접 내보내거나 공유할 때만 기기 밖으로 나갑니다.</string>
     <string name="settings_data">데이터</string>
     <string name="export_all_notes">전체 노트 내보내기</string>
@@ -126,11 +126,11 @@
     <string name="sync_title">다중 기기 동기화 (폴더 미러)</string>
     <string name="sync_explainer">Markleaf는 직접 인터넷에 접속하지 않습니다. 대신 사용자가 지정한 폴더에 각 노트를 .md 파일로 저장합니다. 그 폴더를 다른 앱(Dropbox, Drive, Syncthing, OneDrive, NAS 등)이 동기화하면, 노트가 자연스럽게 다른 기기에 따라옵니다.</string>
     <string name="sync_recommended_locations">권장 위치:\n· /내부 저장공간/Dropbox/Markleaf\n· /내부 저장공간/Drive/Markleaf\n· /내부 저장공간/Sync/Markleaf  (Syncthing)</string>
-    <string name="sync_status_unset">폴더가 아직 선택되지 않았습니다.</string>
+    <string name="sync_status_unset">아직 동기화 폴더를 정하지 않았습니다.</string>
     <string name="sync_status_folder_format">현재 폴더: %1$s</string>
     <string name="sync_status_last_synced_format">마지막 동기화: %1$s</string>
     <string name="sync_status_last_synced_never">마지막 동기화: 아직 없음</string>
-    <string name="sync_behavior_summary">· 편집 후 약 1초 뒤 폴더에 자동 저장됩니다.\n· "지금 동기화" — 다른 기기의 변경분을 가져옵니다.\n· 충돌 시 최근 수정본이 우선합니다.\n· 삭제는 동기화되지 않습니다 — 각 기기에서 따로 관리하세요.</string>
+    <string name="sync_behavior_summary">· 편집하고 약 1초 뒤 폴더에 자동으로 저장됩니다.\n· "지금 동기화"를 누르면 다른 기기의 변경 내용을 가져옵니다.\n· 같은 노트가 양쪽에서 바뀌면 더 최근에 수정한 쪽이 남습니다.\n· 삭제는 동기화되지 않습니다 — 각 기기에서 따로 정리해 주세요.</string>
     <string name="sync_pick_folder">동기화 폴더 선택</string>
     <string name="sync_change_folder">폴더 변경</string>
     <string name="sync_now">지금 동기화</string>
@@ -146,7 +146,7 @@
 
     <!-- Widget -->
     <string name="quick_note_widget_label">빠른 노트</string>
-    <string name="quick_note_widget_description">탭하여 새 노트를 빠르게 생성합니다</string>
+    <string name="quick_note_widget_description">탭해서 새 노트 바로 만들기</string>
 
     <!-- Privacy Dashboard -->
     <string name="privacy_dashboard_title">개인정보 대시보드</string>
@@ -157,7 +157,7 @@
     <string name="privacy_no_cloud_title">클라우드 의존성 없음</string>
     <string name="privacy_no_cloud_desc">핵심 기능에 클라우드 서비스를 사용하지 않습니다. Google Drive 동기화 없음, Dropbox 통합 없음, 독점 백엔드 서버 없음.</string>
     <string name="privacy_no_tracking_title">제로 추적</string>
-    <string name="privacy_no_tracking_desc">분석 도구 없음, 크래시 리포팅 SDK 없음, 광고 네트워크 없음. 사용자가 앱을 어떻게 사용하는지 전혀 모르며, 그것이 우리가 원하는 방식입니다.</string>
+    <string name="privacy_no_tracking_desc">분석 도구도, 크래시 리포팅 SDK도, 광고 네트워크도 없습니다. 우리는 사용자가 앱을 어떻게 쓰는지 전혀 알 수 없고, 그게 좋다고 생각합니다.</string>
     <string name="privacy_verification_title">개인정보 검증</string>
     <string name="privacy_verify_no_internet">INTERNET 권한 미선언</string>
     <string name="privacy_verify_local_only">100% 로컬 데이터 처리</string>
@@ -165,7 +165,7 @@
     <string name="privacy_verify_no_analytics">분석 및 원격 측정 없음</string>
     <string name="privacy_verify_open_source">오픈 소스 및 감사 가능</string>
     <string name="privacy_app_info_title">이 빌드에 대하여</string>
-    <string name="privacy_app_info_desc">버전 %1$s\n\n이 Markleaf 빌드는 엄격한 개인정보 보호 표준을 유지합니다. 모든 기능이 완전히 오프라인에서 작동합니다.</string>
+    <string name="privacy_app_info_desc">버전 %1$s\n\n이 Markleaf 빌드는 개인정보 보호 원칙을 엄격히 지킵니다. 모든 기능은 완전히 오프라인에서 작동합니다.</string>
     <string name="privacy_dashboard_button">개인정보 대시보드 보기</string>
 
 </resources>

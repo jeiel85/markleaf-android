@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
@@ -241,7 +242,8 @@ private fun CollapsedNoteListRail(
         Box(
             modifier = Modifier
                 .fillMaxHeight()
-                .width(56.dp),
+                .width(56.dp)
+                .systemBarsPadding(),
             contentAlignment = Alignment.TopCenter
         ) {
             IconButton(onClick = onExpandClick) {

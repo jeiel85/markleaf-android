@@ -2,6 +2,11 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.4.1 - 시스템 바 인셋 통일 (Unified System-Bar Insets) - 2026-05-08
+
+### 수정
+- **노치/펀치홀 없는 기기에서 상단 알림바 겹침 문제 해결:** Galaxy S24 같은 노치 있는 기기에서는 정상이지만 Lenovo Y700 2세대 같은 노치 없는 태블릿에서 노트 본문이 알림 영역 밑으로 들어가던 문제를 해결했습니다. `MainActivity.onCreate()` 첫 줄에서 `enableEdgeToEdge()`를 호출해 안드로이드 버전과 기기에 상관없이 동일한 edge-to-edge 동작을 보장하고, Scaffold가 없는 태그·검색·휴지통 화면과 태블릿 접힌 노트 리스트 레일에는 `Modifier.systemBarsPadding()`을 추가했습니다. Material 3 Scaffold + TopAppBar를 쓰는 화면(노트 목록, 에디터, 설정, 개인정보 대시보드)은 추가 작업 없이 자동으로 정확한 인셋이 들어갑니다.
+
 ## v1.4.0 - 정리와 글쓰기 습관 (Organization And Writing Habits) - 2026-05-08
 
 ### 새로운 기능

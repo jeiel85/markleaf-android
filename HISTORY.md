@@ -1,3 +1,22 @@
+## 2026-05-08 (밤) - v1.4.1
+- Work: Lenovo Y700 2nd gen 같은 노치 없는 태블릿에서 노트 본문이 알림바 밑으로 들어가던 문제 해결.
+- Changed files:
+  - MainActivity.kt — `super.onCreate()` 직전에 `enableEdgeToEdge()` 호출 (androidx.activity 1.8.2 helper)
+  - feature/tags/TagsScreen.kt — Surface root에 `systemBarsPadding()`
+  - feature/search/SearchScreen.kt — Surface root에 `systemBarsPadding()`
+  - feature/trash/TrashScreen.kt — Surface root에 `systemBarsPadding()`
+  - navigation/MarkleafNavHost.kt — `CollapsedNoteListRail` Box에 `systemBarsPadding()`
+  - app/build.gradle.kts (versionCode 56, versionName 1.4.1)
+  - CHANGELOG.md
+- Context:
+  - 사용자 보고: Galaxy S24 (노치 있음, Android 15 추정)는 시스템 차원 edge-to-edge 강제로 인해 M3 Scaffold + TopAppBar의 자동 인셋 처리가 동작 → 정상.
+  - Lenovo Y700 2nd gen (노치 없음, Android 14 이하 추정)에서는 시스템이 강제하지 않아 우리 앱이 명시적으로 enableEdgeToEdge를 켜지 않으면 status bar 처리가 모호한 상태(반투명 + no padding)가 되어 콘텐츠가 알림 영역 밑으로 그려짐.
+  - 해결의 통합 포인트는 `enableEdgeToEdge()` 한 줄 — 모든 안드로이드 버전에서 동일하게 transparent 시스템 바 + WindowInsets 제공. M3 Scaffold/TopAppBar는 그 인셋을 알아서 padding으로 변환.
+  - Scaffold 없는 화면(Tags/Search/Trash)에는 root Surface에 systemBarsPadding을 직접 추가 — 같은 통일성을 단순한 modifier 한 줄로 확보.
+- Verification:
+  - `./gradlew assembleDebug` 통과
+  - `./gradlew test` (debug + release unit) 통과 — 기존 테스트 모두 영향 없음
+
 ## 2026-05-08 (밤) - v1.4.0
 - Work: Bear급 사용 경험으로 가는 다음 단계 — 정리와 글쓰기 습관에 직결되는 세 가지 기능 묶음.
 - Changed files:

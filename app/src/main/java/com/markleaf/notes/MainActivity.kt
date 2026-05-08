@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.remember
@@ -22,6 +23,14 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Make the app edge-to-edge across all Android versions and devices.
+        // Without this, devices that do not enforce edge-to-edge automatically
+        // (e.g. tablets on Android 14 and below) leave the status bar
+        // semi-transparent while no inset padding is applied, so content draws
+        // under the notification area. enableEdgeToEdge() makes Compose feed
+        // the right WindowInsets to Material 3 Scaffold + TopAppBar, which
+        // already know how to add the correct top/bottom padding.
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         val database = AppDatabase.getInstance(applicationContext)
         lifecycleScope.launch(Dispatchers.IO) {

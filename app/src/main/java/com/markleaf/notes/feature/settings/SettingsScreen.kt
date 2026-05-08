@@ -140,6 +140,20 @@ fun SettingsScreen(
                     }
                 }
 
+                SettingsSection(title = stringResource(R.string.settings_security)) {
+                    SettingsSwitchRow(
+                        title = stringResource(R.string.screenshot_protection),
+                        description = stringResource(R.string.screenshot_protection_description),
+                        checked = appSettings.screenshotProtection,
+                        onCheckedChange = { checked ->
+                            HapticFeedback.light(context)
+                            scope.launch {
+                                settingsRepository.setScreenshotProtection(checked)
+                            }
+                        }
+                    )
+                }
+
                 SettingsSection(title = stringResource(R.string.settings_app)) {
                     SettingLine(stringResource(R.string.version_format, BuildConfig.VERSION_NAME))
                     SettingLine(stringResource(R.string.application_id_format, BuildConfig.APPLICATION_ID))

@@ -57,7 +57,8 @@ fun MarkleafNavHost(
     navController: NavHostController,
     windowSizeClass: WindowSizeClass,
     viewModelFactory: ViewModelProvider.Factory,
-    shouldCreateNote: Boolean = false
+    shouldCreateNote: Boolean = false,
+    sharedText: String? = null
 ) {
     val isExpanded = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded
     val context = LocalContext.current
@@ -76,6 +77,14 @@ fun MarkleafNavHost(
             androidx.compose.runtime.LaunchedEffect(shouldCreateNote) {
                 if (shouldCreateNote) {
                     val newNote = viewModel.createNote()
+                    navController.navigate(NavRoutes.editorRoute(newNote.id))
+                }
+            }
+
+            // Handle text shared into the app via the system share sheet
+            androidx.compose.runtime.LaunchedEffect(sharedText) {
+                if (!sharedText.isNullOrBlank()) {
+                    val newNote = viewModel.createNote(sharedText)
                     navController.navigate(NavRoutes.editorRoute(newNote.id))
                 }
             }

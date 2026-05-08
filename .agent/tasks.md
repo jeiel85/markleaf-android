@@ -94,23 +94,15 @@
 
 ---
 
-## Phase 14 - Platform Polish (Planned, target v1.5.0)
+## Phase 14 - Platform Polish (Done, 2026-05-08, v1.5.0)
 
 목적: 안드로이드 정상 시민 마감. 플랫폼 표준에 정확히 맞춰 *"잘 만든 안드로이드 앱"* 인상으로 끌어올리는 묶음. 각 항목은 작고 독립적이라 한 사이클에 묶어 진행.
 
-- [ ] Material You 다이내믹 컬러 (#59) — Android 12+에서 시스템 색상을 따르도록 `ui/theme/Theme.kt`에서 `Build.VERSION.SDK_INT >= S` 분기 후 `dynamicLightColorScheme(context)` / `dynamicDarkColorScheme(context)` 사용. 기존 정적 색상은 폴백.
-- [ ] 예측 뒤로가기 제스처 (#27) — `AndroidManifest.xml`의 `<application>`에 `android:enableOnBackInvokedCallback="true"` 추가. `MainActivity`는 이미 `ComponentActivity`라 추가 코드 거의 불필요. NavHost가 자동으로 OnBackInvoked dispatcher를 사용함을 확인만.
-- [ ] 단일 노트 시스템 공유 — 에디터 상단바에 공유 아이콘 추가, 클릭 시 기존 `util/ShareNoteUtil.shareNote(context, note)` 호출. 이미 구현돼 있는데 UI에 wired되지 않은 상태.
-- [ ] 공유 시트로 받은 텍스트 → 새 노트 — `AndroidManifest`의 MainActivity에 `<intent-filter>` 추가:
-  ```xml
-  <intent-filter>
-    <action android:name="android.intent.action.SEND" />
-    <category android:name="android.intent.category.DEFAULT" />
-    <data android:mimeType="text/plain" />
-  </intent-filter>
-  ```
-  `MainActivity.onCreate`에서 `intent.action == ACTION_SEND` 일 때 `intent.getStringExtra(EXTRA_TEXT)`를 `EXTRA_SUBJECT`(있으면) + 본문으로 합쳐 새 노트로 시드.
-- [ ] FLAG_SECURE 토글 (#47) — `AppSettings`에 `screenshotProtection: Boolean` 필드 추가, Settings 화면에 스위치, `MainActivity`에서 설정값에 따라 `window.setFlags(FLAG_SECURE, FLAG_SECURE)` / `clearFlags`. *민감한 노트가 있는 사용자에게는 큰 가치*.
+- [x] Material You 다이내믹 컬러 (#59) — `MarkleafTheme.dynamicColor` 기본값을 `true`로 전환. `Build.VERSION.SDK_INT >= S`에서만 `dynamicLight/DarkColorScheme(context)` 사용, 그 외에는 기존 그린 정적 색상이 폴백.
+- [x] 예측 뒤로가기 제스처 (#27) — `<application android:enableOnBackInvokedCallback="true">`. NavHost가 자동으로 OnBackInvoked dispatcher와 연동됨.
+- [x] 단일 노트 시스템 공유 — 에디터 TopAppBar에 `Icons.Default.Share` IconButton, 클릭 시 입력 중인 본문/제목으로 Note를 합성해 `ShareNoteUtil.shareNote` 호출. AndroidManifest에 누락돼 있던 `androidx.core.content.FileProvider`도 `${applicationId}.fileprovider` authority로 함께 등록 + `xml/file_paths.xml` 추가.
+- [x] 공유 시트로 받은 텍스트 → 새 노트 — `MainActivity`에 `<intent-filter ACTION_SEND text/plain>`, `extractSharedText()`가 `EXTRA_SUBJECT`를 `# 제목` H1으로 변환해 `EXTRA_TEXT`와 결합. NavHost에 `sharedText` param 추가, NOTES composable의 LaunchedEffect가 `viewModel.createNote(sharedText)`로 시드 후 에디터 진입. `onNewIntent`에서 SEND 재진입은 `setIntent + recreate()`.
+- [x] FLAG_SECURE 토글 (#47) — `AppSettings.screenshotProtection: Boolean = false` + `AppSettingsRepository.setScreenshotProtection`. Settings 화면에 "화면 보안" 섹션 + 스위치. `MainActivity`가 `repeatOnLifecycle(STARTED)`에서 settings flow를 관찰, `distinctUntilChanged`로 dedup 후 `window.addFlags(FLAG_SECURE)` / `clearFlags`. 기본값은 꺼짐.
 
 ---
 

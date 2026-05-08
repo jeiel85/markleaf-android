@@ -44,6 +44,7 @@
     <string name="find_previous_match">Coincidencia anterior</string>
     <string name="find_next_match">Coincidencia siguiente</string>
     <string name="close">Cerrar</string>
+    <string name="share_note">Compartir nota</string>
 
     <string name="pin">Fijar</string>
     <string name="unpin">Quitar fijado</string>
@@ -89,6 +90,9 @@
     <string name="privacy_no_tracking">Sin cuenta, analiticas, anuncios, configuracion remota ni SDK propietario de fallos.</string>
     <string name="privacy_no_internet">El MVP no declara permiso INTERNET.</string>
     <string name="privacy_local_first">Las notas salen del dispositivo solo cuando las exportas o compartes explicitamente.</string>
+    <string name="settings_security">Seguridad de pantalla</string>
+    <string name="screenshot_protection">Bloquear capturas y vista previa de Recientes</string>
+    <string name="screenshot_protection_description">Oculta el contenido de las notas en capturas de pantalla y en la vista de aplicaciones recientes. Reabre el editor para aplicar el cambio.</string>
     <string name="settings_app">Aplicacion</string>
     <string name="version_format">Version %1$s</string>
     <string name="application_id_format">Application ID %1$s</string>

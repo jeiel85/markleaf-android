@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Title
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -101,6 +102,7 @@ import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import com.markleaf.notes.util.HapticFeedback
+import com.markleaf.notes.util.ShareNoteUtil
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.ceil
@@ -224,6 +226,22 @@ fun EditorScreen(
                             )
                         }
                         if (noteId != null) {
+                            IconButton(onClick = {
+                                coroutineScope.launch {
+                                    val current = repo.getNote(noteId) ?: return@launch
+                                    val live = current.copy(
+                                        title = TitleExtractor.extractTitle(editorState.text),
+                                        contentMarkdown = editorState.text,
+                                        excerpt = TitleExtractor.generateExcerpt(editorState.text)
+                                    )
+                                    ShareNoteUtil.shareNote(context, live)
+                                }
+                            }) {
+                                Icon(
+                                    Icons.Default.Share,
+                                    contentDescription = stringResource(R.string.share_note)
+                                )
+                            }
                             IconButton(onClick = { showDeleteConfirm = true }) {
                                 Icon(
                                     Icons.Default.Delete,

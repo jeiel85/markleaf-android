@@ -2,6 +2,7 @@ package com.markleaf.notes.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.domain.repository.NoteRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,12 +30,12 @@ class NotesViewModel(
         }
     }
 
-    suspend fun createNote(): Note {
+    suspend fun createNote(initialContent: String = ""): Note {
         val newNote = Note(
             id = UUID.randomUUID().toString(),
-            title = "",
-            contentMarkdown = "",
-            excerpt = "",
+            title = if (initialContent.isBlank()) "" else TitleExtractor.extractTitle(initialContent),
+            contentMarkdown = initialContent,
+            excerpt = if (initialContent.isBlank()) "" else TitleExtractor.generateExcerpt(initialContent),
             createdAt = Instant.now(),
             updatedAt = Instant.now()
         )

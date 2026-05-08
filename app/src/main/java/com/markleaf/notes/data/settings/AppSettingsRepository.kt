@@ -1,6 +1,7 @@
 package com.markleaf.notes.data.settings
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -19,7 +20,8 @@ class AppSettingsRepository(
                 ?: MarkdownSyntaxVisibility.SHOW,
             lineWidth = preferences[LINE_WIDTH]
                 ?.let { value -> enumValueOrDefault(value, EditorLineWidth.COMFORTABLE) }
-                ?: EditorLineWidth.COMFORTABLE
+                ?: EditorLineWidth.COMFORTABLE,
+            screenshotProtection = preferences[SCREENSHOT_PROTECTION] ?: false
         )
     }
 
@@ -35,6 +37,12 @@ class AppSettingsRepository(
         }
     }
 
+    suspend fun setScreenshotProtection(enabled: Boolean) {
+        context.markleafSettingsDataStore.edit { preferences ->
+            preferences[SCREENSHOT_PROTECTION] = enabled
+        }
+    }
+
     private fun <T : Enum<T>> enumValueOrDefault(value: String, default: T): T {
         return runCatching {
             java.lang.Enum.valueOf(default.declaringJavaClass, value)
@@ -44,5 +52,6 @@ class AppSettingsRepository(
     private companion object {
         val MARKDOWN_SYNTAX_VISIBILITY = stringPreferencesKey("markdown_syntax_visibility")
         val LINE_WIDTH = stringPreferencesKey("line_width")
+        val SCREENSHOT_PROTECTION = booleanPreferencesKey("screenshot_protection")
     }
 }

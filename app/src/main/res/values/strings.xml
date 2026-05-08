@@ -44,6 +44,7 @@
     <string name="find_previous_match">Previous match</string>
     <string name="find_next_match">Next match</string>
     <string name="close">Close</string>
+    <string name="share_note">Share note</string>
 
     <string name="pin">Pin</string>
     <string name="unpin">Unpin</string>
@@ -89,6 +90,9 @@
     <string name="privacy_no_tracking">No account, analytics, ads, remote config, or proprietary crash reporting SDK.</string>
     <string name="privacy_no_internet">No INTERNET permission is declared for the MVP.</string>
     <string name="privacy_local_first">Notes leave the device only when you explicitly export or share them.</string>
+    <string name="settings_security">Screen security</string>
+    <string name="screenshot_protection">Block screenshots and Recents preview</string>
+    <string name="screenshot_protection_description">Hides note content in screenshots and the recent apps screen. Restart the editor screen for the change to take effect.</string>
     <string name="settings_app">App</string>
     <string name="version_format">Version %1$s</string>
     <string name="application_id_format">Application ID %1$s</string>

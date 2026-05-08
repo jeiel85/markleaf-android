@@ -2,6 +2,18 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.5.0 - 플랫폼 마감 (Platform Polish) - 2026-05-08
+
+### 새로운 기능
+- **Material You 다이내믹 컬러 (#59):** Android 12 이상 기기에서 시스템 월페이퍼 색을 따라 앱 테마가 자동으로 맞춰집니다. Android 11 이하는 기존 그린 색상을 폴백으로 유지합니다.
+- **예측 뒤로가기 제스처 (#27):** `enableOnBackInvokedCallback`을 켜 Android 13+의 새 백 제스처 미리보기 애니메이션이 동작합니다. NavHost가 자동으로 새 dispatcher와 연동되어 추가 코드 없이 뒤로 가기 동작 자체는 그대로 유지됩니다.
+- **단일 노트 공유:** 에디터 상단바에 공유 아이콘이 추가되어 시스템 공유 시트로 노트를 .md 파일로 보낼 수 있습니다 (Markor, Telegram, Drive 등). 본문이 EXTRA_TEXT에도 동봉되어 텍스트만 받는 앱에도 폴백.
+- **공유 시트로 받은 텍스트 → 새 노트:** 다른 앱에서 "Markleaf로 공유"를 선택하면 본문(필요 시 제목 포함)이 채워진 새 노트가 즉시 열립니다. `text/plain` MIME 만 받습니다.
+- **스크린샷·최근 앱 차단 (#47):** 설정 화면에 "화면 보안" 섹션을 추가했습니다. 켜두면 `FLAG_SECURE`가 적용되어 노트 본문이 시스템 스크린샷과 최근 앱 미리보기에 표시되지 않습니다 (기본값: 꺼짐).
+
+### 데이터
+- 데이터베이스 스키마 변경 없음. 새 설정값 `screenshot_protection`은 DataStore에 저장됩니다.
+
 ## v1.4.2 - 접힌 노트 리스트 레일 인셋 보강 (Collapsed Rail Inset Fix) - 2026-05-08
 
 ### 수정

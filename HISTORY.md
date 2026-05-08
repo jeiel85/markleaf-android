@@ -1,3 +1,28 @@
+## 2026-05-08 (밤) - v1.5.0
+- Work: Phase 14 — 안드로이드 정상 시민 마감을 위한 5종 묶음 (Material You / 예측 뒤로가기 / 단일 노트 시스템 공유 / 외부 공유 텍스트 수신 / FLAG_SECURE 토글).
+- Changed files:
+  - ui/theme/Theme.kt — `MarkleafTheme.dynamicColor` 기본값 `false` → `true` (S+에서만 dynamicLight/DarkColorScheme 사용, 그 외에는 기존 정적 색상 폴백)
+  - AndroidManifest.xml — `<application android:enableOnBackInvokedCallback="true">`, MainActivity에 `<intent-filter ACTION_SEND text/plain>`, 그리고 `androidx.core.content.FileProvider` provider 등록 (`${applicationId}.fileprovider` authority)
+  - res/xml/file_paths.xml (NEW) — `cache-path name="shared_notes"` (`ShareNoteUtil`이 이미 사용 중인 cache 디렉터리)
+  - data/settings/AppSettings.kt — `screenshotProtection: Boolean = false` 필드 추가
+  - data/settings/AppSettingsRepository.kt — `SCREENSHOT_PROTECTION` boolean 키 + `setScreenshotProtection(enabled)`
+  - MainActivity.kt — `extractSharedText()` 헬퍼 (EXTRA_SUBJECT를 `# 제목` H1으로, EXTRA_TEXT를 본문으로 결합), `repeatOnLifecycle(STARTED)` 안에서 settings flow 관찰 → `window.addFlags(FLAG_SECURE)` / `clearFlags`. `onNewIntent`에서 SEND가 새로 들어오면 `setIntent(intent) + recreate()`.
+  - navigation/MarkleafNavHost.kt — `sharedText: String? = null` param, NOTES composable LaunchedEffect로 `viewModel.createNote(sharedText)` 호출 후 에디터로 navigate.
+  - ui/viewmodel/NotesViewModel.kt — `createNote(initialContent: String = "")` 시그니처. 본문이 있으면 `TitleExtractor.extractTitle/generateExcerpt`로 제목/요약을 채움.
+  - feature/editor/EditorScreen.kt — TopAppBar actions 영역에 `Icons.Default.Share` IconButton 추가, 클릭 시 현재 편집 중 텍스트로 Note를 만들어 `ShareNoteUtil.shareNote`. (저장 보다 빠르게 공유 누른 경우에도 입력 중 본문이 그대로 시트에 들어가도록 in-memory copy)
+  - feature/settings/SettingsScreen.kt — 새 `settings_security` 섹션의 `screenshot_protection` 토글
+  - res/values{,-ko,-es}/strings.xml — `share_note`, `settings_security`, `screenshot_protection`, `screenshot_protection_description` (3개 언어 동시 추가, ResourceParityTest 통과 보장)
+  - app/build.gradle.kts (versionCode 58, versionName 1.5.0)
+  - CHANGELOG.md, .agent/tasks.md
+- Context:
+  - 다섯 항목 모두 ≤30 LOC급 작은 변경이라 한 사이클로 묶어도 디프 검토가 어렵지 않음. 각 항목은 독립적으로 켜고 끌 수 있음.
+  - `ShareNoteUtil`은 v0.x부터 존재했지만 UI에 wired된 적이 없어 사실상 dead code였음. AndroidManifest에 `FileProvider`도 빠져 있어 wire-up 시 FileProvider도 함께 등록해야 했음 — `xml/file_paths.xml`은 `cacheDir/shared_notes` 한 줄로 끝.
+  - SEND 수신 처리는 `onCreate` + `onNewIntent` 둘 다에서 처리. 이미 실행 중인 인스턴스로 SEND가 오면 `setIntent + recreate()`로 새 노트가 시드됨.
+  - FLAG_SECURE는 `repeatOnLifecycle(STARTED)`에서 settings flow를 관찰. `distinctUntilChanged`로 동일값 emit 무시. STARTED 위에서만 active → 백그라운드에서 토글되어도 안전.
+- Verification:
+  - `./gradlew assembleDebug` 통과
+  - `./gradlew test` 통과 — `ResourceParityTest`가 새 3개 키를 ko/es에서도 검증, 기존 단위 테스트는 영향 없음
+
 ## 2026-05-08 (밤) - v1.4.2
 - Work: v1.4.1에서 부분만 고쳐졌던 태블릿 접힌 레일의 상태바 겹침을 마저 정리.
 - Changed files:

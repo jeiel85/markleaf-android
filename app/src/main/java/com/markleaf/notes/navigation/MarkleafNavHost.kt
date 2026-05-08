@@ -216,6 +216,7 @@ fun MarkleafNavHost(
         }
         composable(NavRoutes.TAGS) {
             TagsScreen(
+                onBack = { navController.popBackStack() },
                 onTagClick = { tagQuery ->
                     navController.navigate("${NavRoutes.SEARCH}?query=${Uri.encode(tagQuery)}")
                 }
@@ -233,17 +234,22 @@ fun MarkleafNavHost(
             SearchScreen(
                 viewModel = viewModel,
                 initialQuery = query,
+                onBack = { navController.popBackStack() },
                 onNoteClick = { noteId -> navController.navigate(NavRoutes.editorRoute(noteId)) }
             )
         }
         composable(NavRoutes.TRASH) {
             val viewModel = viewModel<TrashViewModel>(factory = viewModelFactory)
-            TrashScreen(viewModel = viewModel)
+            TrashScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
         }
         composable(NavRoutes.ARCHIVE) {
             val viewModel = viewModel<ArchiveViewModel>(factory = viewModelFactory)
             ArchiveScreen(
                 viewModel = viewModel,
+                onBack = { navController.popBackStack() },
                 onNoteClick = { noteId -> navController.navigate(NavRoutes.editorRoute(noteId)) }
             )
         }

@@ -9,13 +9,18 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -23,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -33,8 +39,10 @@ import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.repository.LocalTagRepository
 import com.markleaf.notes.domain.model.TagSummary
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TagsScreen(
+    onBack: () -> Unit = {},
     onTagClick: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -42,19 +50,31 @@ fun TagsScreen(
     val tagSummaries by tagRepository.observeTagSummaries().collectAsState(initial = emptyList())
     val rows = remember(tagSummaries) { buildHierarchicalRows(tagSummaries) }
 
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .systemBarsPadding(),
-        color = MaterialTheme.colorScheme.background
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = stringResource(R.string.tags),
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(16.dp)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.tags)) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_back),
+                            contentDescription = stringResource(R.string.back)
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                )
             )
-
+        }
+    ) { paddingValues ->
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            color = MaterialTheme.colorScheme.background
+        ) {
             if (tagSummaries.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -102,8 +122,8 @@ fun TagsScreen(
 }
 
 private data class TagRowData(
-    val fullName: String,   // e.g. "project/site"
-    val displayName: String, // e.g. "site" for child, "project" for root
+    val fullName: String,
+    val displayName: String,
     val depth: Int,
     val noteCount: Int
 )
@@ -113,10 +133,6 @@ private fun buildHierarchicalRows(summaries: List<TagSummary>): List<TagRowData>
 
     val byFullName = summaries.associateBy { it.tag.name }
 
-    // Each unique full name gets one visible row. We only display rows for tags
-    // that actually exist in the user's data — virtual parents (referenced only
-    // as a prefix of a child) are NOT auto-created; if you only ever wrote
-    // `#project/site`, "project" will not appear as its own row.
     val sortedNames = summaries.map { it.tag.name }.distinct().sorted()
 
     return sortedNames.map { fullName ->

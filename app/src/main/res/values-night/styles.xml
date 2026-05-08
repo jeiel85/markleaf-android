@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      In dark mode the activity window background must be dark too — otherwise
+      systemBarsPadding'ed Compose surfaces leave a strip of the platform's
+      default light window background visible behind the status bar (Material
+      Light's windowBackground is hard-coded white). Using the dark Material
+      parent keeps the strip dark so status-bar icons stay legible.
+    -->
+    <style name="Theme.Markleaf" parent="android:Theme.Material.NoActionBar" />
+</resources>

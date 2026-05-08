@@ -4,7 +4,10 @@ import androidx.compose.foundation.background
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -107,10 +110,16 @@ fun MarkleafNavHost(
                     if (isNoteListCollapsed) {
                         CollapsedNoteListRail(onExpandClick = { isNoteListCollapsed = false })
                     } else {
+                        // systemBarsPadding paints surfaceVariant only below the
+                        // status bar (matching the collapsed rail fix in v1.4.2);
+                        // consumeWindowInsets stops the nested Scaffold inside
+                        // NotesListScreen from re-padding the same insets.
                         Surface(
                             modifier = Modifier
                                 .weight(1f)
-                                .fillMaxHeight(),
+                                .fillMaxHeight()
+                                .systemBarsPadding()
+                                .consumeWindowInsets(WindowInsets.systemBars),
                             color = listPaneColor,
                             contentColor = listPaneContentColor
                         ) {

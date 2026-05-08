@@ -44,7 +44,16 @@
     <string name="find_previous_match">Previous match</string>
     <string name="find_next_match">Next match</string>
     <string name="close">Close</string>
-    <string name="share_note">Share note</string>
+    <string name="share_note">Share or export</string>
+    <string name="share_via_system">Share via…</string>
+    <string name="export_as_file">Save as .md file…</string>
+    <string name="export_success">Note exported.</string>
+    <string name="export_failed">Export failed.</string>
+    <string name="callout_note">Note</string>
+    <string name="callout_tip">Tip</string>
+    <string name="callout_important">Important</string>
+    <string name="callout_warning">Warning</string>
+    <string name="callout_caution">Caution</string>
 
     <string name="pin">Pin</string>
     <string name="unpin">Unpin</string>
@@ -90,6 +99,10 @@
     <string name="privacy_no_tracking">No account, analytics, ads, remote config, or proprietary crash reporting SDK.</string>
     <string name="privacy_no_internet">No INTERNET permission is declared for the MVP.</string>
     <string name="privacy_local_first">Notes leave the device only when you explicitly export or share them.</string>
+    <string name="settings_data">Data</string>
+    <string name="export_all_notes">Export all notes…</string>
+    <string name="export_all_notes_description">Pick a folder and Markleaf saves every note as a separate .md file. Trashed notes are skipped.</string>
+    <string name="export_all_done_format">Exported %1$d notes.</string>
     <string name="settings_security">Screen security</string>
     <string name="screenshot_protection">Block screenshots and Recents preview</string>
     <string name="screenshot_protection_description">Hides note content in screenshots and the recent apps screen. Restart the editor screen for the change to take effect.</string>

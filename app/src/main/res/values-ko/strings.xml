@@ -44,7 +44,16 @@
     <string name="find_previous_match">이전 결과</string>
     <string name="find_next_match">다음 결과</string>
     <string name="close">닫기</string>
-    <string name="share_note">노트 공유</string>
+    <string name="share_note">공유 / 내보내기</string>
+    <string name="share_via_system">공유 시트로 보내기</string>
+    <string name="export_as_file">.md 파일로 저장</string>
+    <string name="export_success">노트를 내보냈습니다.</string>
+    <string name="export_failed">내보내기에 실패했습니다.</string>
+    <string name="callout_note">참고</string>
+    <string name="callout_tip">팁</string>
+    <string name="callout_important">중요</string>
+    <string name="callout_warning">주의</string>
+    <string name="callout_caution">경고</string>
 
     <string name="pin">상단 고정</string>
     <string name="unpin">고정 해제</string>
@@ -90,6 +99,10 @@
     <string name="privacy_no_tracking">계정, 분석, 광고, 원격 설정, 독점 크래시 리포팅 SDK가 없습니다.</string>
     <string name="privacy_no_internet">MVP에서는 INTERNET 권한을 선언하지 않습니다.</string>
     <string name="privacy_local_first">노트는 사용자가 직접 내보내거나 공유할 때만 기기 밖으로 나갑니다.</string>
+    <string name="settings_data">데이터</string>
+    <string name="export_all_notes">전체 노트 내보내기</string>
+    <string name="export_all_notes_description">폴더를 선택하면 각 노트를 별도의 .md 파일로 저장합니다. 휴지통의 노트는 제외됩니다.</string>
+    <string name="export_all_done_format">노트 %1$d개를 내보냈습니다.</string>
     <string name="settings_security">화면 보안</string>
     <string name="screenshot_protection">스크린샷·최근 앱 미리보기 차단</string>
     <string name="screenshot_protection_description">노트 본문이 스크린샷과 최근 앱 화면에 표시되지 않도록 합니다. 변경 사항이 반영되려면 에디터를 다시 열어주세요.</string>

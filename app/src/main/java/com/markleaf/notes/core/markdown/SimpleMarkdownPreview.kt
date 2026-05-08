@@ -8,11 +8,14 @@ enum class PreviewLineType {
     CHECKBOX_DONE,
     CHECKBOX_TODO,
     BLOCKQUOTE,
+    CALLOUT,
     ORDERED_LIST,
     HORIZONTAL_RULE,
     BODY,
     EMPTY,
-    CODE_BLOCK
+    CODE_BLOCK,
+    FRONTMATTER,
+    FOOTNOTE_DEF
 }
 
 enum class PreviewInlineType {
@@ -21,7 +24,27 @@ enum class PreviewInlineType {
     ITALIC,
     BOLD_ITALIC,
     STRIKETHROUGH,
-    INLINE_CODE
+    INLINE_CODE,
+    FOOTNOTE_REF
+}
+
+enum class CalloutKind {
+    NOTE,
+    TIP,
+    IMPORTANT,
+    WARNING,
+    CAUTION;
+
+    companion object {
+        fun parse(raw: String): CalloutKind? = when (raw.trim().uppercase()) {
+            "NOTE" -> NOTE
+            "TIP" -> TIP
+            "IMPORTANT" -> IMPORTANT
+            "WARNING", "WARN" -> WARNING
+            "CAUTION", "DANGER" -> CAUTION
+            else -> null
+        }
+    }
 }
 
 data class PreviewInlineSegment(
@@ -50,11 +73,25 @@ object SimpleMarkdownPreview {
     private val italicUnderscoreRegex = Regex("""(?<!\w)_([^_\n]+?)_(?!\w)""")
     private val strikethroughRegex = Regex("""~~(.+?)~~""")
     private val inlineCodeRegex = Regex("""`([^`\n]+?)`""")
+    private val footnoteRefRegex = Regex("""\[\^([A-Za-z0-9_-]+)](?!:)""")
+    private val footnoteDefRegex = Regex("""^\[\^([A-Za-z0-9_-]+)]:\s*(.*)$""")
+    private val calloutHeadRegex = Regex("""^>\s*\[!([A-Za-z]+)]\s*$""")
 
     fun parse(markdown: String): List<PreviewLine> {
         val rawLines = markdown.lines()
         val result = mutableListOf<PreviewLine>()
         var index = 0
+
+        // Frontmatter: a leading `---` … `---` block at the top of the document.
+        if (rawLines.isNotEmpty() && rawLines[0].trim() == "---") {
+            val closeOffset = rawLines.subList(1, rawLines.size)
+                .indexOfFirst { it.trim() == "---" }
+            if (closeOffset >= 0) {
+                val body = rawLines.subList(1, 1 + closeOffset).joinToString("\n")
+                result += PreviewLine(text = body, type = PreviewLineType.FRONTMATTER)
+                index = 1 + closeOffset + 1
+            }
+        }
 
         while (index < rawLines.size) {
             val line = rawLines[index].trimEnd()
@@ -76,6 +113,34 @@ object SimpleMarkdownPreview {
                         type = PreviewLineType.CODE_BLOCK,
                         extra = language.takeIf { it.isNotEmpty() }
                     )
+                }
+                calloutHeadRegex.matches(line) -> {
+                    val kind = calloutHeadRegex.find(line)!!.groupValues[1]
+                    val bodyLines = mutableListOf<String>()
+                    index++
+                    while (index < rawLines.size && rawLines[index].trimEnd().startsWith(">")) {
+                        val body = rawLines[index].trimEnd().removePrefix(">").let {
+                            if (it.startsWith(" ")) it.removePrefix(" ") else it
+                        }
+                        bodyLines += body
+                        index++
+                    }
+                    result += PreviewLine(
+                        text = bodyLines.joinToString("\n"),
+                        type = PreviewLineType.CALLOUT,
+                        extra = kind
+                    )
+                }
+                footnoteDefRegex.matches(line) -> {
+                    val match = footnoteDefRegex.find(line)!!
+                    val body = match.groupValues[2]
+                    result += PreviewLine(
+                        text = body,
+                        type = PreviewLineType.FOOTNOTE_DEF,
+                        extra = match.groupValues[1],
+                        segments = parseInlineSegments(body)
+                    )
+                    index++
                 }
                 else -> {
                     result += parseLine(line)
@@ -112,6 +177,10 @@ object SimpleMarkdownPreview {
 
         inlineCodeRegex.findAll(text).forEach { match ->
             allMatches += InlineMatch(match.range.first, match.range.last, PreviewInlineType.INLINE_CODE, match.groupValues[1])
+        }
+
+        footnoteRefRegex.findAll(text).forEach { match ->
+            allMatches += InlineMatch(match.range.first, match.range.last, PreviewInlineType.FOOTNOTE_REF, match.groupValues[1])
         }
 
         allMatches.sortWith(compareBy({ it.start }, { -(it.end - it.start) }))

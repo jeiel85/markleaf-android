@@ -1,5 +1,8 @@
 package com.markleaf.notes.feature.settings
 
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -36,12 +39,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.BuildConfig
 import com.markleaf.notes.R
+import com.markleaf.notes.data.local.AppDatabase
+import com.markleaf.notes.data.repository.LocalNoteRepository
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.EditorLineWidth
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
+import com.markleaf.notes.util.ExportAllNotes
 import com.markleaf.notes.util.HapticFeedback
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,6 +62,22 @@ fun SettingsScreen(
     val scope = rememberCoroutineScope()
     val settingsRepository = remember { AppSettingsRepository(context.applicationContext) }
     val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
+    val noteRepository = remember { LocalNoteRepository(AppDatabase.getInstance(context.applicationContext)) }
+    val exportAllLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocumentTree()
+    ) { folderUri ->
+        if (folderUri != null) {
+            scope.launch {
+                val notes = withContext(Dispatchers.IO) { noteRepository.observeNotes().first() }
+                    .filter { !it.trashed }
+                val count = withContext(Dispatchers.IO) {
+                    ExportAllNotes.exportAllNotes(context, folderUri, notes)
+                }
+                val msg = context.getString(R.string.export_all_done_format, count)
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -137,6 +162,21 @@ fun SettingsScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(stringResource(R.string.privacy_dashboard_button))
+                    }
+                }
+
+                SettingsSection(title = stringResource(R.string.settings_data)) {
+                    Text(
+                        text = stringResource(R.string.export_all_notes_description),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = { exportAllLauncher.launch(null) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.export_all_notes))
                     }
                 }
 

@@ -44,7 +44,16 @@
     <string name="find_previous_match">Coincidencia anterior</string>
     <string name="find_next_match">Coincidencia siguiente</string>
     <string name="close">Cerrar</string>
-    <string name="share_note">Compartir nota</string>
+    <string name="share_note">Compartir o exportar</string>
+    <string name="share_via_system">Compartir mediante…</string>
+    <string name="export_as_file">Guardar como archivo .md…</string>
+    <string name="export_success">Nota exportada.</string>
+    <string name="export_failed">Error al exportar.</string>
+    <string name="callout_note">Nota</string>
+    <string name="callout_tip">Consejo</string>
+    <string name="callout_important">Importante</string>
+    <string name="callout_warning">Advertencia</string>
+    <string name="callout_caution">Precaucion</string>
 
     <string name="pin">Fijar</string>
     <string name="unpin">Quitar fijado</string>
@@ -90,6 +99,10 @@
     <string name="privacy_no_tracking">Sin cuenta, analiticas, anuncios, configuracion remota ni SDK propietario de fallos.</string>
     <string name="privacy_no_internet">El MVP no declara permiso INTERNET.</string>
     <string name="privacy_local_first">Las notas salen del dispositivo solo cuando las exportas o compartes explicitamente.</string>
+    <string name="settings_data">Datos</string>
+    <string name="export_all_notes">Exportar todas las notas…</string>
+    <string name="export_all_notes_description">Elige una carpeta y Markleaf guarda cada nota como un archivo .md independiente. Las notas en la papelera se omiten.</string>
+    <string name="export_all_done_format">%1$d notas exportadas.</string>
     <string name="settings_security">Seguridad de pantalla</string>
     <string name="screenshot_protection">Bloquear capturas y vista previa de Recientes</string>
     <string name="screenshot_protection_description">Oculta el contenido de las notas en capturas de pantalla y en la vista de aplicaciones recientes. Reabre el editor para aplicar el cambio.</string>

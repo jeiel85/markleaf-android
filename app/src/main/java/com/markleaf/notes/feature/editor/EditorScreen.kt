@@ -1,5 +1,8 @@
 package com.markleaf.notes.feature.editor
 
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -11,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -40,6 +44,8 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Title
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -68,6 +74,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -83,10 +95,13 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.markleaf.notes.R
+import com.markleaf.notes.core.markdown.CalloutKind
 import com.markleaf.notes.core.markdown.MarkdownEditActions
 import com.markleaf.notes.core.markdown.MarkdownSyntaxColors
 import com.markleaf.notes.core.markdown.MarkdownSyntaxVisualTransformation
@@ -101,6 +116,8 @@ import com.markleaf.notes.data.repository.LocalTagRepository
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
+import com.markleaf.notes.domain.model.Note
+import com.markleaf.notes.util.ExportUtil
 import com.markleaf.notes.util.HapticFeedback
 import com.markleaf.notes.util.ShareNoteUtil
 import kotlinx.coroutines.delay
@@ -132,6 +149,26 @@ fun EditorScreen(
     var isFindOpen by remember(noteId) { mutableStateOf(false) }
     var findQuery by remember(noteId) { mutableStateOf("") }
     var findIndex by remember(noteId) { mutableStateOf(0) }
+    var shareMenuExpanded by remember(noteId) { mutableStateOf(false) }
+    var pendingExport by remember(noteId) { mutableStateOf<Note?>(null) }
+    val exportSingleLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("text/markdown")
+    ) { uri ->
+        val note = pendingExport
+        pendingExport = null
+        if (uri != null && note != null) {
+            coroutineScope.launch {
+                try {
+                    context.contentResolver.openOutputStream(uri)?.use { os ->
+                        os.write(ExportUtil.generateMarkdownContent(note).toByteArray())
+                    }
+                    Toast.makeText(context, R.string.export_success, Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    Toast.makeText(context, R.string.export_failed, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
     val findMatches = remember(editorState.text, findQuery) {
         findAllRanges(editorState.text, findQuery)
     }
@@ -226,21 +263,49 @@ fun EditorScreen(
                             )
                         }
                         if (noteId != null) {
-                            IconButton(onClick = {
-                                coroutineScope.launch {
-                                    val current = repo.getNote(noteId) ?: return@launch
-                                    val live = current.copy(
-                                        title = TitleExtractor.extractTitle(editorState.text),
-                                        contentMarkdown = editorState.text,
-                                        excerpt = TitleExtractor.generateExcerpt(editorState.text)
+                            Box {
+                                IconButton(onClick = { shareMenuExpanded = true }) {
+                                    Icon(
+                                        Icons.Default.Share,
+                                        contentDescription = stringResource(R.string.share_note)
                                     )
-                                    ShareNoteUtil.shareNote(context, live)
                                 }
-                            }) {
-                                Icon(
-                                    Icons.Default.Share,
-                                    contentDescription = stringResource(R.string.share_note)
-                                )
+                                DropdownMenu(
+                                    expanded = shareMenuExpanded,
+                                    onDismissRequest = { shareMenuExpanded = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.share_via_system)) },
+                                        onClick = {
+                                            shareMenuExpanded = false
+                                            coroutineScope.launch {
+                                                val current = repo.getNote(noteId) ?: return@launch
+                                                val live = current.copy(
+                                                    title = TitleExtractor.extractTitle(editorState.text),
+                                                    contentMarkdown = editorState.text,
+                                                    excerpt = TitleExtractor.generateExcerpt(editorState.text)
+                                                )
+                                                ShareNoteUtil.shareNote(context, live)
+                                            }
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.export_as_file)) },
+                                        onClick = {
+                                            shareMenuExpanded = false
+                                            coroutineScope.launch {
+                                                val current = repo.getNote(noteId) ?: return@launch
+                                                val live = current.copy(
+                                                    title = TitleExtractor.extractTitle(editorState.text),
+                                                    contentMarkdown = editorState.text,
+                                                    excerpt = TitleExtractor.generateExcerpt(editorState.text)
+                                                )
+                                                pendingExport = live
+                                                exportSingleLauncher.launch(ExportUtil.generateFileName(live))
+                                            }
+                                        }
+                                    )
+                                }
                             }
                             IconButton(onClick = { showDeleteConfirm = true }) {
                                 Icon(
@@ -305,6 +370,9 @@ fun EditorScreen(
                                 )
                             }
                         }
+                        PreviewLineType.CALLOUT -> CalloutBox(line)
+                        PreviewLineType.FRONTMATTER -> FrontmatterBlock(line.text)
+                        PreviewLineType.FOOTNOTE_DEF -> FootnoteDefRow(line)
                         PreviewLineType.ORDERED_LIST -> Text(
                             text = "${line.extra ?: "1"}. ${line.text}",
                             style = MaterialTheme.typography.bodyLarge
@@ -371,7 +439,20 @@ fun EditorScreen(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .semantics { contentDescription = context.getString(R.string.note_content) },
+                            .semantics { contentDescription = context.getString(R.string.note_content) }
+                            .onPreviewKeyEvent { event ->
+                                if (event.type == KeyEventType.KeyDown && event.key == Key.Tab) {
+                                    editorState = if (event.isShiftPressed) {
+                                        MarkdownEditActions.outdent(editorState)
+                                    } else {
+                                        MarkdownEditActions.indent(editorState)
+                                    }
+                                    if (isLoaded) saveTrigger++
+                                    true
+                                } else {
+                                    false
+                                }
+                            },
                         textStyle = TextStyle(color = MaterialTheme.colorScheme.onBackground),
                         visualTransformation = markdownVisualTransformation,
                         decorationBox = { innerTextField ->
@@ -727,6 +808,17 @@ private fun InlineMarkdownText(
                         append(segment.text)
                     }
                 }
+                PreviewInlineType.FOOTNOTE_REF -> {
+                    withStyle(
+                        SpanStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            fontSize = 11.sp,
+                            baselineShift = BaselineShift.Superscript
+                        )
+                    ) {
+                        append(segment.text)
+                    }
+                }
             }
         }
     }
@@ -739,6 +831,123 @@ private fun InlineMarkdownText(
         modifier = Modifier.padding(vertical = 2.dp),
         onClick = { /* no inline click targets in simplified preview */ }
     )
+}
+
+@Composable
+private fun CalloutBox(line: PreviewLine) {
+    val kind = CalloutKind.parse(line.extra.orEmpty())
+    val (containerColor, accentColor, label, icon) = when (kind) {
+        CalloutKind.NOTE -> CalloutVisuals(
+            MaterialTheme.colorScheme.primaryContainer,
+            MaterialTheme.colorScheme.primary,
+            stringResource(R.string.callout_note),
+            "ℹ"
+        )
+        CalloutKind.TIP -> CalloutVisuals(
+            MaterialTheme.colorScheme.secondaryContainer,
+            MaterialTheme.colorScheme.secondary,
+            stringResource(R.string.callout_tip),
+            "💡"
+        )
+        CalloutKind.IMPORTANT -> CalloutVisuals(
+            MaterialTheme.colorScheme.tertiaryContainer,
+            MaterialTheme.colorScheme.tertiary,
+            stringResource(R.string.callout_important),
+            "★"
+        )
+        CalloutKind.WARNING -> CalloutVisuals(
+            MaterialTheme.colorScheme.errorContainer,
+            MaterialTheme.colorScheme.error,
+            stringResource(R.string.callout_warning),
+            "⚠"
+        )
+        CalloutKind.CAUTION -> CalloutVisuals(
+            MaterialTheme.colorScheme.errorContainer,
+            MaterialTheme.colorScheme.error,
+            stringResource(R.string.callout_caution),
+            "⛔"
+        )
+        null -> CalloutVisuals(
+            MaterialTheme.colorScheme.surfaceVariant,
+            MaterialTheme.colorScheme.onSurfaceVariant,
+            line.extra.orEmpty(),
+            "•"
+        )
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(containerColor)
+            .padding(horizontal = 12.dp, vertical = 10.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(text = icon, color = accentColor)
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge,
+                color = accentColor,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+        if (line.text.isNotBlank()) {
+            Spacer(Modifier.height(4.dp))
+            line.text.split("\n").forEach { bodyLine ->
+                if (bodyLine.isBlank()) {
+                    Spacer(Modifier.height(4.dp))
+                } else {
+                    InlineMarkdownText(
+                        line = PreviewLine(
+                            text = bodyLine,
+                            type = PreviewLineType.BODY,
+                            segments = SimpleMarkdownPreview.parseInlineSegments(bodyLine)
+                        )
+                    )
+                }
+            }
+        }
+    }
+}
+
+private data class CalloutVisuals(
+    val containerColor: androidx.compose.ui.graphics.Color,
+    val accentColor: androidx.compose.ui.graphics.Color,
+    val label: String,
+    val icon: String
+)
+
+@Composable
+private fun FrontmatterBlock(text: String) {
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = RoundedCornerShape(6.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp)
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+        )
+    }
+}
+
+@Composable
+private fun FootnoteDefRow(line: PreviewLine) {
+    Row(modifier = Modifier.padding(vertical = 2.dp)) {
+        Text(
+            text = "[^${line.extra}]",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(end = 6.dp)
+        )
+        InlineMarkdownText(line = line.copy(type = PreviewLineType.BODY))
+    }
 }
 
 @Composable

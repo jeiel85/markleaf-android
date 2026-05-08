@@ -7,6 +7,48 @@ import org.junit.Test
 
 class MarkdownEditActionsTest {
     @Test
+    fun indent_addsTwoSpacesAtLineStart() {
+        val result = MarkdownEditActions.indent(
+            TextFieldValue("hello", selection = TextRange(2))
+        )
+        assertEquals("  hello", result.text)
+        assertEquals(TextRange(4), result.selection)
+    }
+
+    @Test
+    fun indent_indentsEveryLineInMultiLineSelection() {
+        val result = MarkdownEditActions.indent(
+            TextFieldValue("a\nb\nc", selection = TextRange(0, 5))
+        )
+        assertEquals("  a\n  b\n  c", result.text)
+    }
+
+    @Test
+    fun outdent_removesTwoLeadingSpaces() {
+        val result = MarkdownEditActions.outdent(
+            TextFieldValue("  hello", selection = TextRange(4))
+        )
+        assertEquals("hello", result.text)
+        assertEquals(TextRange(2), result.selection)
+    }
+
+    @Test
+    fun outdent_handlesTabIndent() {
+        val result = MarkdownEditActions.outdent(
+            TextFieldValue("\thello", selection = TextRange(3))
+        )
+        assertEquals("hello", result.text)
+    }
+
+    @Test
+    fun outdent_isNoOpWhenLineHasNoLeadingWhitespace() {
+        val result = MarkdownEditActions.outdent(
+            TextFieldValue("hello", selection = TextRange(2))
+        )
+        assertEquals("hello", result.text)
+    }
+
+    @Test
     fun bold_wrapsSelectedText() {
         val result = MarkdownEditActions.bold(
             TextFieldValue("hello world", selection = TextRange(6, 11))

@@ -67,6 +67,56 @@ object MarkdownEditActions {
     fun blockquote(value: TextFieldValue): TextFieldValue =
         toggleLinePrefix(value, blockquotePattern, "> ")
 
+    /**
+     * Indent the line under the caret (or every line touched by a multi-line selection)
+     * by two spaces. Used as the Tab-key handler in the editor.
+     */
+    fun indent(value: TextFieldValue): TextFieldValue {
+        val (blockStart, blockEnd) = selectionLineRange(value)
+        val block = value.text.substring(blockStart, blockEnd)
+        val transformed = block.split("\n").joinToString("\n") { "  $it" }
+        val text = value.text.substring(0, blockStart) + transformed + value.text.substring(blockEnd)
+        val delta = transformed.length - block.length
+        val newSelection = TextRange(
+            (value.selection.min + 2).coerceAtMost(text.length),
+            (value.selection.max + delta).coerceAtMost(text.length)
+        )
+        return value.copy(text = text, selection = newSelection)
+    }
+
+    /**
+     * Remove up to two leading spaces (or one tab) from every line touched by the
+     * selection. Used as the Shift+Tab handler.
+     */
+    fun outdent(value: TextFieldValue): TextFieldValue {
+        val (blockStart, blockEnd) = selectionLineRange(value)
+        val block = value.text.substring(blockStart, blockEnd)
+        var firstRemoved = 0
+        var totalRemoved = 0
+        val transformed = block.split("\n").mapIndexed { i, line ->
+            val trimmed = when {
+                line.startsWith("  ") -> line.removePrefix("  ").also {
+                    if (i == 0) firstRemoved = 2
+                    totalRemoved += 2
+                }
+                line.startsWith("\t") -> line.removePrefix("\t").also {
+                    if (i == 0) firstRemoved = 1
+                    totalRemoved += 1
+                }
+                line.startsWith(" ") -> line.removePrefix(" ").also {
+                    if (i == 0) firstRemoved = 1
+                    totalRemoved += 1
+                }
+                else -> line
+            }
+            trimmed
+        }.joinToString("\n")
+        val text = value.text.substring(0, blockStart) + transformed + value.text.substring(blockEnd)
+        val newMin = (value.selection.min - firstRemoved).coerceAtLeast(blockStart)
+        val newMax = (value.selection.max - totalRemoved).coerceAtLeast(newMin)
+        return value.copy(text = text, selection = TextRange(newMin, newMax))
+    }
+
     /** Insert a horizontal rule on its own line. */
     fun horizontalRule(value: TextFieldValue): TextFieldValue {
         val (lineStart, line) = currentLine(value)
@@ -198,6 +248,17 @@ object MarkdownEditActions {
         val nextNewline = value.text.indexOf('\n', lineStart)
         val lineEnd = if (nextNewline == -1) value.text.length else nextNewline
         return lineStart to value.text.substring(lineStart, lineEnd)
+    }
+
+    private fun selectionLineRange(value: TextFieldValue): Pair<Int, Int> {
+        val text = value.text
+        val selStart = value.selection.min.coerceIn(0, text.length)
+        val selEnd = value.selection.max.coerceIn(0, text.length)
+        val blockStart = text.lastIndexOf('\n', (selStart - 1).coerceAtLeast(0))
+            .let { if (it == -1) 0 else it + 1 }
+        val nextNewline = text.indexOf('\n', selEnd)
+        val blockEnd = if (nextNewline == -1) text.length else nextNewline
+        return blockStart to blockEnd
     }
 
     private fun wrapSelection(

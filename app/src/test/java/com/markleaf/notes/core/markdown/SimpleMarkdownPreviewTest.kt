@@ -194,4 +194,76 @@ class SimpleMarkdownPreviewTest {
         assertEquals("plain text", lines[0].text)
         assertEquals(null, lines[0].extra)
     }
+
+    @Test
+    fun parse_parsesFrontmatter() {
+        val markdown = """
+            ---
+            title: Hello
+            tags: [draft]
+            ---
+            Body text
+        """.trimIndent()
+
+        val lines = SimpleMarkdownPreview.parse(markdown)
+
+        assertEquals(PreviewLineType.FRONTMATTER, lines[0].type)
+        assertEquals("title: Hello\ntags: [draft]", lines[0].text)
+        assertEquals(PreviewLineType.BODY, lines[1].type)
+        assertEquals("Body text", lines[1].text)
+    }
+
+    @Test
+    fun parse_doesNotTreatMidDocumentDashesAsFrontmatter() {
+        val markdown = "Body\n---\nMore body"
+        val lines = SimpleMarkdownPreview.parse(markdown)
+
+        // First line is body; the `---` should still parse as a horizontal rule.
+        assertEquals(PreviewLineType.BODY, lines[0].type)
+        assertEquals(PreviewLineType.HORIZONTAL_RULE, lines[1].type)
+    }
+
+    @Test
+    fun parse_parsesCalloutBlocks() {
+        val markdown = """
+            > [!NOTE]
+            > A useful note.
+            > Second line.
+            After
+        """.trimIndent()
+
+        val lines = SimpleMarkdownPreview.parse(markdown)
+
+        assertEquals(PreviewLineType.CALLOUT, lines[0].type)
+        assertEquals("NOTE", lines[0].extra)
+        assertEquals("A useful note.\nSecond line.", lines[0].text)
+        assertEquals(PreviewLineType.BODY, lines[1].type)
+    }
+
+    @Test
+    fun parse_calloutKindAcceptsCommonAliases() {
+        assertEquals(CalloutKind.WARNING, CalloutKind.parse("warn"))
+        assertEquals(CalloutKind.WARNING, CalloutKind.parse("WARNING"))
+        assertEquals(CalloutKind.CAUTION, CalloutKind.parse("danger"))
+        assertEquals(CalloutKind.TIP, CalloutKind.parse("tip"))
+        assertEquals(null, CalloutKind.parse("UNKNOWN"))
+    }
+
+    @Test
+    fun parse_parsesFootnoteDefinition() {
+        val lines = SimpleMarkdownPreview.parse("[^1]: A footnote body.")
+
+        assertEquals(PreviewLineType.FOOTNOTE_DEF, lines[0].type)
+        assertEquals("1", lines[0].extra)
+        assertEquals("A footnote body.", lines[0].text)
+    }
+
+    @Test
+    fun parse_parsesFootnoteRefAsInlineSegment() {
+        val lines = SimpleMarkdownPreview.parse("Body with ref[^1] inside")
+
+        assertEquals(PreviewLineType.BODY, lines[0].type)
+        val ref = lines[0].segments.firstOrNull { it.type == PreviewInlineType.FOOTNOTE_REF }
+        assertEquals("1", ref?.text)
+    }
 }

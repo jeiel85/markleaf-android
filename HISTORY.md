@@ -1,3 +1,24 @@
+## 2026-05-08 (밤) - v1.6.0
+- Work: Phase 15 (Markdown Expressiveness) 4종 + 별도 검토에서 발견된 §7 *반드시 포함* 누락 항목(단일/전체 .md 내보내기 UI) 동시 해결.
+- Changed files:
+  - core/markdown/SimpleMarkdownPreview.kt — `CalloutKind` enum 추가 (NOTE/TIP/IMPORTANT/WARNING/CAUTION + `WARN`/`DANGER` 별칭 매핑), `PreviewLineType.CALLOUT/FRONTMATTER/FOOTNOTE_DEF` 추가, `PreviewInlineType.FOOTNOTE_REF` 추가. `parse()` 진입부에서 leading `---` … `---` 만 frontmatter로 처리하고 본문 중간의 `---`는 기존 HORIZONTAL_RULE 처리 유지. 콜아웃은 `> [!TYPE]` 헤드라인 다음 연속된 `>` 라인을 모아 단일 PreviewLine로 합침. 각주 정의는 라인 단위 정규식, 각주 참조는 inline 정규식(definition와 충돌하지 않도록 `(?!:)` 부정 lookahead 사용).
+  - core/markdown/MarkdownEditActions.kt — `indent()` / `outdent()` 추가. 둘 다 `selectionLineRange()` 헬퍼로 선택 영역에 닿는 모든 줄을 잡아 일괄 처리. outdent는 2-space, tab, 1-space 순으로 단계적 제거.
+  - feature/editor/EditorScreen.kt — BasicTextField에 `Modifier.onPreviewKeyEvent { Tab/Shift+Tab → indent/outdent }` 부착. 기존 Share IconButton을 DropdownMenu로 묶어 "공유 시트로 보내기" + ".md 파일로 저장" 두 항목으로 확장. 후자는 `ActivityResultContracts.CreateDocument("text/markdown")` 런처 + `ExportUtil.generateMarkdownContent/generateFileName` 호출. 미리보기 LazyColumn에 `PreviewLineType.CALLOUT/FRONTMATTER/FOOTNOTE_DEF` 케이스 추가. `InlineMarkdownText`에 `FOOTNOTE_REF` (BaselineShift.Superscript + 11sp + primary color) 케이스 추가.
+  - feature/settings/SettingsScreen.kt — 새 "데이터" 섹션 + "전체 노트 내보내기…" 버튼. `ActivityResultContracts.OpenDocumentTree()` 런처가 `LocalNoteRepository.observeNotes().first()` 로 현재 노트 스냅샷을 잡아 `ExportAllNotes.exportAllNotes(context, folderUri, notes)` 호출. 휴지통 노트는 제외. 결과 Toast로 "노트 N개를 내보냈습니다" 표시.
+  - res/values{,-ko,-es}/strings.xml — share_via_system, export_as_file, export_success, export_failed, export_all_notes, export_all_notes_description, export_all_done_format, settings_data, callout_note/tip/important/warning/caution + `share_note` 라벨을 "공유 / 내보내기"로 수정 (3개 언어 동시).
+  - app/build.gradle.kts (versionCode 59, versionName 1.6.0)
+  - test/core/markdown/SimpleMarkdownPreviewTest.kt — 6개 테스트 추가 (frontmatter, mid-document `---` 보존, callout block, callout alias, footnote def, footnote ref).
+  - test/core/markdown/MarkdownEditActionsTest.kt — 5개 테스트 추가 (indent single, indent multi-line, outdent 2-space, outdent tab, outdent no-op).
+  - CHANGELOG.md, HISTORY.md, .agent/tasks.md
+- Context:
+  - SimpleMarkdownPreview.kt 라인 수: v1.5.0 종료 시 178 LOC → v1.6.0 ~210 LOC. lightweight-bias 메모의 ~300 LOC 한계 안에 안전하게 들어옴.
+  - 전체 노트 내보내기에서 SettingsScreen이 NotesViewModel 없이 LocalNoteRepository를 직접 인스턴스화하는 건 TagsScreen/SearchScreen과 동일한 기존 패턴(스펙 §9의 엄격 해석에는 어긋나지만 v1.0부터의 단순화 컨벤션).
+  - 단일 노트 export 메뉴 위치: TopAppBar 액션이 v1.5에서 5개로 늘어나 더 추가하면 비좁아지므로, 기존 Share IconButton을 DropdownMenu host로 바꿔 "공유" + "내보내기" 두 동작을 하나의 버튼 아래에 묶음. 사용자가 자주 헷갈릴 수 있어 라벨에 ellipsis(…)를 붙여 "선택할 게 더 있다"는 신호.
+- Verification:
+  - `./gradlew assembleDebug` 통과
+  - `./gradlew test` 통과 — 신규 11개 테스트 포함 모든 단위 테스트 그린
+  - `./gradlew assembleDebugAndroidTest` 통과
+
 ## 2026-05-08 (밤) - v1.5.0
 - Work: Phase 14 — 안드로이드 정상 시민 마감을 위한 5종 묶음 (Material You / 예측 뒤로가기 / 단일 노트 시스템 공유 / 외부 공유 텍스트 수신 / FLAG_SECURE 토글).
 - Changed files:

@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.HorizontalRule
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Title
@@ -150,6 +151,7 @@ fun EditorScreen(
     var findQuery by remember(noteId) { mutableStateOf("") }
     var findIndex by remember(noteId) { mutableStateOf(0) }
     var shareMenuExpanded by remember(noteId) { mutableStateOf(false) }
+    var overflowExpanded by remember(noteId) { mutableStateOf(false) }
     var pendingExport by remember(noteId) { mutableStateOf<Note?>(null) }
     val exportSingleLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("text/markdown")
@@ -249,12 +251,6 @@ fun EditorScreen(
                                     contentDescription = stringResource(R.string.find_in_note)
                                 )
                             }
-                            IconButton(onClick = { isFocusMode = true }) {
-                                Icon(
-                                    Icons.Default.CenterFocusStrong,
-                                    contentDescription = stringResource(R.string.focus_mode)
-                                )
-                            }
                         }
                         TextButton(onClick = { isPreviewMode = !isPreviewMode }) {
                             Text(
@@ -307,11 +303,38 @@ fun EditorScreen(
                                     )
                                 }
                             }
-                            IconButton(onClick = { showDeleteConfirm = true }) {
-                                Icon(
-                                    Icons.Default.Delete,
-                                    contentDescription = stringResource(R.string.move_to_trash)
-                                )
+                            Box {
+                                IconButton(onClick = { overflowExpanded = true }) {
+                                    Icon(
+                                        Icons.Default.MoreVert,
+                                        contentDescription = stringResource(R.string.more_options)
+                                    )
+                                }
+                                DropdownMenu(
+                                    expanded = overflowExpanded,
+                                    onDismissRequest = { overflowExpanded = false }
+                                ) {
+                                    if (!isPreviewMode) {
+                                        DropdownMenuItem(
+                                            leadingIcon = {
+                                                Icon(Icons.Default.CenterFocusStrong, contentDescription = null)
+                                            },
+                                            text = { Text(stringResource(R.string.focus_mode)) },
+                                            onClick = {
+                                                overflowExpanded = false
+                                                isFocusMode = true
+                                            }
+                                        )
+                                    }
+                                    DropdownMenuItem(
+                                        leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null) },
+                                        text = { Text(stringResource(R.string.move_to_trash)) },
+                                        onClick = {
+                                            overflowExpanded = false
+                                            showDeleteConfirm = true
+                                        }
+                                    )
+                                }
                             }
                         }
                     }

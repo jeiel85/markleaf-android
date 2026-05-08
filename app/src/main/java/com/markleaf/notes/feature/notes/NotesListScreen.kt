@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material.icons.filled.Search
@@ -79,6 +80,7 @@ fun NotesListScreen(
 ) {
     val hapticFeedback = LocalHapticFeedback.current
     val notesState = remember { mutableStateOf<List<Note>>(emptyList()) }
+    var overflowExpanded by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         viewModel.notes.collect { noteList ->
             notesState.value = noteList
@@ -110,14 +112,42 @@ fun NotesListScreen(
                     IconButton(onClick = onTagsClick) {
                         Icon(Icons.AutoMirrored.Filled.Label, contentDescription = stringResource(R.string.tags))
                     }
-                    IconButton(onClick = onArchiveClick) {
-                        Icon(Icons.Default.Inventory2, contentDescription = stringResource(R.string.archive))
-                    }
-                    IconButton(onClick = onTrashClick) {
-                        Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.trash))
-                    }
-                    IconButton(onClick = onSettingsClick) {
-                        Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.settings))
+                    Box {
+                        IconButton(onClick = { overflowExpanded = true }) {
+                            Icon(
+                                Icons.Default.MoreVert,
+                                contentDescription = stringResource(R.string.more_options)
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = overflowExpanded,
+                            onDismissRequest = { overflowExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                leadingIcon = { Icon(Icons.Default.Inventory2, contentDescription = null) },
+                                text = { Text(stringResource(R.string.archive)) },
+                                onClick = {
+                                    overflowExpanded = false
+                                    onArchiveClick()
+                                }
+                            )
+                            DropdownMenuItem(
+                                leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null) },
+                                text = { Text(stringResource(R.string.trash)) },
+                                onClick = {
+                                    overflowExpanded = false
+                                    onTrashClick()
+                                }
+                            )
+                            DropdownMenuItem(
+                                leadingIcon = { Icon(Icons.Default.Settings, contentDescription = null) },
+                                text = { Text(stringResource(R.string.settings)) },
+                                onClick = {
+                                    overflowExpanded = false
+                                    onSettingsClick()
+                                }
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

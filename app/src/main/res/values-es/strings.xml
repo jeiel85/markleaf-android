@@ -12,6 +12,7 @@
     <string name="archive_empty">No hay notas archivadas</string>
     <string name="archive_empty_hint">Manten pulsada una nota en la lista principal y elige Archivar para moverla aqui.</string>
     <string name="settings">Ajustes</string>
+    <string name="more_options">Mas opciones</string>
     <string name="add_note">Agregar nota</string>
     <string name="no_notes_yet">Aun no hay notas</string>
     <string name="create_first_note_hint">Toca + para crear tu primera nota</string>
@@ -107,7 +108,6 @@
     <string name="export_all_notes">Exportar todas las notas…</string>
     <string name="export_all_notes_description">Elige una carpeta y Markleaf guarda cada nota como un archivo .md independiente. Las notas en la papelera se omiten.</string>
     <string name="export_all_done_format">%1$d notas exportadas.</string>
-    <string name="settings_security">Seguridad de pantalla</string>
     <string name="screenshot_protection">Bloquear capturas y vista previa de Recientes</string>
     <string name="screenshot_protection_description">Oculta el contenido de las notas en capturas de pantalla y en la vista de aplicaciones recientes. Reabre el editor para aplicar el cambio.</string>
     <string name="settings_app">Aplicacion</string>

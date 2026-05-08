@@ -157,6 +157,18 @@ fun SettingsScreen(
                     SettingLine(stringResource(R.string.privacy_no_internet))
                     SettingLine(stringResource(R.string.privacy_local_first))
                     Spacer(Modifier.height(12.dp))
+                    SettingsSwitchRow(
+                        title = stringResource(R.string.screenshot_protection),
+                        description = stringResource(R.string.screenshot_protection_description),
+                        checked = appSettings.screenshotProtection,
+                        onCheckedChange = { checked ->
+                            HapticFeedback.light(context)
+                            scope.launch {
+                                settingsRepository.setScreenshotProtection(checked)
+                            }
+                        }
+                    )
+                    Spacer(Modifier.height(12.dp))
                     Button(
                         onClick = onPrivacyClick,
                         modifier = Modifier.fillMaxWidth()
@@ -178,20 +190,6 @@ fun SettingsScreen(
                     ) {
                         Text(stringResource(R.string.export_all_notes))
                     }
-                }
-
-                SettingsSection(title = stringResource(R.string.settings_security)) {
-                    SettingsSwitchRow(
-                        title = stringResource(R.string.screenshot_protection),
-                        description = stringResource(R.string.screenshot_protection_description),
-                        checked = appSettings.screenshotProtection,
-                        onCheckedChange = { checked ->
-                            HapticFeedback.light(context)
-                            scope.launch {
-                                settingsRepository.setScreenshotProtection(checked)
-                            }
-                        }
-                    )
                 }
 
                 SettingsSection(title = stringResource(R.string.settings_app)) {

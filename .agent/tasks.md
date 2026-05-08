@@ -123,6 +123,17 @@ SimpleMarkdownPreview.kt LOC: 178 → ~210 (한계 ~300 안에 안전).
 
 ---
 
+## Phase 17 - Chrome Consolidation (Done, 2026-05-08, v1.8.0)
+
+목적: v1.5–1.7가 누적한 상단바·설정 chrome density를 §2.5(단순하지만 허전하지 않게) 기준으로 정리. 새 기능 0.
+
+- [x] NotesListScreen TopAppBar — 5 actions → search/tags primary + ⋮ overflow (archive/trash/settings)
+- [x] EditorScreen TopAppBar — 5 actions → search/preview-toggle/share primary + ⋮ overflow (focus/trash). focus는 미리보기 모드에선 숨김 (쓰기에서만 의미).
+- [x] SettingsScreen — `settings_security` 단일-스위치 섹션을 `settings_privacy` 섹션으로 흡수. 5 sections → 4.
+- [x] strings: `more_options` 추가, `settings_security` 삭제 (3 lang).
+
+§2.5 임계점에서 한 발 물러섬. 다음 사이클에 새 항목이 추가되더라도 한동안 여유 있음.
+
 ## Phase 16 - Spec Closure (Done, 2026-05-08, v1.7.0)
 
 목적: AGENT_SPEC §7 *반드시 포함* + *있으면 좋은* 항목 중 마지막 미완 항목들을 닫음.

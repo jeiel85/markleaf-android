@@ -1,3 +1,21 @@
+## 2026-05-08 (밤) - v1.8.0
+- Work: v1.5–1.7 사이클이 누적시킨 상단바·설정 chrome density를 줄이는 정리 사이클. 새 기능 0, 모든 액션 유지하되 시각 밀도만 하향.
+- Changed files:
+  - feature/notes/NotesListScreen.kt — TopAppBar 액션 정리. archive/trash/settings IconButton 3개를 `Icons.Default.MoreVert` IconButton + DropdownMenu(보관함/휴지통/설정) 한 개로 합침. search/tags는 primary 유지. `overflowExpanded: Boolean` state 추가.
+  - feature/editor/EditorScreen.kt — TopAppBar 액션 정리. focus, trash IconButton을 새 ⋮ overflow DropdownMenu(집중 모드 / 휴지통으로 이동)로 이동. search(find-in-note), preview/edit 토글, share-menu 셋은 primary 유지. focus 모드 항목은 미리보기 모드일 때만 표시(쓰기 화면에서만 의미 있음). `overflowExpanded: Boolean` state 추가.
+  - feature/settings/SettingsScreen.kt — `settings_security` 섹션 제거. `screenshot_protection` 스위치를 `settings_privacy` 섹션 안으로 이동(privacy_local_first 다음, privacy dashboard 버튼 위).
+  - res/values{,-ko,-es}/strings.xml — `more_options` (3 lang) 추가, `settings_security` (3 lang) 삭제. ResourceParityTest 통과.
+  - app/build.gradle.kts (versionCode 61, versionName 1.8.0)
+  - CHANGELOG.md, HISTORY.md, .agent/tasks.md
+- Context:
+  - v1.7.0 직후 §2 가치관 점검에서 발견된 "gradual chrome accretion" 신호에 대한 직접적인 응답 사이클. 5단계 흐름(열기→쓰기→정리→찾기→내보내기)에 새 기능을 더하지 않고, 기존 항목을 사용 빈도에 따라 primary / overflow로 재정렬한 것.
+  - Material 3 TopAppBar는 trailing actions의 명시적 상한을 두지 않지만 일반적으로 ≤3개 권장. 우리는 이번에 그 권장에 정렬됨.
+  - DropdownMenu는 v1.6 share-menu, v1.7 archive-row long-press 등에서 이미 사용 중인 패턴이라 코드 추가가 일관된 idiom.
+- Verification:
+  - `./gradlew assembleDebug` 통과
+  - `./gradlew test` 통과 — UI를 만지지 않은 단위 테스트들 모두 그린 (`ResourceParityTest`가 새 키 / 삭제된 키를 3개 언어 동기 검증)
+  - `./gradlew assembleDebugAndroidTest` 통과
+
 ## 2026-05-08 (밤) - v1.7.0
 - Work: Phase 16 (Spec Closure) — `Note.archived` 필드(v1.0부터 dead) 살리는 보관함 UI 도입 + AGENT_SPEC §7 접근성 라인 검증.
 - Changed files:

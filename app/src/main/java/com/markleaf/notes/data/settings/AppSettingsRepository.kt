@@ -24,8 +24,17 @@ class AppSettingsRepository(
                 ?: EditorLineWidth.COMFORTABLE,
             screenshotProtection = preferences[SCREENSHOT_PROTECTION] ?: false,
             syncFolderUri = preferences[SYNC_FOLDER_URI],
-            syncLastSyncedAt = preferences[SYNC_LAST_SYNCED_AT]
+            syncLastSyncedAt = preferences[SYNC_LAST_SYNCED_AT],
+            colorPalette = preferences[COLOR_PALETTE]
+                ?.let { value -> enumValueOrDefault(value, ColorPalette.MARKLEAF_GREEN) }
+                ?: ColorPalette.MARKLEAF_GREEN
         )
+    }
+
+    suspend fun setColorPalette(palette: ColorPalette) {
+        context.markleafSettingsDataStore.edit { preferences ->
+            preferences[COLOR_PALETTE] = palette.name
+        }
     }
 
     suspend fun setMarkdownSyntaxVisibility(visibility: MarkdownSyntaxVisibility) {
@@ -75,5 +84,6 @@ class AppSettingsRepository(
         val SCREENSHOT_PROTECTION = booleanPreferencesKey("screenshot_protection")
         val SYNC_FOLDER_URI = stringPreferencesKey("sync_folder_uri")
         val SYNC_LAST_SYNCED_AT = longPreferencesKey("sync_last_synced_at")
+        val COLOR_PALETTE = stringPreferencesKey("color_palette")
     }
 }

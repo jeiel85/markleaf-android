@@ -96,6 +96,12 @@
     <string name="move_to_trash_message">Move \"%1$s\" to trash? You can restore it later from the Trash.</string>
     <string name="move_to_trash_editor_message">Move this note to trash? You can restore it later from the Trash.</string>
 
+    <string name="settings_appearance">Appearance</string>
+    <string name="theme_label">Theme</string>
+    <string name="theme_markleaf_green">Markleaf green</string>
+    <string name="theme_material_you">Material You</string>
+    <string name="theme_description">Markleaf green is the original leaf-inspired palette. Material You follows your system wallpaper colors on Android 12 and later.</string>
+
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Show Markdown syntax</string>
     <string name="show_markdown_syntax_description">The live editor highlights Markdown characters while you write.</string>

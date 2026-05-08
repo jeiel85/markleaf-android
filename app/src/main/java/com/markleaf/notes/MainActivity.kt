@@ -13,10 +13,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.onboarding.StarterNotesSeeder
 import com.markleaf.notes.data.repository.LocalNoteRepository
+import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
+import com.markleaf.notes.data.settings.ColorPalette
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.navigation.MarkleafNavHost
 import com.markleaf.notes.ui.theme.MarkleafTheme
@@ -106,7 +110,10 @@ class MainActivity : ComponentActivity() {
             val viewModelFactory = remember {
                 MarkleafViewModelFactory(LocalNoteRepository(database))
             }
-            MarkleafTheme {
+            val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
+            MarkleafTheme(
+                dynamicColor = appSettings.colorPalette == ColorPalette.MATERIAL_YOU
+            ) {
                 val navController = rememberNavController()
                 MarkleafNavHost(
                     navController = navController,

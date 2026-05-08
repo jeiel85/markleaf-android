@@ -132,7 +132,7 @@ val Typography = androidx.compose.material3.Typography(
 @Composable
 fun MarkleafTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current

@@ -2,6 +2,15 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.5.1 - 테마 선택 (Theme picker, green default restored) - 2026-05-08
+
+### 변경
+- **기본 테마를 Markleaf 그린으로 되돌림.** v1.5에서 Material You가 기본값이 되며 Android 12+ 기기에서는 사용자 월페이퍼 색을 따라가 그린이 사라졌었음. 사용자 명시 의견("leaf와 비슷한 그린이 좋다")에 따라 *원래 정체성으로 복귀*.
+- **설정에서 테마 선택 가능:** 설정 → "테마" 섹션에 두 옵션:
+  - **Markleaf 그린** (기본) — 앱 이름의 leaf와 어울리는 원래 정적 팔레트
+  - **Material You** — Android 12+ 시스템 월페이퍼 기반 동적 색상 (이전 기본값)
+- 변경 즉시 반영 — `MainActivity` 가 settings flow를 collect해 ColorPalette 변경마다 `MarkleafTheme` 가 새 색상으로 리컴포즈.
+
 ## v2.5.0 - 이미지 첨부 부활 (Image Attachments Restored) - 2026-05-08
 
 ### 새로운 기능 (v1.2.0 결정 의식적 reversal)

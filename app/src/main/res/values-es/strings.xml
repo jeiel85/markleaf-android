@@ -96,6 +96,12 @@
     <string name="move_to_trash_message">Mover \"%1$s\" a la papelera? Puedes restaurarla despues desde la Papelera.</string>
     <string name="move_to_trash_editor_message">Mover esta nota a la papelera? Puedes restaurarla despues desde la Papelera.</string>
 
+    <string name="settings_appearance">Apariencia</string>
+    <string name="theme_label">Tema</string>
+    <string name="theme_markleaf_green">Verde Markleaf</string>
+    <string name="theme_material_you">Material You</string>
+    <string name="theme_description">El verde Markleaf es la paleta original inspirada en la hoja del nombre. Material You sigue los colores del fondo del sistema en Android 12 y posterior.</string>
+
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Mostrar sintaxis Markdown</string>
     <string name="show_markdown_syntax_description">El editor resalta caracteres Markdown mientras escribes.</string>

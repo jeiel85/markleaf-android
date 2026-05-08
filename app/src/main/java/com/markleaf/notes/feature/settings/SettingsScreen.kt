@@ -45,6 +45,7 @@ import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.repository.LocalNoteRepository
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
+import com.markleaf.notes.data.settings.ColorPalette
 import com.markleaf.notes.data.settings.EditorLineWidth
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import com.markleaf.notes.data.sync.NoteFolderMirror
@@ -139,6 +140,40 @@ fun SettingsScreen(
                     .padding(horizontal = 20.dp, vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
+                SettingsSection(title = stringResource(R.string.settings_appearance)) {
+                    Text(
+                        text = stringResource(R.string.theme_label),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        ColorPalette.entries.forEach { palette ->
+                            val selected = appSettings.colorPalette == palette
+                            if (selected) {
+                                Button(onClick = {}) {
+                                    Text(palette.localizedLabel())
+                                }
+                            } else {
+                                OutlinedButton(
+                                    onClick = {
+                                        scope.launch { settingsRepository.setColorPalette(palette) }
+                                    }
+                                ) {
+                                    Text(palette.localizedLabel())
+                                }
+                            }
+                        }
+                    }
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        text = stringResource(R.string.theme_description),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
                 SettingsSection(title = stringResource(R.string.settings_markdown)) {
                     SettingsSwitchRow(
                         title = stringResource(R.string.show_markdown_syntax),
@@ -453,5 +488,13 @@ private fun EditorLineWidth.localizedLabel(): String {
         EditorLineWidth.NARROW -> stringResource(R.string.line_width_narrow)
         EditorLineWidth.COMFORTABLE -> stringResource(R.string.line_width_comfortable)
         EditorLineWidth.WIDE -> stringResource(R.string.line_width_wide)
+    }
+}
+
+@Composable
+private fun ColorPalette.localizedLabel(): String {
+    return when (this) {
+        ColorPalette.MARKLEAF_GREEN -> stringResource(R.string.theme_markleaf_green)
+        ColorPalette.MATERIAL_YOU -> stringResource(R.string.theme_material_you)
     }
 }

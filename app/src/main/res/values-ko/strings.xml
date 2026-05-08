@@ -96,6 +96,12 @@
     <string name="move_to_trash_message">\"%1$s\"를 휴지통으로 옮길까요? 휴지통에서 다시 복원할 수 있습니다.</string>
     <string name="move_to_trash_editor_message">이 노트를 휴지통으로 옮길까요? 휴지통에서 다시 복원할 수 있습니다.</string>
 
+    <string name="settings_appearance">테마</string>
+    <string name="theme_label">테마</string>
+    <string name="theme_markleaf_green">Markleaf 그린</string>
+    <string name="theme_material_you">Material You</string>
+    <string name="theme_description">Markleaf 그린은 앱 이름의 leaf와 어울리는 원래 색상입니다. Material You는 Android 12 이상에서 시스템 월페이퍼의 색을 따라갑니다.</string>
+
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Markdown 문법 표시</string>
     <string name="show_markdown_syntax_description">라이브 에디터에서 작성 중 Markdown 문자를 하이라이팅합니다.</string>

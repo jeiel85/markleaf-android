@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "markleaf-android"
 include(":app")
+include(":benchmark")

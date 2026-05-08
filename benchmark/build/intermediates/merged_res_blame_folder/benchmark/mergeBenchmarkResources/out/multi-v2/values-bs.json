@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.markleaf.notes.benchmark-mergeBenchmarkResources-16:/values-bs/values-bs.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\jeiel\\.gradle\\caches\\transforms-3\\b09d0e5ebc6f878abb1858514954a6c7\\transformed\\core-1.9.0\\res\\values-bs\\values-bs.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "100",
+                        "endOffsets": "151"
+                    }
+                }
+            ]
+        }
+    ]
+}

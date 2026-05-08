@@ -1,0 +1,10 @@
+#Fri May 08 22:43:15 KST 2026
+base.0=D\:\\Project\\markleaf-android\\benchmark\\build\\intermediates\\dex\\benchmark\\mergeExtDexBenchmark\\classes.dex
+base.1=D\:\\Project\\markleaf-android\\benchmark\\build\\intermediates\\dex\\benchmark\\mergeProjectDexBenchmark\\0\\classes.dex
+base.2=D\:\\Project\\markleaf-android\\benchmark\\build\\intermediates\\dex\\benchmark\\mergeProjectDexBenchmark\\14\\classes.dex
+path.0=classes.dex
+path.1=0/classes.dex
+path.2=14/classes.dex
+renamed.0=classes.dex
+renamed.1=classes2.dex
+renamed.2=classes3.dex

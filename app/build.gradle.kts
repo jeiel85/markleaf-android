@@ -61,8 +61,8 @@ android {
         applicationId = "com.markleaf.notes"
         minSdk = 26
         targetSdk = 35
-        versionCode = 65
-        versionName = "2.1.1"
+        versionCode = 66
+        versionName = "2.2.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -83,6 +83,15 @@ android {
             if (hasReleaseSigningConfig) {
                 signingConfig = signingConfigs.getByName("release")
             }
+        }
+        // Mirrors release minus signing so the :benchmark module can target
+        // a realistic build of the app on any developer machine. Macrobenchmark
+        // requires the target apk to be debuggable+profileable.
+        create("benchmark") {
+            initWith(getByName("release"))
+            isDebuggable = true
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
         }
     }
 
@@ -113,11 +122,11 @@ android {
                 // Roborazzi snapshot tests rely on `ui-test-manifest` which only
                 // ships a ComponentActivity entry in the debug manifest. Skip them
                 // in release-variant unit tests so `:app:test` stays green.
-                if (it.name == "testReleaseUnitTest") {
+                if (it.name != "testDebugUnitTest") {
                     // Roborazzi/Compose snapshot tests need ui-test-manifest's
                     // ComponentActivity entry, which only ships in the debug
                     // variant manifest. Skip every snapshot test class in
-                    // release-variant unit tests.
+                    // any non-debug-variant unit test (release, benchmark, …).
                     it.exclude("**/preview/*SnapshotTest*")
                 }
             }
@@ -160,6 +169,11 @@ dependencies {
 
     // Settings
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+    // Profile installer — lets Macrobenchmark and AOT compile baseline
+    // profiles against this app. No-op at runtime when no benchmark is
+    // attached, so it costs nothing for normal users.
+    implementation("androidx.profileinstaller:profileinstaller:1.3.1")
     
     // Test
     testImplementation("junit:junit:4.13.2")

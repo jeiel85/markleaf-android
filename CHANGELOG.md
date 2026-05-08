@@ -2,6 +2,18 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.2.0 - 성능 측정 인프라 (Macrobenchmark) - 2026-05-08
+
+### 새로운 인프라
+- **`:benchmark` 모듈 신설** — Macrobenchmark 1.2.4 기반의 성능 측정 전용 Gradle 모듈. APK에는 영향 0 (벤치마크 의존성은 별도 모듈, app은 `androidx.profileinstaller:1.3.1` 만 추가).
+- **StartupBenchmark** — 콜드/웜/핫 시작 시간 측정 (5회 반복). §2.1 *빠름 우선* 을 *증거 기반*으로 검증.
+- **ScrollBenchmark** — 노트 목록 fling 스크롤 jank 측정 (`FrameTimingMetric`). 90th-percentile 프레임 duration이 회귀 시 빨간불.
+- **`benchmark` build type** — 앱 빌드의 release-mirror + debuggable. `:benchmark:connectedBenchmarkAndroidTest` 가 이 빌드 위에서 측정 (실제 디바이스 또는 에뮬레이터 필요. Robolectric 위에선 작동 안함 — 의도된 한계).
+
+### 의도적 비포함
+- CI 자동 실행 — Macrobenchmark는 실 디바이스/에뮬레이터 필요라 매 PR마다 돌리는 건 비싸다. 필요 시 `workflow_dispatch` 로 추후 추가 가능.
+- 베이스라인 프로파일 자동 생성 — v2.2.x로.
+
 ## v2.1.1 - 동기화 마감 (Auto-reconcile + CI golden re-record) - 2026-05-08
 
 ### 새로운 기능

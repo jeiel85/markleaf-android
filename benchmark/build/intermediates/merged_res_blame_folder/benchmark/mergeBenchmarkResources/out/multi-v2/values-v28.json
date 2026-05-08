@@ -1,0 +1,28 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.markleaf.notes.benchmark-mergeBenchmarkResources-16:/values-v28/values-v28.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\jeiel\\.gradle\\caches\\transforms-3\\fd144d8fab69689008b351e570b91eae\\transformed\\core-1.6.1\\res\\values-v28\\values.xml",
+                    "from": {
+                        "startLines": "4,13",
+                        "startColumns": "0,0",
+                        "startOffsets": "146,625",
+                        "endLines": "12,21",
+                        "endColumns": "8,8",
+                        "endOffsets": "624,1101"
+                    },
+                    "to": {
+                        "startLines": "2,11",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,538",
+                        "endLines": "10,19",
+                        "endColumns": "8,8",
+                        "endOffsets": "533,1014"
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -94,6 +94,50 @@
 
 ---
 
+## Phase 14 - Platform Polish (Planned, target v1.5.0)
+
+목적: 안드로이드 정상 시민 마감. 플랫폼 표준에 정확히 맞춰 *"잘 만든 안드로이드 앱"* 인상으로 끌어올리는 묶음. 각 항목은 작고 독립적이라 한 사이클에 묶어 진행.
+
+- [ ] Material You 다이내믹 컬러 (#59) — Android 12+에서 시스템 색상을 따르도록 `ui/theme/Theme.kt`에서 `Build.VERSION.SDK_INT >= S` 분기 후 `dynamicLightColorScheme(context)` / `dynamicDarkColorScheme(context)` 사용. 기존 정적 색상은 폴백.
+- [ ] 예측 뒤로가기 제스처 (#27) — `AndroidManifest.xml`의 `<application>`에 `android:enableOnBackInvokedCallback="true"` 추가. `MainActivity`는 이미 `ComponentActivity`라 추가 코드 거의 불필요. NavHost가 자동으로 OnBackInvoked dispatcher를 사용함을 확인만.
+- [ ] 단일 노트 시스템 공유 — 에디터 상단바에 공유 아이콘 추가, 클릭 시 기존 `util/ShareNoteUtil.shareNote(context, note)` 호출. 이미 구현돼 있는데 UI에 wired되지 않은 상태.
+- [ ] 공유 시트로 받은 텍스트 → 새 노트 — `AndroidManifest`의 MainActivity에 `<intent-filter>` 추가:
+  ```xml
+  <intent-filter>
+    <action android:name="android.intent.action.SEND" />
+    <category android:name="android.intent.category.DEFAULT" />
+    <data android:mimeType="text/plain" />
+  </intent-filter>
+  ```
+  `MainActivity.onCreate`에서 `intent.action == ACTION_SEND` 일 때 `intent.getStringExtra(EXTRA_TEXT)`를 `EXTRA_SUBJECT`(있으면) + 본문으로 합쳐 새 노트로 시드.
+- [ ] FLAG_SECURE 토글 (#47) — `AppSettings`에 `screenshotProtection: Boolean` 필드 추가, Settings 화면에 스위치, `MainActivity`에서 설정값에 따라 `window.setFlags(FLAG_SECURE, FLAG_SECURE)` / `clearFlags`. *민감한 노트가 있는 사용자에게는 큰 가치*.
+
+---
+
+## Phase 15 - Markdown Expressiveness (Planned, target v1.6.0)
+
+목적: 손파서가 ~150줄로 여유 있을 때 가성비 높은 문법을 추가. *Bear/Obsidian 호환성* 도 부수적으로 ↑.
+
+- [ ] 콜아웃 `> [!NOTE]` / `[!WARN]` / `[!TIP]` (#3 of 50) — `SimpleMarkdownPreview.parseLine`에서 `BLOCKQUOTE` 분기에 첫 줄 prefix 매칭 추가. 새 `PreviewLineType.CALLOUT_*` 또는 `extra` 필드에 종류 저장. 미리보기에서 색상 박스로 렌더링.
+- [ ] 프론트매터 YAML 인식 (#10 of 50) — `parse()` 시작 부분에서 본문이 `---\n`으로 시작하면 다음 `---`까지를 `PreviewLineType.FRONTMATTER`로 묶고 미리보기에서는 축소 표시 또는 별도 메타 영역으로. `MarkdownSyntaxHighlighter`도 같은 영역을 덤덤하게 처리.
+- [ ] 각주 `[^1]` (#1 of 50) — inline 세그먼트 `PreviewInlineType.FOOTNOTE_REF` 추가, 미리보기 하단에 `[^1]: ...` 정의 모아 별도 섹션. 본문 ref ↔ 정의 사이 클릭 점프는 v1.7+로 미룸.
+- [ ] Tab/Shift+Tab 들여쓰기 — 에디터 `BasicTextField`에 `Modifier.onPreviewKeyEvent { ... }` 또는 입력 핸들러로 Tab 키를 가로채 현재 줄 시작에 `  ` (2 spaces) 추가/제거. 선택 영역이 여러 줄이면 모두 적용.
+
+손파서가 이 4개로 ~250줄 근처가 될 텐데, 그래도 한계는 ~300줄 (`feedback_lightweight_bias` 메모 참고). 그 이상 나가면 `org.jetbrains:markdown` 라이브러리 도입 고려.
+
+---
+
+## Phase 16 - Spec Closure (Planned, target v1.7.0)
+
+목적: AGENT_SPEC §7 *반드시 포함* + *있으면 좋은* 항목 중 마지막 미완 항목들을 닫음.
+
+- [ ] 아카이브 UI — `Note.archived` 필드는 v1.0부터 존재. 길게 누르기 메뉴에 "아카이브"/"아카이브 해제" 추가, `archived = true`인 노트는 메인 목록에서 제외. 별도 *아카이브* 화면 (Tags / Trash 같은 레벨의 목적지)에서 조회 + 복구.
+- [ ] 접근성 정비 (#76) — TalkBack 시나리오 1회 실행, contentDescription 누락 노드 보완, 모든 클릭 가능 요소 48dp 이상 검증, 색상 대비 WCAG AA 검증 (특히 surfaceVariant 텍스트). 큰 코드 변화 없이 라벨/사이즈 위주.
+- [ ] 다국어 확대 (#51, 검증 가능한 언어만) — `ResourceParityTest`가 누락 막아주므로 안전. JP/FR/DE 중 본인이 검증 가능한 것만.
+- [ ] 스토어 그래픽 / 스크린샷 (#53, #54) — 코드 외 작업. v1.5/v1.6 결과를 새 스크린샷으로 갱신.
+
+---
+
 ## Phase 13 - Organization And Writing Habits (Done, 2026-05-08)
 
 목적: Bear급 사용 경험으로 가는 다음 단계 — 정리/글쓰기 습관에 직결되는 핵심 3종.

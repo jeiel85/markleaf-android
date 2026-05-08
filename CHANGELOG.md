@@ -2,6 +2,23 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.0.0 - 라이브 프리뷰 Bear-급 (Inline Rich Rendering) - 2026-05-08
+
+### 새로운 기능
+- **헤딩이 입력하는 즉시 *진짜로* 큽니다.** `# 제목` 을 치는 순간 그 줄이 H1 사이즈(24sp Bold), `## 부제` 는 H2 (20sp), `### 섹션` 은 H3 (18sp) 로 인라인 렌더링됩니다. 별도 미리보기 모드로 가지 않아도 됨.
+- **굵게가 *진짜로* 굵습니다.** `**bold**` 가 SemiBold → Bold (FontWeight.Bold) 로 강화. 이탤릭·취소선·인라인 코드는 기존 의도된 스타일 유지.
+- **마크다운 마커가 시각적으로 retreat 합니다.** `#`, `**`, `_`, `~~`, 백틱, `[`, `](`, `)` 등 마커 문자들이 muted color + Normal weight + Normal style로 재설정되어, 옆의 rich-styled 콘텐츠와 시각적 위계가 분명해집니다. Bear의 핵심 체감 차이.
+
+### 동기
+- §2.5 *단순하지만 허전하지 않게* + §2.9 *기능 수보다 속도와 디자인* 정신에서, 새 기능을 더하지 않고 기존 *글쓰기 흐름의 깊이* 를 강화. v1.9에서 깐 Roborazzi 시각 회귀망 위에 자신감 있게 진행됨.
+
+### 검증
+- `MarkdownSyntaxHighlighterTest` 에 fontSize/fontWeight 기대값 검증 5개 추가.
+- 라이브 에디터 모드 시각 골든 4개 신규 (헤딩 라이트/다크, 인라인 emphasis, 혼합 문서) — 향후 회귀를 PR diff에서 즉시 잡음.
+
+### 보류
+- 손파서 → CommonMark 라이브러리 교체는 *실제로 위키링크/하이라이트 같은 마크다운 확장을 도입할 때* 까지 보류. 추측 기반 인프라 리팩터를 §2.9에 맞춰 회피.
+
 ## v1.9.0 - 시각 회귀 그물망 (Roborazzi Snapshot Tests) - 2026-05-08
 
 ### 개발 인프라 (사용자 화면 변화 없음)

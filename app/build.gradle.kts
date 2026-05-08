@@ -61,8 +61,8 @@ android {
         applicationId = "com.markleaf.notes"
         minSdk = 26
         targetSdk = 35
-        versionCode = 62
-        versionName = "1.9.0"
+        versionCode = 63
+        versionName = "2.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -114,7 +114,11 @@ android {
                 // ships a ComponentActivity entry in the debug manifest. Skip them
                 // in release-variant unit tests so `:app:test` stays green.
                 if (it.name == "testReleaseUnitTest") {
-                    it.exclude("**/preview/MarkdownPreviewSnapshotTest*")
+                    // Roborazzi/Compose snapshot tests need ui-test-manifest's
+                    // ComponentActivity entry, which only ships in the debug
+                    // variant manifest. Skip every snapshot test class in
+                    // release-variant unit tests.
+                    it.exclude("**/preview/*SnapshotTest*")
                 }
             }
         }

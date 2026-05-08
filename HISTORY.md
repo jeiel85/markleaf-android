@@ -1,3 +1,23 @@
+## 2026-05-08 (밤) - v2.0.0
+- Work: Bear-급 인라인 rich rendering. 사용자가 "Bear의 핵심 체감 차이는 라이브 프리뷰" 라고 명시한 갈증을 직접 응답. 라이브러리 교체는 §2.9 정신에 맞춰 보류.
+- Changed files:
+  - core/markdown/MarkdownSyntaxHighlighter.kt — 헤딩 분기 재구성: marker 길이별로 contentStart 계산해 (H1: 24sp Bold, H2: 20sp SemiBold, H3: 18sp SemiBold) 콘텐츠 범위에만 fontSize+fontWeight 적용. 마커(`#`)는 muted color + Normal weight 로 retreat. BOLD_REGEX 매치 콘텐츠 weight를 SemiBold → Bold로 강화. 새 헬퍼 `muteMarkerStyle(colors)` 가 모든 inline marker(`**`, `_`, `~~`, 백틱, `[`, `](`, `)`)를 color=syntax + weight=Normal + style=Normal + decoration=None 으로 일괄 reset → 마커가 콘텐츠보다 시각적으로 retreat하는 Bear 패턴 구현.
+  - test/core/markdown/MarkdownSyntaxHighlighterTest.kt — 5개 단위 테스트 추가: H1/H2/H3 fontSize, bold가 FontWeight.Bold (not SemiBold), 마커가 Normal weight로 reset되는지.
+  - test/core/markdown/preview/EditorLiveSnapshotTest.kt (NEW) — 라이브 *에디터* 모드 시각 골든 4개. BasicTextField + MarkdownSyntaxVisualTransformation을 실제 사용 환경 그대로 캡처. 헤딩(라이트/다크) + 인라인 emphasis + 혼합 문서.
+  - test/snapshots/roborazzi/editor_live_*.png (NEW, 4 files) — 위 테스트의 골든.
+  - app/build.gradle.kts (versionCode 63, versionName 2.0.0)
+  - CHANGELOG.md, HISTORY.md, .agent/tasks.md
+- Context:
+  - Bear의 NSTextStorage + NSAttributedString 패턴을 Compose의 BasicTextField + AnnotatedString 등가로 구현. 글자 인덱스는 그대로 보존(VisualTransformation의 OffsetMapping.Identity), 시각만 변형.
+  - Phase B (commonmark-java 라이브러리 교체) 보류 결정 근거: 사용자 가치 0 (사용자 화면에 변화 없음), 추측 기반 리팩터, 실제 필요(위키링크/하이라이트 등 확장 도입)가 생길 때 진행이 §2.9에 맞음. 코드 변경량을 최소화하면서 Phase A (사용자 가치 100%)만 출시.
+  - 사용자가 보여준 mixed_document_light 골든의 라이브 변형 결과 — H1 "Title"이 visibly 24sp Bold green, `**bold word**` 가 진짜 Bold tertiary, `*emphasis*` 가 italic, 마커들 muted gray retreat. *체감상 가장 큰 변화* 라고 약속한 것 그대로.
+- Verification:
+  - `./gradlew assembleDebug` 통과
+  - `./gradlew test` 통과 — MarkdownSyntaxHighlighterTest 13개 (기존 8 + 신규 5) 그린, EditorLiveSnapshotTest 4개 그린, 전체 단위 테스트 그린
+  - `./gradlew assembleDebugAndroidTest` 통과
+  - `./gradlew recordRoborazziDebug` 4개 새 PNG 생성, `./gradlew verifyRoborazziDebug` 모두 통과 (changeThreshold 0.05f)
+  - 기존 14개 preview-pane 골든은 변경 없음 (VisualTransformation은 에디터의 BasicTextField에만 영향)
+
 ## 2026-05-08 (밤) - v1.9.0
 - Work: Phase 18 — 시각 회귀 그물망. Bear-급 라이브 프리뷰로 가기 전 안전 인프라 사이클. 사용자 화면 변화 0.
 - Changed files:

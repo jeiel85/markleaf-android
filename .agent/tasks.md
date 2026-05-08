@@ -123,6 +123,19 @@ SimpleMarkdownPreview.kt LOC: 178 → ~210 (한계 ~300 안에 안전).
 
 ---
 
+## Phase 19 - Inline Rich Rendering (Done, 2026-05-08, v2.0.0)
+
+목적: Bear의 핵심 체감 차이(헤딩이 입력 즉시 *진짜로* 커지고, 굵게가 진짜로 굵어지는 라이브 프리뷰)를 Compose VisualTransformation으로 구현. 가치관 점검에서 사용자가 명시한 갈증의 직접 응답.
+
+- [x] `MarkdownSyntaxHighlighter` 헤딩 분기 재구성 — 마커 길이별 fontSize(24/20/18sp) + fontWeight(Bold/SemiBold/SemiBold) 콘텐츠 범위에만 적용
+- [x] `BOLD_REGEX` 매치를 SemiBold → Bold 로 강화
+- [x] `muteMarkerStyle()` 헬퍼 — 모든 inline 마커(`**`/`*`/`_`/`~~`/백틱/`[`/`](`/`)`)를 color=syntax + Normal weight + Normal style + no decoration 로 reset → Bear 패턴의 marker retreat
+- [x] 5개 단위 테스트 + 4개 editor-live Roborazzi 골든
+
+보류: Phase B (commonmark-java 라이브러리 교체) — 추측 기반 인프라 리팩터, §2.9 위반 위험. 위키링크/하이라이트 등 실제 확장 도입 결정이 나면 그때 사이클로.
+
+다음 (예정): v2.1 — SAF 폴더 미러 동기화 (Option D)
+
 ## Phase 18 - Roborazzi Visual Regression Net (Done, 2026-05-08, v1.9.0)
 
 목적: Bear-급 라이브 프리뷰로 가는 v2.0 / v2.1 전에, 라이브 프리뷰 *시각 회귀* 를 GitHub CI에서 잡을 수 있는 그물망 도입.

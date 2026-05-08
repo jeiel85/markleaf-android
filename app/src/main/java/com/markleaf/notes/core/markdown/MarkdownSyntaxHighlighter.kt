@@ -3,9 +3,12 @@ package com.markleaf.notes.core.markdown
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
 
 data class MarkdownSyntaxColors(
     val heading: Color,
@@ -20,6 +23,15 @@ data class MarkdownSyntaxColors(
     val horizontalRule: Color = Color.Gray
 )
 
+/**
+ * Bear-style live preview: applies inline span styles directly to the editor's
+ * text so that `# Heading` renders at heading size, `**bold**` renders bold, and
+ * markdown markers (`#`, `**`, `_`, etc.) recede visually as muted small chars.
+ *
+ * Character indices are preserved exactly — only the visual rendering changes.
+ * The underlying text remains plain markdown, which is what the cursor and
+ * `BasicTextField`'s text manipulation operate on.
+ */
 object MarkdownSyntaxHighlighter {
     fun highlight(text: String, colors: MarkdownSyntaxColors): AnnotatedString {
         val builder = AnnotatedString.Builder(text)
@@ -36,15 +48,30 @@ object MarkdownSyntaxHighlighter {
         colors: MarkdownSyntaxColors
     ) {
         HEADING_REGEX.findAll(text).forEach { match ->
+            val markerLen = match.value.takeWhile { it == '#' }.length
+            val (size, weight) = headingMetrics(markerLen)
+
+            // Heading line gets the heading color across the full range.
             builder.addStyle(
-                SpanStyle(color = colors.heading, fontWeight = FontWeight.SemiBold),
+                SpanStyle(color = colors.heading),
                 match.range.first,
                 match.range.last + 1
             )
+            // Content (after `# `) gets the rich heading size + weight.
+            val contentStart = match.range.first + markerLen + 1 // +1 for the required space
+            if (contentStart <= match.range.last + 1) {
+                builder.addStyle(
+                    SpanStyle(fontSize = size, fontWeight = weight),
+                    contentStart,
+                    match.range.last + 1
+                )
+            }
+            // Marker (`#`s) muted to syntax color and reset to body weight so it
+            // visually retreats next to the larger content.
             builder.addStyle(
-                SpanStyle(color = colors.syntax),
+                muteMarkerStyle(colors),
                 match.range.first,
-                match.range.first + match.value.takeWhile { it == '#' }.length
+                match.range.first + markerLen
             )
         }
 
@@ -70,7 +97,7 @@ object MarkdownSyntaxHighlighter {
                 SpanStyle(
                     color = colors.code,
                     background = colors.codeBlock.copy(alpha = 0.1f),
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                    fontFamily = FontFamily.Monospace
                 ),
                 match.range.first,
                 match.range.last + 1
@@ -109,13 +136,13 @@ object MarkdownSyntaxHighlighter {
             builder.addStyle(
                 SpanStyle(
                     color = colors.code,
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                    fontFamily = FontFamily.Monospace
                 ),
                 match.range.first,
                 match.range.last + 1
             )
-            styleMarker(builder, colors, match.range.first, 1)
-            styleMarker(builder, colors, match.range.last, 1)
+            muteMarker(builder, colors, match.range.first, 1)
+            muteMarker(builder, colors, match.range.last, 1)
         }
 
         STRIKETHROUGH_REGEX.findAll(text).forEach { match ->
@@ -127,18 +154,19 @@ object MarkdownSyntaxHighlighter {
                 match.range.first,
                 match.range.last + 1
             )
-            styleMarker(builder, colors, match.range.first, 2)
-            styleMarker(builder, colors, match.range.last - 1, 2)
+            muteMarker(builder, colors, match.range.first, 2)
+            muteMarker(builder, colors, match.range.last - 1, 2)
         }
 
         BOLD_REGEX.findAll(text).forEach { match ->
+            // Bear-class: real bold weight on `**bold**` content.
             builder.addStyle(
-                SpanStyle(color = colors.emphasis, fontWeight = FontWeight.SemiBold),
+                SpanStyle(color = colors.emphasis, fontWeight = FontWeight.Bold),
                 match.range.first,
                 match.range.last + 1
             )
-            styleMarker(builder, colors, match.range.first, 2)
-            styleMarker(builder, colors, match.range.last - 1, 2)
+            muteMarker(builder, colors, match.range.first, 2)
+            muteMarker(builder, colors, match.range.last - 1, 2)
         }
 
         ITALIC_REGEX.findAll(text).forEach { match ->
@@ -147,8 +175,8 @@ object MarkdownSyntaxHighlighter {
                 match.range.first,
                 match.range.last + 1
             )
-            styleMarker(builder, colors, match.range.first, 1)
-            styleMarker(builder, colors, match.range.last, 1)
+            muteMarker(builder, colors, match.range.first, 1)
+            muteMarker(builder, colors, match.range.last, 1)
         }
 
         ITALIC_UNDERSCORE_REGEX.findAll(text).forEach { match ->
@@ -157,8 +185,8 @@ object MarkdownSyntaxHighlighter {
                 match.range.first,
                 match.range.last + 1
             )
-            styleMarker(builder, colors, match.range.first, 1)
-            styleMarker(builder, colors, match.range.last, 1)
+            muteMarker(builder, colors, match.range.first, 1)
+            muteMarker(builder, colors, match.range.last, 1)
         }
 
         MARKDOWN_LINK_REGEX.findAll(text).forEach { match ->
@@ -167,22 +195,42 @@ object MarkdownSyntaxHighlighter {
                 match.range.first,
                 match.range.last + 1
             )
-            styleMarker(builder, colors, match.range.first, 1)
+            muteMarker(builder, colors, match.range.first, 1)
             match.value.indexOf("](").takeIf { it >= 0 }?.let { localIndex ->
-                styleMarker(builder, colors, match.range.first + localIndex, 2)
+                muteMarker(builder, colors, match.range.first + localIndex, 2)
             }
-            styleMarker(builder, colors, match.range.last, 1)
+            muteMarker(builder, colors, match.range.last, 1)
         }
-
     }
 
-    private fun styleMarker(
+    private fun headingMetrics(level: Int): Pair<TextUnit, FontWeight> = when (level) {
+        1 -> 24.sp to FontWeight.Bold
+        2 -> 20.sp to FontWeight.SemiBold
+        3 -> 18.sp to FontWeight.SemiBold
+        else -> 16.sp to FontWeight.SemiBold
+    }
+
+    /**
+     * Markers (`#`, `**`, `_`, backticks, `~~`, `[`, `](`, `)`) should visually
+     * recede: muted color and reset of the rich attributes the surrounding
+     * content carries (weight, style, decoration). They keep their position so
+     * the cursor still moves through them, but they don't compete with the
+     * styled content next to them.
+     */
+    private fun muteMarkerStyle(colors: MarkdownSyntaxColors): SpanStyle = SpanStyle(
+        color = colors.syntax,
+        fontWeight = FontWeight.Normal,
+        fontStyle = FontStyle.Normal,
+        textDecoration = TextDecoration.None
+    )
+
+    private fun muteMarker(
         builder: AnnotatedString.Builder,
         colors: MarkdownSyntaxColors,
         start: Int,
         length: Int
     ) {
-        builder.addStyle(SpanStyle(color = colors.syntax), start, start + length)
+        builder.addStyle(muteMarkerStyle(colors), start, start + length)
     }
 
     private val HEADING_REGEX = Regex("""(?m)^#{1,6}\s.+$""")

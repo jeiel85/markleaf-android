@@ -7,6 +7,10 @@
     <string name="search">검색</string>
     <string name="tags">태그</string>
     <string name="trash">휴지통</string>
+    <string name="archive">보관함</string>
+    <string name="unarchive">보관 해제</string>
+    <string name="archive_empty">보관된 노트가 없습니다</string>
+    <string name="archive_empty_hint">메인 목록에서 노트를 길게 눌러 "보관"을 선택하면 이곳으로 이동합니다.</string>
     <string name="settings">설정</string>
     <string name="add_note">노트 추가</string>
     <string name="no_notes_yet">아직 노트가 없습니다</string>

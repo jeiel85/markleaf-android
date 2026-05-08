@@ -50,6 +50,13 @@ class MarkleafViewModelFactoryTest {
         assertTrue(viewModel is TrashViewModel)
     }
 
+    @Test
+    fun createsArchiveViewModel() {
+        val viewModel = factory.create(ArchiveViewModel::class.java) as Any
+
+        assertTrue(viewModel is ArchiveViewModel)
+    }
+
     private class FakeNoteRepository : NoteRepository {
         override fun observeNotes(): Flow<List<Note>> = flowOf(emptyList())
         override suspend fun getNote(noteId: String): Note? = null
@@ -57,10 +64,12 @@ class MarkleafViewModelFactoryTest {
         override suspend fun updateNote(note: Note) = Unit
         override suspend fun moveToTrash(noteId: String) = Unit
         override suspend fun setPinned(noteId: String, pinned: Boolean) = Unit
+        override suspend fun setArchived(noteId: String, archived: Boolean) = Unit
         override suspend fun restoreFromTrash(noteId: String) = Unit
         override suspend fun deleteForever(noteId: String) = Unit
         override suspend fun reorderNotes(notes: List<Note>) = Unit
         override fun observeTrashedNotes(): Flow<List<Note>> = flowOf(emptyList())
+        override fun observeArchivedNotes(): Flow<List<Note>> = flowOf(emptyList())
         override fun searchNotes(query: String): Flow<List<Note>> = flowOf(emptyList())
     }
 }

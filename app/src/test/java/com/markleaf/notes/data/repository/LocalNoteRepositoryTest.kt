@@ -113,4 +113,64 @@ class LocalNoteRepositoryTest {
 
         assertNull(repository.getNote("n1"))
     }
+
+    @Test
+    fun `setArchived hides note from active list and surfaces it in archive`() = runTest {
+        val now = Instant.ofEpochMilli(1L)
+        val note = Note(
+            id = "n1",
+            title = "Old",
+            contentMarkdown = "Old",
+            excerpt = "Old",
+            createdAt = now,
+            updatedAt = now
+        )
+
+        repository.createNote(note)
+        repository.setArchived("n1", true)
+
+        assertTrue(repository.observeNotes().first().isEmpty())
+        assertEquals(listOf("n1"), repository.observeArchivedNotes().first().map { it.id })
+        assertTrue(repository.observeTrashedNotes().first().isEmpty())
+    }
+
+    @Test
+    fun `setArchived false brings note back to active list`() = runTest {
+        val now = Instant.ofEpochMilli(1L)
+        val note = Note(
+            id = "n1",
+            title = "Old",
+            contentMarkdown = "Old",
+            excerpt = "Old",
+            createdAt = now,
+            updatedAt = now
+        )
+
+        repository.createNote(note)
+        repository.setArchived("n1", true)
+        repository.setArchived("n1", false)
+
+        assertEquals(listOf("n1"), repository.observeNotes().first().map { it.id })
+        assertTrue(repository.observeArchivedNotes().first().isEmpty())
+    }
+
+    @Test
+    fun `searchNotes excludes archived notes`() = runTest {
+        val now = Instant.ofEpochMilli(1L)
+        val active = Note(
+            id = "active", title = "Hello", contentMarkdown = "Hello there",
+            excerpt = "Hello there", createdAt = now, updatedAt = now
+        )
+        val archived = Note(
+            id = "archived", title = "Hello two", contentMarkdown = "Hello again",
+            excerpt = "Hello again", createdAt = now, updatedAt = now
+        )
+
+        repository.createNote(active)
+        repository.createNote(archived)
+        repository.setArchived("archived", true)
+
+        val results = repository.searchNotes("Hello").first()
+        assertEquals(listOf("active"), results.map { it.id })
+    }
 }

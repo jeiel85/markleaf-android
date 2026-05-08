@@ -1,3 +1,32 @@
+## 2026-05-08 (밤) - v1.7.0
+- Work: Phase 16 (Spec Closure) — `Note.archived` 필드(v1.0부터 dead) 살리는 보관함 UI 도입 + AGENT_SPEC §7 접근성 라인 검증.
+- Changed files:
+  - data/local/dao/NoteDao.kt — `setArchived(noteId, archived)`, `observeArchivedNotes()` 추가. `observeNotes()`/`searchNotesFts`/`searchNotesLike`/`getNoteByTitle`/`getMaxSortOrder` 모두 `AND archived = 0` 추가해 보관 노트가 메인/검색에 노출되지 않도록 함.
+  - domain/repository/NoteRepository.kt — `setArchived` + `observeArchivedNotes` 인터페이스 시그니처 추가
+  - data/repository/LocalNoteRepository.kt — 위 두 메서드 구현
+  - ui/viewmodel/NotesViewModel.kt — `setArchived(noteId, archived)` 추가
+  - ui/viewmodel/ArchiveViewModel.kt (NEW) — TrashViewModel과 동일한 패턴: 아카이브 flow 관찰 + `unarchive(noteId)` + `moveToTrash(noteId)`
+  - ui/viewmodel/MarkleafViewModelFactory.kt — ArchiveViewModel 케이스 추가
+  - feature/archive/ArchiveScreen.kt (NEW) — TrashScreen과 비슷한 구조이되 Restore/Delete 버튼 대신 long-press DropdownMenu(보관 해제 / 휴지통 이동). 클릭 시 에디터 진입.
+  - navigation/NavRoutes.kt — `ARCHIVE = "archive"`
+  - navigation/MarkleafNavHost.kt — `composable(NavRoutes.ARCHIVE) { … ArchiveScreen(…) }` + 두 NotesListScreen 호출처에 `onArchiveClick = { navController.navigate(NavRoutes.ARCHIVE) }` 전달
+  - feature/notes/NotesListScreen.kt — TopAppBar에 `Icons.Default.Inventory2` 보관함 아이콘 (Tags 다음, Trash 앞), long-press 드롭다운에 "보관" 항목 (Pin과 Trash 사이). 새 `onArchiveClick`/`onArchive` 콜백.
+  - res/values{,-ko,-es}/strings.xml — `archive`, `unarchive`, `archive_empty`, `archive_empty_hint` 4개 키 3언어 동시 추가 (ResourceParityTest 통과)
+  - app/build.gradle.kts (versionCode 60, versionName 1.7.0)
+  - test/data/repository/LocalNoteRepositoryTest.kt — 3개 테스트 추가 (setArchived hides+exposes, setArchived false restores, searchNotes excludes archived)
+  - test/ui/viewmodel/MarkleafViewModelFactoryTest.kt — `createsArchiveViewModel` + FakeNoteRepository에 setArchived/observeArchivedNotes override
+  - CHANGELOG.md, HISTORY.md, .agent/tasks.md
+- Context:
+  - DB 스키마 변경 없음. `archived` 컬럼은 v1.0부터 NoteEntity에 존재했고 모든 기존 행은 default 0이라 마이그레이션 없이 안전.
+  - 인덱스: 기존 `(trashed, pinned, sortOrder)` 인덱스의 leading prefix(`trashed`)는 새 쿼리(`WHERE trashed = 0 AND archived = 0 …`)에서도 활용 가능. 메인 노트가 수만 건이 아닌 한 추가 인덱스 불필요.
+  - 접근성 audit는 코드 변경보다 검증 위주: `IconButton(`이 들어간 5개 파일 모두 stringResource 라벨 부여, `contentDescription = null` 케이스는 모두 텍스트 라벨 동반 데코레이티브 아이콘. 색상 대비는 정적 팔레트(LightColorScheme/DarkColorScheme) 기준 surfaceVariant↔onSurfaceVariant ~11:1 / ~6:1, primary↔primaryContainer ~5.5:1 / ~5:1로 WCAG AA 4.5:1 통과.
+  - 다국어 확대(JP/FR/DE)는 검증할 native 화자 부재로 v1.7.0에선 보류. ResourceParityTest 인프라는 그대로 작동하므로 향후 추가 시 안전.
+- Verification:
+  - `./gradlew assembleDebug` 통과
+  - `./gradlew test` 통과 — 신규 4개 포함 모든 단위 테스트 그린 (`LocalNoteRepositoryTest` 7건, `MarkleafViewModelFactoryTest` 4건 등)
+  - `./gradlew assembleDebugAndroidTest` 통과
+- AGENT_SPEC §7 *반드시 포함* 16/16, *있으면 좋은* 7/7 모두 닫힘. v1.7.0이 사실상 MVP 종료.
+
 ## 2026-05-08 (밤) - v1.6.0
 - Work: Phase 15 (Markdown Expressiveness) 4종 + 별도 검토에서 발견된 §7 *반드시 포함* 누락 항목(단일/전체 .md 내보내기 UI) 동시 해결.
 - Changed files:

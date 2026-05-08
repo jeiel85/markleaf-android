@@ -38,6 +38,10 @@ class LocalNoteRepository(
         database.noteDao().setPinned(noteId, pinned)
     }
 
+    override suspend fun setArchived(noteId: String, archived: Boolean) {
+        database.noteDao().setArchived(noteId, archived)
+    }
+
     override suspend fun restoreFromTrash(noteId: String) {
         database.noteDao().restoreFromTrash(noteId)
     }
@@ -48,6 +52,12 @@ class LocalNoteRepository(
 
     override fun observeTrashedNotes(): Flow<List<Note>> {
         return database.noteDao().observeTrashedNotes().map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
+
+    override fun observeArchivedNotes(): Flow<List<Note>> {
+        return database.noteDao().observeArchivedNotes().map { entities ->
             entities.map { it.toDomain() }
         }
     }

@@ -17,7 +17,9 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material.icons.filled.Search
@@ -67,6 +69,7 @@ fun NotesListScreen(
     onFabClick: () -> Unit,
     onSearchClick: () -> Unit = {},
     onTagsClick: () -> Unit = {},
+    onArchiveClick: () -> Unit = {},
     onTrashClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     onCollapseClick: (() -> Unit)? = null,
@@ -106,6 +109,9 @@ fun NotesListScreen(
                     }
                     IconButton(onClick = onTagsClick) {
                         Icon(Icons.AutoMirrored.Filled.Label, contentDescription = stringResource(R.string.tags))
+                    }
+                    IconButton(onClick = onArchiveClick) {
+                        Icon(Icons.Default.Inventory2, contentDescription = stringResource(R.string.archive))
                     }
                     IconButton(onClick = onTrashClick) {
                         Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.trash))
@@ -193,6 +199,10 @@ fun NotesListScreen(
                                 hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                                 viewModel.setPinned(note.id, !note.pinned)
                             },
+                            onArchive = {
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                viewModel.setArchived(note.id, true)
+                            },
                             onMoveToTrash = {
                                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                                 viewModel.moveToTrash(note.id)
@@ -225,6 +235,7 @@ private fun NoteRow(
     selected: Boolean,
     onClick: (String) -> Unit,
     onTogglePin: () -> Unit,
+    onArchive: () -> Unit,
     onMoveToTrash: () -> Unit,
     onLongPress: () -> Unit
 ) {
@@ -309,6 +320,14 @@ private fun NoteRow(
                 onClick = {
                     menuExpanded = false
                     onTogglePin()
+                }
+            )
+            DropdownMenuItem(
+                leadingIcon = { Icon(Icons.Default.Archive, contentDescription = null) },
+                text = { Text(stringResource(R.string.archive)) },
+                onClick = {
+                    menuExpanded = false
+                    onArchive()
                 }
             )
             DropdownMenuItem(

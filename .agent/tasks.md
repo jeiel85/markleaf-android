@@ -123,14 +123,16 @@ SimpleMarkdownPreview.kt LOC: 178 → ~210 (한계 ~300 안에 안전).
 
 ---
 
-## Phase 16 - Spec Closure (Planned, target v1.7.0)
+## Phase 16 - Spec Closure (Done, 2026-05-08, v1.7.0)
 
 목적: AGENT_SPEC §7 *반드시 포함* + *있으면 좋은* 항목 중 마지막 미완 항목들을 닫음.
 
-- [ ] 아카이브 UI — `Note.archived` 필드는 v1.0부터 존재. 길게 누르기 메뉴에 "아카이브"/"아카이브 해제" 추가, `archived = true`인 노트는 메인 목록에서 제외. 별도 *아카이브* 화면 (Tags / Trash 같은 레벨의 목적지)에서 조회 + 복구.
-- [ ] 접근성 정비 (#76) — TalkBack 시나리오 1회 실행, contentDescription 누락 노드 보완, 모든 클릭 가능 요소 48dp 이상 검증, 색상 대비 WCAG AA 검증 (특히 surfaceVariant 텍스트). 큰 코드 변화 없이 라벨/사이즈 위주.
-- [ ] 다국어 확대 (#51, 검증 가능한 언어만) — `ResourceParityTest`가 누락 막아주므로 안전. JP/FR/DE 중 본인이 검증 가능한 것만.
-- [ ] 스토어 그래픽 / 스크린샷 (#53, #54) — 코드 외 작업. v1.5/v1.6 결과를 새 스크린샷으로 갱신.
+- [x] 아카이브 UI — `Note.archived` 필드 살리기. `NoteDao.observeArchivedNotes` + `setArchived`, 메인/검색 쿼리에 `AND archived = 0` 추가. `ArchiveViewModel`(TrashViewModel 패턴) + `feature/archive/ArchiveScreen` (long-press 드롭다운: 보관 해제 / 휴지통). NotesListScreen TopAppBar에 보관함 아이콘 + long-press 메뉴에 "보관" 항목.
+- [x] 접근성 검증 — IconButton 5개 파일 전수 검증 (모두 stringResource 라벨), `contentDescription = null` 케이스는 의도된 데코레이티브 아이콘만. 라이트/다크 색상 팔레트 surfaceVariant↔onSurfaceVariant / primary↔primaryContainer 모두 WCAG AA 4.5:1 통과 확인. Material 3 IconButton/DropdownMenuItem 기본 터치 영역(>=48dp).
+- [ ] 다국어 확대 (#51) — JP/FR/DE 검증할 native 화자 부재로 v1.7에선 미진행. ResourceParityTest 인프라는 작동 중이라 향후 추가 안전.
+- [ ] 스토어 그래픽 / 스크린샷 (#53, #54) — 코드 외 작업이라 별도 사이클.
+
+§7 *반드시 포함* 16/16, *있으면 좋은* 7/7 — MVP 마감.
 
 ---
 

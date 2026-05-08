@@ -55,6 +55,12 @@ class NotesViewModel(
         }
     }
 
+    fun setArchived(noteId: String, archived: Boolean) {
+        viewModelScope.launch {
+            noteRepository.setArchived(noteId, archived)
+        }
+    }
+
     fun reorderNotes(reorderedNotes: List<Note>) {
         viewModelScope.launch {
             _notes.value = reorderedNotes

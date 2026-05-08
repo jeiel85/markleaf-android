@@ -16,6 +16,8 @@ class MarkleafViewModelFactory(
                 SearchViewModel(noteRepository) as T
             modelClass.isAssignableFrom(TrashViewModel::class.java) ->
                 TrashViewModel(noteRepository) as T
+            modelClass.isAssignableFrom(ArchiveViewModel::class.java) ->
+                ArchiveViewModel(noteRepository) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
     }

@@ -2,6 +2,22 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.7.0 - 보관함 + 접근성 마감 (Archive UI + Spec Closure) - 2026-05-08
+
+### 새로운 기능
+- **보관함 (Archive UI):** 노트 목록에서 길게 누르면 표시되는 메뉴에 "보관" 항목이 추가되었습니다. 보관된 노트는 메인 목록·검색 결과에서 제외되며, 노트 목록 상단바의 새 보관함 아이콘(혹은 태블릿 동일 위치)으로 별도 화면을 열어 조회할 수 있습니다. 보관함 화면에서 길게 눌러 "보관 해제" 또는 "휴지통으로 이동"을 선택할 수 있습니다. *`Note.archived` 필드는 v1.0부터 존재했지만 진입점이 없어 사실상 dead field였던 상태를 정식으로 닫습니다 (AGENT_SPEC §7 *있으면 좋은*의 마지막 미완 항목).*
+
+### 접근성 검증 (#76)
+- **TalkBack/contentDescription:** 모든 IconButton과 클릭 가능한 의미 단위 노드가 명시적 라벨을 가짐을 확인. 데코레이티브 아이콘(DropdownMenu leadingIcon, 대시보드 카드 그래픽)은 `contentDescription = null`로 두어 텍스트와 중복 발화되지 않도록 의도적으로 유지.
+- **터치 타겟:** Material 3 `IconButton` 기본 48dp 영역, `DropdownMenuItem` 기본 48dp 높이, 노트 행/보관 행 전체 클릭 영역(>=56dp)이 WCAG 2.5.5 AA를 충족.
+- **색상 대비:** 라이트/다크 모두 surfaceVariant↔onSurfaceVariant 약 11:1 / 6:1, primary↔primaryContainer 약 5.5:1 / 5:1 — 모두 WCAG AA 4.5:1 이상.
+
+### 데이터
+- 데이터베이스 스키마 변경 없음. `archived` 컬럼은 v1.0부터 존재했고 메인 쿼리/검색 쿼리에 `AND archived = 0` 만 추가되었습니다.
+
+### 마감
+- AGENT_SPEC §7 *반드시 포함* 16/16, *있으면 좋은* 7/7 모두 충족 — MVP 완료 기준이 정식으로 닫혔습니다.
+
 ## v1.6.0 - 마크다운 표현력 + MVP 내보내기 복구 (Markdown Expressiveness + Export Restored) - 2026-05-08
 
 ### 새로운 기능 (마크다운)

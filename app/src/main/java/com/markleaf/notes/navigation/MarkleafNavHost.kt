@@ -39,6 +39,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.markleaf.notes.feature.archive.ArchiveScreen
 import com.markleaf.notes.feature.editor.EditorScreen
 import com.markleaf.notes.feature.notes.NotesListScreen
 import com.markleaf.notes.feature.search.SearchScreen
@@ -47,6 +48,7 @@ import com.markleaf.notes.feature.tags.TagsScreen
 import com.markleaf.notes.feature.trash.TrashScreen
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
+import com.markleaf.notes.ui.viewmodel.ArchiveViewModel
 import com.markleaf.notes.ui.viewmodel.NotesViewModel
 import com.markleaf.notes.ui.viewmodel.SearchViewModel
 import com.markleaf.notes.ui.viewmodel.TrashViewModel
@@ -123,6 +125,7 @@ fun MarkleafNavHost(
                                 },
                                 onSearchClick = { navController.navigate(NavRoutes.SEARCH) },
                                 onTagsClick = { navController.navigate(NavRoutes.TAGS) },
+                                onArchiveClick = { navController.navigate(NavRoutes.ARCHIVE) },
                                 onTrashClick = { navController.navigate(NavRoutes.TRASH) },
                                 onSettingsClick = { navController.navigate(NavRoutes.SETTINGS) },
                                 onCollapseClick = { isNoteListCollapsed = true },
@@ -187,6 +190,7 @@ fun MarkleafNavHost(
                     },
                     onSearchClick = { navController.navigate(NavRoutes.SEARCH) },
                     onTagsClick = { navController.navigate(NavRoutes.TAGS) },
+                    onArchiveClick = { navController.navigate(NavRoutes.ARCHIVE) },
                     onTrashClick = { navController.navigate(NavRoutes.TRASH) },
                     onSettingsClick = { navController.navigate(NavRoutes.SETTINGS) }
                 )
@@ -224,6 +228,13 @@ fun MarkleafNavHost(
         composable(NavRoutes.TRASH) {
             val viewModel = viewModel<TrashViewModel>(factory = viewModelFactory)
             TrashScreen(viewModel = viewModel)
+        }
+        composable(NavRoutes.ARCHIVE) {
+            val viewModel = viewModel<ArchiveViewModel>(factory = viewModelFactory)
+            ArchiveScreen(
+                viewModel = viewModel,
+                onNoteClick = { noteId -> navController.navigate(NavRoutes.editorRoute(noteId)) }
+            )
         }
         composable(NavRoutes.SETTINGS) {
             SettingsScreen(

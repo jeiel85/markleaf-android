@@ -7,6 +7,7 @@ object NavRoutes {
     const val TAGS = "tags"
     const val SEARCH = "search"
     const val TRASH = "trash"
+    const val ARCHIVE = "archive"
     const val SETTINGS = "settings"
     const val PRIVACY = "privacy"
 

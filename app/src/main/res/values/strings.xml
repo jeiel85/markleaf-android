@@ -7,6 +7,10 @@
     <string name="search">Search</string>
     <string name="tags">Tags</string>
     <string name="trash">Trash</string>
+    <string name="archive">Archive</string>
+    <string name="unarchive">Unarchive</string>
+    <string name="archive_empty">No archived notes</string>
+    <string name="archive_empty_hint">Long-press a note in the main list and choose Archive to move it here.</string>
     <string name="settings">Settings</string>
     <string name="add_note">Add Note</string>
     <string name="no_notes_yet">No notes yet</string>

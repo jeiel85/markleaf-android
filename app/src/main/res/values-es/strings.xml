@@ -7,6 +7,10 @@
     <string name="search">Buscar</string>
     <string name="tags">Etiquetas</string>
     <string name="trash">Papelera</string>
+    <string name="archive">Archivo</string>
+    <string name="unarchive">Quitar del archivo</string>
+    <string name="archive_empty">No hay notas archivadas</string>
+    <string name="archive_empty_hint">Manten pulsada una nota en la lista principal y elige Archivar para moverla aqui.</string>
     <string name="settings">Ajustes</string>
     <string name="add_note">Agregar nota</string>
     <string name="no_notes_yet">Aun no hay notas</string>

@@ -15,6 +15,10 @@
     <string name="more_options">More options</string>
     <string name="backlinks_section_title">Linked from</string>
     <string name="wikilink_suggestions_title">Link to…</string>
+    <string name="image_alt_dialog_title">Edit image description</string>
+    <string name="image_alt_dialog_description">Alt text helps screen readers and shows when the image can\'t load.</string>
+    <string name="image_alt_dialog_label">Description</string>
+    <string name="image_alt_dialog_save">Save</string>
     <string name="add_note">Add Note</string>
     <string name="no_notes_yet">No notes yet</string>
     <string name="create_first_note_hint">Tap + to create your first note</string>

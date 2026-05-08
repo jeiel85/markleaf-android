@@ -15,6 +15,10 @@
     <string name="more_options">Mas opciones</string>
     <string name="backlinks_section_title">Enlazado desde</string>
     <string name="wikilink_suggestions_title">Enlazar a…</string>
+    <string name="image_alt_dialog_title">Editar descripcion de la imagen</string>
+    <string name="image_alt_dialog_description">El texto alternativo ayuda a los lectores de pantalla y se muestra cuando la imagen no carga.</string>
+    <string name="image_alt_dialog_label">Descripcion</string>
+    <string name="image_alt_dialog_save">Guardar</string>
     <string name="add_note">Agregar nota</string>
     <string name="no_notes_yet">Aun no hay notas</string>
     <string name="create_first_note_hint">Toca + para crear tu primera nota</string>

@@ -1,6 +1,8 @@
 package com.markleaf.notes.core.markdown.preview
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -62,20 +64,29 @@ fun MarkdownPreviewList(
     lines: List<PreviewLine>,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-    onWikilinkClick: (String) -> Unit = {}
+    onWikilinkClick: (String) -> Unit = {},
+    onImageLongPress: (path: String, currentAlt: String) -> Unit = { _, _ -> }
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = contentPadding
     ) {
         items(lines) { line ->
-            PreviewLineRenderer(line, onWikilinkClick = onWikilinkClick)
+            PreviewLineRenderer(
+                line = line,
+                onWikilinkClick = onWikilinkClick,
+                onImageLongPress = onImageLongPress
+            )
         }
     }
 }
 
 @Composable
-fun PreviewLineRenderer(line: PreviewLine, onWikilinkClick: (String) -> Unit = {}) {
+fun PreviewLineRenderer(
+    line: PreviewLine,
+    onWikilinkClick: (String) -> Unit = {},
+    onImageLongPress: (path: String, currentAlt: String) -> Unit = { _, _ -> }
+) {
     when (line.type) {
         PreviewLineType.H1 -> Text(
             text = line.text,
@@ -121,7 +132,7 @@ fun PreviewLineRenderer(line: PreviewLine, onWikilinkClick: (String) -> Unit = {
         PreviewLineType.CALLOUT -> CalloutBox(line)
         PreviewLineType.FRONTMATTER -> FrontmatterBlock(line.text)
         PreviewLineType.FOOTNOTE_DEF -> FootnoteDefRow(line)
-        PreviewLineType.IMAGE -> AttachmentImage(line)
+        PreviewLineType.IMAGE -> AttachmentImage(line, onLongPress = onImageLongPress)
         PreviewLineType.ORDERED_LIST -> Text(
             text = "${line.extra ?: "1"}. ${line.text}",
             style = MaterialTheme.typography.bodyLarge
@@ -310,8 +321,12 @@ private fun FrontmatterBlock(text: String) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun AttachmentImage(line: PreviewLine) {
+private fun AttachmentImage(
+    line: PreviewLine,
+    onLongPress: (path: String, currentAlt: String) -> Unit
+) {
     val context = LocalContext.current
     val destination = line.extra.orEmpty()
     val resolved = remember(destination) {
@@ -325,11 +340,12 @@ private fun AttachmentImage(line: PreviewLine) {
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
                 .clip(RoundedCornerShape(8.dp))
+                .combinedClickable(
+                    onClick = {},
+                    onLongClick = { onLongPress(destination, line.text) }
+                )
         )
     } else {
-        // Path didn't resolve to a file we own (broken markdown reference,
-        // attachment deleted, or external URL). Render as plain text body
-        // so the markdown still round-trips losslessly.
         Text(
             text = "![${line.text}]($destination)",
             style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),

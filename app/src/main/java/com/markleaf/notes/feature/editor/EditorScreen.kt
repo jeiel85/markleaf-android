@@ -160,6 +160,7 @@ fun EditorScreen(
     var shareMenuExpanded by remember(noteId) { mutableStateOf(false) }
     var overflowExpanded by remember(noteId) { mutableStateOf(false) }
     var pendingExport by remember(noteId) { mutableStateOf<Note?>(null) }
+    var imageAltEditing by remember(noteId) { mutableStateOf<Pair<String, String>?>(null) }
     val imagePickerLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri ->
@@ -429,6 +430,9 @@ fun EditorScreen(
                             }
                             onNavigateToNote(targetId)
                         }
+                    },
+                    onImageLongPress = { path, currentAlt ->
+                        imageAltEditing = path to currentAlt
                     }
                 )
                 if (backlinks.isNotEmpty()) {
@@ -573,6 +577,45 @@ fun EditorScreen(
         }
     }
 
+    imageAltEditing?.let { (path, currentAlt) ->
+        var draft by remember(path) { mutableStateOf(currentAlt) }
+        AlertDialog(
+            onDismissRequest = { imageAltEditing = null },
+            title = { Text(stringResource(R.string.image_alt_dialog_title)) },
+            text = {
+                Column {
+                    Text(
+                        text = stringResource(R.string.image_alt_dialog_description),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = draft,
+                        onValueChange = { draft = it },
+                        label = { Text(stringResource(R.string.image_alt_dialog_label)) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    editorState = replaceImageAlt(editorState, path, draft)
+                    if (isLoaded) saveTrigger++
+                    imageAltEditing = null
+                }) {
+                    Text(stringResource(R.string.image_alt_dialog_save))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { imageAltEditing = null }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
     if (showDeleteConfirm && noteId != null) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
@@ -629,6 +672,27 @@ internal fun completeWikilink(value: TextFieldValue, title: String): TextFieldVa
     val newText = value.text.substring(0, openIdx) + replacement + value.text.substring(cursor)
     val newCursor = openIdx + replacement.length
     return value.copy(text = newText, selection = TextRange(newCursor))
+}
+
+/**
+ * Rewrite the alt text of `![oldAlt](path)` (or `![](path)`) to use [newAlt]
+ * while keeping [path] intact. If the same path appears multiple times in the
+ * body, only the first occurrence is updated — rare in practice because every
+ * inserted attachment uses a UUID filename.
+ */
+internal fun replaceImageAlt(value: TextFieldValue, path: String, newAlt: String): TextFieldValue {
+    val pattern = Regex("""!\[[^\[\]\n]*]\(${Regex.escape(path)}\)""")
+    val match = pattern.find(value.text) ?: return value
+    val replacement = "![${newAlt}](${path})"
+    val newText = value.text.substring(0, match.range.first) +
+        replacement +
+        value.text.substring(match.range.last + 1)
+    val delta = replacement.length - match.value.length
+    val newCursor = value.selection.start + delta
+    return value.copy(
+        text = newText,
+        selection = TextRange(newCursor.coerceIn(0, newText.length))
+    )
 }
 
 internal fun findAllRanges(text: String, query: String): List<IntRange> {

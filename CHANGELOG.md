@@ -2,6 +2,20 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.8.0 - 이미지 alt 편집 다이얼로그 (Image alt edit) - 2026-05-09
+
+### 새로운 기능
+- **미리보기 모드에서 이미지 길게 누르기 → alt 편집 다이얼로그.** TextField로 새 alt를 입력하고 "저장" 누르면 본문의 `![oldAlt](path)` 가 `![newAlt](path)` 로 자동 치환. 경로는 그대로 유지되어 첨부 파일 reference 불변.
+- 다이얼로그 본문에 alt 의 용도(*screen reader 도움 + 이미지 로드 실패 시 표시*) 한 줄 카피.
+- 같은 path가 본문에 여러 번 나타나면 *첫 번째* 만 치환 (UUID 파일명이라 거의 충돌 없음).
+
+### 보류 — 사용자 결정 시 진행
+다음 항목들은 *제품 결정* 또는 *외부 트리거* 가 필요해 자동 진행 안 함:
+- 충돌 시 양 버전 보존 UI (제품 결정: "two-version" 폴더 vs 인앱 머지 화면)
+- 인라인 이미지 (paragraph 안 텍스트 섞인 케이스 — 파서 리팩터, 저가치)
+- CI Linux 골든 재기록 (사용자가 GitHub Actions에서 1회 `workflow_dispatch` 트리거)
+- ScrollBenchmark 재실행 (노트 50+ 시드된 빌드에서)
+
 ## v2.7.0 - 위키링크 자동완성 (Wikilink autocomplete) - 2026-05-09
 
 ### 새로운 기능

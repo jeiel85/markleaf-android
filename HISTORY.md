@@ -1,3 +1,28 @@
+## 2026-05-08 (밤) - v1.9.0
+- Work: Phase 18 — 시각 회귀 그물망. Bear-급 라이브 프리뷰로 가기 전 안전 인프라 사이클. 사용자 화면 변화 0.
+- Changed files:
+  - build.gradle.kts (root) — `id("io.github.takahirom.roborazzi") version "1.20.0" apply false`
+  - app/build.gradle.kts — Roborazzi 플러그인 적용 + testImpl(`roborazzi`, `roborazzi-compose`, `roborazzi-junit-rule` 1.20.0). compose ui-test-junit4/manifest를 test에도 추가 (기존엔 androidTest only). androidx.test.ext:junit testImpl 추가.
+  - core/markdown/preview/MarkdownPreviewList.kt (NEW, ~250 LOC) — `EditorScreen`의 미리보기 LazyColumn 분기 + InlineMarkdownText / CalloutBox / FrontmatterBlock / FootnoteDefRow / MarkdownCodeBlock 모두 이쪽으로 이동. 공개 API: `MarkdownPreviewList(lines, modifier, contentPadding)` 와 단일 `PreviewLineRenderer(line)` 둘.
+  - feature/editor/EditorScreen.kt — 미리보기 LazyColumn 통째 삭제, `MarkdownPreviewList(...)` 호출로 대체. 이로 인해 사용처 사라진 import 다수 (background, RoundedCornerShape, ClickableText, HorizontalDivider, SpanStyle, buildAnnotatedString, withStyle, FontFamily, FontStyle, BaselineShift, TextDecoration, sp, LazyColumn, items, clip) 정리.
+  - test/core/markdown/preview/MarkdownPreviewSnapshotTest.kt (NEW) — 14개 시각 골든. 각 PreviewLineType + 콜아웃 3종 + 프론트매터 + 각주 + 혼합 문서 (라이트/다크 변형 포함).
+  - test/snapshots/roborazzi/*.png (NEW, 14 files) — 골든 이미지. mdpi 360x640 에서 Windows native graphics로 첫 record.
+  - .github/workflows/android-build.yml — `Verify Roborazzi snapshots` 스텝 추가 (`./gradlew verifyRoborazziDebug`). 실패 시 diff artifact 업로드.
+  - app/build.gradle.kts (versionCode 62, versionName 1.9.0)
+  - CHANGELOG.md, HISTORY.md, .agent/tasks.md
+- Context:
+  - 가치관 점검 후 사용자가 명시적으로 동의한 v1.9 → v2.0 → v2.1 순서의 첫 단계. v2.0(인라인 rich rendering, CommonMark 도입)과 v2.1(SAF 폴더 미러 sync) 이전에 시각 회귀 차단망 먼저 깔기.
+  - Roborazzi 1.20은 Robolectric 4.10+ + Kotlin 1.9 + AGP 8.x + JDK 17과 맞물려 동작. 우리는 모두 충족.
+  - `@Config(qualifiers = "w360dp-h640dp-mdpi")` — 처음 시도한 BCP47 locale 포함 qualifier(`en-rUS`)가 Robolectric Qualifiers.parse()에 거부당함. locale 빼고 화면 사이즈+밀도만 남기니 통과.
+  - `changeThreshold = 0.05f`: Windows native 폰트 렌더링과 Ubuntu CI Linux native 폰트 렌더링 사이의 hint/안티앨리어싱 픽셀 미세 차이 흡수. 구조적 회귀(요소 누락/색상 변경/레이아웃 어긋남)는 5%를 가볍게 넘기므로 잡힘. 추후 record를 CI에서 다시 돌려 동일 OS 골든을 만들면 0.005f 정도로 타이트하게 조일 예정.
+  - MarkdownPreviewList 추출은 자연스러운 부산물 — 같은 코드를 에디터와 테스트가 공유하므로 갈라질 위험이 0이 됨. v2.0에서 인라인 rich rendering 도입 시 이 단일 진입점만 수정하면 양쪽 다 갱신됨.
+- Verification:
+  - `./gradlew assembleDebug` 통과
+  - `./gradlew test` 통과 — 기존 단위 테스트 모두 그린, Roborazzi 14개 새 테스트도 그린 (record 직후 verify)
+  - `./gradlew assembleDebugAndroidTest` 통과
+  - `./gradlew recordRoborazziDebug` 14개 PNG 생성, `./gradlew verifyRoborazziDebug` 모두 통과 (changeThreshold 0.05f 안)
+  - 사용자에게 보여준 mixed_document_light 골든 시각 확인 — frontmatter 모노스페이스 박스, primary 색상 H1, callout(Tip) 연두 배경+icon, 위첨자 각주 ref, 하단 각주 def 모두 의도대로 그려짐.
+
 ## 2026-05-08 (밤) - v1.8.0
 - Work: v1.5–1.7 사이클이 누적시킨 상단바·설정 chrome density를 줄이는 정리 사이클. 새 기능 0, 모든 액션 유지하되 시각 밀도만 하향.
 - Changed files:

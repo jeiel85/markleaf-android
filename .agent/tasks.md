@@ -123,6 +123,18 @@ SimpleMarkdownPreview.kt LOC: 178 → ~210 (한계 ~300 안에 안전).
 
 ---
 
+## Phase 18 - Roborazzi Visual Regression Net (Done, 2026-05-08, v1.9.0)
+
+목적: Bear-급 라이브 프리뷰로 가는 v2.0 / v2.1 전에, 라이브 프리뷰 *시각 회귀* 를 GitHub CI에서 잡을 수 있는 그물망 도입.
+
+- [x] Roborazzi 1.20.0 + Compose UI test 의존성 (testImpl only, APK 영향 0)
+- [x] `MarkdownPreviewList` 컴포저블을 EditorScreen에서 분리 (테스트 가능 단위)
+- [x] 14개 시각 골든 — 각 PreviewLineType + 콜아웃 3종 + frontmatter + 각주 + 혼합 문서 × 라이트/다크
+- [x] CI 워크플로에 `verifyRoborazziDebug` + 실패 시 diff artifact 업로드
+- [x] `changeThreshold = 0.05f` (Windows record ↔ Linux verify 폰트 미세 차이 흡수, 추후 동일 OS golden 만들면 더 타이트하게)
+
+다음: v2.0 — 인라인 rich rendering (`VisualTransformation` 색상 → 색상+폰트크기+굵기) + 손파서 → CommonMark 라이브러리.
+
 ## Phase 17 - Chrome Consolidation (Done, 2026-05-08, v1.8.0)
 
 목적: v1.5–1.7가 누적한 상단바·설정 chrome density를 §2.5(단순하지만 허전하지 않게) 기준으로 정리. 새 기능 0.

@@ -44,6 +44,19 @@ jobs:
       - name: Run tests
         run: ./gradlew test
 
+      - name: Verify Roborazzi snapshots (visual regression)
+        run: ./gradlew verifyRoborazziDebug
+
+      - name: Upload Roborazzi diff artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: roborazzi-diff-images
+          path: |
+            app/build/outputs/roborazzi/
+            app/build/reports/roborazzi/
+          if-no-files-found: ignore
+
       - name: Upload debug APK artifact
         uses: actions/upload-artifact@v7
         with:

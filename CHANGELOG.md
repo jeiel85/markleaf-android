@@ -2,6 +2,20 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.9.0 - 시각 회귀 그물망 (Roborazzi Snapshot Tests) - 2026-05-08
+
+### 개발 인프라 (사용자 화면 변화 없음)
+- **Roborazzi 시각 스냅샷 테스트 도입:** 라이브 프리뷰 렌더링이 의도하지 않게 바뀌면 CI에서 빨간불이 들어옵니다. 14개 골든 이미지로 시작 — 헤딩, 리스트, 체크박스, 인라인 스타일, blockquote, code block, 콜아웃 5종 (NOTE/TIP/IMPORTANT/WARNING/CAUTION 중 대표 셋), frontmatter, 각주, 통합 문서 — 라이트/다크 양쪽 변형 포함. JVM에서 Robolectric으로 돌아 에뮬레이터 불필요.
+- **GitHub Actions 통합:** `./gradlew verifyRoborazziDebug` 가 main push / PR 빌드에 추가. 회귀 발생 시 diff 이미지가 artifact로 업로드되어 PR에서 다운받아 확인 가능.
+- **MarkdownPreviewList 컴포저블 추출:** `EditorScreen.kt`에 인라인으로 있던 미리보기 렌더링 코드를 새 `core/markdown/preview/MarkdownPreviewList.kt` 로 분리. 같은 렌더러를 에디터와 테스트가 공유 → 갈라지지 않음.
+
+### 동기
+- v1.7 직후 §2 가치관 점검에서 "라이브 프리뷰는 Bear의 강점인데 우리는 화면을 사람 눈으로만 검증하고 있다" 가 드러남. 다음 사이클 (v2.0의 인라인 rich rendering, v2.1의 sync) 에서 *진짜* 큰 변경이 들어오기 전에 그물망부터 두는 것.
+
+### 의존성
+- `io.github.takahirom.roborazzi:1.20.0` (Apache 2.0) — testImplementation 전용. APK에 포함 0.
+- `androidx.compose.ui:ui-test-junit4`, `ui-test-manifest` — 동일하게 testImplementation.
+
 ## v1.8.0 - 표면 정리 (Chrome Consolidation) - 2026-05-08
 
 ### 정리 (기능 추가 0, 시각 밀도 ↓)

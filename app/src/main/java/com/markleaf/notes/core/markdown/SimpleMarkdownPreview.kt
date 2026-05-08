@@ -4,14 +4,9 @@ enum class PreviewLineType {
     H1,
     H2,
     H3,
-    TABLE_HEADER,
-    TABLE_ROW,
     BULLET,
     CHECKBOX_DONE,
     CHECKBOX_TODO,
-    IMAGE,
-    LINK,
-    MATH_BLOCK,
     BLOCKQUOTE,
     ORDERED_LIST,
     HORIZONTAL_RULE,
@@ -26,24 +21,19 @@ enum class PreviewInlineType {
     ITALIC,
     BOLD_ITALIC,
     STRIKETHROUGH,
-    INLINE_CODE,
-    NOTE_LINK,
-    MARKDOWN_LINK,
-    INLINE_MATH
+    INLINE_CODE
 }
 
 data class PreviewInlineSegment(
     val text: String,
-    val type: PreviewInlineType,
-    val target: String? = null
+    val type: PreviewInlineType
 )
 
 data class PreviewLine(
     val text: String,
     val type: PreviewLineType,
-    val extra: String? = null, // For image URI or other metadata
-    val segments: List<PreviewInlineSegment> = emptyList(),
-    val cells: List<String> = emptyList()
+    val extra: String? = null,
+    val segments: List<PreviewInlineSegment> = emptyList()
 )
 
 object SimpleMarkdownPreview {
@@ -51,11 +41,8 @@ object SimpleMarkdownPreview {
         val start: Int,
         val end: Int,
         val type: PreviewInlineType,
-        val displayText: String,
-        val target: String? = null
+        val displayText: String
     )
-
-    private val tableDividerPattern = Regex("""^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$""")
 
     private val boldItalicRegex = Regex("""\*\*\*(.+?)\*\*\*""")
     private val boldRegex = Regex("""\*\*(.+?)\*\*""")
@@ -63,9 +50,6 @@ object SimpleMarkdownPreview {
     private val italicUnderscoreRegex = Regex("""(?<!\w)_([^_\n]+?)_(?!\w)""")
     private val strikethroughRegex = Regex("""~~(.+?)~~""")
     private val inlineCodeRegex = Regex("""`([^`\n]+?)`""")
-    private val wikiLinkRegex = Regex("""\[\[([^\]]+)]]""")
-    private val markdownLinkRegex = Regex("""\[([^\]]+)\]\(([^)]+)\)""")
-    private val inlineMathRegex = Regex("""(?<!\\)\$([^$\n]+?)(?<!\\)\$""")
 
     fun parse(markdown: String): List<PreviewLine> {
         val rawLines = markdown.lines()
@@ -74,48 +58,8 @@ object SimpleMarkdownPreview {
 
         while (index < rawLines.size) {
             val line = rawLines[index].trimEnd()
-            val nextLine = rawLines.getOrNull(index + 1)?.trimEnd()
 
             when {
-                isTableHeader(line, nextLine) -> {
-                    result += PreviewLine(
-                        text = line,
-                        type = PreviewLineType.TABLE_HEADER,
-                        cells = parseTableCells(line)
-                    )
-                    index += 2
-                    while (index < rawLines.size && isTableRow(rawLines[index])) {
-                        val tableLine = rawLines[index].trimEnd()
-                        result += PreviewLine(
-                            text = tableLine,
-                            type = PreviewLineType.TABLE_ROW,
-                            cells = parseTableCells(tableLine)
-                        )
-                        index++
-                    }
-                }
-                line.trim() == "$$" -> {
-                    val mathLines = mutableListOf<String>()
-                    index++
-                    while (index < rawLines.size && rawLines[index].trim() != "$$") {
-                        mathLines += rawLines[index]
-                        index++
-                    }
-                    if (index < rawLines.size && rawLines[index].trim() == "$$") {
-                        index++
-                    }
-                    result += PreviewLine(
-                        text = mathLines.joinToString("\n").trim(),
-                        type = PreviewLineType.MATH_BLOCK
-                    )
-                }
-                line.trim().startsWith("$$") && line.trim().endsWith("$$") && line.trim().length > 4 -> {
-                    result += PreviewLine(
-                        text = line.trim().removeSurrounding("$$").trim(),
-                        type = PreviewLineType.MATH_BLOCK
-                    )
-                    index++
-                }
                 line.trim().startsWith("```") -> {
                     val language = line.trim().removePrefix("```").trim()
                     val codeLines = mutableListOf<String>()
@@ -170,23 +114,8 @@ object SimpleMarkdownPreview {
             allMatches += InlineMatch(match.range.first, match.range.last, PreviewInlineType.INLINE_CODE, match.groupValues[1])
         }
 
-        wikiLinkRegex.findAll(text).forEach { match ->
-            val title = match.groupValues[1].trim()
-            allMatches += InlineMatch(match.range.first, match.range.last, PreviewInlineType.NOTE_LINK, title, title)
-        }
-
-        markdownLinkRegex.findAll(text).forEach { match ->
-            allMatches += InlineMatch(match.range.first, match.range.last, PreviewInlineType.MARKDOWN_LINK, match.groupValues[1], match.groupValues[2].trim())
-        }
-
-        inlineMathRegex.findAll(text).forEach { match ->
-            allMatches += InlineMatch(match.range.first, match.range.last, PreviewInlineType.INLINE_MATH, match.groupValues[1].trim())
-        }
-
-        // Sort by start position, then longer matches first for same start
         allMatches.sortWith(compareBy({ it.start }, { -(it.end - it.start) }))
 
-        // Resolve overlaps: keep non-overlapping matches from left to right
         val resolvedMatches = mutableListOf<InlineMatch>()
         var lastEnd = -1
         for (match in allMatches) {
@@ -196,7 +125,6 @@ object SimpleMarkdownPreview {
             }
         }
 
-        // Build segments from resolved matches
         val segments = mutableListOf<PreviewInlineSegment>()
         var cursor = 0
 
@@ -204,7 +132,7 @@ object SimpleMarkdownPreview {
             if (match.start > cursor) {
                 segments += PreviewInlineSegment(text.substring(cursor, match.start), PreviewInlineType.TEXT)
             }
-            segments += PreviewInlineSegment(text = match.displayText, type = match.type, target = match.target)
+            segments += PreviewInlineSegment(text = match.displayText, type = match.type)
             cursor = match.end + 1
         }
 
@@ -225,15 +153,6 @@ object SimpleMarkdownPreview {
             line.startsWith("### ") -> PreviewLine(line.removePrefix("### ").trim(), PreviewLineType.H3)
             line.startsWith("## ") -> PreviewLine(line.removePrefix("## ").trim(), PreviewLineType.H2)
             line.startsWith("# ") -> PreviewLine(line.removePrefix("# ").trim(), PreviewLineType.H1)
-            line.startsWith("![") && line.contains("](") && line.endsWith(")") -> {
-                val alt = line.substringAfter("![").substringBefore("]")
-                val uri = line.substringAfter("](").substringBeforeLast(")")
-                PreviewLine(alt, PreviewLineType.IMAGE, extra = uri)
-            }
-            line.startsWith("[[") && line.contains("]]") -> {
-                val title = line.substringAfter("[[").substringBefore("]]").trim()
-                PreviewLine(title, PreviewLineType.LINK)
-            }
             line.startsWith("- [x] ", ignoreCase = true) -> PreviewLine(
                 line.removePrefix("- [x] ").trim(),
                 PreviewLineType.CHECKBOX_DONE
@@ -255,22 +174,5 @@ object SimpleMarkdownPreview {
             line.matches(Regex("""^(---|\*\*\*|___)\s*$""")) -> PreviewLine("", PreviewLineType.HORIZONTAL_RULE)
             else -> PreviewLine(line, PreviewLineType.BODY, segments = parseInlineSegments(line))
         }
-    }
-
-    private fun isTableHeader(line: String, nextLine: String?): Boolean {
-        return isTableRow(line) && nextLine != null && tableDividerPattern.matches(nextLine)
-    }
-
-    private fun isTableRow(line: String): Boolean {
-        val trimmed = line.trim()
-        return trimmed.contains("|") && parseTableCells(trimmed).size >= 2
-    }
-
-    private fun parseTableCells(line: String): List<String> {
-        return line
-            .trim()
-            .trim('|')
-            .split('|')
-            .map { it.trim() }
     }
 }

@@ -1,7 +1,6 @@
 package com.markleaf.notes.data.local.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -52,13 +51,6 @@ interface NoteDao {
 
     @Query("SELECT * FROM notes WHERE trashed = 0 AND (title LIKE '%' || :query || '%' OR contentMarkdown LIKE '%' || :query || '%' OR excerpt LIKE '%' || :query || '%') ORDER BY pinned DESC, sortOrder ASC, updatedAt DESC LIMIT 200")
     fun searchNotesLike(query: String): Flow<List<NoteEntity>>
-
-    @Query("""
-        SELECT notes.* FROM notes
-        JOIN note_links ON notes.id = note_links.sourceNoteId
-        WHERE note_links.targetNoteId = :targetNoteId AND notes.trashed = 0
-    """)
-    fun getBacklinkingNotes(targetNoteId: String): Flow<List<NoteEntity>>
 
     @Query("UPDATE notes SET sortOrder = :sortOrder WHERE id = :noteId")
     suspend fun updateSortOrder(noteId: String, sortOrder: Int)

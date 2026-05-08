@@ -21,32 +21,20 @@
     <string name="edit_note">Editar nota</string>
     <string name="new_note">Nueva nota</string>
     <string name="back">Atras</string>
-    <string name="backlinks">Enlaces entrantes</string>
     <string name="note_content">Contenido de la nota</string>
-    <string name="start_writing">Empieza a escribir...</string>
     <string name="editor_empty_title">Una pagina tranquila esta lista</string>
-    <string name="editor_empty_hint">Usa Markdown, #etiquetas, enlaces, casillas e imagenes. Markleaf guarda localmente mientras escribes.</string>
+    <string name="editor_empty_hint">Usa Markdown, #etiquetas, enlaces y casillas. Markleaf guarda localmente mientras escribes.</string>
     <string name="bold">Negrita</string>
     <string name="italic">Cursiva</string>
     <string name="checkbox">Casilla</string>
     <string name="markdown_link">Enlace Markdown</string>
-    <string name="wiki_link">Enlace wiki</string>
-    <string name="image">Imagen</string>
-    <string name="version_history">Historial de versiones</string>
-    <string name="no_versions_yet">Aun no hay versiones guardadas</string>
-    <string name="restore_version">Restaurar</string>
-    <string name="version_item_format">%1$s · %2$s</string>
 
     <string name="search_notes_hint">Buscar notas...</string>
     <string name="type_to_search_notes">Escribe para buscar notas</string>
     <string name="no_results_found">No se encontraron resultados</string>
-    <string name="quick_open">Apertura rapida</string>
     <string name="matching_notes">Notas</string>
     <string name="matching_tags">Etiquetas</string>
-    <string name="matching_links">Enlaces</string>
     <string name="tag_result_format">#%1$s</string>
-    <string name="link_result_format">[[%1$s]]</string>
-    <string name="link_reference_count_format">%1$d referencias</string>
     <string name="no_tags_yet">Aun no hay etiquetas</string>
     <string name="tags_empty_hint">Escribe #etiquetas en una nota para organizarla</string>
     <string name="tag_note_count_format">%1$d notas</string>
@@ -60,17 +48,11 @@
     <string name="delete_forever">Eliminar para siempre</string>
     <string name="cancel">Cancelar</string>
 
-    <string name="settings_data">Datos</string>
-    <string name="settings_data_description">Crea una copia ZIP local o restaura una que hayas seleccionado. Markleaf no sube notas automaticamente.</string>
-    <string name="create_backup">Crear copia</string>
-    <string name="backup_created">Copia ZIP creada.</string>
-    <string name="backup_failed">No se pudo crear la copia.</string>
-    <string name="backup_restored">Copia ZIP restaurada.</string>
-    <string name="restore_failed">No se pudo restaurar.</string>
-    <string name="backup_created_detail">Copia ZIP creada: %1$d notas, %2$d adjuntos, %3$d enlaces.</string>
-    <string name="backup_failed_detail">No se pudo crear la copia. Elige otra ubicacion e intenta de nuevo.</string>
-    <string name="backup_restored_detail">Copia ZIP restaurada: %1$d notas, %2$d adjuntos, %3$d enlaces.</string>
-    <string name="restore_failed_detail">No se pudo restaurar. Comprueba que el archivo sea una copia ZIP de Markleaf.</string>
+    <string name="move_to_trash">Mover a la papelera</string>
+    <string name="move_to_trash_title">Mover a la papelera?</string>
+    <string name="move_to_trash_message">Mover \"%1$s\" a la papelera? Puedes restaurarla despues desde la Papelera.</string>
+    <string name="move_to_trash_editor_message">Mover esta nota a la papelera? Puedes restaurarla despues desde la Papelera.</string>
+
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Mostrar sintaxis Markdown</string>
     <string name="show_markdown_syntax_description">El editor resalta caracteres Markdown mientras escribes.</string>
@@ -78,27 +60,13 @@
     <string name="line_width_narrow">Estrecho</string>
     <string name="line_width_comfortable">Comodo</string>
     <string name="line_width_wide">Ancho</string>
-    <string name="markdown_preview_support">La vista previa admite encabezados, listas, casillas, tablas, matematicas, imagenes, enlaces de notas y enlaces Markdown inline.</string>
-    <string name="external_links_mvp">Los enlaces web externos se muestran como enlaces, pero no se abren automaticamente en el MVP.</string>
-    <string name="local_link_hint">Usa [[Titulo de nota]] o [etiqueta](Titulo de nota) para saltar mediante busqueda local.</string>
     <string name="settings_privacy">Privacidad</string>
     <string name="privacy_no_tracking">Sin cuenta, analiticas, anuncios, configuracion remota ni SDK propietario de fallos.</string>
     <string name="privacy_no_internet">El MVP no declara permiso INTERNET.</string>
-    <string name="privacy_local_first">Las notas salen del dispositivo solo cuando las exportas, compartes o respaldas explicitamente.</string>
+    <string name="privacy_local_first">Las notas salen del dispositivo solo cuando las exportas o compartes explicitamente.</string>
     <string name="settings_app">Aplicacion</string>
     <string name="version_format">Version %1$s</string>
     <string name="application_id_format">Application ID %1$s</string>
-
-    <!-- Dashboard -->
-    <string name="dashboard_total_notes">Notas</string>
-    <string name="dashboard_pinned_notes">Fijadas</string>
-    <string name="dashboard_total_tags">Etiquetas</string>
-
-    <!-- Toolbar Customization -->
-    <string name="toolbar_customization">Barra de herramientas del editor</string>
-
-    <!-- Drag and Drop -->
-    <string name="drag_to_reorder">Arrastrar para reordenar</string>
 
     <!-- Widget -->
     <string name="quick_note_widget_label">Nota rapida</string>
@@ -109,7 +77,7 @@
     <string name="privacy_guarantee_title">Tus datos se quedan locales</string>
     <string name="privacy_guarantee_desc">Markleaf esta disenado con la privacidad como nucleo. Tus notas nunca abandonan tu dispositivo a menos que elijas exportarlas o compartirlas explicitamente.</string>
     <string name="privacy_data_storage_title">Almacenamiento local primero</string>
-    <string name="privacy_data_storage_desc">Todas tus notas, etiquetas y archivos adjuntos se almacenan localmente en tu dispositivo usando la base de datos segura Room de Android. Sin servidores en la nube, sin subidas de datos.</string>
+    <string name="privacy_data_storage_desc">Todas tus notas y etiquetas se almacenan localmente en tu dispositivo usando la base de datos segura Room de Android. Sin servidores en la nube, sin subidas de datos.</string>
     <string name="privacy_no_cloud_title">Sin dependencias de la nube</string>
     <string name="privacy_no_cloud_desc">No usamos servicios en la nube para la funcionalidad principal. Sin sincronizacion con Google Drive, sin integracion con Dropbox, sin servidores backend propietarios.</string>
     <string name="privacy_no_tracking_title">Rastreo cero</string>
@@ -123,12 +91,4 @@
     <string name="privacy_app_info_title">Acerca de esta version</string>
     <string name="privacy_app_info_desc">Version %1$s\n\nEsta version de Markleaf mantiene estrictos estandares de privacidad. Todas las caracteristicas funcionan completamente sin conexion.</string>
     <string name="privacy_dashboard_button">Ver panel de privacidad</string>
-    <string name="settings_permissions">Permisos</string>
-    <string name="permission_notifications">Notificaciones</string>
-    <string name="permission_notifications_desc">Permite notificaciones para recordatorios y actualizaciones.</string>
-    <string name="permission_storage">Almacenamiento</string>
-    <string name="permission_storage_desc">Permite acceso al almacenamiento para adjuntar imagenes y exportar copias de seguridad.</string>
-    <string name="permission_granted">Concedido</string>
-    <string name="permission_request">Solicitar</string>
-    <string name="permission_settings">Abrir ajustes</string>
 </resources>

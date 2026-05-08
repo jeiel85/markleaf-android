@@ -60,8 +60,8 @@ android {
         applicationId = "com.markleaf.notes"
         minSdk = 26
         targetSdk = 35
-        versionCode = 51
-        versionName = "1.1.21"
+        versionCode = 52
+        versionName = "1.2.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -132,10 +132,7 @@ dependencies {
     // Activity Compose
     implementation("androidx.activity:activity-compose:1.8.2")
     implementation("androidx.tracing:tracing:1.2.0")
-    
-    // Coil (Image Loading)
-    implementation("io.coil-kt:coil-compose:2.5.0")
-    
+
     // Navigation Compose
     implementation("androidx.navigation:navigation-compose:2.7.7")
     

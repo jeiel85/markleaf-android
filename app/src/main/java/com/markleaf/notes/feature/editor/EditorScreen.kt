@@ -1,8 +1,5 @@
 package com.markleaf.notes.feature.editor
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,10 +21,9 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckBox
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FormatBold
 import androidx.compose.material.icons.filled.FormatItalic
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -57,7 +52,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -66,6 +60,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -73,12 +68,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.markleaf.notes.R
-import com.markleaf.notes.core.markdown.ChecklistParser
 import com.markleaf.notes.core.markdown.MarkdownEditActions
 import com.markleaf.notes.core.markdown.MarkdownSyntaxColors
 import com.markleaf.notes.core.markdown.MarkdownSyntaxVisualTransformation
@@ -88,29 +79,20 @@ import com.markleaf.notes.core.markdown.PreviewLine
 import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
 import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.data.local.AppDatabase
-import com.markleaf.notes.data.local.entity.AttachmentEntity
 import com.markleaf.notes.data.repository.LocalNoteRepository
 import com.markleaf.notes.data.repository.LocalTagRepository
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
-import com.markleaf.notes.domain.model.BacklinkSnippet
-import com.markleaf.notes.domain.model.NoteSnapshot
-import com.markleaf.notes.feature.notes.ChecklistProgressIndicator
 import com.markleaf.notes.util.HapticFeedback
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditorScreen(
     noteId: String? = null,
-    onBack: () -> Unit,
-    onLinkClick: (String) -> Unit = {},
-    onNoteClick: (String) -> Unit = {}
+    onBack: () -> Unit
 ) {
     val context = LocalContext.current
     val db = remember { AppDatabase.getInstance(context) }
@@ -119,51 +101,12 @@ fun EditorScreen(
     val settingsRepository = remember { AppSettingsRepository(context.applicationContext) }
     val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
     val coroutineScope = rememberCoroutineScope()
-    
+
     var editorState by remember(noteId) { mutableStateOf(TextFieldValue("")) }
     var saveTrigger by remember(noteId) { mutableStateOf(0) }
     var isLoaded by remember(noteId) { mutableStateOf(noteId == null) }
     var isPreviewMode by remember(noteId) { mutableStateOf(false) }
-    var showVersionHistory by remember(noteId) { mutableStateOf(false) }
-    var snapshots by remember(noteId) { mutableStateOf<List<NoteSnapshot>>(emptyList()) }
-
-    val backlinks by if (noteId != null) {
-        repo.getBacklinkSnippets(noteId).collectAsState(initial = emptyList())
-    } else {
-        remember { mutableStateOf(emptyList<BacklinkSnippet>()) }
-    }
-
-    val imagePicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        if (uri != null && noteId != null) {
-            try {
-                context.contentResolver.takePersistableUriPermission(
-                    uri,
-                    android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
-                )
-            } catch (e: Exception) {
-                // Ignore
-            }
-            
-            val attachmentId = UUID.randomUUID().toString()
-            val fileName = "image_${System.currentTimeMillis()}"
-            val attachment = AttachmentEntity(
-                id = attachmentId,
-                noteId = noteId,
-                uri = uri.toString(),
-                fileName = fileName,
-                mimeType = "image/*",
-                createdAt = System.currentTimeMillis()
-            )
-            
-            coroutineScope.launch {
-                db.attachmentDao().insertAttachment(attachment)
-                editorState = MarkdownEditActions.image(editorState, fileName, uri.toString())
-                saveTrigger++
-            }
-        }
-    }
+    var showDeleteConfirm by remember(noteId) { mutableStateOf(false) }
 
     LaunchedEffect(noteId) {
         if (noteId == null) {
@@ -174,7 +117,6 @@ fun EditorScreen(
         }
     }
 
-    // Auto-save
     LaunchedEffect(noteId, saveTrigger, isLoaded) {
         if (noteId != null && isLoaded && saveTrigger > 0) {
             delay(1000)
@@ -214,23 +156,19 @@ fun EditorScreen(
                     }
                 },
                 actions = {
-                    if (noteId != null) {
-                        IconButton(
-                            onClick = {
-                                coroutineScope.launch {
-                                    snapshots = repo.getSnapshots(noteId)
-                                    showVersionHistory = true
-                                }
-                            }
-                        ) {
-                            Icon(Icons.Default.History, contentDescription = stringResource(R.string.version_history))
-                        }
-                    }
                     TextButton(onClick = { isPreviewMode = !isPreviewMode }) {
                         Text(
                             if (isPreviewMode) stringResource(R.string.edit) else stringResource(R.string.preview),
                             style = MaterialTheme.typography.labelLarge
                         )
+                    }
+                    if (noteId != null) {
+                        IconButton(onClick = { showDeleteConfirm = true }) {
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = stringResource(R.string.move_to_trash)
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -250,37 +188,6 @@ fun EditorScreen(
             ) {
                 items(previewLines) { line ->
                     when (line.type) {
-                        PreviewLineType.LINK -> Text(
-                            text = "[[${line.text}]]",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier
-                                .padding(vertical = 4.dp)
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f))
-                                .padding(horizontal = 4.dp, vertical = 2.dp)
-                                .clickable { onLinkClick(line.text) }
-                        )
-                        PreviewLineType.IMAGE -> {
-                            Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                                AsyncImage(
-                                    model = line.extra,
-                                    contentDescription = line.text,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(200.dp)
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                                    contentScale = ContentScale.Crop
-                                )
-                                Text(
-                                    text = line.text,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(top = 4.dp, start = 4.dp)
-                                )
-                            }
-                        }
                         PreviewLineType.H1 -> Text(
                             text = line.text,
                             style = MaterialTheme.typography.headlineMedium,
@@ -299,21 +206,18 @@ fun EditorScreen(
                             color = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.padding(top = 6.dp, bottom = 4.dp)
                         )
-                        PreviewLineType.TABLE_HEADER -> MarkdownTableRow(line = line, isHeader = true)
-                        PreviewLineType.TABLE_ROW -> MarkdownTableRow(line = line, isHeader = false)
                         PreviewLineType.BULLET -> Text("• ${line.text}", style = MaterialTheme.typography.bodyLarge)
                         PreviewLineType.CHECKBOX_DONE -> Text("☑ ${line.text}", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         PreviewLineType.CHECKBOX_TODO -> Text("☐ ${line.text}", style = MaterialTheme.typography.bodyLarge)
-                        PreviewLineType.MATH_BLOCK -> MarkdownMathBlock(line.text)
                         PreviewLineType.CODE_BLOCK -> MarkdownCodeBlock(line.text, line.extra)
-                        PreviewLineType.BODY -> InlineMarkdownText(line = line, onLinkClick = onLinkClick)
+                        PreviewLineType.BODY -> InlineMarkdownText(line = line)
                         PreviewLineType.BLOCKQUOTE -> {
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 4.dp)
                             ) {
-                                InlineMarkdownText(line = line, onLinkClick = onLinkClick)
+                                InlineMarkdownText(line = line)
                                 HorizontalDivider(
                                     modifier = Modifier.padding(top = 4.dp),
                                     thickness = 2.dp,
@@ -330,26 +234,6 @@ fun EditorScreen(
                             color = MaterialTheme.colorScheme.outlineVariant
                         )
                         PreviewLineType.EMPTY -> Spacer(Modifier.height(8.dp))
-                    }
-                }
-
-                if (backlinks.isNotEmpty()) {
-                    item {
-                        Spacer(Modifier.height(24.dp))
-                        HorizontalDivider()
-                        Spacer(Modifier.height(16.dp))
-                        Text(stringResource(R.string.backlinks), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.secondary)
-                        Spacer(Modifier.height(8.dp))
-                    }
-                    items(backlinks) { backlink ->
-                        BacklinkSnippetRow(
-                            backlink = backlink,
-                            titleStyle = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onNoteClick(backlink.note.id) }
-                                .padding(vertical = 8.dp)
-                        )
                     }
                 }
             }
@@ -390,7 +274,7 @@ fun EditorScreen(
                                     modifier = Modifier.fillMaxSize()
                                 ) {
                                     Text(
-                                        text = "\u270F\uFE0F",
+                                        text = "✏️",
                                         style = MaterialTheme.typography.displayMedium,
                                         modifier = Modifier.padding(bottom = 16.dp)
                                     )
@@ -415,22 +299,7 @@ fun EditorScreen(
                     )
                 }
 
-                // Show checklist progress if content contains checklists
-                val checklistProgress = remember(editorState.text) {
-                    ChecklistParser.parseProgress(editorState.text)
-                }
-                if (checklistProgress.total > 0) {
-                    Spacer(Modifier.height(8.dp))
-                    ChecklistProgressIndicator(
-                        progress = checklistProgress,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                    Spacer(Modifier.height(4.dp))
-                }
-
                 MarkdownToolbar(
-                    config = appSettings.toolbarConfig,
-                    imageEnabled = noteId != null,
                     onBold = {
                         HapticFeedback.light(context)
                         editorState = MarkdownEditActions.bold(editorState)
@@ -450,160 +319,44 @@ fun EditorScreen(
                         HapticFeedback.light(context)
                         editorState = MarkdownEditActions.markdownLink(editorState)
                         if (isLoaded) saveTrigger++
-                    },
-                    onWikiLink = {
-                        HapticFeedback.light(context)
-                        editorState = MarkdownEditActions.wikiLink(editorState)
-                        if (isLoaded) saveTrigger++
-                    },
-                    onImage = {
-                        HapticFeedback.medium(context)
-                        imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                     }
                 )
-
-                if (backlinks.isNotEmpty()) {
-                    HorizontalDivider()
-                    Spacer(Modifier.height(8.dp))
-                    Text(stringResource(R.string.backlinks), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.secondary)
-                    LazyColumn(Modifier.fillMaxWidth().height(140.dp)) {
-                        items(backlinks) { backlink ->
-                            BacklinkSnippetRow(
-                                backlink = backlink,
-                                titleStyle = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { onNoteClick(backlink.note.id) }
-                                    .padding(vertical = 4.dp)
-                            )
-                        }
-                    }
-                }
             }
         }
     }
 
-    if (showVersionHistory && noteId != null) {
-        VersionHistoryDialog(
-            snapshots = snapshots,
-            onDismiss = { showVersionHistory = false },
-            onRestore = { snapshot ->
-                coroutineScope.launch {
-                    val restored = repo.restoreSnapshot(snapshot.id)
-                    if (restored != null) {
-                        editorState = TextFieldValue(restored.contentMarkdown)
-                        tagRepo.reindexTagsForNote(restored.id, restored.contentMarkdown)
-                        snapshots = repo.getSnapshots(restored.id)
+    if (showDeleteConfirm && noteId != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text(stringResource(R.string.move_to_trash_title)) },
+            text = { Text(stringResource(R.string.move_to_trash_editor_message)) },
+            confirmButton = {
+                Button(onClick = {
+                    showDeleteConfirm = false
+                    coroutineScope.launch {
+                        repo.moveToTrash(noteId)
+                        onBack()
                     }
-                    showVersionHistory = false
+                }) {
+                    Text(stringResource(R.string.move_to_trash))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) {
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
     }
-}
-
-@Composable
-private fun BacklinkSnippetRow(
-    backlink: BacklinkSnippet,
-    titleStyle: TextStyle,
-    modifier: Modifier = Modifier
-) {
-    Column(modifier = modifier) {
-        Text(
-            text = backlink.note.title,
-            style = titleStyle,
-            color = MaterialTheme.colorScheme.primary,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-        if (backlink.snippet.isNotBlank()) {
-            Text(
-                text = backlink.snippet,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(top = 2.dp)
-            )
-        }
-    }
-}
-
-@Composable
-private fun VersionHistoryDialog(
-    snapshots: List<NoteSnapshot>,
-    onDismiss: () -> Unit,
-    onRestore: (NoteSnapshot) -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.version_history)) },
-        text = {
-            if (snapshots.isEmpty()) {
-                Text(
-                    text = stringResource(R.string.no_versions_yet),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            } else {
-                LazyColumn(modifier = Modifier.height(280.dp)) {
-                    items(snapshots) { snapshot ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 6.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = snapshot.title.ifBlank { stringResource(R.string.untitled) },
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Text(
-                                    text = stringResource(
-                                        R.string.version_item_format,
-                                        formatSnapshotTimestamp(snapshot),
-                                        snapshot.excerpt.ifBlank { snapshot.contentMarkdown.take(48) }
-                                    ),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            Button(onClick = { onRestore(snapshot) }) {
-                                Text(stringResource(R.string.restore_version))
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel))
-            }
-        }
-    )
-}
-
-private fun formatSnapshotTimestamp(snapshot: NoteSnapshot): String {
-    return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-        .withZone(ZoneId.systemDefault())
-        .format(snapshot.createdAt)
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun MarkdownToolbar(
-    config: com.markleaf.notes.data.settings.ToolbarConfig,
-    imageEnabled: Boolean,
     onBold: () -> Unit,
     onItalic: () -> Unit,
     onCheckbox: () -> Unit,
-    onMarkdownLink: () -> Unit,
-    onWikiLink: () -> Unit,
-    onImage: () -> Unit
+    onMarkdownLink: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -613,59 +366,29 @@ private fun MarkdownToolbar(
         horizontalArrangement = Arrangement.spacedBy(2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (config.showBold) {
-            ToolbarTooltipIconButton(
-                label = stringResource(R.string.bold),
-                onClick = onBold
-            ) {
-                Icon(Icons.Default.FormatBold, contentDescription = stringResource(R.string.bold))
-            }
+        ToolbarTooltipIconButton(
+            label = stringResource(R.string.bold),
+            onClick = onBold
+        ) {
+            Icon(Icons.Default.FormatBold, contentDescription = stringResource(R.string.bold))
         }
-        if (config.showItalic) {
-            ToolbarTooltipIconButton(
-                label = stringResource(R.string.italic),
-                onClick = onItalic
-            ) {
-                Icon(Icons.Default.FormatItalic, contentDescription = stringResource(R.string.italic))
-            }
+        ToolbarTooltipIconButton(
+            label = stringResource(R.string.italic),
+            onClick = onItalic
+        ) {
+            Icon(Icons.Default.FormatItalic, contentDescription = stringResource(R.string.italic))
         }
-        if (config.showCheckbox) {
-            ToolbarTooltipIconButton(
-                label = stringResource(R.string.checkbox),
-                onClick = onCheckbox
-            ) {
-                Icon(Icons.Default.CheckBox, contentDescription = stringResource(R.string.checkbox))
-            }
+        ToolbarTooltipIconButton(
+            label = stringResource(R.string.checkbox),
+            onClick = onCheckbox
+        ) {
+            Icon(Icons.Default.CheckBox, contentDescription = stringResource(R.string.checkbox))
         }
-        if (config.showMarkdownLink) {
-            ToolbarTooltipIconButton(
-                label = stringResource(R.string.markdown_link),
-                onClick = onMarkdownLink
-            ) {
-                Icon(Icons.Default.Link, contentDescription = stringResource(R.string.markdown_link))
-            }
-        }
-        if (config.showWikiLink) {
-            ToolbarTooltipIconButton(
-                label = stringResource(R.string.wiki_link),
-                onClick = onWikiLink
-            ) {
-                Text(
-                    text = "[[ ]]",
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-        }
-        if (config.showImage) {
-            ToolbarTooltipIconButton(
-                label = stringResource(R.string.image),
-                onClick = onImage,
-                enabled = imageEnabled
-            ) {
-                Icon(Icons.Default.Image, contentDescription = stringResource(R.string.image))
-            }
+        ToolbarTooltipIconButton(
+            label = stringResource(R.string.markdown_link),
+            onClick = onMarkdownLink
+        ) {
+            Icon(Icons.Default.Link, contentDescription = stringResource(R.string.markdown_link))
         }
     }
 }
@@ -699,10 +422,8 @@ private fun ToolbarTooltipIconButton(
 
 @Composable
 private fun InlineMarkdownText(
-    line: PreviewLine,
-    onLinkClick: (String) -> Unit
+    line: PreviewLine
 ) {
-    val primary = MaterialTheme.colorScheme.primary
     val annotated = buildAnnotatedString {
         line.segments.forEach { segment ->
             when (segment.type) {
@@ -737,42 +458,6 @@ private fun InlineMarkdownText(
                         append(segment.text)
                     }
                 }
-                PreviewInlineType.NOTE_LINK -> {
-                    val target = segment.target.orEmpty()
-                    pushStringAnnotation(tag = "note-link", annotation = target)
-                    withStyle(
-                        SpanStyle(
-                            color = primary,
-                            textDecoration = TextDecoration.Underline
-                        )
-                    ) {
-                        append(segment.text)
-                    }
-                    pop()
-                }
-                PreviewInlineType.MARKDOWN_LINK -> {
-                    val target = segment.target.orEmpty()
-                    pushStringAnnotation(tag = "markdown-link", annotation = target)
-                    withStyle(
-                        SpanStyle(
-                            color = primary,
-                            textDecoration = TextDecoration.Underline
-                        )
-                    ) {
-                        append(segment.text)
-                    }
-                    pop()
-                }
-                PreviewInlineType.INLINE_MATH -> {
-                    withStyle(
-                        SpanStyle(
-                            color = MaterialTheme.colorScheme.tertiary,
-                            fontFamily = FontFamily.Monospace
-                        )
-                    ) {
-                        append(segment.text)
-                    }
-                }
             }
         }
     }
@@ -783,72 +468,7 @@ private fun InlineMarkdownText(
             color = MaterialTheme.colorScheme.onBackground
         ),
         modifier = Modifier.padding(vertical = 2.dp),
-        onClick = { offset ->
-            annotated.getStringAnnotations("note-link", offset, offset).firstOrNull()?.let {
-                onLinkClick(it.item)
-                return@ClickableText
-            }
-            annotated.getStringAnnotations("markdown-link", offset, offset).firstOrNull()?.let {
-                if (!it.item.startsWith("http://") && !it.item.startsWith("https://")) {
-                    onLinkClick(it.item)
-                }
-            }
-        }
-    )
-}
-
-@Composable
-private fun MarkdownTableRow(
-    line: PreviewLine,
-    isHeader: Boolean
-) {
-    val backgroundColor = if (isHeader) {
-        MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.45f)
-    } else {
-        MaterialTheme.colorScheme.surface
-    }
-    val textColor = if (isHeader) {
-        MaterialTheme.colorScheme.onSecondaryContainer
-    } else {
-        MaterialTheme.colorScheme.onSurface
-    }
-    val borderColor = MaterialTheme.colorScheme.outlineVariant
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
-            .padding(vertical = if (isHeader) 6.dp else 0.dp)
-    ) {
-        line.cells.forEach { cell ->
-            Text(
-                text = cell,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = if (isHeader) FontWeight.SemiBold else FontWeight.Normal
-                ),
-                color = textColor,
-                modifier = Modifier
-                    .border(1.dp, borderColor)
-                    .background(backgroundColor)
-                    .padding(horizontal = 10.dp, vertical = 8.dp)
-                    .widthIn(min = 96.dp)
-            )
-        }
-    }
-}
-
-@Composable
-private fun MarkdownMathBlock(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
-        color = MaterialTheme.colorScheme.tertiary,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .clip(RoundedCornerShape(6.dp))
-            .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.35f))
-            .padding(horizontal = 12.dp, vertical = 10.dp)
+        onClick = { /* no inline click targets in simplified preview */ }
     )
 }
 

@@ -21,7 +21,7 @@ class MarkdownSyntaxHighlighterTest {
 
     @Test
     fun highlight_keepsOriginalMarkdownText() {
-        val markdown = "# Title\nWrite **bold**, *italic*, [[Note]], and [Link](Target)."
+        val markdown = "# Title\nWrite **bold**, *italic*, and [Link](Target)."
 
         val result = MarkdownSyntaxHighlighter.highlight(markdown, colors)
 
@@ -30,7 +30,7 @@ class MarkdownSyntaxHighlighterTest {
 
     @Test
     fun highlight_addsStylesForCoreMarkdownPatterns() {
-        val markdown = "# Title\n- [ ] Task\n**bold** *italic* [[Note]] [Link](Target)"
+        val markdown = "# Title\n- [ ] Task\n**bold** *italic* [Link](Target)"
 
         val result = MarkdownSyntaxHighlighter.highlight(markdown, colors)
 
@@ -79,16 +79,6 @@ class MarkdownSyntaxHighlighterTest {
 
         assertEquals(markdown, result.text)
         assertTrue(result.spanStyles.any { it.item.background == Color.Yellow.copy(alpha = 0.1f) })
-    }
-
-    @Test
-    fun highlight_addsStylesForTable() {
-        val markdown = "| Header |\n| --- |\n| Cell |"
-
-        val result = MarkdownSyntaxHighlighter.highlight(markdown, colors)
-
-        assertEquals(markdown, result.text)
-        assertTrue(result.spanStyles.any { it.item.color == Color.DarkGray })
     }
 
     @Test

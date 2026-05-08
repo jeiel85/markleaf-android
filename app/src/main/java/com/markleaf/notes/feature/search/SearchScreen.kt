@@ -24,12 +24,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
 import com.markleaf.notes.data.local.AppDatabase
-import com.markleaf.notes.data.local.dao.NoteLinkSearchResult
 import com.markleaf.notes.data.repository.LocalTagRepository
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.domain.model.Tag
@@ -47,16 +45,8 @@ fun SearchScreen(
     val searchQuery by viewModel.searchQuery.collectAsState()
     val searchResults by viewModel.searchResults.collectAsState()
     val allTags by tagRepository.observeAllTags().collectAsState(initial = emptyList())
-    val allLinks by db.noteLinkDao().observeQuickOpenLinks().collectAsState(initial = emptyList())
     val matchingTags = remember(searchQuery, allTags) {
         if (searchQuery.isBlank()) emptyList() else allTags.quickFilter(searchQuery) { it.name }.take(12)
-    }
-    val matchingLinks = remember(searchQuery, allLinks) {
-        if (searchQuery.isBlank()) {
-            emptyList()
-        } else {
-            allLinks.quickFilter(searchQuery) { it.rawLabel }.take(12)
-        }
     }
 
     LaunchedEffect(initialQuery) {
@@ -91,7 +81,7 @@ fun SearchScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-            } else if (searchResults.isEmpty() && matchingTags.isEmpty() && matchingLinks.isEmpty()) {
+            } else if (searchResults.isEmpty() && matchingTags.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize().weight(1f),
                     contentAlignment = Alignment.Center
@@ -120,23 +110,6 @@ fun SearchScreen(
                             TagSearchResult(
                                 tag = tag,
                                 onClick = { viewModel.setSearchQuery("#${tag.name}") }
-                            )
-                        }
-                    }
-
-                    if (matchingLinks.isNotEmpty()) {
-                        item { SearchSectionHeader(stringResource(R.string.matching_links)) }
-                        items(matchingLinks, key = { link -> "${link.rawLabel}:${link.targetNoteId.orEmpty()}" }) { link ->
-                            LinkSearchResult(
-                                link = link,
-                                onClick = {
-                                    val targetNoteId = link.targetNoteId
-                                    if (targetNoteId != null) {
-                                        onNoteClick(targetNoteId)
-                                    } else {
-                                        viewModel.setSearchQuery(link.rawLabel)
-                                    }
-                                }
                             )
                         }
                     }
@@ -202,32 +175,6 @@ private fun TagSearchResult(
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 8.dp)
     )
-}
-
-@Composable
-private fun LinkSearchResult(
-    link: NoteLinkSearchResult,
-    onClick: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.link_result_format, link.rawLabel),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.secondary,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-        Text(
-            text = stringResource(R.string.link_reference_count_format, link.sourceCount),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
 }
 
 private fun <T> List<T>.quickFilter(

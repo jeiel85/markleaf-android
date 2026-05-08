@@ -1,4 +1,37 @@
 ---
+## 2026-05-08 - Lightweight Realignment
+
+Selected task:
+- Restore the missing trash entry-point and aggressively trim features that conflict with the lightweight Markdown app vision (AGENT_SPEC §2, §7, §6.3)
+
+What was implemented:
+- Editor top bar gained a trash icon → confirm dialog → moveToTrash + onBack
+- Notes list long-press now shows a confirm dialog and routes to trash; the buggy drag-to-reorder that hijacked long-press is gone
+- Removed NoteCountDashboard from the top of the notes list
+- Removed version history (snapshots), backlinks/wiki links, image attachments, ZIP backup/restore, toolbar customization switches, and the markdown table+math preview blocks
+- Dropped Coil dependency, removed POST_NOTIFICATIONS / READ_MEDIA_IMAGES / READ_MEDIA_VIDEO / READ_EXTERNAL_STORAGE permissions
+- Added DB v9 migration that drops `note_snapshots`, `note_links`, `attachments` tables; removed corresponding DAOs/entities and repository methods
+- Stripped now-unused string resources across en/ko/es and added move-to-trash strings
+- Pruned tests that targeted removed features; replaced LocalNoteRepositoryTest with core CRUD coverage and rewrote ComprehensiveFeatureTest
+
+Files changed (highlights):
+- feature/notes/NotesListScreen.kt, feature/editor/EditorScreen.kt, feature/settings/SettingsScreen.kt, feature/search/SearchScreen.kt
+- core/markdown/SimpleMarkdownPreview.kt, MarkdownEditActions.kt, MarkdownSyntaxHighlighter.kt
+- data/local/AppDatabase.kt (v9 migration), data/local/dao + entity (deletions), data/repository/LocalNoteRepository.kt, domain/repository/NoteRepository.kt, domain/model/Note.kt
+- data/settings/AppSettings.kt + AppSettingsRepository.kt (ToolbarConfig removed)
+- AndroidManifest.xml, app/build.gradle.kts (Coil removed)
+- res/values{,-ko,-es}/strings.xml
+- Deleted: util/BackupUtil.kt, util/PermissionUtils.kt, feature/notes/ChecklistProgressIndicator.kt, core/markdown/ChecklistParser.kt, domain/model/NoteSnapshot.kt, AttachmentDao/Entity, NoteLinkDao/Entity, NoteSnapshotDao/Entity
+- test/data/repository/LocalNoteRepositoryTest.kt, test/core/markdown/SimpleMarkdownPreviewTest.kt + MarkdownSyntaxHighlighterTest.kt + MarkdownEditActionsTest.kt, test/ui/viewmodel/MarkleafViewModelFactoryTest.kt
+- androidTest/ui/ComprehensiveFeatureTest.kt
+- CHANGELOG.md, HISTORY.md, .agent/tasks.md, .agent/progress.md
+
+Build/test result:
+- `./gradlew assembleDebug` → BUILD SUCCESSFUL
+- `./gradlew test` (debug + release unit test) → BUILD SUCCESSFUL
+- `./gradlew assembleDebugAndroidTest` → BUILD SUCCESSFUL (compile only; instrumentation device run not executed in this environment)
+
+---
 ## 2026-05-07 - Launch Smoke Workflow Script Parsing Fix
 Selected task:
 - Stabilize GitHub Actions launch-smoke execution by avoiding inline shell block parsing failures

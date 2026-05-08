@@ -1,3 +1,32 @@
+## 2026-05-08
+- Work: 가벼운 마크다운 앱 가치관에 맞춰 무거운 부가기능을 일괄 정리하고 누락된 노트 삭제 진입점을 복구.
+- Changed files:
+  - feature/notes/NotesListScreen.kt (NoteCountDashboard 제거, 드래그 재정렬 제거, long-press 휴지통 진입)
+  - feature/editor/EditorScreen.kt (휴지통 버튼 추가, 버전 히스토리/백링크/이미지 첨부/위키 링크/체크리스트 진행률/표·수식 미리보기 제거)
+  - feature/settings/SettingsScreen.kt (ZIP 백업, 툴바 토글, 권한 섹션 제거)
+  - feature/search/SearchScreen.kt (Quick Open Links 섹션 제거)
+  - core/markdown/SimpleMarkdownPreview.kt (TABLE/MATH/IMAGE/LINK/INLINE_MATH 제거)
+  - core/markdown/MarkdownEditActions.kt (wikiLink/image 액션 제거)
+  - core/markdown/MarkdownSyntaxHighlighter.kt (WIKI_LINK/TABLE 정규식 제거)
+  - data/local/AppDatabase.kt (v9 migration: note_snapshots / note_links / attachments DROP)
+  - data/local/dao 및 entity (Snapshot/Link/Attachment 관련 파일 삭제)
+  - data/repository/LocalNoteRepository.kt + domain/repository/NoteRepository.kt (스냅샷/백링크 메서드 제거)
+  - data/settings/AppSettings(+Repository).kt (ToolbarConfig 제거)
+  - util/BackupUtil.kt, util/PermissionUtils.kt, feature/notes/ChecklistProgressIndicator.kt, core/markdown/ChecklistParser.kt, domain/model/NoteSnapshot.kt 삭제
+  - AndroidManifest.xml (POST_NOTIFICATIONS, READ_MEDIA_IMAGES, READ_MEDIA_VIDEO, READ_EXTERNAL_STORAGE 제거)
+  - app/build.gradle.kts (Coil 의존성 제거)
+  - res/values{,-ko,-es}/strings.xml (사용하지 않는 키 제거 + move_to_trash 계열 추가)
+  - test 코드 정리 (제거된 기능 관련 테스트 삭제 또는 갈음)
+  - CHANGELOG.md / HISTORY.md
+- Context:
+  - 사용자 보고: 휴지통 화면은 있는데 그곳으로 노트를 보낼 진입점이 UI 어디에도 없음.
+  - 원인: NotesListScreen에서 long-press를 `detectDragGesturesAfterLongPress`가 가로채서 `onMoveToTrash` 콜백이 죽은 코드가 됐고, 에디터에는 삭제 버튼 자체가 없었음.
+  - 함께 처리: 사용자 요청 *"가벼움/편의성에 부합하지 않는 기능은 과감히 제거"* 에 따라, AGENT_SPEC §7의 MVP 제외 항목(테이블, 수식, WYSIWYG, 복잡한 데이터)과 §2.3 "노트는 특정 앱에 갇히지 않아야" 원칙에 어긋나는 ZIP 백업, §6.3 "권한을 가능한 요청하지 않는다"와 충돌하는 미디어/알림 권한, 그리고 자동 저장+휴지통이 이미 안전망이라 중복인 버전 히스토리, "second-brain" 성격이 강한 위키 링크/백링크를 함께 제거.
+- Verification:
+  - `./gradlew assembleDebug` 통과
+  - `./gradlew test` (debug + release unit test) 통과
+  - `./gradlew assembleDebugAndroidTest` 통과 (인스트루멘테이션 컴파일까지만 확인; 실제 디바이스 실행은 보류)
+
 ## 2026-05-07
 - Work: Play Console 제출 마감본 버전업 및 릴리즈 파이프라인 정리.
 - Changed files:

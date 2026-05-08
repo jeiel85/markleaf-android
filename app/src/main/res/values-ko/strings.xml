@@ -21,32 +21,20 @@
     <string name="edit_note">노트 편집</string>
     <string name="new_note">새 노트</string>
     <string name="back">뒤로</string>
-    <string name="backlinks">백링크</string>
     <string name="note_content">노트 본문</string>
-    <string name="start_writing">바로 작성해보세요...</string>
     <string name="editor_empty_title">조용한 빈 페이지가 준비되었습니다</string>
-    <string name="editor_empty_hint">Markdown, #태그, 링크, 체크박스, 이미지를 사용할 수 있습니다. 작성하는 동안 로컬에 저장됩니다.</string>
+    <string name="editor_empty_hint">Markdown, #태그, 링크, 체크박스를 사용할 수 있습니다. 작성하는 동안 로컬에 저장됩니다.</string>
     <string name="bold">굵게</string>
     <string name="italic">기울임</string>
     <string name="checkbox">체크박스</string>
     <string name="markdown_link">Markdown 링크</string>
-    <string name="wiki_link">위키 링크</string>
-    <string name="image">이미지</string>
-    <string name="version_history">버전 기록</string>
-    <string name="no_versions_yet">저장된 이전 버전이 없습니다</string>
-    <string name="restore_version">복원</string>
-    <string name="version_item_format">%1$s · %2$s</string>
 
     <string name="search_notes_hint">노트 검색...</string>
     <string name="type_to_search_notes">검색어를 입력하세요</string>
     <string name="no_results_found">검색 결과가 없습니다</string>
-    <string name="quick_open">빠른 열기</string>
     <string name="matching_notes">노트</string>
     <string name="matching_tags">태그</string>
-    <string name="matching_links">링크</string>
     <string name="tag_result_format">#%1$s</string>
-    <string name="link_result_format">[[%1$s]]</string>
-    <string name="link_reference_count_format">참조 %1$d개</string>
     <string name="no_tags_yet">아직 태그가 없습니다</string>
     <string name="tags_empty_hint">노트에 #태그를 입력해 정리해보세요</string>
     <string name="tag_note_count_format">%1$d개 노트</string>
@@ -60,17 +48,11 @@
     <string name="delete_forever">영구 삭제</string>
     <string name="cancel">취소</string>
 
-    <string name="settings_data">데이터</string>
-    <string name="settings_data_description">로컬 ZIP 백업을 만들거나 선택한 백업을 복원합니다. Markleaf는 노트를 자동 업로드하지 않습니다.</string>
-    <string name="create_backup">백업 만들기</string>
-    <string name="backup_created">ZIP 백업을 만들었습니다.</string>
-    <string name="backup_failed">백업에 실패했습니다.</string>
-    <string name="backup_restored">ZIP 백업을 복원했습니다.</string>
-    <string name="restore_failed">복원에 실패했습니다.</string>
-    <string name="backup_created_detail">ZIP 백업 완료: 노트 %1$d개, 첨부 %2$d개, 링크 %3$d개.</string>
-    <string name="backup_failed_detail">백업에 실패했습니다. 다른 위치를 선택해 다시 시도하세요.</string>
-    <string name="backup_restored_detail">ZIP 백업 복원 완료: 노트 %1$d개, 첨부 %2$d개, 링크 %3$d개.</string>
-    <string name="restore_failed_detail">복원에 실패했습니다. 선택한 파일이 Markleaf ZIP 백업인지 확인하세요.</string>
+    <string name="move_to_trash">휴지통으로 이동</string>
+    <string name="move_to_trash_title">휴지통으로 옮길까요?</string>
+    <string name="move_to_trash_message">\"%1$s\"를 휴지통으로 옮길까요? 휴지통에서 다시 복원할 수 있습니다.</string>
+    <string name="move_to_trash_editor_message">이 노트를 휴지통으로 옮길까요? 휴지통에서 다시 복원할 수 있습니다.</string>
+
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Markdown 문법 표시</string>
     <string name="show_markdown_syntax_description">라이브 에디터에서 작성 중 Markdown 문자를 하이라이팅합니다.</string>
@@ -78,27 +60,13 @@
     <string name="line_width_narrow">좁게</string>
     <string name="line_width_comfortable">편안하게</string>
     <string name="line_width_wide">넓게</string>
-    <string name="markdown_preview_support">미리보기는 제목, 목록, 체크박스, 표, 수식 표기, 이미지, 노트 링크, inline Markdown 링크를 지원합니다.</string>
-    <string name="external_links_mvp">외부 웹 링크는 링크처럼 표시하지만 MVP에서는 자동으로 열지 않습니다.</string>
-    <string name="local_link_hint">[[노트 제목]] 또는 [라벨](노트 제목)을 사용해 로컬 검색으로 이동할 수 있습니다.</string>
     <string name="settings_privacy">개인정보</string>
     <string name="privacy_no_tracking">계정, 분석, 광고, 원격 설정, 독점 크래시 리포팅 SDK가 없습니다.</string>
     <string name="privacy_no_internet">MVP에서는 INTERNET 권한을 선언하지 않습니다.</string>
-    <string name="privacy_local_first">노트는 사용자가 직접 내보내기, 공유, 백업할 때만 기기 밖으로 나갑니다.</string>
+    <string name="privacy_local_first">노트는 사용자가 직접 내보내거나 공유할 때만 기기 밖으로 나갑니다.</string>
     <string name="settings_app">앱</string>
     <string name="version_format">버전 %1$s</string>
     <string name="application_id_format">Application ID %1$s</string>
-
-    <!-- Dashboard -->
-    <string name="dashboard_total_notes">노트</string>
-    <string name="dashboard_pinned_notes">고정됨</string>
-    <string name="dashboard_total_tags">태그</string>
-
-    <!-- Toolbar Customization -->
-    <string name="toolbar_customization">편집기 툴 바</string>
-
-    <!-- Drag and Drop -->
-    <string name="drag_to_reorder">드래그하여 재정렬</string>
 
     <!-- Widget -->
     <string name="quick_note_widget_label">빠른 노트</string>
@@ -107,13 +75,13 @@
     <!-- Privacy Dashboard -->
     <string name="privacy_dashboard_title">개인정보 대시보드</string>
     <string name="privacy_guarantee_title">데이터는 기기에만 저장됩니다</string>
-    <string name="privacy_guarantee_desc">Markleaf는 개인정보 보호를 핵심으로 설계되었습니다. 노트는 사용자가 직접 날짜내거나 공유하지 않는 한 기기를 벗어나지 않습니다.</string>
+    <string name="privacy_guarantee_desc">Markleaf는 개인정보 보호를 핵심으로 설계되었습니다. 노트는 사용자가 직접 내보내거나 공유하지 않는 한 기기를 벗어나지 않습니다.</string>
     <string name="privacy_data_storage_title">로컬 우선 저장</string>
-    <string name="privacy_data_storage_desc">모든 노트, 태그, 첨부 파일은 Android의 안전한 Room 데이터베이스를 사용하여 기기에 로컬로 저장됩니다. 클라우드 서버 없음, 데이터 업로드 없음.</string>
-    <string name="privacy_no_cloud_title">클우드 의존성 없음</string>
+    <string name="privacy_data_storage_desc">모든 노트와 태그는 Android의 안전한 Room 데이터베이스를 사용하여 기기에 로컬로 저장됩니다. 클라우드 서버 없음, 데이터 업로드 없음.</string>
+    <string name="privacy_no_cloud_title">클라우드 의존성 없음</string>
     <string name="privacy_no_cloud_desc">핵심 기능에 클라우드 서비스를 사용하지 않습니다. Google Drive 동기화 없음, Dropbox 통합 없음, 독점 백엔드 서버 없음.</string>
     <string name="privacy_no_tracking_title">제로 추적</string>
-    <string name="privacy_no_tracking_desc">분석 도구 없음, 크래시 리포팅 SDK 없음, 광고 네트워크 없음. 사용자가 앱을 어떻게 사용하는지 전혀 모륾며, 그것이 우리가 원하는 방식입니다.</string>
+    <string name="privacy_no_tracking_desc">분석 도구 없음, 크래시 리포팅 SDK 없음, 광고 네트워크 없음. 사용자가 앱을 어떻게 사용하는지 전혀 모르며, 그것이 우리가 원하는 방식입니다.</string>
     <string name="privacy_verification_title">개인정보 검증</string>
     <string name="privacy_verify_no_internet">INTERNET 권한 미선언</string>
     <string name="privacy_verify_local_only">100% 로컬 데이터 처리</string>
@@ -123,13 +91,5 @@
     <string name="privacy_app_info_title">이 빌드에 대하여</string>
     <string name="privacy_app_info_desc">버전 %1$s\n\n이 Markleaf 빌드는 엄격한 개인정보 보호 표준을 유지합니다. 모든 기능이 완전히 오프라인에서 작동합니다.</string>
     <string name="privacy_dashboard_button">개인정보 대시보드 보기</string>
-    <string name="settings_permissions">권한</string>
-    <string name="permission_notifications">알림</string>
-    <string name="permission_notifications_desc">리마인더와 업데이트를 위한 알림을 허용합니다.</string>
-    <string name="permission_storage">저장소</string>
-    <string name="permission_storage_desc">이미지 첨부와 백업 내보내기를 위해 저장소 접근을 허용합니다.</string>
-    <string name="permission_granted">허용됨</string>
-    <string name="permission_request">요청</string>
-    <string name="permission_settings">설정 열기</string>
 
 </resources>

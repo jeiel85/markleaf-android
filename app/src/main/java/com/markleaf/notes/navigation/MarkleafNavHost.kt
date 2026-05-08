@@ -144,13 +144,7 @@ fun MarkleafNavHost(
                             ) {
                                 EditorScreen(
                                     noteId = selectedNoteId,
-                                    onBack = { selectedNoteId = null },
-                                    onLinkClick = { title ->
-                                        navController.navigate("${NavRoutes.SEARCH}?query=${Uri.encode(title)}")
-                                    },
-                                    onNoteClick = { noteId ->
-                                        selectedNoteId = noteId
-                                    }
+                                    onBack = { selectedNoteId = null }
                                 )
                             }
                         } else {
@@ -191,14 +185,8 @@ fun MarkleafNavHost(
         composable(NavRoutes.EDITOR) {
             val noteId = it.arguments?.getString("noteId")
             EditorScreen(
-                noteId = noteId, 
-                onBack = { navController.popBackStack() },
-                onLinkClick = { title ->
-                    navController.navigate("${NavRoutes.SEARCH}?query=${Uri.encode(title)}")
-                },
-                onNoteClick = { targetId ->
-                    navController.navigate(NavRoutes.editorRoute(targetId))
-                }
+                noteId = noteId,
+                onBack = { navController.popBackStack() }
             )
         }
         composable(NavRoutes.TAGS) {

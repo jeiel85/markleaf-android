@@ -16,8 +16,3 @@ data class Note(
     val tags: List<Tag> = emptyList(),
     val sortOrder: Int = 0
 )
-
-data class BacklinkSnippet(
-    val note: Note,
-    val snippet: String
-)

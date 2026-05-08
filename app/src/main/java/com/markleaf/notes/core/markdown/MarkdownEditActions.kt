@@ -33,16 +33,6 @@ object MarkdownEditActions {
         }
     }
 
-    fun wikiLink(value: TextFieldValue): TextFieldValue {
-        return wrapSelection(value, "[[", "]]", "Note Title")
-    }
-
-    fun image(value: TextFieldValue, alt: String, uri: String): TextFieldValue {
-        val prefix = if (value.text.isBlank() || value.text.endsWith("\n")) "" else "\n"
-        val insertion = "$prefix![$alt]($uri)\n"
-        return replaceSelection(value, insertion)
-    }
-
     private fun wrapSelection(
         value: TextFieldValue,
         before: String,

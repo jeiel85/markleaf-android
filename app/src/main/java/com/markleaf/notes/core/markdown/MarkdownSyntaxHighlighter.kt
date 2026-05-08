@@ -77,24 +77,6 @@ object MarkdownSyntaxHighlighter {
             )
         }
 
-        TABLE_REGEX.findAll(text).forEach { match ->
-            builder.addStyle(
-                SpanStyle(color = colors.table),
-                match.range.first,
-                match.range.last + 1
-            )
-            // Highlight the pipe characters
-            match.value.forEachIndexed { index, char ->
-                if (char == '|') {
-                    builder.addStyle(
-                        SpanStyle(color = colors.syntax),
-                        match.range.first + index,
-                        match.range.first + index + 1
-                    )
-                }
-            }
-        }
-
         BLOCKQUOTE_REGEX.findAll(text).forEach { match ->
             builder.addStyle(
                 SpanStyle(color = colors.blockquote),
@@ -192,15 +174,6 @@ object MarkdownSyntaxHighlighter {
             styleMarker(builder, colors, match.range.last, 1)
         }
 
-        WIKI_LINK_REGEX.findAll(text).forEach { match ->
-            builder.addStyle(
-                SpanStyle(color = colors.link, textDecoration = TextDecoration.Underline),
-                match.range.first,
-                match.range.last + 1
-            )
-            styleMarker(builder, colors, match.range.first, 2)
-            styleMarker(builder, colors, match.range.last - 1, 2)
-        }
     }
 
     private fun styleMarker(
@@ -215,7 +188,6 @@ object MarkdownSyntaxHighlighter {
     private val HEADING_REGEX = Regex("""(?m)^#{1,6}\s.+$""")
     private val CHECKBOX_REGEX = Regex("""(?m)^-\s\[[ xX]]\s.+$""")
     private val CODE_BLOCK_REGEX = Regex("""(?sm)^```.*?```""")
-    private val TABLE_REGEX = Regex("""(?m)^\|.*$""")
     private val BLOCKQUOTE_REGEX = Regex("""(?m)^>.*$""")
     private val HORIZONTAL_RULE_REGEX = Regex("""(?m)^(\*\*\*|---|___)\s*$""")
     private val INLINE_CODE_REGEX = Regex("""`[^`\n]+?`""")
@@ -224,5 +196,4 @@ object MarkdownSyntaxHighlighter {
     private val ITALIC_REGEX = Regex("""(?<!\*)\*[^*\n]+?\*(?!\*)""")
     private val ITALIC_UNDERSCORE_REGEX = Regex("""(?<!\w)_[^_\n]+?_(?!\w)""")
     private val MARKDOWN_LINK_REGEX = Regex("""\[[^\]\n]+]\([^) \n][^)\n]*\)""")
-    private val WIKI_LINK_REGEX = Regex("""\[\[[^\]\n]+]]""")
 }

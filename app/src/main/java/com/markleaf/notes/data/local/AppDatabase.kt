@@ -6,38 +6,26 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.markleaf.notes.data.local.dao.AttachmentDao
 import com.markleaf.notes.data.local.dao.NoteDao
-import com.markleaf.notes.data.local.dao.NoteLinkDao
-import com.markleaf.notes.data.local.dao.NoteSnapshotDao
 import com.markleaf.notes.data.local.dao.TagDao
-import com.markleaf.notes.data.local.entity.AttachmentEntity
 import com.markleaf.notes.data.local.entity.NoteEntity
 import com.markleaf.notes.data.local.entity.NoteFtsEntity
-import com.markleaf.notes.data.local.entity.NoteLinkEntity
-import com.markleaf.notes.data.local.entity.NoteSnapshotEntity
 import com.markleaf.notes.data.local.entity.NoteTagCrossRef
 import com.markleaf.notes.data.local.entity.TagEntity
 
 @Database(
     entities = [
-        NoteEntity::class, 
-        TagEntity::class, 
-        NoteTagCrossRef::class, 
-        NoteFtsEntity::class,
-        AttachmentEntity::class,
-        NoteLinkEntity::class,
-        NoteSnapshotEntity::class
+        NoteEntity::class,
+        TagEntity::class,
+        NoteTagCrossRef::class,
+        NoteFtsEntity::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun noteDao(): NoteDao
     abstract fun tagDao(): TagDao
-    abstract fun attachmentDao(): AttachmentDao
-    abstract fun noteLinkDao(): NoteLinkDao
-    abstract fun noteSnapshotDao(): NoteSnapshotDao
 
     companion object {
         @Volatile
@@ -50,7 +38,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "markleaf.db"
                 )
-                .addMigrations(MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
+                .addMigrations(MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9)
                 .build().also { INSTANCE = it }
             }
         }
@@ -119,6 +107,14 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_notes_trashed_pinned_sortOrder` ON `notes` (`trashed`, `pinned`, `sortOrder`)")
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_notes_sortOrder` ON `notes` (`sortOrder`)")
                 db.execSQL("DROP INDEX IF EXISTS `index_notes_trashed_pinned_updatedAt`")
+            }
+        }
+
+        private val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS `note_snapshots`")
+                db.execSQL("DROP TABLE IF EXISTS `note_links`")
+                db.execSQL("DROP TABLE IF EXISTS `attachments`")
             }
         }
     }

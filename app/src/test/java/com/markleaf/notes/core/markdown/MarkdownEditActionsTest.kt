@@ -46,15 +46,6 @@ class MarkdownEditActionsTest {
     }
 
     @Test
-    fun wikiLink_wrapsSelectedText() {
-        val result = MarkdownEditActions.wikiLink(
-            TextFieldValue("See Note", selection = TextRange(4, 8))
-        )
-
-        assertEquals("See [[Note]]", result.text)
-    }
-
-    @Test
     fun strikethrough_wrapsSelectedText() {
         val result = MarkdownEditActions.strikethrough(
             TextFieldValue("hello world", selection = TextRange(6, 11))

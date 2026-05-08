@@ -21,32 +21,20 @@
     <string name="edit_note">Edit Note</string>
     <string name="new_note">New Note</string>
     <string name="back">Back</string>
-    <string name="backlinks">Backlinks</string>
     <string name="note_content">Note content</string>
-    <string name="start_writing">Start writing...</string>
     <string name="editor_empty_title">A quiet page is ready</string>
-    <string name="editor_empty_hint">Use Markdown, #tags, links, checkboxes, and images. Markleaf saves locally as you write.</string>
+    <string name="editor_empty_hint">Use Markdown, #tags, links, and checkboxes. Markleaf saves locally as you write.</string>
     <string name="bold">Bold</string>
     <string name="italic">Italic</string>
     <string name="checkbox">Checkbox</string>
     <string name="markdown_link">Markdown Link</string>
-    <string name="wiki_link">Wiki Link</string>
-    <string name="image">Image</string>
-    <string name="version_history">Version History</string>
-    <string name="no_versions_yet">No saved versions yet</string>
-    <string name="restore_version">Restore</string>
-    <string name="version_item_format">%1$s · %2$s</string>
 
     <string name="search_notes_hint">Search notes...</string>
     <string name="type_to_search_notes">Type to search notes</string>
     <string name="no_results_found">No results found</string>
-    <string name="quick_open">Quick Open</string>
     <string name="matching_notes">Notes</string>
     <string name="matching_tags">Tags</string>
-    <string name="matching_links">Links</string>
     <string name="tag_result_format">#%1$s</string>
-    <string name="link_result_format">[[%1$s]]</string>
-    <string name="link_reference_count_format">%1$d references</string>
     <string name="no_tags_yet">No tags yet</string>
     <string name="tags_empty_hint">Type #tags in a note to organize it</string>
     <string name="tag_note_count_format">%1$d notes</string>
@@ -60,17 +48,11 @@
     <string name="delete_forever">Delete Forever</string>
     <string name="cancel">Cancel</string>
 
-    <string name="settings_data">Data</string>
-    <string name="settings_data_description">Create a local ZIP backup or restore one you selected. Markleaf does not upload notes automatically.</string>
-    <string name="create_backup">Create Backup</string>
-    <string name="backup_created">ZIP backup created.</string>
-    <string name="backup_failed">Backup failed.</string>
-    <string name="backup_restored">ZIP backup restored.</string>
-    <string name="restore_failed">Restore failed.</string>
-    <string name="backup_created_detail">ZIP backup created: %1$d notes, %2$d attachments, %3$d links.</string>
-    <string name="backup_failed_detail">Backup failed. Choose another location and try again.</string>
-    <string name="backup_restored_detail">ZIP backup restored: %1$d notes, %2$d attachments, %3$d links.</string>
-    <string name="restore_failed_detail">Restore failed. Check that the selected file is a Markleaf ZIP backup.</string>
+    <string name="move_to_trash">Move to trash</string>
+    <string name="move_to_trash_title">Move to trash?</string>
+    <string name="move_to_trash_message">Move \"%1$s\" to trash? You can restore it later from the Trash.</string>
+    <string name="move_to_trash_editor_message">Move this note to trash? You can restore it later from the Trash.</string>
+
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Show Markdown syntax</string>
     <string name="show_markdown_syntax_description">The live editor highlights Markdown characters while you write.</string>
@@ -78,35 +60,13 @@
     <string name="line_width_narrow">Narrow</string>
     <string name="line_width_comfortable">Comfortable</string>
     <string name="line_width_wide">Wide</string>
-    <string name="markdown_preview_support">Preview supports headings, lists, checkboxes, tables, math notation, images, note links, and inline Markdown links.</string>
-    <string name="external_links_mvp">External web links are shown as links but are not opened automatically in the MVP.</string>
-    <string name="local_link_hint">Use [[Note Title]] or [label](Note Title) to jump through local search.</string>
     <string name="settings_privacy">Privacy</string>
     <string name="privacy_no_tracking">No account, analytics, ads, remote config, or proprietary crash reporting SDK.</string>
     <string name="privacy_no_internet">No INTERNET permission is declared for the MVP.</string>
-    <string name="privacy_local_first">Notes leave the device only when you explicitly export, share, or back them up.</string>
+    <string name="privacy_local_first">Notes leave the device only when you explicitly export or share them.</string>
     <string name="settings_app">App</string>
-    <string name="settings_permissions">Permissions</string>
-    <string name="permission_notifications">Notifications</string>
-    <string name="permission_notifications_desc">Allow notifications for reminders and updates.</string>
-    <string name="permission_storage">Storage</string>
-    <string name="permission_storage_desc">Allow storage access to attach images and export backups.</string>
-    <string name="permission_granted">Granted</string>
-    <string name="permission_request">Request</string>
-    <string name="permission_settings">Open Settings</string>
     <string name="version_format">Version %1$s</string>
     <string name="application_id_format">Application ID %1$s</string>
-
-    <!-- Dashboard -->
-    <string name="dashboard_total_notes">Notes</string>
-    <string name="dashboard_pinned_notes">Pinned</string>
-    <string name="dashboard_total_tags">Tags</string>
-
-    <!-- Toolbar Customization -->
-    <string name="toolbar_customization">Editor Toolbar</string>
-
-    <!-- Drag and Drop -->
-    <string name="drag_to_reorder">Drag to reorder</string>
 
     <!-- Widget -->
     <string name="quick_note_widget_label">Quick Note</string>
@@ -117,7 +77,7 @@
     <string name="privacy_guarantee_title">Your Data Stays Local</string>
     <string name="privacy_guarantee_desc">Markleaf is designed with privacy at its core. Your notes never leave your device unless you explicitly choose to export or share them.</string>
     <string name="privacy_data_storage_title">Local-First Storage</string>
-    <string name="privacy_data_storage_desc">All your notes, tags, and attachments are stored locally on your device using Android\'s secure Room database. No cloud servers, no data uploads.</string>
+    <string name="privacy_data_storage_desc">All your notes and tags are stored locally on your device using Android\'s secure Room database. No cloud servers, no data uploads.</string>
     <string name="privacy_no_cloud_title">No Cloud Dependencies</string>
     <string name="privacy_no_cloud_desc">We don\'t use any cloud services for core functionality. No Google Drive sync, no Dropbox integration, no proprietary backend servers.</string>
     <string name="privacy_no_tracking_title">Zero Tracking</string>

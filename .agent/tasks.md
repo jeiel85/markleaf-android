@@ -91,3 +91,24 @@
 - [x] Improve backlinks with context snippets
 - [x] Improve export and backup status messages
 - [x] Add large dataset performance checks
+
+---
+
+## Phase 11 - Lightweight Realignment (Done, 2026-05-08)
+
+목적: 사용자 피드백("휴지통은 있는데 거기로 보낼 길이 없다", "가벼움/편의성에 부합하지 않는 기능은 과감히 제거하라")에 따라 AGENT_SPEC §2 (속도/단순함/데이터 소유권)와 §7 (MVP 제외) 원칙으로 회귀.
+
+- [x] Restore the missing trash entry: editor top bar trash button + list long-press confirmation
+- [x] Remove the notes-list dashboard card (total/pinned/tags counts)
+- [x] Remove drag-to-reorder (it hijacked long-press and broke the trash flow)
+- [x] Remove version history (snapshots) feature — auto-save + trash already cover undo
+- [x] Remove backlinks / wiki link feature (`[[Title]]` indexing, panel, Quick Open links)
+- [x] Remove image attachments (Coil dep, AttachmentEntity, media permissions)
+- [x] Remove ZIP backup/restore (Markdown export remains)
+- [x] Remove math + table preview rendering (still typeable as raw text)
+- [x] Remove toolbar config switches; keep bold/italic/checkbox/markdownLink always-on
+- [x] Remove unused notification permission and storage permissions
+- [x] Drop `note_snapshots`, `note_links`, `attachments` tables via DB v9 migration
+- [x] Remove ChecklistProgressIndicator and unused ChecklistParser
+- [x] Update CHANGELOG / HISTORY / unit + UI tests
+- [x] Verify with `./gradlew assembleDebug`, `test`, `assembleDebugAndroidTest`

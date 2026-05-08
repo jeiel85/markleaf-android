@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+      Macrobenchmark needs the target app to be profileable from the shell so
+      it can attach perfetto / sample-profile while the app runs at release-
+      level performance. We declare it only for the `benchmark` build variant
+      so debug and release APKs are unaffected.
+    -->
+    <application
+        android:allowBackup="true"
+        tools:replace="android:allowBackup">
+        <profileable
+            android:shell="true"
+            tools:targetApi="29" />
+    </application>
+</manifest>

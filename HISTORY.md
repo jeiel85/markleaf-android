@@ -23,6 +23,28 @@
   - `./gradlew assembleDebugAndroidTest` 통과
   - `./gradlew verifyRoborazziDebug` 통과 (UI 변경이 settings에 국한되어 기존 14+4 골든 영향 없음)
 
+## 2026-05-08 (밤) - v2.5.1 + tablet bench
+- Work: 사용자가 v1.5에서 Material You 기본화 이후 leaf-style 그린이 사라진 것을 지적 → 테마 선택 설정 추가, 그린 기본 복귀. 동시에 Lenovo TB320FC (API 35) 태블릿에서 Macrobenchmark 첫 실측.
+- Theme picker:
+  - `AppSettings.colorPalette: ColorPalette { MARKLEAF_GREEN, MATERIAL_YOU }` (DataStore key `color_palette`)
+  - `MarkleafTheme.dynamicColor` 기본값 `true → false` (정적 그린 기본)
+  - `MainActivity` 가 settings flow를 collect 해 ColorPalette → dynamicColor 변환, 변경 즉시 리컴포즈
+  - Settings → 새 "테마" 섹션: 두 옵션 OutlinedButton/Button 토글 패턴
+  - strings × 3 lang
+- Macrobenchmark on TB320FC (API 35):
+  - profileinstaller 1.3.1 → 1.4.0 (API 35 지원), benchmark-macro-junit4 1.2.4 → 1.3.0
+  - benchmark build type: `isDebuggable = true → false` (Macrobenchmark는 debuggable 거부)
+  - `app/src/benchmark/AndroidManifest.xml` (NEW) — `<profileable shell="true" />` 만 추가, 다른 build variant에 영향 없음
+  - benchmark/AndroidManifest.xml — WRITE_EXTERNAL_STORAGE 제거 (API 30+에서 GrantPermissionRule 실패 원인)
+  - 결과:
+    - **Cold start: median 326ms** (min 317 / max 360) — §2.1 *빠름 우선* 기준 즉각
+    - **Warm start: median 113ms** — 거의 무즉각
+    - **Hot start: median 57ms** — 사용자 인지 한계 이하
+    - ScrollBenchmark는 fresh install이라 노트 4개뿐, fling 시 frame 데이터 부족으로 실패 — 데이터 시드된 빌드에서 재실행 필요 (v2.5.x 백로그)
+- Verification:
+  - `./gradlew assembleDebug + test + verifyRoborazziDebug` 통과
+  - 태블릿에 v2.5.1 debug APK 설치 완료 (사용자 스모크 테스트용)
+
 ## 2026-05-08 (밤) - v2.0.0
 - Work: Bear-급 인라인 rich rendering. 사용자가 "Bear의 핵심 체감 차이는 라이브 프리뷰" 라고 명시한 갈증을 직접 응답. 라이브러리 교체는 §2.9 정신에 맞춰 보류.
 - Changed files:

@@ -86,10 +86,12 @@ android {
         }
         // Mirrors release minus signing so the :benchmark module can target
         // a realistic build of the app on any developer machine. Macrobenchmark
-        // requires the target apk to be debuggable+profileable.
+        // requires the target apk to be NON-debuggable (debuggable apps
+        // produce skewed numbers) but profileable — see the benchmark
+        // variant's AndroidManifest for `<profileable shell="true" />`.
         create("benchmark") {
             initWith(getByName("release"))
-            isDebuggable = true
+            isDebuggable = false
             signingConfig = signingConfigs.getByName("debug")
             matchingFallbacks += listOf("release")
         }
@@ -172,8 +174,8 @@ dependencies {
 
     // Profile installer — lets Macrobenchmark and AOT compile baseline
     // profiles against this app. No-op at runtime when no benchmark is
-    // attached, so it costs nothing for normal users.
-    implementation("androidx.profileinstaller:profileinstaller:1.3.1")
+    // attached, so it costs nothing for normal users. 1.4.0+ adds API 35.
+    implementation("androidx.profileinstaller:profileinstaller:1.4.0")
 
     // Coil image loader for in-preview attachments. Apache 2.0, F-Droid friendly.
     // Loads from app-private File paths so we don't need media permissions.

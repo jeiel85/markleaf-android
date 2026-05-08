@@ -15,7 +15,8 @@ enum class PreviewLineType {
     EMPTY,
     CODE_BLOCK,
     FRONTMATTER,
-    FOOTNOTE_DEF
+    FOOTNOTE_DEF,
+    IMAGE
 }
 
 enum class PreviewInlineType {

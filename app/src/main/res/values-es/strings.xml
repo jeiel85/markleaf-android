@@ -36,6 +36,8 @@
     <string name="inline_code">Codigo en linea</string>
     <string name="checkbox">Casilla</string>
     <string name="markdown_link">Enlace Markdown</string>
+    <string name="insert_image">Insertar imagen</string>
+    <string name="attachment_failed">No se pudo adjuntar la imagen.</string>
     <string name="heading">Encabezado</string>
     <string name="bullet_list">Lista con vinetas</string>
     <string name="ordered_list">Lista numerada</string>

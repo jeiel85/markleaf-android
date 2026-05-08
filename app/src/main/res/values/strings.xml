@@ -36,6 +36,8 @@
     <string name="inline_code">Inline code</string>
     <string name="checkbox">Checkbox</string>
     <string name="markdown_link">Markdown link</string>
+    <string name="insert_image">Insert image</string>
+    <string name="attachment_failed">Could not attach image.</string>
     <string name="heading">Heading</string>
     <string name="bullet_list">Bullet list</string>
     <string name="ordered_list">Numbered list</string>

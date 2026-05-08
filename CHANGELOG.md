@@ -2,6 +2,25 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.5.0 - 이미지 첨부 부활 (Image Attachments Restored) - 2026-05-08
+
+### 새로운 기능 (v1.2.0 결정 의식적 reversal)
+- **이미지 첨부 부활:** 에디터 툴바에 이미지 아이콘이 추가되어 SAF 파일 피커로 이미지를 고르면 앱 private 디렉터리(`<filesDir>/attachments/<noteId>/<id>.<ext>`)로 자동 복사되고, 본문에 표준 마크다운 `![](attachments/...)` 가 삽입됩니다. 미리보기 모드에서 Coil 로 inline 렌더.
+- **권한 0:** SAF 가 파일 접근을 책임지므로 `READ_MEDIA_IMAGES` 같은 미디어 권한 *추가하지 않음*. INTERNET 권한도 그대로 0.
+- **마크다운 round-trip:** 본문에 표준 `![alt](path)` 만 들어가므로 다른 마크다운 도구에서도 그대로 읽힘. v2.1 폴더 sync 와도 호환 — `.md` 파일에 같이 동기화됨 (단, 첨부 파일 자체는 별도 폴더에 있어 sync 대상 외 — v2.5.x로 보류).
+
+### 데이터
+- **DB 스키마 v10 → v11:** `attachments` 테이블 재도입. `(id PK, noteId FK CASCADE, fileName, mimeType, addedAt)`. 메타데이터 전용 — 실제 파일은 디스크. 노트 영구 삭제 시 cascade로 row 삭제 (파일 삭제 cleanup 은 v2.5.x).
+
+### 새 의존성
+- `io.coil-kt:coil-compose:2.6.0` (Apache 2, F-Droid 친화). 이미지 로딩만 담당, 네트워크 요청 0.
+
+### 보류 (v2.5.x)
+- 첨부 파일 자체의 v2.1 폴더 sync 동기화
+- 노트 삭제 시 disk 파일 cleanup
+- 인라인 이미지 (paragraph 안에 텍스트와 섞인 경우) 렌더링
+- 이미지 크기 조절 / 캡션 / alt 편집 UI
+
 ## v2.4.0 - 위키링크 부활 (Wikilinks Restored) - 2026-05-08
 
 ### 새로운 기능 (v1.2.0 결정 의식적 reversal)

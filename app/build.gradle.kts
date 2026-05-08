@@ -61,8 +61,8 @@ android {
         applicationId = "com.markleaf.notes"
         minSdk = 26
         targetSdk = 35
-        versionCode = 68
-        versionName = "2.4.0"
+        versionCode = 69
+        versionName = "2.5.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -174,6 +174,10 @@ dependencies {
     // profiles against this app. No-op at runtime when no benchmark is
     // attached, so it costs nothing for normal users.
     implementation("androidx.profileinstaller:profileinstaller:1.3.1")
+
+    // Coil image loader for in-preview attachments. Apache 2.0, F-Droid friendly.
+    // Loads from app-private File paths so we don't need media permissions.
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
     // CommonMark parser (BSD-2-clause, F-Droid friendly). Replaces the
     // hand-rolled SimpleMarkdownPreview internals while keeping the same

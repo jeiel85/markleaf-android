@@ -36,6 +36,8 @@
     <string name="inline_code">인라인 코드</string>
     <string name="checkbox">체크박스</string>
     <string name="markdown_link">Markdown 링크</string>
+    <string name="insert_image">이미지 삽입</string>
+    <string name="attachment_failed">이미지를 첨부하지 못했습니다.</string>
     <string name="heading">제목</string>
     <string name="bullet_list">글머리 기호</string>
     <string name="ordered_list">번호 매기기</string>

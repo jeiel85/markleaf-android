@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.FormatListNumbered
 import androidx.compose.material.icons.filled.FormatQuote
 import androidx.compose.material.icons.filled.FormatStrikethrough
 import androidx.compose.material.icons.filled.HorizontalRule
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Link
@@ -103,6 +104,7 @@ import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.domain.model.Note
+import com.markleaf.notes.util.AttachmentManager
 import com.markleaf.notes.util.ExportUtil
 import com.markleaf.notes.util.HapticFeedback
 import com.markleaf.notes.util.ShareNoteUtil
@@ -142,6 +144,32 @@ fun EditorScreen(
     var shareMenuExpanded by remember(noteId) { mutableStateOf(false) }
     var overflowExpanded by remember(noteId) { mutableStateOf(false) }
     var pendingExport by remember(noteId) { mutableStateOf<Note?>(null) }
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        val nid = noteId
+        if (uri != null && nid != null) {
+            coroutineScope.launch {
+                val result = withContext(Dispatchers.IO) {
+                    AttachmentManager.copyIntoStorage(context, nid, uri)
+                }
+                if (result != null) {
+                    val insertion = "![](${result.relativePath})\n"
+                    val cursor = editorState.selection.max
+                    val updatedText = editorState.text.substring(0, cursor) +
+                        insertion +
+                        editorState.text.substring(cursor)
+                    editorState = editorState.copy(
+                        text = updatedText,
+                        selection = TextRange(cursor + insertion.length)
+                    )
+                    saveTrigger++
+                } else {
+                    Toast.makeText(context, R.string.attachment_failed, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
     val exportSingleLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("text/markdown")
     ) { uri ->
@@ -502,6 +530,10 @@ fun EditorScreen(
                             HapticFeedback.light(context)
                             editorState = action(editorState)
                             if (isLoaded) saveTrigger++
+                        },
+                        onPickImage = {
+                            HapticFeedback.light(context)
+                            imagePickerLauncher.launch(arrayOf("image/*"))
                         }
                     )
                 }
@@ -680,7 +712,8 @@ private fun BacklinksPanel(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun MarkdownToolbar(
-    onAction: ((TextFieldValue) -> TextFieldValue) -> Unit
+    onAction: ((TextFieldValue) -> TextFieldValue) -> Unit,
+    onPickImage: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
@@ -766,8 +799,15 @@ private fun MarkdownToolbar(
         ) {
             Icon(Icons.Default.Link, contentDescription = stringResource(R.string.markdown_link))
         }
+        ToolbarTooltipIconButton(
+            label = stringResource(R.string.insert_image),
+            onClick = onPickImage
+        ) {
+            Icon(Icons.Default.Image, contentDescription = stringResource(R.string.insert_image))
+        }
     }
 }
+
 
 @Composable
 private fun ToolbarDivider() {

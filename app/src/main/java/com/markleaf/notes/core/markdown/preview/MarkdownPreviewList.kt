@@ -15,11 +15,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.platform.LocalContext
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.markleaf.notes.util.AttachmentManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -116,6 +121,7 @@ fun PreviewLineRenderer(line: PreviewLine, onWikilinkClick: (String) -> Unit = {
         PreviewLineType.CALLOUT -> CalloutBox(line)
         PreviewLineType.FRONTMATTER -> FrontmatterBlock(line.text)
         PreviewLineType.FOOTNOTE_DEF -> FootnoteDefRow(line)
+        PreviewLineType.IMAGE -> AttachmentImage(line)
         PreviewLineType.ORDERED_LIST -> Text(
             text = "${line.extra ?: "1"}. ${line.text}",
             style = MaterialTheme.typography.bodyLarge
@@ -300,6 +306,35 @@ private fun FrontmatterBlock(text: String) {
             style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+        )
+    }
+}
+
+@Composable
+private fun AttachmentImage(line: PreviewLine) {
+    val context = LocalContext.current
+    val destination = line.extra.orEmpty()
+    val resolved = remember(destination) {
+        AttachmentManager.resolveFile(context, destination)
+    }
+    if (resolved != null) {
+        AsyncImage(
+            model = ImageRequest.Builder(context).data(resolved).build(),
+            contentDescription = line.text.ifEmpty { destination },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+                .clip(RoundedCornerShape(8.dp))
+        )
+    } else {
+        // Path didn't resolve to a file we own (broken markdown reference,
+        // attachment deleted, or external URL). Render as plain text body
+        // so the markdown still round-trips losslessly.
+        Text(
+            text = "![${line.text}]($destination)",
+            style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(vertical = 4.dp)
         )
     }
 }

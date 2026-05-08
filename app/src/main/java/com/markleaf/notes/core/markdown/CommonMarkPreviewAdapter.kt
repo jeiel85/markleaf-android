@@ -19,6 +19,7 @@ import org.commonmark.node.Emphasis
 import org.commonmark.node.FencedCodeBlock
 import org.commonmark.node.HardLineBreak
 import org.commonmark.node.Heading
+import org.commonmark.node.Image
 import org.commonmark.node.IndentedCodeBlock
 import org.commonmark.node.Link
 import org.commonmark.node.ListItem
@@ -135,6 +136,19 @@ internal object CommonMarkPreviewAdapter {
     }
 
     private fun renderParagraph(node: Paragraph): PreviewLine {
+        // Promote `![alt](path)` to a top-level IMAGE block when it stands
+        // alone in the paragraph. We don't try to handle inline images
+        // mixed with text — they fall through to BODY where the markdown
+        // syntax is rendered as-is (still a fine experience).
+        val firstChild = node.firstChild
+        if (firstChild is Image && firstChild.next == null) {
+            val alt = collectText(firstChild)
+            return PreviewLine(
+                text = alt,
+                type = PreviewLineType.IMAGE,
+                extra = firstChild.destination
+            )
+        }
         val text = collectText(node)
         return PreviewLine(text = text, type = PreviewLineType.BODY, segments = collectInlineSegments(node))
     }

@@ -6,9 +6,11 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.markleaf.notes.data.local.dao.AttachmentDao
 import com.markleaf.notes.data.local.dao.NoteDao
 import com.markleaf.notes.data.local.dao.NoteLinkDao
 import com.markleaf.notes.data.local.dao.TagDao
+import com.markleaf.notes.data.local.entity.AttachmentEntity
 import com.markleaf.notes.data.local.entity.NoteEntity
 import com.markleaf.notes.data.local.entity.NoteFtsEntity
 import com.markleaf.notes.data.local.entity.NoteLinkEntity
@@ -21,15 +23,17 @@ import com.markleaf.notes.data.local.entity.TagEntity
         TagEntity::class,
         NoteTagCrossRef::class,
         NoteFtsEntity::class,
-        NoteLinkEntity::class
+        NoteLinkEntity::class,
+        AttachmentEntity::class
     ],
-    version = 10,
+    version = 11,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun noteDao(): NoteDao
     abstract fun tagDao(): TagDao
     abstract fun noteLinkDao(): NoteLinkDao
+    abstract fun attachmentDao(): AttachmentDao
 
     companion object {
         @Volatile
@@ -42,7 +46,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "markleaf.db"
                 )
-                .addMigrations(MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10)
+                .addMigrations(MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11)
                 .build().also { INSTANCE = it }
             }
         }
@@ -119,6 +123,29 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("DROP TABLE IF EXISTS `note_snapshots`")
                 db.execSQL("DROP TABLE IF EXISTS `note_links`")
                 db.execSQL("DROP TABLE IF EXISTS `attachments`")
+            }
+        }
+
+        // v10 → v11: re-introduce `attachments` for v2.5 image attachments
+        // revival. Schema is fresh (the v9 DROP took the v1.x version with
+        // it). Files live in app-private storage; this table is metadata
+        // only — used to clean up orphan files when notes are deleted.
+        private val MIGRATION_10_11 = object : Migration(10, 11) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `attachments` (
+                        `id` TEXT NOT NULL,
+                        `noteId` TEXT NOT NULL,
+                        `fileName` TEXT NOT NULL,
+                        `mimeType` TEXT NOT NULL,
+                        `addedAt` INTEGER NOT NULL,
+                        PRIMARY KEY(`id`),
+                        FOREIGN KEY(`noteId`) REFERENCES `notes`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_attachments_noteId` ON `attachments` (`noteId`)")
             }
         }
 

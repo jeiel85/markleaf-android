@@ -236,14 +236,15 @@ private fun CollapsedNoteListRail(
     onExpandClick: () -> Unit
 ) {
     Surface(
+        modifier = Modifier
+            .fillMaxHeight()
+            .width(56.dp)
+            .systemBarsPadding(),
         color = MaterialTheme.colorScheme.surfaceVariant,
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxHeight()
-                .width(56.dp)
-                .systemBarsPadding(),
+            modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.TopCenter
         ) {
             IconButton(onClick = onExpandClick) {

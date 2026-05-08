@@ -2,6 +2,11 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.4.2 - 접힌 노트 리스트 레일 인셋 보강 (Collapsed Rail Inset Fix) - 2026-05-08
+
+### 수정
+- **태블릿 접힌 노트 리스트 레일이 상태바와 겹치던 문제 해결:** v1.4.1에서 `systemBarsPadding`을 안쪽 Box에 적용해 아이콘은 상태바 밑으로 내려왔지만, 바깥 `Surface`의 회색 배경(`surfaceVariant`)은 여전히 상태바 영역까지 올라가 시계와 겹치는 잔여 문제가 있었습니다. 이번엔 `Surface` 자체에 `systemBarsPadding`을 적용해 회색 배경이 상태바 아래에서만 그려지도록 했습니다. 그 위 영역에는 부모 Row의 배경색(에디터 페인과 동일)이 보여 시각적으로 깔끔히 통일됩니다.
+
 ## v1.4.1 - 시스템 바 인셋 통일 (Unified System-Bar Insets) - 2026-05-08
 
 ### 수정

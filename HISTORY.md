@@ -1,3 +1,17 @@
+## 2026-05-08 (밤) - v1.4.2
+- Work: v1.4.1에서 부분만 고쳐졌던 태블릿 접힌 레일의 상태바 겹침을 마저 정리.
+- Changed files:
+  - navigation/MarkleafNavHost.kt — `CollapsedNoteListRail`에서 `systemBarsPadding`을 안쪽 Box → 바깥 Surface로 옮기고, Box는 `fillMaxSize`만 유지
+  - app/build.gradle.kts (versionCode 57, versionName 1.4.2)
+  - CHANGELOG.md
+- Context:
+  - 사용자 보고 (Lenovo Y700 2nd gen): 메인 콘텐츠는 상태바 밑으로 내려왔지만 56dp 회색 레일의 배경이 여전히 상태바 시계 영역까지 올라가 겹침.
+  - 원인: v1.4.1에서 padding을 inner Box에 줘 아이콘 위치만 인셋만큼 밀려났을 뿐, 바깥 Surface의 background 페인트 영역은 그대로 top-to-bottom이었음. Surface가 그리는 회색 fill이 상태바 뒤까지 보여서 시각적 충돌 발생.
+  - 해결: `systemBarsPadding`은 padding을 받은 노드의 *그리는 영역* 자체를 줄이므로 Surface에 적용하면 surfaceVariant fill이 상태바 아래에서만 시작됨. 위쪽은 부모 Row의 `editorPaneColor`(= `MaterialTheme.colorScheme.background`)가 보여 에디터 페인 TopAppBar 영역과 동일한 톤으로 자연스럽게 이어짐.
+- Verification:
+  - `./gradlew assembleDebug` 통과
+  - 기존 테스트는 영향 없음 (테스트 재실행 생략)
+
 ## 2026-05-08 (밤) - v1.4.1
 - Work: Lenovo Y700 2nd gen 같은 노치 없는 태블릿에서 노트 본문이 알림바 밑으로 들어가던 문제 해결.
 - Changed files:

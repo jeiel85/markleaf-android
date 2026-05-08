@@ -2,6 +2,11 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v1.3.1 - 온보딩 노트와 구현 동기화 (Starter Notes Aligned With Implementation) - 2026-05-08
+
+### 수정
+- **샘플 노트 재작성:** v1.2.0에서 제거한 위키 링크(`[[Title]]`)와 ZIP 백업을 여전히 안내하던 기본 4개의 시작 노트를, 현재 앱과 일치하도록 영어/한국어/스페인어 모두 다시 썼습니다. 새 시작 노트는 v1.3.0의 12개 툴바 버튼, 스마트 Enter 자동 이어쓰기, 길게 누르기 핀/휴지통 메뉴, 날짜별 그룹화, 그리고 `.md` 단일/전체 내보내기와 휴지통 안전망을 안내합니다.
+
 ## v1.3.0 - 글쓰기 도구로의 진화 (Writing Tool Evolution) - 2026-05-08
 
 ### 새로운 기능

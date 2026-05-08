@@ -1,3 +1,20 @@
+## 2026-05-08 (저녁) - v1.3.1
+- Work: 사용자 보고로 시작 노트가 여전히 위키 링크와 ZIP 백업을 안내한다는 점을 발견 — 온보딩 콘텐츠와 구현을 동기화.
+- Changed files:
+  - app/src/main/res/raw/starter_notes.md (4 notes 재작성)
+  - app/src/main/res/raw-ko/starter_notes.md
+  - app/src/main/res/raw-es/starter_notes.md
+  - data/onboarding/StarterNotesSeeder.kt (인라인 EN 폴백 동기화)
+  - test/data/onboarding/StarterNotesSeederTest.kt (어서션 갱신 — `[[` / "ZIP backup" 부재 + "Smart Enter" 등장 확인)
+  - app/build.gradle.kts (versionCode 54, versionName 1.3.1)
+  - CHANGELOG.md
+- Context:
+  - 사용자 시나리오: v1.3.0 설치 후 새로 받은 샘플 노트가 `[[Local-first backup and export]]`를 따라가라고 안내하지만 실제 앱에는 위키 링크 기능이 없어 클릭해도 아무 일도 일어나지 않음.
+  - 또한 *"설정에서 ZIP 백업 만들기"* 도 안내하나 v1.2.0에서 제거됨.
+  - 새 시작 노트 4개: Welcome / Markdown(toolbar + Smart Enter 안내) / Tags(핀, 그룹화) / Privacy(.md 내보내기 + 휴지통).
+- Verification:
+  - `./gradlew test` 통과 — StarterNotesSeederTest 새 어서션 포함
+
 ## 2026-05-08 (오후)
 - Work: v1.2.0 가벼움 회귀로 비워둔 토대 위에 Bear급 글쓰기 경험을 한 단계 끌어올림 (v1.3.0).
 - Changed files:

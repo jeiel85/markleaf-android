@@ -39,7 +39,9 @@ class StarterNotesSeederTest {
         assertEquals(4, notes.size)
         assertTrue(notes.first().pinned)
         assertTrue(notes.any { it.contentMarkdown.contains("#markdown") })
-        assertTrue(notes.any { it.contentMarkdown.contains("[[Local-first backup and export]]") })
+        assertTrue(notes.any { it.contentMarkdown.contains("Smart Enter") })
+        assertTrue(notes.none { it.contentMarkdown.contains("[[") })
+        assertTrue(notes.none { it.contentMarkdown.contains("ZIP backup") })
     }
 
     @Test

@@ -7,6 +7,7 @@ import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.util.SlugGenerator
 import java.io.BufferedWriter
+import java.io.File
 import java.io.OutputStreamWriter
 import java.time.Instant
 import java.util.UUID
@@ -60,6 +61,90 @@ object NoteFolderMirror {
             } ?: return@runCatching false
             true
         }.getOrDefault(false)
+    }
+
+    /**
+     * Delete the mirrored `.md` and any per-note attachment subfolder for
+     * [noteId]. Called from the permanent-delete flow so the mirror folder
+     * doesn't accumulate orphan files. Idempotent — missing files are not
+     * an error. Returns true if anything was actually removed.
+     *
+     * Direction is *DB → file only* in v2.6; the inverse (file deleted
+     * externally → drop the DB note) is intentionally not implemented to
+     * avoid silent data loss when a sync client is mid-flight.
+     */
+    fun deleteNote(context: Context, folderUri: Uri, noteId: String): Boolean {
+        val folder = DocumentFile.fromTreeUri(context, folderUri) ?: return false
+        if (!folder.canWrite()) return false
+
+        var changed = false
+        findFileForNote(folder, noteId)?.let { file ->
+            if (file.delete()) changed = true
+        }
+        // Also clear the per-note attachments subfolder.
+        folder.findFile(ATTACHMENTS_DIR)?.findFile(noteId)?.let { dir ->
+            if (deleteRecursively(dir)) changed = true
+        }
+        return changed
+    }
+
+    /**
+     * Mirror the supplied attachment files into
+     * `<folder>/attachments/<noteId>/`. Files already present with the same
+     * name are *not* re-copied — attachment IDs are UUIDs so collisions imply
+     * the same content. Used by the editor's auto-save hook so the .md and
+     * its referenced images travel together when the chosen folder is synced.
+     */
+    fun mirrorAttachments(
+        context: Context,
+        folderUri: Uri,
+        noteId: String,
+        sources: List<File>
+    ): Int {
+        if (sources.isEmpty()) return 0
+        val folder = DocumentFile.fromTreeUri(context, folderUri) ?: return 0
+        if (!folder.canWrite()) return 0
+
+        val attachmentsRoot = folder.findFile(ATTACHMENTS_DIR)
+            ?: folder.createDirectory(ATTACHMENTS_DIR)
+            ?: return 0
+        val noteDir = attachmentsRoot.findFile(noteId)
+            ?: attachmentsRoot.createDirectory(noteId)
+            ?: return 0
+
+        var copied = 0
+        for (source in sources) {
+            if (!source.exists()) continue
+            val name = source.name
+            // Skip if already mirrored — UUID filenames mean same name == same bytes.
+            if (noteDir.findFile(name) != null) continue
+            val target = noteDir.createFile(guessMimeType(name), name) ?: continue
+            val ok = runCatching {
+                context.contentResolver.openOutputStream(target.uri, "wt")?.use { out ->
+                    source.inputStream().use { input -> input.copyTo(out) }
+                } != null
+            }.getOrDefault(false)
+            if (ok) copied++ else target.delete()
+        }
+        return copied
+    }
+
+    private fun deleteRecursively(node: DocumentFile): Boolean {
+        if (node.isDirectory) {
+            node.listFiles().forEach { deleteRecursively(it) }
+        }
+        return node.delete()
+    }
+
+    private fun guessMimeType(name: String): String {
+        val ext = name.substringAfterLast('.', "").lowercase()
+        return when (ext) {
+            "png" -> "image/png"
+            "jpg", "jpeg" -> "image/jpeg"
+            "gif" -> "image/gif"
+            "webp" -> "image/webp"
+            else -> "application/octet-stream"
+        }
     }
 
     /**
@@ -182,4 +267,5 @@ object NoteFolderMirror {
         "id" + noteId.replace("-", "").take(8)
 
     private const val SLACK_MILLIS = 2_000L
+    private const val ATTACHMENTS_DIR = "attachments"
 }

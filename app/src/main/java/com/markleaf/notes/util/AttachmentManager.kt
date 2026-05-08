@@ -90,4 +90,26 @@ object AttachmentManager {
             )
         }.getOrElse { Uri.fromFile(file) }
     }
+
+    /**
+     * Every attachment file currently on disk for [noteId]. Used by the
+     * folder-mirror flow to copy them alongside the note's `.md`.
+     */
+    fun filesForNote(context: Context, noteId: String): List<File> {
+        val dir = File(File(context.filesDir, BASE_DIR), noteId)
+        if (!dir.exists() || !dir.isDirectory) return emptyList()
+        return dir.listFiles()?.filter { it.isFile }.orEmpty()
+    }
+
+    /**
+     * Remove the on-disk attachment directory for [noteId]. Called from the
+     * permanent-delete flow so removing a note frees its image bytes — the
+     * Room CASCADE drops the metadata row but the underlying files would
+     * otherwise linger forever in app-private storage.
+     */
+    fun deleteAllForNote(context: Context, noteId: String): Boolean {
+        val dir = File(File(context.filesDir, BASE_DIR), noteId)
+        if (!dir.exists()) return false
+        return dir.deleteRecursively()
+    }
 }

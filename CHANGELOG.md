@@ -2,6 +2,19 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.6.0 - 동기화 완성 (Sync completion) - 2026-05-09
+
+### 새로운 기능
+- **노트 영구 삭제 시 폴더 mirror에서도 제거.** 휴지통에서 "영구 삭제" 누르면 DB 삭제 + (sync 폴더가 설정돼 있으면) 폴더의 `.md` 파일과 `attachments/<noteId>/` 디렉터리도 함께 삭제. 다른 기기에서 다음 reconcile 때까지 자동 회수됨 (단, 다른 기기가 그동안 재편집하면 v2.1.0의 *file이 strictly newer일 때만 update* 규칙이 보호).
+- **첨부 파일이 폴더 mirror에 함께 동기화.** 기존엔 `.md` 만 폴더에 갔고 이미지는 app-private 저장소에만 있어서 다른 기기에서 *broken image* 였음. 이제 노트 자동 저장 시 `<filesDir>/attachments/<noteId>/*` 파일들이 폴더의 `attachments/<noteId>/` 로 자동 복사. UUID 파일명 기반 dedup으로 동일 파일 재복사 회피.
+- **노트 영구 삭제 시 disk attachment 파일 cleanup.** Room CASCADE가 `attachments` 테이블 row만 지우고 실제 파일은 남기던 누수 수정. `AttachmentManager.deleteAllForNote(context, noteId)` 가 `<filesDir>/attachments/<noteId>/` 디렉터리 통째로 삭제.
+
+### 의도된 안전 마진 (계속)
+- **파일→DB 삭제 sync는 여전히 *미구현*.** 외부 sync 클라이언트가 mid-flight일 때 silent data loss 우려가 있어 보류. *DB→파일 삭제만 자동.*
+
+### 데이터
+- 데이터베이스 스키마 변경 없음.
+
 ## v2.5.3 - 문서 정리 (Spec + backlog cleanup) - 2026-05-09
 
 ### 문서

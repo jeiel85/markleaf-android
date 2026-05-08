@@ -26,19 +26,29 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
+import com.markleaf.notes.data.settings.AppSettings
+import com.markleaf.notes.data.settings.AppSettingsRepository
+import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.ui.viewmodel.TrashViewModel
+import com.markleaf.notes.util.AttachmentManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,6 +56,11 @@ fun TrashScreen(
     viewModel: TrashViewModel,
     onBack: () -> Unit = {}
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val settingsRepository = remember { AppSettingsRepository(context.applicationContext) }
+    val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
+
     val trashedNotesState = remember { mutableStateOf<List<Note>>(emptyList()) }
     LaunchedEffect(Unit) {
         viewModel.trashedNotes.collect { notes ->
@@ -160,8 +175,29 @@ fun TrashScreen(
             text = { Text(stringResource(R.string.delete_forever_message)) },
             confirmButton = {
                 Button(onClick = {
-                    noteToDelete?.let { viewModel.deleteForever(it.id) }
+                    val note = noteToDelete
                     showDeleteConfirm.value = false
+                    if (note != null) {
+                        viewModel.deleteForever(note.id)
+                        // Disk cleanup of attachment files (Room CASCADE drops
+                        // the attachments table rows but the bytes would linger).
+                        scope.launch(Dispatchers.IO) {
+                            AttachmentManager.deleteAllForNote(context, note.id)
+                        }
+                        // Mirror DB-side delete to the sync folder if configured.
+                        appSettings.syncFolderUri?.let { uriString ->
+                            val uri = runCatching {
+                                android.net.Uri.parse(uriString)
+                            }.getOrNull()
+                            if (uri != null) {
+                                scope.launch {
+                                    withContext(Dispatchers.IO) {
+                                        NoteFolderMirror.deleteNote(context, uri, note.id)
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }) {
                     Text(stringResource(R.string.delete_forever))
                 }

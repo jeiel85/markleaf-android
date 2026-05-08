@@ -232,6 +232,12 @@ fun EditorScreen(
                     if (uri != null) {
                         withContext(Dispatchers.IO) {
                             NoteFolderMirror.writeNote(context, uri, updatedNote)
+                            // Mirror this note's image attachments alongside the .md
+                            // so the folder is self-contained when synced.
+                            val attachments = AttachmentManager.filesForNote(context, noteId)
+                            if (attachments.isNotEmpty()) {
+                                NoteFolderMirror.mirrorAttachments(context, uri, noteId, attachments)
+                            }
                         }
                     }
                 }

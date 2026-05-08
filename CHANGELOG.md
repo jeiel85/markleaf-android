@@ -2,6 +2,20 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.5.2 - 태블릿 UX 다듬기 (Tablet polish bundle) - 2026-05-09
+
+### 수정
+- **펼친 노트 리스트가 status bar 영역까지 surfaceVariant 색을 침범하던 문제** — `Modifier.systemBarsPadding() + consumeWindowInsets(WindowInsets.systemBars)` 로 v1.4.2 collapsed-rail 패턴과 일치시킴.
+- **검색/태그/휴지통/보관함 진입 시 status bar가 흰색으로 뚫리며 흰 아이콘이 안 보이던 문제** — 두 갈래 원인 모두 수정:
+  1. `Theme.Markleaf` 가 `Light.NoActionBar` 만 정의돼 있어 다크 모드에서도 액티비티 윈도우 배경이 흰색이었음 → `values-night/styles.xml` 에 다크 부모 추가
+  2. `enableEdgeToEdge()` 가 액티비티 시작 시점에만 status bar 아이콘 색을 결정 → `MarkleafTheme` 안에서 `WindowCompat.isAppearanceLightStatusBars` 를 매 컴포지션마다 동기화
+- **태그/검색/휴지통/보관함 화면에 뒤로가기 버튼 없던 UX** — 4개 화면 모두 `Scaffold + TopAppBar + 뒤로 화살표` 추가, NavHost가 `popBackStack` 와이어링.
+
+### 인프라
+- **Macrobenchmark 첫 실 디바이스 실측 (Lenovo TB320FC, Android 15)**: cold median 326ms, warm 113ms, hot 57ms — §2.1 *빠름 우선* 을 *증거 기반* 으로 확정.
+- profileinstaller 1.3.1 → 1.4.0, benchmark-macro-junit4 1.2.4 → 1.3.0 (API 35 지원). benchmark build type을 non-debuggable + `<profileable shell="true" />` 로 정상화.
+- `/benchmark/build` `.gitignore` 추가.
+
 ## v2.5.1 - 테마 선택 (Theme picker, green default restored) - 2026-05-08
 
 ### 변경

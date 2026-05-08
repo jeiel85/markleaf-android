@@ -2,6 +2,16 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.1.1 - 동기화 마감 (Auto-reconcile + CI golden re-record) - 2026-05-08
+
+### 새로운 기능
+- **앱 포그라운드 복귀 시 자동 reconcile:** 동기화 폴더가 설정돼 있으면 앱이 RESUMED 상태로 돌아올 때 폴더의 `.md` 변경분을 자동으로 가져옵니다. 60초 throttle로 폴더 IO 폭주 방지. 충돌 규칙은 v2.1.0 그대로 — *file이 strictly newer일 때만* DB 업데이트, silent overwrite 위험 0.
+- **CI에서 골든 재기록 워크플로:** GitHub Actions에 `workflow_dispatch` 트리거 + `record_roborazzi: true` 입력 추가. Linux 런너에서 `recordRoborazziDebug` 돌려 새 골든을 artifact로 업로드. 사용자가 다운받아 commit하면 Windows record와 Linux verify 사이의 폰트 hint 차이가 사라져 `changeThreshold` 를 0.05f → 0.005f로 타이트하게 조일 수 있음.
+
+### 의도적 안전 마진 (v2.1.0과 동일)
+- 노트 *삭제* 동기화 여전히 미구현
+- 충돌 시 양 버전 보존 UI 미구현 (현재: 최근 win)
+
 ## v2.1.0 - 다중 기기 동기화 (Folder Mirror Sync) - 2026-05-08
 
 ### 새로운 기능

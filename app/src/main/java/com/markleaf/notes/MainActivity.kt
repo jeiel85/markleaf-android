@@ -17,14 +17,17 @@ import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.onboarding.StarterNotesSeeder
 import com.markleaf.notes.data.repository.LocalNoteRepository
 import com.markleaf.notes.data.settings.AppSettingsRepository
+import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.navigation.MarkleafNavHost
 import com.markleaf.notes.ui.theme.MarkleafTheme
 import com.markleaf.notes.ui.viewmodel.MarkleafViewModelFactory
 import com.markleaf.notes.widget.QuickNoteWidget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -43,6 +46,39 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             StarterNotesSeeder.seedIfNeeded(applicationContext, database)
+        }
+
+        // Auto-reconcile from the sync folder when the app comes to the
+        // foreground, throttled to once per minute. This catches changes
+        // made on other devices since the user last visited Markleaf,
+        // without ever overwriting a newer in-app edit (importChanges
+        // applies the file→DB direction only when the file is strictly
+        // newer than the DB record).
+        lifecycleScope.launch {
+            val noteRepository = LocalNoteRepository(database)
+            var lastReconcileMs = 0L
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                val now = System.currentTimeMillis()
+                if (now - lastReconcileMs < THROTTLE_MS) return@repeatOnLifecycle
+                lastReconcileMs = now
+                val settings = settingsRepository.settings.first()
+                val uriString = settings.syncFolderUri ?: return@repeatOnLifecycle
+                val uri = runCatching { android.net.Uri.parse(uriString) }.getOrNull()
+                    ?: return@repeatOnLifecycle
+                val notes = withContext(Dispatchers.IO) {
+                    noteRepository.observeNotes().first()
+                }
+                withContext(Dispatchers.IO) {
+                    NoteFolderMirror.importChanges(
+                        context = applicationContext,
+                        folderUri = uri,
+                        existing = notes,
+                        applyUpdate = { updated -> noteRepository.updateNote(updated) },
+                        applyCreate = { created -> noteRepository.createNote(created) }
+                    )
+                }
+                settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())
+            }
         }
 
         // Apply FLAG_SECURE based on the persisted setting. Re-applies on every
@@ -91,6 +127,10 @@ class MainActivity : ComponentActivity() {
             setIntent(intent)
             recreate()
         }
+    }
+
+    private companion object {
+        const val THROTTLE_MS = 60_000L
     }
 
     private fun extractSharedText(intent: Intent?): String? {

@@ -61,8 +61,8 @@ android {
         applicationId = "com.markleaf.notes"
         minSdk = 26
         targetSdk = 35
-        versionCode = 66
-        versionName = "2.2.0"
+        versionCode = 67
+        versionName = "2.3.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -174,6 +174,16 @@ dependencies {
     // profiles against this app. No-op at runtime when no benchmark is
     // attached, so it costs nothing for normal users.
     implementation("androidx.profileinstaller:profileinstaller:1.3.1")
+
+    // CommonMark parser (BSD-2-clause, F-Droid friendly). Replaces the
+    // hand-rolled SimpleMarkdownPreview internals while keeping the same
+    // PreviewLine output model for the renderer.
+    val commonmarkVersion = "0.24.0"
+    implementation("org.commonmark:commonmark:$commonmarkVersion")
+    implementation("org.commonmark:commonmark-ext-yaml-front-matter:$commonmarkVersion")
+    implementation("org.commonmark:commonmark-ext-footnotes:$commonmarkVersion")
+    implementation("org.commonmark:commonmark-ext-gfm-strikethrough:$commonmarkVersion")
+    implementation("org.commonmark:commonmark-ext-task-list-items:$commonmarkVersion")
     
     // Test
     testImplementation("junit:junit:4.13.2")

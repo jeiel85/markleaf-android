@@ -77,7 +77,18 @@ object SimpleMarkdownPreview {
     private val footnoteDefRegex = Regex("""^\[\^([A-Za-z0-9_-]+)]:\s*(.*)$""")
     private val calloutHeadRegex = Regex("""^>\s*\[!([A-Za-z]+)]\s*$""")
 
-    fun parse(markdown: String): List<PreviewLine> {
+    /**
+     * Parses a markdown string into [PreviewLine]s.
+     *
+     * Since v2.3.0, this delegates to [CommonMarkPreviewAdapter] (commonmark-java
+     * + extensions). The hand-rolled implementation that lived here from v0.x
+     * to v2.2.x is preserved as [parseHandRolled] below — kept for tests and
+     * fallback debugging, but no longer the primary path.
+     */
+    fun parse(markdown: String): List<PreviewLine> = CommonMarkPreviewAdapter.parse(markdown)
+
+    /** The original hand-rolled parser. Retained for parity tests during the v2.3 swap. */
+    internal fun parseHandRolled(markdown: String): List<PreviewLine> {
         val rawLines = markdown.lines()
         val result = mutableListOf<PreviewLine>()
         var index = 0

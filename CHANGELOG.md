@@ -2,6 +2,26 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.3.0 - 공개 마크다운 파서 (CommonMark library swap) - 2026-05-08
+
+### 내부 변경 (사용자 화면 영향 미세)
+- **`SimpleMarkdownPreview` 손파서 → `commonmark-java 0.24.0` 로 교체.** v2.0에서 보류했던 Phase B. 이제 위키링크/이미지/하이라이트 등 *실제 확장 도입* (v2.4+) 의 기반.
+- **확장 패키지:** `commonmark-ext-yaml-front-matter` (frontmatter), `commonmark-ext-footnotes` (각주), `commonmark-ext-gfm-strikethrough` (취소선), `commonmark-ext-task-list-items` (체크박스). 모두 BSD-2-clause, F-Droid 친화.
+- **`CommonMarkPreviewAdapter`** — AST → 기존 `PreviewLine`/`PreviewInlineSegment` 모델 변환. 렌더러(`MarkdownPreviewList`)는 변경 없음.
+- **GitHub callout 처리** — `> [!NOTE]` 패턴은 CommonMark 표준이 아니라 우리가 BlockQuote 본문 prefix 매칭으로 인식.
+
+### Spec 정합성으로 인한 미세 동작 변화
+- *Setext 헤딩* 인식: `Body\n---` 은 이제 *H2 헤딩* 으로 처리 (기존 손파서는 BODY+HR로 잘못 처리). 가로선을 원하면 `---` 앞뒤에 빈 줄.
+- *각주 참조*는 *해당 정의가 같은 문서에 있을 때만* 인식 (CommonMark spec). 참조만 있고 정의가 없으면 일반 텍스트.
+- *블록 사이 빈 줄*은 더 이상 `EMPTY` PreviewLine 으로 표면화되지 않음 — 렌더러가 padding으로 시각 간격 처리. 미리보기가 v2.2 이전 대비 약간 더 빽빽.
+
+### 검증
+- 단위 테스트 expectation 7개 업데이트 (CommonMark 스펙 동작 반영). 테스트 의도 동일하게 유지하되 실제 파서 출력에 맞게 조정.
+- Roborazzi 골든 14개 + 4개 (preview + editor live) 모두 재기록.
+
+### 보류 (빌드 정리)
+- `:benchmark` 모듈 빌드 산출물 495개가 v2.2.0 commit에 잘못 포함. v2.3에서 `.gitignore`에 `/benchmark/build` 추가하고 캐시 untrack. v2.2.0 태그 자체는 immutable이라 그대로 둠.
+
 ## v2.2.0 - 성능 측정 인프라 (Macrobenchmark) - 2026-05-08
 
 ### 새로운 인프라

@@ -2,6 +2,15 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.5.3 - 문서 정리 (Spec + backlog cleanup) - 2026-05-09
+
+### 문서
+- **AGENT_SPEC.md §15 *Post-MVP 방향* 추가** — v2.x 합의(다중 기기 sync / Bear-class 라이브 프리뷰 / 위키링크·이미지 부활)를 명시. §1–§14는 *MVP era 한정* 으로 라벨링되어, 새 컨트리뷰터가 spec 보고 v2.x 작업과 혼란 없도록.
+- **`.agent/tasks.md` Phase 10 정식 close** — Roborazzi가 대체했으므로 Lenovo TB320FC Compose UI test 호스트 이슈는 *추적 중지*.
+- **Phase 8 backlog WebDAV/Drive sync 항목 close** — v2.1 SAF 폴더 mirror가 *우리 백엔드 없이* 두 기능 모두 subsume.
+
+### 코드 변경 없음
+
 ## v2.5.2 - 태블릿 UX 다듬기 (Tablet polish bundle) - 2026-05-09
 
 ### 수정

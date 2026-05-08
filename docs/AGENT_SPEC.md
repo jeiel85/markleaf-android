@@ -6,6 +6,8 @@
 > GitHub Repository: `https://github.com/jeiel85/markleaf-android.git`  
 > Android Application ID / Package Name: `com.markleaf.notes`
 
+> **이 문서의 §3–§14는 MVP era (v0.x → v1.7) 합의입니다.** MVP는 v1.7.0에서 마감됐고, post-MVP 방향(v2.x: 다중 기기 sync, Bear-class 라이브 프리뷰, 위키링크/이미지 부활)은 §15 *post-MVP 방향* 에 별도 정리. 새 사이클 시작 시 §15 먼저 읽고 §1–§14는 *역사적 맥락* 으로 참고.
+
 ---
 
 ## 0. 프로젝트 한 줄 정의
@@ -490,3 +492,60 @@ val tagRegex = Regex("""(?<![\\w/])#([A-Za-z0-9가-힣_-]+)""")
 - 공개 소스만으로 빌드 가능하다.
 - 기본 생성/수정/삭제 흐름에서 알려진 크래시가 없다.
 - 기존 메모앱과 혼동될 정도로 유사한 브랜딩 또는 UI 자산이 없다.
+
+---
+
+## 15. Post-MVP 방향 (v2.x, 2026-05-08 합의)
+
+MVP는 v1.7.0에서 마감됐다. 사용자가 *가치관 점검* 후 명시적으로 *확장*(가치관 reversal 아님) 으로 합의한 v2.x 방향을 기록한다. §1–§14의 lightweight bias는 **MVP era에 한정**된다.
+
+### 15.1 다중 기기 지원 (v2.1.0–v2.1.x)
+
+원칙은 §2.2 *로컬 우선* 그대로 유지하면서 다중 기기 *확장*:
+
+- **우리 백엔드 0, INTERNET 권한 0.** Markleaf 자체는 네트워크 호출하지 않는다.
+- 사용자가 SAF로 폴더 한 곳을 지정 → 노트 저장 시 그 폴더에 `.md` + YAML frontmatter 자동 mirror.
+- 폴더 동기화는 *외부 도구* 가 담당 (Dropbox / Drive / Syncthing / OneDrive / NAS WebDAV 마운트 등 사용자 선택).
+- 충돌은 *file `lastModified` vs `Note.updatedAt`* 비교, 최근 수정본 win (2초 슬랙).
+- *CloudKit식 lock-in 백엔드는 명시적 거부.*
+- 노트 *삭제* sync는 데이터 손실 위험 가장 큼 → 신중하게 단계적 도입.
+
+### 15.2 Bear-class 라이브 프리뷰 (v2.0.0)
+
+`MarkdownSyntaxVisualTransformation` 가 색상만이 아니라 *fontSize + fontWeight* 도 인라인 변형:
+- `# Heading` 입력 즉시 24sp Bold, `## ` 20sp, `### ` 18sp
+- `**bold**` 콘텐츠가 진짜 `FontWeight.Bold`
+- 마커(`#`, `**`, `_`, `~~`, 백틱 등)는 `muteMarkerStyle()` 로 retreat (color=syntax + Normal weight + Normal style + no decoration)
+
+### 15.3 마크다운 확장 부활 (v2.4–v2.5)
+
+v1.2.0에서 *명시적으로 제거*했던 두 기능을 사용자 결정으로 부활. v1.2의 제거 사유 ("두 번째 두뇌 스타일은 가치관 어긋남") 는 *MVP era 한정*.
+- **위키링크 `[[Title]]`** (v2.4) — 클릭 시 같은 제목 노트로 navigate, 없으면 자동 생성. Backlinks 패널이 미리보기 하단에 *이 노트를 참조한 노트* 표시. DB v10에 `note_links` 재도입.
+- **이미지 첨부** (v2.5) — SAF picker로 이미지 고르면 app-private `<filesDir>/attachments/<noteId>/` 로 복사. 표준 `![]()` 마크다운 syntax 사용. 권한 추가 0 (SAF가 처리). Coil로 미리보기 inline 렌더. DB v11에 `attachments` 재도입.
+
+### 15.4 인프라
+
+- **Roborazzi 시각 회귀** (v1.9) — 18+ 골든 이미지로 라이브 프리뷰 회귀 차단. PR마다 자동.
+- **Macrobenchmark** (v2.2) — `:benchmark` 모듈, cold/warm/hot startup + scroll jank. §2.1 *빠름 우선* 을 *증거 기반* 으로.
+- **commonmark-java 0.24.0** (v2.3) — 손파서 `SimpleMarkdownPreview` 를 표준 라이브러리로 교체. CommonMark spec compliance 확보, 위키링크/이미지 같은 확장의 안정적 토대.
+
+### 15.5 이미 폐기된 §7 *명시적 제외* 항목
+
+v2.x에서 가치관 합의가 바뀐 항목 (스펙 §7의 *MVP 명시적 제외* 라인은 **MVP era 한정**):
+- **클라우드 동기화** — v2.1 SAF 폴더 mirror로 *우리 백엔드 없이* 달성
+- **WebDAV / Drive 백업 (Phase 8 backlog)** — v2.1 SAF 폴더 mirror가 자연스럽게 subsume
+
+여전히 유효한 §7 제외 라인 (post-MVP에도 *추가 안 함* 합의):
+- 실시간 협업, AI 글쓰기 도우미, 종단간 암호화, WYSIWYG 블록 에디터, 칸반 보드, 캘린더 연동, 데스크톱/웹 앱
+
+### 15.6 §2 가치관 — post-MVP 적용 가이드
+
+| 원칙 | post-MVP 적용 |
+|---|---|
+| §2.1 빠름 우선 | Macrobenchmark로 측정 가능하게 됨. 주기적으로 cold start 확인. |
+| §2.2 로컬 우선 | INTERNET 권한 영구 금지. sync는 SAF + 외부 도구. |
+| §2.3 Plain Text/Markdown | 모든 새 기능이 표준 `.md` 라운드트립 가능해야. (callout/footnote/wikilink 모두 호환 syntax 사용) |
+| §2.7 오픈소스 우선 | 새 의존성은 BSD/MIT/Apache. 폐쇄 SDK 영구 금지. |
+| §2.8 개인정보 보호 | 분석/광고/추적/원격설정 영구 0. 사용자 명시 행동 시에만 데이터 이동. |
+| §2.5 단순하지만 허전하지 않게 | 새 기능마다 chrome density 점검. 누적되면 v1.8 같은 consolidation 사이클로 정리. |
+| §2.9 기능 수보다 속도와 디자인 | "Bear가 한다고 무조건" 거부. 5단계 흐름(열기→쓰기→정리→찾기→내보내기)에 직결되는지 매번 검토. |

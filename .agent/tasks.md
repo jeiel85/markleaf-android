@@ -56,16 +56,16 @@
 
 ---
 
-## Phase 10 - Device UI Verification
+## Phase 10 - Device UI Verification (Closed at v2.5.3, 2026-05-09)
 - [x] Refresh AndroidX test runtime and isolate Compose UI tests with an in-memory app harness
-- [ ] Resolve Lenovo TB320FC Compose test host lifecycle issue where the host Activity is backgrounded before Compose hierarchy registration
+- [x] ~~Resolve Lenovo TB320FC Compose test host lifecycle issue~~ — **superseded by v1.9 Roborazzi visual regression net.** Robolectric-based snapshot tests give us per-PR visual diff coverage without depending on emulator/device Compose UI test reliability. Closing this rather than chasing the original instrumentation flake.
 
 ---
 
 ## Phase 8 - Post v1.0.0 & Future (Backlog)
 - [x] Implement fixed Signing Keystore (Prevent Update Conflict)
-- [ ] Implement WebDAV sync (Optional)
-- [ ] Implement Google Drive backup (Optional)
+- [x] ~~Implement WebDAV sync (Optional)~~ — **subsumed by v2.1 SAF folder mirror** (any cloud/WebDAV client that syncs the chosen folder works without us writing protocol code).
+- [x] ~~Implement Google Drive backup (Optional)~~ — **subsumed by v2.1 SAF folder mirror** (point Markleaf at a Google Drive folder on the device).
 - [x] Advanced Markdown support (Tables, KaTeX-style math notation preview)
 - [x] Note version history (Snapshots)
 - [x] Performance optimization for 10k+ notes

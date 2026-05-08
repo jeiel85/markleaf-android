@@ -31,6 +31,9 @@ interface NoteDao {
     @Query("UPDATE notes SET trashed = 1, deletedAt = :timestamp WHERE id = :noteId")
     suspend fun moveToTrash(noteId: String, timestamp: Long)
 
+    @Query("UPDATE notes SET pinned = :pinned WHERE id = :noteId")
+    suspend fun setPinned(noteId: String, pinned: Boolean)
+
     @Query("UPDATE notes SET trashed = 0, deletedAt = NULL WHERE id = :noteId")
     suspend fun restoreFromTrash(noteId: String)
 

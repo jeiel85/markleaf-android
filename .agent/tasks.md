@@ -94,6 +94,18 @@
 
 ---
 
+## Phase 12 - Writing Tool Evolution (Done, 2026-05-08)
+
+목적: v1.2.0 가벼움 회귀로 비운 토대 위에 Bear급 글쓰기 경험으로 한 단계 도약.
+
+- [x] Extend the editor toolbar to 12 actions (heading cycle, bullet, ordered, blockquote, code, code block, hr, strikethrough, inline code...) with grouped dividers
+- [x] Smart auto-continuation on Enter for bullet / ordered / checklist / blockquote (with empty-prefix line auto-end and ordered-list increment)
+- [x] Pin toggle UI via long-press dropdown on the notes list; surface a pin glyph on the row
+- [x] Group the notes list into Pinned / Today / Yesterday / Past 7 days / Older
+- [x] Show real-time word / character / reading-minute stats in the editor footer
+- [x] Wire setPinned through NoteRepository / DAO / ViewModel without schema change
+- [x] Tests for the new edit actions and auto-continuation cases
+
 ## Phase 11 - Lightweight Realignment (Done, 2026-05-08)
 
 목적: 사용자 피드백("휴지통은 있는데 거기로 보낼 길이 없다", "가벼움/편의성에 부합하지 않는 기능은 과감히 제거하라")에 따라 AGENT_SPEC §2 (속도/단순함/데이터 소유권)와 §7 (MVP 제외) 원칙으로 회귀.

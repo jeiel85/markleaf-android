@@ -56,6 +56,7 @@ class MarkleafViewModelFactoryTest {
         override suspend fun createNote(note: Note) = Unit
         override suspend fun updateNote(note: Note) = Unit
         override suspend fun moveToTrash(noteId: String) = Unit
+        override suspend fun setPinned(noteId: String, pinned: Boolean) = Unit
         override suspend fun restoreFromTrash(noteId: String) = Unit
         override suspend fun deleteForever(noteId: String) = Unit
         override suspend fun reorderNotes(notes: List<Note>) = Unit

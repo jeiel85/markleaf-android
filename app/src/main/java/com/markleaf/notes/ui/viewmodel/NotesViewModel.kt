@@ -48,6 +48,12 @@ class NotesViewModel(
         }
     }
 
+    fun setPinned(noteId: String, pinned: Boolean) {
+        viewModelScope.launch {
+            noteRepository.setPinned(noteId, pinned)
+        }
+    }
+
     fun reorderNotes(reorderedNotes: List<Note>) {
         viewModelScope.launch {
             _notes.value = reorderedNotes

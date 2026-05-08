@@ -9,6 +9,7 @@ interface NoteRepository {
     suspend fun createNote(note: Note)
     suspend fun updateNote(note: Note)
     suspend fun moveToTrash(noteId: String)
+    suspend fun setPinned(noteId: String, pinned: Boolean)
     suspend fun restoreFromTrash(noteId: String)
     suspend fun deleteForever(noteId: String)
     fun observeTrashedNotes(): Flow<List<Note>>

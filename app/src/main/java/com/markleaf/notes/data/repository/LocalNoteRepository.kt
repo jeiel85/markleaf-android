@@ -34,6 +34,10 @@ class LocalNoteRepository(
         database.noteDao().moveToTrash(noteId, System.currentTimeMillis())
     }
 
+    override suspend fun setPinned(noteId: String, pinned: Boolean) {
+        database.noteDao().setPinned(noteId, pinned)
+    }
+
     override suspend fun restoreFromTrash(noteId: String) {
         database.noteDao().restoreFromTrash(noteId)
     }

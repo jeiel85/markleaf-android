@@ -3,6 +3,7 @@ package com.markleaf.notes.feature.notes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,9 +18,12 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
@@ -29,7 +33,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -52,6 +55,9 @@ import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.ui.viewmodel.NotesViewModel
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,8 +82,7 @@ fun NotesListScreen(
         }
     }
     val notes = notesState.value
-
-    var noteToTrash by remember { mutableStateOf<Note?>(null) }
+    val sections = remember(notes) { groupNotes(notes) }
 
     Scaffold(
         containerColor = containerColor,
@@ -175,96 +180,186 @@ fun NotesListScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                items(notes, key = { it.id }) { note ->
-                    NoteItem(
-                        note = note,
-                        selected = note.id == selectedNoteId,
-                        onClick = { onNoteClick(note.id) },
-                        onLongPress = {
-                            hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                            noteToTrash = note
-                        }
-                    )
+                sections.forEach { section ->
+                    item(key = "header-${section.titleResId}") {
+                        SectionHeader(stringResource(section.titleResId))
+                    }
+                    items(section.notes, key = { it.id }) { note ->
+                        NoteRow(
+                            note = note,
+                            selected = note.id == selectedNoteId,
+                            onClick = { onNoteClick(note.id) },
+                            onTogglePin = {
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                viewModel.setPinned(note.id, !note.pinned)
+                            },
+                            onMoveToTrash = {
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                viewModel.moveToTrash(note.id)
+                            },
+                            onLongPress = {
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                            }
+                        )
+                    }
                 }
             }
         }
     }
+}
 
-    noteToTrash?.let { note ->
-        AlertDialog(
-            onDismissRequest = { noteToTrash = null },
-            title = { Text(stringResource(R.string.move_to_trash_title)) },
-            text = {
-                Text(
-                    stringResource(
-                        R.string.move_to_trash_message,
-                        note.title.ifBlank { stringResource(R.string.untitled) }
-                    )
-                )
-            },
-            confirmButton = {
-                Button(onClick = {
-                    viewModel.moveToTrash(note.id)
-                    noteToTrash = null
-                }) {
-                    Text(stringResource(R.string.move_to_trash))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { noteToTrash = null }) {
-                    Text(stringResource(R.string.cancel))
-                }
-            }
-        )
-    }
+@Composable
+private fun SectionHeader(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun NoteItem(
+private fun NoteRow(
     note: Note,
-    selected: Boolean = false,
+    selected: Boolean,
     onClick: (String) -> Unit,
+    onTogglePin: () -> Unit,
+    onMoveToTrash: () -> Unit,
     onLongPress: () -> Unit
 ) {
+    var menuExpanded by remember { mutableStateOf(false) }
     val itemBackground = if (selected) {
         MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.36f)
     } else {
         Color.Transparent
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 4.dp)
-            .clip(MaterialTheme.shapes.medium)
-            .background(itemBackground)
-            .combinedClickable(
-                onClick = { onClick(note.id) },
-                onLongClick = onLongPress
+    Box {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 4.dp)
+                .clip(MaterialTheme.shapes.medium)
+                .background(itemBackground)
+                .combinedClickable(
+                    onClick = { onClick(note.id) },
+                    onLongClick = {
+                        onLongPress()
+                        menuExpanded = true
+                    }
+                )
+                .padding(horizontal = 12.dp, vertical = 10.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (note.pinned) {
+                    Icon(
+                        imageVector = Icons.Filled.PushPin,
+                        contentDescription = stringResource(R.string.pinned),
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .padding(end = 6.dp)
+                            .height(14.dp)
+                    )
+                }
+                Text(
+                    text = note.title.ifEmpty { stringResource(R.string.untitled) },
+                    style = MaterialTheme.typography.titleMedium,
+                    color = if (selected) {
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    },
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            if (note.excerpt.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = note.excerpt,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+
+        DropdownMenu(
+            expanded = menuExpanded,
+            onDismissRequest = { menuExpanded = false }
+        ) {
+            DropdownMenuItem(
+                leadingIcon = {
+                    Icon(
+                        imageVector = if (note.pinned) Icons.Outlined.PushPin else Icons.Filled.PushPin,
+                        contentDescription = null
+                    )
+                },
+                text = {
+                    Text(
+                        if (note.pinned) stringResource(R.string.unpin)
+                        else stringResource(R.string.pin)
+                    )
+                },
+                onClick = {
+                    menuExpanded = false
+                    onTogglePin()
+                }
             )
-            .padding(horizontal = 12.dp, vertical = 10.dp)
-    ) {
-        Text(
-            text = note.title.ifEmpty { stringResource(R.string.untitled) },
-            style = MaterialTheme.typography.titleMedium,
-            color = if (selected) {
-                MaterialTheme.colorScheme.onPrimaryContainer
-            } else {
-                MaterialTheme.colorScheme.primary
-            },
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-        if (note.excerpt.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = note.excerpt,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
+            DropdownMenuItem(
+                leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null) },
+                text = { Text(stringResource(R.string.move_to_trash)) },
+                onClick = {
+                    menuExpanded = false
+                    onMoveToTrash()
+                }
             )
         }
     }
 }
+
+private data class NoteSection(val titleResId: Int, val notes: List<Note>)
+
+private fun groupNotes(notes: List<Note>): List<NoteSection> {
+    if (notes.isEmpty()) return emptyList()
+
+    val zone = ZoneId.systemDefault()
+    val today = LocalDate.now(zone)
+
+    val pinned = notes.filter { it.pinned }
+    val rest = notes.filter { !it.pinned }
+
+    val byBucket = linkedMapOf<Int, MutableList<Note>>()
+    for (note in rest) {
+        val date = note.updatedAt.atZone(zone).toLocalDate()
+        val daysFromToday = ChronoUnit.DAYS.between(date, today)
+        val bucket = when {
+            daysFromToday <= 0L -> R.string.section_today
+            daysFromToday == 1L -> R.string.section_yesterday
+            daysFromToday in 2..7 -> R.string.section_past_week
+            else -> R.string.section_older
+        }
+        byBucket.getOrPut(bucket) { mutableListOf() }.add(note)
+    }
+
+    val sections = mutableListOf<NoteSection>()
+    if (pinned.isNotEmpty()) sections += NoteSection(R.string.section_pinned, pinned)
+    val ordered = listOf(
+        R.string.section_today,
+        R.string.section_yesterday,
+        R.string.section_past_week,
+        R.string.section_older
+    )
+    for (bucket in ordered) {
+        byBucket[bucket]?.takeIf { it.isNotEmpty() }?.let {
+            sections += NoteSection(bucket, it)
+        }
+    }
+    return sections
+}
+

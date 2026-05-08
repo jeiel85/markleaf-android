@@ -1,4 +1,34 @@
 ---
+## 2026-05-08 (오후) - Writing Tool Evolution (v1.3.0)
+
+Selected task:
+- Build the next stride from MVP toward Bear-class writing UX on top of the v1.2.0 lightweight base
+
+What was implemented:
+- Editor toolbar grew from 4 to 12 actions, grouped with vertical dividers (heading-cycle / bullet / ordered / checkbox / bold / italic / strikethrough / inline code / blockquote / code block / horizontal rule / link)
+- Smart Enter auto-continuation for bullet, ordered (auto-increment), checklist, and blockquote lines; an empty prefix on Enter now auto-terminates the list
+- Long-press on a list row now opens a DropdownMenu with Pin/Unpin and Move to trash; pinned notes show a pin glyph and live in a top "Pinned" section
+- Notes list is bucketed into Pinned / Today / Yesterday / Past 7 days / Older with section headers
+- Editor footer shows live word count / character count / estimated reading minutes
+- setPinned plumbed through NoteRepository, LocalNoteRepository, NoteDao (`UPDATE notes SET pinned = ?`), NotesViewModel — no schema change
+
+Files changed (highlights):
+- core/markdown/MarkdownEditActions.kt (heading, bulletList, orderedList, blockquote, horizontalRule, codeBlock, applyAutoContinuation)
+- feature/editor/EditorScreen.kt (12 toolbar actions, auto-continuation in onValueChange, EditorStatsRow)
+- feature/notes/NotesListScreen.kt (DropdownMenu pin/trash, groupNotes(), section headers)
+- data/local/dao/NoteDao.kt + data/repository/LocalNoteRepository.kt + domain/repository/NoteRepository.kt + ui/viewmodel/NotesViewModel.kt — setPinned
+- res/values{,-ko,-es}/strings.xml
+- test/core/markdown/MarkdownEditActionsTest.kt (heading cycle, list/quote toggles, codeBlock/hr, 6 auto-continuation cases)
+- test/ui/viewmodel/MarkleafViewModelFactoryTest.kt (Fake setPinned override)
+- app/build.gradle.kts (versionCode 53, versionName 1.3.0)
+- CHANGELOG.md / HISTORY.md / .agent/tasks.md / .agent/progress.md
+
+Build/test result:
+- `./gradlew assembleDebug` → BUILD SUCCESSFUL
+- `./gradlew test` (debug + release unit) → BUILD SUCCESSFUL
+- `./gradlew assembleDebugAndroidTest` → BUILD SUCCESSFUL
+
+---
 ## 2026-05-08 - Lightweight Realignment
 
 Selected task:

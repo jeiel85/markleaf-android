@@ -26,8 +26,26 @@
     <string name="editor_empty_hint">Use Markdown, #tags, links, and checkboxes. Markleaf saves locally as you write.</string>
     <string name="bold">Bold</string>
     <string name="italic">Italic</string>
+    <string name="strikethrough">Strikethrough</string>
+    <string name="inline_code">Inline code</string>
     <string name="checkbox">Checkbox</string>
-    <string name="markdown_link">Markdown Link</string>
+    <string name="markdown_link">Markdown link</string>
+    <string name="heading">Heading</string>
+    <string name="bullet_list">Bullet list</string>
+    <string name="ordered_list">Numbered list</string>
+    <string name="blockquote">Quote</string>
+    <string name="code_block">Code block</string>
+    <string name="horizontal_rule">Divider</string>
+    <string name="editor_stats_format">%1$d words · %2$d chars · %3$d min</string>
+
+    <string name="pin">Pin</string>
+    <string name="unpin">Unpin</string>
+    <string name="pinned">Pinned</string>
+    <string name="section_pinned">Pinned</string>
+    <string name="section_today">Today</string>
+    <string name="section_yesterday">Yesterday</string>
+    <string name="section_past_week">Past 7 days</string>
+    <string name="section_older">Older</string>
 
     <string name="search_notes_hint">Search notes...</string>
     <string name="type_to_search_notes">Type to search notes</string>

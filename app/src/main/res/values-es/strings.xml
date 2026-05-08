@@ -26,8 +26,26 @@
     <string name="editor_empty_hint">Usa Markdown, #etiquetas, enlaces y casillas. Markleaf guarda localmente mientras escribes.</string>
     <string name="bold">Negrita</string>
     <string name="italic">Cursiva</string>
+    <string name="strikethrough">Tachado</string>
+    <string name="inline_code">Codigo en linea</string>
     <string name="checkbox">Casilla</string>
     <string name="markdown_link">Enlace Markdown</string>
+    <string name="heading">Encabezado</string>
+    <string name="bullet_list">Lista con vinetas</string>
+    <string name="ordered_list">Lista numerada</string>
+    <string name="blockquote">Cita</string>
+    <string name="code_block">Bloque de codigo</string>
+    <string name="horizontal_rule">Divisor</string>
+    <string name="editor_stats_format">%1$d palabras · %2$d car. · %3$d min</string>
+
+    <string name="pin">Fijar</string>
+    <string name="unpin">Quitar fijado</string>
+    <string name="pinned">Fijada</string>
+    <string name="section_pinned">Fijadas</string>
+    <string name="section_today">Hoy</string>
+    <string name="section_yesterday">Ayer</string>
+    <string name="section_past_week">Ultimos 7 dias</string>
+    <string name="section_older">Anteriores</string>
 
     <string name="search_notes_hint">Buscar notas...</string>
     <string name="type_to_search_notes">Escribe para buscar notas</string>

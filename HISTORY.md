@@ -1,3 +1,25 @@
+## 2026-05-08 (오후)
+- Work: v1.2.0 가벼움 회귀로 비워둔 토대 위에 Bear급 글쓰기 경험을 한 단계 끌어올림 (v1.3.0).
+- Changed files:
+  - core/markdown/MarkdownEditActions.kt — heading 순환, bullet/ordered/blockquote 토글, horizontalRule, codeBlock, applyAutoContinuation 추가
+  - feature/editor/EditorScreen.kt — 툴바 4개 → 12개 (그룹 구분선 포함), 자동 이어쓰기 onValueChange 통합, 통계 footer (단어/글자/분)
+  - feature/notes/NotesListScreen.kt — long-press → DropdownMenu(고정 토글 + 휴지통), 고정/오늘/어제/지난 7일/이전 섹션 그룹화, 핀 아이콘 표시
+  - data/local/dao/NoteDao.kt + repository/LocalNoteRepository.kt + domain/repository/NoteRepository.kt — setPinned 와이어
+  - ui/viewmodel/NotesViewModel.kt — setPinned launch helper
+  - res/values{,-ko,-es}/strings.xml — heading/bullet/ordered/blockquote/code_block/horizontal_rule/strikethrough/inline_code/editor_stats_format/pin/unpin/section_* 추가
+  - test/core/markdown/MarkdownEditActionsTest.kt — heading 순환, list/quote 토글, codeBlock, hr, autoContinuation(bullet/ordered/checklist/blockquote/empty-prefix-end/plain) 시나리오 추가
+  - test/ui/viewmodel/MarkleafViewModelFactoryTest.kt — Fake setPinned override
+  - app/build.gradle.kts (versionCode 53, versionName 1.3.0)
+  - CHANGELOG.md / HISTORY.md / .agent/tasks.md / .agent/progress.md
+- Context:
+  - 사용자: *"퀵 버튼이 너무 비어 보인다"* + *"Bear급 사용 경험으로 가고 싶다"*. v1.2.0의 토대 위에서 가장 임팩트 큰 작업 묶음으로 선정.
+  - 마크다운 파서는 손파서를 유지 (300줄 미만). 새 기능은 모두 파서를 건드리지 않고 에디터 액션 + UI 레이어에서 끝남.
+  - DB 스키마 변경 없음. `pinned` 필드는 v1.0부터 있었지만 UI 토글이 없어 사실상 데드 필드였음.
+- Verification:
+  - `./gradlew assembleDebug` 통과
+  - `./gradlew test` (debug + release unit) 통과 — 새 12개 액션/자동 이어쓰기 케이스 포함
+  - `./gradlew assembleDebugAndroidTest` 통과
+
 ## 2026-05-08
 - Work: 가벼운 마크다운 앱 가치관에 맞춰 무거운 부가기능을 일괄 정리하고 누락된 노트 삭제 진입점을 복구.
 - Changed files:

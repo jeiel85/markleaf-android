@@ -1,8 +1,6 @@
 package com.markleaf.notes.feature.editor
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
@@ -21,10 +19,18 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckBox
+import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.DataObject
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.FormatBold
 import androidx.compose.material.icons.filled.FormatItalic
+import androidx.compose.material.icons.filled.FormatListNumbered
+import androidx.compose.material.icons.filled.FormatQuote
+import androidx.compose.material.icons.filled.FormatStrikethrough
+import androidx.compose.material.icons.filled.HorizontalRule
 import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.Title
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,6 +46,7 @@ import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -87,6 +94,8 @@ import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import com.markleaf.notes.util.HapticFeedback
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.ceil
+import kotlin.math.max
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -257,8 +266,8 @@ fun EditorScreen(
                 Box(Modifier.weight(1f), contentAlignment = Alignment.TopStart) {
                     BasicTextField(
                         value = editorState,
-                        onValueChange = {
-                            editorState = it
+                        onValueChange = { incoming ->
+                            editorState = MarkdownEditActions.applyAutoContinuation(editorState, incoming)
                             if (isLoaded) saveTrigger++
                         },
                         modifier = Modifier
@@ -299,25 +308,15 @@ fun EditorScreen(
                     )
                 }
 
+                if (editorState.text.isNotEmpty()) {
+                    val stats = remember(editorState.text) { computeStats(editorState.text) }
+                    EditorStatsRow(stats)
+                }
+
                 MarkdownToolbar(
-                    onBold = {
+                    onAction = { action ->
                         HapticFeedback.light(context)
-                        editorState = MarkdownEditActions.bold(editorState)
-                        if (isLoaded) saveTrigger++
-                    },
-                    onItalic = {
-                        HapticFeedback.light(context)
-                        editorState = MarkdownEditActions.italic(editorState)
-                        if (isLoaded) saveTrigger++
-                    },
-                    onCheckbox = {
-                        HapticFeedback.light(context)
-                        editorState = MarkdownEditActions.checkbox(editorState)
-                        if (isLoaded) saveTrigger++
-                    },
-                    onMarkdownLink = {
-                        HapticFeedback.light(context)
-                        editorState = MarkdownEditActions.markdownLink(editorState)
+                        editorState = action(editorState)
                         if (isLoaded) saveTrigger++
                     }
                 )
@@ -350,13 +349,45 @@ fun EditorScreen(
     }
 }
 
+private data class EditorStats(val words: Int, val chars: Int, val readMinutes: Int)
+
+private fun computeStats(text: String): EditorStats {
+    val chars = text.length
+    val words = text.split(Regex("\\s+")).count { it.isNotBlank() }
+    // Mixed-language heuristic: 200 wpm OR 500 chars/min, whichever is larger.
+    val wordMinutes = words / 200.0
+    val charMinutes = chars / 500.0
+    val minutes = max(1, ceil(max(wordMinutes, charMinutes)).toInt())
+    val finalMinutes = if (chars == 0) 0 else minutes
+    return EditorStats(words = words, chars = chars, readMinutes = finalMinutes)
+}
+
+@Composable
+private fun EditorStatsRow(stats: EditorStats) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 4.dp, bottom = 2.dp),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(
+                R.string.editor_stats_format,
+                stats.words,
+                stats.chars,
+                stats.readMinutes
+            ),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun MarkdownToolbar(
-    onBold: () -> Unit,
-    onItalic: () -> Unit,
-    onCheckbox: () -> Unit,
-    onMarkdownLink: () -> Unit
+    onAction: ((TextFieldValue) -> TextFieldValue) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -367,30 +398,92 @@ private fun MarkdownToolbar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         ToolbarTooltipIconButton(
+            label = stringResource(R.string.heading),
+            onClick = { onAction(MarkdownEditActions::heading) }
+        ) {
+            Icon(Icons.Default.Title, contentDescription = stringResource(R.string.heading))
+        }
+        ToolbarDivider()
+        ToolbarTooltipIconButton(
+            label = stringResource(R.string.bullet_list),
+            onClick = { onAction(MarkdownEditActions::bulletList) }
+        ) {
+            Icon(Icons.AutoMirrored.Filled.FormatListBulleted, contentDescription = stringResource(R.string.bullet_list))
+        }
+        ToolbarTooltipIconButton(
+            label = stringResource(R.string.ordered_list),
+            onClick = { onAction(MarkdownEditActions::orderedList) }
+        ) {
+            Icon(Icons.Default.FormatListNumbered, contentDescription = stringResource(R.string.ordered_list))
+        }
+        ToolbarTooltipIconButton(
+            label = stringResource(R.string.checkbox),
+            onClick = { onAction(MarkdownEditActions::checkbox) }
+        ) {
+            Icon(Icons.Default.CheckBox, contentDescription = stringResource(R.string.checkbox))
+        }
+        ToolbarDivider()
+        ToolbarTooltipIconButton(
             label = stringResource(R.string.bold),
-            onClick = onBold
+            onClick = { onAction(MarkdownEditActions::bold) }
         ) {
             Icon(Icons.Default.FormatBold, contentDescription = stringResource(R.string.bold))
         }
         ToolbarTooltipIconButton(
             label = stringResource(R.string.italic),
-            onClick = onItalic
+            onClick = { onAction(MarkdownEditActions::italic) }
         ) {
             Icon(Icons.Default.FormatItalic, contentDescription = stringResource(R.string.italic))
         }
         ToolbarTooltipIconButton(
-            label = stringResource(R.string.checkbox),
-            onClick = onCheckbox
+            label = stringResource(R.string.strikethrough),
+            onClick = { onAction(MarkdownEditActions::strikethrough) }
         ) {
-            Icon(Icons.Default.CheckBox, contentDescription = stringResource(R.string.checkbox))
+            Icon(Icons.Default.FormatStrikethrough, contentDescription = stringResource(R.string.strikethrough))
         }
         ToolbarTooltipIconButton(
+            label = stringResource(R.string.inline_code),
+            onClick = { onAction(MarkdownEditActions::inlineCode) }
+        ) {
+            Icon(Icons.Default.Code, contentDescription = stringResource(R.string.inline_code))
+        }
+        ToolbarDivider()
+        ToolbarTooltipIconButton(
+            label = stringResource(R.string.blockquote),
+            onClick = { onAction(MarkdownEditActions::blockquote) }
+        ) {
+            Icon(Icons.Default.FormatQuote, contentDescription = stringResource(R.string.blockquote))
+        }
+        ToolbarTooltipIconButton(
+            label = stringResource(R.string.code_block),
+            onClick = { onAction(MarkdownEditActions::codeBlock) }
+        ) {
+            Icon(Icons.Default.DataObject, contentDescription = stringResource(R.string.code_block))
+        }
+        ToolbarTooltipIconButton(
+            label = stringResource(R.string.horizontal_rule),
+            onClick = { onAction(MarkdownEditActions::horizontalRule) }
+        ) {
+            Icon(Icons.Default.HorizontalRule, contentDescription = stringResource(R.string.horizontal_rule))
+        }
+        ToolbarDivider()
+        ToolbarTooltipIconButton(
             label = stringResource(R.string.markdown_link),
-            onClick = onMarkdownLink
+            onClick = { onAction(MarkdownEditActions::markdownLink) }
         ) {
             Icon(Icons.Default.Link, contentDescription = stringResource(R.string.markdown_link))
         }
     }
+}
+
+@Composable
+private fun ToolbarDivider() {
+    VerticalDivider(
+        modifier = Modifier
+            .height(20.dp)
+            .padding(horizontal = 4.dp),
+        color = MaterialTheme.colorScheme.outlineVariant
+    )
 }
 
 @Composable

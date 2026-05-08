@@ -62,11 +62,17 @@ object TagParser {
         return tags.toList()
     }
 
+    private val SEGMENT_REGEX = Regex("""[a-zA-Z가-힣_][a-zA-Z가-힣0-9_-]*""")
+
     private fun isValidTagName(tag: String): Boolean {
         if (tag.isEmpty()) return false
-        // Allow Korean characters, letters, digits, underscores, hyphens
-        // Must not start with a digit
-        return tag.matches(Regex("""[a-zA-Z가-힣_][a-zA-Z가-힣0-9_-]*"""))
+        // A hierarchical tag is one or more `/`-separated segments. Each segment
+        // must start with a letter (Latin or Korean) or underscore and may
+        // contain letters, digits, underscores, or hyphens. Empty segments are
+        // rejected so things like `#parent/` or `#a//b` do not slip through.
+        val segments = tag.split('/')
+        if (segments.isEmpty()) return false
+        return segments.all { it.matches(SEGMENT_REGEX) }
     }
 
     fun normalizeTagName(tag: String): String {

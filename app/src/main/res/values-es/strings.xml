@@ -37,6 +37,13 @@
     <string name="code_block">Bloque de codigo</string>
     <string name="horizontal_rule">Divisor</string>
     <string name="editor_stats_format">%1$d palabras · %2$d car. · %3$d min</string>
+    <string name="focus_mode">Modo enfoque</string>
+    <string name="exit_focus_mode">Salir del modo enfoque</string>
+    <string name="find_in_note">Buscar en la nota</string>
+    <string name="find_in_note_hint">Buscar</string>
+    <string name="find_previous_match">Coincidencia anterior</string>
+    <string name="find_next_match">Coincidencia siguiente</string>
+    <string name="close">Cerrar</string>
 
     <string name="pin">Fijar</string>
     <string name="unpin">Quitar fijado</string>

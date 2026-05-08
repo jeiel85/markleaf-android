@@ -94,6 +94,16 @@
 
 ---
 
+## Phase 13 - Organization And Writing Habits (Done, 2026-05-08)
+
+목적: Bear급 사용 경험으로 가는 다음 단계 — 정리/글쓰기 습관에 직결되는 핵심 3종.
+
+- [x] Tag hierarchy: allow `#parent/child/grand` (each segment validated like a normal tag name) and render the Tags screen as an indented tree
+- [x] Focus mode: hide toolbar, stats footer, syntax highlighting, preview/trash buttons; expose a single exit toggle in the top bar
+- [x] Find in note: search icon opens an inline FindBar with case-insensitive matching, prev/next navigation, and current/total counter; selection auto-scrolls to the active match
+- [x] Tests: TagParser nesting + FindRanges
+- [x] Localized strings (en/ko/es)
+
 ## Phase 12 - Writing Tool Evolution (Done, 2026-05-08)
 
 목적: v1.2.0 가벼움 회귀로 비운 토대 위에 Bear급 글쓰기 경험으로 한 단계 도약.

@@ -18,18 +18,24 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
+import androidx.compose.material.icons.filled.CenterFocusStrong
+import androidx.compose.material.icons.filled.CenterFocusWeak
 import androidx.compose.material.icons.filled.CheckBox
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.DataObject
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.FormatBold
 import androidx.compose.material.icons.filled.FormatItalic
 import androidx.compose.material.icons.filled.FormatListNumbered
 import androidx.compose.material.icons.filled.FormatQuote
 import androidx.compose.material.icons.filled.FormatStrikethrough
 import androidx.compose.material.icons.filled.HorizontalRule
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Title
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -38,8 +44,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TooltipBox
@@ -64,6 +72,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -115,7 +124,26 @@ fun EditorScreen(
     var saveTrigger by remember(noteId) { mutableStateOf(0) }
     var isLoaded by remember(noteId) { mutableStateOf(noteId == null) }
     var isPreviewMode by remember(noteId) { mutableStateOf(false) }
+    var isFocusMode by remember(noteId) { mutableStateOf(false) }
     var showDeleteConfirm by remember(noteId) { mutableStateOf(false) }
+
+    var isFindOpen by remember(noteId) { mutableStateOf(false) }
+    var findQuery by remember(noteId) { mutableStateOf("") }
+    var findIndex by remember(noteId) { mutableStateOf(0) }
+    val findMatches = remember(editorState.text, findQuery) {
+        findAllRanges(editorState.text, findQuery)
+    }
+    LaunchedEffect(findMatches) {
+        if (findIndex >= findMatches.size) findIndex = 0
+    }
+    LaunchedEffect(findIndex, findMatches) {
+        if (findMatches.isNotEmpty()) {
+            val range = findMatches[findIndex.coerceIn(findMatches.indices)]
+            editorState = editorState.copy(
+                selection = TextRange(range.first, range.last + 1)
+            )
+        }
+    }
 
     LaunchedEffect(noteId) {
         if (noteId == null) {
@@ -149,12 +177,11 @@ fun EditorScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = if (isPreviewMode) {
-                            stringResource(R.string.preview)
-                        } else if (noteId != null) {
-                            stringResource(R.string.edit_note)
-                        } else {
-                            stringResource(R.string.new_note)
+                        text = when {
+                            isFocusMode -> stringResource(R.string.focus_mode)
+                            isPreviewMode -> stringResource(R.string.preview)
+                            noteId != null -> stringResource(R.string.edit_note)
+                            else -> stringResource(R.string.new_note)
                         },
                         style = MaterialTheme.typography.headlineMedium
                     )
@@ -165,18 +192,44 @@ fun EditorScreen(
                     }
                 },
                 actions = {
-                    TextButton(onClick = { isPreviewMode = !isPreviewMode }) {
-                        Text(
-                            if (isPreviewMode) stringResource(R.string.edit) else stringResource(R.string.preview),
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                    }
-                    if (noteId != null) {
-                        IconButton(onClick = { showDeleteConfirm = true }) {
+                    if (isFocusMode) {
+                        IconButton(onClick = { isFocusMode = false }) {
                             Icon(
-                                Icons.Default.Delete,
-                                contentDescription = stringResource(R.string.move_to_trash)
+                                Icons.Default.CenterFocusWeak,
+                                contentDescription = stringResource(R.string.exit_focus_mode)
                             )
+                        }
+                    } else {
+                        if (!isPreviewMode) {
+                            IconButton(onClick = {
+                                isFindOpen = !isFindOpen
+                                if (isFindOpen) findQuery = ""
+                            }) {
+                                Icon(
+                                    Icons.Default.Search,
+                                    contentDescription = stringResource(R.string.find_in_note)
+                                )
+                            }
+                            IconButton(onClick = { isFocusMode = true }) {
+                                Icon(
+                                    Icons.Default.CenterFocusStrong,
+                                    contentDescription = stringResource(R.string.focus_mode)
+                                )
+                            }
+                        }
+                        TextButton(onClick = { isPreviewMode = !isPreviewMode }) {
+                            Text(
+                                if (isPreviewMode) stringResource(R.string.edit) else stringResource(R.string.preview),
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                        }
+                        if (noteId != null) {
+                            IconButton(onClick = { showDeleteConfirm = true }) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = stringResource(R.string.move_to_trash)
+                                )
+                            }
                         }
                     }
                 },
@@ -248,8 +301,36 @@ fun EditorScreen(
             }
         } else {
             Column(Modifier.fillMaxSize().padding(paddingValues).padding(16.dp)) {
+                if (isFindOpen && !isFocusMode) {
+                    FindBar(
+                        query = findQuery,
+                        onQueryChange = {
+                            findQuery = it
+                            findIndex = 0
+                        },
+                        currentIndex = findIndex,
+                        totalMatches = findMatches.size,
+                        onPrev = {
+                            if (findMatches.isNotEmpty()) {
+                                findIndex = (findIndex - 1 + findMatches.size) % findMatches.size
+                            }
+                        },
+                        onNext = {
+                            if (findMatches.isNotEmpty()) {
+                                findIndex = (findIndex + 1) % findMatches.size
+                            }
+                        },
+                        onClose = {
+                            isFindOpen = false
+                            findQuery = ""
+                        }
+                    )
+                }
+
                 val colorScheme = MaterialTheme.colorScheme
-                val markdownVisualTransformation = if (appSettings.markdownSyntaxVisibility == MarkdownSyntaxVisibility.SHOW) {
+                val markdownVisualTransformation = if (
+                    appSettings.markdownSyntaxVisibility == MarkdownSyntaxVisibility.SHOW && !isFocusMode
+                ) {
                     MarkdownSyntaxVisualTransformation(
                         MarkdownSyntaxColors(
                             heading = colorScheme.primary,
@@ -308,18 +389,20 @@ fun EditorScreen(
                     )
                 }
 
-                if (editorState.text.isNotEmpty()) {
+                if (!isFocusMode && editorState.text.isNotEmpty()) {
                     val stats = remember(editorState.text) { computeStats(editorState.text) }
                     EditorStatsRow(stats)
                 }
 
-                MarkdownToolbar(
-                    onAction = { action ->
-                        HapticFeedback.light(context)
-                        editorState = action(editorState)
-                        if (isLoaded) saveTrigger++
-                    }
-                )
+                if (!isFocusMode) {
+                    MarkdownToolbar(
+                        onAction = { action ->
+                            HapticFeedback.light(context)
+                            editorState = action(editorState)
+                            if (isLoaded) saveTrigger++
+                        }
+                    )
+                }
             }
         }
     }
@@ -346,6 +429,81 @@ fun EditorScreen(
                 }
             }
         )
+    }
+}
+
+internal fun findAllRanges(text: String, query: String): List<IntRange> {
+    if (query.isEmpty() || text.isEmpty()) return emptyList()
+    val lower = text.lowercase()
+    val q = query.lowercase()
+    val ranges = mutableListOf<IntRange>()
+    var idx = 0
+    while (idx <= lower.length - q.length) {
+        val found = lower.indexOf(q, idx)
+        if (found < 0) break
+        ranges += found until (found + q.length)
+        idx = found + q.length.coerceAtLeast(1)
+    }
+    return ranges
+}
+
+@Composable
+private fun FindBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    currentIndex: Int,
+    totalMatches: Int,
+    onPrev: () -> Unit,
+    onNext: () -> Unit,
+    onClose: () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = MaterialTheme.shapes.small,
+        tonalElevation = 1.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 8.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
+                value = query,
+                onValueChange = onQueryChange,
+                placeholder = { Text(stringResource(R.string.find_in_note_hint)) },
+                singleLine = true,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                text = if (totalMatches == 0) "0/0"
+                else "${currentIndex + 1}/$totalMatches",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
+            IconButton(onClick = onPrev, enabled = totalMatches > 0) {
+                Icon(
+                    Icons.Default.KeyboardArrowUp,
+                    contentDescription = stringResource(R.string.find_previous_match)
+                )
+            }
+            IconButton(onClick = onNext, enabled = totalMatches > 0) {
+                Icon(
+                    Icons.Default.KeyboardArrowDown,
+                    contentDescription = stringResource(R.string.find_next_match)
+                )
+            }
+            IconButton(onClick = onClose) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = stringResource(R.string.close)
+                )
+            }
+        }
     }
 }
 

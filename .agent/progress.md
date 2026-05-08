@@ -1,4 +1,30 @@
 ---
+## 2026-05-08 (밤) - Organization And Writing Habits (v1.4.0)
+
+Selected task:
+- Next stride toward Bear-class UX: tag hierarchy, focus mode, in-note find — three independent improvements that land in one cycle
+
+What was implemented:
+- TagParser: hierarchical tag names like `#parent/child` (any depth) by validating each `/`-separated segment with the existing identifier rules; trailing `/` and empty intermediate segments are rejected; works for Korean
+- TagsScreen: rebuilt around `buildHierarchicalRows()` — child rows are indented per depth and rendered in secondary color, roots stay primary
+- Focus mode: a top-bar toggle that hides the toolbar, stats row, syntax highlighting, and preview/trash buttons; only the exit-focus action remains
+- In-note find: a top-bar search toggle that opens a FindBar (query field + prev/next + count + close); `findAllRanges` does case-insensitive non-overlapping search, and a LaunchedEffect pushes the editor's selection to the active match so BasicTextField scrolls to it
+
+Files changed (highlights):
+- core/util/TagParser.kt
+- feature/tags/TagsScreen.kt
+- feature/editor/EditorScreen.kt (FindBar, focus state, findAllRanges)
+- res/values{,-ko,-es}/strings.xml — focus / find / close strings
+- test/util/TagParserTest.kt + test/feature/editor/FindRangesTest.kt
+- app/build.gradle.kts (versionCode 55, versionName 1.4.0)
+- CHANGELOG.md / HISTORY.md / .agent/tasks.md / .agent/progress.md
+
+Build/test result:
+- `./gradlew assembleDebug` → BUILD SUCCESSFUL
+- `./gradlew test` (debug + release unit) → BUILD SUCCESSFUL — TagParser nesting (5) + FindRanges (7) cases pass
+- `./gradlew assembleDebugAndroidTest` → BUILD SUCCESSFUL
+
+---
 ## 2026-05-08 (오후) - Writing Tool Evolution (v1.3.0)
 
 Selected task:

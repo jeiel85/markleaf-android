@@ -1,3 +1,23 @@
+## 2026-05-08 (밤) - v1.4.0
+- Work: Bear급 사용 경험으로 가는 다음 단계 — 정리와 글쓰기 습관에 직결되는 세 가지 기능 묶음.
+- Changed files:
+  - util/TagParser.kt — `isValidTagName`을 segment-단위 검증으로 바꿔 `/` 중첩 허용 (각 세그먼트는 `[a-zA-Z가-힣_][a-zA-Z가-힣0-9_-]*`)
+  - feature/tags/TagsScreen.kt — `buildHierarchicalRows` 도입, 깊이별 들여쓰기와 색상 구분 (root: primary, child: secondary)
+  - feature/editor/EditorScreen.kt — TopAppBar에 집중/검색 아이콘 추가, FindBar 컴포저블, focus 토글 시 툴바·통계·하이라이팅 일괄 숨김, `findAllRanges` 헬퍼 + LaunchedEffect로 selection 이동
+  - res/values{,-ko,-es}/strings.xml — focus_mode / exit_focus_mode / find_in_note / find_in_note_hint / find_previous_match / find_next_match / close
+  - test/util/TagParserTest.kt — 5개 시나리오 추가 (slash 중첩, 깊은 중첩, trailing slash 거부, 빈 중간 세그먼트 거부, 한글 중첩)
+  - test/feature/editor/FindRangesTest.kt — 7개 시나리오 (빈 입력, 단일/다중 매치, 대소문자 무시, 미존재, 비겹침)
+  - app/build.gradle.kts (versionCode 55, versionName 1.4.0)
+  - CHANGELOG.md / HISTORY.md / .agent/tasks.md / .agent/progress.md
+- Context:
+  - 사용자: *"Bear급 사용 경험으로 가고 싶다"*. 직전 v1.3.0의 toolbar+smart-Enter 이후, 다음 한 사이클로 임팩트가 가장 큰 묶음으로 (1) 태그 계층화 — 정리 구조 도약, (2) 집중 모드 — 글쓰기 습관, (3) 노트 안 찾기 — 긴 노트 필수기능.
+  - 셋 다 서로 독립적이고 각기 화면 한두 곳만 손대므로 한 사이클에 깔끔히 끝남.
+  - DB 스키마 변경 없음. 태그 검증 정규식만 변경되어 기존 태그도 모두 통과.
+- Verification:
+  - `./gradlew assembleDebug` 통과
+  - `./gradlew test` (debug + release) 통과 — TagParser 5건 + FindRanges 7건 신규 통과
+  - `./gradlew assembleDebugAndroidTest` 통과
+
 ## 2026-05-08 (저녁) - v1.3.1
 - Work: 사용자 보고로 시작 노트가 여전히 위키 링크와 ZIP 백업을 안내한다는 점을 발견 — 온보딩 콘텐츠와 구현을 동기화.
 - Changed files:

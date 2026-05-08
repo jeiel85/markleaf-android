@@ -74,4 +74,39 @@ class TagParserTest {
         val normalized = TagParser.normalizeTagName(tag)
         assertEquals("tagname", normalized)
     }
+
+    @Test
+    fun `parseTags supports nested tags with slash`() {
+        val content = "Sermon #project/site and #meeting/team-a"
+        val tags = TagParser.parseTags(content)
+        assertEquals(listOf("project/site", "meeting/team-a"), tags)
+    }
+
+    @Test
+    fun `parseTags supports deeply nested tags`() {
+        val content = "Build #a/b/c"
+        val tags = TagParser.parseTags(content)
+        assertEquals(listOf("a/b/c"), tags)
+    }
+
+    @Test
+    fun `parseTags rejects trailing slash`() {
+        val content = "Note #project/ end"
+        val tags = TagParser.parseTags(content)
+        assertEquals(emptyList<String>(), tags)
+    }
+
+    @Test
+    fun `parseTags rejects empty intermediate segment`() {
+        val content = "Note #a//b end"
+        val tags = TagParser.parseTags(content)
+        assertEquals(emptyList<String>(), tags)
+    }
+
+    @Test
+    fun `parseTags supports nested Korean tags`() {
+        val content = "노트 #프로젝트/현장"
+        val tags = TagParser.parseTags(content)
+        assertEquals(listOf("프로젝트/현장"), tags)
+    }
 }

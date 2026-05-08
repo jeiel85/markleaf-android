@@ -37,6 +37,13 @@
     <string name="code_block">코드 블록</string>
     <string name="horizontal_rule">구분선</string>
     <string name="editor_stats_format">%1$d 단어 · %2$d자 · %3$d분</string>
+    <string name="focus_mode">집중 모드</string>
+    <string name="exit_focus_mode">집중 모드 종료</string>
+    <string name="find_in_note">노트에서 찾기</string>
+    <string name="find_in_note_hint">찾기</string>
+    <string name="find_previous_match">이전 결과</string>
+    <string name="find_next_match">다음 결과</string>
+    <string name="close">닫기</string>
 
     <string name="pin">상단 고정</string>
     <string name="unpin">고정 해제</string>

@@ -23,12 +23,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
 import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.repository.LocalTagRepository
+import com.markleaf.notes.domain.model.TagSummary
 
 @Composable
 fun TagsScreen(
@@ -37,6 +39,7 @@ fun TagsScreen(
     val context = LocalContext.current
     val tagRepository = remember { LocalTagRepository(AppDatabase.getInstance(context)) }
     val tagSummaries by tagRepository.observeTagSummaries().collectAsState(initial = emptyList())
+    val rows = remember(tagSummaries) { buildHierarchicalRows(tagSummaries) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -75,14 +78,18 @@ fun TagsScreen(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(tagSummaries, key = { it.tag.id }) { summary ->
+                    items(rows, key = { row -> row.fullName }) { row ->
                         TagRow(
-                            tagName = summary.tag.name,
-                            noteCount = summary.noteCount,
-                            onClick = { onTagClick("#${summary.tag.name}") },
+                            row = row,
+                            onClick = { onTagClick("#${row.fullName}") },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 12.dp)
+                                .padding(
+                                    start = 16.dp + (row.depth * 20).dp,
+                                    end = 16.dp,
+                                    top = 10.dp,
+                                    bottom = 10.dp
+                                )
                         )
                     }
                 }
@@ -91,10 +98,39 @@ fun TagsScreen(
     }
 }
 
+private data class TagRowData(
+    val fullName: String,   // e.g. "project/site"
+    val displayName: String, // e.g. "site" for child, "project" for root
+    val depth: Int,
+    val noteCount: Int
+)
+
+private fun buildHierarchicalRows(summaries: List<TagSummary>): List<TagRowData> {
+    if (summaries.isEmpty()) return emptyList()
+
+    val byFullName = summaries.associateBy { it.tag.name }
+
+    // Each unique full name gets one visible row. We only display rows for tags
+    // that actually exist in the user's data — virtual parents (referenced only
+    // as a prefix of a child) are NOT auto-created; if you only ever wrote
+    // `#project/site`, "project" will not appear as its own row.
+    val sortedNames = summaries.map { it.tag.name }.distinct().sorted()
+
+    return sortedNames.map { fullName ->
+        val segments = fullName.split('/')
+        val depth = (segments.size - 1).coerceAtLeast(0)
+        TagRowData(
+            fullName = fullName,
+            displayName = segments.last(),
+            depth = depth,
+            noteCount = byFullName[fullName]?.noteCount ?: 0
+        )
+    }
+}
+
 @Composable
 private fun TagRow(
-    tagName: String,
-    noteCount: Int,
+    row: TagRowData,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -104,14 +140,16 @@ private fun TagRow(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "#$tagName",
+                text = if (row.depth == 0) "#${row.displayName}" else row.displayName,
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
+                color = if (row.depth == 0) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.secondary,
+                fontWeight = if (row.depth == 0) FontWeight.SemiBold else FontWeight.Normal,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                text = stringResource(R.string.tag_note_count_format, noteCount),
+                text = stringResource(R.string.tag_note_count_format, row.noteCount),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1
@@ -124,7 +162,7 @@ private fun TagRow(
             shape = MaterialTheme.shapes.small
         ) {
             Text(
-                text = noteCount.toString(),
+                text = row.noteCount.toString(),
                 style = MaterialTheme.typography.labelMedium,
                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
             )

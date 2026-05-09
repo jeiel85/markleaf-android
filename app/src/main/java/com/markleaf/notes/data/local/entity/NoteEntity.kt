@@ -27,7 +27,8 @@ data class NoteEntity(
     val archived: Boolean = false,
     val trashed: Boolean = false,
     val deletedAt: Long? = null,
-    val sortOrder: Int = 0
+    val sortOrder: Int = 0,
+    val lastImportedAt: Long? = null
 )
 
 fun NoteEntity.toDomain(): Note {
@@ -43,7 +44,8 @@ fun NoteEntity.toDomain(): Note {
         trashed = trashed,
         deletedAt = deletedAt?.let { Instant.ofEpochMilli(it) },
         tags = emptyList(),
-        sortOrder = sortOrder
+        sortOrder = sortOrder,
+        lastImportedAt = lastImportedAt?.let { Instant.ofEpochMilli(it) }
     )
 }
 
@@ -59,6 +61,7 @@ fun Note.toEntity(): NoteEntity {
         archived = archived,
         trashed = trashed,
         deletedAt = deletedAt?.toEpochMilli(),
-        sortOrder = sortOrder
+        sortOrder = sortOrder,
+        lastImportedAt = lastImportedAt?.toEpochMilli()
     )
 }

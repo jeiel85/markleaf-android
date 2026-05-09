@@ -14,5 +14,11 @@ data class Note(
     val trashed: Boolean = false,
     val deletedAt: Instant? = null,
     val tags: List<Tag> = emptyList(),
-    val sortOrder: Int = 0
+    val sortOrder: Int = 0,
+    /** Set by [com.markleaf.notes.data.sync.NoteFolderMirror] when this note's
+     *  body was last copied in from the sync folder. Used as the conflict
+     *  baseline: if [updatedAt] is later than this, the local copy has been
+     *  edited since the last sync and an incoming newer file is treated as a
+     *  conflict (kept as a duplicate) rather than silently overwriting. */
+    val lastImportedAt: Instant? = null
 )

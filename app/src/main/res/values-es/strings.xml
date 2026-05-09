@@ -137,6 +137,7 @@
     <string name="sync_stop">Desactivar sincronizacion</string>
     <string name="sync_seeded_format">%1$d notas reflejadas en la carpeta.</string>
     <string name="sync_done_format">Sincronizado — %1$d actualizadas, %2$d nuevas, %3$d sin cambios.</string>
+    <string name="sync_done_with_conflicts_format">Sincronizado — %1$d actualizadas, %2$d nuevas, %3$d guardadas como duplicado (conflicto), %4$d sin cambios.</string>
     <string name="sync_stopped">Sincronizacion desactivada.</string>
     <string name="screenshot_protection">Bloquear capturas y vista previa de Recientes</string>
     <string name="screenshot_protection_description">Oculta el contenido de las notas en capturas de pantalla y en la vista de aplicaciones recientes. Reabre el editor para aplicar el cambio.</string>

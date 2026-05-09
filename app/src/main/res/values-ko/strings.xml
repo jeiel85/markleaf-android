@@ -137,6 +137,7 @@
     <string name="sync_stop">동기화 끄기</string>
     <string name="sync_seeded_format">노트 %1$d개를 폴더에 미러링했습니다.</string>
     <string name="sync_done_format">동기화 완료 — 업데이트 %1$d, 신규 %2$d, 변화 없음 %3$d</string>
+    <string name="sync_done_with_conflicts_format">동기화 완료 — 업데이트 %1$d, 신규 %2$d, 충돌 사본 %3$d, 변화 없음 %4$d</string>
     <string name="sync_stopped">동기화를 껐습니다.</string>
     <string name="screenshot_protection">스크린샷·최근 앱 미리보기 차단</string>
     <string name="screenshot_protection_description">노트 본문이 스크린샷과 최근 앱 화면에 표시되지 않도록 합니다. 변경 사항이 반영되려면 에디터를 다시 열어주세요.</string>

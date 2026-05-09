@@ -247,14 +247,21 @@ fun EditorScreen(
                 appSettings.syncFolderUri?.let { uriString ->
                     val uri = runCatching { android.net.Uri.parse(uriString) }.getOrNull()
                     if (uri != null) {
-                        withContext(Dispatchers.IO) {
-                            NoteFolderMirror.writeNote(context, uri, updatedNote)
-                            // Mirror this note's image attachments alongside the .md
-                            // so the folder is self-contained when synced.
-                            val attachments = AttachmentManager.filesForNote(context, noteId)
-                            if (attachments.isNotEmpty()) {
-                                NoteFolderMirror.mirrorAttachments(context, uri, noteId, attachments)
+                        val ok = withContext(Dispatchers.IO) {
+                            val wrote = NoteFolderMirror.writeNote(context, uri, updatedNote)
+                            if (wrote) {
+                                val attachments = AttachmentManager.filesForNote(context, noteId)
+                                if (attachments.isNotEmpty()) {
+                                    NoteFolderMirror.mirrorAttachments(context, uri, noteId, attachments)
+                                }
                             }
+                            wrote
+                        }
+                        if (ok) {
+                            // Stamp the synced snapshot so the next reconcile
+                            // can distinguish "remote echo" from "remote edit
+                            // by another device since this snapshot."
+                            repo.updateNote(updatedNote.copy(lastImportedAt = updatedNote.updatedAt))
                         }
                     }
                 }

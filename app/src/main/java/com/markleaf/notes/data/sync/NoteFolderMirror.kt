@@ -36,7 +36,14 @@ object NoteFolderMirror {
         val updated: Int,
         val created: Int,
         val skipped: Int,
-        val errors: Int
+        val errors: Int,
+        /**
+         * Number of notes where both the local DB and the remote file moved
+         * since the last sync. The remote file was kept as a duplicate note
+         * (titled `<original> (다른 기기 사본 …)`) instead of overwriting
+         * the local edits.
+         */
+        val conflicts: Int = 0
     )
 
     /**
@@ -174,6 +181,7 @@ object NoteFolderMirror {
         var created = 0
         var skipped = 0
         var errors = 0
+        var conflicts = 0
 
         val byId = existing.associateBy { it.id }
         val files = folder.listFiles().filter { it.isFile && it.name?.endsWith(".md") == true }
@@ -202,7 +210,8 @@ object NoteFolderMirror {
                         createdAt = parsed.createdAt ?: now,
                         updatedAt = parsed.updatedAt ?: now,
                         pinned = parsed.pinned ?: false,
-                        archived = parsed.archived ?: false
+                        archived = parsed.archived ?: false,
+                        lastImportedAt = parsed.updatedAt ?: now
                     )
                     applyCreate(newNote)
                     created++
@@ -212,16 +221,42 @@ object NoteFolderMirror {
                     val dbTs = existingNote.updatedAt
                     val fileNewer = fileTs.toEpochMilli() > dbTs.toEpochMilli() + SLACK_MILLIS
                     if (fileNewer) {
-                        val merged = existingNote.copy(
-                            title = TitleExtractor.extractTitle(parsed.body),
-                            contentMarkdown = parsed.body,
-                            excerpt = TitleExtractor.generateExcerpt(parsed.body),
-                            updatedAt = fileTs,
-                            pinned = parsed.pinned ?: existingNote.pinned,
-                            archived = parsed.archived ?: existingNote.archived
-                        )
-                        applyUpdate(merged)
-                        updated++
+                        val lastImport = existingNote.lastImportedAt?.toEpochMilli() ?: 0L
+                        val localEditedSinceImport = dbTs.toEpochMilli() > lastImport + SLACK_MILLIS
+                        if (localEditedSinceImport) {
+                            // Both sides moved since the last sync. Keep the
+                            // local note untouched and bring the remote in as
+                            // a separate "(다른 기기 사본 …)" note so the user
+                            // can compare and merge by hand.
+                            val now = Instant.now()
+                            val baseTitle = TitleExtractor.extractTitle(parsed.body)
+                            val suffix = conflictSuffix(now)
+                            val duplicate = Note(
+                                id = UUID.randomUUID().toString(),
+                                title = "$baseTitle $suffix",
+                                contentMarkdown = parsed.body,
+                                excerpt = TitleExtractor.generateExcerpt(parsed.body),
+                                createdAt = parsed.createdAt ?: fileTs,
+                                updatedAt = fileTs,
+                                pinned = false,
+                                archived = false,
+                                lastImportedAt = fileTs
+                            )
+                            applyCreate(duplicate)
+                            conflicts++
+                        } else {
+                            val merged = existingNote.copy(
+                                title = TitleExtractor.extractTitle(parsed.body),
+                                contentMarkdown = parsed.body,
+                                excerpt = TitleExtractor.generateExcerpt(parsed.body),
+                                updatedAt = fileTs,
+                                pinned = parsed.pinned ?: existingNote.pinned,
+                                archived = parsed.archived ?: existingNote.archived,
+                                lastImportedAt = fileTs
+                            )
+                            applyUpdate(merged)
+                            updated++
+                        }
                     } else {
                         skipped++
                     }
@@ -231,7 +266,22 @@ object NoteFolderMirror {
             }
         }
 
-        return ImportResult(updated = updated, created = created, skipped = skipped, errors = errors)
+        return ImportResult(
+            updated = updated,
+            created = created,
+            skipped = skipped,
+            errors = errors,
+            conflicts = conflicts
+        )
+    }
+
+    private fun conflictSuffix(now: Instant): String {
+        // Stable, locale-independent suffix the user can scan at a glance:
+        // "(다른 기기 사본 0509 12:34)"
+        val ldt = java.time.LocalDateTime.ofInstant(now, java.time.ZoneId.systemDefault())
+        val date = "%02d%02d".format(ldt.monthValue, ldt.dayOfMonth)
+        val time = "%02d:%02d".format(ldt.hour, ldt.minute)
+        return "(다른 기기 사본 $date $time)"
     }
 
     private fun findFileForNote(folder: DocumentFile, noteId: String): DocumentFile? {

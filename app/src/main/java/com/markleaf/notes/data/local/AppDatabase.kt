@@ -26,7 +26,7 @@ import com.markleaf.notes.data.local.entity.TagEntity
         NoteLinkEntity::class,
         AttachmentEntity::class
     ],
-    version = 11,
+    version = 12,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -46,7 +46,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "markleaf.db"
                 )
-                .addMigrations(MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11)
+                .addMigrations(MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12)
                 .build().also { INSTANCE = it }
             }
         }
@@ -123,6 +123,16 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("DROP TABLE IF EXISTS `note_snapshots`")
                 db.execSQL("DROP TABLE IF EXISTS `note_links`")
                 db.execSQL("DROP TABLE IF EXISTS `attachments`")
+            }
+        }
+
+        // v11 → v12: track `lastImportedAt` per note so the v2.6 sync
+        // reconcile can distinguish "remote overwrites stale local" (safe)
+        // from "remote and local both moved since last sync" (conflict —
+        // keep both as duplicates in v2.9).
+        private val MIGRATION_11_12 = object : Migration(11, 12) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `notes` ADD COLUMN `lastImportedAt` INTEGER")
             }
         }
 

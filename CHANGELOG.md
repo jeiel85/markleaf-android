@@ -2,6 +2,20 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.9.0 - 동기화 충돌 시 사본 보존 (Sync conflict → keep both) - 2026-05-09
+
+### 새로운 기능
+- **양 기기에서 동시 수정한 노트는 더 이상 silent overwrite 되지 않습니다.** "지금 동기화" 가 reconcile 도중 *file이 newer* 이면서 *동시에 local 도 마지막 sync 이후 수정* 됐을 때, 기존 local 노트는 그대로 두고 file 본문을 *별도 사본 노트* 로 가져옵니다. 사본 제목에 `(다른 기기 사본 0509 12:34)` suffix가 붙어 사용자가 직접 비교/병합 가능.
+- **충돌 카운트가 sync 결과 toast에 표시.** "동기화 완료 — 업데이트 N, 신규 N, **충돌 사본 N**, 변화 없음 N" — 이전 silent 모드와 달리 무엇이 어떻게 처리됐는지 투명.
+
+### 데이터
+- **DB v11 → v12 migration:** `notes` 테이블에 `lastImportedAt INTEGER` 컬럼 추가 (nullable). v2.6 이전 노트는 null로 시작 → 첫 reconcile 때 *file newer + lastImportedAt null* 면 충돌로 분류 (안전쪽 fail).
+- **자동 저장 시 lastImportedAt 업데이트.** EditorScreen이 mirror 폴더에 write 성공한 직후 `lastImportedAt = updatedAt` 으로 stamp. 다음 reconcile 이 *remote echo* (방금 우리가 쓴 것) 와 *foreign edit* (다른 기기에서 온 것) 를 구분 가능.
+
+### 의도된 안전 마진 (계속)
+- 파일→DB 삭제 sync는 v2.1 이후로 여전히 미구현 (silent data loss 회피).
+- 충돌 시 인앱 머지 UI는 v2.9.0 범위 외 — 사본을 두 개 보여주고 사용자가 직접 정리. 머지 도구는 v2.x.x 백로그.
+
 ## v2.8.1 - 한국어 어법 다듬기 (Korean copy polish) - 2026-05-09
 
 사용자가 "볼 노트를 선택하세요" 같은 영어 직역체를 지적해서, 한국어 strings 14개 항목을 자연스럽게 다듬음. 영어/스페인어는 그대로.

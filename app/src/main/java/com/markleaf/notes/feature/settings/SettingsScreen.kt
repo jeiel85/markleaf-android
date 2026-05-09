@@ -283,13 +283,23 @@ fun SettingsScreen(
                                 )
                             }
                             settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())
-                            val msg = context.getString(
-                                R.string.sync_done_format,
-                                result.updated,
-                                result.created,
-                                result.skipped
-                            )
-                            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                            val msg = if (result.conflicts > 0) {
+                                context.getString(
+                                    R.string.sync_done_with_conflicts_format,
+                                    result.updated,
+                                    result.created,
+                                    result.conflicts,
+                                    result.skipped
+                                )
+                            } else {
+                                context.getString(
+                                    R.string.sync_done_format,
+                                    result.updated,
+                                    result.created,
+                                    result.skipped
+                                )
+                            }
+                            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
                         }
                     },
                     onStopSync = {

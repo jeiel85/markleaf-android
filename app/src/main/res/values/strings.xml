@@ -137,6 +137,7 @@
     <string name="sync_stop">Stop syncing</string>
     <string name="sync_seeded_format">Mirrored %1$d notes to the folder.</string>
     <string name="sync_done_format">Synced — %1$d updated, %2$d new, %3$d unchanged.</string>
+    <string name="sync_done_with_conflicts_format">Synced — %1$d updated, %2$d new, %3$d kept as duplicates (conflict), %4$d unchanged.</string>
     <string name="sync_stopped">Sync turned off.</string>
     <string name="screenshot_protection">Block screenshots and Recents preview</string>
     <string name="screenshot_protection_description">Hides note content in screenshots and the recent apps screen. Restart the editor screen for the change to take effect.</string>

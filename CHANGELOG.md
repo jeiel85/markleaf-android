@@ -2,6 +2,15 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.9.1 - 시각 회귀 그물망 정밀화 (Roborazzi tight threshold) - 2026-05-09
+
+### 인프라
+- **CI Linux 런너에서 Roborazzi 골든 18장 재기록.** v2.1.1에서 깐 `workflow_dispatch` 훅을 처음 실행 (run 25600591611). Ubuntu에서 record한 골든을 다운로드해 로컬 `app/src/test/snapshots/roborazzi/` 에 commit.
+- **`changeThreshold` 0.05f → 0.005f 타이트닝** (10배 정밀). 이전엔 Windows record/Linux verify 사이의 폰트 hint 차이를 흡수하느라 느슨한 임계치였는데, 동일 OS record/verify가 되니 *진짜 시각 회귀* 만 잡도록 조였음.
+- 결과: 라이브 프리뷰 + 에디터 미리보기 18개 시나리오의 1픽셀 단위 회귀가 PR 빌드에서 즉시 빨간불.
+
+### 사용자 화면 변화 0.
+
 ## v2.9.0 - 동기화 충돌 시 사본 보존 (Sync conflict → keep both) - 2026-05-09
 
 ### 새로운 기능

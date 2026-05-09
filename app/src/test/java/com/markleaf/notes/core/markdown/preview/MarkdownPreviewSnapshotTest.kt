@@ -52,9 +52,10 @@ class MarkdownPreviewSnapshotTest {
         options = RoborazziRule.Options(
             outputDirectoryPath = "src/test/snapshots/roborazzi",
             roborazziOptions = RoborazziOptions(
-                // Cross-OS rendering (Windows record vs. Ubuntu CI verify) tolerates small
-                // font-hinting / anti-aliasing diffs. Tightened later once goldens converge.
-                compareOptions = RoborazziOptions.CompareOptions(changeThreshold = 0.05f)
+                // Goldens are now recorded on the Linux CI runner (v2.9.1), so
+                // the same OS records and verifies — tighter threshold catches
+                // real regressions instead of OS-level font-hinting noise.
+                compareOptions = RoborazziOptions.CompareOptions(changeThreshold = 0.005f)
             )
         )
     )

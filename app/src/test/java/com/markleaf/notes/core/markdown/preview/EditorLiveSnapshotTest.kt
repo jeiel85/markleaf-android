@@ -54,7 +54,8 @@ class EditorLiveSnapshotTest {
         options = RoborazziRule.Options(
             outputDirectoryPath = "src/test/snapshots/roborazzi",
             roborazziOptions = RoborazziOptions(
-                compareOptions = RoborazziOptions.CompareOptions(changeThreshold = 0.05f)
+                // Tightened in v2.9.1 alongside Linux-recorded goldens.
+                compareOptions = RoborazziOptions.CompareOptions(changeThreshold = 0.005f)
             )
         )
     )

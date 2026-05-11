@@ -59,6 +59,10 @@
     <string name="find_in_note_hint">Find</string>
     <string name="find_previous_match">Previous match</string>
     <string name="find_next_match">Next match</string>
+    <string name="replace_in_note_hint">Replace</string>
+    <string name="replace_match">Replace</string>
+    <string name="replace_all_matches">Replace all</string>
+    <string name="replace_all_done_format">Replaced %1$d matches.</string>
     <string name="close">Close</string>
     <string name="share_note">Share or export</string>
     <string name="share_via_system">Share via…</string>

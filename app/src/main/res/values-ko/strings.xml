@@ -59,6 +59,10 @@
     <string name="find_in_note_hint">찾기</string>
     <string name="find_previous_match">이전 결과</string>
     <string name="find_next_match">다음 결과</string>
+    <string name="replace_in_note_hint">바꾸기</string>
+    <string name="replace_match">바꾸기</string>
+    <string name="replace_all_matches">모두 바꾸기</string>
+    <string name="replace_all_done_format">%1$d개를 바꿨습니다.</string>
     <string name="close">닫기</string>
     <string name="share_note">공유 / 내보내기</string>
     <string name="share_via_system">공유 시트로 보내기</string>

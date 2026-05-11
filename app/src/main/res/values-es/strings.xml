@@ -59,6 +59,10 @@
     <string name="find_in_note_hint">Buscar</string>
     <string name="find_previous_match">Coincidencia anterior</string>
     <string name="find_next_match">Coincidencia siguiente</string>
+    <string name="replace_in_note_hint">Reemplazar</string>
+    <string name="replace_match">Reemplazar</string>
+    <string name="replace_all_matches">Reemplazar todo</string>
+    <string name="replace_all_done_format">Se reemplazaron %1$d coincidencias.</string>
     <string name="close">Cerrar</string>
     <string name="share_note">Compartir o exportar</string>
     <string name="share_via_system">Compartir mediante…</string>

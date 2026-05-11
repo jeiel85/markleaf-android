@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -142,6 +143,7 @@ fun EditorScreen(
     var isFindOpen by remember(noteId) { mutableStateOf(false) }
     var findQuery by remember(noteId) { mutableStateOf("") }
     var findIndex by remember(noteId) { mutableStateOf(0) }
+    var replaceQuery by remember(noteId) { mutableStateOf("") }
 
     // Wikilink autocomplete: when the user has typed `[[query` without
     // closing it on the same line, surface matching note titles.
@@ -300,7 +302,10 @@ fun EditorScreen(
                         if (!isPreviewMode) {
                             IconButton(onClick = {
                                 isFindOpen = !isFindOpen
-                                if (isFindOpen) findQuery = ""
+                                if (isFindOpen) {
+                                    findQuery = ""
+                                    replaceQuery = ""
+                                }
                             }) {
                                 Icon(
                                     Icons.Default.Search,
@@ -473,6 +478,29 @@ fun EditorScreen(
                         onClose = {
                             isFindOpen = false
                             findQuery = ""
+                            replaceQuery = ""
+                        },
+                        replaceQuery = replaceQuery,
+                        onReplaceQueryChange = { replaceQuery = it },
+                        onReplaceOne = {
+                            if (findMatches.isNotEmpty()) {
+                                val safeIndex = findIndex.coerceIn(findMatches.indices)
+                                val target = findMatches[safeIndex]
+                                editorState = replaceRange(editorState, target, replaceQuery)
+                                if (isLoaded) saveTrigger++
+                            }
+                        },
+                        onReplaceAll = {
+                            if (findMatches.isNotEmpty()) {
+                                val count = findMatches.size
+                                editorState = replaceAllRanges(editorState, findMatches, replaceQuery)
+                                if (isLoaded) saveTrigger++
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.replace_all_done_format, count),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
                     )
                 }
@@ -717,6 +745,45 @@ internal fun findAllRanges(text: String, query: String): List<IntRange> {
     return ranges
 }
 
+internal fun replaceRange(
+    state: TextFieldValue,
+    range: IntRange,
+    replacement: String
+): TextFieldValue {
+    val text = state.text
+    val start = range.first.coerceIn(0, text.length)
+    val endExclusive = (range.last + 1).coerceIn(start, text.length)
+    val newText = text.substring(0, start) + replacement + text.substring(endExclusive)
+    val caret = (start + replacement.length).coerceIn(0, newText.length)
+    return TextFieldValue(text = newText, selection = TextRange(caret))
+}
+
+internal fun replaceAllRanges(
+    state: TextFieldValue,
+    ranges: List<IntRange>,
+    replacement: String
+): TextFieldValue {
+    if (ranges.isEmpty()) return state
+    val text = state.text
+    val sorted = ranges.sortedBy { it.first }
+    val builder = StringBuilder()
+    var cursor = 0
+    for (range in sorted) {
+        val start = range.first.coerceIn(0, text.length)
+        val endExclusive = (range.last + 1).coerceIn(start, text.length)
+        if (start > cursor) {
+            builder.append(text, cursor, start)
+        }
+        builder.append(replacement)
+        cursor = endExclusive
+    }
+    if (cursor < text.length) {
+        builder.append(text, cursor, text.length)
+    }
+    val newText = builder.toString()
+    return TextFieldValue(text = newText, selection = TextRange(newText.length.coerceAtLeast(0)))
+}
+
 @Composable
 private fun FindBar(
     query: String,
@@ -725,7 +792,11 @@ private fun FindBar(
     totalMatches: Int,
     onPrev: () -> Unit,
     onNext: () -> Unit,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    replaceQuery: String,
+    onReplaceQueryChange: (String) -> Unit,
+    onReplaceOne: () -> Unit,
+    onReplaceAll: () -> Unit
 ) {
     Surface(
         modifier = Modifier
@@ -735,43 +806,73 @@ private fun FindBar(
         shape = MaterialTheme.shapes.small,
         tonalElevation = 1.dp
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 8.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(start = 8.dp, end = 4.dp, top = 4.dp, bottom = 4.dp)
         ) {
-            OutlinedTextField(
-                value = query,
-                onValueChange = onQueryChange,
-                placeholder = { Text(stringResource(R.string.find_in_note_hint)) },
-                singleLine = true,
-                modifier = Modifier.weight(1f)
-            )
-            Text(
-                text = if (totalMatches == 0) "0/0"
-                else "${currentIndex + 1}/$totalMatches",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 8.dp)
-            )
-            IconButton(onClick = onPrev, enabled = totalMatches > 0) {
-                Icon(
-                    Icons.Default.KeyboardArrowUp,
-                    contentDescription = stringResource(R.string.find_previous_match)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = onQueryChange,
+                    placeholder = { Text(stringResource(R.string.find_in_note_hint)) },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f)
                 )
+                Text(
+                    text = if (totalMatches == 0) "0/0"
+                    else "${currentIndex + 1}/$totalMatches",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+                IconButton(onClick = onPrev, enabled = totalMatches > 0) {
+                    Icon(
+                        Icons.Default.KeyboardArrowUp,
+                        contentDescription = stringResource(R.string.find_previous_match)
+                    )
+                }
+                IconButton(onClick = onNext, enabled = totalMatches > 0) {
+                    Icon(
+                        Icons.Default.KeyboardArrowDown,
+                        contentDescription = stringResource(R.string.find_next_match)
+                    )
+                }
+                IconButton(onClick = onClose) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = stringResource(R.string.close)
+                    )
+                }
             }
-            IconButton(onClick = onNext, enabled = totalMatches > 0) {
-                Icon(
-                    Icons.Default.KeyboardArrowDown,
-                    contentDescription = stringResource(R.string.find_next_match)
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = replaceQuery,
+                    onValueChange = onReplaceQueryChange,
+                    placeholder = { Text(stringResource(R.string.replace_in_note_hint)) },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f)
                 )
-            }
-            IconButton(onClick = onClose) {
-                Icon(
-                    Icons.Default.Close,
-                    contentDescription = stringResource(R.string.close)
-                )
+                Spacer(modifier = Modifier.width(8.dp))
+                TextButton(
+                    onClick = onReplaceOne,
+                    enabled = totalMatches > 0
+                ) {
+                    Text(stringResource(R.string.replace_match))
+                }
+                TextButton(
+                    onClick = onReplaceAll,
+                    enabled = totalMatches > 0
+                ) {
+                    Text(stringResource(R.string.replace_all_matches))
+                }
             }
         }
     }

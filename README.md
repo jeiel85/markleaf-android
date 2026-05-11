@@ -20,19 +20,40 @@
 
 ## 🍃 Markleaf란?
 
-**Markleaf**는 군더더기를 덜어내고 오직 '기록'과 '정리'에만 집중할 수 있도록 설계된 Android 메모 앱입니다. 당신의 데이터는 오직 당신의 기기에만 저장되며, 표준 Markdown 형식을 사용하여 데이터의 소유권과 이식성을 완벽히 보장합니다.
+**Markleaf**는 군더더기를 덜어내고 오직 '기록'과 '정리'에만 집중할 수 있도록 설계된 Android Markdown 메모 앱입니다. 당신의 데이터는 오직 당신의 기기에만 저장되며, 표준 Markdown 형식을 사용하여 데이터의 소유권과 이식성을 완벽히 보장합니다. 동기화도 *당신이 선택한 폴더* 를 통해서만 일어납니다 — Markleaf 자체는 인터넷에 나가지 않습니다.
 
-[**브랜딩 페이지 보기**](https://jeiel85.github.io/markleaf-android/)
+[**브랜딩 페이지 보기**](https://jeiel85.github.io/markleaf-android/) · [현재 버전: v2.14.0](https://github.com/jeiel85/markleaf-android/releases) · Google Play 비공개 테스트 진행 중
 
 ---
 
 ## ✨ 핵심 기능
 
-- **Markdown First**: 표준 Markdown 문법을 지원하며, 실시간 미리보기를 통해 작성 중인 내용을 즉시 확인할 수 있습니다.
-- **Tag-based Organization**: 복잡한 폴더 구조 대신 `#태그`를 통해 유연하게 노트를 분류하고 검색합니다.
-- **Local-first Privacy**: 인터넷 연결 없이 작동하며, 어떠한 개인정보도 외부 서버로 전송하지 않습니다.
-- **Fast & Lightweight**: 불필요한 애니메이션이나 무거운 라이브러리를 배제하여 즉각적인 실행 속도를 제공합니다.
-- **Plain Text Export**: 작성한 모든 노트를 언제든지 개별 Markdown 파일이나 전체 압축 파일로 내보낼 수 있습니다.
+### 작성 & 미리보기
+- **실시간 Markdown 미리보기** — 편집과 즉시 전환되는 프리뷰, 또는 *Show Markdown syntax* 옵션으로 라이브 syntax 컬러링
+- **GFM 표 / 체크박스 / 인용문 / 콜아웃 (`> [!NOTE]` …)** — 모두 미리보기에 렌더링
+- **코드 블록 syntax highlighting** — Kotlin, Java, Python, JavaScript/TypeScript, Bash, JSON, YAML, XML, SQL 10개 언어 토큰 컬러링
+- **각주(`[^N]`) ref ↔ def 점프** — 위첨자를 탭하면 정의로 부드럽게 스크롤
+- **이미지 첨부 + alt 텍스트 편집** — 앱 내부 저장소에 격리된 사본으로 보관 (미디어 권한 불필요)
+- **포커스 모드 / 단어·글자·읽기 시간 통계 / 노트 안에서 찾기·바꾸기**
+
+### 정리 & 탐색
+- **태그 기반 분류** — 본문에 `#태그` 만 쓰면 자동 인덱싱, 폴더 없음
+- **Wikilinks (`[[Title]]`) + 백링크 패널** — 자동 완성, 누가 이 노트를 가리키는지 한눈에
+- **빠른 이동 (Quick switcher / Ctrl+K)** — Obsidian 스타일 제목 substring 점프
+- **SQLite FTS 기반 전문 검색** — 본문까지 빠르게
+- **핀 / 아카이브 / 휴지통** — 휴지통은 영구 삭제 전에 한 번 더 묻습니다
+
+### 동기화 & 내보내기 (No-Cloud 원칙)
+- **폴더 미러 동기화** — SAF로 사용자가 선택한 폴더(Drive/Dropbox/Syncthing/OneDrive/NAS 등)에 각 노트를 `.md` 파일로 미러링. Markleaf 자체는 인터넷에 안 나가고, 동기화는 *외부 앱이 그 폴더를 동기화하는 방식* 으로 위임
+- **개별 / 전체 노트 `.md` 내보내기**
+- **시스템 공유 시트로 보내기**
+
+### 디자인 & 접근성
+- **Markleaf 녹색 테마 + Material You 토글** — 안드로이드 12+ 시스템 월페이퍼 색상도 옵션
+- **자동 다크 모드** — 시스템 설정 따라
+- **태블릿 2-Pane 레이아웃 최적화** — 접고 펴기 가능한 노트 목록
+- **3개 언어 UI** — 한국어 / 영어 / 스페인어
+- **스크린샷 / 최근 앱 미리보기 차단 옵션** — 민감한 노트용
 
 ---
 
@@ -40,12 +61,17 @@
 
 Markleaf는 최신 Android 개발 표준을 준수하며, 유지보수가 용이한 현대적인 스택을 사용합니다.
 
-- **UI**: [Jetpack Compose](https://developer.android.com/jetpack/compose) - 선언형 UI 프레임워크
-- **Architecture**: MVVM + Clean Architecture 구조
-- **Database**: [Room](https://developer.android.com/training/data-storage/room) - SQLite 기반 로컬 퍼시스턴스
-- **Dependency Injection**: 가벼운 의존성 주입 패턴 적용
+- **UI**: [Jetpack Compose](https://developer.android.com/jetpack/compose) + Material 3 + Material You 다이내믹 컬러
+- **Architecture**: 단순한 레이어 분리 (core / data / domain / feature / ui) + Repository 패턴
+- **Database**: [Room](https://developer.android.com/training/data-storage/room) — SQLite 기반 로컬 퍼시스턴스, FTS4 가상 테이블로 전문 검색
+- **Markdown 파서**: [commonmark-java](https://github.com/commonmark/commonmark-java) (CommonMark 0.30 + GFM 확장: 표, 취소선, task lists, 각주, YAML frontmatter)
 - **Asynchronous**: [Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html) & [Flow](https://kotlinlang.org/docs/flow.html)
-- **Theme**: Material 3 (Material You 지원 예정)
+- **Storage Access Framework (SAF)** — 폴더 미러 동기화 + 이미지 첨부
+- **이미지 로딩**: [Coil](https://coil-kt.github.io/coil/) — F-Droid 친화적 Apache 2.0
+- **DataStore Preferences** — 앱 설정
+- **Profile Installer 1.4.0 + Macrobenchmark** — Cold start baseline profile 측정 (TB320FC 기준 326ms)
+- **테스트**: JUnit + Robolectric + [Roborazzi](https://github.com/takahirom/roborazzi) 시각 회귀 테스트 (Linux 골든, threshold 0.005)
+- **CI**: GitHub Actions — 빌드, 릴리스(서명된 APK + AAB), launch-smoke, record-roborazzi
 
 ---
 
@@ -55,12 +81,18 @@ Markleaf는 관심사 분리와 테스트 가능성을 위해 다음과 같은 �
 
 ```text
 com.markleaf.notes
-├── core          # 마크다운 처리, 유틸리티 등 공통 핵심 로직
+├── core          # 마크다운 처리, 첨부, 동기화 등 공통 핵심 로직
 ├── data          # Room DB, Entity, Repository 구현체 (Data Source)
 ├── domain        # Model, Repository 인터페이스 (Business Logic)
 ├── feature       # 화면별 UI 및 ViewModel (Presentation)
+│   ├── editor    # 편집기, Find/Replace, Wikilink 자동완성, 콜아웃, 표
+│   ├── notes     # 노트 목록, Quick Switcher, 아카이브
+│   ├── search    # FTS 기반 전문 검색
+│   ├── tags      # 태그 인덱스
+│   ├── trash     # 휴지통 / 영구 삭제
+│   └── settings  # 테마, 동기화 폴더, 스크린샷 차단 등
 ├── navigation    # Jetpack Compose Navigation 설정
-└── ui            # 테마 및 공통 컴포넌트
+└── ui            # 테마(Markleaf green / Material You), 공통 컴포넌트
 ```
 
 ---
@@ -103,17 +135,29 @@ Markleaf is certified as a **100% No-Cloud Application**. Your data never leaves
 
 ## 🗺 로드맵
 
+### v1.x — MVP
 - [x] 기본적인 Markdown 편집 및 저장
 - [x] 태그 기반 필터링 및 검색
 - [x] 새로운 앱 아이콘 및 브랜딩 적용
 - [x] 실시간 마크다운 미리보기 및 다크 모드
 - [x] SQLite FTS 기반 고성능 검색
-- [x] 이미지 첨부 및 관리
-- [x] 노트 간 링크([[Link]]) 및 백링크 탐색
 - [x] 태블릿용 2-Pane 레이아웃 최적화
 - [x] 전체 데이터 ZIP 백업 및 복구
-- [x] Material You 다이내믹 컬러 지원
-- [x] v1.0.0 정식 출시 완료!
+- [x] v1.0.0 정식 출시 완료
+
+### v2.x — Bear-class 확장 (현재)
+- [x] **v2.3** CommonMark 파서 도입 — 콜아웃, GFM 취소선, task lists, 각주, YAML frontmatter
+- [x] **v2.4–2.5** Wikilinks (`[[Title]]`) + 자동 완성 + 백링크 패널
+- [x] **v2.6** 이미지 첨부 + alt 텍스트 + 라이트박스
+- [x] **v2.7** SAF 폴더 미러 동기화 (Drive/Dropbox/Syncthing 위임형, no INTERNET 유지)
+- [x] **v2.8** Material You 토글 + Markleaf 녹색 테마 복원
+- [x] **v2.9** 스크린샷 차단 옵션, 시각 회귀 테스트(Roborazzi) 정착
+- [x] **v2.10** 코드 블록 syntax highlighting (10개 언어)
+- [x] **v2.11** GFM 표 미리보기 부활
+- [x] **v2.12** 빠른 이동(Quick Switcher / Ctrl+K)
+- [x] **v2.13** 노트 안에서 찾기 / 바꾸기
+- [x] **v2.14** 각주 ref ↔ def 클릭 점프
+- [ ] Google Play 정식 출시 (현재 비공개 테스트 중)
 
 ---
 

@@ -13,6 +13,9 @@
     <string name="archive_empty_hint">Long-press a note in the main list and choose Archive to move it here.</string>
     <string name="settings">Settings</string>
     <string name="more_options">More options</string>
+    <string name="quick_switcher_title">Quick switcher</string>
+    <string name="quick_switcher_hint">Jump to note…</string>
+    <string name="quick_switcher_no_results">No matching notes.</string>
     <string name="backlinks_section_title">Linked from</string>
     <string name="wikilink_suggestions_title">Link to…</string>
     <string name="image_alt_dialog_title">Edit image description</string>

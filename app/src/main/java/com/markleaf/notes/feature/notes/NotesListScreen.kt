@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.KeyboardCommandKey
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.outlined.PushPin
@@ -48,6 +49,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.isMetaPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -81,6 +89,7 @@ fun NotesListScreen(
     val hapticFeedback = LocalHapticFeedback.current
     val notesState = remember { mutableStateOf<List<Note>>(emptyList()) }
     var overflowExpanded by remember { mutableStateOf(false) }
+    var showQuickSwitcher by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         viewModel.notes.collect { noteList ->
             notesState.value = noteList
@@ -89,7 +98,32 @@ fun NotesListScreen(
     val notes = notesState.value
     val sections = remember(notes) { groupNotes(notes) }
 
+    if (showQuickSwitcher) {
+        QuickSwitcherDialog(
+            notes = notes,
+            onSelect = { id ->
+                showQuickSwitcher = false
+                onNoteClick(id)
+            },
+            onDismiss = { showQuickSwitcher = false }
+        )
+    }
+
     Scaffold(
+        modifier = Modifier.onPreviewKeyEvent { event ->
+            // Ctrl+K (or Cmd+K on physical Mac/iPad keyboards) opens the
+            // quick switcher. No-op when no hardware keyboard is attached —
+            // touch users reach the same dialog via the ⋮ overflow menu.
+            if (event.type == KeyEventType.KeyDown &&
+                event.key == Key.K &&
+                (event.isCtrlPressed || event.isMetaPressed)
+            ) {
+                showQuickSwitcher = true
+                true
+            } else {
+                false
+            }
+        },
         containerColor = containerColor,
         contentColor = contentColor,
         topBar = {
@@ -123,6 +157,14 @@ fun NotesListScreen(
                             expanded = overflowExpanded,
                             onDismissRequest = { overflowExpanded = false }
                         ) {
+                            DropdownMenuItem(
+                                leadingIcon = { Icon(Icons.Default.KeyboardCommandKey, contentDescription = null) },
+                                text = { Text(stringResource(R.string.quick_switcher_title)) },
+                                onClick = {
+                                    overflowExpanded = false
+                                    showQuickSwitcher = true
+                                }
+                            )
                             DropdownMenuItem(
                                 leadingIcon = { Icon(Icons.Default.Inventory2, contentDescription = null) },
                                 text = { Text(stringResource(R.string.archive)) },

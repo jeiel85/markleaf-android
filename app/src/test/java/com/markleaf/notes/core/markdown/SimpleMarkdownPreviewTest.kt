@@ -280,6 +280,28 @@ class SimpleMarkdownPreviewTest {
     }
 
     @Test
+    fun parse_parsesGfmTable() {
+        val markdown = """
+            | Name | Score | Status |
+            | :--- | ---: | :---: |
+            | Alice | 42 | OK |
+            | Bob | 7 | FAIL |
+        """.trimIndent()
+
+        val lines = SimpleMarkdownPreview.parse(markdown)
+
+        val table = lines.firstOrNull { it.type == PreviewLineType.TABLE }
+        assertEquals(listOf("Name", "Score", "Status"), table?.tableData?.headers)
+        assertEquals(2, table?.tableData?.rows?.size)
+        assertEquals(listOf("Alice", "42", "OK"), table?.tableData?.rows?.get(0))
+        assertEquals(listOf("Bob", "7", "FAIL"), table?.tableData?.rows?.get(1))
+        assertEquals(
+            listOf(TableAlignment.LEFT, TableAlignment.RIGHT, TableAlignment.CENTER),
+            table?.tableData?.alignments
+        )
+    }
+
+    @Test
     fun parse_emitsLinkSegmentWithHref() {
         val lines = SimpleMarkdownPreview.parse("see [our site](https://example.com) please")
 

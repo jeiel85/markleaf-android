@@ -8,6 +8,12 @@ import org.commonmark.ext.front.matter.YamlFrontMatterExtension
 import org.commonmark.ext.front.matter.YamlFrontMatterVisitor
 import org.commonmark.ext.gfm.strikethrough.Strikethrough
 import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
+import org.commonmark.ext.gfm.tables.TableBlock
+import org.commonmark.ext.gfm.tables.TableBody
+import org.commonmark.ext.gfm.tables.TableCell
+import org.commonmark.ext.gfm.tables.TableHead
+import org.commonmark.ext.gfm.tables.TableRow
+import org.commonmark.ext.gfm.tables.TablesExtension
 import org.commonmark.ext.task.list.items.TaskListItemMarker
 import org.commonmark.ext.task.list.items.TaskListItemsExtension
 import org.commonmark.node.AbstractVisitor
@@ -56,7 +62,8 @@ internal object CommonMarkPreviewAdapter {
                 YamlFrontMatterExtension.create(),
                 StrikethroughExtension.create(),
                 FootnotesExtension.builder().inlineFootnotes(false).build(),
-                TaskListItemsExtension.create()
+                TaskListItemsExtension.create(),
+                TablesExtension.create()
             )
         )
         .build()
@@ -98,6 +105,7 @@ internal object CommonMarkPreviewAdapter {
                     text = "",
                     type = PreviewLineType.HORIZONTAL_RULE
                 )
+                is TableBlock -> out += renderTable(node)
                 is FootnoteDefinition -> out += renderFootnoteDefinition(node)
                 else -> {
                     // Unknown top-level node: render as body so we don't drop content.
@@ -248,6 +256,71 @@ internal object CommonMarkPreviewAdapter {
             }
         })
         return sb.toString()
+    }
+
+    private fun renderTable(block: TableBlock): PreviewLine {
+        var headers = emptyList<String>()
+        var alignments = emptyList<TableAlignment>()
+        val rows = mutableListOf<List<String>>()
+
+        var section: Node? = block.firstChild
+        while (section != null) {
+            when (section) {
+                is TableHead -> {
+                    val headRow = section.firstChild as? TableRow
+                    if (headRow != null) {
+                        val cells = collectCells(headRow)
+                        headers = cells.map { it.text }
+                        alignments = cells.map { it.alignment }
+                    }
+                }
+                is TableBody -> {
+                    var bodyRow: Node? = section.firstChild
+                    while (bodyRow != null) {
+                        if (bodyRow is TableRow) {
+                            rows += collectCells(bodyRow).map { it.text }
+                        }
+                        bodyRow = bodyRow.next
+                    }
+                }
+            }
+            section = section.next
+        }
+        // Pad short body rows to header count so the renderer can use a fixed
+        // column layout without per-row null checks.
+        val width = headers.size.coerceAtLeast(rows.maxOfOrNull { it.size } ?: 0)
+        val paddedRows = rows.map { row -> row + List(width - row.size) { "" } }
+        val paddedHeaders = headers + List(width - headers.size) { "" }
+        val paddedAlignments = alignments + List(width - alignments.size) { TableAlignment.LEFT }
+        return PreviewLine(
+            text = "",
+            type = PreviewLineType.TABLE,
+            tableData = TableData(
+                headers = paddedHeaders,
+                rows = paddedRows,
+                alignments = paddedAlignments
+            )
+        )
+    }
+
+    private data class CellOut(val text: String, val alignment: TableAlignment)
+
+    private fun collectCells(row: TableRow): List<CellOut> {
+        val out = mutableListOf<CellOut>()
+        var cell: Node? = row.firstChild
+        while (cell != null) {
+            if (cell is TableCell) {
+                val alignment = when (cell.alignment) {
+                    TableCell.Alignment.LEFT -> TableAlignment.LEFT
+                    TableCell.Alignment.CENTER -> TableAlignment.CENTER
+                    TableCell.Alignment.RIGHT -> TableAlignment.RIGHT
+                    else -> TableAlignment.LEFT
+                }
+                out += CellOut(collectText(cell), alignment)
+            }
+            cell = cell.next
+        }
+        return out
     }
 
     private fun renderFootnoteDefinition(node: FootnoteDefinition): PreviewLine {

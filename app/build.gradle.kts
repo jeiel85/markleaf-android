@@ -61,8 +61,8 @@ android {
         applicationId = "com.markleaf.notes"
         minSdk = 26
         targetSdk = 35
-        versionCode = 80
-        versionName = "2.10.0"
+        versionCode = 81
+        versionName = "2.11.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -189,6 +189,7 @@ dependencies {
     implementation("org.commonmark:commonmark-ext-yaml-front-matter:$commonmarkVersion")
     implementation("org.commonmark:commonmark-ext-footnotes:$commonmarkVersion")
     implementation("org.commonmark:commonmark-ext-gfm-strikethrough:$commonmarkVersion")
+    implementation("org.commonmark:commonmark-ext-gfm-tables:$commonmarkVersion")
     implementation("org.commonmark:commonmark-ext-task-list-items:$commonmarkVersion")
     
     // Test

@@ -226,6 +226,18 @@ class MarkdownPreviewSnapshotTest {
     }
 
     @Test
+    fun table_light() = snapshot("table_light", darkTheme = false) {
+        Renders(
+            """
+            | Name | Score | Status |
+            | :--- | ---: | :---: |
+            | Alice | 42 | OK |
+            | Bob | 7 | FAIL |
+            """.trimIndent()
+        )
+    }
+
+    @Test
     fun mixed_document_dark() = snapshot("mixed_document_dark", darkTheme = true) {
         Renders(
             """

@@ -48,6 +48,8 @@ import com.markleaf.notes.core.markdown.PreviewInlineType
 import com.markleaf.notes.core.markdown.PreviewLine
 import com.markleaf.notes.core.markdown.PreviewLineType
 import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
+import com.markleaf.notes.core.markdown.TableAlignment
+import com.markleaf.notes.core.markdown.TableData
 import com.markleaf.notes.core.markdown.syntax.SyntaxHighlighter
 
 /**
@@ -134,6 +136,7 @@ fun PreviewLineRenderer(
         PreviewLineType.FRONTMATTER -> FrontmatterBlock(line.text)
         PreviewLineType.FOOTNOTE_DEF -> FootnoteDefRow(line)
         PreviewLineType.IMAGE -> AttachmentImage(line, onLongPress = onImageLongPress)
+        PreviewLineType.TABLE -> line.tableData?.let { MarkdownTable(it) }
         PreviewLineType.ORDERED_LIST -> Text(
             text = "${line.extra ?: "1"}. ${line.text}",
             style = MaterialTheme.typography.bodyLarge
@@ -346,6 +349,79 @@ private data class CalloutVisuals(
     val label: String,
     val icon: String
 )
+
+@Composable
+private fun MarkdownTable(data: TableData) {
+    val scheme = MaterialTheme.colorScheme
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .clip(RoundedCornerShape(6.dp))
+            .background(scheme.surfaceVariant.copy(alpha = 0.5f))
+    ) {
+        // Header row
+        TableRow(
+            cells = data.headers,
+            alignments = data.alignments,
+            background = scheme.surfaceVariant,
+            textColor = scheme.onSurface,
+            bold = true
+        )
+        // Body rows — divider between each, slight zebra-stripe via alpha
+        data.rows.forEachIndexed { index, row ->
+            HorizontalDivider(
+                color = scheme.outlineVariant.copy(alpha = 0.4f),
+                thickness = 1.dp
+            )
+            TableRow(
+                cells = row,
+                alignments = data.alignments,
+                background = if (index % 2 == 0) {
+                    androidx.compose.ui.graphics.Color.Transparent
+                } else {
+                    scheme.surfaceVariant.copy(alpha = 0.3f)
+                },
+                textColor = scheme.onBackground,
+                bold = false
+            )
+        }
+    }
+}
+
+@Composable
+private fun TableRow(
+    cells: List<String>,
+    alignments: List<TableAlignment>,
+    background: androidx.compose.ui.graphics.Color,
+    textColor: androidx.compose.ui.graphics.Color,
+    bold: Boolean
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(background)
+            .padding(vertical = 6.dp)
+    ) {
+        cells.forEachIndexed { col, cell ->
+            val alignment = alignments.getOrElse(col) { TableAlignment.LEFT }
+            Text(
+                text = cell,
+                style = MaterialTheme.typography.bodyMedium,
+                color = textColor,
+                fontWeight = if (bold) FontWeight.SemiBold else FontWeight.Normal,
+                textAlign = when (alignment) {
+                    TableAlignment.LEFT -> androidx.compose.ui.text.style.TextAlign.Start
+                    TableAlignment.CENTER -> androidx.compose.ui.text.style.TextAlign.Center
+                    TableAlignment.RIGHT -> androidx.compose.ui.text.style.TextAlign.End
+                },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 10.dp)
+            )
+        }
+    }
+}
 
 @Composable
 private fun FrontmatterBlock(text: String) {

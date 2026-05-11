@@ -2,6 +2,24 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.11.0 - GFM 테이블 부활 (Tables) - 2026-05-09
+
+### 새로운 기능
+- **GFM 표 문법 미리보기 렌더링 부활.** `| 열 | 열 |` + `| :--- | ---: |` 정렬 행이 미리보기에서 진짜 표로 그려집니다. 헤더 행은 굵게 + 약간 어두운 배경, 본문은 alternate row 줄무늬, 행 사이 1dp divider.
+- **열 정렬 (`:---` / `---:` / `:---:`)** 그대로 반영 — 좌/우/중앙 정렬.
+- **셀 내용에 인라인 마크다운**: 현재는 plain text로 표시 (v2.x.x 백로그). 굵게/기울임/링크는 추후 cycle.
+
+### v1.2 결정 의식적 reversal
+- v1.2.0에서 *MVP simplicity* 명목으로 제거했던 표/수식 렌더링 중 표만 부활. 사용자 합의 후 post-MVP에서 *확장으로 분류*. 수식은 §2.7 가치관 마찰 검토 후 결정.
+
+### 데이터 모델
+- `PreviewLineType.TABLE` + `TableData(headers, rows, alignments)` + `TableAlignment { LEFT, CENTER, RIGHT }`. 기존 PreviewLine에 nullable `tableData` 필드 추가.
+- `commonmark-ext-gfm-tables:0.24.0` 의존성 (이미 등록된 commonmark BSD-2 라이센스 모듈군과 동일).
+
+### 검증
+- 단위 테스트 `parse_parsesGfmTable` — 헤더/본문/정렬 모두 정확히 추출.
+- Roborazzi 골든 `table_light` — 헤더 굵게, zebra row, 정렬, divider 모두 시각 회귀 락.
+
 ## v2.10.0 - 코드 블록 syntax highlighting - 2026-05-09
 
 ### 새로운 기능

@@ -16,8 +16,19 @@ enum class PreviewLineType {
     CODE_BLOCK,
     FRONTMATTER,
     FOOTNOTE_DEF,
-    IMAGE
+    IMAGE,
+    TABLE
 }
+
+/** Per-column alignment hint from the GFM table header separator `|:---|---:|`. */
+enum class TableAlignment { LEFT, CENTER, RIGHT }
+
+/** Parsed GFM table structure carried on [PreviewLine.tableData] when type == TABLE. */
+data class TableData(
+    val headers: List<String>,
+    val rows: List<List<String>>,
+    val alignments: List<TableAlignment>
+)
 
 enum class PreviewInlineType {
     TEXT,
@@ -61,7 +72,9 @@ data class PreviewLine(
     val text: String,
     val type: PreviewLineType,
     val extra: String? = null,
-    val segments: List<PreviewInlineSegment> = emptyList()
+    val segments: List<PreviewInlineSegment> = emptyList(),
+    /** Only set when [type] is [PreviewLineType.TABLE]. */
+    val tableData: TableData? = null
 )
 
 object SimpleMarkdownPreview {

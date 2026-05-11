@@ -2,6 +2,21 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.10.0 - 코드 블록 syntax highlighting - 2026-05-09
+
+### 새로운 기능
+- **펜스 코드 블록의 언어별 syntax highlighting.** ` ```kotlin ` 처럼 언어 힌트를 적으면 미리보기에서 키워드 / 문자열 / 숫자 / 주석 / 함수명이 각자 다른 색으로 표시됩니다.
+- **지원 언어 10개**: Kotlin, Java, Python, JavaScript, TypeScript, Bash/Shell, JSON, YAML, XML/HTML, SQL. 그 외 언어 또는 언어 힌트 없는 블록은 기존대로 모노스페이스 단색 폴백 (변경 없음).
+
+### 디자인 결정
+- **자체 regex 기반 토크나이저**, 외부 라이브러리 0. Apache 2 라이선스의 Prism4j 등 후보를 검토했지만 *§2.7 lightweight bias + APK 크기* 정신에서 직접 구현. 10개 언어 룰셋 = 약 350 LOC, 의존성 추가 0.
+- **색상은 Material 3 컬러스킴 재활용**. 라이트/다크/Material You 모두 자동으로 일관된 톤. 별도 코드 테마 설정 없음.
+- **충돌 해결**: 코멘트/문자열이 키워드보다 우선. `"fun day"` 안의 `fun` 은 Kotlin 키워드로 잘못 색칠되지 않음.
+
+### 검증
+- 단위 테스트 12개 — round-trip (text preserved), 키워드/문자열/주석/숫자 인식, 스트링 안의 키워드 무시, decorator/annotation, YAML key, XML tag/attr 등.
+- Roborazzi 골든 신규 2개: Kotlin (함수 + 문자열 + 주석) / Python (decorator + 함수).
+
 ## v2.9.2 - 표준 마크다운 링크 클릭 동작 (Markdown link click) - 2026-05-09
 
 ### 수정

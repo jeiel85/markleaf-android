@@ -48,6 +48,7 @@ import com.markleaf.notes.core.markdown.PreviewInlineType
 import com.markleaf.notes.core.markdown.PreviewLine
 import com.markleaf.notes.core.markdown.PreviewLineType
 import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
+import com.markleaf.notes.core.markdown.syntax.SyntaxHighlighter
 
 /**
  * Renders a list of [PreviewLine]s as a scrollable Markdown preview.
@@ -413,6 +414,35 @@ private fun FootnoteDefRow(line: PreviewLine) {
 
 @Composable
 private fun MarkdownCodeBlock(text: String, language: String?) {
+    val scheme = MaterialTheme.colorScheme
+    // Token-type → color. Reuses the theme palette so dark / light / Material You
+    // all coordinate. Unknown languages fall through to TEXT (onSurfaceVariant).
+    val annotated = remember(text, language, scheme) {
+        val tokens = SyntaxHighlighter.tokenize(text, language)
+        buildAnnotatedString {
+            tokens.forEach { token ->
+                val color = when (token.type) {
+                    SyntaxHighlighter.TokenType.KEYWORD -> scheme.primary
+                    SyntaxHighlighter.TokenType.STRING -> scheme.secondary
+                    SyntaxHighlighter.TokenType.NUMBER -> scheme.tertiary
+                    SyntaxHighlighter.TokenType.COMMENT -> scheme.onSurfaceVariant.copy(alpha = 0.6f)
+                    SyntaxHighlighter.TokenType.FUNCTION -> scheme.primary
+                    SyntaxHighlighter.TokenType.TYPE -> scheme.tertiary
+                    SyntaxHighlighter.TokenType.PUNCTUATION -> scheme.onSurfaceVariant
+                    SyntaxHighlighter.TokenType.TEXT -> scheme.onSurfaceVariant
+                }
+                val italic = token.type == SyntaxHighlighter.TokenType.COMMENT
+                withStyle(
+                    SpanStyle(
+                        color = color,
+                        fontStyle = if (italic) FontStyle.Italic else FontStyle.Normal
+                    )
+                ) {
+                    append(token.text)
+                }
+            }
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -430,7 +460,7 @@ private fun MarkdownCodeBlock(text: String, language: String?) {
             )
         }
         Text(
-            text = text,
+            text = annotated,
             style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

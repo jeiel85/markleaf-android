@@ -107,8 +107,24 @@ class MarkdownPreviewSnapshotTest {
         Renders(
             """
             ```kotlin
-            val answer = 42
-            println(answer)
+            // greet the world
+            fun main() {
+                val name = "Markleaf"
+                println("Hello, ${'$'}name!")
+            }
+            ```
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun code_block_python_light() = snapshot("code_block_python_light", darkTheme = false) {
+        Renders(
+            """
+            ```python
+            # average of a list
+            def avg(xs):
+                return sum(xs) / len(xs)
             ```
             """.trimIndent()
         )

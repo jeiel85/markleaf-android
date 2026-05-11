@@ -280,6 +280,15 @@ class SimpleMarkdownPreviewTest {
     }
 
     @Test
+    fun parse_emitsLinkSegmentWithHref() {
+        val lines = SimpleMarkdownPreview.parse("see [our site](https://example.com) please")
+
+        val linkSegment = lines.first().segments.firstOrNull { it.type == PreviewInlineType.LINK }
+        assertEquals("our site", linkSegment?.text)
+        assertEquals("https://example.com", linkSegment?.href)
+    }
+
+    @Test
     fun parse_parsesFootnoteRefAsInlineSegment() {
         // CommonMark only recognises `[^1]` as a footnote reference when a
         // matching definition exists in the same document — that's per spec.

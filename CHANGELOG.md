@@ -2,6 +2,21 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.9.2 - 표준 마크다운 링크 클릭 동작 (Markdown link click) - 2026-05-09
+
+### 수정
+- **`[라벨](URL)` 형식의 표준 마크다운 링크가 미리보기에서 클릭되지 않던 누락 수정.** 사용자가 온보딩 노트 "Markdown 으로 예쁘게 쓰기"에 있는 "링크 버튼은 `[라벨](대상)` 템플릿을 넣어줍니다" 설명을 보고 *링크가 작동하지 않는다* 고 보고. 원인: `CommonMarkPreviewAdapter` 가 `is Link` 분기에서 URL을 그냥 버리고 텍스트만 inline으로 emit하던 것 (`URL ignored in preview` 코멘트가 증거).
+- 이제 표준 마크다운 링크가 primary 색 + 밑줄로 렌더되고, 탭하면 `Intent.ACTION_VIEW` 로 시스템 브라우저 / 메일 / 전화 앱이 URL을 받아 처리합니다.
+- *Markleaf 자체는 여전히 INTERNET 권한 없음.* URL을 *다른 앱에게 넘기는 것* 일 뿐이라 §2.2 로컬 우선 유지.
+
+### 데이터 모델
+- `PreviewInlineSegment` 에 `href: String? = null` 추가, 새 `PreviewInlineType.LINK`.
+- 두 인접 LINK 세그먼트가 *서로 다른 URL* 일 때 잘못 병합되지 않도록 `coalesce()` 가 href까지 비교.
+
+### 검증
+- 단위 테스트 `parse_emitsLinkSegmentWithHref` — 라벨 + href 정확히 추출.
+- Roborazzi `markdown_link_light` 골든 신규 (primary 그린 + 밑줄 시각 회귀 차단).
+
 ## v2.9.1 - 시각 회귀 그물망 정밀화 (Roborazzi tight threshold) - 2026-05-09
 
 ### 인프라

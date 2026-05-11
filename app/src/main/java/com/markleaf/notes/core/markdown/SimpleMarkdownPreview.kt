@@ -27,7 +27,8 @@ enum class PreviewInlineType {
     STRIKETHROUGH,
     INLINE_CODE,
     FOOTNOTE_REF,
-    WIKILINK
+    WIKILINK,
+    LINK
 }
 
 enum class CalloutKind {
@@ -51,7 +52,9 @@ enum class CalloutKind {
 
 data class PreviewInlineSegment(
     val text: String,
-    val type: PreviewInlineType
+    val type: PreviewInlineType,
+    /** Only meaningful for [PreviewInlineType.LINK] — the URL the user tapped. */
+    val href: String? = null
 )
 
 data class PreviewLine(

@@ -205,6 +205,11 @@ class MarkdownPreviewSnapshotTest {
     }
 
     @Test
+    fun markdown_link_light() = snapshot("markdown_link_light", darkTheme = false) {
+        Renders("Visit [our site](https://example.com) for details.")
+    }
+
+    @Test
     fun mixed_document_dark() = snapshot("mixed_document_dark", darkTheme = true) {
         Renders(
             """

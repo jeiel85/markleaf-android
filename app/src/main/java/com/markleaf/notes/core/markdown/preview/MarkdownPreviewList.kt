@@ -196,9 +196,23 @@ internal fun InlineMarkdownText(line: PreviewLine, onWikilinkClick: (String) -> 
                     }
                     pop()
                 }
+                PreviewInlineType.LINK -> {
+                    val href = segment.href.orEmpty()
+                    pushStringAnnotation(tag = LINK_TAG, annotation = href)
+                    withStyle(
+                        SpanStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            textDecoration = TextDecoration.Underline
+                        )
+                    ) {
+                        append(segment.text)
+                    }
+                    pop()
+                }
             }
         }
     }
+    val context = LocalContext.current
     ClickableText(
         text = annotated,
         style = MaterialTheme.typography.bodyLarge.copy(
@@ -207,12 +221,41 @@ internal fun InlineMarkdownText(line: PreviewLine, onWikilinkClick: (String) -> 
         modifier = Modifier.padding(vertical = 2.dp),
         onClick = { offset ->
             annotated.getStringAnnotations(WIKILINK_TAG, offset, offset).firstOrNull()
-                ?.let { onWikilinkClick(it.item) }
+                ?.let { onWikilinkClick(it.item); return@ClickableText }
+            annotated.getStringAnnotations(LINK_TAG, offset, offset).firstOrNull()
+                ?.let { ann ->
+                    openExternalLink(context, ann.item)
+                }
         }
     )
 }
 
 private const val WIKILINK_TAG = "wikilink"
+private const val LINK_TAG = "link"
+
+/**
+ * Launch the system browser (or whatever else handles the URI scheme) for an
+ * external markdown link. Silent no-op for empty or malformed targets so
+ * tapping never crashes — there's no INTERNET permission in our app, so we're
+ * just handing the URI off to another app via the standard intent.
+ */
+private fun openExternalLink(context: android.content.Context, href: String) {
+    if (href.isBlank()) return
+    val normalized = if (
+        href.startsWith("http://") || href.startsWith("https://") ||
+        href.startsWith("mailto:") || href.startsWith("tel:")
+    ) {
+        href
+    } else if (href.contains("://")) {
+        href // any other explicit scheme — leave to the system
+    } else {
+        // Bare hostname like "markleaf.app" — assume https.
+        "https://$href"
+    }
+    val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(normalized))
+        .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+    runCatching { context.startActivity(intent) }
+}
 
 @Composable
 private fun CalloutBox(line: PreviewLine) {

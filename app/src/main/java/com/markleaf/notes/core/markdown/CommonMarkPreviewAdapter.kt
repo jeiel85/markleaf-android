@@ -315,7 +315,19 @@ internal object CommonMarkPreviewAdapter {
                 is Strikethrough -> appendInlineSegments(child, out, PreviewInlineType.STRIKETHROUGH)
                 is Code -> out += PreviewInlineSegment(child.literal, PreviewInlineType.INLINE_CODE)
                 is FootnoteReference -> out += PreviewInlineSegment(child.label, PreviewInlineType.FOOTNOTE_REF)
-                is Link -> appendInlineSegments(child, out, default) // render link text inline; URL ignored in preview
+                is Link -> {
+                    // Standard `[label](url)` — emit as a single LINK segment so
+                    // the renderer can decorate it (primary color + underline)
+                    // and dispatch the URL on tap via ACTION_VIEW. Inner emphasis
+                    // (`[**bold**](url)`) collapses to the link's plain text.
+                    val link = child
+                    val label = collectText(link).ifEmpty { link.destination.orEmpty() }
+                    out += PreviewInlineSegment(
+                        text = label,
+                        type = PreviewInlineType.LINK,
+                        href = link.destination
+                    )
+                }
                 is SoftLineBreak -> out += PreviewInlineSegment(" ", default)
                 is HardLineBreak -> out += PreviewInlineSegment("\n", default)
                 is TaskListItemMarker -> { /* checkbox marker styled at line level */ }
@@ -371,10 +383,12 @@ internal object CommonMarkPreviewAdapter {
         val result = mutableListOf<PreviewInlineSegment>()
         for (segment in this) {
             val last = result.lastOrNull()
-            if (last != null && last.type == segment.type) {
+            // Same type AND same href (links to different URLs must not merge).
+            if (last != null && last.type == segment.type && last.href == segment.href) {
                 result[result.lastIndex] = PreviewInlineSegment(
                     text = last.text + segment.text,
-                    type = last.type
+                    type = last.type,
+                    href = last.href
                 )
             } else {
                 result += segment

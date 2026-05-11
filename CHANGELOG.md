@@ -2,6 +2,20 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.14.0 - 각주 점프 (Footnote ref ↔ def click jump) - 2026-05-11
+
+### 새로운 기능
+- **미리보기에서 `[^N]` 위첨자를 탭하면 같은 노트의 `[^N]: …` 정의 행으로 자동 스크롤.** 각주가 많은 노트에서 본문↔정의를 손가락 한 번에 왕복할 수 있습니다. 일치하는 정의가 없으면 silent no-op (오류 다이얼로그 X).
+- 작동 방식: `MarkdownPreviewList` 가 자기 `LazyListState` 를 들고 있다가, 각주 ref 클릭 콜백을 받으면 `findFootnoteDefIndex` 로 매칭 정의의 라인 인덱스를 찾아 `animateScrollToItem` 으로 부드럽게 점프.
+- 콜아웃, 인용문 등 nested 컨텍스트의 각주 ref도 동일하게 작동.
+
+### 디자인 결정
+- 정의 → ref 역방향 점프는 v2.14.0 범위에서 *의도적으로 미포함* — 각주 def가 보통 노트 맨 아래에 모이기 때문에 보통은 정의→ref가 아니라 ref→정의 흐름이 필요. 백링크 패널처럼 더 큰 디자인이 필요하다고 판단되면 별도 cycle에서.
+- 위첨자 자체에는 underline을 *추가하지 않음* — superscript baseline shift + primary color 만으로 이미 클릭 가능 어포던스가 충분.
+
+### 검증
+- `FootnoteJumpTest` — `findFootnoteDefIndex` 의 (1) 매칭 없음 (2) 매칭 있음 (3) 중복 정의의 첫 번째 picking 동작을 단위 테스트로 잠금.
+
 ## v2.13.0 - 노트 안에서 바꾸기 (Find & Replace) - 2026-05-11
 
 ### 새로운 기능

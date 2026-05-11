@@ -14,6 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.HorizontalDivider
@@ -70,15 +73,30 @@ fun MarkdownPreviewList(
     onWikilinkClick: (String) -> Unit = {},
     onImageLongPress: (path: String, currentAlt: String) -> Unit = { _, _ -> }
 ) {
+    val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
+    // Footnote ref → def: clicking a superscript `[^N]` scrolls the matching
+    // `[^N]: …` definition row into view. If no matching def exists in the
+    // current preview, the click is a silent no-op (better than crashing or
+    // jumping to a wrong section).
+    val onFootnoteRefClick: (String) -> Unit = onFootnoteRefClick@{ label ->
+        val targetIndex = findFootnoteDefIndex(lines, label)
+        if (targetIndex < 0) return@onFootnoteRefClick
+        scope.launch {
+            listState.animateScrollToItem(targetIndex)
+        }
+    }
     LazyColumn(
         modifier = modifier.fillMaxSize(),
+        state = listState,
         contentPadding = contentPadding
     ) {
         items(lines) { line ->
             PreviewLineRenderer(
                 line = line,
                 onWikilinkClick = onWikilinkClick,
-                onImageLongPress = onImageLongPress
+                onImageLongPress = onImageLongPress,
+                onFootnoteRefClick = onFootnoteRefClick
             )
         }
     }
@@ -88,7 +106,8 @@ fun MarkdownPreviewList(
 fun PreviewLineRenderer(
     line: PreviewLine,
     onWikilinkClick: (String) -> Unit = {},
-    onImageLongPress: (path: String, currentAlt: String) -> Unit = { _, _ -> }
+    onImageLongPress: (path: String, currentAlt: String) -> Unit = { _, _ -> },
+    onFootnoteRefClick: (String) -> Unit = {}
 ) {
     when (line.type) {
         PreviewLineType.H1 -> Text(
@@ -117,14 +136,22 @@ fun PreviewLineRenderer(
         )
         PreviewLineType.CHECKBOX_TODO -> Text("☐ ${line.text}", style = MaterialTheme.typography.bodyLarge)
         PreviewLineType.CODE_BLOCK -> MarkdownCodeBlock(line.text, line.extra)
-        PreviewLineType.BODY -> InlineMarkdownText(line, onWikilinkClick = onWikilinkClick)
+        PreviewLineType.BODY -> InlineMarkdownText(
+            line = line,
+            onWikilinkClick = onWikilinkClick,
+            onFootnoteRefClick = onFootnoteRefClick
+        )
         PreviewLineType.BLOCKQUOTE -> {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)
             ) {
-                InlineMarkdownText(line, onWikilinkClick = onWikilinkClick)
+                InlineMarkdownText(
+                    line = line,
+                    onWikilinkClick = onWikilinkClick,
+                    onFootnoteRefClick = onFootnoteRefClick
+                )
                 HorizontalDivider(
                     modifier = Modifier.padding(top = 4.dp),
                     thickness = 2.dp,
@@ -132,7 +159,7 @@ fun PreviewLineRenderer(
                 )
             }
         }
-        PreviewLineType.CALLOUT -> CalloutBox(line)
+        PreviewLineType.CALLOUT -> CalloutBox(line, onFootnoteRefClick = onFootnoteRefClick)
         PreviewLineType.FRONTMATTER -> FrontmatterBlock(line.text)
         PreviewLineType.FOOTNOTE_DEF -> FootnoteDefRow(line)
         PreviewLineType.IMAGE -> AttachmentImage(line, onLongPress = onImageLongPress)
@@ -150,7 +177,11 @@ fun PreviewLineRenderer(
 }
 
 @Composable
-internal fun InlineMarkdownText(line: PreviewLine, onWikilinkClick: (String) -> Unit = {}) {
+internal fun InlineMarkdownText(
+    line: PreviewLine,
+    onWikilinkClick: (String) -> Unit = {},
+    onFootnoteRefClick: (String) -> Unit = {}
+) {
     val annotated = buildAnnotatedString {
         line.segments.forEach { segment ->
             when (segment.type) {
@@ -179,14 +210,18 @@ internal fun InlineMarkdownText(line: PreviewLine, onWikilinkClick: (String) -> 
                 ) {
                     append(segment.text)
                 }
-                PreviewInlineType.FOOTNOTE_REF -> withStyle(
-                    SpanStyle(
-                        color = MaterialTheme.colorScheme.primary,
-                        fontSize = 11.sp,
-                        baselineShift = BaselineShift.Superscript
-                    )
-                ) {
-                    append(segment.text)
+                PreviewInlineType.FOOTNOTE_REF -> {
+                    pushStringAnnotation(tag = FOOTNOTE_REF_TAG, annotation = segment.text)
+                    withStyle(
+                        SpanStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            fontSize = 11.sp,
+                            baselineShift = BaselineShift.Superscript
+                        )
+                    ) {
+                        append(segment.text)
+                    }
+                    pop()
                 }
                 PreviewInlineType.WIKILINK -> {
                     pushStringAnnotation(tag = WIKILINK_TAG, annotation = segment.text)
@@ -226,6 +261,8 @@ internal fun InlineMarkdownText(line: PreviewLine, onWikilinkClick: (String) -> 
         onClick = { offset ->
             annotated.getStringAnnotations(WIKILINK_TAG, offset, offset).firstOrNull()
                 ?.let { onWikilinkClick(it.item); return@ClickableText }
+            annotated.getStringAnnotations(FOOTNOTE_REF_TAG, offset, offset).firstOrNull()
+                ?.let { onFootnoteRefClick(it.item); return@ClickableText }
             annotated.getStringAnnotations(LINK_TAG, offset, offset).firstOrNull()
                 ?.let { ann ->
                     openExternalLink(context, ann.item)
@@ -236,6 +273,16 @@ internal fun InlineMarkdownText(line: PreviewLine, onWikilinkClick: (String) -> 
 
 private const val WIKILINK_TAG = "wikilink"
 private const val LINK_TAG = "link"
+private const val FOOTNOTE_REF_TAG = "footnote_ref"
+
+/**
+ * Returns the index of the first `FOOTNOTE_DEF` line whose label matches [label],
+ * or -1 if none. Lifted out of [MarkdownPreviewList] so it can be unit-tested.
+ */
+internal fun findFootnoteDefIndex(lines: List<PreviewLine>, label: String): Int =
+    lines.indexOfFirst { line ->
+        line.type == PreviewLineType.FOOTNOTE_DEF && line.extra == label
+    }
 
 /**
  * Launch the system browser (or whatever else handles the URI scheme) for an
@@ -262,7 +309,10 @@ private fun openExternalLink(context: android.content.Context, href: String) {
 }
 
 @Composable
-private fun CalloutBox(line: PreviewLine) {
+private fun CalloutBox(
+    line: PreviewLine,
+    onFootnoteRefClick: (String) -> Unit = {}
+) {
     val kind = CalloutKind.parse(line.extra.orEmpty())
     val visuals = calloutVisuals(kind, line.extra.orEmpty())
 
@@ -295,7 +345,8 @@ private fun CalloutBox(line: PreviewLine) {
                             text = bodyLine,
                             type = PreviewLineType.BODY,
                             segments = SimpleMarkdownPreview.parseInlineSegments(bodyLine)
-                        )
+                        ),
+                        onFootnoteRefClick = onFootnoteRefClick
                     )
                 }
             }

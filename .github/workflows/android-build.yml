@@ -223,7 +223,8 @@ jobs:
           AAB="app/build/outputs/bundle/release/app-release.aab"
           test -f "$AAB"
           test -s "$AAB"
-          ls -lh "$AAB"
+          cp "$AAB" "markleaf-${GITHUB_REF_NAME}.aab"
+          ls -lh "markleaf-${GITHUB_REF_NAME}.aab"
 
       - name: Upload signed release AAB artifact
         uses: actions/upload-artifact@v7
@@ -261,6 +262,7 @@ jobs:
         run: |
           gh release create "$GITHUB_REF_NAME" \
             "markleaf-${GITHUB_REF_NAME}.apk" \
+            "markleaf-${GITHUB_REF_NAME}.aab" \
             --repo "$GITHUB_REPOSITORY" \
             --title "$(cat release-title.txt)" \
             --notes-file release-notes.md

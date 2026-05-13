@@ -2,9 +2,9 @@
 
 ## Certification Statement
 
-**Date:** 2024  
+**Date:** 2026  
 **Application:** Markleaf Android  
-**Version:** 1.1.15+  
+**Version:** 2.14.0+  
 **Certification ID:** MARKLEAF-NC-2024-001
 
 ---
@@ -76,10 +76,6 @@ User Export ← File System ← Explicit User Action
 
 | Permission | Purpose | Cloud-Related? |
 |------------|---------|----------------|
-| `POST_NOTIFICATIONS` | Local notifications only | No |
-| `READ_EXTERNAL_STORAGE` | Image attachments (user-selected) | No |
-| `READ_MEDIA_IMAGES` | Image picker functionality | No |
-| `READ_MEDIA_VIDEO` | Video attachments | No |
 | `VIBRATE` | Haptic feedback | No |
 
 ### Notable Absences
@@ -88,6 +84,10 @@ The following permissions are **NOT** declared:
 - `INTERNET` - No network access
 - `ACCESS_NETWORK_STATE` - No network monitoring
 - `ACCESS_WIFI_STATE` - No WiFi state checking
+- `POST_NOTIFICATIONS` - No notifications
+- `READ_EXTERNAL_STORAGE` - Replaced by SAF
+- `READ_MEDIA_IMAGES` - Replaced by SAF
+- `READ_MEDIA_VIDEO` - Not needed
 
 ---
 
@@ -160,7 +160,7 @@ All dependencies verified as:
 ## Certification Validity
 
 This certification is valid for:
-- **Markleaf Android version 1.1.15 and above**
+- **Markleaf Android version 2.14.0 and above**
 - **All builds from the official repository**
 - **F-Droid builds**
 
@@ -185,7 +185,7 @@ For verification of this certification:
 Markleaf Android meets all criteria for **No-Cloud Certification**. The application demonstrates a commitment to user privacy through its local-first architecture, absence of network dependencies, and transparent open-source development model.
 
 **Certified By:** Markleaf Development Team  
-**Date of Issue:** 2024-05-04  
+**Date of Issue:** 2026-05-13  
 **Valid Until:** Next major version release (requires re-certification)
 
 ---

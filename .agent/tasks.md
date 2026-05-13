@@ -141,6 +141,31 @@ SimpleMarkdownPreview.kt LOC: 178 → ~210 (한계 ~300 안에 안전).
 - 앱 시작 시 자동 reconcile — silent overwrite 회피
 - 충돌 시 양 버전 보존 UI
 
+---
+
+## Phase 21 - GitHub Open Issues (Backlog)
+
+GitHub에 열려 있는 이슈를 기준으로 한 미구현 작업 목록.
+각 항목의 상세 스펙은 `docs/ISSUE_BACKLOG_DETAIL.md` 를 참조.
+
+### 완료되었으나 GitHub에서 Open 상태인 항목 (Close 필요)
+- [x] [#27] 예측 뒤로 가기 제스처 — v1.5.0에서 `<application android:enableOnBackInvokedCallback="true">` 등록 완료
+- [x] [#65] SQLite FTS5 통합 검색 — v0.3.0에서 FTS4/FTS5 도입 완료, Phase 8에서 검증 완료
+- [x] [#76] WCAG 기준 접근성 최적화 — v1.7.0에서 TalkBack/contentDescription, 터치 타겟, 색상 대비 모두 검증 완료
+
+### 보류 (외부 조건 필요)
+- [ ] [#51] 다국어 지원 확대 (JP, FR, DE) — native 화자 부재로 v1.7.0에서 보류. ResourceParityTest 인프라 작동 중.
+- [ ] [#53] 스토어 스크린샷 리디자인 — 코드 외 작업. Play Console 등록 시점에 맞춰 진행.
+- [ ] [#54] 전문 브랜드 피처 그래픽 업데이트 — 코드 외 작업. Play Store 등록 시점에 맞춰 진행.
+
+### 신규 기능 (미구현)
+- [ ] [#37] 생체 인식(지문/안면) 앱 잠금 — BiometricPrompt 기반 잠금/해제 흐름
+- [ ] [#38] 고품질 PDF 내보내기 — PDF 렌더링 파이프라인 및 폰트/레이아웃 유지
+- [ ] [#39] 홈 화면 위젯 (최근 노트, 빠른 작성) — AppWidgetProvider로 최근 노트/빠른 작성 액션 제공
+- [ ] [#52] 전략적 인앱 리뷰 요청 UI — 사용 패턴 기반 리뷰 요청 조건과 UI
+- [ ] [#55] 오픈소스 투명성 강조 — 설정 화면에 GitHub 링크 및 라이선스 고지 강화
+- [ ] [#57] 인터랙티브 온보딩 가이드 — 단계별 오버레이/튜토리얼 플로우
+
 ## Phase 19 - Inline Rich Rendering (Done, 2026-05-08, v2.0.0)
 
 목적: Bear의 핵심 체감 차이(헤딩이 입력 즉시 *진짜로* 커지고, 굵게가 진짜로 굵어지는 라이브 프리뷰)를 Compose VisualTransformation으로 구현. 가치관 점검에서 사용자가 명시한 갈증의 직접 응답.

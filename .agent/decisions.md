@@ -355,15 +355,15 @@ Implications:
 
 ---
 
-## Pending Decisions
+## Resolved (Pending → Confirmed)
 
-- Hilt vs Koin vs manual dependency wiring
-- Minimum SDK final value
-- Markdown preview library 사용 여부
-- SQLite FTS 도입 시점
-- 이미지 첨부 지원 여부
-- tablet two-pane layout 도입 시점
-- Play Store와 F-Droid flavor 분리 필요 여부
+- **Hilt vs Koin vs manual DI**: 수동 의존성 주입 사용. 코드베이스 단순성 유지.
+- **Minimum SDK**: API 26 (Android 8.0).
+- **Markdown preview library**: commonmark-java 0.24.0 도입 완료 (v2.3.0). CommonMark 0.30 + GFM 확장.
+- **SQLite FTS 도입 시점**: FTS4/FTS5 도입 완료 (v0.3.0, 검증은 Phase 8).
+- **이미지 첨부 지원 여부**: Coil 기반 이미지 첨부 부활 (v2.5.0). SAF로 권한 없이 동작.
+- **tablet two-pane layout 도입 시점**: 2-Pane 레이아웃 도입 완료 (v1.0.x).
+- **Play Store / F-Droid flavor 분리**: 단일 flavor로 양쪽 대응. F-Droid 호환 의존성 정책 유지.
 
 ### D006 - Documentation Baseline Integration
 

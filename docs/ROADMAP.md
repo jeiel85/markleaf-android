@@ -162,42 +162,52 @@ Markleaf는 기능 수보다 빠른 글쓰기 경험, 디자인, 로컬 저장, 
 
 ---
 
-## Later
+## v2.x — Bear-class 확장 (완료)
 
-나중에 검토할 항목:
+v2.0–v2.14에서 Bear급 경험을 위한 다음 항목들을 완료했습니다:
 
-- Markdown preview renderer
-- SQLite FTS
-- Image attachments
-- `[[note links]]`
-- Tablet two-pane layout
-- Optional backup
-- WebDAV sync
-- Google Drive backup
-- F-Droid flavor
-- Play Store flavor
-
-네트워크 기능은 반드시 별도 설계 검토 후 결정한다.
+- [x] Bear-class 라이브 프리뷰 (Inline Rich Rendering, v2.0)
+- [x] SAF 폴더 미러 다중 기기 동기화 (v2.1)
+- [x] Macrobenchmark 성능 측정 인프라 (v2.2)
+- [x] CommonMark 표준 파서 도입 (v2.3)
+- [x] `[[Title]]` 위키링크 + 백링크 부활 (v2.4)
+- [x] 이미지 첨부 부활 (v2.5)
+- [x] 테마 선택 (Markleaf 그린 / Material You, v2.5.1)
+- [x] 태블릿 UX 다듬기 (v2.5.2)
+- [x] 문서 정리 (v2.5.3)
+- [x] 동기화 완성 — 영구 삭제 연동, 첨부 파일 동기화 (v2.6)
+- [x] 위키링크 자동완성 (v2.7)
+- [x] 이미지 alt 편집 다이얼로그 (v2.8)
+- [x] 동기화 충돌 시 사본 보존 (v2.9)
+- [x] 표준 마크다운 링크 클릭 동작 (v2.9.2)
+- [x] 코드 블록 syntax highlighting (v2.10)
+- [x] GFM 테이블 부활 (v2.11)
+- [x] 빠른 이동 (Quick switcher / Ctrl+K, v2.12)
+- [x] 노트 안에서 찾기/바꾸기 (v2.13)
+- [x] 각주 ref ↔ def 클릭 점프 (v2.14)
 
 ---
 
-## Phase 9 - Bear-Class Product Polish
+## GitHub Open Issues — 향후 작업
 
-목표:
+현재 GitHub에 열려 있는 이슈 기반 우선순위. 상세 스펙은 `docs/ISSUE_BACKLOG_DETAIL.md` 참조.
 
-- Android에서 Bear급으로 느껴지는 로컬 Markdown 글쓰기 경험을 만든다.
-- 기능적 유사성은 허용하되, 이름, 아이콘, 색상, 화면 구성, 문구, 브랜딩은 복제하지 않는다.
-- MVP의 no-INTERNET, no-API, no-login, no-analytics 원칙은 유지한다.
+### 완료 (GitHub Close 필요)
+- [#27] 예측 뒤로 가기 제스처 — v1.5.0 완료
+- [#65] SQLite FTS5 통합 검색 — v0.3.0 완료
+- [#76] WCAG 접근성 최적화 — v1.7.0 완료
 
-작업:
+### 보류
+- [#51] 다국어 지원 확대 (JP/FR/DE) — native 화자 검증 필요
+- [#53] 스토어 스크린샷 리디자인 — Play Console 등록 시점
+- [#54] 전문 브랜드 피처 그래픽 업데이트 — Play Store 등록 시점
 
-- 첫 실행 샘플 노트 온보딩
-- Markdown 편집 툴바 개선
-- 노트 목록과 편집기 빈 상태 개선
-- 노트, 태그, 링크를 빠르게 찾는 quick-open 검색
-- 태그 화면의 카운트와 탐색 개선
-- 백링크 문맥 표시 개선
-- 백업/내보내기 상태 메시지 개선
-- 대량 노트 성능 점검
+### 계획
+- [#37] 생체 인식 앱 잠금
+- [#38] 고품질 PDF 내보내기
+- [#39] 홈 화면 위젯
+- [#52] 전략적 인앱 리뷰 요청 UI
+- [#55] 오픈소스 투명성 강조
+- [#57] 인터랙티브 온보딩 가이드
 
-상세 평가는 `docs/BEAR_BENCHMARK_GAP.md`에 기록한다.
+모든 작업은 §2 로컬 우선 / 개인정보 보호 원칙을 유지하며, `android.permission.INTERNET`을 추가하지 않는다.

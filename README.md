@@ -22,7 +22,7 @@
 
 **Markleaf**는 군더더기를 덜어내고 오직 '기록'과 '정리'에만 집중할 수 있도록 설계된 Android Markdown 메모 앱입니다. 당신의 데이터는 오직 당신의 기기에만 저장되며, 표준 Markdown 형식을 사용하여 데이터의 소유권과 이식성을 완벽히 보장합니다. 동기화도 *당신이 선택한 폴더* 를 통해서만 일어납니다 — Markleaf 자체는 인터넷에 나가지 않습니다.
 
-[**브랜딩 페이지 보기**](https://jeiel85.github.io/markleaf-android/) · [현재 버전: v2.14.0](https://github.com/jeiel85/markleaf-android/releases) · Google Play 비공개 테스트 진행 중
+[**브랜딩 페이지 보기**](https://jeiel85.github.io/markleaf-android/) · [현재 버전: v2.14.0](https://github.com/jeiel85/markleaf-android/releases) · [Google Play (비공개 테스트)](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -100,8 +100,8 @@ com.markleaf.notes
 ## 🚀 시작하기
 
 ### 설치 방법
-1. [Releases](https://github.com/jeiel85/markleaf-android/releases) 페이지에서 최신 버전의 APK를 다운로드합니다.
-2. Android 기기에서 APK를 실행하여 설치합니다.
+- **Google Play (비공개 테스트)**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — 테스터로 등록된 계정으로 접속해야 보입니다.
+- **APK 직접 설치**: [Releases](https://github.com/jeiel85/markleaf-android/releases) 페이지에서 최신 버전의 APK를 다운로드한 뒤 Android 기기에서 실행해 설치합니다.
 
 ### 개발 환경 구축
 직접 빌드하거나 기여하고 싶다면 다음 과정을 따르세요.

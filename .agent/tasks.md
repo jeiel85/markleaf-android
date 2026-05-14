@@ -177,7 +177,7 @@ P0 - 정식 출시 전 필수:
 - [x] [Commercial P0-1] Android Backup / Data Extraction 정책 확정 — `android:allowBackup="false"`로 Android Auto Backup / D2D transfer 모두에서 Markleaf 데이터 제외. `dataExtractionRules`는 *전체 제외* 케이스에 과한 표면적이라 미도입(D046). Privacy/Security/NoCloud/README 모두 v2.x 기준으로 갱신.
 - [x] [Commercial P0-2] Release hardening — R8 + resource shrink 활성화(`isMinifyEnabled=true`, `isShrinkResources=true`, minimal `proguard-rules.pro`); `lintRelease` + `assembleRelease` CI hard gate; tag 릴리즈에 `mapping.txt` 자산 첨부(D047). APK 12 MB → 1.7 MB. release-APK runtime smoke 는 후속 사이클.
 - [ ] [Commercial P0-3] Room schema export + migration regression test — `exportSchema=true`, schema JSON 커밋, v4→v12 주요 migration 검증
-- [ ] [Commercial P0-4] Privacy / Security 문서 현재화 — MVP draft 문구 제거, v2.x 이미지/SAF sync/share/external link 동작까지 반영
+- [x] [Commercial P0-4] Privacy / Security 문서 현재화 — P0-1 작업에서 `docs/PRIVACY.md`(MVP draft 폐기), `docs/SECURITY.md`, `docs/NOCLOUD_CERTIFICATION.md`, `README.md` 모두 v2.x 기준으로 재작성. 이미지/SAF sync/share/external link 동작 정확히 구분(D046). 잔존 "MVP draft" 문구는 검증 결과 없음.
 
 P1 - 상용 신뢰도 강화:
 - [ ] [Commercial P1-1] 이미지 첨부 EXIF 제거 — 첨부 저장 시 위치/기기 메타데이터 제거 및 테스트 추가

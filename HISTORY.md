@@ -1,3 +1,29 @@
+## 2026-05-14 - v2.15.0 cut (Commercial P0-1/P0-2/P0-4 묶음 출시)
+
+- Selected task: v2.15.0 chore 출시 — Phase 22 P0-1 (backup 정책) / P0-2 (R8 + CI gates) / P0-4 (privacy 문서 v2.x화) 세 작업을 한 chore 릴리즈로 묶음. 신기능 0.
+- Work:
+  - `app/build.gradle.kts` — versionCode 84 → 85, versionName 2.14.0 → 2.15.0.
+  - `CHANGELOG.md` — 기존 두 "## Unreleased" 섹션을 단일 `## v2.15.0 - Play 정식 출시 준비: 자동 백업 제외 + 빌드 최적화 - 2026-05-14` 로 통합. Tag 릴리즈 자동화가 `## v<버전> - ...` 헤더에서 release-notes 본문을 awk 로 잘라 GitHub Release notes 로 사용하므로 헤더 포맷 유지.
+  - `fastlane/metadata/android/ko-KR/changelogs/85.txt` (NEW, 261자) + `fastlane/metadata/android/en-US/changelogs/85.txt` (NEW, 398자) — Play Console "What's new" 입력용 로컬라이즈 릴리즈 노트. 둘 다 500자 제한 안. 사용자가 Play Console 업로드 시 그대로 복사하거나 fastlane supply 로 자동 동기화 가능.
+  - `README.md` 현재 버전 배지를 v2.14.0 → v2.15.0.
+  - `docs/NOCLOUD_CERTIFICATION.md` 버전 라인 2.14.0+ → 2.15.0+.
+  - `.gitignore` — `/dist/` 추가 (로컬 staging 디렉터리; CI가 tag push 시 동일 산출물 생성).
+  - `.agent/tasks.md` — Commercial P0-4 체크 (P0-1 작업으로 docs 모두 v2.x 화 + "MVP draft" 잔존 0 확인).
+  - 로컬 서명 AAB/APK/mapping.txt 생성 후 `dist/v2.15.0/markleaf-v2.15.0.{aab,apk,mapping.txt}` 로 스테이징 (gitignored). 사용자가 Play Console 비공개 테스트에 그대로 업로드 가능.
+- Context:
+  - v2.14.0(84) 가 비공개 테스트에 올라가 있는 상태. v2.15.0(85) 는 그 위에 R8 + backup 정책 + 문서 정밀화를 얹는 chore. *신기능 0* 인 만큼 closed test 사용자의 회귀 검증 부담이 작고, R8-shrunk APK 의 첫 실기기 smoke 로서 적절한 step.
+  - 릴리즈 노트의 사용자 가시 변화는 두 가지 (자동 백업 제외 + 앱 크기 감소). 나머지(CI gate, proguard 규칙, lint 픽스) 는 개발자/기술 변화라 Play Console 노트에는 포함하지 않음.
+- Verification:
+  - `./gradlew :app:test` → BUILD SUCCESSFUL
+  - `./gradlew :app:lintRelease` → BUILD SUCCESSFUL
+  - `./gradlew :app:assembleRelease` → signed APK 1.7 MB. apksigner 검증 결과 SHA-256 = `0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a` 로 production cert 일치.
+  - `./gradlew :app:bundleRelease` → signed AAB 4.0 MB.
+  - `rg "android.permission.INTERNET" -n app/src` → no matches.
+- Follow-up:
+  - Tag `v2.15.0` push → CI 가 동일 산출물 + mapping 을 GitHub Release 자산으로 생성 → 사용자 비공개 테스트 업로드.
+  - 비공개 테스트 실기기에서 Compose 라이브 프리뷰 / Room SQL / Coil 이미지 / commonmark 렌더 / SAF 폴더 미러 / 시스템 공유 시트 / FileProvider 공유 / AppWidget 흐름 manual smoke. R8 가 무언가를 strip 했으면 ANR / NoClassDefFoundError 로 표면화.
+  - 다음 사이클: Phase 22 Commercial P0-3 (Room schema export + migration regression test).
+
 ## 2026-05-14 - Commercial P0-2: Release Hardening (R8 + CI gates)
 
 - Selected task: `[Commercial P0-2] Release hardening` — Phase 22 의 다음 unchecked 항목.

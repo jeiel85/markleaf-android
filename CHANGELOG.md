@@ -2,60 +2,55 @@
 
 All notable changes to Markleaf are documented in this file.
 
-## Unreleased - Release Hardening: R8 + Resource Shrink + CI Gates - 2026-05-14
+## v2.15.0 - Play 정식 출시 준비: 자동 백업 제외 + 빌드 최적화 - 2026-05-14
 
-### 빌드 정책 변경
+상용 출시 게이트(Phase 22 Commercial P0-1 / P0-2 / P0-4)를 한 번에 닫는 chore 릴리즈. 사용자 입장에서 보이는 변화는 두 가지:
+
+1. **Markleaf 데이터가 Android 자동 백업 / 기기 간 전송에서 제외됩니다.** 새 기기로 옮기려면 직접 `.md` 내보내기 / 공유 시트 / SAF 폴더 미러 중 하나를 사용해야 합니다.
+2. **앱 크기가 ~12 MB → ~1.7 MB 로 줄었습니다** (R8 + 리소스 슈링킹).
+
+신기능 추가 없음. v2.14.x 사용자가 *손에 잡힐 만큼* 체감할 변화는 다운로드 크기와 시스템 백업 동작뿐입니다.
+
+### 정책 변경 — Android Auto Backup 제외 (Commercial P0-1, D046)
+- **`AndroidManifest.xml` 의 `<application>` 요소에 `android:allowBackup="false"`.** Android 6+ 의 Google 드라이브 Auto Backup 과 Android 12+ 의 Device-to-Device transfer 모두에서 Markleaf 노트/태그/첨부/설정이 제외됩니다.
+- **사용자 영향:** Markleaf 데이터를 새 기기로 옮기려면 명시적인 경로(Markdown export, 시스템 공유 시트, SAF 폴더 미러) 를 직접 사용. OS 차원의 보이지 않는 클라우드 백업이 "사용자가 직접 export/share 하기 전까지 데이터가 기기 밖으로 나가지 않는다" 약속과 충돌하지 않도록 보수적 기본값.
+- `dataExtractionRules` 미도입 — 전체 제외 케이스에는 `allowBackup="false"` 가 더 단순/명시적. minSdk=26 환경에서 legacy + new 메커니즘을 동시에 관리하는 표면적 회피.
+- 벤치마크 변형의 `tools:replace="android:allowBackup"` 오버라이드 제거 — main manifest 의 `false` 값을 상속.
+
+### 빌드 최적화 — R8 + Resource Shrink (Commercial P0-2, D047)
 - **R8 활성화 + 리소스 슈링킹.** `release` 빌드 타입에 `isMinifyEnabled = true` + `isShrinkResources = true` 적용. AGP의 `proguard-android-optimize.txt` 와 함께 minimal `app/proguard-rules.pro` 사용.
-  - 결과: 미서명 release APK 크기 약 12 MB → 1.7 MB (87% 감소), AAB 4.0 MB. 단일 dex 파일.
-  - R8 매핑 파일(`mapping.txt`) 은 PR/main CI 산출물 + tag 릴리즈 자산(`markleaf-vX.Y.Z.mapping.txt`) 양쪽에 첨부되어 운영 환경 크래시 deobfuscation 가능.
-- **`app/proguard-rules.pro` 신규.** Room entity 클래스/멤버, `AppSettings`, `SyncFrontmatter`/`NoteFolderMirror`, `QuickNoteWidget`, kotlinx.coroutines volatile 필드 keep. `android.util.Log.d/v/i` 는 release 빌드에서 R8 가 fold. 각 keep rule 에 *왜 필요한지* 주석.
-- **벤치마크 변형도 R8 상속.** `benchmark { initWith(release) }` 가 minify/shrink 도 함께 상속 → Macrobenchmark 가 더 release-like 한 APK 를 측정.
+  - 결과: 서명된 release APK ~1.7 MB (이전 ~12 MB 대비 87% 감소), AAB ~4.0 MB. 단일 dex.
+- **`app/proguard-rules.pro` 신규.** Room entity 클래스/멤버, `AppSettings`, `SyncFrontmatter`/`NoteFolderMirror`, `QuickNoteWidget`, kotlinx.coroutines volatile 필드 keep. `android.util.Log.{d,v,i}` 는 release 에서 R8 가 fold. 각 keep rule 에 *왜* 주석 — 미래에 의존성 업그레이드로 coupling 이 사라지면 제거 가능.
+- **벤치마크 변형도 R8 상속.** `benchmark { initWith(release) }` 가 minify/shrink 도 상속 → Macrobenchmark 가 더 release-like 한 APK 측정.
 
-### CI 게이트 강화
-- 모든 push/PR 빌드 잡에 새 hard-fail 게이트 추가:
-  - `./gradlew :app:lintRelease` — release variant 에서 Error 등급 lint 이슈가 하나라도 있으면 빌드 실패. 실패 시 `lint-results-release.html` 을 artifact 로 업로드.
-  - `./gradlew :app:assembleRelease` — R8 가 실제로 valid APK 를 만들어내는지 매 빌드마다 검증. APK 존재 + 크기 > 0 확인.
-  - `mapping.txt` 를 `markleaf-r8-mapping` artifact 로 매 빌드 업로드.
-- Tag 릴리즈 잡은 기존 APK + AAB 외에 `markleaf-vX.Y.Z.mapping.txt` 도 GitHub Release 자산으로 함께 첨부.
-- `launch-smoke` 는 기존대로 debug APK + `continue-on-error: true` 유지. release-APK 런타임 smoke 는 후속 사이클.
+### CI 게이트 강화 (Commercial P0-2)
+- 모든 push/PR 빌드 잡에 새 hard-fail 게이트:
+  - `./gradlew :app:lintRelease` — release variant 에서 Error 등급 lint 이슈가 하나라도 있으면 빌드 실패. 실패 시 `lint-results-release.html` artifact 업로드.
+  - `./gradlew :app:assembleRelease` — R8 가 valid APK 를 만들어내는지 매 빌드 검증. APK 존재 + 크기 > 0 확인.
+  - `mapping.txt` 를 `markleaf-r8-mapping` artifact 로 업로드.
+- Tag 릴리즈 잡에 `markleaf-vX.Y.Z.mapping.txt` 추가 — 운영 환경 크래시 deobfuscation 가능.
+- `launch-smoke` 는 기존대로 debug APK + `continue-on-error: true` 유지.
+
+### 문서 정밀화 (Commercial P0-4)
+- **`docs/PRIVACY.md`** — MVP draft 폐기. v2.x 기능(이미지 첨부, SAF 폴더 미러, 외부 링크 열기, 공유) 기준으로 *Markleaf 자체에는 INTERNET 권한이 없다* 와 *사용자가 명시적으로 선택한 OS 경로로 데이터가 이동할 수 있다* 를 구분.
+- **`docs/SECURITY.md`** — v2.x 기준 보호 범위 + `allowBackup="false"` 결정 근거 + 외부 링크 `ACTION_VIEW` 위임 포함 사용자 주도 이동 경로.
+- **`docs/NOCLOUD_CERTIFICATION.md`** — 시스템 백업 제외 섹션 신설. *What Can Leave the Device* 를 명시적 사용자 행동 기준으로 재서술.
+- **`README.md`** — "100% No-Cloud" 카피를 "Markleaf 자체는 네트워크에 나가지 않음 + 사용자 선택 경로로만 이동" 정밀 표현으로 교체.
+- **`docs/RELEASE.md`** — R8/mapping/CI gate 섹션 추가. R8 strip 대응 원칙(`-keep` 추가, R8 비활성화 금지) 명시.
 
 ### 테스트 픽스
-- `EditorLiveSnapshotTest.kt` — `remember(scheme) { MarkdownSyntaxVisualTransformation(...) }` 호출에 대한 lint 의 `RememberReturnType` false positive 를 `@Suppress` 로 정확히 한 줄에만 침묵. (lint 가 test 소스 셋 경계 너머의 생성자 반환 타입 분석을 못 하는 알려진 케이스.)
-
-### 문서
-- `docs/RELEASE.md` 에 R8/mapping/CI gate 섹션 추가. 매핑 파일 보관 정책과 R8 strip 대응 원칙(`-keep` 추가, R8 끄지 않음) 명시.
-- `.agent/decisions.md` 에 D047 — R8 enablement + minimal proguard 정책 + mapping artifact 결정 기록.
+- `EditorLiveSnapshotTest.kt` — `remember(scheme) { MarkdownSyntaxVisualTransformation(...) }` 호출의 lint `RememberReturnType` false positive 를 `@Suppress` 로 한 줄에만 침묵 (lint 가 test 소스 셋 경계 너머 생성자 반환 타입을 해석 못 하는 알려진 케이스).
 
 ### 검증
-- `./gradlew :app:test` → BUILD SUCCESSFUL (debug + release unit test 모두 통과)
-- `./gradlew :app:lintRelease` → BUILD SUCCESSFUL (warning만 남고 error 0)
-- `./gradlew :app:assembleRelease` → 1.7 MB APK + `mapping.txt` 생성
+- `./gradlew :app:test` → BUILD SUCCESSFUL (debug + release unit test 모두)
+- `./gradlew :app:lintRelease` → BUILD SUCCESSFUL (warning만, error 0)
+- `./gradlew :app:assembleRelease` → 1.7 MB APK + 32 MB mapping.txt
 - `./gradlew :app:bundleRelease` → 4.0 MB AAB
+- `rg "android.permission.INTERNET" -n app/src` → no matches (정책 유지)
 
 ### 알려진 후속 작업
-- R8-shrunk APK 의 emulator/실기기 런타임 smoke test 는 별도 사이클 (Phase 22 follow-up).
-- Compose, Room, Coil, commonmark, DocumentFile, FileProvider, AppWidget, ActivityResult 흐름의 실기기 smoke 는 정식 출시 전 수동 실행 필요.
-
-## Unreleased - Backup / Data Extraction 정책 확정 - 2026-05-14
-
-### 정책 변경
-- **Android 자동 백업 / 기기 간 전송에서 Markleaf 데이터 제외.** `AndroidManifest.xml` 의 `<application>` 요소에 `android:allowBackup="false"` 를 설정. Android 6+ 의 Google 드라이브 Auto Backup 과 Android 12+ 의 Device-to-Device transfer 모두에서 Markleaf 노트/태그/첨부/설정이 제외됩니다.
-- **사용자 영향:** Markleaf 데이터를 새 기기로 옮기려면 명시적인 경로(Markdown export, 시스템 공유 시트, 또는 SAF 폴더 미러 동기화) 를 직접 사용해야 합니다. OS 차원의 보이지 않는 클라우드 백업이 동기화 약속과 충돌하지 않도록 보수적 기본값을 택했습니다.
-- 벤치마크 변형의 `tools:replace="android:allowBackup"` 오버라이드 제거 — main manifest 의 `false` 값을 그대로 상속합니다.
-
-### 문서 갱신 (v2.x 실제 동작 반영)
-- `docs/PRIVACY.md` — MVP draft 문구 폐기. 현재 v2.x 기능(이미지 첨부, SAF 폴더 미러, 외부 링크 열기, 공유) 기준으로 "Markleaf 자체에는 INTERNET 권한이 없다" 와 "사용자가 명시적으로 선택한 OS 경로로 데이터가 이동할 수 있다" 를 구분해 정리.
-- `docs/SECURITY.md` — v2.x 기준 보호 범위와 `allowBackup="false"` 결정 근거, `dataExtractionRules` 미선택 사유 추가.
-- `docs/NOCLOUD_CERTIFICATION.md` — 시스템 백업 제외 섹션 신설, "What Can Leave the Device" 를 *명시적 사용자 행동* 기준으로 재서술.
-- `README.md` — "100% No-Cloud" 문구를 "Markleaf 자체는 네트워크에 나가지 않음 + 사용자 선택 경로로만 이동" 정밀 표현으로 교체.
-
-### 결정 근거
-- `dataExtractionRules` 대신 `allowBackup="false"` 를 택한 이유는 `.agent/decisions.md` 참조. 요약: 제외 범위가 *전체* 라면 `allowBackup="false"` 가 더 단순/명시적이고 minSdk=26 의 두 메커니즘 동시 관리 비용을 회피할 수 있다.
-
-### 검증
-- `./gradlew test`, `./gradlew assembleDebug`
-- `rg "android.permission.INTERNET" -n app/src` → 결과 없음 유지
-- `rg "allowBackup|dataExtractionRules" -n app/src/main` → main manifest 의 `allowBackup="false"` 단일 매치
+- v2.15.0 가 closed test 에 올라가는 것이 R8-shrunk APK 의 첫 실기기 smoke. Compose, Room, Coil, commonmark, SAF, FileProvider, AppWidget, ActivityResult 흐름의 *manual* 실기기 smoke 는 정식 공개 출시 전 수동 수행.
+- Commercial P0-3 (Room schema export + migration regression test) 는 별도 cycle.
 
 ## v2.14.0 - 각주 점프 (Footnote ref ↔ def click jump) - 2026-05-11
 

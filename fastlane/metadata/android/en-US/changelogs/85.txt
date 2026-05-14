@@ -1,0 +1,5 @@
+A release-hardening chore update. No new features; two user-visible changes:
+
+• Markleaf data is excluded from Android Auto Backup and Device-to-Device transfer. To move notes to a new device, use one of the explicit paths: export to .md, share via the system share sheet, or point the SAF folder mirror at a folder synced by your chosen app.
+
+• Smaller install: APK shrunk from ~12 MB to ~1.7 MB.

@@ -7,6 +7,36 @@
 
 ## Confirmed Decisions
 
+### D047 - Release Builds Use R8 + Resource Shrinking With A Minimal proguard-rules.pro
+
+Markleaf release builds run R8 with `isMinifyEnabled = true` and `isShrinkResources = true`. Custom keep rules live in `app/proguard-rules.pro` alongside the AGP-supplied `proguard-android-optimize.txt`. The R8 mapping file is attached to every CI build as an artifact and to every tag release as a downloadable asset (`markleaf-vX.Y.Z.mapping.txt`).
+
+Why now:
+
+- Phase 22 commercial readiness requires that the release build pass through a production gate rather than ship as a debug-quality APK. R8 catches a class of bugs (unused-code paths that survive minification, reflection couplings that need an explicit keep rule, lint Errors that only matter in release) that the debug-only CI never exercised.
+- The size win is significant — APK 12 MB → 1.7 MB, AAB 4.0 MB — but the more important benefit is that we now have a real production gate.
+
+Why a minimal proguard-rules.pro:
+
+- AGP's default `proguard-android-optimize.txt` plus the consumer ProGuard rules shipped with Compose, Room, DataStore, Coil, kotlinx.coroutines, and commonmark-java already cover almost all of Markleaf's surface. Adding broad `-keep class **` style rules would defeat the purpose of R8.
+- The only rules we add are ones that document an undocumented coupling: Room entity field names (used by generated SQL + the SAF folder mirror frontmatter codec), `AppSettings` (legible in user-supplied stack traces), `SyncFrontmatter` / `NoteFolderMirror` (debugging round-trip of user-supplied `.md` files), `QuickNoteWidget` (manifest entry redundancy), kotlinx.coroutines volatile fields, and `assumenosideeffects` for `android.util.Log` calls.
+- Every rule has a comment explaining *why* it exists, so a future maintainer can remove rules whose underlying coupling has gone away.
+
+Mapping artifact:
+
+- The R8 mapping file is uploaded as `markleaf-r8-mapping` on every CI build for short-term debugging, and as `markleaf-vX.Y.Z.mapping.txt` attached to the GitHub Release for long-term archival.
+- This lets Play Console crash reports and any external bug report referencing a stack trace be deobfuscated against the exact mapping that shipped.
+
+CI gates added:
+
+- `./gradlew :app:lintRelease` runs on every push/PR; failure uploads `lint-results-release.html` for triage.
+- `./gradlew :app:assembleRelease` runs on every push/PR and verifies the APK exists and is non-empty. This is a hard gate so R8 regressions cannot land on `main` undetected.
+- The `launch-smoke` job stays `continue-on-error: true` against the debug APK — its emulator-flakiness predates this change and is out of scope here. A release-APK runtime smoke (against the R8-shrunk + debug-signed `benchmark` variant) is a planned follow-up.
+
+Implications when R8 strips something at runtime:
+
+- The fix is always to add a precise `-keep` rule in `app/proguard-rules.pro` with a comment explaining the coupling. Disabling R8 entirely or adding overly broad keep rules is not acceptable.
+
 ### D046 - Disable Android Auto Backup Entirely Via allowBackup="false"
 
 Markleaf excludes its app data from Android Auto Backup and Device-to-Device transfer by setting `android:allowBackup="false"` on the `<application>` element of the main `AndroidManifest.xml`. No `android:dataExtractionRules` resource is introduced.

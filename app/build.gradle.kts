@@ -79,7 +79,15 @@ android {
 
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            // R8 + resource shrinking are required for the Play / production
+            // gate. ProGuard rules live in `proguard-rules.pro`; keep that
+            // file minimal and document why each rule exists.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
             if (hasReleaseSigningConfig) {
                 signingConfig = signingConfigs.getByName("release")
             }

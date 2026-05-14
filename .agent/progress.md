@@ -1,4 +1,32 @@
 ---
+## 2026-05-14 - Phase 22 / Commercial P0-2 (Release hardening: R8 + CI gates)
+
+Selected task:
+- `[Commercial P0-2] Release hardening` — Phase 22 의 다음 unchecked.
+
+Decision:
+- R8 + resource shrink 활성화 (D047). `proguard-rules.pro` 는 최소 keep rule + 주석. `mapping.txt` 는 CI artifact + tag release 자산 양쪽에 첨부.
+
+What was implemented:
+- `app/build.gradle.kts` release 블록 — `isMinifyEnabled = true`, `isShrinkResources = true`, `proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")`. 벤치마크 변형은 `initWith(release)` 로 자동 상속.
+- `app/proguard-rules.pro` 신규 — Room entity (FTS + frontmatter codec 가 field name 사용), `AppSettings` (stack trace 가독성), `SyncFrontmatter` / `NoteFolderMirror` (debug 가능성), `QuickNoteWidget` (manifest 중복 keep), kotlinx.coroutines volatile, `android.util.Log.{d,v,i}` assumenosideeffects. 각 rule 에 *왜* 주석.
+- `.github/workflows/android-build.yml` build job — `./gradlew :app:lintRelease` (failure 시 HTML 리포트 artifact 업로드), `./gradlew :app:assembleRelease` (APK 존재/크기 확인), `mapping.txt` 를 `markleaf-r8-mapping` artifact 업로드. release job 에는 `markleaf-vX.Y.Z.mapping.txt` 를 GitHub Release 자산으로 첨부.
+- `app/src/test/java/com/markleaf/notes/core/markdown/preview/EditorLiveSnapshotTest.kt` — `remember(scheme) { MarkdownSyntaxVisualTransformation(...) }` 에 `@Suppress("RememberReturnType")` (lint false positive 한 줄에만).
+- `docs/RELEASE.md` — R8 / mapping / CI gate 섹션 추가. R8 strip 대응은 `-keep` 추가, R8 비활성화 금지 원칙 명시.
+- `.agent/decisions.md` D047, `.agent/tasks.md` 체크, CHANGELOG / HISTORY 갱신.
+
+Build/test result:
+- `./gradlew :app:test` → BUILD SUCCESSFUL (debug + release unit test 모두)
+- `./gradlew :app:lintRelease` → BUILD SUCCESSFUL (warning만, error 0)
+- `./gradlew :app:assembleRelease` → BUILD SUCCESSFUL, `app/build/outputs/apk/release/app-release.apk` 1.7 MB (R8 비활성 baseline 대비 ~12 MB → ~1.7 MB, 87% 감소)
+- `./gradlew :app:bundleRelease` → BUILD SUCCESSFUL, `app/build/outputs/bundle/release/app-release.aab` 4.0 MB
+- `app/build/outputs/mapping/release/mapping.txt` 32 MB 생성
+
+Notes:
+- launch-smoke (debug APK) 는 기존대로 `continue-on-error: true` 유지. release-APK runtime smoke (`assembleBenchmark` 사용 가능) 는 별도 사이클.
+- 실기기 smoke 는 정식 출시 전 수동 수행 필요 — R8 가 런타임에 strip 한 게 없는지 Compose 슬롯/Room SQL/Coil/commonmark/SAF/FileProvider/AppWidget 전수 확인.
+
+---
 ## 2026-05-14 - Phase 22 / Commercial P0-1 (Backup 정책)
 
 Selected task:

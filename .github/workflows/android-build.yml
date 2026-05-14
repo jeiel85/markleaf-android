@@ -67,6 +67,34 @@ jobs:
             app/build/reports/roborazzi/
           if-no-files-found: ignore
 
+      - name: Run release lint (hard gate)
+        run: ./gradlew :app:lintRelease
+
+      - name: Upload lint report on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: lint-report-release
+          path: app/build/reports/lint-results-release.html
+          if-no-files-found: ignore
+
+      - name: Build release APK with R8 (hard gate, unsigned ok)
+        run: ./gradlew :app:assembleRelease
+
+      - name: Verify release APK exists and is non-empty
+        run: |
+          APK="app/build/outputs/apk/release/app-release.apk"
+          test -f "$APK"
+          test -s "$APK"
+          ls -lh "$APK"
+
+      - name: Upload R8 mapping artifact (build job)
+        uses: actions/upload-artifact@v7
+        with:
+          name: markleaf-r8-mapping
+          path: app/build/outputs/mapping/release/mapping.txt
+          if-no-files-found: error
+
       - name: Upload debug APK artifact
         uses: actions/upload-artifact@v7
         with:
@@ -226,11 +254,26 @@ jobs:
           cp "$AAB" "markleaf-${GITHUB_REF_NAME}.aab"
           ls -lh "markleaf-${GITHUB_REF_NAME}.aab"
 
+      - name: Prepare R8 mapping for release asset
+        run: |
+          MAPPING="app/build/outputs/mapping/release/mapping.txt"
+          test -f "$MAPPING"
+          test -s "$MAPPING"
+          cp "$MAPPING" "markleaf-${GITHUB_REF_NAME}.mapping.txt"
+          ls -lh "markleaf-${GITHUB_REF_NAME}.mapping.txt"
+
       - name: Upload signed release AAB artifact
         uses: actions/upload-artifact@v7
         with:
           name: markleaf-release-aab
           path: app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+
+      - name: Upload R8 mapping artifact (release job)
+        uses: actions/upload-artifact@v7
+        with:
+          name: markleaf-release-mapping
+          path: app/build/outputs/mapping/release/mapping.txt
           if-no-files-found: error
 
       - name: Prepare release notes
@@ -263,6 +306,7 @@ jobs:
           gh release create "$GITHUB_REF_NAME" \
             "markleaf-${GITHUB_REF_NAME}.apk" \
             "markleaf-${GITHUB_REF_NAME}.aab" \
+            "markleaf-${GITHUB_REF_NAME}.mapping.txt" \
             --repo "$GITHUB_REPOSITORY" \
             --title "$(cat release-title.txt)" \
             --notes-file release-notes.md

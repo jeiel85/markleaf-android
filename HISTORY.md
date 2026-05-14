@@ -1,3 +1,34 @@
+## 2026-05-14 - Commercial P0-2: Release Hardening (R8 + CI gates)
+
+- Selected task: `[Commercial P0-2] Release hardening` — Phase 22 의 다음 unchecked 항목.
+- Work:
+  - **R8 + resource shrink 활성화.** `app/build.gradle.kts` 의 release 블록에서 `isMinifyEnabled = true`, `isShrinkResources = true`, `proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")`.
+  - **`app/proguard-rules.pro` 신규.** Conservative keep rules: Room entity 클래스/멤버, `AppSettings`, `SyncFrontmatter`/`NoteFolderMirror`, `QuickNoteWidget`, kotlinx.coroutines volatile 필드. `android.util.Log.d/v/i` 는 release 에서 R8 가 inline fold. 각 rule 마다 *왜 필요한지* 주석 — 미래에 의존성 업그레이드로 coupling 이 사라지면 제거할 수 있도록.
+  - **벤치마크 변형도 자동으로 R8 상속** (`initWith(release)`). Macrobenchmark 가 더 release-like 한 APK 를 측정.
+  - **`.github/workflows/android-build.yml` build job 에 hard gate 추가**:
+    - `./gradlew :app:lintRelease` — failure 시 `lint-results-release.html` 을 artifact 로 업로드.
+    - `./gradlew :app:assembleRelease` — R8 가 valid APK 를 만들어내는지 매 빌드 검증, 크기 > 0 확인.
+    - `mapping.txt` 를 `markleaf-r8-mapping` artifact 로 업로드.
+  - **Tag 릴리즈 잡** 에 `markleaf-vX.Y.Z.mapping.txt` 도 GitHub Release 자산으로 첨부 — Play Console / 외부 크래시 리포트에서 stack trace deobfuscation 가능.
+  - **`EditorLiveSnapshotTest.kt`** 의 `remember(scheme) { MarkdownSyntaxVisualTransformation(...) }` 한 줄에 `@Suppress("RememberReturnType")` — test 소스 셋 경계 너머의 생성자 반환 타입을 lint 가 해석 못 하는 false positive. 한 줄에만 침묵.
+  - **`docs/RELEASE.md`** 에 R8/mapping/CI gate 섹션 추가.
+  - **`.agent/decisions.md`** D047 추가 — R8 enablement 결정 + minimal proguard 정책 + mapping artifact 결정.
+  - **CHANGELOG / .agent/tasks.md / .agent/progress.md** 갱신.
+- Context:
+  - 상용화 게이트의 핵심: release 빌드가 단순히 "컴파일은 된다" 수준이 아니라 production-quality (R8 통과 + lint 통과 + 크래시 deobfuscatable) 인지 매 빌드 보장.
+  - APK 크기 12 MB → 1.7 MB (87% 감소) 는 부수적 효과지만 사용자 다운로드 / 업데이트 비용 측면에서 큰 win. Play Store 의 instant delivery threshold 와 무관하지만 비공개 테스트 사용자 경험에 직접 반영.
+  - launch-smoke 는 `continue-on-error: true` 그대로 유지. release-APK runtime smoke (R8 가 런타임에 무언가를 strip 했는지 검증) 는 별도 사이클 — 현 launch-smoke 의 emulator 플레이크가 release path 까지 confound 하지 않도록.
+- Verification:
+  - `./gradlew :app:test` → BUILD SUCCESSFUL
+  - `./gradlew :app:lintRelease` → BUILD SUCCESSFUL (warning 만 남고 error 0)
+  - `./gradlew :app:assembleRelease` → 1.7 MB APK
+  - `./gradlew :app:bundleRelease` → 4.0 MB AAB
+  - `app/build/outputs/mapping/release/mapping.txt` 32 MB 생성
+- Follow-up:
+  - R8-shrunk APK 의 emulator/실기기 런타임 smoke test (Compose 슬롯, Room SQL, Coil 이미지 로딩, commonmark 렌더, SAF, FileProvider, AppWidget 흐름 전수 확인).
+  - 의존성 업그레이드 사이클 (lintRelease 에서 발견된 lifecycle/activity/room/coil/test 라이브러리 신버전).
+  - Phase 22 Commercial P0-3: Room schema export + migration regression test.
+
 ## 2026-05-14 - Commercial P0-1: Android Backup / Data Extraction 정책 확정
 
 - Selected task: `[Commercial P0-1] Android Backup / Data Extraction 정책 확정` — Phase 22 의 첫 unchecked 항목.

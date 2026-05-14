@@ -2,6 +2,40 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## Unreleased - Release Hardening: R8 + Resource Shrink + CI Gates - 2026-05-14
+
+### 빌드 정책 변경
+- **R8 활성화 + 리소스 슈링킹.** `release` 빌드 타입에 `isMinifyEnabled = true` + `isShrinkResources = true` 적용. AGP의 `proguard-android-optimize.txt` 와 함께 minimal `app/proguard-rules.pro` 사용.
+  - 결과: 미서명 release APK 크기 약 12 MB → 1.7 MB (87% 감소), AAB 4.0 MB. 단일 dex 파일.
+  - R8 매핑 파일(`mapping.txt`) 은 PR/main CI 산출물 + tag 릴리즈 자산(`markleaf-vX.Y.Z.mapping.txt`) 양쪽에 첨부되어 운영 환경 크래시 deobfuscation 가능.
+- **`app/proguard-rules.pro` 신규.** Room entity 클래스/멤버, `AppSettings`, `SyncFrontmatter`/`NoteFolderMirror`, `QuickNoteWidget`, kotlinx.coroutines volatile 필드 keep. `android.util.Log.d/v/i` 는 release 빌드에서 R8 가 fold. 각 keep rule 에 *왜 필요한지* 주석.
+- **벤치마크 변형도 R8 상속.** `benchmark { initWith(release) }` 가 minify/shrink 도 함께 상속 → Macrobenchmark 가 더 release-like 한 APK 를 측정.
+
+### CI 게이트 강화
+- 모든 push/PR 빌드 잡에 새 hard-fail 게이트 추가:
+  - `./gradlew :app:lintRelease` — release variant 에서 Error 등급 lint 이슈가 하나라도 있으면 빌드 실패. 실패 시 `lint-results-release.html` 을 artifact 로 업로드.
+  - `./gradlew :app:assembleRelease` — R8 가 실제로 valid APK 를 만들어내는지 매 빌드마다 검증. APK 존재 + 크기 > 0 확인.
+  - `mapping.txt` 를 `markleaf-r8-mapping` artifact 로 매 빌드 업로드.
+- Tag 릴리즈 잡은 기존 APK + AAB 외에 `markleaf-vX.Y.Z.mapping.txt` 도 GitHub Release 자산으로 함께 첨부.
+- `launch-smoke` 는 기존대로 debug APK + `continue-on-error: true` 유지. release-APK 런타임 smoke 는 후속 사이클.
+
+### 테스트 픽스
+- `EditorLiveSnapshotTest.kt` — `remember(scheme) { MarkdownSyntaxVisualTransformation(...) }` 호출에 대한 lint 의 `RememberReturnType` false positive 를 `@Suppress` 로 정확히 한 줄에만 침묵. (lint 가 test 소스 셋 경계 너머의 생성자 반환 타입 분석을 못 하는 알려진 케이스.)
+
+### 문서
+- `docs/RELEASE.md` 에 R8/mapping/CI gate 섹션 추가. 매핑 파일 보관 정책과 R8 strip 대응 원칙(`-keep` 추가, R8 끄지 않음) 명시.
+- `.agent/decisions.md` 에 D047 — R8 enablement + minimal proguard 정책 + mapping artifact 결정 기록.
+
+### 검증
+- `./gradlew :app:test` → BUILD SUCCESSFUL (debug + release unit test 모두 통과)
+- `./gradlew :app:lintRelease` → BUILD SUCCESSFUL (warning만 남고 error 0)
+- `./gradlew :app:assembleRelease` → 1.7 MB APK + `mapping.txt` 생성
+- `./gradlew :app:bundleRelease` → 4.0 MB AAB
+
+### 알려진 후속 작업
+- R8-shrunk APK 의 emulator/실기기 런타임 smoke test 는 별도 사이클 (Phase 22 follow-up).
+- Compose, Room, Coil, commonmark, DocumentFile, FileProvider, AppWidget, ActivityResult 흐름의 실기기 smoke 는 정식 출시 전 수동 실행 필요.
+
 ## Unreleased - Backup / Data Extraction 정책 확정 - 2026-05-14
 
 ### 정책 변경

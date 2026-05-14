@@ -125,6 +125,11 @@ class EditorLiveSnapshotTest {
     private fun LiveEditorRender(initial: String) {
         var value by remember { mutableStateOf(TextFieldValue(initial)) }
         val scheme = MaterialTheme.colorScheme
+        // lint's RememberReturnType check (lintRelease) cannot resolve the
+        // constructor return type across the test source set boundary and
+        // falsely flags this remember as Unit-returning. The constructor
+        // clearly yields a MarkdownSyntaxVisualTransformation instance.
+        @Suppress("RememberReturnType")
         val transformation = remember(scheme) {
             MarkdownSyntaxVisualTransformation(
                 MarkdownSyntaxColors(

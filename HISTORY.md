@@ -1,3 +1,16 @@
+## 2026-05-14 - Commercial Readiness Planning
+
+- Work: 상용화 관점의 냉정 평가를 다음 세션에서 바로 이어갈 수 있는 실행 계획으로 정리.
+- Changed files:
+  - `docs/COMMERCIAL_READINESS_PLAN.md` — v2.14.0 기준 상용화 준비도 평가, P0/P1/P2 개선 설계안, 수정 후보 파일, 검증 명령 정리.
+  - `.agent/tasks.md` — Phase 22 Commercial Readiness backlog 추가.
+  - `HISTORY.md` — 본 기록 추가.
+- Context:
+  - 기능 구현은 이미 비공개 테스트 앱 수준을 넘었지만, 정식 출시 전에는 데이터 보호, release hardening, Room migration safety, privacy/security 문서 현재화, sync 장애 가시성을 우선해야 한다.
+  - 다음 권장 시작 작업은 `[Commercial P0-1] Android Backup / Data Extraction 정책 확정`.
+- Verification:
+  - Documentation-only change; Gradle build not run.
+
 ## 2026-05-13 - GitHub Issue 기준 문서 일괄 정리
 
 - Work: GitHub 오픈 이슈 12건을 기준으로 프로젝트 문서 전체를 재정렬. 손상된 HISTORY.md 6000줄 정리.

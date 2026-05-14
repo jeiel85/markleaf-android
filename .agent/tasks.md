@@ -166,6 +166,29 @@ GitHub에 열려 있는 이슈를 기준으로 한 미구현 작업 목록.
 - [ ] [#55] 오픈소스 투명성 강조 — 설정 화면에 GitHub 링크 및 라이선스 고지 강화
 - [ ] [#57] 인터랙티브 온보딩 가이드 — 단계별 오버레이/튜토리얼 플로우
 
+## Phase 22 - Commercial Readiness (Backlog, 2026-05-14)
+
+목적: MVP 이후 기능 확장이 충분히 진행된 Markleaf를 Play 정식 출시와 장기 사용자 데이터 보관에 견딜 수 있는 상용 수준으로 마감한다. 새 기능보다 데이터 보호, 릴리즈 게이트, 개인정보 문서, 동기화 장애 가시성을 우선한다.
+
+상세 설계 문서:
+- `docs/COMMERCIAL_READINESS_PLAN.md`
+
+P0 - 정식 출시 전 필수:
+- [ ] [Commercial P0-1] Android Backup / Data Extraction 정책 확정 — `allowBackup` 또는 `dataExtractionRules`를 로컬 우선/프라이버시 포지션에 맞게 정리하고 Privacy/Security 문서 갱신
+- [ ] [Commercial P0-2] Release hardening — release R8/resource shrink 검토, release lint/build/bundle/signing/smoke gate 강화
+- [ ] [Commercial P0-3] Room schema export + migration regression test — `exportSchema=true`, schema JSON 커밋, v4→v12 주요 migration 검증
+- [ ] [Commercial P0-4] Privacy / Security 문서 현재화 — MVP draft 문구 제거, v2.x 이미지/SAF sync/share/external link 동작까지 반영
+
+P1 - 상용 신뢰도 강화:
+- [ ] [Commercial P1-1] 이미지 첨부 EXIF 제거 — 첨부 저장 시 위치/기기 메타데이터 제거 및 테스트 추가
+- [ ] [Commercial P1-2] 생체 인식 앱 잠금 — BiometricPrompt 기반 잠금/해제 흐름과 설정 토글
+- [ ] [Commercial P1-3] Sync Center / Conflict Center — Toast로 사라지는 동기화 결과를 지속 상태와 충돌 목록으로 노출
+
+P2 - 전환율/경쟁력:
+- [ ] [Commercial P2-1] 고품질 PDF 내보내기 — Markdown preview 기반 PDF 렌더링
+- [ ] [Commercial P2-2] 첫 실행 온보딩 개선 — No account / local markdown / export & folder sync 철학을 짧게 전달
+- [ ] [Commercial P2-3] Store packaging — 스크린샷, feature graphic, Play privacy copy, F-Droid metadata 정리
+
 ## Phase 19 - Inline Rich Rendering (Done, 2026-05-08, v2.0.0)
 
 목적: Bear의 핵심 체감 차이(헤딩이 입력 즉시 *진짜로* 커지고, 굵게가 진짜로 굵어지는 라이브 프리뷰)를 Compose VisualTransformation으로 구현. 가치관 점검에서 사용자가 명시한 갈증의 직접 응답.

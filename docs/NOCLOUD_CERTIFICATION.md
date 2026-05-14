@@ -19,14 +19,16 @@ Markleaf is certified as a **100% No-Cloud Application**. This certification ver
 
 ### 1. Network Independence
 - [x] **No INTERNET Permission**: The application does not declare `android.permission.INTERNET` in its manifest
-- [x] **No Network Operations**: All functionality works completely offline
-- [x] **No Server Communication**: No communication with external servers or APIs
+- [x] **No Network Operations**: Markleaf itself performs no network requests
+- [x] **No Server Communication**: No first-party Markleaf server exists
+- [x] **External links delegated to OS**: Tapping a URL inside a note hands off to the user's default browser via `ACTION_VIEW`; Markleaf does not fetch the URL itself
 
 ### 2. Data Storage
-- [x] **Local-First Storage**: All user data stored exclusively on device
+- [x] **Local-First Storage**: Notes, tags, attachments, and settings live only in app-private storage
 - [x] **Room Database**: Uses Android's local SQLite database via Room
-- [x] **No Cloud Sync**: No automatic or manual cloud synchronization features
-- [x] **User-Controlled Export**: Data export only occurs through explicit user action
+- [x] **No Markleaf-operated cloud sync**: Markleaf runs no sync server. A user-chosen SAF folder may be mirrored, and any further sync of that folder is delegated to an external app the user selected (Drive / Dropbox / Syncthing / OneDrive / NAS mount).
+- [x] **User-Controlled Export**: `.md` export and share happen only through explicit Storage Access Framework / share-sheet flows
+- [x] **System Backup Excluded**: `android:allowBackup="false"` excludes Markleaf data from Android Auto Backup (Google Drive) and Device-to-Device transfer
 
 ### 3. Third-Party Services
 - [x] **No Analytics**: No Google Analytics, Firebase Analytics, or similar services
@@ -48,8 +50,14 @@ Markleaf is certified as a **100% No-Cloud Application**. This certification ver
 ```
 User Input → Local Processing → Room Database → Local Storage
                                               ↓
-User Export ← File System ← Explicit User Action
+                       Explicit User Action ← User Export / Share /
+                                              SAF Folder Mirror /
+                                              External Link (delegated to OS)
 ```
+
+Markleaf never initiates data movement on its own. External sync of a chosen
+SAF folder is performed by the third-party app the user selected, not by
+Markleaf.
 
 ### Key Components
 
@@ -88,6 +96,14 @@ The following permissions are **NOT** declared:
 - `READ_EXTERNAL_STORAGE` - Replaced by SAF
 - `READ_MEDIA_IMAGES` - Replaced by SAF
 - `READ_MEDIA_VIDEO` - Not needed
+
+### Backup / Data Extraction
+
+- `android:allowBackup="false"` on the `<application>` element.
+- Android Auto Backup (Google Drive) is **disabled** for Markleaf data.
+- Device-to-Device transfer (Android 12+) is **disabled** for Markleaf data.
+- Rationale: the user-facing promise is "data does not leave the device until you explicitly export or share." A silent OS-level cloud backup would conflict with that promise.
+- Users who want to move Markleaf data across devices use one of the explicit paths: `.md` export, share sheet, or the SAF folder mirror.
 
 ---
 
@@ -131,13 +147,18 @@ All dependencies verified as:
 ### What Stays Local
 - ✅ All note content
 - ✅ All tags and metadata
-- ✅ All attachments (images)
+- ✅ All attachments (images, stored in app-private `<filesDir>/attachments/<noteId>/`)
 - ✅ All user preferences
 - ✅ Search indexes
-- ✅ Backup files (user-initiated only)
+- ✅ Data is excluded from Android Auto Backup and Device-to-Device transfer (`allowBackup="false"`)
 
-### What Leaves the Device
-- ❌ Nothing (unless explicitly exported by user)
+### What Can Leave the Device — only via explicit user action
+
+Markleaf never moves data on its own. The following paths require a deliberate user gesture and go through an OS dialog (SAF, share sheet, browser handoff):
+- `.md` export of one or all notes (user picks the target folder via SAF)
+- Share sheet for text or `.md` file (user picks the receiving app)
+- Tapping an external link inside a note → handed to the system browser via `ACTION_VIEW`; Markleaf does not fetch the URL
+- SAF folder mirror — Markleaf writes `.md` files into the folder the user selected. Any subsequent cloud sync of that folder is performed by the third-party app the user chose (Drive, Dropbox, Syncthing, OneDrive, NAS, …), not by Markleaf.
 
 ---
 

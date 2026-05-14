@@ -174,7 +174,7 @@ GitHub에 열려 있는 이슈를 기준으로 한 미구현 작업 목록.
 - `docs/COMMERCIAL_READINESS_PLAN.md`
 
 P0 - 정식 출시 전 필수:
-- [ ] [Commercial P0-1] Android Backup / Data Extraction 정책 확정 — `allowBackup` 또는 `dataExtractionRules`를 로컬 우선/프라이버시 포지션에 맞게 정리하고 Privacy/Security 문서 갱신
+- [x] [Commercial P0-1] Android Backup / Data Extraction 정책 확정 — `android:allowBackup="false"`로 Android Auto Backup / D2D transfer 모두에서 Markleaf 데이터 제외. `dataExtractionRules`는 *전체 제외* 케이스에 과한 표면적이라 미도입(D046). Privacy/Security/NoCloud/README 모두 v2.x 기준으로 갱신.
 - [ ] [Commercial P0-2] Release hardening — release R8/resource shrink 검토, release lint/build/bundle/signing/smoke gate 강화
 - [ ] [Commercial P0-3] Room schema export + migration regression test — `exportSchema=true`, schema JSON 커밋, v4→v12 주요 migration 검증
 - [ ] [Commercial P0-4] Privacy / Security 문서 현재화 — MVP draft 문구 제거, v2.x 이미지/SAF sync/share/external link 동작까지 반영

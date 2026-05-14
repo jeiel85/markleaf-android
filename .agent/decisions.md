@@ -7,6 +7,29 @@
 
 ## Confirmed Decisions
 
+### D046 - Disable Android Auto Backup Entirely Via allowBackup="false"
+
+Markleaf excludes its app data from Android Auto Backup and Device-to-Device transfer by setting `android:allowBackup="false"` on the `<application>` element of the main `AndroidManifest.xml`. No `android:dataExtractionRules` resource is introduced.
+
+Why:
+
+- Markleaf's user-facing promise is that data does not leave the device until the user explicitly exports, shares, opens an external link, or points the SAF folder mirror at a folder. An OS-level Auto Backup to the user's Google Drive happening silently in the background would conflict with that promise, even though it is technically a Google Account-bound copy.
+- The conservative default for a local-first privacy app is to opt out of system backup entirely, then re-introduce a partial backup only if a clear product reason emerges.
+
+Why allowBackup="false" instead of dataExtractionRules:
+
+- `android:dataExtractionRules` (Android 12+) shines when you need to back up *some* paths and exclude others. Markleaf wants to exclude *everything*. In the all-or-nothing case, `allowBackup="false"` is shorter, applies uniformly across API 26..latest, and removes the legacy `fullBackupContent` vs new-rules duality.
+- Managing both `dataExtractionRules` and `allowBackup` on minSdk=26 doubles the policy surface area (legacy device behaviour vs Android 12+ behaviour) for no extra precision in this case.
+- If a future change demands fine-grained policy (e.g. back up user settings but never the note DB), `dataExtractionRules` can be reintroduced at that time.
+
+Implications:
+
+- Android 6 through 11 Google Drive Auto Backup never receives Markleaf data.
+- Android 12+ Device-to-Device transfer also excludes Markleaf data (since `allowBackup="false"` opts out of both backup paths in those versions).
+- Multi-device users move data via Markdown export, share sheet, or the v2.1 SAF folder mirror — all explicit OS dialogs.
+- The `benchmark` build variant no longer overrides `allowBackup`; it inherits the main manifest's `false`. The `<profileable>` element stays since it is what Macrobenchmark actually needs.
+- Privacy / Security / No-Cloud documents and the README all reflect this policy and the precise distinction between "Markleaf itself has no INTERNET permission" and "the user can move data via OS-mediated paths."
+
 ### D045 - Play Distribution Baseline Targets API 35
 
 Markleaf Play Store distributions should target Android 15 (API level 35) or higher.

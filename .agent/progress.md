@@ -1,4 +1,31 @@
 ---
+## 2026-05-14 - Phase 22 / Commercial P0-1 (Backup 정책)
+
+Selected task:
+- `[Commercial P0-1] Android Backup / Data Extraction 정책 확정` — Phase 22 의 가장 위 unchecked 항목.
+
+Decision:
+- `android:allowBackup="false"` (D046). `dataExtractionRules` 미도입 — 전체 제외 케이스에는 과한 표면적.
+
+What was implemented:
+- `app/src/main/AndroidManifest.xml` — `<application>` 의 `android:allowBackup` 을 `true` → `false`.
+- `app/src/benchmark/AndroidManifest.xml` — 더 이상 필요 없는 `tools:replace="android:allowBackup"` + `android:allowBackup="true"` 오버라이드 제거 (main 의 `false` 를 상속). `<profileable shell="true" />` 는 유지.
+- `docs/PRIVACY.md` — MVP draft 폐기, v2.x 동작 기준으로 전면 재작성. Markleaf 자체 INTERNET 권한 없음 vs 사용자 선택 OS 경로로의 이동을 명확히 분리. 시스템 백업 제외 정책 명시.
+- `docs/SECURITY.md` — v2.x 기준으로 재작성. `allowBackup="false"` 결정 근거, `dataExtractionRules` 미선택 사유, 외부 링크 ACTION_VIEW 위임 포함 사용자 주도 데이터 이동 경로 정리.
+- `docs/NOCLOUD_CERTIFICATION.md` — Network Independence / Data Storage / Permissions Analysis / Data Privacy Guarantee 섹션에 `allowBackup="false"` 정책 반영. "What Can Leave the Device" 를 명시적 사용자 행동(Markdown export / share sheet / 외부 링크 / SAF 폴더 미러) 기준으로 재서술.
+- `README.md` — "100% No-Cloud" 카피를 "Markleaf 자체는 네트워크에 나가지 않음 + 사용자 선택 경로로만 이동 + `allowBackup="false"`" 정밀 표현으로 교체.
+- `CHANGELOG.md` — Unreleased 섹션 추가.
+- `HISTORY.md` — 2026-05-14 작업 항목 추가.
+- `.agent/decisions.md` — D046 추가.
+- `.agent/tasks.md` — Commercial P0-1 체크.
+
+Build/test result:
+- `./gradlew test` → BUILD SUCCESSFUL
+- `./gradlew assembleDebug` → BUILD SUCCESSFUL
+- `rg "android.permission.INTERNET" -n app/src` → 결과 없음 (정책 유지)
+- `rg "allowBackup|dataExtractionRules" -n app/src/main` → `AndroidManifest.xml:7: android:allowBackup="false"` 단일 매치
+
+---
 ## 2026-05-08 (밤) - Organization And Writing Habits (v1.4.0)
 
 Selected task:

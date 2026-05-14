@@ -2,6 +2,27 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## Unreleased - Backup / Data Extraction 정책 확정 - 2026-05-14
+
+### 정책 변경
+- **Android 자동 백업 / 기기 간 전송에서 Markleaf 데이터 제외.** `AndroidManifest.xml` 의 `<application>` 요소에 `android:allowBackup="false"` 를 설정. Android 6+ 의 Google 드라이브 Auto Backup 과 Android 12+ 의 Device-to-Device transfer 모두에서 Markleaf 노트/태그/첨부/설정이 제외됩니다.
+- **사용자 영향:** Markleaf 데이터를 새 기기로 옮기려면 명시적인 경로(Markdown export, 시스템 공유 시트, 또는 SAF 폴더 미러 동기화) 를 직접 사용해야 합니다. OS 차원의 보이지 않는 클라우드 백업이 동기화 약속과 충돌하지 않도록 보수적 기본값을 택했습니다.
+- 벤치마크 변형의 `tools:replace="android:allowBackup"` 오버라이드 제거 — main manifest 의 `false` 값을 그대로 상속합니다.
+
+### 문서 갱신 (v2.x 실제 동작 반영)
+- `docs/PRIVACY.md` — MVP draft 문구 폐기. 현재 v2.x 기능(이미지 첨부, SAF 폴더 미러, 외부 링크 열기, 공유) 기준으로 "Markleaf 자체에는 INTERNET 권한이 없다" 와 "사용자가 명시적으로 선택한 OS 경로로 데이터가 이동할 수 있다" 를 구분해 정리.
+- `docs/SECURITY.md` — v2.x 기준 보호 범위와 `allowBackup="false"` 결정 근거, `dataExtractionRules` 미선택 사유 추가.
+- `docs/NOCLOUD_CERTIFICATION.md` — 시스템 백업 제외 섹션 신설, "What Can Leave the Device" 를 *명시적 사용자 행동* 기준으로 재서술.
+- `README.md` — "100% No-Cloud" 문구를 "Markleaf 자체는 네트워크에 나가지 않음 + 사용자 선택 경로로만 이동" 정밀 표현으로 교체.
+
+### 결정 근거
+- `dataExtractionRules` 대신 `allowBackup="false"` 를 택한 이유는 `.agent/decisions.md` 참조. 요약: 제외 범위가 *전체* 라면 `allowBackup="false"` 가 더 단순/명시적이고 minSdk=26 의 두 메커니즘 동시 관리 비용을 회피할 수 있다.
+
+### 검증
+- `./gradlew test`, `./gradlew assembleDebug`
+- `rg "android.permission.INTERNET" -n app/src` → 결과 없음 유지
+- `rg "allowBackup|dataExtractionRules" -n app/src/main` → main manifest 의 `allowBackup="false"` 단일 매치
+
 ## v2.14.0 - 각주 점프 (Footnote ref ↔ def click jump) - 2026-05-11
 
 ### 새로운 기능

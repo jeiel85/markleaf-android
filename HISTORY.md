@@ -1,3 +1,29 @@
+## 2026-05-14 - Commercial P0-1: Android Backup / Data Extraction 정책 확정
+
+- Selected task: `[Commercial P0-1] Android Backup / Data Extraction 정책 확정` — Phase 22 의 첫 unchecked 항목.
+- Work:
+  - `AndroidManifest.xml` 의 `<application>` 에 `android:allowBackup="false"` 설정. Android Auto Backup(Google Drive) 과 Android 12+ Device-to-Device transfer 양쪽 모두에서 Markleaf 데이터 제외.
+  - 벤치마크 변형의 `tools:replace="android:allowBackup"` 오버라이드 제거 — main 의 `false` 를 그대로 상속해 정책 일관성 유지. `<profileable shell="true" />` 는 그대로 유지.
+  - `docs/PRIVACY.md` 전면 재작성 — "MVP Privacy Policy Draft" 폐기, v2.x 기능 기준으로 "Markleaf 자체 네트워크 0 + 사용자 명시 행동 시 OS 경로로만 이동" 을 정밀하게 구분. 시스템 백업/D2D 제외 정책 명시.
+  - `docs/SECURITY.md` 갱신 — `allowBackup="false"` 결정 근거 + `dataExtractionRules` 미선택 사유 + 사용자 주도 데이터 이동 경로(외부 링크 ACTION_VIEW 위임 포함) 정리.
+  - `docs/NOCLOUD_CERTIFICATION.md` — "Backup / Data Extraction" 섹션 신설, "What Can Leave the Device" 를 명시적 사용자 행동 기준으로 재서술, 외부 링크는 OS 위임이라는 사실 추가.
+  - `README.md` — "100% No-Cloud" 카피를 "Markleaf 자체는 네트워크에 나가지 않음 + 사용자 선택 경로로만 이동" 의 정밀 표현으로 교체. `allowBackup="false"` 도 강점 목록에 포함.
+  - `CHANGELOG.md` Unreleased 섹션 추가.
+  - `.agent/decisions.md` 에 D046 추가 — `allowBackup="false"` vs `dataExtractionRules` 비교와 결론.
+  - `.agent/tasks.md` 에서 Commercial P0-1 항목 체크.
+- Context:
+  - Markleaf 의 핵심 약속은 "사용자가 직접 export/share 하기 전까지 데이터가 기기 밖으로 나가지 않는다". 일부 사용자에게 활성화돼 있을 수 있는 OS 차원의 Google 드라이브 자동 백업이 무언의 충돌을 일으킬 여지를 차단하는 게 목적.
+  - `dataExtractionRules` 는 부분적 제외에 유용하지만 *전체 제외* 라면 `allowBackup="false"` 가 더 단순/명시적이라 후자를 택함. minSdk=26 환경에서 legacy + new 메커니즘을 동시에 관리하는 표면적도 줄어듦.
+  - 다중 기기 사용자는 v2.1 SAF 폴더 미러 동기화로 *사용자가 선택한 폴더* 를 통해 이동 가능 — 이 경로는 사용자의 명시적 SAF 다이얼로그를 거치므로 정책 충돌 없음.
+- Verification:
+  - `./gradlew test` → BUILD SUCCESSFUL
+  - `./gradlew assembleDebug` → BUILD SUCCESSFUL
+  - `rg "android.permission.INTERNET" -n app/src` → no matches (정책 유지)
+  - `rg "allowBackup|dataExtractionRules" -n app/src/main` → `AndroidManifest.xml` 의 `android:allowBackup="false"` 단일 매치
+- Follow-up:
+  - Phase 22 Commercial P0-2 (Release hardening: R8/shrink + release lint/build/bundle/signing/smoke gate) 다음.
+  - 향후 사용자 설정만 별도 백업하는 정책으로 바꾸면 `dataExtractionRules` 도입을 재검토.
+
 ## 2026-05-14 - Commercial Readiness Planning
 
 - Work: 상용화 관점의 냉정 평가를 다음 세션에서 바로 이어갈 수 있는 실행 계획으로 정리.

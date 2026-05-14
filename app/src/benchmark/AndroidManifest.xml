@@ -8,9 +8,7 @@
       level performance. We declare it only for the `benchmark` build variant
       so debug and release APKs are unaffected.
     -->
-    <application
-        android:allowBackup="true"
-        tools:replace="android:allowBackup">
+    <application>
         <profileable
             android:shell="true"
             tools:targetApi="29" />

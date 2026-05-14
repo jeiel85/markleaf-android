@@ -119,17 +119,18 @@ cd markleaf-android
 
 ---
 
-## 🔒 No-Cloud Certified
+## 🔒 No-Cloud by design
 
-Markleaf is certified as a **100% No-Cloud Application**. Your data never leaves your device:
+Markleaf 자체는 절대로 네트워크에 나가지 않습니다. 데이터를 기기 밖으로 보낼지 여부는 *전적으로 당신의 선택* 입니다.
 
-- ✅ No INTERNET permission declared
-- ✅ No analytics or tracking
-- ✅ No cloud synchronization
-- ✅ No proprietary SDKs
-- ✅ Fully open source and auditable
+- ✅ `android.permission.INTERNET` 권한 **선언 없음** — Markleaf는 네트워크 요청을 직접 수행하지 않습니다
+- ✅ Markleaf 자체 서버 / 자체 백엔드 **없음**
+- ✅ 분석 / 광고 / 추적 / 폐쇄형 SDK **없음**
+- ✅ `android:allowBackup="false"` — Android 자동 백업 / 기기 간 전송에서 Markleaf 데이터 제외
+- ✅ 사용자가 직접 export, share, 외부 링크 열기, SAF 폴더 선택을 수행할 때만 OS 경로를 통해 데이터가 이동
+- ✅ 완전한 오픈소스, Apache 2.0 라이선스로 누구나 감사 가능
 
-[View Certification](docs/NOCLOUD_CERTIFICATION.md)
+"never leaves your device" 가 어떻게 정확히 작동하는지는 [Privacy Policy](docs/PRIVACY.md) 와 [No-Cloud Certification](docs/NOCLOUD_CERTIFICATION.md) 에 정리되어 있습니다.
 
 ---
 

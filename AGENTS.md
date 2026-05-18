@@ -84,6 +84,24 @@ CI 또는 릴리즈 검증 시에는 APK 산출물 확인을 반드시 포함한
 
 Android 프로젝트가 아직 초기화되지 않았다면 먼저 표준 Kotlin + Jetpack Compose Android 프로젝트를 생성한다.
 
+## Release Artifact Export
+
+사용자가 "새 버전 만들기"를 요청하면 버전 bump, changelog, fastlane changelog, 검증, commit/tag 작업과 함께 바탕화면에 Play Console 제출용 파일을 내보낸다.
+
+- AAB 파일: `markleaf-vX.Y.Z-play-console.aab`
+- 릴리즈 노트 TXT 파일: `markleaf-vX.Y.Z-release-notes.txt`
+
+TXT 파일은 바로 복사/붙여넣기 가능해야 하며, 한글/영문 릴리즈 노트만 아래 태그로 감싼다. 태그 밖에는 어떤 설명이나 문구도 넣지 않는다.
+
+```text
+<ko-kr>
+...
+</ko-kr>
+<en-us>
+...
+</en-us>
+```
+
 ## Stop Conditions
 
 다음 상황에서는 임의로 진행하지 말고 중단 후 보고한다.

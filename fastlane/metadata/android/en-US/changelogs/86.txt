@@ -1,0 +1,5 @@
+F-Droid and source-build readiness release. No new note-taking features.
+
+• Room schema export is now enabled and schema JSON is committed for reviewable migrations.
+• Added a migration regression test for legacy v4 databases through the current v12 schema.
+• Added the Apache 2.0 LICENSE file, removed tracked local.properties, and expanded English/Korean store metadata.

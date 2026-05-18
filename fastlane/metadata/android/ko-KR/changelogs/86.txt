@@ -1,0 +1,5 @@
+F-Droid 및 소스 빌드 준비 릴리즈입니다. 새 노트 기능은 없습니다.
+
+• Room schema export를 켜고 schema JSON을 커밋해 마이그레이션 검토 가능성을 높였습니다.
+• v4 레거시 DB를 현재 v12 schema까지 올리는 migration regression test를 추가했습니다.
+• Apache 2.0 LICENSE 파일을 추가하고, 추적 중이던 local.properties를 제거했으며, 한국어/영어 스토어 메타데이터를 보강했습니다.

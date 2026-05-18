@@ -1,4 +1,21 @@
 ---
+## 2026-05-18 - v2.15.1 Release Cut
+
+Selected task:
+- 새 버전 만들기 — F-Droid/build readiness cleanup을 새 patch 릴리즈로 승격.
+
+What was implemented:
+- `versionCode` 85 → 86, `versionName` 2.15.0 → 2.15.1.
+- `CHANGELOG.md` Unreleased section promoted to `v2.15.1 - F-Droid 빌드 준비와 Room 마이그레이션 안전망 - 2026-05-18`.
+- `README.md` and `docs/NOCLOUD_CERTIFICATION.md` version references updated.
+- fastlane changelog files for versionCode 86 added in English and Korean.
+
+Build/test result:
+- `./gradlew.bat --no-daemon test :app:lintRelease :app:assembleDebug :app:assembleRelease :app:bundleRelease` → BUILD SUCCESSFUL
+- `rg "android.permission.INTERNET" -n app/src` → no matches
+- APK/AAB outputs verified: debug APK 17,847,343 bytes; release APK 1,759,316 bytes; release AAB 4,125,372 bytes.
+
+---
 ## 2026-05-18 - Phase 22 / Commercial P0-3 (Room schema export + migration regression)
 
 Selected task:

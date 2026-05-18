@@ -1,3 +1,19 @@
+## 2026-05-18 - v2.15.1 cut (F-Droid build readiness)
+
+- Selected task: 새 버전 만들기 — F-Droid/build readiness cleanup을 `v2.15.1` / `versionCode 86` 으로 승격.
+- Work:
+  - `app/build.gradle.kts` — versionCode 85 → 86, versionName 2.15.0 → 2.15.1.
+  - `CHANGELOG.md` — `Unreleased` F-Droid readiness section을 `## v2.15.1 - F-Droid 빌드 준비와 Room 마이그레이션 안전망 - 2026-05-18` 로 승격.
+  - `README.md` 현재 버전 링크를 v2.15.1로 갱신.
+  - `docs/NOCLOUD_CERTIFICATION.md` 적용 버전을 2.15.1+로 갱신.
+  - `fastlane/metadata/android/{en-US,ko-KR}/changelogs/86.txt` 추가.
+- Context:
+  - v2.15.1은 새 기능 릴리즈가 아니라 F-Droid/source-build readiness 릴리즈. 주요 변화는 Room schema export, migration regression test, Apache 2.0 LICENSE, tracked `local.properties` 제거, store metadata 보강.
+- Verification:
+  - `./gradlew.bat --no-daemon test :app:lintRelease :app:assembleDebug :app:assembleRelease :app:bundleRelease` → BUILD SUCCESSFUL
+  - `rg "android.permission.INTERNET" -n app/src` → no matches
+  - APK/AAB outputs: debug APK 17,847,343 bytes; release APK 1,759,316 bytes; release AAB 4,125,372 bytes.
+
 ## 2026-05-18 - F-Droid / Build Readiness Cleanup
 
 - Selected task: `[Commercial P0-3] Room schema export + migration regression test`, plus repository cleanup items that can be completed locally before F-Droid submission.

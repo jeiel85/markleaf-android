@@ -2,14 +2,14 @@
 
 All notable changes to Markleaf are documented in this file.
 
-## Unreleased
+## v2.15.1 - F-Droid 빌드 준비와 Room 마이그레이션 안전망 - 2026-05-18
 
 ### Build / F-Droid readiness
-- **Room schema export enabled.** `AppDatabase` now uses `exportSchema = true`, and Room writes schema JSON to `app/schemas` during KSP.
-- **Migration regression coverage added.** An Android migration test builds a legacy v4 database and migrates it through the current v12 schema, checking note/tag preservation, FTS rebuild, and reintroduced `note_links` / `attachments` tables.
-- **Repository hygiene for reproducible builds.** Added the Apache 2.0 `LICENSE` file and removed tracked `local.properties` so build servers are not tied to a local Windows SDK path.
-- **Fastlane metadata expanded.** Added English and Korean short/full descriptions for store/F-Droid metadata reuse.
-- **compileSdk 35 warning documented in Gradle.** The project intentionally targets API 35 while staying on the current AGP baseline.
+- **Room schema export 활성화.** `AppDatabase`가 `exportSchema = true`를 사용하고, KSP가 schema JSON을 `app/schemas`에 생성합니다.
+- **마이그레이션 회귀 테스트 추가.** v4 레거시 DB를 현재 v12 schema까지 올리며 노트/태그 보존, FTS rebuild, 재도입된 `note_links` / `attachments` 테이블을 확인합니다.
+- **재현 가능한 소스 빌드 정리.** Apache 2.0 `LICENSE` 파일을 추가하고, 빌드 서버가 로컬 Windows SDK 경로에 묶이지 않도록 추적 중이던 `local.properties`를 제거했습니다.
+- **Fastlane 메타데이터 보강.** F-Droid/store metadata에 재사용할 수 있는 영어/한국어 short/full description을 추가했습니다.
+- **compileSdk 35 경고 정리.** 현재 AGP baseline에서 API 35를 의도적으로 타깃한다는 점을 Gradle 설정에 명시했습니다.
 
 ## v2.15.0 - Play 정식 출시 준비: 자동 백업 제외 + 빌드 최적화 - 2026-05-14
 

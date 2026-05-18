@@ -1,4 +1,32 @@
 ---
+## 2026-05-18 - Phase 22 / Commercial P0-3 (Room schema export + migration regression)
+
+Selected task:
+- `[Commercial P0-3] Room schema export + migration regression test` — Phase 22 의 다음 unchecked.
+
+Decision:
+- Room schema history is now committed from v12 onward. Historical v4-v11 schema JSON files were not available, so the regression test creates a representative v4 SQLite database directly and opens it through Room with the production migration chain.
+
+What was implemented:
+- `AppDatabase.exportSchema = true`.
+- `app/build.gradle.kts` KSP args: `room.schemaLocation=app/schemas`, `room.incremental=true`, `room.expandProjection=true`.
+- `app/schemas/com.markleaf.notes.data.local.AppDatabase/12.json` generated and committed.
+- `AppDatabase.ALL_MIGRATIONS` exposed internally so tests and production use the same migration chain.
+- `AppDatabaseMigrationTest` added under androidTest: v4 legacy DB → v12, preserving notes/tags, checking FTS rebuild, new sync/import column, and reintroduced wikilink/attachment tables.
+- F-Droid/build hygiene: root Apache 2.0 `LICENSE`, tracked `local.properties` removed, fastlane English/Korean short/full descriptions added, compileSdk 35 warning documented/suppressed.
+- `.agent/tasks.md`, `CHANGELOG.md`, `HISTORY.md` updated.
+
+Build/test result:
+- `./gradlew.bat :app:kspDebugKotlin :app:assembleDebugAndroidTest` → BUILD SUCCESSFUL
+- `./gradlew.bat --no-daemon test` → BUILD SUCCESSFUL
+- `./gradlew.bat --no-daemon :app:lintRelease :app:assembleDebug :app:assembleRelease :app:assembleDebugAndroidTest` → BUILD SUCCESSFUL
+- `rg "android.permission.INTERNET" -n app/src` → no matches
+- APK outputs verified: debug APK 17,847,351 bytes; release APK 1,759,320 bytes; androidTest APK 1,864,036 bytes.
+
+Notes:
+- Attempted the single connected migration test on device `R3CWC0KB53Z`, but debug APK install failed with `INSTALL_FAILED_UPDATE_INCOMPATIBLE` because a production-signed `com.markleaf.notes` is already installed. Did not uninstall the app because that can delete user data.
+
+---
 ## 2026-05-14 - Phase 22 / Commercial P0-2 (Release hardening: R8 + CI gates)
 
 Selected task:
@@ -1840,4 +1868,3 @@ Files changed:
 
 Build/test result:
 - Not run locally (workflow/config change)
-

@@ -176,7 +176,7 @@ GitHub에 열려 있는 이슈를 기준으로 한 미구현 작업 목록.
 P0 - 정식 출시 전 필수:
 - [x] [Commercial P0-1] Android Backup / Data Extraction 정책 확정 — `android:allowBackup="false"`로 Android Auto Backup / D2D transfer 모두에서 Markleaf 데이터 제외. `dataExtractionRules`는 *전체 제외* 케이스에 과한 표면적이라 미도입(D046). Privacy/Security/NoCloud/README 모두 v2.x 기준으로 갱신.
 - [x] [Commercial P0-2] Release hardening — R8 + resource shrink 활성화(`isMinifyEnabled=true`, `isShrinkResources=true`, minimal `proguard-rules.pro`); `lintRelease` + `assembleRelease` CI hard gate; tag 릴리즈에 `mapping.txt` 자산 첨부(D047). APK 12 MB → 1.7 MB. release-APK runtime smoke 는 후속 사이클.
-- [ ] [Commercial P0-3] Room schema export + migration regression test — `exportSchema=true`, schema JSON 커밋, v4→v12 주요 migration 검증
+- [x] [Commercial P0-3] Room schema export + migration regression test — `exportSchema=true`, KSP `room.schemaLocation=app/schemas`, v12 schema JSON 커밋, v4 레거시 DB → v12 migration regression test 추가. F-Droid 빌드 재현성을 위해 추적 중이던 `local.properties` 제거.
 - [x] [Commercial P0-4] Privacy / Security 문서 현재화 — P0-1 작업에서 `docs/PRIVACY.md`(MVP draft 폐기), `docs/SECURITY.md`, `docs/NOCLOUD_CERTIFICATION.md`, `README.md` 모두 v2.x 기준으로 재작성. 이미지/SAF sync/share/external link 동작 정확히 구분(D046). 잔존 "MVP draft" 문구는 검증 결과 없음.
 
 P1 - 상용 신뢰도 강화:

@@ -2,6 +2,15 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## Unreleased
+
+### Build / F-Droid readiness
+- **Room schema export enabled.** `AppDatabase` now uses `exportSchema = true`, and Room writes schema JSON to `app/schemas` during KSP.
+- **Migration regression coverage added.** An Android migration test builds a legacy v4 database and migrates it through the current v12 schema, checking note/tag preservation, FTS rebuild, and reintroduced `note_links` / `attachments` tables.
+- **Repository hygiene for reproducible builds.** Added the Apache 2.0 `LICENSE` file and removed tracked `local.properties` so build servers are not tied to a local Windows SDK path.
+- **Fastlane metadata expanded.** Added English and Korean short/full descriptions for store/F-Droid metadata reuse.
+- **compileSdk 35 warning documented in Gradle.** The project intentionally targets API 35 while staying on the current AGP baseline.
+
 ## v2.15.0 - Play 정식 출시 준비: 자동 백업 제외 + 빌드 최적화 - 2026-05-14
 
 상용 출시 게이트(Phase 22 Commercial P0-1 / P0-2 / P0-4)를 한 번에 닫는 chore 릴리즈. 사용자 입장에서 보이는 변화는 두 가지:

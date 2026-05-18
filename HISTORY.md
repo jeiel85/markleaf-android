@@ -1,3 +1,25 @@
+## 2026-05-18 - F-Droid / Build Readiness Cleanup
+
+- Selected task: `[Commercial P0-3] Room schema export + migration regression test`, plus repository cleanup items that can be completed locally before F-Droid submission.
+- Work:
+  - `AppDatabase` changed to `exportSchema = true`.
+  - `app/build.gradle.kts` now sets KSP Room args (`room.schemaLocation`, incremental mode, expandProjection) and exposes `app/schemas` to androidTest assets.
+  - Generated and committed `app/schemas/com.markleaf.notes.data.local.AppDatabase/12.json`.
+  - Added `AppDatabaseMigrationTest`, which creates a legacy v4 DB and verifies migration to v12 preserves notes/tags, rebuilds FTS, and creates `note_links`, `attachments`, `sortOrder`, and `lastImportedAt` surfaces.
+  - Added root `LICENSE` (Apache 2.0) to match README and F-Droid expectations.
+  - Removed tracked `local.properties`; it remains ignored locally and should not participate in reproducible builds.
+  - Added English/Korean fastlane short/full descriptions for reuse in F-Droid/store metadata.
+  - Added `android.suppressUnsupportedCompileSdk=35` with a comment because API 35 targeting is intentional on the current AGP baseline.
+- Verification:
+  - `./gradlew.bat :app:kspDebugKotlin :app:assembleDebugAndroidTest` → BUILD SUCCESSFUL
+  - `./gradlew.bat --no-daemon test` → BUILD SUCCESSFUL
+  - `./gradlew.bat --no-daemon :app:lintRelease :app:assembleDebug :app:assembleRelease :app:assembleDebugAndroidTest` → BUILD SUCCESSFUL
+  - `rg "android.permission.INTERNET" -n app/src` → no matches
+  - APK outputs: debug APK 17,847,351 bytes; release APK 1,759,320 bytes; androidTest APK 1,864,036 bytes.
+  - `./gradlew.bat --no-daemon :app:connectedDebugAndroidTest '-Pandroid.testInstrumentationRunnerArguments.class=com.markleaf.notes.data.local.AppDatabaseMigrationTest'` did not run tests because the connected device already has a production-signed `com.markleaf.notes` installed. Debug install failed with `INSTALL_FAILED_UPDATE_INCOMPATIBLE`; the app was not uninstalled to avoid deleting user data.
+- Follow-up:
+  - F-Droid submission itself still needs the external procedural steps: upstream tag push, metadata PR, screenshots/feature graphics if desired, and final signed/reproducible-build review.
+
 ## 2026-05-14 - v2.15.0 cut (Commercial P0-1/P0-2/P0-4 묶음 출시)
 
 - Selected task: v2.15.0 chore 출시 — Phase 22 P0-1 (backup 정책) / P0-2 (R8 + CI gates) / P0-4 (privacy 문서 v2.x화) 세 작업을 한 chore 릴리즈로 묶음. 신기능 0.

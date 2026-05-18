@@ -7,6 +7,31 @@
 
 ## Confirmed Decisions
 
+### D048 - Room Schema Export And Migration Regression Are Release Gates
+
+Markleaf commits Room schema JSON from database version 12 onward and keeps migration regression coverage for the oldest supported public migration path.
+
+Why:
+
+- A local-first notes app cannot treat database migration as an implementation detail. User notes, tags, links, attachments, and sync metadata must survive app updates.
+- F-Droid/source builds benefit from committed schema metadata because generated database structure is explicit and reviewable.
+
+Implementation:
+
+- `AppDatabase` uses `exportSchema = true`.
+- KSP writes Room schemas to `app/schemas`.
+- Android tests include `AppDatabaseMigrationTest`, which creates a representative v4 SQLite database and opens it with the production migration chain through v12.
+- `AppDatabase.ALL_MIGRATIONS` is internal so tests and production share the exact migration list.
+
+Legacy schema note:
+
+- Historical v4-v11 Room JSON files were not committed before this decision, so they cannot be reconstructed with perfect Room identity hashes. Instead, the regression test builds the legacy v4 tables directly and validates the real migration behavior: notes, tags, cross refs, FTS rebuild, removed/reintroduced tables, and the v12 `lastImportedAt` column.
+
+Implications:
+
+- Future schema changes must update `app/schemas` and add or extend migration tests in the same change.
+- `fallbackToDestructiveMigration()` remains forbidden for release paths.
+
 ### D047 - Release Builds Use R8 + Resource Shrinking With A Minimal proguard-rules.pro
 
 Markleaf release builds run R8 with `isMinifyEnabled = true` and `isShrinkResources = true`. Custom keep rules live in `app/proguard-rules.pro` alongside the AGP-supplied `proguard-android-optimize.txt`. The R8 mapping file is attached to every CI build as an artifact and to every tag release as a downloadable asset (`markleaf-vX.Y.Z.mapping.txt`).

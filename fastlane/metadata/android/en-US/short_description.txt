@@ -1,0 +1,1 @@
+Local-first Markdown notes with tags, search, and file export

@@ -1,0 +1,3 @@
+F-Droid reproducible-build cleanup. No user-visible changes.
+
+• Disabled AGP's "Dependency metadata" APK signing block so the upstream signed APK on GitHub Releases can be served on F-Droid via reproducible builds (Binaries + AllowedAPKSigningKeys).

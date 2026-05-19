@@ -1,0 +1,3 @@
+F-Droid 재현 가능한 빌드 정리. 사용자 체감 변화 없음.
+
+• AGP가 release APK에 자동으로 넣는 "Dependency metadata" 서명 블록을 비활성화했습니다. GitHub Release의 upstream 서명 APK가 F-Droid에서 그대로 재현 가능한 빌드(Binaries + AllowedAPKSigningKeys)로 인정됩니다.

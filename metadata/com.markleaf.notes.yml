@@ -1,4 +1,5 @@
 Categories:
+  - Note
   - Writing
 License: Apache-2.0
 AuthorName: Markleaf Team
@@ -11,6 +12,10 @@ AutoName: Markleaf
 
 RepoType: git
 Repo: https://github.com/jeiel85/markleaf-android.git
+
+Binaries: https://github.com/jeiel85/markleaf-android/releases/download/v%v/markleaf-v%v.apk
+
+AllowedAPKSigningKeys: 0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a
 
 Builds:
   - versionName: 2.15.1

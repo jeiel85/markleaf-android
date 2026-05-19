@@ -61,9 +61,18 @@ android {
         applicationId = "com.markleaf.notes"
         minSdk = 26
         targetSdk = 35
-        versionCode = 86
-        versionName = "2.15.1"
+        versionCode = 87
+        versionName = "2.15.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    // AGP injects a "Dependency metadata" APK signing block by default. It
+    // confuses F-Droid's reproducible-build verification (`fdroid scanner`
+    // flags it as an extra signing block) and we don't need the upstream
+    // dependency report, so disable it in both APK and AAB outputs.
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
 
     signingConfigs {

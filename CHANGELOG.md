@@ -2,6 +2,14 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.15.2 - F-Droid reproducible-build 가능성 정리 - 2026-05-19
+
+F-Droid `fdroiddata` MR(!38659) 리뷰 후속. APK 자체 동작 변화는 없습니다.
+
+### Build / F-Droid readiness
+- **AGP의 "Dependency metadata" APK 서명 블록 비활성화.** `dependenciesInfo { includeInApk = false; includeInBundle = false }` 적용. AGP 8.x는 기본적으로 release APK/AAB에 의존성 메타데이터 서명 블록을 삽입하는데, F-Droid `scanner`가 이를 "extra signing block"으로 잡아 `check apk` 잡이 실패합니다. 우리는 어차피 이 메타데이터를 사용하지 않으므로 출력에서 제거 → F-Droid가 upstream 서명된 APK를 그대로 받아들일 수 있게 합니다 (Binaries + AllowedAPKSigningKeys 경로).
+- `versionCode 86 → 87`, `versionName 2.15.1 → 2.15.2`.
+
 ## v2.15.1 - F-Droid 빌드 준비와 Room 마이그레이션 안전망 - 2026-05-18
 
 ### Build / F-Droid readiness

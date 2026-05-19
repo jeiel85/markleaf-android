@@ -94,12 +94,12 @@ Android 프로젝트가 아직 초기화되지 않았다면 먼저 표준 Kotlin
 TXT 파일은 바로 복사/붙여넣기 가능해야 하며, 한글/영문 릴리즈 노트만 아래 태그로 감싼다. 태그 밖에는 어떤 설명이나 문구도 넣지 않는다.
 
 ```text
-<ko-kr>
+<ko-KR>
 ...
-</ko-kr>
-<en-us>
+</ko-KR>
+<en-US>
 ...
-</en-us>
+</en-US>
 ```
 
 ## Stop Conditions

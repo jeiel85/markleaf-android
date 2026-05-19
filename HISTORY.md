@@ -1,3 +1,17 @@
+## 2026-05-19 - F-Droid Submission MR
+
+- Work:
+  - Fixed the F-Droid metadata changelog URL to use `/blob/HEAD/CHANGELOG.md`.
+  - Installed and used `fdroidserver` locally for metadata validation.
+  - Verified `fdroid readmeta` and `fdroid lint com.markleaf.notes` pass for the Markleaf metadata when the current fdroiddata `Writing` category is available locally.
+  - Installed/logged into GitLab CLI, forked `fdroid/fdroiddata`, pushed `metadata/com.markleaf.notes.yml`, and opened the upstream MR.
+  - Confirmed the latest GitHub Actions main build succeeded after the release APK output-path workflow fix.
+- Links:
+  - F-Droid MR: `https://gitlab.com/fdroid/fdroiddata/-/merge_requests/38659`
+  - Main CI run: `https://github.com/jeiel85/markleaf-android/actions/runs/26083336113`
+- Deferred:
+  - Docker Desktop could not be installed from this Windows session, so local Docker-based `fdroid build com.markleaf.notes` remains deferred.
+
 ## 2026-05-18 - v2.15.1 cut (F-Droid build readiness)
 
 - Selected task: 새 버전 만들기 — F-Droid/build readiness cleanup을 `v2.15.1` / `versionCode 86` 으로 승격.

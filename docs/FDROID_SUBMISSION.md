@@ -38,7 +38,13 @@ repository at:
 fdroiddata/metadata/com.markleaf.notes.yml
 ```
 
-Then run the normal F-Droid metadata checks from the `fdroiddata` checkout:
+Submitted merge request:
+
+```text
+https://gitlab.com/fdroid/fdroiddata/-/merge_requests/38659
+```
+
+Normal F-Droid metadata checks from a `fdroiddata` checkout:
 
 ```bash
 fdroid readmeta
@@ -47,8 +53,16 @@ fdroid lint com.markleaf.notes
 fdroid build com.markleaf.notes
 ```
 
-If those pass, commit the metadata file in the fdroiddata fork and open a
-GitLab merge request against `fdroid/fdroiddata`.
+Local submission-prep checks completed on 2026-05-19:
+
+- `fdroid readmeta`
+- `fdroid lint com.markleaf.notes` with the current fdroiddata `Writing`
+  category available locally
+- GitLab MR opened with `glab`
+
+Docker Desktop was not available on the Windows workstation, so the local
+Docker-based `fdroid build com.markleaf.notes` check remains deferred to
+F-Droid CI/review or a machine with Docker available.
 
 ## Notes for reviewers
 

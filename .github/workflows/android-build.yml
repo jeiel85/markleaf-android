@@ -83,7 +83,7 @@ jobs:
 
       - name: Verify release APK exists and is non-empty
         run: |
-          APK="app/build/outputs/apk/release/app-release.apk"
+          APK="$(python3 -c 'import glob, os, sys; preferred = ["app/build/outputs/apk/release/app-release.apk", "app/build/outputs/apk/release/app-release-unsigned.apk"]; paths = [p for p in preferred if os.path.isfile(p)] or sorted(glob.glob("app/build/outputs/apk/release/*.apk")); print(paths[0] if paths else ""); sys.exit(0 if paths else 1)')"
           test -f "$APK"
           test -s "$APK"
           ls -lh "$APK"

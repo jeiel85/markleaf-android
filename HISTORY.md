@@ -1,3 +1,20 @@
+## 2026-05-19 - v2.15.2 cut (F-Droid reproducible-build fix)
+
+- Selected task: F-Droid `fdroiddata` MR(!38659) 리뷰 후속 — reviewer `@linsui`가 요청한 App Inclusion 템플릿 + `Note` category + `Binaries:` + `AllowedAPKSigningKeys:` 추가. 이어 `check apk` 잡이 v2.15.1 APK의 AGP "Dependency metadata" 서명 블록(`0x504B4453`)을 reject → v2.15.2 cut.
+- Work:
+  - `app/build.gradle.kts` — versionCode 86 → 87, versionName 2.15.1 → 2.15.2, `dependenciesInfo { includeInApk = false; includeInBundle = false }` 추가 (AGP의 자동 의존성 메타데이터 서명 블록 비활성화).
+  - `CHANGELOG.md` — `## v2.15.2 - F-Droid reproducible-build 가능성 정리` 섹션 추가.
+  - `README.md` 현재 버전 링크를 v2.15.2로 갱신.
+  - `docs/NOCLOUD_CERTIFICATION.md` 적용 버전을 2.15.2+로 갱신.
+  - `fastlane/metadata/android/{en-US,ko-KR}/changelogs/87.txt` 추가.
+  - `metadata/com.markleaf.notes.yml` — Note category 추가, Binaries/AllowedAPKSigningKeys + subdir: app 정리, v2.15.2 Builds entry로 교체. rewritemeta canonical 포맷(Binaries 뒤 trailing space + AllowedAPKSigningKeys를 Builds 뒤로) 적용.
+  - GitLab MR description을 App Inclusion 템플릿으로 교체 + reviewer 질문에 follow-up 댓글 게시.
+- Verification:
+  - `./gradlew.bat --no-daemon :app:test :app:lintRelease :app:assembleRelease` → BUILD SUCCESSFUL
+  - 다운로드 받은 `markleaf-v2.15.2.apk`의 signing block IDs: `0x7109871a` (v2 sig), `0x42726577` (Verity padding) — `0x504B4453` (Dependency metadata) 사라짐 확인.
+  - fdroiddata MR head pipeline 2537707504 — 9/9 jobs success (`check apk`, `fdroid build` 포함).
+  - 핸드오프: `markleaf-v2.15.2.aab` + `markleaf-v2.15.2-release-notes.txt` 바탕화면 dump.
+
 ## 2026-05-19 - F-Droid Submission MR
 
 - Work:

@@ -6,10 +6,10 @@ F-Droid repository.
 ## Current release
 
 - App id: `com.markleaf.notes`
-- Version name: `2.15.1`
-- Version code: `86`
-- Upstream tag: `v2.15.1`
-- Tag commit: `6875a293e80bcec98118aa561b340d3bfa55f8a1`
+- Version name: `2.15.2`
+- Version code: `87`
+- Upstream tag: `v2.15.2`
+- Tag commit: `f51f0d6c530c7cb41495d9775df0985ebb5648f7`
 
 ## Upstream readiness
 
@@ -78,9 +78,26 @@ pipeline catches before review:
 
 After fixing the metadata on the MR branch (commit `5d56c5e69` on the
 `add-markleaf-notes` branch of `jeiel85/fdroiddata`), the upstream MR head
-pipeline is green: all nine CI jobs (including `fdroid build`) pass. The MR
-is now awaiting F-Droid reviewer merge — no further action is required from
-us until reviewers leave feedback.
+pipeline went green: all nine CI jobs (including `fdroid build`) pass.
+
+Reviewer `@linsui` then asked for the App Inclusion template, the `Note`
+category, and `Binaries:` / `AllowedAPKSigningKeys:` for reproducible
+builds. Adding the binary URL pattern surfaced a second blocker:
+
+- `check apk` failed because the upstream `markleaf-v2.15.1.apk` contained
+  AGP's auto-injected "Dependency metadata" signing block (`0x504B4453`),
+  which `fdroid scanner` flags as an extra block.
+- Fixed in v2.15.2 by setting `dependenciesInfo { includeInApk = false;
+  includeInBundle = false }` in `app/build.gradle.kts` (versionCode 86 →
+  87). Verified locally on `markleaf-v2.15.2.apk` that the block is gone
+  while v2 signature and Verity padding remain.
+- `fdroid rewritemeta` formatting (Binaries on its own indented line with
+  the trailing space, `AllowedAPKSigningKeys` after `Builds:`) applied at
+  the same time.
+
+After pushing v2.15.2 to MR commit `f4c818953`, the upstream MR head
+pipeline is again green — all nine CI jobs pass, including `check apk` and
+`fdroid build`. The MR is now awaiting F-Droid reviewer merge.
 
 ## Notes for reviewers
 

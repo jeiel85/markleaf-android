@@ -61,8 +61,26 @@ Local submission-prep checks completed on 2026-05-19:
 - GitLab MR opened with `glab`
 
 Docker Desktop was not available on the Windows workstation, so the local
-Docker-based `fdroid build com.markleaf.notes` check remains deferred to
-F-Droid CI/review or a machine with Docker available.
+Docker-based `fdroid build com.markleaf.notes` check was deferred to F-Droid
+CI. The first CI run on 2026-05-19 surfaced three issues that the GitLab MR
+pipeline catches before review:
+
+- `AutoUpdateMode: Version v%v` failed the metadata JSON schema. New schema
+  only accepts `None` or `Version` (with optional `+suffix`), so the field is
+  now `AutoUpdateMode: Version`.
+- `checkupdates` wanted `AutoName: Markleaf` added (auto-derived from the
+  `<application android:label>` resource).
+- `fdroid build` reported `Failed to find any output apks` because
+  `fdroidserver` searches `<root_dir>/build/outputs/apk/release/` and our APK
+  lands in `app/build/outputs/apk/release/`. Adding `subdir: app` to the
+  Builds entry matches the standard Android Studio template layout convention
+  also used by Markor and other similar apps.
+
+After fixing the metadata on the MR branch (commit `5d56c5e69` on the
+`add-markleaf-notes` branch of `jeiel85/fdroiddata`), the upstream MR head
+pipeline is green: all nine CI jobs (including `fdroid build`) pass. The MR
+is now awaiting F-Droid reviewer merge — no further action is required from
+us until reviewers leave feedback.
 
 ## Notes for reviewers
 

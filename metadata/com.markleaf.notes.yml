@@ -7,6 +7,8 @@ SourceCode: https://github.com/jeiel85/markleaf-android
 IssueTracker: https://github.com/jeiel85/markleaf-android/issues
 Changelog: https://github.com/jeiel85/markleaf-android/blob/HEAD/CHANGELOG.md
 
+AutoName: Markleaf
+
 RepoType: git
 Repo: https://github.com/jeiel85/markleaf-android.git
 
@@ -14,10 +16,11 @@ Builds:
   - versionName: 2.15.1
     versionCode: 86
     commit: 6875a293e80bcec98118aa561b340d3bfa55f8a1
+    subdir: app
     gradle:
       - yes
 
-AutoUpdateMode: Version v%v
+AutoUpdateMode: Version
 UpdateCheckMode: Tags
 CurrentVersion: 2.15.1
 CurrentVersionCode: 86

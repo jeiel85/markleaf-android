@@ -152,6 +152,16 @@
     <string name="version_format">버전 %1$s</string>
     <string name="application_id_format">Application ID %1$s</string>
 
+    <string name="settings_open_source">오픈소스</string>
+    <string name="oss_license_label">라이선스</string>
+    <string name="oss_license_value">Apache License 2.0</string>
+    <string name="oss_source_label">소스 코드</string>
+    <string name="oss_view_source">GitHub에서 보기</string>
+    <string name="oss_view_license">전체 라이선스 보기</string>
+    <string name="oss_fdroid_label">F-Droid</string>
+    <string name="oss_view_fdroid">F-Droid에서 보기</string>
+    <string name="oss_explainer">Markleaf는 Apache 2.0 라이선스로 완전 오픈소스입니다. 코드를 직접 읽고, 노트가 어떻게 저장되는지 감사할 수 있으며, GitHub에서 기여할 수 있습니다.</string>
+
     <!-- Widget -->
     <string name="quick_note_widget_label">빠른 노트</string>
     <string name="quick_note_widget_description">탭해서 새 노트 바로 만들기</string>

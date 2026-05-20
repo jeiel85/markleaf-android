@@ -314,6 +314,68 @@ fun SettingsScreen(
                     }
                 )
 
+                SettingsSection(title = stringResource(R.string.settings_open_source)) {
+                    Text(
+                        text = stringResource(R.string.oss_explainer),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    SettingLine(
+                        stringResource(R.string.oss_license_label) + ": " +
+                            stringResource(R.string.oss_license_value)
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(
+                            onClick = {
+                                runCatching {
+                                    context.startActivity(
+                                        Intent(
+                                            Intent.ACTION_VIEW,
+                                            Uri.parse(context.getString(R.string.oss_source_url))
+                                        )
+                                    )
+                                }
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(stringResource(R.string.oss_view_source))
+                        }
+                        OutlinedButton(
+                            onClick = {
+                                runCatching {
+                                    context.startActivity(
+                                        Intent(
+                                            Intent.ACTION_VIEW,
+                                            Uri.parse(context.getString(R.string.oss_fdroid_url))
+                                        )
+                                    )
+                                }
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(stringResource(R.string.oss_view_fdroid))
+                        }
+                    }
+                    Spacer(Modifier.height(6.dp))
+                    OutlinedButton(
+                        onClick = {
+                            runCatching {
+                                context.startActivity(
+                                    Intent(
+                                        Intent.ACTION_VIEW,
+                                        Uri.parse(context.getString(R.string.oss_license_url))
+                                    )
+                                )
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.oss_view_license))
+                    }
+                }
+
                 SettingsSection(title = stringResource(R.string.settings_app)) {
                     SettingLine(stringResource(R.string.version_format, BuildConfig.VERSION_NAME))
                     SettingLine(stringResource(R.string.application_id_format, BuildConfig.APPLICATION_ID))

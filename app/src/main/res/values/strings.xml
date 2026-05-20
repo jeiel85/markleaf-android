@@ -152,6 +152,19 @@
     <string name="version_format">Version %1$s</string>
     <string name="application_id_format">Application ID %1$s</string>
 
+    <string name="settings_open_source">Open source</string>
+    <string name="oss_license_label">License</string>
+    <string name="oss_license_value">Apache License 2.0</string>
+    <string name="oss_source_label">Source code</string>
+    <string name="oss_source_url">https://github.com/jeiel85/markleaf-android</string>
+    <string name="oss_view_source">View on GitHub</string>
+    <string name="oss_view_license">View full license</string>
+    <string name="oss_license_url">https://github.com/jeiel85/markleaf-android/blob/main/LICENSE</string>
+    <string name="oss_fdroid_label">F-Droid</string>
+    <string name="oss_fdroid_url">https://f-droid.org/packages/com.markleaf.notes/</string>
+    <string name="oss_view_fdroid">View on F-Droid</string>
+    <string name="oss_explainer">Markleaf is fully open source under Apache 2.0. Read the code, audit how your notes are stored, and contribute on GitHub.</string>
+
     <!-- Widget -->
     <string name="quick_note_widget_label">Quick Note</string>
     <string name="quick_note_widget_description">Tap to quickly create a new note</string>

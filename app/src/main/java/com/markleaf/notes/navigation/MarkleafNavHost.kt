@@ -63,7 +63,8 @@ fun MarkleafNavHost(
     windowSizeClass: WindowSizeClass,
     viewModelFactory: ViewModelProvider.Factory,
     shouldCreateNote: Boolean = false,
-    sharedText: String? = null
+    sharedText: String? = null,
+    openNoteId: String? = null
 ) {
     val isExpanded = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded
     val context = LocalContext.current
@@ -91,6 +92,13 @@ fun MarkleafNavHost(
                 if (!sharedText.isNullOrBlank()) {
                     val newNote = viewModel.createNote(sharedText)
                     navController.navigate(NavRoutes.editorRoute(newNote.id))
+                }
+            }
+
+            // Widget tapped a specific recent note → open it directly
+            androidx.compose.runtime.LaunchedEffect(openNoteId) {
+                if (!openNoteId.isNullOrBlank()) {
+                    navController.navigate(NavRoutes.editorRoute(openNoteId))
                 }
             }
 

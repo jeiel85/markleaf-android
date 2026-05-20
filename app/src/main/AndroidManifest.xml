@@ -41,11 +41,17 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.markleaf.notes.ACTION_WIDGET_NOTES_CHANGED" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/quick_note_widget_info" />
         </receiver>
+
+        <service
+            android:name=".widget.QuickNoteWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS"
+            android:exported="false" />
     </application>
 
 </manifest>

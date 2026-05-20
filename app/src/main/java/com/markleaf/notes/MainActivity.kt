@@ -105,6 +105,9 @@ class MainActivity : FragmentActivity() {
         }
 
         val shouldCreateNote = intent.action == QuickNoteWidget.ACTION_CREATE_NOTE
+        val openNoteId = if (intent.action == QuickNoteWidget.ACTION_OPEN_NOTE) {
+            intent.getStringExtra(QuickNoteWidget.EXTRA_NOTE_ID)
+        } else null
         val sharedText = extractSharedText(intent)
 
         setContent {
@@ -123,7 +126,8 @@ class MainActivity : FragmentActivity() {
                         windowSizeClass = windowSizeClass,
                         viewModelFactory = viewModelFactory,
                         shouldCreateNote = shouldCreateNote,
-                        sharedText = sharedText
+                        sharedText = sharedText,
+                        openNoteId = openNoteId
                     )
                     if (!appSettings.onboardingCompleted) {
                         WelcomeOnboardingSheet(
@@ -139,13 +143,36 @@ class MainActivity : FragmentActivity() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        // Nudge the home-screen widget so the recent-notes list reflects any
+        // edits made in this session as soon as the user returns to launcher.
+        runCatching {
+            val mgr = android.appwidget.AppWidgetManager.getInstance(applicationContext)
+            val ids = mgr.getAppWidgetIds(
+                android.content.ComponentName(applicationContext, QuickNoteWidget::class.java)
+            )
+            if (ids.isNotEmpty()) {
+                mgr.notifyAppWidgetViewDataChanged(ids, R.id.widget_list)
+            }
+        }
+    }
+
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        if (intent?.action == QuickNoteWidget.ACTION_CREATE_NOTE) {
-            recreate()
-        } else if (intent?.action == Intent.ACTION_SEND && extractSharedText(intent) != null) {
-            setIntent(intent)
-            recreate()
+        when {
+            intent?.action == QuickNoteWidget.ACTION_CREATE_NOTE -> {
+                setIntent(intent)
+                recreate()
+            }
+            intent?.action == QuickNoteWidget.ACTION_OPEN_NOTE -> {
+                setIntent(intent)
+                recreate()
+            }
+            intent?.action == Intent.ACTION_SEND && extractSharedText(intent) != null -> {
+                setIntent(intent)
+                recreate()
+            }
         }
     }
 

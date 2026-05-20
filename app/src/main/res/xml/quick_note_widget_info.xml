@@ -3,10 +3,10 @@
     android:description="@string/quick_note_widget_description"
     android:initialLayout="@layout/widget_quick_note"
     android:minWidth="180dp"
-    android:minHeight="40dp"
+    android:minHeight="180dp"
     android:previewImage="@drawable/ic_add"
-    android:resizeMode="horizontal"
+    android:resizeMode="horizontal|vertical"
     android:targetCellWidth="3"
-    android:targetCellHeight="1"
+    android:targetCellHeight="3"
     android:updatePeriodMillis="0"
     android:widgetCategory="home_screen" />

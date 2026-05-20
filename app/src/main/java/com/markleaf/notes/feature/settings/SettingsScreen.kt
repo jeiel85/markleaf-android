@@ -49,6 +49,7 @@ import com.markleaf.notes.data.settings.ColorPalette
 import com.markleaf.notes.data.settings.EditorLineWidth
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import com.markleaf.notes.data.sync.NoteFolderMirror
+import com.markleaf.notes.feature.lock.canUseBiometric
 import com.markleaf.notes.util.ExportAllNotes
 import com.markleaf.notes.util.HapticFeedback
 import kotlinx.coroutines.Dispatchers
@@ -231,6 +232,24 @@ fun SettingsScreen(
                             HapticFeedback.light(context)
                             scope.launch {
                                 settingsRepository.setScreenshotProtection(checked)
+                            }
+                        }
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    val biometricAvailable = remember(context) { context.canUseBiometric() }
+                    SettingsSwitchRow(
+                        title = stringResource(R.string.biometric_lock_setting),
+                        description = if (biometricAvailable) {
+                            stringResource(R.string.biometric_lock_description)
+                        } else {
+                            stringResource(R.string.biometric_lock_unavailable)
+                        },
+                        checked = appSettings.biometricLockEnabled && biometricAvailable,
+                        onCheckedChange = { checked ->
+                            if (!biometricAvailable && checked) return@SettingsSwitchRow
+                            HapticFeedback.light(context)
+                            scope.launch {
+                                settingsRepository.setBiometricLockEnabled(checked)
                             }
                         }
                     )

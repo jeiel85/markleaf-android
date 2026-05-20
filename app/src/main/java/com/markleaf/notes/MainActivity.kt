@@ -3,9 +3,9 @@ package com.markleaf.notes
 import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.fragment.app.FragmentActivity
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.remember
@@ -22,6 +22,7 @@ import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.ColorPalette
 import com.markleaf.notes.data.sync.NoteFolderMirror
+import com.markleaf.notes.feature.lock.BiometricLockGate
 import com.markleaf.notes.feature.onboarding.WelcomeOnboardingSheet
 import com.markleaf.notes.navigation.MarkleafNavHost
 import com.markleaf.notes.ui.theme.MarkleafTheme
@@ -34,7 +35,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         // Make the app edge-to-edge across all Android versions and devices.
@@ -115,22 +116,24 @@ class MainActivity : ComponentActivity() {
             MarkleafTheme(
                 dynamicColor = appSettings.colorPalette == ColorPalette.MATERIAL_YOU
             ) {
-                val navController = rememberNavController()
-                MarkleafNavHost(
-                    navController = navController,
-                    windowSizeClass = windowSizeClass,
-                    viewModelFactory = viewModelFactory,
-                    shouldCreateNote = shouldCreateNote,
-                    sharedText = sharedText
-                )
-                if (!appSettings.onboardingCompleted) {
-                    WelcomeOnboardingSheet(
-                        onDismiss = {
-                            lifecycleScope.launch {
-                                settingsRepository.setOnboardingCompleted(true)
-                            }
-                        }
+                BiometricLockGate(enabled = appSettings.biometricLockEnabled) {
+                    val navController = rememberNavController()
+                    MarkleafNavHost(
+                        navController = navController,
+                        windowSizeClass = windowSizeClass,
+                        viewModelFactory = viewModelFactory,
+                        shouldCreateNote = shouldCreateNote,
+                        sharedText = sharedText
                     )
+                    if (!appSettings.onboardingCompleted) {
+                        WelcomeOnboardingSheet(
+                            onDismiss = {
+                                lifecycleScope.launch {
+                                    settingsRepository.setOnboardingCompleted(true)
+                                }
+                            }
+                        )
+                    }
                 }
             }
         }

@@ -196,6 +196,11 @@ dependencies {
     // DocumentFile (Storage Access Framework)
     implementation("androidx.documentfile:documentfile:1.0.1")
 
+    // Biometric (AOSP, Apache 2.0 — F-Droid friendly). Used by the
+    // optional app-lock gate. Authentication is fully local; the API
+    // never reaches the network.
+    implementation("androidx.biometric:biometric:1.1.0")
+
     // Settings
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 

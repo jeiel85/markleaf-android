@@ -1,0 +1,11 @@
+New features plus search and accessibility polish.
+
+• 4-step welcome sheet on first launch (Welcome / Markdown / #tags / local-first).
+• Optional biometric (fingerprint / face) app lock — off by default, 100% on-device.
+• Export any note as a PDF via the system print dialog, from the share menu.
+• Home-screen widget now shows your 10 most recent notes; tap a row to open it.
+• Search now tokenizes Korean / Japanese / Chinese correctly (unicode61 tokenizer).
+• Japanese (ja) UI translation added.
+• Settings now surfaces the open-source license, GitHub repo, and F-Droid link.
+• Predictive back gesture (Android 13+) verified and wired through.
+• Section headers announce as headings to TalkBack for faster swipe navigation.

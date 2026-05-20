@@ -2,6 +2,33 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.16.0 - Bear-class 마무리 9종 셋 - 2026-05-21
+
+남아 있던 GitHub 이슈 9개를 OSS 철학(로컬-퍼스트 · 프라이버시 · 오픈소스 투명성) 기준으로 동시 처리한 기능 묶음 릴리스. Play 마케팅성 이슈(#52/#53/#54)는 별도로 정리해 닫고, 코어 가치와 정렬된 이슈만 코드로 옮겼습니다.
+
+### Added
+- **첫 실행 4단계 안내 시트(#57).** `WelcomeOnboardingSheet`이 `Welcome → Markdown → #tags → local-first` 순서로 호버 없이 한 번만 노출. DataStore의 `onboardingCompleted` 플래그로 두 번째 실행부터는 사라집니다.
+- **생체 인증 앱 잠금(#37).** `BiometricLockGate`가 `androidx.biometric` (AOSP)로 지문/얼굴 인증을 요구합니다. 설정에서 토글, 기본 OFF. 인증은 100% 기기 내부에서 끝나며 노트는 같은 Room DB에 그대로 — 잠금은 UI 차단일 뿐 데이터에는 영향이 없습니다. `MainActivity`는 `BiometricPrompt`를 호스팅하기 위해 `FragmentActivity`로 승격.
+- **노트 → PDF 내보내기(#38).** 에디터 공유 메뉴에 `Export as PDF…` 추가. 파이프라인은 `commonmark HtmlRenderer → 숨김 WebView → PrintManager`. 결과 파일은 시스템 인쇄 대화상자가 책임지므로 Markleaf는 출력 URI를 소유하지 않고 INTERNET·저장소 권한도 추가하지 않습니다. A4 / 18mm·16mm 여백 / Markleaf 그린 액센트 인라인 스타일.
+- **홈 화면 위젯이 최근 노트 리스트(#39).** 기존 1버튼 위젯이 `ListView` 기반 컬렉션 위젯으로 재작성. 상단 `+` 버튼(legacy quick-compose 유지) + 비-휴지통/비-보관 최근 10개 노트. 행 탭은 `ACTION_OPEN_NOTE` → `MarkleafNavHost`의 새 `openNoteId` 경로로 바로 에디터 진입. `MainActivity.onPause()`에서 위젯 데이터를 갱신해 launcher로 돌아갔을 때 최신 상태가 반영됩니다.
+- **일본어(ja) UI 번역(#51).** `res/values-ja/strings.xml` 신규. 노트/에디터/설정/Privacy Dashboard/Sync/오픈소스/Onboarding/Biometric/PDF 모든 키 커버. 로드맵에서 가장 큰 Bear 사용자 풀로 식별된 일본어를 우선.
+- **설정에 오픈소스 섹션(#55).** 라이선스(Apache 2.0), GitHub repo, 전체 라이선스 본문, F-Droid 패키지 페이지 링크 4개를 `Settings → Open source` 한 곳에 모았습니다. Bear와의 OSS 차별점을 in-product에서 그대로 보여줍니다.
+
+### Changed
+- **검색이 unicode61 토크나이저(#65).** `notes_fts`를 `simple` 토크나이저에서 `unicode61 remove_diacritics=2`로 재구성. 한국어/일본어/중국어 노트가 그동안 LIKE fallback으로만 검색되던 회귀가 사라집니다. DB v12 → v13, `MIGRATION_12_13`은 `notes_fts`를 destructive recreate(파생 인덱스이므로 사용자 데이터는 손실되지 않음). Room이 `@Fts5`를 지원하지 않는 이유와 FTS4를 유지하기로 한 trade-off는 `NoteFtsEntity.kt`의 KDoc에 정리.
+- **Predictive Back 제스처(#27).** `AndroidManifest`의 `android:enableOnBackInvokedCallback="true"`는 이미 활성 상태였고, 코드 전반에 `BackHandler`로 가로채는 지점이 없어 Android 13+ Predictive Back 애니메이션이 그대로 동작하는 것을 확인. 이번 릴리스에서 명시적으로 추적 종료.
+- **TalkBack 헤딩 시맨틱(#76, partial).** `SettingsSection` 제목과 `NotesListScreen`의 섹션 헤더(`Pinned / Today / Yesterday / Past 7 days / Older`)에 `heading()` 시맨틱 추가. TalkBack swipe-up/down으로 섹션을 건너뛸 수 있습니다. `NoteRow`는 `semantics(mergeDescendants = true)`로 묶어서 한 노트가 한 포커스 정류장으로 들립니다.
+
+### Build
+- versionCode 88 → 89, versionName 2.15.3 → 2.16.0.
+- `androidx.biometric:biometric:1.1.0` 추가 (Apache 2.0, F-Droid 친화).
+- `MainActivity`: `ComponentActivity` → `FragmentActivity`.
+- DB schema 12 → 13, 새 `13.json` schema export 포함.
+- `app/src/main/AndroidManifest.xml`에 `QuickNoteWidgetService` 서비스 + 위젯 인텐트 추가.
+
+### Issues closed
+- #27 #37 #38 #39 #51 #55 #57 #65 #76
+
 ## 2026-05-20 - 랜딩페이지 다운로드 링크 줄바꿈 수정 및 모바일 반응형 개선 (Hotfix)
 
 ### Fixed

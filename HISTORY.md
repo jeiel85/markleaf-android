@@ -1,3 +1,26 @@
+## 2026-05-21 - v2.16.0 cut (남은 이슈 9종 동시 처리)
+
+- Trigger: "남아있는 이슈들 모두다 대응 완료" 골. F-Droid 정식 등재(MR #38659 머지) 직후 Bear-class 마무리 단계로 진입.
+- Pre-work: Play 마케팅성 이슈(#52 인앱 리뷰 nag UI, #53 스토어 스크린샷, #54 피처 그래픽)를 OSS 철학과 충돌한다고 판단해 일괄 close. 트래커 정리 기준은 새 `feedback_oss_philosophy_filter.md` 메모리에 기록.
+- Scope: 9개 이슈를 OSS 철학 / Bear-class 가치 / 로컬-퍼스트 기준으로 묶어 8개 커밋으로 처리.
+- Work:
+  - #55 OSS transparency — `SettingsScreen`에 Open source 섹션(라이선스/GitHub/F-Droid/license 본문 4개 링크) 추가.
+  - #27 Predictive Back — manifest opt-in 이미 true이고 `BackHandler` 가로채기 없음을 확인. 명시적 종료.
+  - #51 i18n JP — `res/values-ja/strings.xml` 신규 (192 string).
+  - #57 Onboarding — `WelcomeOnboardingSheet` 4페이지 `ModalBottomSheet`. DataStore `onboardingCompleted` 플래그로 첫 실행만 노출.
+  - #37 Biometric lock — `androidx.biometric:1.1.0` (AOSP), `BiometricLockGate` Composable, Settings 토글. `MainActivity`를 `ComponentActivity → FragmentActivity`로 승격. 하드웨어 없으면 fail open.
+  - #38 PDF export — `ExportPdf` 객체. commonmark `HtmlRenderer` → 숨김 WebView → `PrintManager`. A4 / 18mm·16mm 여백 / 그린 액센트 인라인 스타일. 출력 URI는 시스템 인쇄가 소유 → 추가 권한 0.
+  - #39 Widget — `QuickNoteWidgetService` / `RemoteViewsFactory` 신규. 위젯이 최근 10개 노트 리스트 + `+` 헤더. `ACTION_OPEN_NOTE`/`EXTRA_NOTE_ID` 추가 → `MarkleafNavHost`의 새 `openNoteId` 파라미터로 에디터 직접 진입.
+  - #65 FTS5 — Room이 `@Fts5` 미지원이라 `@Fts4` 유지하되 토크나이저를 `unicode61 remove_diacritics=2`로 교체. DB v12 → v13, `MIGRATION_12_13`이 `notes_fts`를 destructive recreate. 한국어/일본어/중국어 검색 회귀 해결.
+  - #76 WCAG — `SettingsSection`/`SectionHeader` 제목에 `heading()` 시맨틱, `NoteRow`에 `semantics(mergeDescendants = true)`. Material 3가 이미 보장하는 48dp 터치 타깃과 기존 contentDescription은 그대로.
+- Verification:
+  - `:app:compileDebugKotlin` 8회 모두 BUILD SUCCESSFUL (각 커밋 직전).
+  - `app/schemas/com.markleaf.notes.data.local.AppDatabase/13.json` 생성 확인 — FTS table createSql이 `tokenize=unicode61 remove_diacritics=2`로 맞춰져 있어 `MIGRATION_12_13` SQL과 일치.
+  - 기존 `AppDatabaseMigrationTest`가 v4 → 현재 마이그레이션 시 `notes_fts MATCH 'legacy'` 검증을 포함하고 있어 v12→v13 회귀도 instrumented test로 자동 커버.
+- Issues closed: #27 #37 #38 #39 #51 #55 #57 #65 #76 (메인 코드 변경). 트래커 정리로 #52/#53/#54 (마케팅성)는 별도 close.
+- Build: versionCode 88 → 89, versionName 2.15.3 → 2.16.0.
+- F-Droid: 새 RecipeMR 작성 예정 (`fdroiddata/metadata/com.markleaf.notes.yml` 의 `CurrentVersion`/`CurrentVersionCode` 갱신 + `Builds:` 블록에 89 항목 append).
+
 ## 2026-05-20 - 랜딩페이지 다운로드 링크 줄바꿈 수정 및 모바일 반응형 개선 (Hotfix)
 
 - Trigger: F-Droid 배포 완료 후 다운로드 링크가 랜딩페이지에 추가되면서, 버튼 내의 텍스트가 줄바꿈(개행)되는 증상 발생 보고 및 모바일 최적화 요청.

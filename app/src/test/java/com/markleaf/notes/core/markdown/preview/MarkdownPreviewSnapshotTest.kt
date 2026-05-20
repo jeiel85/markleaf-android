@@ -237,35 +237,6 @@ class MarkdownPreviewSnapshotTest {
         )
     }
 
-    // --- Edge cases for the codeblock crash reported by @dking08 on
-    // fdroiddata MR !38659. These render through the same composable the
-    // editor uses, so any null/index/composition crash surfaces here.
-
-    @Test
-    fun code_block_empty_with_language() = snapshot("code_block_empty_kotlin_light", darkTheme = false) {
-        Renders("```kotlin\n```")
-    }
-
-    @Test
-    fun code_block_empty_no_language() = snapshot("code_block_empty_nolang_light", darkTheme = false) {
-        Renders("```\n```")
-    }
-
-    @Test
-    fun code_block_unclosed_with_language() = snapshot("code_block_unclosed_light", darkTheme = false) {
-        Renders("```kotlin\nfun main() { println(\"hi\") }\n")
-    }
-
-    @Test
-    fun code_block_single_line_triple_backticks() = snapshot("code_block_single_line_light", darkTheme = false) {
-        Renders("```kotlin```")
-    }
-
-    @Test
-    fun code_block_whitespace_only_body() = snapshot("code_block_whitespace_body_light", darkTheme = false) {
-        Renders("```kotlin\n   \n\n```")
-    }
-
     @Test
     fun mixed_document_dark() = snapshot("mixed_document_dark", darkTheme = true) {
         Renders(

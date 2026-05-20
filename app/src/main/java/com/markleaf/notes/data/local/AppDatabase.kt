@@ -26,7 +26,7 @@ import com.markleaf.notes.data.local.entity.TagEntity
         NoteLinkEntity::class,
         AttachmentEntity::class
     ],
-    version = 12,
+    version = 13,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -136,6 +136,29 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // v12 → v13 (v2.16, #65 FTS polish): rebuild `notes_fts` with the
+        // unicode61 tokenizer so CJK / Korean / Japanese search actually
+        // matches whole-word tokens instead of falling through to the LIKE
+        // fallback. No user data is lost — `notes_fts` is a derived index
+        // over the `notes` content table.
+        private val MIGRATION_12_13 = object : Migration(12, 13) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS `notes_fts`")
+                db.execSQL(
+                    """
+                    CREATE VIRTUAL TABLE IF NOT EXISTS `notes_fts` USING FTS4(
+                        `title` TEXT NOT NULL,
+                        `contentMarkdown` TEXT NOT NULL,
+                        `excerpt` TEXT NOT NULL,
+                        tokenize=unicode61 `remove_diacritics=2`,
+                        content=`notes`
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL("INSERT INTO `notes_fts`(`notes_fts`) VALUES ('rebuild')")
+            }
+        }
+
         // v10 → v11: re-introduce `attachments` for v2.5 image attachments
         // revival. Schema is fresh (the v9 DROP took the v1.x version with
         // it). Files live in app-private storage; this table is metadata
@@ -190,7 +213,8 @@ abstract class AppDatabase : RoomDatabase() {
             MIGRATION_8_9,
             MIGRATION_9_10,
             MIGRATION_10_11,
-            MIGRATION_11_12
+            MIGRATION_11_12,
+            MIGRATION_12_13
         )
     }
 }

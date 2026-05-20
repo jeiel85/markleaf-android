@@ -2,6 +2,20 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.15.3 - 코드블록 미리보기 크래시 수정 - 2026-05-20
+
+### Fixed
+- **코드블록을 포함한 노트의 미리보기 진입 시 앱이 종료되던 문제 수정.** `SyntaxHighlighter`의 SHELL_RULES 정규식에서 닫는 `}`가 escape되지 않은 한 곳이 있었는데, JVM `java.util.regex`는 이걸 허용해도 Android ICU regex는 거부합니다. 정적 초기화가 실패하면서 어떤 언어의 코드블록이든 미리보기 렌더링 시점에 `ExceptionInInitializerError`로 죽었습니다. JVM 단위 테스트와 Robolectric 스냅샷 테스트는 호스트 JVM regex를 쓰기 때문에 전부 통과했고, 실기기/에뮬레이터에서만 재현되는 회귀였습니다. ([fdroiddata !38659](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/38659)에서 community tester @dking08가 발견)
+
+### Improved
+- **에디터 상단 타이틀이 너비를 넘어가면 자동으로 글자 크기를 줄입니다.** "노트 편집" 등 헤드라인이 줄바꿈되지 않고 한 줄로 들어가도록 0.7배까지 점진적으로 축소.
+
+### Tests
+- `SyntaxHighlighterAndroidTest` (instrumented): 모든 언어 rule을 실제 Android runtime에서 한 번씩 tokenize해서 ICU regex 호환성을 검증합니다. 같은 종류의 회귀가 다시 들어오면 instrumented test가 잡습니다.
+
+### Build
+- versionCode 87 → 88, versionName 2.15.2 → 2.15.3.
+
 ## v2.15.2 - F-Droid reproducible-build 가능성 정리 - 2026-05-19
 
 F-Droid `fdroiddata` MR(!38659) 리뷰 후속. APK 자체 동작 변화는 없습니다.

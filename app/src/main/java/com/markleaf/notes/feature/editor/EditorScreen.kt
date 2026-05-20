@@ -90,6 +90,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.markleaf.notes.R
 import com.markleaf.notes.core.markdown.MarkdownEditActions
 import com.markleaf.notes.core.markdown.MarkdownSyntaxColors
@@ -275,14 +276,26 @@ fun EditorScreen(
         topBar = {
             TopAppBar(
                 title = {
+                    val titleText = when {
+                        isFocusMode -> stringResource(R.string.focus_mode)
+                        isPreviewMode -> stringResource(R.string.preview)
+                        noteId != null -> stringResource(R.string.edit_note)
+                        else -> stringResource(R.string.new_note)
+                    }
+                    val baseStyle = MaterialTheme.typography.headlineMedium
+                    val baseFontSize = baseStyle.fontSize
+                    val minFontSize = baseFontSize * 0.7f
+                    var fontSize by remember(titleText) { mutableStateOf(baseFontSize) }
                     Text(
-                        text = when {
-                            isFocusMode -> stringResource(R.string.focus_mode)
-                            isPreviewMode -> stringResource(R.string.preview)
-                            noteId != null -> stringResource(R.string.edit_note)
-                            else -> stringResource(R.string.new_note)
-                        },
-                        style = MaterialTheme.typography.headlineMedium
+                        text = titleText,
+                        style = baseStyle.copy(fontSize = fontSize),
+                        maxLines = 1,
+                        softWrap = false,
+                        onTextLayout = { result ->
+                            if (result.didOverflowWidth && fontSize.value > minFontSize.value) {
+                                fontSize = (fontSize.value * 0.9f).sp
+                            }
+                        }
                     )
                 },
                 navigationIcon = {

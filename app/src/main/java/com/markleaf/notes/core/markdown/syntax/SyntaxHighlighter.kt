@@ -197,8 +197,12 @@ object SyntaxHighlighter {
             "continue", "local", "readonly", "declare", "export", "unset", "set",
             "shift", "trap", "true", "false"
         )),
-        // bash variable references: $var, ${var}, $1, $@
-        Rule(Regex("""\$\{[^}]+}|\$[A-Za-z_][A-Za-z0-9_]*|\$\d|\$[@*#?!${'$'}_]"""), TokenType.TYPE),
+        // bash variable references: $var, ${var}, $1, $@. The closing `}`
+        // in `\${...}` must be escaped — Android's ICU regex engine rejects
+        // a bare `}` here ("Syntax error near index 10") even though the
+        // JVM regex on Robolectric/JUnit accepts it, so this crashed the
+        // codeblock preview on-device while every unit test passed.
+        Rule(Regex("""\$\{[^}]+\}|\$[A-Za-z_][A-Za-z0-9_]*|\$\d|\$[@*#?!${'$'}_]"""), TokenType.TYPE),
         NUMBER, FUNCTION_CALL
     )
 

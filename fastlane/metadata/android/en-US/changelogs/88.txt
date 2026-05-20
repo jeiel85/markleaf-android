@@ -1,0 +1,4 @@
+Bug fix + small polish.
+
+• Fixed a crash when entering preview mode on any note that contains a fenced code block. A regex in the syntax highlighter was rejected by Android's ICU engine even though every host-JVM unit test accepted it. Reported by @dking08 during F-Droid review.
+• Editor top bar title now auto-shrinks instead of wrapping when it would overflow.

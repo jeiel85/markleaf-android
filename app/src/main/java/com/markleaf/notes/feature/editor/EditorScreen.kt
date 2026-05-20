@@ -110,6 +110,7 @@ import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.util.AttachmentManager
 import com.markleaf.notes.util.ExportUtil
 import com.markleaf.notes.util.HapticFeedback
+import com.markleaf.notes.util.ExportPdf
 import com.markleaf.notes.util.ShareNoteUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -372,6 +373,21 @@ fun EditorScreen(
                                                 )
                                                 pendingExport = live
                                                 exportSingleLauncher.launch(ExportUtil.generateFileName(live))
+                                            }
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.export_pdf)) },
+                                        onClick = {
+                                            shareMenuExpanded = false
+                                            coroutineScope.launch {
+                                                val current = repo.getNote(noteId) ?: return@launch
+                                                val live = current.copy(
+                                                    title = TitleExtractor.extractTitle(editorState.text),
+                                                    contentMarkdown = editorState.text,
+                                                    excerpt = TitleExtractor.generateExcerpt(editorState.text)
+                                                )
+                                                ExportPdf.export(context, live)
                                             }
                                         }
                                     )

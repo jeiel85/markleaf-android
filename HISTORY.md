@@ -1,3 +1,14 @@
+## 2026-05-20 - 랜딩페이지 다운로드 링크 줄바꿈 수정 및 모바일 반응형 개선 (Hotfix)
+
+- Trigger: F-Droid 배포 완료 후 다운로드 링크가 랜딩페이지에 추가되면서, 버튼 내의 텍스트가 줄바꿈(개행)되는 증상 발생 보고 및 모바일 최적화 요청.
+- Root cause: F-Droid 링크 버튼이 추가되면서 총 4개의 버튼이 가로로 배치되자 부모 컨테이너 `.cta-buttons`의 가로 너비 한계 및 모바일 반응형 뷰에서 텍스트 영역이 협소해짐. 가로 너비를 극대화하고, 모바일 화면에서의 정렬 방식을 꽉 차고 깔끔한 형태(Full-width Stack)로 구조화할 필요성이 대두됨.
+- Work:
+  - `docs/style.css` — `.cta-buttons`에 `flex-wrap: wrap;`을 적용하고 간격을 `1rem`에서 `0.8rem`으로 줄여서 가로 공간 최적화.
+  - `docs/style.css` — `.btn`에 `white-space: nowrap;` 및 `text-align: center;`를 추가하고 가로 패딩을 `2rem`에서 `1.5rem`으로, 폰트 크기를 `0.95rem`으로 미세 축소하여 글씨 줄바꿈 원천 차단.
+  - `docs/style.css` — 576px 이하 초소형 모바일 대응 미디어 쿼리(`@media (max-width: 576px)`)를 신설하여 `.cta-buttons`를 `flex-direction: column` 및 `width: 100%`로 배치해 정갈한 스택 버튼 레이아웃 구현.
+- Verification:
+  - 스타일 규칙 검증 (`flex-wrap`, `white-space`, `padding`, `@media`).
+
 ## 2026-05-20 - v2.15.3 cut (코드블록 미리보기 크래시 fix)
 
 - Trigger: F-Droid `fdroiddata` MR(!38659) community tester `@dking08`가 Android 15에서 "코드블록을 포함한 노트의 미리보기 진입 시 앱 크래시" 보고.

@@ -95,15 +95,19 @@ nav ul a:hover {
 
 .cta-buttons {
     display: flex;
-    gap: 1rem;
+    flex-wrap: wrap;
+    gap: 0.8rem;
 }
 
 .btn {
     display: inline-block;
-    padding: 0.8rem 2rem;
+    padding: 0.7rem 1.5rem;
+    font-size: 0.95rem;
     border-radius: 8px;
     text-decoration: none;
     font-weight: 700;
+    white-space: nowrap;
+    text-align: center;
     transition: transform 0.2s, background-color 0.3s;
 }
 
@@ -215,5 +219,17 @@ footer {
     .app-icon-large {
         width: 200px;
         height: 200px;
+    }
+}
+
+@media (max-width: 576px) {
+    .cta-buttons {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+    
+    .btn {
+        width: 100%;
     }
 }

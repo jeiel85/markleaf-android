@@ -14,6 +14,7 @@
   <img src="https://img.shields.io/badge/Language-Kotlin-7F52FF?logo=kotlin&logoColor=white" alt="Language" />
   <img src="https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?logo=jetpackcompose&logoColor=white" alt="UI" />
   <img src="https://img.shields.io/badge/License-Apache%202.0-D22128" alt="License" />
+  <img src="https://img.shields.io/badge/F--Droid-Available-1976D2?logo=fdroid&logoColor=white" alt="F-Droid" />
 </p>
 
 ---
@@ -22,7 +23,7 @@
 
 **Markleaf**는 군더더기를 덜어내고 오직 '기록'과 '정리'에만 집중할 수 있도록 설계된 Android Markdown 메모 앱입니다. 당신의 데이터는 오직 당신의 기기에만 저장되며, 표준 Markdown 형식을 사용하여 데이터의 소유권과 이식성을 완벽히 보장합니다. 동기화도 *당신이 선택한 폴더* 를 통해서만 일어납니다 — Markleaf 자체는 인터넷에 나가지 않습니다.
 
-[**브랜딩 페이지 보기**](https://jeiel85.github.io/markleaf-android/) · [현재 버전: v2.15.3](https://github.com/jeiel85/markleaf-android/releases) · [Google Play (비공개 테스트)](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**브랜딩 페이지 보기**](https://jeiel85.github.io/markleaf-android/) · [현재 버전: v2.15.3](https://github.com/jeiel85/markleaf-android/releases) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play (비공개 테스트)](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -100,6 +101,7 @@ com.markleaf.notes
 ## 🚀 시작하기
 
 ### 설치 방법
+- **F-Droid**: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — F-Droid 클라이언트에서 검색하거나 위 링크로 바로 설치할 수 있습니다. 동일 서명 키(SHA-256 `0be97352…f91a`)를 사용하므로 GitHub Releases APK로 사이드로드한 경우에도 끊김 없이 업데이트가 이어집니다.
 - **Google Play (비공개 테스트)**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — 테스터로 등록된 계정으로 접속해야 보입니다.
 - **APK 직접 설치**: [Releases](https://github.com/jeiel85/markleaf-android/releases) 페이지에서 최신 버전의 APK를 다운로드한 뒤 Android 기기에서 실행해 설치합니다.
 

@@ -175,4 +175,46 @@
     <string name="privacy_app_info_title">Acerca de esta version</string>
     <string name="privacy_app_info_desc">Version %1$s\n\nEsta version de Markleaf mantiene estrictos estandares de privacidad. Todas las caracteristicas funcionan completamente sin conexion.</string>
     <string name="privacy_dashboard_button">Ver panel de privacidad</string>
+
+    <string name="settings_open_source">Codigo abierto</string>
+    <string name="oss_license_label">Licencia</string>
+    <string name="oss_license_value">Apache License 2.0</string>
+    <string name="oss_source_label">Codigo fuente</string>
+    <string name="oss_source_url">https://github.com/jeiel85/markleaf-android</string>
+    <string name="oss_view_source">Ver en GitHub</string>
+    <string name="oss_view_license">Ver licencia completa</string>
+    <string name="oss_license_url">https://github.com/jeiel85/markleaf-android/blob/main/LICENSE</string>
+    <string name="oss_fdroid_label">F-Droid</string>
+    <string name="oss_fdroid_url">https://f-droid.org/packages/com.markleaf.notes/</string>
+    <string name="oss_view_fdroid">Ver en F-Droid</string>
+    <string name="oss_explainer">Markleaf es totalmente codigo abierto bajo Apache 2.0. Lee el codigo, audita como se guardan tus notas y contribuye en GitHub.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title_welcome">Bienvenido a Markleaf</string>
+    <string name="onboarding_body_welcome">Una aplicacion tranquila de notas Markdown local-first para Android. Tu texto se queda en este dispositivo a menos que decidas compartirlo o exportarlo.</string>
+    <string name="onboarding_title_markdown">Escribe en Markdown</string>
+    <string name="onboarding_body_markdown">Usa **negrita**, _cursiva_, # titulos, listas, codigo y citas. Toca Vista previa en la barra superior para ver el resultado renderizado en cualquier momento.</string>
+    <string name="onboarding_title_tags">Organiza con #etiquetas</string>
+    <string name="onboarding_body_tags">Escribe #proyecto o #reunion en cualquier parte de una nota. Las etiquetas se detectan automaticamente y aparecen en la pantalla de Etiquetas.</string>
+    <string name="onboarding_title_local">Tus datos se quedan locales</string>
+    <string name="onboarding_body_local">Sin cuenta, sin analiticas, sin nube. Exporta cualquier nota como archivo .md, o apunta Markleaf a una carpeta sincronizada (Dropbox / Drive / Syncthing) para multi-dispositivo.</string>
+    <string name="onboarding_next">Siguiente</string>
+    <string name="onboarding_done">Empezar</string>
+    <string name="onboarding_skip">Omitir</string>
+
+    <!-- Biometric lock -->
+    <string name="biometric_lock_title">Bloqueo de la aplicacion</string>
+    <string name="biometric_lock_setting">Requerir biometria al abrir</string>
+    <string name="biometric_lock_description">Se requiere huella o reconocimiento facial cuando se abre Markleaf. Las notas en si nunca salen del dispositivo.</string>
+    <string name="biometric_lock_prompt_title">Desbloquear Markleaf</string>
+    <string name="biometric_lock_prompt_subtitle">Autenticate para acceder a tus notas</string>
+    <string name="biometric_lock_cancel">Cancelar</string>
+    <string name="biometric_lock_unavailable">La autenticacion biometrica no esta disponible en este dispositivo. Configura una huella o cara en los ajustes del sistema para usar el bloqueo.</string>
+    <string name="biometric_lock_retry">Reintentar</string>
+    <string name="biometric_lock_locked_message">Markleaf esta bloqueado.</string>
+
+    <!-- PDF export -->
+    <string name="export_pdf">Exportar como PDF…</string>
+    <string name="export_pdf_job_name">Markleaf — %1$s</string>
+    <string name="export_pdf_unavailable">La exportacion a PDF solo esta disponible en Android 5 y posteriores.</string>
 </resources>

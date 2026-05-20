@@ -156,9 +156,12 @@
     <string name="oss_license_label">ライセンス</string>
     <string name="oss_license_value">Apache License 2.0</string>
     <string name="oss_source_label">ソースコード</string>
+    <string name="oss_source_url">https://github.com/jeiel85/markleaf-android</string>
     <string name="oss_view_source">GitHub で見る</string>
     <string name="oss_view_license">ライセンス全文を見る</string>
+    <string name="oss_license_url">https://github.com/jeiel85/markleaf-android/blob/main/LICENSE</string>
     <string name="oss_fdroid_label">F-Droid</string>
+    <string name="oss_fdroid_url">https://f-droid.org/packages/com.markleaf.notes/</string>
     <string name="oss_view_fdroid">F-Droid で見る</string>
     <string name="oss_explainer">Markleaf は Apache 2.0 ライセンスによる完全オープンソースです。コードを読み、ノートの保存方法を直接監査でき、GitHub で貢献も可能です。</string>
 

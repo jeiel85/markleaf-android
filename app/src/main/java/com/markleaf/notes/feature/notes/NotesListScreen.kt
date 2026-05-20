@@ -55,6 +55,8 @@ import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -296,7 +298,9 @@ private fun SectionHeader(text: String) {
         text = text,
         style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+        modifier = Modifier
+            .padding(horizontal = 24.dp, vertical = 8.dp)
+            .semantics { heading() }
     )
 }
 
@@ -333,6 +337,7 @@ private fun NoteRow(
                     }
                 )
                 .padding(horizontal = 12.dp, vertical = 10.dp)
+                .semantics(mergeDescendants = true) {}
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),

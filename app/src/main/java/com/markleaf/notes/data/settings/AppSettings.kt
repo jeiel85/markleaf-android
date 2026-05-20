@@ -6,7 +6,9 @@ data class AppSettings(
     val screenshotProtection: Boolean = false,
     val syncFolderUri: String? = null,
     val syncLastSyncedAt: Long? = null,
-    val colorPalette: ColorPalette = ColorPalette.MARKLEAF_GREEN
+    val colorPalette: ColorPalette = ColorPalette.MARKLEAF_GREEN,
+    val onboardingCompleted: Boolean = false,
+    val biometricLockEnabled: Boolean = false
 )
 
 enum class ColorPalette {

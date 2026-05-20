@@ -162,6 +162,35 @@
     <string name="oss_view_fdroid">F-Droid で見る</string>
     <string name="oss_explainer">Markleaf は Apache 2.0 ライセンスによる完全オープンソースです。コードを読み、ノートの保存方法を直接監査でき、GitHub で貢献も可能です。</string>
 
+    <!-- Onboarding -->
+    <string name="onboarding_title_welcome">Markleaf へようこそ</string>
+    <string name="onboarding_body_welcome">静かでローカルファーストな Android 用 Markdown ノートアプリです。明示的に共有 / 書き出ししない限り、テキストはこの端末内に留まります。</string>
+    <string name="onboarding_title_markdown">Markdown で書く</string>
+    <string name="onboarding_body_markdown">**太字**、_斜体_、# 見出し、リスト、コード、引用をそのまま使えます。上部のプレビューをタップすると、いつでもレンダリング結果を確認できます。</string>
+    <string name="onboarding_title_tags">#タグで整理する</string>
+    <string name="onboarding_body_tags">ノート内のどこにでも #project や #meeting と書くだけで、タグが自動で認識されタグ画面に表示されます。</string>
+    <string name="onboarding_title_local">データは端末内に残ります</string>
+    <string name="onboarding_body_local">アカウントもアナリティクスもクラウドもありません。ノートを .md ファイルとして書き出したり、同期フォルダ(Dropbox / Drive / Syncthing)を指定して複数端末で扱うこともできます。</string>
+    <string name="onboarding_next">次へ</string>
+    <string name="onboarding_done">はじめる</string>
+    <string name="onboarding_skip">スキップ</string>
+
+    <!-- Biometric lock -->
+    <string name="biometric_lock_title">アプリのロック</string>
+    <string name="biometric_lock_setting">開くたびに生体認証を要求</string>
+    <string name="biometric_lock_description">Markleaf を開くときに指紋または顔認証を求めます。ノート自体は端末外に送信されません。</string>
+    <string name="biometric_lock_prompt_title">Markleaf のロックを解除</string>
+    <string name="biometric_lock_prompt_subtitle">ノートにアクセスするには認証してください</string>
+    <string name="biometric_lock_cancel">キャンセル</string>
+    <string name="biometric_lock_unavailable">この端末では生体認証を利用できません。システム設定で指紋または顔を登録してから再試行してください。</string>
+    <string name="biometric_lock_retry">再試行</string>
+    <string name="biometric_lock_locked_message">Markleaf はロックされています。</string>
+
+    <!-- PDF export -->
+    <string name="export_pdf">PDF として書き出し…</string>
+    <string name="export_pdf_job_name">Markleaf — %1$s</string>
+    <string name="export_pdf_unavailable">PDF の書き出しは Android 5 以降でのみ利用できます。</string>
+
     <!-- Widget -->
     <string name="quick_note_widget_label">クイックノート</string>
     <string name="quick_note_widget_description">タップしてすぐに新しいノートを作成</string>

@@ -165,6 +165,35 @@
     <string name="oss_view_fdroid">View on F-Droid</string>
     <string name="oss_explainer">Markleaf is fully open source under Apache 2.0. Read the code, audit how your notes are stored, and contribute on GitHub.</string>
 
+    <!-- Onboarding -->
+    <string name="onboarding_title_welcome">Welcome to Markleaf</string>
+    <string name="onboarding_body_welcome">A quiet, local-first Markdown notes app for Android. Your text stays on this device unless you choose to share or export it.</string>
+    <string name="onboarding_title_markdown">Write in Markdown</string>
+    <string name="onboarding_body_markdown">Use **bold**, _italic_, # headings, lists, code, and quotes. Tap Preview in the top bar to see the rendered view at any time.</string>
+    <string name="onboarding_title_tags">Organize with #tags</string>
+    <string name="onboarding_body_tags">Type #project or #meeting anywhere in a note. Tags are picked up automatically and shown on the Tags screen.</string>
+    <string name="onboarding_title_local">Your data stays local</string>
+    <string name="onboarding_body_local">No account, no analytics, no cloud. Export any note as a .md file, or point Markleaf at a synced folder (Dropbox / Drive / Syncthing) for multi-device.</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_done">Get started</string>
+    <string name="onboarding_skip">Skip</string>
+
+    <!-- Biometric lock -->
+    <string name="biometric_lock_title">App lock</string>
+    <string name="biometric_lock_setting">Require biometric to open</string>
+    <string name="biometric_lock_description">Fingerprint or face unlock is required when Markleaf opens. Notes themselves are never sent off device.</string>
+    <string name="biometric_lock_prompt_title">Unlock Markleaf</string>
+    <string name="biometric_lock_prompt_subtitle">Authenticate to access your notes</string>
+    <string name="biometric_lock_cancel">Cancel</string>
+    <string name="biometric_lock_unavailable">Biometric authentication is not available on this device. Set up a fingerprint or face in system settings to use app lock.</string>
+    <string name="biometric_lock_retry">Try again</string>
+    <string name="biometric_lock_locked_message">Markleaf is locked.</string>
+
+    <!-- PDF export -->
+    <string name="export_pdf">Export as PDF…</string>
+    <string name="export_pdf_job_name">Markleaf — %1$s</string>
+    <string name="export_pdf_unavailable">PDF export is only available on Android 5 and later.</string>
+
     <!-- Widget -->
     <string name="quick_note_widget_label">Quick Note</string>
     <string name="quick_note_widget_description">Tap to quickly create a new note</string>

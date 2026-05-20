@@ -162,6 +162,35 @@
     <string name="oss_view_fdroid">F-Droid에서 보기</string>
     <string name="oss_explainer">Markleaf는 Apache 2.0 라이선스로 완전 오픈소스입니다. 코드를 직접 읽고, 노트가 어떻게 저장되는지 감사할 수 있으며, GitHub에서 기여할 수 있습니다.</string>
 
+    <!-- Onboarding -->
+    <string name="onboarding_title_welcome">Markleaf에 오신 것을 환영합니다</string>
+    <string name="onboarding_body_welcome">조용하고 로컬 우선인 안드로이드 마크다운 노트 앱입니다. 사용자가 직접 공유하거나 내보내지 않는 한 텍스트는 이 기기에만 머뭅니다.</string>
+    <string name="onboarding_title_markdown">Markdown으로 쓰세요</string>
+    <string name="onboarding_body_markdown">**굵게**, _기울임_, # 제목, 목록, 코드, 인용을 자유롭게 사용하세요. 상단의 미리보기를 탭하면 언제든 렌더링된 화면을 볼 수 있습니다.</string>
+    <string name="onboarding_title_tags">#태그로 정리하세요</string>
+    <string name="onboarding_body_tags">노트 어디에든 #프로젝트, #회의처럼 입력하면 자동으로 태그가 인식되어 태그 화면에 나타납니다.</string>
+    <string name="onboarding_title_local">데이터는 기기에 머뭅니다</string>
+    <string name="onboarding_body_local">계정도, 분석도, 클라우드도 없습니다. 노트는 .md 파일로 내보내거나, 동기화 폴더(Dropbox/Drive/Syncthing)를 지정해 여러 기기로 확장할 수 있습니다.</string>
+    <string name="onboarding_next">다음</string>
+    <string name="onboarding_done">시작하기</string>
+    <string name="onboarding_skip">건너뛰기</string>
+
+    <!-- Biometric lock -->
+    <string name="biometric_lock_title">앱 잠금</string>
+    <string name="biometric_lock_setting">열 때 생체 인증 요구</string>
+    <string name="biometric_lock_description">Markleaf를 열 때 지문 또는 얼굴 인증을 요구합니다. 노트 자체는 절대 기기 밖으로 나가지 않습니다.</string>
+    <string name="biometric_lock_prompt_title">Markleaf 잠금 해제</string>
+    <string name="biometric_lock_prompt_subtitle">노트에 접근하려면 인증하세요</string>
+    <string name="biometric_lock_cancel">취소</string>
+    <string name="biometric_lock_unavailable">이 기기에서는 생체 인증을 사용할 수 없습니다. 시스템 설정에서 지문이나 얼굴을 등록한 뒤 다시 시도하세요.</string>
+    <string name="biometric_lock_retry">다시 시도</string>
+    <string name="biometric_lock_locked_message">Markleaf가 잠겨 있습니다.</string>
+
+    <!-- PDF export -->
+    <string name="export_pdf">PDF로 내보내기…</string>
+    <string name="export_pdf_job_name">Markleaf — %1$s</string>
+    <string name="export_pdf_unavailable">PDF 내보내기는 Android 5 이상에서만 사용할 수 있습니다.</string>
+
     <!-- Widget -->
     <string name="quick_note_widget_label">빠른 노트</string>
     <string name="quick_note_widget_description">탭해서 새 노트 바로 만들기</string>

@@ -22,6 +22,7 @@ import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.ColorPalette
 import com.markleaf.notes.data.sync.NoteFolderMirror
+import com.markleaf.notes.feature.onboarding.WelcomeOnboardingSheet
 import com.markleaf.notes.navigation.MarkleafNavHost
 import com.markleaf.notes.ui.theme.MarkleafTheme
 import com.markleaf.notes.ui.viewmodel.MarkleafViewModelFactory
@@ -122,6 +123,15 @@ class MainActivity : ComponentActivity() {
                     shouldCreateNote = shouldCreateNote,
                     sharedText = sharedText
                 )
+                if (!appSettings.onboardingCompleted) {
+                    WelcomeOnboardingSheet(
+                        onDismiss = {
+                            lifecycleScope.launch {
+                                settingsRepository.setOnboardingCompleted(true)
+                            }
+                        }
+                    )
+                }
             }
         }
     }

@@ -27,8 +27,22 @@ class AppSettingsRepository(
             syncLastSyncedAt = preferences[SYNC_LAST_SYNCED_AT],
             colorPalette = preferences[COLOR_PALETTE]
                 ?.let { value -> enumValueOrDefault(value, ColorPalette.MARKLEAF_GREEN) }
-                ?: ColorPalette.MARKLEAF_GREEN
+                ?: ColorPalette.MARKLEAF_GREEN,
+            onboardingCompleted = preferences[ONBOARDING_COMPLETED] ?: false,
+            biometricLockEnabled = preferences[BIOMETRIC_LOCK_ENABLED] ?: false
         )
+    }
+
+    suspend fun setOnboardingCompleted(completed: Boolean) {
+        context.markleafSettingsDataStore.edit { preferences ->
+            preferences[ONBOARDING_COMPLETED] = completed
+        }
+    }
+
+    suspend fun setBiometricLockEnabled(enabled: Boolean) {
+        context.markleafSettingsDataStore.edit { preferences ->
+            preferences[BIOMETRIC_LOCK_ENABLED] = enabled
+        }
     }
 
     suspend fun setColorPalette(palette: ColorPalette) {
@@ -85,5 +99,7 @@ class AppSettingsRepository(
         val SYNC_FOLDER_URI = stringPreferencesKey("sync_folder_uri")
         val SYNC_LAST_SYNCED_AT = longPreferencesKey("sync_last_synced_at")
         val COLOR_PALETTE = stringPreferencesKey("color_palette")
+        val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
+        val BIOMETRIC_LOCK_ENABLED = booleanPreferencesKey("biometric_lock_enabled")
     }
 }

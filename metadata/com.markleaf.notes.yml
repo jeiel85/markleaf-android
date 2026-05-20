@@ -16,9 +16,9 @@ Binaries:
   https://github.com/jeiel85/markleaf-android/releases/download/v%v/markleaf-v%v.apk
 
 Builds:
-  - versionName: 2.15.2
-    versionCode: 87
-    commit: f51f0d6c530c7cb41495d9775df0985ebb5648f7
+  - versionName: 2.15.3
+    versionCode: 88
+    commit: 85d03e3f79433c919414b843b2497769647bc226
     subdir: app
     gradle:
       - yes
@@ -27,5 +27,5 @@ AllowedAPKSigningKeys: 0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: 2.15.2
-CurrentVersionCode: 87
+CurrentVersion: 2.15.3
+CurrentVersionCode: 88

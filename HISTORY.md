@@ -1,3 +1,24 @@
+## 2026-05-20 - v2.15.3 cut (코드블록 미리보기 크래시 fix)
+
+- Trigger: F-Droid `fdroiddata` MR(!38659) community tester `@dking08`가 Android 15에서 "코드블록을 포함한 노트의 미리보기 진입 시 앱 크래시" 보고.
+- Root cause: `SyntaxHighlighter` SHELL_RULES 정규식 `\$\{[^}]+}|...`의 닫는 `}` 미escape. JVM `java.util.regex`는 허용해도 Android ICU regex는 거부 — 정적 초기화 실패가 SyntaxHighlighter object 전체를 무력화시켜 어떤 언어의 코드블록이든 첫 preview 렌더링에 `ExceptionInInitializerError`로 죽음. Robolectric/JUnit은 호스트 JVM regex라 모든 테스트가 통과해서 회귀가 release에 도달.
+- Work:
+  - `app/src/main/.../syntax/SyntaxHighlighter.kt` — SHELL_RULES bash 변수 regex의 닫는 `}` 한 곳을 `\}`로 escape + WHY 주석 추가.
+  - `app/src/androidTest/.../syntax/SyntaxHighlighterAndroidTest.kt` 신규 — 모든 언어 rule을 실 Android runtime에서 tokenize, round-trip 검증. 같은 종류의 JVM/ICU 회귀가 다시 들어오면 instrumented test가 잡음.
+  - `app/src/test/.../FencedCodeBlockEdgeCasesTest.kt` 신규 — 빈/미닫힘/단일줄/공백 body 등 코드블록 edge case 10개를 SimpleMarkdownPreview + SyntaxHighlighter pipeline에 통과시켜 정적 초기화 실패가 아닌 한 절대 안 죽도록.
+  - `app/build.gradle.kts` — versionCode 87→88, versionName 2.15.2→2.15.3.
+  - `app/src/main/.../feature/editor/EditorScreen.kt` — 별도 누락 fix 포함: TopAppBar 타이틀이 너비를 넘으면 줄바꿈 대신 폰트 0.7배까지 점진적으로 자동 축소.
+  - CHANGELOG / fastlane changelogs 88.txt / README / NOCLOUD_CERTIFICATION 모두 v2.15.3로 갱신.
+  - metadata/com.markleaf.notes.yml의 Builds entry를 v2.15.3, commit `85d03e3f`로 교체 후 fdroiddata MR push.
+- First v2.15.3 attempt (commit `e77dc74`)은 5개 새 Roborazzi 스냅샷 테스트의 golden 누락으로 verify가 실패. unit + androidTest로 회귀 net 이미 충분해서 스냅샷 5개 제거 후 v2.15.3 tag를 `85d03e3` commit으로 재발행. (GitHub Release v2.15.3 cleanup-tag로 삭제 후 재생성, 다운로드 카운트 0이라 안전.)
+- Verification:
+  - `./gradlew.bat --no-daemon :app:test :app:lintRelease :app:assembleRelease` → BUILD SUCCESSFUL
+  - 디바이스 재현: 수정 전 release/debug APK 둘 다 `미리보기` 진입 시 `ExceptionInInitializerError`로 즉시 크래시 확인. 수정 후 동일 입력으로 정상 렌더링 확인.
+  - 다운로드한 `markleaf-v2.15.3.apk`의 signing block IDs: `0x7109871a` (v2 sig) + `0x42726577` (Verity padding). `0x504B4453` (Dependency metadata) 없음. 서명 cert SHA-256 `0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a` 유지.
+  - 인스트루멘티드 테스트 `SyntaxHighlighterAndroidTest` 디바이스에서 OK (1 test).
+  - fdroiddata MR head pipeline 2538988010 — 9/9 jobs success.
+  - 핸드오프: `markleaf-v2.15.3.aab` + `markleaf-v2.15.3-release-notes.txt` 바탕화면 dump.
+
 ## 2026-05-19 - v2.15.2 cut (F-Droid reproducible-build fix)
 
 - Selected task: F-Droid `fdroiddata` MR(!38659) 리뷰 후속 — reviewer `@linsui`가 요청한 App Inclusion 템플릿 + `Note` category + `Binaries:` + `AllowedAPKSigningKeys:` 추가. 이어 `check apk` 잡이 v2.15.1 APK의 AGP "Dependency metadata" 서명 블록(`0x504B4453`)을 reject → v2.15.2 cut.

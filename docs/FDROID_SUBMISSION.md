@@ -6,10 +6,10 @@ F-Droid repository.
 ## Current release
 
 - App id: `com.markleaf.notes`
-- Version name: `2.15.2`
-- Version code: `87`
-- Upstream tag: `v2.15.2`
-- Tag commit: `f51f0d6c530c7cb41495d9775df0985ebb5648f7`
+- Version name: `2.15.3`
+- Version code: `88`
+- Upstream tag: `v2.15.3`
+- Tag commit: `85d03e3f79433c919414b843b2497769647bc226`
 
 ## Upstream readiness
 
@@ -96,8 +96,23 @@ builds. Adding the binary URL pattern surfaced a second blocker:
   the same time.
 
 After pushing v2.15.2 to MR commit `f4c818953`, the upstream MR head
-pipeline is again green — all nine CI jobs pass, including `check apk` and
-`fdroid build`. The MR is now awaiting F-Droid reviewer merge.
+pipeline went green — all nine CI jobs passed, including `check apk` and
+`fdroid build`.
+
+Community tester `@dking08` then reported that opening preview on any
+note containing a fenced code block crashed the app on Android 15. Root
+cause: the `SyntaxHighlighter` shell-rule regex closed `\${...}` with a
+bare `}`. JVM `java.util.regex` accepts that — every host-JVM unit test
+and Roborazzi snapshot passed — but Android's ICU engine rejects it,
+throwing during the object's static initializer and poisoning every
+fenced-code-block render forever after. Fixed in v2.15.3 by escaping the
+`}` and adding `SyntaxHighlighterAndroidTest`, an instrumented test that
+exercises every language rule on a real Android runtime so the same
+JVM/ICU regex mismatch cannot slip past again.
+
+After pushing v2.15.3 to MR commit `3a18bbe50`, the upstream MR head
+pipeline is again green — all nine CI jobs pass. The MR is now awaiting
+F-Droid reviewer merge.
 
 ## Notes for reviewers
 

@@ -86,12 +86,18 @@ Android 프로젝트가 아직 초기화되지 않았다면 먼저 표준 Kotlin
 
 ## Release Artifact Export
 
-사용자가 "새 버전 만들기"를 요청하면 버전 bump, changelog, fastlane changelog, 검증, commit/tag 작업과 함께 바탕화면에 Play Console 제출용 파일을 내보낸다.
+사용자가 "새 버전 만들기"를 요청하면 버전 bump, changelog, fastlane changelog, 검증, commit/tag 작업과 함께 바탕화면에 Play Console 제출용 파일을 내보낸다. 이 두 파일 dump는 전용 Gradle task로 자동화되어 있다:
 
-- AAB 파일: `markleaf-vX.Y.Z-play-console.aab`
-- 릴리즈 노트 TXT 파일: `markleaf-vX.Y.Z-release-notes.txt`
+```bash
+./gradlew :app:exportReleaseToDesktop
+```
 
-TXT 파일은 바로 복사/붙여넣기 가능해야 하며, 한글/영문 릴리즈 노트만 아래 태그로 감싼다. 태그 밖에는 어떤 설명이나 문구도 넣지 않는다.
+이 task는 `bundleRelease`에 의존하므로 AAB도 함께 빌드된다. 산출물:
+
+- AAB 파일: `markleaf-vX.Y.Z.aab` — `app/build/outputs/bundle/release/app-release.aab` 복사본
+- 릴리즈 노트 TXT 파일: `markleaf-vX.Y.Z-release-notes.txt` — `fastlane/metadata/android/{ko-KR,en-US}/changelogs/<versionCode>.txt`를 읽어 `<ko-KR>`/`<en-US>` 블록으로 묶음
+
+TXT 파일은 바로 복사/붙여넣기 가능해야 하며, 한글/영문 릴리즈 노트만 아래 태그로 감싼다. 태그 밖에는 어떤 설명이나 문구도 넣지 않는다 (Gradle task가 이 형식을 보장한다).
 
 ```text
 <ko-KR>
@@ -101,6 +107,8 @@ TXT 파일은 바로 복사/붙여넣기 가능해야 하며, 한글/영문 릴�
 ...
 </en-US>
 ```
+
+따라서 cut 전에 두 fastlane changelog (ko-KR / en-US, BCP 47 region 대문자)가 새 versionCode 파일명으로 작성되어 있어야 task가 통과한다. 누락 시 task가 명시적으로 실패한다.
 
 ## Stop Conditions
 

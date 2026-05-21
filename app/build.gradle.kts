@@ -163,6 +163,87 @@ ksp {
     arg("room.expandProjection", "true")
 }
 
+// ---------------------------------------------------------------------------
+// exportReleaseToDesktop
+// ---------------------------------------------------------------------------
+// Drops the Play-ready AAB and a pre-formatted release-notes TXT onto the
+// user's Desktop, matching the contract in AGENTS.md's "Release Artifact
+// Export" section. The TXT pulls its body from the fastlane locale changelogs
+// keyed off `versionCode`, so the same source-of-truth feeds both F-Droid and
+// the Play Console submission.
+//
+// Locale tags follow BCP 47 with uppercase region (`ko-KR` / `en-US`).
+// The TXT contains ONLY the two tag blocks; no surrounding prose, per spec.
+val exportReleaseToDesktop by tasks.registering {
+    group = "markleaf"
+    description = "Copies the release AAB and a bilingual release-notes TXT to the user's Desktop"
+
+    dependsOn("bundleRelease")
+
+    doLast {
+        val versionName = android.defaultConfig.versionName
+            ?: throw GradleException("versionName is not set in defaultConfig")
+        val versionCode = android.defaultConfig.versionCode
+            ?: throw GradleException("versionCode is not set in defaultConfig")
+
+        // Resolve the user-visible Desktop. On Windows the path is often
+        // redirected by OneDrive ("OneDrive\Desktop" in English locales,
+        // "OneDrive\바탕 화면" in Korean), so a bare $HOME/Desktop write
+        // ends up at the non-OneDrive path that the user no longer looks at.
+        // Check the redirected locations first, then fall through to the
+        // classic path for macOS/Linux/plain Windows.
+        val home = File(System.getProperty("user.home"))
+        val candidates = listOf(
+            File(home, "OneDrive/바탕 화면"),
+            File(home, "OneDrive/Desktop"),
+            File(home, "Desktop")
+        )
+        val desktop = candidates.firstOrNull { it.isDirectory }
+            ?: throw GradleException(
+                "Could not find a Desktop directory. Tried:\n" +
+                    candidates.joinToString("\n") { "  - ${it.absolutePath}" }
+            )
+
+        // --- AAB ---
+        val aab = File(layout.buildDirectory.get().asFile, "outputs/bundle/release/app-release.aab")
+        if (!aab.isFile) {
+            throw GradleException(
+                "Release AAB not found at ${aab.absolutePath}. " +
+                    "bundleRelease should have produced it — check the build log."
+            )
+        }
+        val aabTarget = File(desktop, "markleaf-v$versionName.aab")
+        aab.copyTo(aabTarget, overwrite = true)
+        logger.lifecycle("Wrote ${aabTarget.absolutePath} (${aab.length()} bytes)")
+
+        // --- Release notes TXT ---
+        val fastlaneRoot = rootProject.file("fastlane/metadata/android")
+        val koSrc = File(fastlaneRoot, "ko-KR/changelogs/$versionCode.txt")
+        val enSrc = File(fastlaneRoot, "en-US/changelogs/$versionCode.txt")
+        listOf(koSrc, enSrc).forEach { f ->
+            if (!f.isFile) {
+                throw GradleException(
+                    "Missing fastlane changelog: ${f.absolutePath}. " +
+                        "Author both ko-KR and en-US changelogs for versionCode $versionCode before cutting."
+                )
+            }
+        }
+
+        val txtTarget = File(desktop, "markleaf-v$versionName-release-notes.txt")
+        txtTarget.writeText(
+            buildString {
+                append("<ko-KR>\n")
+                append(koSrc.readText().trim())
+                append("\n</ko-KR>\n")
+                append("<en-US>\n")
+                append(enSrc.readText().trim())
+                append("\n</en-US>\n")
+            }
+        )
+        logger.lifecycle("Wrote ${txtTarget.absolutePath}")
+    }
+}
+
 dependencies {
     val composeBom = platform("androidx.compose:compose-bom:2024.02.02")
     implementation(composeBom)

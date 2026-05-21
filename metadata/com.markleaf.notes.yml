@@ -23,9 +23,16 @@ Builds:
     gradle:
       - yes
 
+  - versionName: 2.16.0
+    versionCode: 89
+    commit: 4ac26788678721b54a59b7603378b34b8d788e94
+    subdir: app
+    gradle:
+      - yes
+
 AllowedAPKSigningKeys: 0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: 2.15.3
-CurrentVersionCode: 88
+CurrentVersion: 2.16.0
+CurrentVersionCode: 89

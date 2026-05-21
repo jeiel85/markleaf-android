@@ -1,4 +1,28 @@
 ---
+## 2026-05-21 - 스토어 등록 준비 (Commercial P2-3) 및 독일어 로컬라이제이션 최종 검증 완료
+
+Selected task:
+- [Commercial P2-3] Store packaging — 스크린샷, feature graphic, Play privacy copy, F-Droid metadata 정리
+- 독일어(DE) 로컬라이제이션 최종 검증 및 보강
+
+Decision:
+- Google Play Store에 출시하기 위한 고품질 마케팅 및 스토어 그래픽 자산을 완성했습니다.
+- v2.x 기능(로컬 미러링, 이미지 첨부 등)의 투명한 개인정보 보호 방침을 반영한 copy-paste용 Privacy Policy 문서 양식을 작성하였습니다.
+- F-Droid upstream yml 레시피 파일을 v2.16.0 (versionCode 89) 빌드에 맞추어 `CurrentVersion` 및 `CurrentVersionCode`와 builds 블록 commit hash를 업데이트 완료했습니다.
+- 독일어(DE) 번역 파일(`strings.xml`) 및 스타터 노트(`starter_notes.md`)에 대해 100% key-parity 및 유효성 검증을 마쳐 완벽한 다국어 지원 패키지를 보장합니다.
+
+What was implemented:
+- `C:\Users\jeiel\.gemini\antigravity\brain\06cc7930-9add-4253-9236-024279f2e734\store_feature_graphic_1779373673414.png` — 프리미엄 다크 그린/에메랄드/글래스모피즘 테마의 스토어 피처 그래픽 리디자인 이미지 생성 완료.
+- `C:\Users\jeiel\.gemini\antigravity\brain\06cc7930-9add-4253-9236-024279f2e734\store_screenshot_mockup_1779373584005.png` — Play Store용 프리미엄 스토어 스크린샷 목업 이미지 생성 완료.
+- `metadata/com.markleaf.notes.yml` — F-Droid yml 빌드 레시피 `CurrentVersion`, `CurrentVersionCode`, Builds 블록을 v2.16.0 (versionCode 89, commit `4ac26788678721b54a59b7603378b34b8d788e94`)으로 갱신 완료.
+- `app/src/main/res/values-de/strings.xml` — 전체 230개 스트링 키에 대해 default key와 100% parity 및 정확한 독일어 번역 유지 상태 검증 완료.
+- `app/src/main/res/raw-de/starter_notes.md` — 4개의 온보딩 가이드 노트(Willkommen, Markdown, Tags, Local-first)의 완벽한 독일어 번역 및 서식(---markleaf-note---) 유효성 검증 완료.
+
+Build/test result:
+- `./gradlew.bat test` 로컬 실행 결과 `ResourceParityTest`를 포함한 모든 unit test가 100% 성공적으로 통과함.
+- `rg "android.permission.INTERNET" -n app/src` 결과 인터넷 권한 없음 검증 완료.
+
+---
 ## 2026-05-21 - 프랑스어 번역, 이미지 EXIF 제거, Sync Center 및 PDF Polish (Commercial Readiness P1/P2)
 
 Selected task:

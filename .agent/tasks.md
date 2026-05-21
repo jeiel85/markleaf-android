@@ -187,7 +187,7 @@ P1 - 상용 신뢰도 강화:
 P2 - 전환율/경쟁력:
 - [x] [Commercial P2-1] 고품질 PDF 내보내기 — Markdown preview 기반 PDF 렌더링
 - [x] [Commercial P2-2] 첫 실행 온보딩 개선 — No account / local markdown / export & folder sync 철학을 짧게 전달
-- [ ] [Commercial P2-3] Store packaging — 스크린샷, feature graphic, Play privacy copy, F-Droid metadata 정리
+- [x] [Commercial P2-3] Store packaging — 스크린샷, feature graphic, Play privacy copy, F-Droid metadata 정리
 
 ## Phase 19 - Inline Rich Rendering (Done, 2026-05-08, v2.0.0)
 

@@ -138,6 +138,7 @@ android {
         unitTests {
             isIncludeAndroidResources = true
             all {
+                it.systemProperty("robolectric.sqliteMode", "NATIVE")
                 // Roborazzi snapshot tests rely on `ui-test-manifest` which only
                 // ships a ComponentActivity entry in the debug manifest. Skip them
                 // in release-variant unit tests so `:app:test` stays green.
@@ -289,6 +290,9 @@ dependencies {
     
     // DocumentFile (Storage Access Framework)
     implementation("androidx.documentfile:documentfile:1.0.1")
+
+    // EXIF metadata library (Apache 2.0, F-Droid friendly)
+    implementation("androidx.exifinterface:exifinterface:1.3.7")
 
     // Biometric (AOSP, Apache 2.0 — F-Droid friendly). Used by the
     // optional app-lock gate. Authentication is fully local; the API

@@ -218,4 +218,13 @@
     <string name="privacy_app_info_desc">Version %1$s\n\nThis build of Markleaf maintains strict privacy standards. All features work completely offline.</string>
     <string name="privacy_dashboard_button">View Privacy Dashboard</string>
 
+    <!-- Sync & Conflict Center -->
+    <string name="sync_center_title">Sync Center</string>
+    <string name="conflict_center_title">Conflict Center</string>
+    <string name="conflict_center_desc">These notes were modified on multiple devices simultaneously. Review and edit to merge changes manually, or delete copies you no longer need.</string>
+    <string name="conflict_center_empty">No conflicts detected</string>
+    <string name="conflict_center_empty_desc">All mirrored notes are perfectly in sync.</string>
+    <string name="conflict_delete_confirm_title">Delete conflict copy?</string>
+    <string name="conflict_delete_confirm_desc">This conflict copy will be permanently deleted.</string>
+
 </resources>

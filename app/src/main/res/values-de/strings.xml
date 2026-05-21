@@ -218,4 +218,12 @@
     <string name="privacy_app_info_desc">Version %1$s\n\nDiese Markleaf-Version hält strenge Datenschutzstandards ein. Alle Funktionen arbeiten vollständig offline.</string>
     <string name="privacy_dashboard_button">Datenschutz-Dashboard öffnen</string>
 
+    <!-- Sync & Conflict Center -->
+    <string name="sync_center_title">Synchronisationscenter</string>
+    <string name="conflict_center_title">Konfliktcenter</string>
+    <string name="conflict_center_desc">Diese Notizen wurden auf mehreren Geräten gleichzeitig geändert. Überprüfe und bearbeite sie, um die Änderungen manuell zusammenzuführen, oder lösche Kopien, die du nicht mehr benötigst.</string>
+    <string name="conflict_center_empty">Keine Konflikte erkannt</string>
+    <string name="conflict_center_empty_desc">Alle gespiegelten Notizen sind perfekt synchronisiert.</string>
+    <string name="conflict_delete_confirm_title">Konfliktkopie löschen?</string>
+    <string name="conflict_delete_confirm_desc">Diese Konfliktkopie wird dauerhaft gelöscht.</string>
 </resources>

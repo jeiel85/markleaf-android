@@ -7,6 +7,10 @@ All notable changes to Markleaf are documented in this file.
 남아 있던 GitHub 이슈 9개를 OSS 철학(로컬-퍼스트 · 프라이버시 · 오픈소스 투명성) 기준으로 동시 처리한 기능 묶음 릴리스. Play 마케팅성 이슈(#52/#53/#54)는 별도로 정리해 닫고, 코어 가치와 정렬된 이슈만 코드로 옮겼습니다.
 
 ### Added
+- **프랑스어(fr-FR) UI 번역 및 온보딩 에셋.** `res/values-fr/strings.xml` 및 스타터 노트 `starter_notes.md` 프랑스어 에셋 추가. 프랑스어를 사용하는 유럽 시장을 타깃으로 리소스를 대폭 확대하고 Parity를 맞췄습니다.
+- **이미지 EXIF 메타데이터 자동 스트리핑.** 첨부파일 삽입 또는 미러링 시 이미지 헤더 내부의 사생활 정보(GPS 좌표, 기기 제조사/모델, 시간 오프셋)를 완벽하게 제거하여 로컬 프라이버시를 지킵니다.
+- **다중 기기 Sync Center 및 Conflict Center UI.** SAF 폴더 미러링 중 발생한 `(다른 기기 사본)` 충돌 노트들을 직관적으로 한눈에 모아 확인하고, 개별 삭제하여 수동으로 merge/정리할 수 있는 로컬 충돌 관리 허브를 추가했습니다. Settings 메뉴에 연동되었습니다.
+- **PDF 출력 레이아웃 튜닝.** Markdown HTML 렌더링에 A4 규격 여백(20mm x 18mm), page-break-inside avoid 정책, JetBrains Mono 폰트를 도입하여 인쇄물 수준의 고품질 출력을 지원합니다.
 - **첫 실행 4단계 안내 시트(#57).** `WelcomeOnboardingSheet`이 `Welcome → Markdown → #tags → local-first` 순서로 호버 없이 한 번만 노출. DataStore의 `onboardingCompleted` 플래그로 두 번째 실행부터는 사라집니다.
 - **생체 인증 앱 잠금(#37).** `BiometricLockGate`가 `androidx.biometric` (AOSP)로 지문/얼굴 인증을 요구합니다. 설정에서 토글, 기본 OFF. 인증은 100% 기기 내부에서 끝나며 노트는 같은 Room DB에 그대로 — 잠금은 UI 차단일 뿐 데이터에는 영향이 없습니다. `MainActivity`는 `BiometricPrompt`를 호스팅하기 위해 `FragmentActivity`로 승격.
 - **노트 → PDF 내보내기(#38).** 에디터 공유 메뉴에 `Export as PDF…` 추가. 파이프라인은 `commonmark HtmlRenderer → 숨김 WebView → PrintManager`. 결과 파일은 시스템 인쇄 대화상자가 책임지므로 Markleaf는 출력 URI를 소유하지 않고 INTERNET·저장소 권한도 추가하지 않습니다. A4 / 18mm·16mm 여백 / Markleaf 그린 액센트 인라인 스타일.
@@ -22,12 +26,13 @@ All notable changes to Markleaf are documented in this file.
 ### Build
 - versionCode 88 → 89, versionName 2.15.3 → 2.16.0.
 - `androidx.biometric:biometric:1.1.0` 추가 (Apache 2.0, F-Droid 친화).
+- `androidx.exifinterface:exifinterface:1.3.7` 추가 (Apache 2.0, F-Droid 친화).
 - `MainActivity`: `ComponentActivity` → `FragmentActivity`.
 - DB schema 12 → 13, 새 `13.json` schema export 포함.
 - `app/src/main/AndroidManifest.xml`에 `QuickNoteWidgetService` 서비스 + 위젯 인텐트 추가.
 
 ### Issues closed
-- #27 #37 #38 #39 #51 #55 #57 #65 #76
+- #27 #37 #38 #39 #51 #55 #57 #65 #76 [Commercial P1-1] [Commercial P1-3] [Commercial P2-1]
 
 ## 2026-05-20 - 랜딩페이지 다운로드 링크 줄바꿈 수정 및 모바일 반응형 개선 (Hotfix)
 

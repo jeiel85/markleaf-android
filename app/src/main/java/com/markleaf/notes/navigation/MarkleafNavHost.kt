@@ -49,12 +49,14 @@ import com.markleaf.notes.feature.search.SearchScreen
 import com.markleaf.notes.feature.settings.SettingsScreen
 import com.markleaf.notes.feature.tags.TagsScreen
 import com.markleaf.notes.feature.trash.TrashScreen
+import com.markleaf.notes.feature.sync.SyncCenterScreen
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.ui.viewmodel.ArchiveViewModel
 import com.markleaf.notes.ui.viewmodel.NotesViewModel
 import com.markleaf.notes.ui.viewmodel.SearchViewModel
 import com.markleaf.notes.ui.viewmodel.TrashViewModel
+import com.markleaf.notes.ui.viewmodel.SyncCenterViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -264,7 +266,17 @@ fun MarkleafNavHost(
         composable(NavRoutes.SETTINGS) {
             SettingsScreen(
                 onBack = { navController.popBackStack() },
-                onPrivacyClick = { navController.navigate(NavRoutes.PRIVACY) }
+                onPrivacyClick = { navController.navigate(NavRoutes.PRIVACY) },
+                onSyncCenterClick = { navController.navigate(NavRoutes.SYNC_CENTER) }
+            )
+        }
+
+        composable(NavRoutes.SYNC_CENTER) {
+            val viewModel = viewModel<SyncCenterViewModel>(factory = viewModelFactory)
+            SyncCenterScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() },
+                onNoteClick = { noteId -> navController.navigate(NavRoutes.editorRoute(noteId)) }
             )
         }
 

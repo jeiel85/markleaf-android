@@ -18,6 +18,8 @@ class MarkleafViewModelFactory(
                 TrashViewModel(noteRepository) as T
             modelClass.isAssignableFrom(ArchiveViewModel::class.java) ->
                 ArchiveViewModel(noteRepository) as T
+            modelClass.isAssignableFrom(SyncCenterViewModel::class.java) ->
+                SyncCenterViewModel(noteRepository) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
     }

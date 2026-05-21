@@ -1,4 +1,34 @@
 ---
+## 2026-05-21 - 프랑스어 번역, 이미지 EXIF 제거, Sync Center 및 PDF Polish (Commercial Readiness P1/P2)
+
+Selected task:
+- [Commercial P1-1] 이미지 첨부 EXIF 제거
+- [Commercial P1-3] Sync Center / Conflict Center UI 구현
+- [Commercial P2-1] 고품질 PDF 내보내기 스타일 개선
+- 프랑스어(fr-FR) 로컬라이제이션 및 온보딩 문서 추가
+
+Decision:
+- 이미지 첨부 시 사용자의 사생활(위치, 기기 정보, 시간 오프셋)을 보호하기 위해 Exif 라이브러리를 활용해 첨부파일 복사 시 메타데이터를 즉각 제거합니다.
+- SAF 미러링 도중 생기는 충돌 복사본들을 사용자가 로컬에서 직관적으로 파악하고 정리가 가능하도록 Sync Center 및 Conflict Center를 추가하고 Settings와 navigation에 와이어링합니다.
+- 프랑스어(fr-FR) 로컬라이제이션 지원을 통해 유럽 시장 Commercial Readiness의 발판을 완성했습니다.
+- PDF 출력의 퀄리티 향상을 위해 A4 용지 규격 마진 및 page-break 처리를 CSS에 최적화하여 렌더링하도록 개선했습니다.
+
+What was implemented:
+- `app/src/main/java/com/markleaf/notes/util/AttachmentManager.kt` — 이미지 첨부 파일 저장 시 GPS 정보, 제조사, 모델명, 시간 오프셋 등 EXIF 데이터 제거 로직 도입.
+- `app/src/test/java/com/markleaf/notes/util/AttachmentManagerTest.kt` — Robolectric를 통한 EXIF 데이터 정밀 제거 기능 단위 테스트 검증 완료.
+- `app/src/main/java/com/markleaf/notes/feature/sync/SyncCenterScreen.kt` — 수동 동기화, 충돌 목록 표시, 충돌 파일 영구 삭제 및 로컬 피드백 UI 추가.
+- `app/src/main/java/com/markleaf/notes/ui/viewmodel/SyncCenterViewModel.kt` — Repository와 UI 스크린 간의 충돌 노트 흐름 및 삭제 관리 뷰모델 구현.
+- `app/src/main/java/com/markleaf/notes/navigation/MarkleafNavHost.kt` & `NavRoutes.kt` — Sync Center 화면 라우팅 및 SettingsScreen 오버플로우 연동 완료.
+- `app/src/main/res/values-fr/strings.xml` — 온보딩, 설정, 아카이브, 휴지통, 동기화 및 충돌 센터 전체 프랑스어(fr-FR) 번역 적용.
+- `app/src/main/res/raw-fr/starter_notes.md` — 프랑스어 온보딩용 스타터 마크다운 에셋 추가.
+- `fastlane/metadata/android/fr-FR/` — fastlane 릴리즈 메타데이터 및 versionCode 89에 맞춘 프랑스어 릴리즈 노트 추가.
+- `app/src/main/java/com/markleaf/notes/util/ExportPdf.kt` — margin 20mm/18mm, JetBrains Mono font, table styling, page-break-inside avoid 규칙 추가 및 폴리시.
+
+Build/test result:
+- `./gradlew.bat test` 성공적으로 모든 단위 테스트 및 ResourceParityTest, AttachmentManagerTest 통과.
+- `rg "android.permission.INTERNET" -n app/src` 결과 없음 (오프라인 정책 유지).
+
+---
 ## 2026-05-20 - 랜딩페이지 다운로드 링크 줄바꿈 수정 및 모바일 반응형 개선 (Hotfix)
 
 Selected task:

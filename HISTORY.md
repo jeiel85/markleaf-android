@@ -1,3 +1,15 @@
+## 2026-05-21 - v2.16.0 - post-MVP 상용화 기능 구현 (Commercial Readiness P1/P2)
+
+- Trigger: 상용 출시 신뢰성 강화 및 유럽/프랑스 시장 진출을 위한 P1/P2 핵심 요건 구현.
+- Work:
+  - **[Commercial P1-1] 이미지 첨부 EXIF 제거**: 첨부파일 저장 시 `androidx.exifinterface:exifinterface`를 사용하여 이미지 내부의 GPS 좌표, 카메라 제조사, 소프트웨어 버전, 촬영일시 등 사생활 민감 정보를 안전하게 스트리핑.
+  - **[Commercial P1-3] Sync Center / Conflict Center UI**: SAF 폴더 미러링 시 발생하는 충돌 본문 `(다른 기기 사본)` 노트 리스트를 조회하고, 개별 삭제 처리할 수 있는 로컬 충돌 관리 허브 UI 구현. `SettingsScreen`에 연동 완료.
+  - **[Commercial P2-1] PDF 인쇄 스타일 폴리시**: A4 규격 여백(20mm x 18mm), page-break-inside/after 규칙 적용, JetBrains Mono 고품질 폰트 인라인 렌더링 스타일링 튜닝.
+  - **프랑스어(fr-FR) 로컬라이제이션**: 200개 이상의 UI 스트링 번역 (`res/values-fr/strings.xml`), 프랑스어 스타터 메모 번들 (`res/raw-fr/starter_notes.md`), Fastlane 메타데이터 및 릴리즈 노트 (`fastlane/metadata/android/fr-FR/89.txt`) 완벽 추가.
+- Verification:
+  - `./gradlew.bat test` -> BUILD SUCCESSFUL (로보렉트릭 기반 `AttachmentManagerTest` 및 전체 unit/migration/parity 테스트 100% 패스)
+  - `./gradlew.bat assembleDebug` -> BUILD SUCCESSFUL (디버그 APK 19,040,916 바이트 정상 생성 확인)
+
 ## 2026-05-21 - v2.16.0 cut (남은 이슈 9종 동시 처리)
 
 - Trigger: "남아있는 이슈들 모두다 대응 완료" 골. F-Droid 정식 등재(MR #38659 머지) 직후 Bear-class 마무리 단계로 진입.

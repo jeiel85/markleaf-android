@@ -10,6 +10,7 @@ object NavRoutes {
     const val ARCHIVE = "archive"
     const val SETTINGS = "settings"
     const val PRIVACY = "privacy"
+    const val SYNC_CENTER = "sync_center"
 
     fun editorRoute(noteId: String? = null): String {
         return if (noteId != null) {

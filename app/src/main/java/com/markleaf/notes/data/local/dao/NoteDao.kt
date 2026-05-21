@@ -66,4 +66,7 @@ interface NoteDao {
 
     @Query("SELECT MAX(sortOrder) FROM notes WHERE trashed = 0 AND archived = 0")
     suspend fun getMaxSortOrder(): Int?
+
+    @Query("SELECT * FROM notes WHERE trashed = 0 AND title LIKE '%(다른 기기 사본%' ORDER BY updatedAt DESC")
+    fun observeConflictNotes(): Flow<List<NoteEntity>>
 }

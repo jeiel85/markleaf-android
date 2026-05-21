@@ -7,6 +7,22 @@
 
 ## Confirmed Decisions
 
+### D049 - Offline-First Sync/Conflict Center, Attachment Privacy, and French Localization supporting Commercial Readiness
+
+Markleaf integrates multi-device offline-first sync conflict resolution, stripes sensitive metadata from image attachments, adopts high-quality PDF print configurations, and expands European locale readiness via fr-FR translations.
+
+Why:
+- Play Store commercial launch requires robust local privacy (no accidental coordinate or metadata leaks inside attachment files).
+- Multi-device sync using the folder-mirror flow generates local conflicts (other device copies) which must be manageable directly in-app.
+- Providing high-fidelity PDF layouts ensures standard-compliant note exporting without network delegation.
+- France and other French-speaking European locales are prime audiences for lightweight offline Markdown note applications.
+
+Implementation:
+- **Attachment EXIF Stripping**: `AttachmentManager` copies SAF-picked files to app-private storage, then immediately wipes coordinate (`TAG_GPS_LATITUDE`), device maker (`TAG_MAKE`), software, and timestamp markers from image headers.
+- **Sync/Conflict Center**: `SyncCenterScreen` displays persistent sync folder configuration details, last synced timestamps, and registers the `observeConflictNotes` room flow query which detects notes matching the mirror conflict schema `%(다른 기기 사본%`. Users can inspect and delete duplicate copies permanently.
+- **fr-FR Translations**: `res/values-fr/strings.xml` maps all 200+ localized string resources, matching English and Korean resource parity, coupled with raw-fr starter notes.
+- **PDF Styling**: `ExportPdf` renders high-quality A4 document flows with 20mm vertical / 18mm horizontal margins, page-break safeguards on headers/lists/tables, and custom JetBrains Mono code rendering.
+
 ### D048 - Room Schema Export And Migration Regression Are Release Gates
 
 Markleaf commits Room schema JSON from database version 12 onward and keeps migration regression coverage for the oldest supported public migration path.

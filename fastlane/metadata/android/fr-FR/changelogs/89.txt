@@ -1,0 +1,11 @@
+Nouvelles fonctionnalités + améliorations recherche/accessibilité.
+
+• Guide de bienvenue en 4 étapes lors du premier lancement.
+• Verrouillage biométrique optionnel (désactivé par défaut, local).
+• Exportation de n'importe quelle note au format PDF depuis le menu de partage.
+• Widget affichant vos notes récentes ; appuyez pour ouvrir.
+• Recherche optimisée pour le coréen / japonais / chinois.
+• Traduction de l'interface en japonais (ja).
+• Paramètres : liens vers licence / GitHub / F-Droid.
+• Geste de retour prédictif (Android 13+).
+• En-têtes de section annoncés comme titres pour TalkBack.

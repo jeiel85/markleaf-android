@@ -80,6 +80,12 @@ class LocalNoteRepository(
         }
     }
 
+    override fun observeConflictNotes(): Flow<List<Note>> {
+        return database.noteDao().observeConflictNotes().map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
+
     private fun String.toFtsPrefixQuery(): String {
         return split(Regex("\\s+"))
             .map { token ->

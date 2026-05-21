@@ -69,62 +69,132 @@ object ExportPdf {
             <meta charset="UTF-8">
             <title>${escape(title)}</title>
             <style>
-              @page { margin: 18mm 16mm; }
+              @page { margin: 20mm 18mm; }
               body {
                 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
                   "Helvetica Neue", Arial, sans-serif;
                 font-size: 11pt;
-                line-height: 1.55;
-                color: #1f2421;
-                max-width: 700px;
+                line-height: 1.6;
+                color: #2c3531;
+                max-width: 720px;
                 margin: 0 auto;
-                padding: 0 4px;
+                padding: 0;
               }
               h1, h2, h3, h4, h5, h6 {
-                color: #1f2421;
-                line-height: 1.25;
+                color: #1a2521;
+                line-height: 1.3;
                 margin-top: 1.6em;
                 margin-bottom: 0.5em;
+                font-weight: 700;
+                page-break-after: avoid;
               }
-              h1 { font-size: 1.7em; border-bottom: 1px solid #d6dcd5; padding-bottom: 0.25em; }
-              h2 { font-size: 1.35em; }
-              h3 { font-size: 1.15em; }
-              p { margin: 0.6em 0; }
+              h1 {
+                font-size: 1.8em;
+                border-bottom: 2px solid #3d6b49;
+                padding-bottom: 0.3em;
+                color: #1a2521;
+              }
+              h2 {
+                font-size: 1.4em;
+                border-bottom: 1px solid #d6dcd5;
+                padding-bottom: 0.2em;
+                margin-top: 1.4em;
+              }
+              h3 { font-size: 1.2em; }
+              p { margin: 0.8em 0; }
+              a {
+                color: #3d6b49;
+                text-decoration: none;
+                font-weight: 500;
+              }
+              a:hover {
+                text-decoration: underline;
+              }
               code {
-                background: #f1f4f1;
-                border-radius: 3px;
-                padding: 0.1em 0.35em;
+                background: #f3f6f3;
+                border-radius: 4px;
+                padding: 0.15em 0.35em;
                 font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
-                font-size: 0.9em;
+                font-size: 0.88em;
+                color: #2e5939;
               }
               pre {
-                background: #f1f4f1;
-                border-radius: 6px;
-                padding: 12px 14px;
+                background: #f7faf7;
+                border: 1px solid #e1e7e1;
+                border-radius: 8px;
+                padding: 14px 16px;
                 overflow-x: auto;
-                font-size: 0.9em;
-                line-height: 1.45;
+                font-size: 0.85em;
+                line-height: 1.5;
+                margin: 1em 0;
+                page-break-inside: avoid;
               }
-              pre code { background: transparent; padding: 0; }
+              pre code {
+                background: transparent;
+                padding: 0;
+                color: inherit;
+                font-size: inherit;
+              }
               blockquote {
-                margin: 0.8em 0;
-                padding: 0.2em 0.9em;
-                border-left: 3px solid #4f7d59;
-                color: #4a534d;
+                margin: 1.2em 0;
+                padding: 0.4em 1.2em;
+                border-left: 4px solid #3d6b49;
+                background: #f8faf8;
+                color: #4a544f;
+                border-radius: 0 6px 6px 0;
+                page-break-inside: avoid;
               }
-              ul, ol { padding-left: 1.5em; }
-              li { margin: 0.2em 0; }
+              ul, ol {
+                padding-left: 1.8em;
+                margin: 0.8em 0;
+              }
+              li {
+                margin: 0.35em 0;
+                page-break-inside: avoid;
+              }
+              li.task-list-item, .task-list-item {
+                list-style-type: none;
+                margin-left: -1.2em;
+                page-break-inside: avoid;
+              }
+              input[type=checkbox] {
+                margin-right: 0.45em;
+                vertical-align: middle;
+              }
               table {
                 border-collapse: collapse;
                 width: 100%;
-                margin: 0.8em 0;
-                font-size: 0.95em;
+                margin: 1.2em 0;
+                font-size: 0.92em;
+                page-break-inside: avoid;
               }
-              th, td { border: 1px solid #d6dcd5; padding: 6px 9px; text-align: left; }
-              th { background: #eef2ee; }
-              a { color: #4f7d59; }
-              hr { border: none; border-top: 1px solid #d6dcd5; margin: 1.4em 0; }
-              img { max-width: 100%; }
+              th, td {
+                border: 1px solid #d6dcd5;
+                padding: 8px 12px;
+                text-align: left;
+              }
+              th {
+                background: #eaf0eb;
+                color: #2c3531;
+                font-weight: 600;
+              }
+              tr {
+                page-break-inside: avoid;
+              }
+              tr:nth-child(even) {
+                background: #fcfdfc;
+              }
+              hr {
+                border: none;
+                border-top: 1px solid #d6dcd5;
+                margin: 1.8em 0;
+              }
+              img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 6px;
+                page-break-inside: avoid;
+              }
             </style>
             </head>
             <body>

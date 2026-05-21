@@ -29,7 +29,26 @@ object AttachmentManager {
         sourceUri: Uri
     ): Result? {
         val resolver = context.contentResolver
-        val mime = resolver.getType(sourceUri) ?: "application/octet-stream"
+        var mime = resolver.getType(sourceUri)
+        if (mime == null || mime == "application/octet-stream") {
+            val extension = sourceUri.path?.substringAfterLast('.', "")?.lowercase()
+            if (!extension.isNullOrBlank()) {
+                mime = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+                if (mime == null) {
+                    mime = when (extension) {
+                        "jpg", "jpeg" -> "image/jpeg"
+                        "png" -> "image/png"
+                        "webp" -> "image/webp"
+                        "gif" -> "image/gif"
+                        "bmp" -> "image/bmp"
+                        else -> null
+                    }
+                }
+            }
+        }
+        if (mime == null) {
+            mime = "application/octet-stream"
+        }
         val ext = mime.substringAfter('/').takeIf { it.isNotEmpty() && it.length <= 6 }
             ?: "bin"
 
@@ -47,6 +66,10 @@ object AttachmentManager {
             } != null
         }.getOrDefault(false)
         if (!ok) return null
+
+        if (mime.startsWith("image/", ignoreCase = true)) {
+            stripExifMetadata(target)
+        }
 
         // Best-effort metadata insert. If DB write fails (rare), the file is
         // still on disk and renderable — we accept the orphan over a missing
@@ -111,5 +134,45 @@ object AttachmentManager {
         val dir = File(File(context.filesDir, BASE_DIR), noteId)
         if (!dir.exists()) return false
         return dir.deleteRecursively()
+    }
+
+    private fun stripExifMetadata(file: File) {
+        try {
+            val exif = androidx.exifinterface.media.ExifInterface(file.absolutePath)
+            val tagsToClear = listOf(
+                // GPS Coordinates & details
+                androidx.exifinterface.media.ExifInterface.TAG_GPS_LATITUDE,
+                androidx.exifinterface.media.ExifInterface.TAG_GPS_LATITUDE_REF,
+                androidx.exifinterface.media.ExifInterface.TAG_GPS_LONGITUDE,
+                androidx.exifinterface.media.ExifInterface.TAG_GPS_LONGITUDE_REF,
+                androidx.exifinterface.media.ExifInterface.TAG_GPS_ALTITUDE,
+                androidx.exifinterface.media.ExifInterface.TAG_GPS_ALTITUDE_REF,
+                androidx.exifinterface.media.ExifInterface.TAG_GPS_TIMESTAMP,
+                androidx.exifinterface.media.ExifInterface.TAG_GPS_DATESTAMP,
+                androidx.exifinterface.media.ExifInterface.TAG_GPS_PROCESSING_METHOD,
+                
+                // Device Details
+                androidx.exifinterface.media.ExifInterface.TAG_MAKE,
+                androidx.exifinterface.media.ExifInterface.TAG_MODEL,
+                androidx.exifinterface.media.ExifInterface.TAG_SOFTWARE,
+                
+                // Date & Time details
+                androidx.exifinterface.media.ExifInterface.TAG_DATETIME,
+                androidx.exifinterface.media.ExifInterface.TAG_DATETIME_ORIGINAL,
+                androidx.exifinterface.media.ExifInterface.TAG_DATETIME_DIGITIZED,
+                androidx.exifinterface.media.ExifInterface.TAG_SUBSEC_TIME,
+                androidx.exifinterface.media.ExifInterface.TAG_SUBSEC_TIME_ORIGINAL,
+                androidx.exifinterface.media.ExifInterface.TAG_SUBSEC_TIME_DIGITIZED,
+                androidx.exifinterface.media.ExifInterface.TAG_OFFSET_TIME,
+                androidx.exifinterface.media.ExifInterface.TAG_OFFSET_TIME_ORIGINAL,
+                androidx.exifinterface.media.ExifInterface.TAG_OFFSET_TIME_DIGITIZED
+            )
+            for (tag in tagsToClear) {
+                exif.setAttribute(tag, null)
+            }
+            exif.saveAttributes()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

@@ -217,4 +217,13 @@
     <string name="export_pdf">Exportar como PDF…</string>
     <string name="export_pdf_job_name">Markleaf — %1$s</string>
     <string name="export_pdf_unavailable">La exportacion a PDF solo esta disponible en Android 5 y posteriores.</string>
+
+    <!-- Sync & Conflict Center -->
+    <string name="sync_center_title">Centro de sincronización</string>
+    <string name="conflict_center_title">Centro de conflictos</string>
+    <string name="conflict_center_desc">Estas notas fueron modificadas en múltiples dispositivos simultáneamente. Revísalas y edítalas para fusionar los cambios manualmente, o elimina las copias que ya no necesites.</string>
+    <string name="conflict_center_empty">No se detectaron conflictos</string>
+    <string name="conflict_center_empty_desc">Todas las notas reflejadas están perfectamente sincronizadas.</string>
+    <string name="conflict_delete_confirm_title">¿Eliminar copia en conflicto?</string>
+    <string name="conflict_delete_confirm_desc">Esta copia en conflicto será eliminada permanentemente.</string>
 </resources>

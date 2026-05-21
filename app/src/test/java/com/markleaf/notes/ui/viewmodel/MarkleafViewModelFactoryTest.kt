@@ -71,5 +71,6 @@ class MarkleafViewModelFactoryTest {
         override fun observeTrashedNotes(): Flow<List<Note>> = flowOf(emptyList())
         override fun observeArchivedNotes(): Flow<List<Note>> = flowOf(emptyList())
         override fun searchNotes(query: String): Flow<List<Note>> = flowOf(emptyList())
+        override fun observeConflictNotes(): Flow<List<Note>> = flowOf(emptyList())
     }
 }

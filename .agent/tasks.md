@@ -180,13 +180,13 @@ P0 - 정식 출시 전 필수:
 - [x] [Commercial P0-4] Privacy / Security 문서 현재화 — P0-1 작업에서 `docs/PRIVACY.md`(MVP draft 폐기), `docs/SECURITY.md`, `docs/NOCLOUD_CERTIFICATION.md`, `README.md` 모두 v2.x 기준으로 재작성. 이미지/SAF sync/share/external link 동작 정확히 구분(D046). 잔존 "MVP draft" 문구는 검증 결과 없음.
 
 P1 - 상용 신뢰도 강화:
-- [ ] [Commercial P1-1] 이미지 첨부 EXIF 제거 — 첨부 저장 시 위치/기기 메타데이터 제거 및 테스트 추가
-- [ ] [Commercial P1-2] 생체 인식 앱 잠금 — BiometricPrompt 기반 잠금/해제 흐름과 설정 토글
-- [ ] [Commercial P1-3] Sync Center / Conflict Center — Toast로 사라지는 동기화 결과를 지속 상태와 충돌 목록으로 노출
+- [x] [Commercial P1-1] 이미지 첨부 EXIF 제거 — 첨부 저장 시 위치/기기 메타데이터 제거 및 테스트 추가
+- [x] [Commercial P1-2] 생체 인식 앱 잠금 — BiometricPrompt 기반 잠금/해제 흐름과 설정 토글
+- [x] [Commercial P1-3] Sync Center / Conflict Center — Toast로 사라지는 동기화 결과를 지속 상태와 충돌 목록으로 노출
 
 P2 - 전환율/경쟁력:
-- [ ] [Commercial P2-1] 고품질 PDF 내보내기 — Markdown preview 기반 PDF 렌더링
-- [ ] [Commercial P2-2] 첫 실행 온보딩 개선 — No account / local markdown / export & folder sync 철학을 짧게 전달
+- [x] [Commercial P2-1] 고품질 PDF 내보내기 — Markdown preview 기반 PDF 렌더링
+- [x] [Commercial P2-2] 첫 실행 온보딩 개선 — No account / local markdown / export & folder sync 철학을 짧게 전달
 - [ ] [Commercial P2-3] Store packaging — 스크린샷, feature graphic, Play privacy copy, F-Droid metadata 정리
 
 ## Phase 19 - Inline Rich Rendering (Done, 2026-05-08, v2.0.0)

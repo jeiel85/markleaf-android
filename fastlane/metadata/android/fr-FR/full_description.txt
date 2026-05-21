@@ -1,0 +1,25 @@
+Markleaf est une application de notes Markdown légère et locale d'abord pour Android.
+
+Rédigez en Markdown brut, organisez avec des étiquettes intégrées, recherchez instantanément et gardez le contrôle de vos notes. Markleaf stocke vos notes dans une base de données Room locale et ne demande pas la permission INTERNET.
+
+Fonctionnalités clés :
+
+* Éditeur Markdown avec aperçu
+* Étiquettes écrites directement dans le corps des notes
+* Recherche en plein texte locale et rapide
+* Épingler, archiver, corbeille et restauration
+* Liens wiki et rétroliens (backlinks)
+* Images jointes stockées dans l'espace privé de l'application
+* Export Markdown d'une note ou de toutes les notes
+* Miroir de dossier SAF pour synchronisation externe contrôlée par l'utilisateur
+* Options de couleurs claire, sombre et Material You
+* Disposition à deux volets pour tablettes
+
+Confidentialité et distribution :
+
+* Aucun compte requis
+* Aucun serveur Markleaf
+* Pas de statistiques, publicités, suivi, Firebase ou SDK de rapport de crash propriétaire
+* Aucune permission INTERNET
+* Sauvegarde automatique Android désactivée
+* Les données de l'utilisateur ne quittent l'appareil que par des actions explicites de l'OS, telles que l'exportation, le partage, l'ouverture de liens externes ou l'utilisation d'un dossier SAF sélectionné par l'utilisateur

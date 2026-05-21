@@ -63,7 +63,8 @@ import kotlinx.coroutines.withContext
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
-    onPrivacyClick: () -> Unit = {}
+    onPrivacyClick: () -> Unit = {},
+    onSyncCenterClick: () -> Unit = {}
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val scope = rememberCoroutineScope()
@@ -332,7 +333,8 @@ fun SettingsScreen(
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
-                    }
+                    },
+                    onSyncCenterClick = onSyncCenterClick
                 )
 
                 SettingsSection(title = stringResource(R.string.settings_open_source)) {
@@ -412,7 +414,8 @@ private fun SyncSection(
     lastSyncedAt: Long?,
     onPickFolder: () -> Unit,
     onSyncNow: () -> Unit,
-    onStopSync: () -> Unit
+    onStopSync: () -> Unit,
+    onSyncCenterClick: () -> Unit
 ) {
     SettingsSection(title = stringResource(R.string.sync_title)) {
         Text(
@@ -487,6 +490,13 @@ private fun SyncSection(
                     Text(stringResource(R.string.sync_stop))
                 }
             }
+        }
+        Spacer(Modifier.height(12.dp))
+        Button(
+            onClick = onSyncCenterClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(stringResource(R.string.sync_center_title))
         }
     }
 }

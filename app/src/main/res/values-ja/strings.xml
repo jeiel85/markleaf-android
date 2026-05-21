@@ -218,4 +218,12 @@
     <string name="privacy_app_info_desc">バージョン %1$s\n\nこの Markleaf ビルドは厳格なプライバシー基準を維持しています。すべての機能は完全オフラインで動作します。</string>
     <string name="privacy_dashboard_button">プライバシーダッシュボードを開く</string>
 
+    <!-- Sync & Conflict Center -->
+    <string name="sync_center_title">同期センター</string>
+    <string name="conflict_center_title">競合センター</string>
+    <string name="conflict_center_desc">これらのノートは複数の端末で同時に変更されました。変更内容を確認して手動でマージするか、不要になったコピーを削除してください。</string>
+    <string name="conflict_center_empty">競合は検出されませんでした</string>
+    <string name="conflict_center_empty_desc">ミラーリングされたすべてのノートが完全に同期されています。</string>
+    <string name="conflict_delete_confirm_title">競合コピーを削除しますか？</string>
+    <string name="conflict_delete_confirm_desc">この競合コピーは完全に削除されます。</string>
 </resources>

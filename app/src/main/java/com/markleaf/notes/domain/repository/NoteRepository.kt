@@ -17,4 +17,5 @@ interface NoteRepository {
     fun observeArchivedNotes(): Flow<List<Note>>
     fun searchNotes(query: String): Flow<List<Note>>
     suspend fun reorderNotes(notes: List<Note>)
+    fun observeConflictNotes(): Flow<List<Note>>
 }

@@ -218,4 +218,13 @@
     <string name="privacy_app_info_desc">버전 %1$s\n\n이 Markleaf 빌드는 개인정보 보호 원칙을 엄격히 지킵니다. 모든 기능은 완전히 오프라인에서 작동합니다.</string>
     <string name="privacy_dashboard_button">개인정보 대시보드 보기</string>
 
+    <!-- Sync & Conflict Center -->
+    <string name="sync_center_title">동기화 센터</string>
+    <string name="conflict_center_title">충돌 보관함</string>
+    <string name="conflict_center_desc">여러 기기에서 동시에 수정되어 생성된 충돌 사본 목록입니다. 사본을 탭하여 비교/편집하거나, 불필요한 사본을 삭제하세요.</string>
+    <string name="conflict_center_empty">감지된 충돌이 없습니다</string>
+    <string name="conflict_center_empty_desc">모든 미러링 노트가 완벽히 동기화되어 있습니다.</string>
+    <string name="conflict_delete_confirm_title">충돌 사본을 삭제할까요?</string>
+    <string name="conflict_delete_confirm_desc">이 충돌 사본은 영구히 삭제되며 복구할 수 없습니다.</string>
+
 </resources>

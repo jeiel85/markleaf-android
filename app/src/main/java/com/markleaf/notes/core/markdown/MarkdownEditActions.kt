@@ -261,17 +261,165 @@ object MarkdownEditActions {
         return blockStart to blockEnd
     }
 
+    fun findWordAtCursor(text: String, cursor: Int): TextRange {
+        if (text.isEmpty() || cursor < 0 || cursor > text.length) return TextRange(cursor)
+
+        // 단어 경계로 삼지 않을 문자(알파벳, 숫자, 한글 등 다국어 지원)
+        // 공백, 줄바꿈, 마크다운 제어 문자(*, ~, `, _) 등은 단어 경계로 취급
+        val isWordChar = { char: Char ->
+            char.isLetterOrDigit() && char != '*' && char != '~' && char != '`' && char != '_'
+        }
+
+        // 1. 커서 오른쪽 문자가 단어 문자인 경우 -> 그 단어를 탐색
+        if (cursor < text.length && isWordChar(text[cursor])) {
+            var start = cursor
+            while (start > 0 && isWordChar(text[start - 1])) {
+                start--
+            }
+            var end = cursor
+            while (end < text.length && isWordChar(text[end])) {
+                end++
+            }
+            return TextRange(start, end)
+        }
+
+        // 2. 커서가 맨 끝이고 왼쪽 문자가 단어 문자인 경우 -> 그 단어를 탐색
+        if (cursor == text.length && cursor > 0 && isWordChar(text[cursor - 1])) {
+            var start = cursor - 1
+            while (start > 0 && isWordChar(text[start - 1])) {
+                start--
+            }
+            return TextRange(start, cursor)
+        }
+
+        // 3. 그 외의 경우 (공백 위이거나 단어 문자가 아닌 곳) -> collapsed
+        return TextRange(cursor)
+    }
+
     private fun wrapSelection(
         value: TextFieldValue,
         before: String,
         after: String,
         placeholder: String
     ): TextFieldValue {
-        val selected = selectedText(value)
-        val body = selected.ifBlank { placeholder }
+        val text = value.text
+        val start = value.selection.min
+        val end = value.selection.max
+        val isCollapsed = value.selection.collapsed
+
+        // Case 1: 선택 범위가 존재하는 경우
+        if (!isCollapsed) {
+            val selected = text.substring(start, end)
+
+            // Case 1-A: 선택 텍스트 자체가 이미 마커로 감싸인 경우 (예: **hello**) -> Unwrap
+            if (selected.length >= (before.length + after.length) &&
+                selected.startsWith(before) && selected.endsWith(after)
+            ) {
+                val unwrapped = selected.substring(before.length, selected.length - after.length)
+                val updatedText = text.replaceRange(start, end, unwrapped)
+                return value.copy(
+                    text = updatedText,
+                    selection = TextRange(start, start + unwrapped.length)
+                )
+            }
+
+            // Case 1-B: 선택 영역 바로 바깥에 마커가 감싸고 있는 경우 (예: **[hello]**) -> Unwrap
+            if (start >= before.length && end <= text.length - after.length) {
+                val prefix = text.substring(start - before.length, start)
+                val suffix = text.substring(end, end + after.length)
+                if (prefix == before && suffix == after) {
+                    val updatedText = text.removeRange(end, end + after.length)
+                                          .removeRange(start - before.length, start)
+                    val newStart = start - before.length
+                    val newEnd = end - before.length
+                    return value.copy(
+                        text = updatedText,
+                        selection = TextRange(newStart, newEnd)
+                    )
+                }
+            }
+
+            // Case 1-C: 감싸여 있지 않음 -> Wrap
+            val replacement = "$before$selected$after"
+            val updatedText = text.replaceRange(start, end, replacement)
+            return value.copy(
+                text = updatedText,
+                selection = TextRange(start, start + replacement.length)
+            )
+        }
+
+        // Case 2: 선택 범위가 없고 커서만 있는 경우 (Collapsed)
+        val (lineStart, lineText) = currentLine(value)
+        val relativeCursor = start - lineStart
+
+        // Case 2-A: 커서 주변이 이미 마커로 감싸여 있는지 체크 (예: **hel|lo**) -> Unwrap
+        val prefixCount = countOccurrences(lineText.substring(0, relativeCursor), before)
+        val isInsideMarker = prefixCount % 2 != 0
+
+        if (isInsideMarker) {
+            val prefixIndex = lineText.lastIndexOf(before, relativeCursor - 1)
+            val suffixIndex = lineText.indexOf(after, relativeCursor)
+
+            if (prefixIndex != -1 && suffixIndex != -1 && prefixIndex < suffixIndex) {
+                val innerText = lineText.substring(prefixIndex + before.length, suffixIndex)
+                if (!innerText.contains(before) && !innerText.contains(after)) {
+                    val absolutePrefix = lineStart + prefixIndex
+                    val absoluteSuffix = lineStart + suffixIndex
+
+                    val updatedText = text.removeRange(absoluteSuffix, absoluteSuffix + after.length)
+                                          .removeRange(absolutePrefix, absolutePrefix + before.length)
+
+                    val newCursor = if (start < absoluteSuffix) {
+                        start - before.length
+                    } else {
+                        start - before.length - after.length
+                    }.coerceAtLeast(0)
+
+                    return value.copy(
+                        text = updatedText,
+                        selection = TextRange(newCursor)
+                    )
+                }
+            }
+        }
+
+        // Case 2-B: 언랩 대상이 아님 -> 스마트 주변 단어 탐색 및 Wrap
+        val wordRange = findWordAtCursor(text, start)
+        if (!wordRange.collapsed) {
+            val word = text.substring(wordRange.min, wordRange.max)
+            val replacement = "$before$word$after"
+            val updatedText = text.replaceRange(wordRange.min, wordRange.max, replacement)
+
+            val relativeOffset = start - wordRange.min
+            val newCursor = wordRange.min + before.length + relativeOffset
+            return value.copy(
+                text = updatedText,
+                selection = TextRange(newCursor)
+            )
+        }
+
+        // Case 2-C: 주변에 유효한 단어도 없음 -> 기존 Fallback
+        val body = placeholder
         val replacement = "$before$body$after"
-        val cursorOffset = if (selected.isBlank()) before.length else replacement.length
-        return replaceSelection(value, replacement, cursorOffset = cursorOffset)
+        val updatedText = text.replaceRange(start, start, replacement)
+        val newCursor = start + before.length
+        return value.copy(
+            text = updatedText,
+            selection = TextRange(newCursor)
+        )
+    }
+
+    private fun countOccurrences(text: String, sub: String): Int {
+        if (sub.isEmpty()) return 0
+        var count = 0
+        var idx = 0
+        while (true) {
+            idx = text.indexOf(sub, idx)
+            if (idx == -1) break
+            count++
+            idx += sub.length
+        }
+        return count
     }
 
     private fun insertAtLineStart(value: TextFieldValue, prefix: String): TextFieldValue {

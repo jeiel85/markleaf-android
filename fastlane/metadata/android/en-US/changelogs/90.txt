@@ -1,0 +1,5 @@
+Smart Markdown formatting toggle & word wrapping.
+
+• Smart wrapping: Wrapping surrounding words at cursor for Bold, Italic, Strikethrough, and Inline Code.
+• Smart toggle (unwrap): Pressing formatting buttons inside formatted text cleanly removes markdown markers without nesting.
+• Selection preservation: Selection range remains highlighted after applying markers for continuous writing flow.

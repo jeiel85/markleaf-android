@@ -166,6 +166,17 @@ GitHub에 열려 있는 이슈를 기준으로 한 미구현 작업 목록.
 - [x] [#55] 오픈소스 투명성 강조 — 설정 화면 Open Source 섹션 (GitHub, 라이선스, F-Droid 링크) 구현 완료 (v2.16.0)
 - [x] [#57] 인터랙티브 온보딩 가이드 — 4단계 WelcomeOnboardingSheet 모달 바텀 시트 구현 완료 (v2.16.0)
 
+## Phase 23 - Smart Formatting Toggle & Wrapping (Done)
+
+목적: iOS의 Bear 앱과 같은 프리미엄 경험을 제공하기 위해 마크다운 포맷팅 편집 액션(Bold, Italic, Strikethrough, Inline Code)을 스마트 토글 및 언랩(Toggle/Unwrap)과 지능형 주변 단어 감싸기(Smart Word Wrapping) 방식으로 고도화합니다.
+
+- [x] [Smart Formatting] MarkdownEditActions.wrapSelection 리팩토링 및 스마트 토글 구현
+- [x] [Smart Formatting] MarkdownEditActions.findWordAtCursor 지능형 단어 탐색 구현
+- [x] [Smart Formatting] MarkdownEditActionsTest.kt에 토글/언랩 및 단어 감싸기 단위 테스트 추가 및 검증
+- [x] [Smart Formatting] 실제 에디터 화면(EditorScreen)에서 수동 동작 검증 및 연동 상태 확인
+
+---
+
 ## Phase 22 - Commercial Readiness (Backlog, 2026-05-14)
 
 목적: MVP 이후 기능 확장이 충분히 진행된 Markleaf를 Play 정식 출시와 장기 사용자 데이터 보관에 견딜 수 있는 상용 수준으로 마감한다. 새 기능보다 데이터 보호, 릴리즈 게이트, 개인정보 문서, 동기화 장애 가시성을 우선한다.

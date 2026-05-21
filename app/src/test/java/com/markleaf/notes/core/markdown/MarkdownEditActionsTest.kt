@@ -99,7 +99,7 @@ class MarkdownEditActionsTest {
         )
 
         assertEquals("hello **world**", result.text)
-        assertEquals(TextRange(15), result.selection)
+        assertEquals(TextRange(6, 15), result.selection)
     }
 
     @Test
@@ -138,7 +138,7 @@ class MarkdownEditActionsTest {
         )
 
         assertEquals("hello ~~world~~", result.text)
-        assertEquals(TextRange(15), result.selection)
+        assertEquals(TextRange(6, 15), result.selection)
     }
 
     @Test
@@ -297,5 +297,128 @@ class MarkdownEditActionsTest {
         val result = MarkdownEditActions.applyAutoContinuation(before, typed)
 
         assertEquals("hello\n", result.text)
+    }
+
+    @Test
+    fun findWordAtCursor_englishWord() {
+        val text = "hello world"
+        // w
+        val r1 = MarkdownEditActions.findWordAtCursor(text, 6)
+        assertEquals(TextRange(6, 11), r1)
+        
+        // o
+        val r2 = MarkdownEditActions.findWordAtCursor(text, 8)
+        assertEquals(TextRange(6, 11), r2)
+
+        // d
+        val r3 = MarkdownEditActions.findWordAtCursor(text, 11)
+        assertEquals(TextRange(6, 11), r3)
+    }
+
+    @Test
+    fun findWordAtCursor_koreanWord() {
+        val text = "안녕 세상아"
+        // 세
+        val r1 = MarkdownEditActions.findWordAtCursor(text, 3)
+        assertEquals(TextRange(3, 6), r1)
+
+        // 아
+        val r2 = MarkdownEditActions.findWordAtCursor(text, 6)
+        assertEquals(TextRange(3, 6), r2)
+    }
+
+    @Test
+    fun findWordAtCursor_atWhitespace() {
+        val text = "hello world"
+        val r1 = MarkdownEditActions.findWordAtCursor(text, 5)
+        assertEquals(TextRange(5), r1)
+    }
+
+    @Test
+    fun findWordAtCursor_atMarkdownBoundary() {
+        val text = "hello **world**"
+        // inside w
+        val r1 = MarkdownEditActions.findWordAtCursor(text, 10)
+        assertEquals(TextRange(8, 13), r1) // index 8 is 'w', 13 is after 'd'
+    }
+
+    @Test
+    fun wrapSelection_boldUnwrapSelf() {
+        // Case 1-A: 선택 영역 자체가 마커로 감싸임
+        val result = MarkdownEditActions.bold(
+            TextFieldValue("**hello**", selection = TextRange(0, 9))
+        )
+        assertEquals("hello", result.text)
+        assertEquals(TextRange(0, 5), result.selection)
+    }
+
+    @Test
+    fun wrapSelection_boldUnwrapOuter() {
+        // Case 1-B: 선택 영역 바로 바깥에 마커 존재
+        val result = MarkdownEditActions.bold(
+            TextFieldValue("**hello**", selection = TextRange(2, 7))
+        )
+        assertEquals("hello", result.text)
+        assertEquals(TextRange(0, 5), result.selection)
+    }
+
+    @Test
+    fun wrapSelection_boldWrapNormal() {
+        // Case 1-C: Wrap normal
+        val result = MarkdownEditActions.bold(
+            TextFieldValue("hello", selection = TextRange(0, 5))
+        )
+        assertEquals("**hello**", result.text)
+        assertEquals(TextRange(0, 9), result.selection)
+    }
+
+    @Test
+    fun wrapSelection_collapsedUnwrapInside() {
+        // Case 2-A: Collapsed, inside marker -> Unwrap
+        val result = MarkdownEditActions.bold(
+            TextFieldValue("**hello**", selection = TextRange(5)) // "hel|lo"
+        )
+        assertEquals("hello", result.text)
+        assertEquals(TextRange(3), result.selection) // "hel|lo"
+    }
+
+    @Test
+    fun wrapSelection_collapsedUnwrapMultipleMarkers() {
+        // Case 2-A: Multiple markers on the same line, unwrap the active one
+        val result = MarkdownEditActions.bold(
+            TextFieldValue("**hello** and **world**", selection = TextRange(18)) // "wo|rld" (index 18)
+        )
+        assertEquals("**hello** and world", result.text)
+        assertEquals(TextRange(16), result.selection) // "wo|rld"
+    }
+
+    @Test
+    fun wrapSelection_collapsedWrapWord() {
+        // Case 2-B: Collapsed, wrap surrounding word
+        val result = MarkdownEditActions.bold(
+            TextFieldValue("hello world", selection = TextRange(8)) // "wo|rld"
+        )
+        assertEquals("hello **world**", result.text)
+        assertEquals(TextRange(10), result.selection) // "wo|rld"
+    }
+
+    @Test
+    fun wrapSelection_collapsedWrapKoreanWord() {
+        // Case 2-B: Collapsed, Korean word
+        val result = MarkdownEditActions.bold(
+            TextFieldValue("안녕 세상아", selection = TextRange(4)) // "세|상아"
+        )
+        assertEquals("안녕 **세상아**", result.text)
+        assertEquals(TextRange(6), result.selection) // "세|상아"
+    }
+
+    @Test
+    fun wrapSelection_collapsedFallback() {
+        // Case 2-C: Collapsed, no word at cursor -> Fallback
+        val result = MarkdownEditActions.bold(
+            TextFieldValue("hello ", selection = TextRange(6)) // "hello |"
+        )
+        assertEquals("hello **bold**", result.text)
+        assertEquals(TextRange(8), result.selection)
     }
 }

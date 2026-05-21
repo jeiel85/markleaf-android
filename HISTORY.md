@@ -1,3 +1,13 @@
+## 2026-05-21 - v2.16.1 - 스마트 포맷팅 토글 & 단어 감싸기 (Phase 23)
+
+- Trigger: 에디터 텍스트 포맷팅(Bold, Italic, Strikethrough, Inline Code)의 스마트 UX 완성 (스마트 주변 단어 감싸기 및 토글/언랩).
+- Work:
+  - **[Smart Formatting] MarkdownEditActions.wrapSelection 리팩토링**: 포맷팅 적용 시 드래그 상태인 선택 영역을 유지하고, 텍스트가 이미 포맷팅된 경우 이를 제거(Unwrap)하는 스마트 토글 구현.
+  - **[Smart Formatting] MarkdownEditActions.findWordAtCursor 구현**: 선택 영역이 없고 커서만 있는 상태(Collapsed)에서 한글/영어/기호 경계를 완벽하게 판별하여 주변 단어를 정확히 식별해 감싸는 지능형 탐색 로직 고도화.
+  - **[Smart Formatting] MarkdownEditActionsTest.kt 단위 테스트 작성 및 정비**: 다국어 감지, 스마트 언랩, Fallback 삽입 등 12가지 엄격한 시나리오에 대해 100% 검증.
+- Verification:
+  - `./gradlew.bat test` -> BUILD SUCCESSFUL (MarkdownEditActionsTest의 스마트 포맷팅 관련 12개 테스트 포함 전체 단위 테스트 100% 통과)
+
 ## 2026-05-21 - v2.16.0 - post-MVP 상용화 기능 구현 (Commercial Readiness P1/P2)
 
 - Trigger: 상용 출시 신뢰성 강화 및 유럽/프랑스 시장 진출을 위한 P1/P2 핵심 요건 구현.

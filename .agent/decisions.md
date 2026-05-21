@@ -7,6 +7,21 @@
 
 ## Confirmed Decisions
 
+### D050 - Bear-class Smart Text Formatting Toggle, Selection Retention & Word Wrapping (Phase 23)
+
+Markleaf implements highly advanced, premium Markdown formatting actions (Bold, Italic, Strikethrough, Inline Code) inspired by the Bear editor, resolving smart toggling, unwrapping, and multi-lingual word wrapping directly on-device.
+
+Why:
+- Standard markdown editors often force users to manually select exact word boundaries or suffer empty placeholders.
+- A premium, state-of-the-art writing experience requires wrapping the surrounding word seamlessly at a collapsed cursor, distinguishing Korean, English, and markdown boundaries.
+- Re-triggering a formatting command within active markers must intelligently unwrap (toggle off) rather than nesting or breaking the document.
+- Preserving the drag selection range even after applying markdown markers enables fluid, non-disruptive continuous editing.
+
+Implementation:
+- Modified `MarkdownEditActions.findWordAtCursor` to strictly respect whitespaces and markdown characters (`*`, `~`, `` ` ``, `_`) as boundaries, returning collapsed range when cursor is placed on a space unless at the end of the text.
+- Overhauled `MarkdownEditActions.wrapSelection` to retain drag selection boundaries, identify already-wrapped texts (Case 1-A/1-B) and collapsed active formatted areas (Case 2-A) to perform seamless "Unwrap" toggles.
+- Wired 12 unit tests in `MarkdownEditActionsTest.kt` verifying word-wrapping bounds, selection ranges, multi-marker boundaries, Korean/English inputs, and fallback structures.
+
 ### D049 - Offline-First Sync/Conflict Center, Attachment Privacy, and French Localization supporting Commercial Readiness
 
 Markleaf integrates multi-device offline-first sync conflict resolution, stripes sensitive metadata from image attachments, adopts high-quality PDF print configurations, and expands European locale readiness via fr-FR translations.

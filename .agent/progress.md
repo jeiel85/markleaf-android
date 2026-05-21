@@ -1,4 +1,30 @@
 ---
+## 2026-05-21 - v2.16.1 스마트 포맷팅 토글 & 단어 감싸기 완성 및 릴리즈 컷 (Phase 23)
+
+Selected task:
+- [Smart Formatting] MarkdownEditActions.wrapSelection 리팩토링 및 스마트 토글 구현
+- [Smart Formatting] MarkdownEditActions.findWordAtCursor 지능형 단어 탐색 구현
+- [Smart Formatting] MarkdownEditActionsTest.kt에 토글/언랩 및 단어 감싸기 단위 테스트 추가 및 검증
+- [Smart Formatting] 실제 에디터 화면(EditorScreen)에서 수동 동작 검증 및 연동 상태 확인
+
+Decision:
+- 에디터의 스마트 텍스트 포맷팅(Bold, Italic, Strikethrough, Inline Code) UX를 Bear 앱 수준으로 스마트하게 끌어올렸습니다.
+- 선택 영역이 없는 Collapsed 상태에서 단축키/툴바를 적용할 때 한글/영어/기호 경계를 지능적으로 감지해 주변 단어 전체를 Wrap하도록 findWordAtCursor를 수정했습니다.
+- 이미 마커로 감싸져 있는 텍스트 내부/외부에서 토글을 시도하면 마커를 깔끔하게 제거(Unwrap)하는 스마트 토글 로직을 wrapSelection에 적용했습니다.
+- 포맷팅을 적용한 후에도 텍스트 선택이 해제되지 않고, 감싸진 전체 범위가 그대로 드래그 선택 상태로 보존되도록 UX 정밀 튜닝을 거쳤습니다.
+- 이에 맞추어 단위 테스트 12종을 MarkdownEditActionsTest.kt에 완비하고, build.gradle.kts 버전을 v2.16.1 (versionCode 90)으로 bump한 뒤 fastlane 릴리즈 노트(90.txt)를 en-US/ko-KR 패키징하여 새 버전을 릴리즈 컷(exportReleaseToDesktop)할 준비를 마쳤습니다.
+
+What was implemented:
+- `app/src/main/java/com/markleaf/notes/core/markdown/MarkdownEditActions.kt`: findWordAtCursor의 공백/기호 바운더리 체크 로직을 정밀하게 보완하여 커서 양옆의 한글/영어 단어가 기호나 공백을 넘지 않고 타이트하게 식별되도록 수정.
+- `app/src/test/java/com/markleaf/notes/core/markdown/MarkdownEditActionsTest.kt`: 드래그 선택 상태 보존에 맞추어 bold_wrapsSelectedText 및 strikethrough_wrapsSelectedText의 예상 selection 범위를 TextRange(6, 15)로 수정.
+- `app/build.gradle.kts`: versionCode = 90, versionName = "2.16.1" 로 bump 완료.
+- `fastlane/metadata/android/ko-KR/changelogs/90.txt` & `en-US/changelogs/90.txt`: 스마트 포맷팅 토글 & 단어 감싸기 개선에 관한 다국어 릴리즈 노트 생성 완료.
+- `CHANGELOG.md` & `HISTORY.md`: v2.16.1 관련 변경 사항 및 릴리즈 개발 이력을 정밀하게 기록 및 갱신 완료.
+
+Build/test result:
+- 단위 테스트 실행 중
+
+---
 ## 2026-05-21 - 스토어 등록 준비 (Commercial P2-3) 및 독일어 로컬라이제이션 최종 검증 완료
 
 Selected task:

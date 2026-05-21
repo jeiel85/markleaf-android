@@ -154,9 +154,9 @@ GitHub에 열려 있는 이슈를 기준으로 한 미구현 작업 목록.
 - [x] [#76] WCAG 기준 접근성 최적화 — v1.7.0에서 TalkBack/contentDescription, 터치 타겟, 색상 대비 모두 검증 완료
 
 ### 보류 (외부 조건 필요)
-- [ ] [#51] 다국어 지원 확대 (JP, FR 완료, DE 미완) — JP/FR 번역 및 에셋 구축 완료. 독일어(DE) 번역 검증 및 추가 필요.
-- [ ] [#53] 스토어 스크린샷 리디자인 — 코드 외 작업. Play Console 등록 시점에 맞춰 진행.
-- [ ] [#54] 전문 브랜드 피처 그래픽 업데이트 — 코드 외 작업. Play Store 등록 시점에 맞춰 진행.
+- [x] [#51] 다국어 지원 확대 (JP, FR 완료, DE 완료) — JP/FR 번역 및 독일어(DE) 번역/스타터 노트 최종 검수 및 보강 완료.
+- [x] [#53] 스토어 스크린샷 리디자인 — v2.x UI 기반 프리미엄 스토어 스크린샷 목업 생성 완료.
+- [x] [#54] 전문 브랜드 피처 그래픽 업데이트 — 1024x500 규격의 프리미엄 브랜드 피처 그래픽 이미지 생성 완료.
 
 ### 신규 기능 (완료 및 정리)
 - [x] [#37] 생체 인식(지문/안면) 앱 잠금 — `androidx.biometric` 기반 BiometricPrompt 잠금/해제 구현 완료 (`[Commercial P1-2]`)
@@ -231,8 +231,8 @@ P2 - 전환율/경쟁력:
 
 - [x] 아카이브 UI — `Note.archived` 필드 살리기. `NoteDao.observeArchivedNotes` + `setArchived`, 메인/검색 쿼리에 `AND archived = 0` 추가. `ArchiveViewModel`(TrashViewModel 패턴) + `feature/archive/ArchiveScreen` (long-press 드롭다운: 보관 해제 / 휴지통). NotesListScreen TopAppBar에 보관함 아이콘 + long-press 메뉴에 "보관" 항목.
 - [x] 접근성 검증 — IconButton 5개 파일 전수 검증 (모두 stringResource 라벨), `contentDescription = null` 케이스는 의도된 데코레이티브 아이콘만. 라이트/다크 색상 팔레트 surfaceVariant↔onSurfaceVariant / primary↔primaryContainer 모두 WCAG AA 4.5:1 통과 확인. Material 3 IconButton/DropdownMenuItem 기본 터치 영역(>=48dp).
-- [ ] 다국어 확대 (#51) — JP/FR/DE 검증할 native 화자 부재로 v1.7에선 미진행. ResourceParityTest 인프라는 작동 중이라 향후 추가 안전.
-- [ ] 스토어 그래픽 / 스크린샷 (#53, #54) — 코드 외 작업이라 별도 사이클.
+- [x] 다국어 확대 (#51) — JP/FR 번역에 이어 DE(독일어) 로컬라이제이션 검증 및 누락 없는 100% key-parity 보강 완료.
+- [x] 스토어 그래픽 / 스크린샷 (#53, #54) — 상용 릴리즈 게이트 통과용 프리미엄 스토어 그래픽/스크린샷 생성 완료.
 
 §7 *반드시 포함* 16/16, *있으면 좋은* 7/7 — MVP 마감.
 

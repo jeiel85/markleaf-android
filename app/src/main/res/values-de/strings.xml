@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Markleaf</string>
+    <string name="notes_title">Notizen</string>
+    <string name="collapse_note_list">Notizliste einklappen</string>
+    <string name="expand_note_list">Notizliste ausklappen</string>
+    <string name="search">Suche</string>
+    <string name="tags">Tags</string>
+    <string name="trash">Papierkorb</string>
+    <string name="archive">Archiv</string>
+    <string name="unarchive">Aus Archiv holen</string>
+    <string name="archive_empty">Keine archivierten Notizen</string>
+    <string name="archive_empty_hint">Halte eine Notiz in der Hauptliste gedrückt und wähle „Archivieren“, um sie hierher zu verschieben.</string>
+    <string name="settings">Einstellungen</string>
+    <string name="more_options">Weitere Optionen</string>
+    <string name="quick_switcher_title">Schnellauswahl</string>
+    <string name="quick_switcher_hint">Zu Notiz springen…</string>
+    <string name="quick_switcher_no_results">Keine passenden Notizen.</string>
+    <string name="backlinks_section_title">Verlinkt von</string>
+    <string name="wikilink_suggestions_title">Verlinken mit…</string>
+    <string name="image_alt_dialog_title">Bildbeschreibung bearbeiten</string>
+    <string name="image_alt_dialog_description">Alternativtext hilft Screenreadern und wird angezeigt, wenn das Bild nicht geladen werden kann.</string>
+    <string name="image_alt_dialog_label">Beschreibung</string>
+    <string name="image_alt_dialog_save">Speichern</string>
+    <string name="add_note">Notiz hinzufügen</string>
+    <string name="no_notes_yet">Noch keine Notizen</string>
+    <string name="create_first_note_hint">Tippe auf +, um deine erste Notiz zu erstellen</string>
+    <string name="create_note">Notiz erstellen</string>
+    <string name="untitled">Ohne Titel</string>
+    <string name="untitled_parenthesized">(Ohne Titel)</string>
+    <string name="select_note_to_view">Notiz zum Anzeigen auswählen</string>
+
+    <string name="preview">Vorschau</string>
+    <string name="edit">Bearbeiten</string>
+    <string name="edit_note">Notiz bearbeiten</string>
+    <string name="new_note">Neue Notiz</string>
+    <string name="back">Zurück</string>
+    <string name="note_content">Notizinhalt</string>
+    <string name="editor_empty_title">Eine ruhige Seite wartet</string>
+    <string name="editor_empty_hint">Nutze Markdown, #Tags, Links und Checkboxen. Markleaf speichert während des Tippens lokal.</string>
+    <string name="bold">Fett</string>
+    <string name="italic">Kursiv</string>
+    <string name="strikethrough">Durchgestrichen</string>
+    <string name="inline_code">Inline-Code</string>
+    <string name="checkbox">Checkbox</string>
+    <string name="markdown_link">Markdown-Link</string>
+    <string name="insert_image">Bild einfügen</string>
+    <string name="attachment_failed">Bild konnte nicht angehängt werden.</string>
+    <string name="heading">Überschrift</string>
+    <string name="bullet_list">Aufzählungsliste</string>
+    <string name="ordered_list">Nummerierte Liste</string>
+    <string name="blockquote">Zitat</string>
+    <string name="code_block">Codeblock</string>
+    <string name="horizontal_rule">Trennlinie</string>
+    <string name="editor_stats_format">%1$d Wörter · %2$d Zeichen · %3$d Min.</string>
+    <string name="focus_mode">Fokusmodus</string>
+    <string name="exit_focus_mode">Fokusmodus beenden</string>
+    <string name="find_in_note">In Notiz suchen</string>
+    <string name="find_in_note_hint">Suchen</string>
+    <string name="find_previous_match">Vorheriger Treffer</string>
+    <string name="find_next_match">Nächster Treffer</string>
+    <string name="replace_in_note_hint">Ersetzen</string>
+    <string name="replace_match">Ersetzen</string>
+    <string name="replace_all_matches">Alle ersetzen</string>
+    <string name="replace_all_done_format">%1$d Treffer ersetzt.</string>
+    <string name="close">Schließen</string>
+    <string name="share_note">Teilen oder exportieren</string>
+    <string name="share_via_system">Teilen über…</string>
+    <string name="export_as_file">Als .md-Datei speichern…</string>
+    <string name="export_success">Notiz exportiert.</string>
+    <string name="export_failed">Export fehlgeschlagen.</string>
+    <string name="callout_note">Hinweis</string>
+    <string name="callout_tip">Tipp</string>
+    <string name="callout_important">Wichtig</string>
+    <string name="callout_warning">Warnung</string>
+    <string name="callout_caution">Achtung</string>
+
+    <string name="pin">Anheften</string>
+    <string name="unpin">Lösen</string>
+    <string name="pinned">Angeheftet</string>
+    <string name="section_pinned">Angeheftet</string>
+    <string name="section_today">Heute</string>
+    <string name="section_yesterday">Gestern</string>
+    <string name="section_past_week">Letzte 7 Tage</string>
+    <string name="section_older">Älter</string>
+
+    <string name="search_notes_hint">Notizen durchsuchen…</string>
+    <string name="type_to_search_notes">Tippen, um Notizen zu durchsuchen</string>
+    <string name="no_results_found">Keine Ergebnisse gefunden</string>
+    <string name="matching_notes">Notizen</string>
+    <string name="matching_tags">Tags</string>
+    <string name="tag_result_format">#%1$s</string>
+    <string name="no_tags_yet">Noch keine Tags</string>
+    <string name="tags_empty_hint">Tippe #Tags in eine Notiz, um sie zu organisieren</string>
+    <string name="tag_note_count_format">%1$d Notizen</string>
+
+    <string name="trash_empty">Papierkorb ist leer</string>
+    <string name="trash_empty_hint">Gelöschte Notizen erscheinen hier</string>
+    <string name="restore">Wiederherstellen</string>
+    <string name="delete">Löschen</string>
+    <string name="delete_forever_title">Endgültig löschen?</string>
+    <string name="delete_forever_message">Diese Notiz wird unwiderruflich gelöscht und kann nicht wiederhergestellt werden.</string>
+    <string name="delete_forever">Endgültig löschen</string>
+    <string name="cancel">Abbrechen</string>
+
+    <string name="move_to_trash">In den Papierkorb verschieben</string>
+    <string name="move_to_trash_title">In den Papierkorb verschieben?</string>
+    <string name="move_to_trash_message">\"%1$s\" in den Papierkorb verschieben? Du kannst die Notiz später aus dem Papierkorb wiederherstellen.</string>
+    <string name="move_to_trash_editor_message">Diese Notiz in den Papierkorb verschieben? Du kannst sie später aus dem Papierkorb wiederherstellen.</string>
+
+    <string name="settings_appearance">Darstellung</string>
+    <string name="theme_label">Design</string>
+    <string name="theme_markleaf_green">Markleaf-Grün</string>
+    <string name="theme_material_you">Material You</string>
+    <string name="theme_description">Markleaf-Grün ist die ursprüngliche, vom Blatt inspirierte Farbpalette. Material You folgt deinen Systemfarben ab Android 12.</string>
+
+    <string name="settings_markdown">Markdown</string>
+    <string name="show_markdown_syntax">Markdown-Syntax anzeigen</string>
+    <string name="show_markdown_syntax_description">Der Editor hebt Markdown-Zeichen beim Tippen hervor.</string>
+    <string name="line_width">Zeilenbreite</string>
+    <string name="line_width_narrow">Schmal</string>
+    <string name="line_width_comfortable">Komfortabel</string>
+    <string name="line_width_wide">Breit</string>
+    <string name="settings_privacy">Datenschutz</string>
+    <string name="privacy_no_tracking">Kein Konto, keine Analytik, keine Werbung, keine Remote-Konfiguration und kein proprietäres Crash-Reporting-SDK.</string>
+    <string name="privacy_no_internet">Für das MVP wird die INTERNET-Berechtigung nicht angefordert.</string>
+    <string name="privacy_local_first">Notizen verlassen das Gerät nur, wenn du sie explizit exportierst oder teilst.</string>
+    <string name="settings_data">Daten</string>
+    <string name="export_all_notes">Alle Notizen exportieren…</string>
+    <string name="export_all_notes_description">Wähle einen Ordner und Markleaf speichert jede Notiz als separate .md-Datei. Notizen im Papierkorb werden übersprungen.</string>
+    <string name="export_all_done_format">%1$d Notizen exportiert.</string>
+
+    <string name="sync_title">Synchronisierung über mehrere Geräte (Ordner-Spiegel)</string>
+    <string name="sync_explainer">Markleaf selbst geht nicht online. Stattdessen wählst du einen Ordner, und Markleaf speichert jede Notiz dort als `.md`-Datei. Wenn dieser Ordner von einer anderen App synchronisiert wird – Dropbox, Drive, Syncthing, OneDrive, NAS – folgen deine Notizen deinen anderen Geräten.</string>
+    <string name="sync_recommended_locations">Geeignete Orte für Markleaf:\n· /Interner Speicher/Dropbox/Markleaf\n· /Interner Speicher/Drive/Markleaf\n· /Interner Speicher/Sync/Markleaf  (Syncthing)</string>
+    <string name="sync_status_unset">Kein Ordner ausgewählt.</string>
+    <string name="sync_status_folder_format">Ordner: %1$s</string>
+    <string name="sync_status_last_synced_format">Zuletzt synchronisiert: %1$s</string>
+    <string name="sync_status_last_synced_never">Zuletzt synchronisiert: nie</string>
+    <string name="sync_behavior_summary">· Speichert ca. 1 Sekunde nach jeder Bearbeitung in den Ordner.\n· „Jetzt synchronisieren“ holt Änderungen von anderen Geräten.\n· Konflikte: Die zuletzt geänderte Version gewinnt.\n· Löschungen werden nicht synchronisiert – verwalte den Papierkorb auf jedem Gerät.</string>
+    <string name="sync_pick_folder">Sync-Ordner wählen</string>
+    <string name="sync_change_folder">Ordner ändern</string>
+    <string name="sync_now">Jetzt synchronisieren</string>
+    <string name="sync_stop">Synchronisierung beenden</string>
+    <string name="sync_seeded_format">%1$d Notizen in den Ordner gespiegelt.</string>
+    <string name="sync_done_format">Synchronisiert – %1$d aktualisiert, %2$d neu, %3$d unverändert.</string>
+    <string name="sync_done_with_conflicts_format">Synchronisiert – %1$d aktualisiert, %2$d neu, %3$d als Duplikate behalten (Konflikt), %4$d unverändert.</string>
+    <string name="sync_stopped">Synchronisierung deaktiviert.</string>
+    <string name="screenshot_protection">Screenshots und Vorschau in „Zuletzt verwendet“ blockieren</string>
+    <string name="screenshot_protection_description">Verbirgt Notizinhalte in Screenshots und im „Zuletzt verwendet“-Bildschirm. Editor neu öffnen, damit die Änderung wirksam wird.</string>
+    <string name="settings_app">App</string>
+    <string name="version_format">Version %1$s</string>
+    <string name="application_id_format">Application ID %1$s</string>
+
+    <string name="settings_open_source">Open Source</string>
+    <string name="oss_license_label">Lizenz</string>
+    <string name="oss_license_value">Apache License 2.0</string>
+    <string name="oss_source_label">Quellcode</string>
+    <string name="oss_source_url">https://github.com/jeiel85/markleaf-android</string>
+    <string name="oss_view_source">Auf GitHub ansehen</string>
+    <string name="oss_view_license">Vollständige Lizenz anzeigen</string>
+    <string name="oss_license_url">https://github.com/jeiel85/markleaf-android/blob/main/LICENSE</string>
+    <string name="oss_fdroid_label">F-Droid</string>
+    <string name="oss_fdroid_url">https://f-droid.org/packages/com.markleaf.notes/</string>
+    <string name="oss_view_fdroid">Auf F-Droid ansehen</string>
+    <string name="oss_explainer">Markleaf ist vollständig quelloffen unter Apache 2.0. Lies den Code, überprüfe, wie deine Notizen gespeichert werden, und trage auf GitHub bei.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title_welcome">Willkommen bei Markleaf</string>
+    <string name="onboarding_body_welcome">Eine ruhige, lokal-first Markdown-Notiz-App für Android. Dein Text bleibt auf diesem Gerät, sofern du ihn nicht ausdrücklich teilst oder exportierst.</string>
+    <string name="onboarding_title_markdown">In Markdown schreiben</string>
+    <string name="onboarding_body_markdown">Nutze **fett**, _kursiv_, # Überschriften, Listen, Code und Zitate. Tippe oben auf Vorschau, um das Ergebnis jederzeit zu sehen.</string>
+    <string name="onboarding_title_tags">Mit #Tags organisieren</string>
+    <string name="onboarding_body_tags">Schreibe #projekt oder #meeting irgendwo in eine Notiz. Tags werden automatisch erkannt und im Tags-Bildschirm angezeigt.</string>
+    <string name="onboarding_title_local">Deine Daten bleiben lokal</string>
+    <string name="onboarding_body_local">Kein Konto, keine Analytik, keine Cloud. Exportiere jede Notiz als .md-Datei oder zeige Markleaf einen synchronisierten Ordner (Dropbox / Drive / Syncthing) für die Nutzung auf mehreren Geräten.</string>
+    <string name="onboarding_next">Weiter</string>
+    <string name="onboarding_done">Loslegen</string>
+    <string name="onboarding_skip">Überspringen</string>
+
+    <!-- Biometric lock -->
+    <string name="biometric_lock_title">App-Sperre</string>
+    <string name="biometric_lock_setting">Beim Öffnen biometrisch entsperren</string>
+    <string name="biometric_lock_description">Fingerabdruck oder Gesichtserkennung wird beim Öffnen von Markleaf verlangt. Die Notizen selbst verlassen das Gerät nicht.</string>
+    <string name="biometric_lock_prompt_title">Markleaf entsperren</string>
+    <string name="biometric_lock_prompt_subtitle">Authentifizieren, um auf deine Notizen zuzugreifen</string>
+    <string name="biometric_lock_cancel">Abbrechen</string>
+    <string name="biometric_lock_unavailable">Biometrische Authentifizierung ist auf diesem Gerät nicht verfügbar. Richte in den Systemeinstellungen einen Fingerabdruck oder eine Gesichtserkennung ein, um die App-Sperre zu nutzen.</string>
+    <string name="biometric_lock_retry">Erneut versuchen</string>
+    <string name="biometric_lock_locked_message">Markleaf ist gesperrt.</string>
+
+    <!-- PDF export -->
+    <string name="export_pdf">Als PDF exportieren…</string>
+    <string name="export_pdf_job_name">Markleaf — %1$s</string>
+    <string name="export_pdf_unavailable">PDF-Export ist nur unter Android 5 und höher verfügbar.</string>
+
+    <!-- Widget -->
+    <string name="quick_note_widget_label">Schnelle Notiz</string>
+    <string name="quick_note_widget_description">Tippen, um schnell eine neue Notiz zu erstellen</string>
+
+    <!-- Privacy Dashboard -->
+    <string name="privacy_dashboard_title">Datenschutz-Dashboard</string>
+    <string name="privacy_guarantee_title">Deine Daten bleiben lokal</string>
+    <string name="privacy_guarantee_desc">Markleaf ist konsequent auf Datenschutz ausgelegt. Deine Notizen verlassen dein Gerät nur, wenn du sie ausdrücklich exportierst oder teilst.</string>
+    <string name="privacy_data_storage_title">Lokal-first-Speicherung</string>
+    <string name="privacy_data_storage_desc">Alle Notizen und Tags werden lokal auf deinem Gerät in Androids sicherer Room-Datenbank gespeichert. Keine Cloud-Server, keine Daten-Uploads.</string>
+    <string name="privacy_no_cloud_title">Keine Cloud-Abhängigkeiten</string>
+    <string name="privacy_no_cloud_desc">Wir nutzen für die Kernfunktionen keine Cloud-Dienste. Keine Google-Drive-Synchronisation, keine Dropbox-Integration, keine proprietären Backend-Server.</string>
+    <string name="privacy_no_tracking_title">Null Tracking</string>
+    <string name="privacy_no_tracking_desc">Keine Analytik, keine Crash-Reporting-SDKs, keine Werbenetzwerke. Wir haben keine Ahnung, wie du die App benutzt – und das ist Absicht.</string>
+    <string name="privacy_verification_title">Datenschutz-Prüfung</string>
+    <string name="privacy_verify_no_internet">Keine INTERNET-Berechtigung deklariert</string>
+    <string name="privacy_verify_local_only">100 % lokale Datenverarbeitung</string>
+    <string name="privacy_verify_no_ads">Keine Werbung oder Tracker</string>
+    <string name="privacy_verify_no_analytics">Keine Analytik oder Telemetrie</string>
+    <string name="privacy_verify_open_source">Quelloffen und prüfbar</string>
+    <string name="privacy_app_info_title">Über diese Version</string>
+    <string name="privacy_app_info_desc">Version %1$s\n\nDiese Markleaf-Version hält strenge Datenschutzstandards ein. Alle Funktionen arbeiten vollständig offline.</string>
+    <string name="privacy_dashboard_button">Datenschutz-Dashboard öffnen</string>
+
+</resources>

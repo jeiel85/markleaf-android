@@ -1,0 +1,11 @@
+Neue Funktionen + Suche/A11y-Politur.
+
+• Willkommens-Übersicht beim ersten Start.
+• Optionale biometrische App-Sperre (standardmäßig aus).
+• Notiz als PDF aus dem Teilen-Menü exportieren.
+• Widget zeigt deine zuletzt bearbeiteten Notizen.
+• Suche tokenisiert Koreanisch/Japanisch/Chinesisch korrekt.
+• Japanische (ja) UI-Übersetzung.
+• Einstellungen: Lizenz-/GitHub-/F-Droid-Links.
+• Predictive-Back-Geste (Android 13+).
+• Abschnittsüberschriften als TalkBack-Headings.

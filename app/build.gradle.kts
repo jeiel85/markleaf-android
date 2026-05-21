@@ -228,6 +228,19 @@ val exportReleaseToDesktop by tasks.registering {
                 )
             }
         }
+        // Play Console hard-caps release notes at 500 characters per locale.
+        // Catch overruns here rather than during the upload step — Play
+        // simply refuses the submission and the agent has to bisect why.
+        val playLimit = 500
+        listOf(koSrc, enSrc).forEach { f ->
+            val len = f.readText().length
+            if (len > playLimit) {
+                throw GradleException(
+                    "${f.name} is $len chars; Play Console limit is $playLimit per locale. " +
+                        "Trim ${len - playLimit} chars before re-running."
+                )
+            }
+        }
 
         val txtTarget = File(desktop, "markleaf-v$versionName-release-notes.txt")
         txtTarget.writeText(

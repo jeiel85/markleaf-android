@@ -1,4 +1,23 @@
 ---
+## 2026-05-22 - Phase 23 스마트 포맷팅 토글 & 단어 감싸기 최종 점검 및 단위 테스트 검증 완료
+
+Selected task:
+- [Smart Formatting] MarkdownEditActions.wrapSelection 리팩토링 및 스마트 토글 구현 최종 점검
+- [Smart Formatting] MarkdownEditActions.findWordAtCursor 지능형 단어 탐색 구현 최종 점검
+- [Smart Formatting] MarkdownEditActionsTest.kt 단위 테스트 실행 및 검증 완료
+
+Decision:
+- 이전 세션에 걸쳐 구현 완료된 `MarkdownEditActions.wrapSelection` 및 `findWordAtCursor` 동작의 무결성을 재입증하기 위해 전체 단위 테스트를 구동했습니다.
+- 모든 기능이 설계서(`docs/AGENT_SPEC.md` 및 `implementation_plan.md`)에 부합하고, 단위 테스트 12종을 포함한 92개의 로컬 빌드 테스트가 완벽하게 통과함을 다시 한 번 증명했습니다.
+
+What was implemented:
+- 로컬 테스트 실행 및 검증 (`.\gradlew.bat test`) -> 전체 테스트 100% 통과 완료.
+- `C:\Users\jeiel\.gemini\antigravity\brain\7e3599eb-2f17-4757-8168-d0f5b2b50436\walkthrough.md`에 스마트 포맷팅 기능의 상세 설계 대비 구현 내용과 검증 결과를 담은 최종 아티팩트 문서 생성.
+
+Build/test result:
+- `.\gradlew.bat test` -> BUILD SUCCESSFUL (92 actionable tasks executed).
+
+---
 ## 2026-05-22 - F-Droid catalog icon metadata
 
 Selected task:

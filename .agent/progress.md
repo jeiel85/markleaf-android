@@ -1,4 +1,23 @@
 ---
+## 2026-05-22 - F-Droid catalog icon metadata
+
+Selected task:
+- Fix F-Droid listing polish by adding upstream fastlane catalog icon assets before publishing the latest v2.16.1 state.
+
+Decision:
+- F-Droid catalog graphics are sourced from upstream metadata in the processed release commit, not from Play Console. Markleaf should ship `fastlane/metadata/android/<locale>/images/icon.png` with the source.
+
+What was implemented:
+- Generated 512x512 PNG icon assets for `en-US`, `ko-KR`, `ja-JP`, `fr-FR`, and `de-DE`.
+- Documented the distribution metadata fix in `CHANGELOG.md` and `HISTORY.md`.
+
+Build/test result:
+- `./gradlew.bat test` -> BUILD SUCCESSFUL.
+- `./gradlew.bat assembleDebug` -> BUILD SUCCESSFUL.
+- `app/build/outputs/apk/debug/app-debug.apk` exists and is 19,043,024 bytes.
+- `rg "android.permission.INTERNET" -n app/src` -> no matches.
+
+---
 ## 2026-05-21 - v2.16.1 스마트 포맷팅 토글 & 단어 감싸기 완성 및 릴리즈 컷 (Phase 23)
 
 Selected task:

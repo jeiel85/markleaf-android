@@ -1,3 +1,18 @@
+## 2026-05-22 - F-Droid catalog icon metadata and v2.16.1 publication cleanup
+
+- Trigger: F-Droid listing showed the default app icon even though the Android launcher icon was configured correctly.
+- Work:
+  - Added 512x512 PNG catalog icons at `fastlane/metadata/android/{en-US,ko-KR,ja-JP,fr-FR,de-DE}/images/icon.png`.
+  - Matched the upstream catalog icon to the existing adaptive launcher identity: pale green background, Markleaf green leaf, and white Markdown-style vein.
+  - Updated `CHANGELOG.md` under v2.16.1 Distribution notes.
+- Decision:
+  - F-Droid uses upstream fastlane metadata from the processed source commit for listing graphics; Play Console uploads do not configure F-Droid icons.
+- Verification:
+  - `./gradlew.bat test` -> BUILD SUCCESSFUL.
+  - `./gradlew.bat assembleDebug` -> BUILD SUCCESSFUL.
+  - `app/build/outputs/apk/debug/app-debug.apk` exists and is 19,043,024 bytes.
+  - `rg "android.permission.INTERNET" -n app/src` -> no matches.
+
 ## 2026-05-21 - v2.16.1 - 스마트 포맷팅 토글 & 단어 감싸기 (Phase 23)
 
 - Trigger: 에디터 텍스트 포맷팅(Bold, Italic, Strikethrough, Inline Code)의 스마트 UX 완성 (스마트 주변 단어 감싸기 및 토글/언랩).

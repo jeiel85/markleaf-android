@@ -13,6 +13,7 @@ Bear 앱 수준의 스마트 텍스트 포맷팅 UX(Bold, Italic, Strikethrough,
 
 ### Distribution
 - **F-Droid 카탈로그 아이콘 메타데이터 추가.** `fastlane/metadata/android/*/images/icon.png`에 512x512 PNG 아이콘을 추가해, F-Droid 웹/클라이언트가 기본 아이콘 대신 Markleaf 런처 아이콘을 표시할 수 있도록 했습니다.
+- **공개 표면 v2.16.1 정렬.** GitHub Pages 랜딩, Privacy 페이지, README, F-Droid metadata, GitHub repository description/topics를 최신 기능과 no-cloud 정책에 맞춰 정리했습니다.
 
 ## v2.16.0 - Bear-class 마무리 9종 셋 - 2026-05-21
 

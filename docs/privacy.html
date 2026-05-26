@@ -1,98 +1,85 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Policy - Markleaf</title>
+    <meta name="description" content="Markleaf 개인정보 보호 정책. Markleaf는 INTERNET 권한, 계정, 분석, 광고, 추적 없이 동작하는 로컬 우선 Markdown 노트 앱입니다.">
     <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
-        <nav>
-            <div class="logo">
-                <img src="assets/logo.svg" alt="Markleaf Logo">
+        <nav aria-label="Primary navigation">
+            <a class="logo" href="index.html" aria-label="Markleaf home">
+                <img src="assets/logo.svg" alt="">
                 <span>Markleaf</span>
-            </div>
+            </a>
             <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="privacy.html" class="active">Privacy</a></li>
+                <li><a href="index.html">홈</a></li>
+                <li><a href="privacy.html">Privacy</a></li>
                 <li><a href="https://github.com/jeiel85/markleaf-android">GitHub</a></li>
             </ul>
         </nav>
     </header>
 
     <main>
-        <section class="content">
-            <h1>Privacy Policy</h1>
-            <p class="updated">Last updated: May 7, 2026</p>
+        <article class="content">
+            <h1>Markleaf Privacy Policy</h1>
+            <p class="updated">Last updated: May 26, 2026 · Applies to Markleaf Android v2.x</p>
 
-            <h2>1. Overview</h2>
-            <p>Markleaf is a local-first Markdown note-taking app for Android. This privacy policy explains how Markleaf handles your data.</p>
+            <h2>핵심 원칙</h2>
+            <p>Markleaf는 로컬 우선 Markdown 노트 앱입니다. Markleaf 자체에는 <code>android.permission.INTERNET</code> 권한이 없고, 자체 서버를 운영하지 않으며, 노트/태그/첨부/메타데이터를 자동으로 외부 서버에 업로드하지 않습니다.</p>
 
-            <h2>2. Data Collection</h2>
-            <p><strong>Markleaf does not collect any personal information.</strong> All your notes are stored locally on your device only.</p>
-
-            <h3>We do NOT collect:</h3>
+            <h2>Markleaf가 수집하지 않는 정보</h2>
             <ul>
-                <li>Name or email address</li>
-                <li>Location data</li>
-                <li>Contact information</li>
-                <li>Account or login information</li>
-                <li>Note content or tags</li>
-                <li>Usage statistics</li>
-                <li>Device identifiers</li>
-                <li>Advertising identifiers</li>
-                <li>Analytics or crash reports</li>
+                <li>이름, 이메일, 연락처, 위치</li>
+                <li>계정 또는 로그인 정보</li>
+                <li>노트 본문, 제목, 태그, 첨부 이미지, 파일명, 메타데이터</li>
+                <li>사용 통계, 텔레메트리, 분석 이벤트, 광고 식별자</li>
+                <li>크래시 리포트 또는 기기 식별자</li>
+            </ul>
+            <p>분석, 광고, 추적, 원격 설정, Firebase, 폐쇄형 크래시 리포팅 SDK도 포함하지 않습니다.</p>
+
+            <h2>네트워크</h2>
+            <p>Markleaf는 인터넷 권한을 선언하지 않습니다.</p>
+            <pre>android.permission.INTERNET   없음</pre>
+
+            <h2>데이터 저장 위치</h2>
+            <ul>
+                <li>노트 본문, 제목, 태그 인덱스는 앱 내부 Room 데이터베이스에 저장됩니다.</li>
+                <li>사용자 설정은 DataStore에 저장됩니다.</li>
+                <li>첨부 이미지는 앱 내부 저장소에 복사되어 보관되며, 저장 시 민감한 EXIF 메타데이터를 제거합니다.</li>
             </ul>
 
-            <h2>3. Network Access</h2>
-            <p>Markleaf does not use the internet permission. The app works completely offline.</p>
+            <h2>Android 시스템 백업 정책</h2>
+            <p>Markleaf는 <code>android:allowBackup="false"</code>를 설정해 Android Auto Backup 및 기기 간 전송에서 앱 데이터를 제외합니다. 기기 이전 또는 다중 기기 사용이 필요하다면 사용자가 직접 Markdown 내보내기, 공유, 또는 SAF 폴더 미러를 선택해야 합니다.</p>
 
-            <pre style="background:#f5f5f5;padding:12px;border-radius:8px;overflow-x:auto;">
-&lt;manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.markleaf.notes"&gt;
-    &lt;!-- No INTERNET permission --&gt;
-&lt;/manifest&gt;</pre>
-
-            <h2>4. Data Storage</h2>
-            <p>All your notes are stored in a local database on your device. Your data never leaves your device unless you explicitly export or share it.</p>
-
-            <h2>5. Data Export</h2>
-            <p>You can export your data at any time:</p>
+            <h2>사용자 주도 데이터 이동</h2>
+            <p>다음 동작은 사용자가 직접 실행한 경우에만 일어나며, Android의 명시적 권한 다이얼로그 또는 사용자 UI 선택을 거칩니다.</p>
             <ul>
-                <li>Export individual notes as Markdown files</li>
-                <li>Export all notes as a ZIP backup</li>
-                <li>Share notes via Android share sheet</li>
-                <li>Copy notes to clipboard</li>
+                <li>단일 노트 또는 전체 노트를 Markdown(<code>.md</code>)으로 내보내기</li>
+                <li>Android 시스템 공유 시트로 노트 텍스트 또는 파일 공유</li>
+                <li>본문 안의 외부 링크를 탭해 OS/기본 브라우저에 위임</li>
+                <li>클립보드로 복사</li>
+                <li>사용자가 선택한 SAF 폴더로 Markdown 파일 미러링</li>
             </ul>
+            <p>SAF 폴더가 Drive, Dropbox, OneDrive, Syncthing, NAS 마운트 같은 외부 동기화 클라이언트에 의해 동기화될지는 해당 외부 앱의 책임입니다. Markleaf는 그 동기화 자체를 수행하지 않습니다.</p>
 
-            <h2>6. Third-Party Services</h2>
-            <p>Markleaf does not connect to any third-party services, servers, or APIs. There are no:</p>
-            <ul>
-                <li>No cloud synchronization</li>
-                <li>No analytics or tracking</li>
-                <li>No advertising</li>
-                <li>No user accounts required</li>
-            </ul>
+            <h2>권한 목록</h2>
+            <p>Markleaf가 선언하는 런타임 성격의 권한은 햅틱 피드백을 위한 <code>android.permission.VIBRATE</code>뿐입니다. 위치, 마이크, 카메라, 연락처, 알림, 외부 저장소 읽기, 미디어 읽기, 네트워크 관련 권한은 선언하지 않습니다.</p>
 
-            <h2>7. Children's Privacy</h2>
-            <p>Markleaf does not knowingly collect information from children under 13. The app does not have any age-restricted features.</p>
-
-            <h2>8. Changes to This Policy</h2>
-            <p>If we make any changes to this privacy policy, we will update this page. For significant changes, we will announce via the app or our GitHub page.</p>
-
-            <h2>9. Contact</h2>
-            <p>If you have questions about this privacy policy, please contact us via <a href="https://github.com/jeiel85/markleaf-android">GitHub</a>.</p>
-        </section>
+            <h2>Contact</h2>
+            <p>질문이나 보안/개인정보 관련 제보는 <a class="text-link" href="https://github.com/jeiel85/markleaf-android/issues">GitHub Issues</a>를 통해 남겨주세요.</p>
+        </article>
     </main>
 
     <footer>
-        <p>Markleaf - A lightweight, local-first Markdown note app for Android</p>
-        <p>&copy; 2026 Markleaf. Licensed under Apache License 2.0.</p>
+        <p>Markleaf · A lightweight, local-first Markdown note app for Android.</p>
+        <p><a href="index.html">Home</a> · <a href="https://github.com/jeiel85/markleaf-android">GitHub</a> · <a href="https://github.com/jeiel85/markleaf-android/blob/main/LICENSE">Apache-2.0</a></p>
     </footer>
 </body>
 </html>

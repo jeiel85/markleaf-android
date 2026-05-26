@@ -1,4 +1,30 @@
 ---
+## 2026-05-26 - GitHub IO / README / repository metadata refresh
+
+Selected task:
+- User-requested public-facing refresh for GitHub Pages, README, repository description, homepage, and topic tags against the latest Markleaf version.
+
+Decision:
+- Treat the landing page, README, privacy page, F-Droid metadata, and GitHub repository metadata as one public surface package so Markleaf's v2.16.1 identity is consistent.
+- Reuse the existing `docs/assets/markleaf-feature-graphic-1024x500.png` and app icon assets instead of creating new graphics.
+
+What was implemented:
+- Rebuilt `docs/index.html` as a stronger product landing page for Markleaf v2.16.1.
+- Reworked `docs/style.css` for the updated landing, privacy content page, and responsive download layout.
+- Updated `docs/privacy.html` to match the current no-INTERNET/no-account/no-analytics/no-auto-backup policy.
+- Updated `README.md`, `docs/NOCLOUD_CERTIFICATION.md`, `metadata/com.markleaf.notes.yml`, and `CHANGELOG.md` for v2.16.1 public-facing consistency.
+- Updated GitHub repository metadata with aligned description, homepage, and topics.
+
+Build/test result:
+- Local static preview at `http://127.0.0.1:8123/` rendered the landing and privacy page without horizontal overflow on desktop or 390px mobile viewport.
+- Public Pages URLs `https://jeiel85.github.io/markleaf-android/` and `/privacy.html` returned HTTP 200 before the new deploy.
+- `git diff --check` -> PASS.
+- `rg "android.permission.INTERNET" -n app/src` -> no matches.
+- `./gradlew.bat test` -> BUILD SUCCESSFUL.
+- `./gradlew.bat assembleDebug` -> BUILD SUCCESSFUL.
+- `app/build/outputs/apk/debug/app-debug.apk` exists and is 19,043,024 bytes.
+
+---
 ## 2026-05-22 - Phase 23 스마트 포맷팅 토글 & 단어 감싸기 최종 점검 및 단위 테스트 검증 완료
 
 Selected task:

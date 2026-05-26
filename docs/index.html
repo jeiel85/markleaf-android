@@ -3,80 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Markleaf - 가벼운 Markdown 메모 앱</title>
+    <title>Markleaf - Local-first Markdown notes for Android</title>
+    <meta name="description" content="Markleaf는 Android용 로컬 우선 Markdown 메모 앱입니다. 계정, 서버, INTERNET 권한 없이 빠르게 쓰고 태그로 정리합니다.">
     <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
-        <nav>
-            <div class="logo">
-                <img src="assets/logo.svg" alt="Markleaf Logo">
+        <nav aria-label="Primary navigation">
+            <a class="logo" href="#top" aria-label="Markleaf home">
+                <img src="assets/logo.svg" alt="">
                 <span>Markleaf</span>
-            </div>
+            </a>
             <ul>
                 <li><a href="#features">기능</a></li>
-                <li><a href="#philosophy">철학</a></li>
+                <li><a href="#privacy">프라이버시</a></li>
+                <li><a href="#download">다운로드</a></li>
                 <li><a href="https://github.com/jeiel85/markleaf-android">GitHub</a></li>
             </ul>
         </nav>
     </header>
 
-    <main>
+    <main id="top">
         <section class="hero">
-            <div class="hero-content">
-                <h1>가볍게 쌓이는 생각,<br>정돈된 Markdown 노트</h1>
-                <p>Markleaf는 군더더기를 덜어내고 글쓰기에만 집중할 수 있는<br>Android용 로컬 우선 Markdown 메모 앱입니다.</p>
+            <div class="hero-overlay">
+                <p class="eyebrow">Android · Markdown · Local-first</p>
+                <h1>Markleaf</h1>
+                <p class="hero-copy">빠르게 쓰고, 태그로 정리하고, 표준 Markdown으로 안전하게 보관하는 Android 노트 앱.</p>
                 <div class="cta-buttons">
-                    <a href="https://f-droid.org/packages/com.markleaf.notes/" class="btn btn-primary">F-Droid에서 받기</a>
-                    <a href="https://play.google.com/store/apps/details?id=com.markleaf.notes" class="btn btn-secondary">Google Play (비공개 테스트)</a>
-                    <a href="https://github.com/jeiel85/markleaf-android/releases" class="btn btn-secondary">다운로드 (APK)</a>
-                    <a href="https://github.com/jeiel85/markleaf-android" class="btn btn-secondary">소스 코드 보기</a>
+                    <a href="https://f-droid.org/packages/com.markleaf.notes/" class="btn btn-primary">F-Droid</a>
+                    <a href="https://github.com/jeiel85/markleaf-android/releases" class="btn btn-secondary">APK</a>
+                    <a href="https://play.google.com/store/apps/details?id=com.markleaf.notes" class="btn btn-secondary">Google Play 테스트</a>
                 </div>
-            </div>
-            <div class="hero-image">
-                <img src="assets/logo.svg" alt="Markleaf App Icon" class="app-icon-large">
             </div>
         </section>
 
-        <section id="features" class="features">
-            <h2>핵심 기능</h2>
+        <section class="signal-strip" aria-label="Markleaf highlights">
+            <div>
+                <strong>v2.16.1</strong>
+                <span>스마트 Markdown 포맷팅</span>
+            </div>
+            <div>
+                <strong>No INTERNET</strong>
+                <span>계정, 분석, 광고, 추적 없음</span>
+            </div>
+            <div>
+                <strong>Plain .md</strong>
+                <span>내보내기와 폴더 미러 지원</span>
+            </div>
+        </section>
+
+        <section id="features" class="section">
+            <div class="section-heading">
+                <p class="eyebrow">Current App</p>
+                <h2>글쓰기 흐름을 방해하지 않는 Markdown 작업대</h2>
+            </div>
             <div class="feature-grid">
-                <div class="feature-card">
-                    <h3>Markdown 중심</h3>
-                    <p>표준 Markdown 문법을 지원하여 어디서나 호환되는 노트를 작성하세요.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>태그 기반 정리</h3>
-                    <p>복잡한 폴더 구조 대신 유연한 태그 시스템으로 노트를 분류합니다.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>로컬 우선 (Privacy)</h3>
-                    <p>당신의 데이터는 오직 당신의 기기에만 저장됩니다. 인터넷 연결이 필요 없습니다.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>빠르고 가볍게</h3>
-                    <p>불필요한 애니메이션과 무거운 기능을 배제하여 즉각적으로 반응합니다.</p>
-                </div>
+                <article class="feature-card">
+                    <h3>Live Markdown</h3>
+                    <p>헤딩, 굵게, 취소선, 인라인 코드가 편집 중에도 즉시 살아납니다. v2.16.1의 스마트 토글은 선택 영역과 커서 주변 단어를 자연스럽게 감쌉니다.</p>
+                </article>
+                <article class="feature-card">
+                    <h3>정리와 탐색</h3>
+                    <p>본문 안의 `#태그`, SQLite FTS 검색, Quick Switcher, 위키링크와 백링크로 로컬 노트를 빠르게 찾습니다.</p>
+                </article>
+                <article class="feature-card">
+                    <h3>Markdown 호환성</h3>
+                    <p>GFM 표, 체크박스, 콜아웃, 각주, YAML frontmatter, 코드 블록 하이라이팅, PDF와 `.md` 내보내기를 지원합니다.</p>
+                </article>
+                <article class="feature-card">
+                    <h3>Android다운 마감</h3>
+                    <p>Material 3, 다크 모드, 태블릿 2-pane, 홈 화면 위젯, 생체 인증 잠금, 스크린샷 보호 옵션을 갖췄습니다.</p>
+                </article>
             </div>
         </section>
 
-        <section id="philosophy" class="philosophy">
-            <div class="philosophy-content">
-                <h2>Markleaf의 철학</h2>
-                <blockquote>
-                    "조용하고 정돈된 나만의 기록 공간"
-                </blockquote>
-                <p>우리는 당신의 기록이 단순한 데이터 이상임을 알고 있습니다. Markleaf는 사용자의 데이터를 존중하며, 언제든 Plain Markdown으로 내보낼 수 있는 개방성을 지향합니다.</p>
+        <section id="privacy" class="section split-section">
+            <div>
+                <p class="eyebrow">Privacy Model</p>
+                <h2>서버 없이, 계정 없이, 네트워크 권한 없이</h2>
+            </div>
+            <div class="text-block">
+                <p>Markleaf 자체는 `android.permission.INTERNET`을 선언하지 않습니다. 노트, 태그, 첨부, 설정은 기기 안에 머물고, 사용자가 직접 export/share 하거나 SAF 폴더를 선택할 때만 OS 경로를 통해 이동합니다.</p>
+                <p>폴더 미러는 Drive, Dropbox, Syncthing, OneDrive 같은 외부 동기화 앱이 선택한 폴더를 처리하도록 맡기는 방식입니다. Markleaf 서버와 백엔드는 없습니다.</p>
+                <a href="privacy.html" class="text-link">Privacy Policy 보기</a>
+            </div>
+        </section>
+
+        <section id="download" class="section download-section">
+            <div class="section-heading">
+                <p class="eyebrow">Install</p>
+                <h2>원하는 경로로 설치하세요</h2>
+            </div>
+            <div class="download-grid">
+                <a href="https://f-droid.org/packages/com.markleaf.notes/" class="download-item">
+                    <strong>F-Droid</strong>
+                    <span>오픈소스 Android 배포 채널</span>
+                </a>
+                <a href="https://github.com/jeiel85/markleaf-android/releases/tag/v2.16.1" class="download-item">
+                    <strong>GitHub Releases</strong>
+                    <span>최신 APK와 릴리즈 노트</span>
+                </a>
+                <a href="https://play.google.com/store/apps/details?id=com.markleaf.notes" class="download-item">
+                    <strong>Google Play</strong>
+                    <span>현재 비공개 테스트 채널</span>
+                </a>
+                <a href="https://github.com/jeiel85/markleaf-android" class="download-item">
+                    <strong>Source Code</strong>
+                    <span>Apache 2.0 라이선스</span>
+                </a>
             </div>
         </section>
     </main>
 
     <footer>
-        <p>&copy; 2026 Markleaf Team. Open Source under Apache-2.0 License.</p>
+        <p>Markleaf · A lightweight, local-first Markdown note app for Android.</p>
+        <p><a href="https://github.com/jeiel85/markleaf-android">GitHub</a> · <a href="privacy.html">Privacy</a> · <a href="https://github.com/jeiel85/markleaf-android/blob/main/LICENSE">Apache-2.0</a></p>
     </footer>
 </body>
 </html>

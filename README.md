@@ -23,7 +23,7 @@
 
 **Markleaf**는 군더더기를 덜어내고 오직 '기록'과 '정리'에만 집중할 수 있도록 설계된 Android Markdown 메모 앱입니다. 당신의 데이터는 오직 당신의 기기에만 저장되며, 표준 Markdown 형식을 사용하여 데이터의 소유권과 이식성을 완벽히 보장합니다. 동기화도 *당신이 선택한 폴더* 를 통해서만 일어납니다 — Markleaf 자체는 인터넷에 나가지 않습니다.
 
-[**브랜딩 페이지 보기**](https://jeiel85.github.io/markleaf-android/) · [현재 버전: v2.15.3](https://github.com/jeiel85/markleaf-android/releases) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play (비공개 테스트)](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**브랜딩 페이지 보기**](https://jeiel85.github.io/markleaf-android/) · [현재 버전: v2.16.1](https://github.com/jeiel85/markleaf-android/releases/tag/v2.16.1) · [Privacy Policy](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play (비공개 테스트)](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -35,6 +35,7 @@
 - **코드 블록 syntax highlighting** — Kotlin, Java, Python, JavaScript/TypeScript, Bash, JSON, YAML, XML, SQL 10개 언어 토큰 컬러링
 - **각주(`[^N]`) ref ↔ def 점프** — 위첨자를 탭하면 정의로 부드럽게 스크롤
 - **이미지 첨부 + alt 텍스트 편집** — 앱 내부 저장소에 격리된 사본으로 보관 (미디어 권한 불필요)
+- **스마트 Markdown 포맷팅 토글** — 선택 영역 또는 커서 주변 단어를 Bold/Italic/Strike/Inline Code로 감싸고, 이미 감싸진 텍스트는 한 번 더 눌러 자연스럽게 해제
 - **포커스 모드 / 단어·글자·읽기 시간 통계 / 노트 안에서 찾기·바꾸기**
 
 ### 정리 & 탐색
@@ -53,7 +54,7 @@
 - **Markleaf 녹색 테마 + Material You 토글** — 안드로이드 12+ 시스템 월페이퍼 색상도 옵션
 - **자동 다크 모드** — 시스템 설정 따라
 - **태블릿 2-Pane 레이아웃 최적화** — 접고 펴기 가능한 노트 목록
-- **3개 언어 UI** — 한국어 / 영어 / 스페인어
+- **6개 언어 UI** — 한국어 / 영어 / 스페인어 / 일본어 / 프랑스어 / 독일어 리소스 운영
 - **스크린샷 / 최근 앱 미리보기 차단 옵션** — 민감한 노트용
 
 ---
@@ -103,7 +104,7 @@ com.markleaf.notes
 ### 설치 방법
 - **F-Droid**: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — F-Droid 클라이언트에서 검색하거나 위 링크로 바로 설치할 수 있습니다. 동일 서명 키(SHA-256 `0be97352…f91a`)를 사용하므로 GitHub Releases APK로 사이드로드한 경우에도 끊김 없이 업데이트가 이어집니다.
 - **Google Play (비공개 테스트)**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — 테스터로 등록된 계정으로 접속해야 보입니다.
-- **APK 직접 설치**: [Releases](https://github.com/jeiel85/markleaf-android/releases) 페이지에서 최신 버전의 APK를 다운로드한 뒤 Android 기기에서 실행해 설치합니다.
+- **APK 직접 설치**: [v2.16.1 Release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.16.1) 또는 [Releases](https://github.com/jeiel85/markleaf-android/releases) 페이지에서 최신 버전의 APK를 다운로드한 뒤 Android 기기에서 실행해 설치합니다.
 
 ### 개발 환경 구축
 직접 빌드하거나 기여하고 싶다면 다음 과정을 따르세요.
@@ -145,7 +146,7 @@ Markleaf 자체는 절대로 네트워크에 나가지 않습니다. 데이터�
 - [x] 실시간 마크다운 미리보기 및 다크 모드
 - [x] SQLite FTS 기반 고성능 검색
 - [x] 태블릿용 2-Pane 레이아웃 최적화
-- [x] 전체 데이터 ZIP 백업 및 복구
+- [x] 단일/전체 노트 Markdown 내보내기
 - [x] v1.0.0 정식 출시 완료
 
 ### v2.x — Bear-class 확장 (현재)
@@ -160,6 +161,8 @@ Markleaf 자체는 절대로 네트워크에 나가지 않습니다. 데이터�
 - [x] **v2.12** 빠른 이동(Quick Switcher / Ctrl+K)
 - [x] **v2.13** 노트 안에서 찾기 / 바꾸기
 - [x] **v2.14** 각주 ref ↔ def 클릭 점프
+- [x] **v2.15** F-Droid 제출 안정화와 no-cloud 문서 정비
+- [x] **v2.16** 홈 화면 위젯, 생체 인증 잠금, 오픈소스 투명성, 스마트 Markdown 포맷팅
 - [ ] Google Play 정식 출시 (현재 비공개 테스트 중)
 
 ---

@@ -1,3 +1,21 @@
+## 2026-05-26 - GitHub Pages / README / repo metadata public surface refresh
+
+- Trigger: GitHub IO, README, repository description, and topic tags needed review against the latest Markleaf version.
+- Work:
+  - Rebuilt `docs/index.html` as a product-facing GitHub Pages landing page using the existing feature graphic asset and v2.16.1 messaging.
+  - Updated `docs/style.css` for the refreshed landing, responsive download controls, content page styling, and privacy page layout.
+  - Rewrote `docs/privacy.html` to match the current v2.x no-INTERNET, no-account, no-analytics, SAF folder mirror, and Android backup policy.
+  - Updated `README.md` with v2.16.1 links, smart formatting, 6-language resource status, latest release install link, and current roadmap items.
+  - Updated `docs/NOCLOUD_CERTIFICATION.md` and `metadata/com.markleaf.notes.yml` to point at v2.16.1/versionCode 90.
+  - Updated GitHub repository topics/description/homepage through `gh repo edit`.
+- Verification:
+  - Local static preview at `http://127.0.0.1:8123/` rendered the landing and privacy page without horizontal overflow on desktop or 390px mobile viewport.
+  - Public Pages URLs `https://jeiel85.github.io/markleaf-android/` and `/privacy.html` returned HTTP 200 before the new deploy.
+  - `git diff --check` passed.
+  - `rg "android.permission.INTERNET" -n app/src` returned no matches.
+  - `./gradlew.bat test` -> BUILD SUCCESSFUL.
+  - `./gradlew.bat assembleDebug` -> BUILD SUCCESSFUL; `app/build/outputs/apk/debug/app-debug.apk` exists and is 19,043,024 bytes.
+
 ## 2026-05-22 - F-Droid catalog icon metadata and v2.16.1 publication cleanup
 
 - Trigger: F-Droid listing showed the default app icon even though the Android launcher icon was configured correctly.

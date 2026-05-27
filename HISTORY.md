@@ -1,3 +1,18 @@
+## 2026-05-27 - v2.16.2 Play production release preparation
+
+- Trigger: Play production access was approved, so the app needed a fresh Play-ready version and desktop export package.
+- Work:
+  - Bumped `app/build.gradle.kts` from `versionCode 90 / versionName 2.16.1` to `versionCode 91 / versionName 2.16.2`.
+  - Added `CHANGELOG.md` entry for v2.16.2 focused on Play production readiness and the latest public-surface refresh.
+  - Added fastlane Play changelogs for `ko-KR` and `en-US` as `91.txt`.
+  - Updated README, GitHub Pages landing version links, No-Cloud certification version references, and F-Droid metadata current version fields.
+- Verification:
+  - `./gradlew.bat --no-daemon test :app:lintRelease :app:assembleDebug :app:assembleRelease :app:bundleRelease` -> BUILD SUCCESSFUL.
+  - `./gradlew.bat --no-daemon "-Pmarkleaf.requireReleaseSigning=true" :app:exportReleaseToDesktop` -> BUILD SUCCESSFUL.
+  - Desktop export verified at `C:\Users\jeiel\OneDrive\바탕 화면`: `markleaf-v2.16.2.aab` (5,110,841 bytes) and `markleaf-v2.16.2-release-notes.txt` (591 bytes).
+  - Release APK signing certificate SHA-256 remained `0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a`.
+  - `rg "android.permission.INTERNET" -n app/src` returned no matches.
+
 ## 2026-05-26 - GitHub Pages / README / repo metadata public surface refresh
 
 - Trigger: GitHub IO, README, repository description, and topic tags needed review against the latest Markleaf version.

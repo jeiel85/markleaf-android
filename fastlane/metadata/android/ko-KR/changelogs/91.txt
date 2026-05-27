@@ -1,0 +1,5 @@
+Play 프로덕션 배포 준비 릴리즈입니다.
+
+- versionCode 91 / versionName 2.16.2로 갱신했습니다.
+- GitHub Pages, README, Privacy, F-Droid metadata의 최신 공개 표면 정리를 포함했습니다.
+- no-INTERNET, no-account, no-analytics, local-first 정책은 그대로 유지됩니다.

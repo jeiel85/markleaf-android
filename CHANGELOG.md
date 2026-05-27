@@ -2,6 +2,15 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.16.2 - Play 프로덕션 배포 준비 (Play Production Readiness) - 2026-05-27
+
+Play 프로덕션 권한 확보 후 첫 정식 제출을 위한 배포 준비 릴리즈입니다.
+
+### Distribution
+- **Play Console 제출용 버전 갱신.** `versionCode 90 → 91`, `versionName 2.16.1 → 2.16.2`로 올려 프로덕션 트랙 업로드 충돌 없이 새 AAB를 제출할 수 있도록 했습니다.
+- **공개 표면 최신화 반영.** GitHub Pages, README, Privacy 페이지, F-Droid metadata, repository metadata를 v2.16.x 현재 기능과 no-cloud 정책 기준으로 정리한 상태를 새 패치 릴리즈에 포함했습니다.
+- **Play 릴리즈 노트 패키징.** `ko-KR` / `en-US` fastlane changelog를 versionCode 91 기준으로 작성해 데스크톱 export TXT가 Play Console에 바로 붙여넣을 수 있는 형식으로 생성되도록 했습니다.
+
 ## v2.16.1 - 스마트 포맷팅 토글 & 단어 감싸기 - 2026-05-21
 
 Bear 앱 수준의 스마트 텍스트 포맷팅 UX(Bold, Italic, Strikethrough, Inline Code) 개선 묶음 릴리즈입니다.

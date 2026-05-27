@@ -1,4 +1,25 @@
 ---
+## 2026-05-27 - v2.16.2 Play Production Release Prep
+
+Selected task:
+- User-requested "새 버전 만들기" after Play production access approval.
+
+Decision:
+- Cut a small distribution-focused patch release rather than adding product behavior: v2.16.2 / versionCode 91 packages the latest public-surface refresh and gives Play Console a fresh monotonic upload target.
+
+What was implemented:
+- `app/build.gradle.kts`: versionCode 91, versionName 2.16.2.
+- `CHANGELOG.md`, `HISTORY.md`, README, GitHub Pages landing version links, No-Cloud certification, and F-Droid metadata updated for v2.16.2.
+- `fastlane/metadata/android/{ko-KR,en-US}/changelogs/91.txt` added for Play Console release notes and desktop TXT export.
+
+Build/test result:
+- `./gradlew.bat --no-daemon test :app:lintRelease :app:assembleDebug :app:assembleRelease :app:bundleRelease` -> BUILD SUCCESSFUL.
+- `./gradlew.bat --no-daemon "-Pmarkleaf.requireReleaseSigning=true" :app:exportReleaseToDesktop` -> BUILD SUCCESSFUL.
+- Desktop export verified at `C:\Users\jeiel\OneDrive\바탕 화면`: `markleaf-v2.16.2.aab` (5,110,841 bytes) and `markleaf-v2.16.2-release-notes.txt` (591 bytes).
+- Release APK signing certificate SHA-256 remained `0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a`.
+- `rg "android.permission.INTERNET" -n app/src` returned no matches.
+
+---
 ## 2026-05-26 - GitHub IO / README / repository metadata refresh
 
 Selected task:

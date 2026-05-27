@@ -1,0 +1,5 @@
+Play production readiness release.
+
+- Bumped to versionCode 91 / versionName 2.16.2.
+- Includes the latest GitHub Pages, README, Privacy, and F-Droid metadata refresh.
+- Keeps the no-INTERNET, no-account, no-analytics, local-first policy unchanged.

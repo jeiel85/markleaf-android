@@ -1,4 +1,21 @@
 ---
+## 2026-05-27 - Phase 24 글쓰기 캔버스 & 빈 상태 프리미엄 폴리시 완성 (Bear-class UX)
+
+Selected task:
+- [Phase 24] 기능을 확장하기보다 에디터의 캔버스 감각(줄간격, 폰트, 여백)과 빈 상태(Empty State), 노트 목록의 시각적 리듬(날짜 표시, 마진 튜닝)을 Bear-class 수준으로 고급스럽게 개선.
+
+Decision:
+- `Theme.kt`: `bodyLarge` 텍스트의 `lineHeight`를 `24.sp`에서 `26.sp`로 늘려 시원하고 쾌적한 가독성 토대를 마련 (D051).
+- `EditorScreen.kt`: `BasicTextField`에 `bodyLarge` 타이포그래피 스타일을 명시적으로 와이어링하고 가로 여백을 `20.dp` 수준으로 확장.
+- `EditorScreen.kt` Empty State: `innerTextField()`를 항상 바닥에 렌더링함으로써 커서 포커스 씹힘 UX 버그를 완벽히 해결하고, 중앙 빈 상태 문구 및 ✏️ 이모티콘에 브랜드 은은한 그린 알파(0.6f) 톤을 적용.
+- `NotesListScreen.kt` Metadata & Rhythm: 각 `NoteRow` 카드 하단에 자연스러운 최종 수정 시간 표시(`formatUpdatedTime` 헬퍼 작성), `SectionHeader`의 여백 및 텍스트 톤 다운, `NoteRow`들 간의 코너 둥글기 및 좌우 화면 마진(`16.dp`) 튜닝.
+- `NotesListScreen.kt` Empty State: 텅 빈 목록 화면에 플러스 아이콘이 결합된 대형 M3 라운드 스타일 버튼과 세련된 텍스트 정렬을 입혀 첫인상 대폭 강화.
+
+Build/test result:
+- `.\gradlew.bat test assembleDebug` -> BUILD SUCCESSFUL. 모든 테스트 100% 통과 및 디버그 패키징 완료.
+- `rg "android.permission.INTERNET" -n app/src` -> no matches (오프라인 정책 완벽 유지).
+
+---
 ## 2026-05-27 - v2.16.2 Play Production Release Prep
 
 Selected task:

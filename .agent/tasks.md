@@ -5,6 +5,30 @@
 
 ---
 
+## Phase 24 - Writing Canvas & Empty State Premium Polish (Done)
+
+목적: 기능 추가보다는 에디터의 캔버스 감각(타이포그래피, 줄간격, 패딩)과 빈 상태(Empty State), 노트 목록의 시각적 리듬(수정 시간 표시, 여백 튜닝)을 Bear-class 수준으로 고급스럽게 개선합니다.
+
+- [x] **1. Theme & Typography Updates**
+  - [x] `Theme.kt`에서 `bodyLarge` 텍스트 스타일의 `lineHeight`를 `26.sp`로 확장하여 시각적으로 시원하게 튜닝
+- [x] **2. Editor Screen Typography & Padding Adjustments**
+  - [x] `EditorScreen.kt` 내 `BasicTextField`에 `MaterialTheme.typography.bodyLarge`를 명시적으로 부여하고 적절한 텍스트 색상 연동
+  - [x] 에디터 본문 캔버스의 가로/세로 패딩 튜닝 (`horizontal = 20.dp, vertical = 12.dp`)
+- [x] **3. Editor Screen Empty State Refinement**
+  - [x] `EditorScreen.kt`의 `decorationBox` 빈 상태 아이콘 및 문구 정렬 튜닝 (가로/세로 비율 및 여백 최적화)
+- [x] **4. Notes List Row Metadata (Date) Integration**
+  - [x] `NotesListScreen.kt` 내 `NoteRow` 컴포저블 하단에 `note.updatedAt` 기준의 마지막 수정 날짜/시간 포맷 표시
+  - [x] 날짜를 표시할 헬퍼 함수 (`formatUpdatedTime`) 작성
+- [x] **5. Notes List Section Headers & Card Visual Rhythm Polish**
+  - [x] `NotesListScreen.kt` 내 `SectionHeader` 및 `NoteRow`들 간의 세로 간격, 코너 둥글기, 하이라이트 여백 조정
+- [x] **6. Notes List Empty State Refinement**
+  - [x] `NotesListScreen.kt` 내의 빈 상태 뷰 레이아웃 튜닝 (버튼 디자인, 텍스트 정렬 및 여백 프리미엄 리터칭)
+- [x] **7. Verification & Stabilize**
+  - [x] 로컬 유닛 테스트 (`./gradlew test`) 구동 및 통과 확인
+  - [x] 앱 빌드 (`./gradlew assembleDebug`) 성공 확인
+
+---
+
 ## Phase 0 - Repository Preparation (Done)
 - [x] All preparation tasks completed.
 

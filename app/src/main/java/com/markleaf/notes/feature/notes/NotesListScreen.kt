@@ -49,6 +49,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isCtrlPressed
@@ -71,6 +73,8 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -231,26 +235,41 @@ fun NotesListScreen(
                 ) {
                     Text(
                         text = "📝",
-                        style = MaterialTheme.typography.displayMedium,
-                        modifier = Modifier.padding(bottom = 16.dp)
+                        style = MaterialTheme.typography.displayMedium.copy(
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+                        ),
+                        modifier = Modifier.padding(bottom = 12.dp)
                     )
                     Text(
                         text = stringResource(R.string.no_notes_yet),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = stringResource(R.string.create_first_note_hint),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = 8.dp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        modifier = Modifier.padding(top = 6.dp),
                         textAlign = TextAlign.Center
                     )
                     Button(
                         onClick = onFabClick,
-                        modifier = Modifier.padding(top = 20.dp)
+                        modifier = Modifier
+                            .padding(top = 24.dp)
+                            .height(48.dp),
+                        shape = MaterialTheme.shapes.large
                     ) {
-                        Text(stringResource(R.string.create_note))
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_add),
+                            contentDescription = null,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        Text(
+                            text = stringResource(R.string.create_note),
+                            style = MaterialTheme.typography.labelLarge
+                        )
                     }
                 }
             }
@@ -296,10 +315,13 @@ fun NotesListScreen(
 private fun SectionHeader(text: String) {
     Text(
         text = text,
-        style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.primary,
+        style = MaterialTheme.typography.labelMedium.copy(
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = 0.5.sp
+        ),
+        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
         modifier = Modifier
-            .padding(horizontal = 24.dp, vertical = 8.dp)
+            .padding(start = 24.dp, top = 20.dp, end = 24.dp, bottom = 6.dp)
             .semantics { heading() }
     )
 }
@@ -326,7 +348,7 @@ private fun NoteRow(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 4.dp)
+                .padding(horizontal = 16.dp, vertical = 4.dp)
                 .clip(MaterialTheme.shapes.medium)
                 .background(itemBackground)
                 .combinedClickable(
@@ -336,7 +358,7 @@ private fun NoteRow(
                         menuExpanded = true
                     }
                 )
-                .padding(horizontal = 12.dp, vertical = 10.dp)
+                .padding(horizontal = 16.dp, vertical = 12.dp)
                 .semantics(mergeDescendants = true) {}
         ) {
             Row(
@@ -370,11 +392,17 @@ private fun NoteRow(
                 Text(
                     text = note.excerpt,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
             }
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = formatUpdatedTime(note.updatedAt),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            )
         }
 
         DropdownMenu(
@@ -457,5 +485,32 @@ private fun groupNotes(notes: List<Note>): List<NoteSection> {
         }
     }
     return sections
+}
+
+private fun formatUpdatedTime(instant: Instant): String {
+    val zone = ZoneId.systemDefault()
+    val now = LocalDate.now(zone)
+    val date = instant.atZone(zone).toLocalDate()
+    val time = instant.atZone(zone).toLocalTime()
+    
+    val daysFromToday = ChronoUnit.DAYS.between(date, now)
+    
+    return when {
+        daysFromToday <= 0L -> {
+            val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+            "오늘 ${time.format(timeFormatter)}"
+        }
+        daysFromToday == 1L -> {
+            val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+            "어제 ${time.format(timeFormatter)}"
+        }
+        daysFromToday in 2..7 -> {
+            "${daysFromToday}일 전"
+        }
+        else -> {
+            val dateFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
+            date.format(dateFormatter)
+        }
+    }
 }
 

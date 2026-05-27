@@ -484,7 +484,7 @@ fun EditorScreen(
                 }
             }
         } else {
-            Column(Modifier.fillMaxSize().padding(paddingValues).padding(16.dp)) {
+            Column(Modifier.fillMaxSize().padding(paddingValues).padding(horizontal = 20.dp, vertical = 12.dp)) {
                 if (isFindOpen && !isFocusMode) {
                     FindBar(
                         query = findQuery,
@@ -574,36 +574,42 @@ fun EditorScreen(
                                     false
                                 }
                             },
-                        textStyle = TextStyle(color = MaterialTheme.colorScheme.onBackground),
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(
+                            color = MaterialTheme.colorScheme.onBackground
+                        ),
                         visualTransformation = markdownVisualTransformation,
                         decorationBox = { innerTextField ->
-                            if (editorState.text.isEmpty()) {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center,
-                                    modifier = Modifier.fillMaxSize()
-                                ) {
-                                    Text(
-                                        text = "✏️",
-                                        style = MaterialTheme.typography.displayMedium,
-                                        modifier = Modifier.padding(bottom = 16.dp)
-                                    )
-                                    Text(
-                                        text = stringResource(R.string.editor_empty_title),
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        textAlign = TextAlign.Center
-                                    )
-                                    Text(
-                                        text = stringResource(R.string.editor_empty_hint),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        textAlign = TextAlign.Center,
-                                        modifier = Modifier.padding(top = 8.dp)
-                                    )
-                                }
-                            } else {
+                            Box(modifier = Modifier.fillMaxSize()) {
                                 innerTextField()
+                                if (editorState.text.isEmpty()) {
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center,
+                                        modifier = Modifier.fillMaxSize().padding(24.dp)
+                                    ) {
+                                        Text(
+                                            text = "✏️",
+                                            style = MaterialTheme.typography.displayMedium.copy(
+                                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+                                            ),
+                                            modifier = Modifier.padding(bottom = 12.dp)
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.editor_empty_title),
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            textAlign = TextAlign.Center,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.editor_empty_hint),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                            textAlign = TextAlign.Center,
+                                            modifier = Modifier.padding(top = 6.dp)
+                                        )
+                                    }
+                                }
                             }
                         }
                     )

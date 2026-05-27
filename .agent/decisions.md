@@ -7,6 +7,21 @@
 
 ## Confirmed Decisions
 
+### D051 - Bear-class Editor Canvas, Typography, Empty States, and Notes List Spacing/Metadata Polish (Phase 24)
+
+Markleaf refines the core visual identity and typography canvas to deliver a highly polished, serene, and premium writing and browsing experience, aligning with the Bear-class Android Markdown application guidelines.
+
+Why:
+- Premium note-taking apps depend heavily on spacing, grids, and typographical rhythm (the final 10% details) to alleviate eye strain during long writing sessions.
+- Default system text settings and tight borders make standard text fields look cluttered and basic. Adding breathing room through a 1.6x line-height ratio (`26.sp` for `16.sp` font) transforms readability.
+- BasicTextField's decorationBox empty-state placeholders must not block click events or hide the underlying editor field, which causes focus/cursor bugs. Rendering the inner text field unconditionally beneath the beautiful brand-emerald tinted placeholder ensures UX safety.
+- The notes list visual density is enhanced by shifting minor layout controls (dates/times) to natural, clean row metadata and grouping lists cleanly via customized, toned-down section header gaps.
+
+Implementation:
+- **Typography and Canvas Spacing**: Updated `Theme.kt` bodyLarge typography lineHeight to `26.sp`. Adjusted `EditorScreen.kt` main Column pad to `horizontal = 20.dp, vertical = 12.dp` and mapped the bodyLarge typography to the `BasicTextField` explicitly.
+- **Robust Empty States**: Modified `EditorScreen.kt`'s empty state to always render `innerTextField()` inside a parent Box, avoiding focus blocks, while painting the stylized brand-green emoji placeholder. Refined `NotesListScreen.kt`'s empty state with a bold header, M3-large rounded button incorporating an icon, and balanced paddings.
+- **Notes List Metadata and Rhythm**: Added last modified relative dates to note items in `NotesListScreen.kt` using a custom `formatUpdatedTime` helper. Tuned `NoteRow` margins to `horizontal = 16.dp` and row interior pad to `16.dp/12.dp`. Redesigned `SectionHeader` with `labelMedium` SemiBold styling and comfortable top-weighted paddings.
+
 ### D050 - Bear-class Smart Text Formatting Toggle, Selection Retention & Word Wrapping (Phase 23)
 
 Markleaf implements highly advanced, premium Markdown formatting actions (Bold, Italic, Strikethrough, Inline Code) inspired by the Bear editor, resolving smart toggling, unwrapping, and multi-lingual word wrapping directly on-device.

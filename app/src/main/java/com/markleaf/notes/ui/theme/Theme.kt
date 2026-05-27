@@ -98,7 +98,7 @@ val Typography = androidx.compose.material3.Typography(
     bodyLarge = TextStyle(
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
-        lineHeight = 24.sp,
+        lineHeight = 26.sp,
         letterSpacing = 0.sp
     ),
     bodyMedium = TextStyle(

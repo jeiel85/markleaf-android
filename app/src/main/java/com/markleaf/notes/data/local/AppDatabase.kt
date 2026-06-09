@@ -26,7 +26,7 @@ import com.markleaf.notes.data.local.entity.TagEntity
         NoteLinkEntity::class,
         AttachmentEntity::class
     ],
-    version = 13,
+    version = 14,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -159,6 +159,52 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // v13 → v14 (v2.16.3, #135): rebuild `notes_fts` WITHOUT the unicode61
+        // tokenizer. unicode61 is not compiled into every device's system SQLite
+        // (some hardened/custom ROMs ship without it), so the v13 unicode61 table
+        // crashed DB creation with `unknown tokenizer` on those devices. The
+        // default `simple` tokenizer ships in every SQLite build. No user data is
+        // lost — `notes_fts` is a derived index over the `notes` content table.
+        private val MIGRATION_13_14 = object : Migration(13, 14) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS `notes_fts`")
+                db.execSQL(
+                    """
+                    CREATE VIRTUAL TABLE IF NOT EXISTS `notes_fts` USING FTS4(
+                        `title` TEXT NOT NULL,
+                        `contentMarkdown` TEXT NOT NULL,
+                        `excerpt` TEXT NOT NULL,
+                        content=`notes`
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL("INSERT INTO `notes_fts`(`notes_fts`) VALUES ('rebuild')")
+            }
+        }
+
+        // v12 → v14 direct (v2.16.3, #135): v12 users on a device that lacks the
+        // unicode61 tokenizer would crash inside MIGRATION_12_13 (which created the
+        // unicode61 table) before ever reaching v14. Room resolves the shortest
+        // upgrade path, so a direct 12→14 edge skips that crashing step entirely.
+        // The v12 schema differs from v13 only in `notes_fts`, so this is the same
+        // crash-proof rebuild as 13→14.
+        private val MIGRATION_12_14 = object : Migration(12, 14) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS `notes_fts`")
+                db.execSQL(
+                    """
+                    CREATE VIRTUAL TABLE IF NOT EXISTS `notes_fts` USING FTS4(
+                        `title` TEXT NOT NULL,
+                        `contentMarkdown` TEXT NOT NULL,
+                        `excerpt` TEXT NOT NULL,
+                        content=`notes`
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL("INSERT INTO `notes_fts`(`notes_fts`) VALUES ('rebuild')")
+            }
+        }
+
         // v10 → v11: re-introduce `attachments` for v2.5 image attachments
         // revival. Schema is fresh (the v9 DROP took the v1.x version with
         // it). Files live in app-private storage; this table is metadata
@@ -214,7 +260,9 @@ abstract class AppDatabase : RoomDatabase() {
             MIGRATION_9_10,
             MIGRATION_10_11,
             MIGRATION_11_12,
-            MIGRATION_12_13
+            MIGRATION_12_13,
+            MIGRATION_12_14,
+            MIGRATION_13_14
         )
     }
 }

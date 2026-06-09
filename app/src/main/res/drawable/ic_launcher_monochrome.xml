@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Themed (monochrome) icon layer for Android 13+ (#133). The launcher ignores
+  the fill color and re-tints this shape with the user's theme, so it must be a
+  single-color silhouette. We keep the Markleaf leaf and cut the markdown '#'
+  veins out as negative space (fillType=evenOdd) so the identity survives tinting
+  instead of collapsing into a featureless blob.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#000000"
+        android:fillType="evenOdd"
+        android:pathData="M54,20 C54,20 30,35 30,60 C30,85 54,88 54,88 C54,88 78,85 78,60 C78,35 54,20 54,20 Z
+        M52.75,35 L55.25,35 L55.25,75 L52.75,75 Z
+        M45,43.75 L63,43.75 L63,46.25 L45,46.25 Z
+        M45,53.75 L63,53.75 L63,56.25 L45,56.25 Z" />
+</vector>

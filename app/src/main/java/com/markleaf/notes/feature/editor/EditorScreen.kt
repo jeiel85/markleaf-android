@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -484,7 +485,17 @@ fun EditorScreen(
                 }
             }
         } else {
-            Column(Modifier.fillMaxSize().padding(paddingValues).padding(horizontal = 20.dp, vertical = 12.dp)) {
+            // imePadding() shrinks the editor body when the soft keyboard is up so
+            // BasicTextField's built-in cursor bring-into-view can keep the caret
+            // above the keyboard. Without it, enableEdgeToEdge() lets the IME draw
+            // over the last lines and they stay hidden (#136).
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .imePadding()
+                    .padding(horizontal = 20.dp, vertical = 12.dp)
+            ) {
                 if (isFindOpen && !isFocusMode) {
                     FindBar(
                         query = findQuery,

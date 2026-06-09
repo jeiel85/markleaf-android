@@ -1,0 +1,5 @@
+This update focuses on stability.
+
+- Fixed a crash that stopped the app from opening on some devices. Your notes are kept intact.
+- Fixed the keyboard covering the line you were typing in long notes. The cursor now stays visible above the keyboard.
+- Added a themed monochrome icon that adapts to your home screen theme (Android 13+).

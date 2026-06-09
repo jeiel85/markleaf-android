@@ -7,6 +7,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -51,6 +52,23 @@ class AppDatabaseMigrationTest {
         ).use { cursor ->
             assertTrue(cursor.moveToFirst())
             assertEquals("Legacy Note", cursor.getString(1))
+        }
+
+        // #135 regression guard: notes_fts must NOT use the unicode61 tokenizer.
+        // unicode61 isn't compiled into every device's system SQLite (some hardened
+        // ROMs ship without it), so a unicode61 table crashes DB creation with
+        // `unknown tokenizer` on those devices. v14 reverts to the always-available
+        // default tokenizer; assert we never reintroduce unicode61 here or in any
+        // future migration that lands on the current schema.
+        db.openHelper.writableDatabase.query(
+            "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'notes_fts'"
+        ).use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            val createSql = cursor.getString(0)
+            assertFalse(
+                "notes_fts must not use the unicode61 tokenizer (#135): $createSql",
+                createSql.contains("unicode61", ignoreCase = true)
+            )
         }
 
         db.openHelper.writableDatabase.query("SELECT COUNT(*) FROM note_links").use { cursor ->

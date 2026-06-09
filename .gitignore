@@ -11,6 +11,10 @@
 .externalNativeBuild
 .cxx
 
+# Agent / tooling scratch and throwaway capture dirs (never publish)
+/.tmp-screenshots/
+/.antigravitycli/
+
 # Release signing secrets
 /.secrets/
 /signing.properties

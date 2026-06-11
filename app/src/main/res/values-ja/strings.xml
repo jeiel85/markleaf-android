@@ -83,6 +83,9 @@
     <string name="section_yesterday">昨日</string>
     <string name="section_past_week">過去 7 日間</string>
     <string name="section_older">それ以前</string>
+    <string name="relative_today">今日 %1$s</string>
+    <string name="relative_yesterday">昨日 %1$s</string>
+    <string name="relative_days_ago">%1$d日前</string>
 
     <string name="search_notes_hint">ノートを検索...</string>
     <string name="type_to_search_notes">入力してノートを検索</string>

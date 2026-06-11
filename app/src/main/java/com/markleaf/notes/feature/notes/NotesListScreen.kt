@@ -70,6 +70,8 @@ import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.ui.viewmodel.NotesViewModel
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
@@ -399,7 +401,7 @@ private fun NoteRow(
             }
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = formatUpdatedTime(note.updatedAt),
+                text = formatUpdatedTime(LocalContext.current, note.updatedAt),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
@@ -487,26 +489,22 @@ private fun groupNotes(notes: List<Note>): List<NoteSection> {
     return sections
 }
 
-private fun formatUpdatedTime(instant: Instant): String {
+private fun formatUpdatedTime(context: Context, instant: Instant): String {
     val zone = ZoneId.systemDefault()
     val now = LocalDate.now(zone)
     val date = instant.atZone(zone).toLocalDate()
     val time = instant.atZone(zone).toLocalTime()
-    
+
     val daysFromToday = ChronoUnit.DAYS.between(date, now)
-    
+    val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
     return when {
-        daysFromToday <= 0L -> {
-            val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-            "오늘 ${time.format(timeFormatter)}"
-        }
-        daysFromToday == 1L -> {
-            val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-            "어제 ${time.format(timeFormatter)}"
-        }
-        daysFromToday in 2..7 -> {
-            "${daysFromToday}일 전"
-        }
+        daysFromToday <= 0L ->
+            context.getString(R.string.relative_today, time.format(timeFormatter))
+        daysFromToday == 1L ->
+            context.getString(R.string.relative_yesterday, time.format(timeFormatter))
+        daysFromToday in 2..7 ->
+            context.getString(R.string.relative_days_ago, daysFromToday.toInt())
         else -> {
             val dateFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
             date.format(dateFormatter)

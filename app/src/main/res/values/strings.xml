@@ -83,6 +83,9 @@
     <string name="section_yesterday">Yesterday</string>
     <string name="section_past_week">Past 7 days</string>
     <string name="section_older">Older</string>
+    <string name="relative_today">Today %1$s</string>
+    <string name="relative_yesterday">Yesterday %1$s</string>
+    <string name="relative_days_ago">%1$d days ago</string>
 
     <string name="search_notes_hint">Search notes...</string>
     <string name="type_to_search_notes">Type to search notes</string>

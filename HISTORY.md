@@ -1,3 +1,19 @@
+## 2026-06-11 - v2.16.4 Tags inside lists (#137)
+
+- Trigger: GitHub issue #137 (dope791) — tags written inside bulleted list items did not appear in the tag view.
+- Root cause: `TagParser` matched the tag body as "everything up to whitespace", so a trailing period/comma (`#shopping.`, `#work,`) — common at the end of list items and when comma-separating tags — was absorbed into the name, failed `isValidTagName`, and dropped the whole tag. The segment charset was also Latin + Hangul only, rejecting German/Japanese/Chinese tags outright.
+- Work:
+  - Rewrote `TagParser.TAG_PATTERN` to match the body against the valid Unicode character set (`\p{L}`/`\p{N}`, `_`, `-`, `/`), so punctuation is excluded and any-script tags are recognized; widened `SEGMENT_REGEX` to Unicode letters.
+  - Removed the heading/URL-fragment exclusion passes — the `(^|\s)#` prefix already filters those, and the passes only mis-banned a tag note-wide once it appeared in a heading.
+  - Added unit tests (lists, trailing punctuation, comma-separated, heading, de/ja/zh) and a `TagParserAndroidTest` instrumented test so the Unicode-class regex is exercised on Android's ICU engine, not just the host JVM.
+  - Bumped `app/build.gradle.kts` from `versionCode 92 / versionName 2.16.3` to `versionCode 93 / versionName 2.16.4`.
+  - Added fastlane Play changelogs for `ko-KR` and `en-US` as `93.txt`; added `CHANGELOG.md` entries for v2.16.4 and backfilled v2.16.3.
+- Verification:
+  - `.\gradlew.bat :app:testDebugUnitTest --tests "com.markleaf.notes.util.TagParserTest"` -> BUILD SUCCESSFUL.
+  - `.\gradlew.bat :app:testDebugUnitTest :app:lintRelease` (release hard gates) -> BUILD SUCCESSFUL.
+  - Release notes char count: ko-KR 148/500, en-US 279/500.
+- Distribution: signed APK + AAB and the GitHub Release are produced by CI on the `v2.16.4` tag push (keystore from repo secrets); F-Droid auto-detects the new tag.
+
 ## 2026-05-27 - v2.16.2 Play production release preparation
 
 - Trigger: Play production access was approved, so the app needed a fresh Play-ready version and desktop export package.

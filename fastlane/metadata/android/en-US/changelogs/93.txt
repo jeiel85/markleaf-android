@@ -1,0 +1,5 @@
+This update improves how tags are detected.
+
+- Tags written inside bulleted lists now appear correctly in the tag list.
+- A tag is recognized even when it is followed by a period or comma.
+- Tags in many languages — Korean, Japanese, Chinese, German and more — are now supported.

@@ -109,4 +109,71 @@ class TagParserTest {
         val tags = TagParser.parseTags(content)
         assertEquals(listOf("프로젝트/현장"), tags)
     }
+
+    @Test
+    fun `parseTags extracts tag inside a bulleted list item`() {
+        val content = "- Buy milk #shopping\n- Buy eggs #groceries"
+        val tags = TagParser.parseTags(content)
+        assertEquals(listOf("shopping", "groceries"), tags)
+    }
+
+    @Test
+    fun `parseTags extracts tag that is the only token in a bullet`() {
+        val content = "- #important\n- #todo"
+        val tags = TagParser.parseTags(content)
+        assertEquals(listOf("important", "todo"), tags)
+    }
+
+    @Test
+    fun `parseTags ignores trailing punctuation on a tag`() {
+        // Tags at the end of a sentence or list item must not absorb the
+        // punctuation and get rejected wholesale.
+        val content = "- Errand #shopping.\n- Note #work; later"
+        val tags = TagParser.parseTags(content)
+        assertEquals(listOf("shopping", "work"), tags)
+    }
+
+    @Test
+    fun `parseTags handles comma-separated tags in a list`() {
+        val content = "- task #work, #personal, #urgent"
+        val tags = TagParser.parseTags(content)
+        assertEquals(listOf("work", "personal", "urgent"), tags)
+    }
+
+    @Test
+    fun `parseTags keeps a tag that also appears in a heading`() {
+        // A tag used inside a heading must not be banned everywhere else in the
+        // note — the bullet occurrence is a legitimate tag.
+        val content = "## Tasks #work\n- finish report #work"
+        val tags = TagParser.parseTags(content)
+        assertEquals(listOf("work"), tags)
+    }
+
+    @Test
+    fun `parseTags supports German tags with umlauts`() {
+        val content = "- Termin #Größe und #Tür"
+        val tags = TagParser.parseTags(content)
+        assertEquals(listOf("Größe", "Tür"), tags)
+    }
+
+    @Test
+    fun `parseTags supports Japanese tags`() {
+        val content = "- メモ #仕事 #重要"
+        val tags = TagParser.parseTags(content)
+        assertEquals(listOf("仕事", "重要"), tags)
+    }
+
+    @Test
+    fun `parseTags supports Chinese tags`() {
+        val content = "- 笔记 #工作"
+        val tags = TagParser.parseTags(content)
+        assertEquals(listOf("工作"), tags)
+    }
+
+    @Test
+    fun `parseTags does not treat URL fragment in list as a tag`() {
+        val content = "- See https://example.com#section and #realTag"
+        val tags = TagParser.parseTags(content)
+        assertEquals(listOf("realTag"), tags)
+    }
 }

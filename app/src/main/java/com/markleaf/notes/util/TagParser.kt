@@ -3,57 +3,22 @@ package com.markleaf.notes.util
 import java.util.regex.Pattern
 
 object TagParser {
-    // Match #tag where tag follows a space or start of line, and tag is not just #
-    private val TAG_PATTERN = Pattern.compile("""(^|\s)#([^\s#][^\s]*)""")
-    
-    // Match Markdown headings: 1-6 # followed by space and text
-    private val HEADING_PATTERN = Pattern.compile("""^#{1,6}\s+.+""", Pattern.MULTILINE)
-    
-    // Match URLs with fragments
-    private val URL_PATTERN = Pattern.compile("""https?://[^\s]+#[^\s]*""")
+    // Match #tag where the tag is preceded by whitespace or the start of the
+    // content (so URL fragments like `…com#frag` are never treated as tags) and
+    // the tag body is made up only of valid tag characters. Restricting the body
+    // to the valid character set — rather than "everything up to whitespace" —
+    // means trailing punctuation (`#work,` `#shopping.`) and list separators are
+    // left out instead of poisoning the whole tag. `\p{L}`/`\p{N}` are Unicode
+    // categories, so tags in any script (Korean, Japanese, Chinese, German
+    // umlauts, …) are recognised, not just Latin + Hangul.
+    private val TAG_PATTERN = Pattern.compile("""(^|\s)#(\p{L}[\p{L}\p{N}_/-]*|_[\p{L}\p{N}_/-]*)""")
 
     fun parseTags(content: String): List<String> {
-        val tags = mutableSetOf<String>()
-        val headingTags = mutableSetOf<String>()
-        val urlFragments = mutableSetOf<String>()
+        val tags = LinkedHashSet<String>()
 
-        // Find headings and extract any tags that appear in them (to exclude)
-        val headingMatcher = HEADING_PATTERN.matcher(content)
-        while (headingMatcher.find()) {
-            val heading = headingMatcher.group().trim()
-            // Extract potential tags from heading (after # markers that are part of heading)
-            val headingTagMatcher = TAG_PATTERN.matcher(heading)
-            while (headingTagMatcher.find()) {
-                headingTagMatcher.group(2)?.let { headingTags.add(it) }
-            }
-        }
-
-        // Find URLs and extract fragments (to exclude)
-        val urlMatcher = URL_PATTERN.matcher(content)
-        while (urlMatcher.find()) {
-            val url = urlMatcher.group()
-            val fragmentStart = url.indexOf('#')
-            if (fragmentStart >= 0 && fragmentStart + 1 < url.length) {
-                urlFragments.add(url.substring(fragmentStart + 1))
-            }
-        }
-
-        // Find all tags in content
-        val tagMatcher = TAG_PATTERN.matcher(content)
-        while (tagMatcher.find()) {
-            val tag = tagMatcher.group(2) ?: continue
-            
-            // Skip if this tag appears in a heading
-            if (headingTags.contains(tag)) {
-                continue
-            }
-            
-            // Skip if this tag is a URL fragment
-            if (urlFragments.contains(tag)) {
-                continue
-            }
-            
-            // Validate tag name
+        val matcher = TAG_PATTERN.matcher(content)
+        while (matcher.find()) {
+            val tag = matcher.group(2) ?: continue
             if (isValidTagName(tag)) {
                 tags.add(tag)
             }
@@ -62,14 +27,14 @@ object TagParser {
         return tags.toList()
     }
 
-    private val SEGMENT_REGEX = Regex("""[a-zA-Z가-힣_][a-zA-Z가-힣0-9_-]*""")
+    private val SEGMENT_REGEX = Regex("""[\p{L}_][\p{L}\p{N}_-]*""")
 
     private fun isValidTagName(tag: String): Boolean {
         if (tag.isEmpty()) return false
         // A hierarchical tag is one or more `/`-separated segments. Each segment
-        // must start with a letter (Latin or Korean) or underscore and may
-        // contain letters, digits, underscores, or hyphens. Empty segments are
-        // rejected so things like `#parent/` or `#a//b` do not slip through.
+        // must start with a letter (any script) or underscore and may contain
+        // letters, digits, underscores, or hyphens. Empty segments are rejected
+        // so things like `#parent/` or `#a//b` do not slip through.
         val segments = tag.split('/')
         if (segments.isEmpty()) return false
         return segments.all { it.matches(SEGMENT_REGEX) }

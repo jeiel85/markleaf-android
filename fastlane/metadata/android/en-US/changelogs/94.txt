@@ -1,0 +1,3 @@
+A refinement for multilingual use.
+
+- Dates in the note list (Today, Yesterday, "N days ago") now appear in your device's language.

@@ -2,6 +2,16 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.16.5 - 날짜 표기 다국어화 & F-Droid 스크린샷 (i18n & Screenshots) - 2026-06-11
+
+노트 목록의 상대 날짜 표기를 다국어화하고, GitHub 이슈 #132 요청대로 F-Droid 스크린샷을 추가한 릴리스입니다.
+
+### Fixed
+- **노트 목록 날짜의 한국어 하드코딩 제거.** `formatUpdatedTime`이 섹션 헤더와 달리 행 타임스탬프를 `"오늘 …"`, `"어제 …"`, `"n일 전"` 한국어 리터럴로 하드코딩하고 있었습니다. 기기 언어가 한국어가 아닌 사용자(영어·일본어·독일어 등)는 영어 UI에서도 날짜만 한국어로 보였습니다. 문자열 리소스(`relative_today`/`relative_yesterday`/`relative_days_ago`)로 옮기고 6개 로케일(en·ko·ja·de·es·fr) 번역을 추가했습니다.
+
+### Distribution
+- **F-Droid 폰 스크린샷 추가(#132).** `fastlane/metadata/android/en-US/images/phoneScreenshots/`에 실기기(TB320FC, Android 15) 캡처 4장을 추가했습니다 — 라이브 마크다운 에디터, 코드 하이라이트 프리뷰, 태그 화면, 로컬-퍼스트 안내. 로케일별 중복 아이콘 정리는 이전 릴리스에서 완료되어 `en-US/images/icon.png`만 유지합니다.
+
 ## v2.16.4 - 목록 안 태그 인식 (Tags in Lists) - 2026-06-11
 
 GitHub 이슈 #137(글머리 기호 목록 안의 태그가 태그 뷰에 나타나지 않는 문제)을 해결한 패치 릴리스입니다.

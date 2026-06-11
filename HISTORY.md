@@ -1,3 +1,17 @@
+## 2026-06-11 - v2.16.5 Relative-date i18n & F-Droid screenshots (#132)
+
+- Trigger: While capturing F-Droid screenshots for issue #132 on the TB320FC tablet, the note-list row timestamps rendered in Korean ("오늘 15:58") even with the device set to English — a localization bug surfaced by the capture work.
+- Root cause: `formatUpdatedTime` in `NotesListScreen.kt` hardcoded Korean literals (`"오늘 …"`, `"어제 …"`, `"${n}일 전"`) while the section headers correctly used string resources. Every non-Korean-language user saw Korean dates.
+- Work:
+  - Moved the relative-date strings to resources (`relative_today` / `relative_yesterday` / `relative_days_ago`) with `%1$s` / `%1$d` placeholders; changed `formatUpdatedTime` to take a `Context` and call `getString`; passed `LocalContext.current` at the call site. Added translations to all six locales (en, ko, ja, de, es, fr) so `ResourceParityTest` stays green.
+  - Captured four phone screenshots on TB320FC (Android 15) with the device temporarily switched to English + SystemUI demo mode for a clean status bar: live Markdown editor, rendered preview with a Kotlin code block + checklists + tags, the Tags screen, and the local-first privacy note. Placed under `fastlane/metadata/android/en-US/images/phoneScreenshots/` as `1.png`–`4.png`. The per-locale icon dedup that #132 also asked for was already done in an earlier release (only `en-US/images/icon.png` remains).
+  - Restored the tablet afterward: system language back to Korean, auto-rotate re-enabled, SystemUI demo mode exited.
+  - Bumped `app/build.gradle.kts` from `versionCode 93 / versionName 2.16.4` to `versionCode 94 / versionName 2.16.5`; added fastlane `94.txt` changelogs (ko/en) and CHANGELOG entry.
+- Verification:
+  - `.\gradlew.bat :app:testDebugUnitTest :app:lintRelease` (release hard gates, includes ResourceParityTest) -> BUILD SUCCESSFUL.
+  - Re-installed the debug build on TB320FC and visually confirmed English UI shows "Today 15:58" after the fix.
+- Distribution: signed APK + AAB and the GitHub Release are produced by CI on the `v2.16.5` tag push; F-Droid auto-detects the tag and the new phoneScreenshots metadata.
+
 ## 2026-06-11 - v2.16.4 Tags inside lists (#137)
 
 - Trigger: GitHub issue #137 (dope791) — tags written inside bulleted list items did not appear in the tag view.

@@ -27,3 +27,7 @@
 # Local release artifact staging (AAB / APK / mapping for Play Console hand-off).
 # CI produces these on tag pushes; the local copies here are just for manual upload.
 /dist/
+
+# Nightly issue-bot: local secrets (SMTP app password) and runtime scratch.
+/scripts/nightly/config.local.psd1
+/scripts/nightly/.runtime/

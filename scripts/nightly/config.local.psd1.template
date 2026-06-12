@@ -1,0 +1,32 @@
+@{
+    # ---------------------------------------------------------------------------
+    # Nightly issue-bot local config.
+    #
+    # SETUP: copy this file to `config.local.psd1` (same folder) and fill in the
+    # SMTP app password. config.local.psd1 is git-ignored — it never gets
+    # committed or pushed.
+    #
+    # Gmail requires an APP PASSWORD (not your normal password), and 2-Step
+    # Verification must be ON for the account:
+    #   https://myaccount.google.com/apppasswords
+    # Generate a 16-char app password and paste it (spaces optional) below.
+    # ---------------------------------------------------------------------------
+
+    Smtp = @{
+        Host        = 'smtp.gmail.com'
+        Port        = 587            # 587 = STARTTLS
+        UseSsl      = $true
+        User        = 'pedaiah85@gmail.com'   # sending account (dev account)
+        AppPassword = 'PASTE-16-CHAR-APP-PASSWORD-HERE'
+        From        = 'pedaiah85@gmail.com'
+    }
+
+    # Where the "done" notification email is delivered. Can be a single address
+    # or an array, e.g. @('okpos.cs1.2@gmail.com', 'pedaiah85@gmail.com').
+    NotifyTo = 'pedaiah85@gmail.com'
+
+    # Safety knobs (optional — defaults are fine).
+    MaxIssues       = 5      # cap issues handled per night
+    BuildCandidates = $true  # build an unsigned candidate APK per opened PR and
+                             # drop it into Desktop\Build\ for device testing
+}

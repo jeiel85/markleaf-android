@@ -1,0 +1,6 @@
+Improvements to importing files and folder sync.
+
+- Open a .md or text file from your file manager, or share one from another app, to bring it straight in as a new note.
+- Fixed search results listing the same note several times.
+- Tags you remove from every note now disappear from the tag list.
+- Imported notes show their tags right away, and external markdown files are no longer re-imported as duplicate notes on every sync.

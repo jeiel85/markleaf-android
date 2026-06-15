@@ -1,3 +1,25 @@
+## 2026-06-15 - v2.17.0 File import & folder-sync fixes (#139, #140, #138)
+
+- Trigger: A batch of GitHub issues — #139 (open/share `.md` files), #140 (search lists the same note multiple times), #138 (a tag removed from every note lingers in the overview), plus #138's comment thread (folder sync creates duplicate notes; imported tags not recognized).
+- Root causes:
+  - #140 search: `NoteDao.searchNotesFts` joined `notes` to `notes_fts` on rowid, so any duplicate FTS posting for a note multiplied it in the result list.
+  - #140 (the reporter's real case) + #138 comment: `NoteFolderMirror.importChanges` matched existing notes *only* by the file's frontmatter `markleaf_id`. Files authored in another app have none and were never stamped on import, so every reconcile re-created them as brand-new notes — one note appeared 4–5 times after a few syncs.
+  - #138: `TagDao.observeTagsWithCounts` used `LEFT JOIN`, so a tag whose cross-refs all went away still surfaced with `noteCount = 0`.
+  - #138 comment ("tags not recognized on sync"): the three sync import call sites called only `createNote`/`updateNote` and never ran tag/link reindexing, so folder-imported notes were tagless until re-saved in the editor. (A trailing space after a tag was a red herring — `TagParser` already terminates a tag at whitespace.)
+- Work:
+  - #140 search: rewrote `searchNotesFts` to `WHERE rowid IN (SELECT rowid FROM notes_fts WHERE notes_fts MATCH :query)` so each note is returned once regardless of duplicate postings.
+  - Sync de-dup: after importing a frontmatter-less file, `NoteFolderMirror.stampFrontmatter` rewrites that file in place with the new `markleaf_id` so the next reconcile matches by id and updates instead of duplicating. Extended `SyncFrontmatter.encode` to take an `extraKeys` map and re-emit unknown frontmatter keys (Obsidian etc.) it used to silently drop, preserving external metadata on the write-back.
+  - #138: added `HAVING COUNT(notes.id) > 0` to `observeTagsWithCounts`.
+  - Sync reindex: added `NoteImporter` (create/update + tag & link reindex) and routed all three import call sites (foreground auto-reconcile in `MainActivity`, Sync Center, Settings) through it.
+  - #139: added `ACTION_VIEW` (markdown/text MIME) and `ACTION_SEND` (markdown file) intent filters; `MainActivity` now reads an opened/shared file's stream into a note body (capped at 2M chars), seeding the title from the file name when the body has no leading heading.
+  - Bumped `app/build.gradle.kts` from `versionCode 94 / versionName 2.16.5` to `versionCode 95 / versionName 2.17.0`; added fastlane `95.txt` changelogs (ko/en) and CHANGELOG entry.
+- Verification:
+  - `.\gradlew.bat testDebugUnitTest` -> BUILD SUCCESSFUL (added tests: tag zero-count hidden, single search result with a duplicate FTS posting, `encode` preserves/ignores extra keys, `NoteImporter` indexes tags + wikilinks on import).
+  - `.\gradlew.bat lintRelease` (release hard gate) -> BUILD SUCCESSFUL.
+  - Release-notes char count: ko-KR 236/500, en-US 430/500.
+  - The SAF folder-IO write-back path is covered by the live tablet smoke, matching the existing convention for `importChanges`.
+- Distribution: signed APK + AAB and the GitHub Release are produced by CI on the `v2.17.0` tag push (keystore from repo secrets); F-Droid auto-detects the new tag.
+
 ## 2026-06-11 - v2.16.5 Relative-date i18n & F-Droid screenshots (#132)
 
 - Trigger: While capturing F-Droid screenshots for issue #132 on the TB320FC tablet, the note-list row timestamps rendered in Korean ("오늘 15:58") even with the device set to English — a localization bug surfaced by the capture work.

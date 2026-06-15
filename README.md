@@ -23,7 +23,7 @@
 
 **Markleaf**는 군더더기를 덜어내고 오직 '기록'과 '정리'에만 집중할 수 있도록 설계된 Android Markdown 메모 앱입니다. 당신의 데이터는 오직 당신의 기기에만 저장되며, 표준 Markdown 형식을 사용하여 데이터의 소유권과 이식성을 완벽히 보장합니다. 동기화도 *당신이 선택한 폴더* 를 통해서만 일어납니다 — Markleaf 자체는 인터넷에 나가지 않습니다.
 
-[**브랜딩 페이지 보기**](https://jeiel85.github.io/markleaf-android/) · [현재 버전: v2.16.2](https://github.com/jeiel85/markleaf-android/releases/tag/v2.16.2) · [Privacy Policy](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**브랜딩 페이지 보기**](https://jeiel85.github.io/markleaf-android/) · [현재 버전: v2.17.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.17.0) · [Privacy Policy](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -47,6 +47,7 @@
 
 ### 동기화 & 내보내기 (No-Cloud 원칙)
 - **폴더 미러 동기화** — SAF로 사용자가 선택한 폴더(Drive/Dropbox/Syncthing/OneDrive/NAS 등)에 각 노트를 `.md` 파일로 미러링. Markleaf 자체는 인터넷에 안 나가고, 동기화는 *외부 앱이 그 폴더를 동기화하는 방식* 으로 위임
+- **외부 `.md` / `.txt` 파일 가져오기** — 파일 관리자에서 파일을 탭하거나 다른 앱에서 공유하면 새 노트로 가져옵니다(제목 머리말이 없으면 파일 이름이 제목). 동기화로 들어온 노트의 태그도 곧바로 인식
 - **개별 / 전체 노트 `.md` 내보내기**
 - **시스템 공유 시트로 보내기**
 
@@ -104,7 +105,7 @@ com.markleaf.notes
 ### 설치 방법
 - **F-Droid**: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — F-Droid 클라이언트에서 검색하거나 위 링크로 바로 설치할 수 있습니다. 동일 서명 키(SHA-256 `0be97352…f91a`)를 사용하므로 GitHub Releases APK로 사이드로드한 경우에도 끊김 없이 업데이트가 이어집니다.
 - **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — Play Store에서 정식 배포되는 버전을 설치합니다.
-- **APK 직접 설치**: [v2.16.2 Release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.16.2) 또는 [Releases](https://github.com/jeiel85/markleaf-android/releases) 페이지에서 최신 버전의 APK를 다운로드한 뒤 Android 기기에서 실행해 설치합니다.
+- **APK 직접 설치**: [v2.17.0 Release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.17.0) 또는 [Releases](https://github.com/jeiel85/markleaf-android/releases) 페이지에서 최신 버전의 APK를 다운로드한 뒤 Android 기기에서 실행해 설치합니다.
 
 ### 개발 환경 구축
 직접 빌드하거나 기여하고 싶다면 다음 과정을 따르세요.
@@ -163,6 +164,7 @@ Markleaf 자체는 절대로 네트워크에 나가지 않습니다. 데이터�
 - [x] **v2.14** 각주 ref ↔ def 클릭 점프
 - [x] **v2.15** F-Droid 제출 안정화와 no-cloud 문서 정비
 - [x] **v2.16** 홈 화면 위젯, 생체 인증 잠금, 오픈소스 투명성, 스마트 Markdown 포맷팅
+- [x] **v2.17** 외부 `.md`/`.txt` 파일 열기·공유 가져오기, 폴더 동기화 중복 노트·태그 인식 개선
 - [ ] Google Play 정식 출시 (현재 비공개 테스트 중)
 
 ---

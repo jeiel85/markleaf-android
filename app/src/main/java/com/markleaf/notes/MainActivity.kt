@@ -1,7 +1,10 @@
 package com.markleaf.notes
 
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -22,6 +25,7 @@ import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.ColorPalette
 import com.markleaf.notes.data.sync.NoteFolderMirror
+import com.markleaf.notes.data.sync.NoteImporter
 import com.markleaf.notes.feature.lock.BiometricLockGate
 import com.markleaf.notes.feature.onboarding.WelcomeOnboardingSheet
 import com.markleaf.notes.navigation.MarkleafNavHost
@@ -62,6 +66,7 @@ class MainActivity : FragmentActivity() {
         // newer than the DB record).
         lifecycleScope.launch {
             val noteRepository = LocalNoteRepository(database)
+            val importer = NoteImporter(database)
             var lastReconcileMs = 0L
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 val now = System.currentTimeMillis()
@@ -79,8 +84,8 @@ class MainActivity : FragmentActivity() {
                         context = applicationContext,
                         folderUri = uri,
                         existing = notes,
-                        applyUpdate = { updated -> noteRepository.updateNote(updated) },
-                        applyCreate = { created -> noteRepository.createNote(created) }
+                        applyUpdate = { updated -> importer.update(updated) },
+                        applyCreate = { created -> importer.create(created) }
                     )
                 }
                 settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())
@@ -108,7 +113,7 @@ class MainActivity : FragmentActivity() {
         val openNoteId = if (intent.action == QuickNoteWidget.ACTION_OPEN_NOTE) {
             intent.getStringExtra(QuickNoteWidget.EXTRA_NOTE_ID)
         } else null
-        val sharedText = extractSharedText(intent)
+        val sharedText = extractInitialContent(intent)
 
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
@@ -169,7 +174,12 @@ class MainActivity : FragmentActivity() {
                 setIntent(intent)
                 recreate()
             }
-            intent?.action == Intent.ACTION_SEND && extractSharedText(intent) != null -> {
+            intent?.action == Intent.ACTION_SEND &&
+                (intent.streamUri() != null || extractSharedText(intent) != null) -> {
+                setIntent(intent)
+                recreate()
+            }
+            intent?.action == Intent.ACTION_VIEW && intent.data != null -> {
                 setIntent(intent)
                 recreate()
             }
@@ -178,11 +188,34 @@ class MainActivity : FragmentActivity() {
 
     private companion object {
         const val THROTTLE_MS = 60_000L
+
+        // Cap how much of an opened/shared file we pull into a note so a huge or
+        // non-text file can't OOM/ANR the cold-start path (#139). Real note files
+        // are a few KB; 2M chars is a generous ceiling.
+        const val MAX_IMPORT_CHARS = 2_000_000
+    }
+
+    /**
+     * Note body to seed from an external intent, or null if there's nothing to
+     * import. Covers three entry points:
+     *  - ACTION_VIEW of a `.md` / `.txt` file tapped in a file manager (#139),
+     *  - ACTION_SEND of a shared file stream (#139),
+     *  - ACTION_SEND of plain text from the system share sheet (the original
+     *    behaviour).
+     */
+    private fun extractInitialContent(intent: Intent?): String? {
+        intent ?: return null
+        return when (intent.action) {
+            Intent.ACTION_VIEW -> intent.data?.let(::readNoteFromUri)
+            Intent.ACTION_SEND -> intent.streamUri()?.let(::readNoteFromUri)
+                ?: extractSharedText(intent)
+            else -> null
+        }
     }
 
     private fun extractSharedText(intent: Intent?): String? {
         if (intent?.action != Intent.ACTION_SEND) return null
-        if (intent.type != "text/plain") return null
+        if (intent.type?.startsWith("text/") != true) return null
         val subject = intent.getStringExtra(Intent.EXTRA_SUBJECT)?.takeIf { it.isNotBlank() }
         val text = intent.getStringExtra(Intent.EXTRA_TEXT)?.takeIf { it.isNotBlank() }
         if (subject == null && text == null) return null
@@ -193,5 +226,59 @@ class MainActivity : FragmentActivity() {
             }
             if (text != null) append(text)
         }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun Intent.streamUri(): Uri? =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+        } else {
+            getParcelableExtra(Intent.EXTRA_STREAM)
+        }
+
+    /**
+     * Read an opened/shared file as UTF-8 text and turn it into a note body.
+     * When the file has no leading heading, its name seeds the title so the
+     * imported note isn't titled by whatever its first body line happens to be
+     * — matching the "filename is the note title" expectation from #134.
+     */
+    private fun readNoteFromUri(uri: Uri): String? {
+        val content = runCatching {
+            contentResolver.openInputStream(uri)?.use(::readCapped)
+        }.getOrNull()?.takeIf { it.isNotBlank() } ?: return null
+
+        val name = displayNameFor(uri)
+            ?.substringBeforeLast('.')
+            ?.trim()
+            ?.takeIf { it.isNotBlank() }
+        val trimmed = content.trimStart()
+        val alreadyTitled = trimmed.startsWith("#") || trimmed.startsWith("---")
+        return if (name != null && !alreadyTitled) "# $name\n\n$content" else content
+    }
+
+    private fun readCapped(input: java.io.InputStream): String {
+        val reader = input.bufferedReader(Charsets.UTF_8)
+        val sb = StringBuilder()
+        val buf = CharArray(8192)
+        var total = 0
+        while (total < MAX_IMPORT_CHARS) {
+            val read = reader.read(buf)
+            if (read < 0) break
+            val take = minOf(read, MAX_IMPORT_CHARS - total)
+            sb.append(buf, 0, take)
+            total += take
+        }
+        return sb.toString()
+    }
+
+    private fun displayNameFor(uri: Uri): String? {
+        if (uri.scheme == "file") return uri.lastPathSegment
+        return runCatching {
+            contentResolver.query(
+                uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null
+            )?.use { cursor ->
+                if (cursor.moveToFirst()) cursor.getString(0) else null
+            }
+        }.getOrNull()
     }
 }

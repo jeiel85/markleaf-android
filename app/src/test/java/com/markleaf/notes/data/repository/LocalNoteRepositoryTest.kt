@@ -173,4 +173,27 @@ class LocalNoteRepositoryTest {
         val results = repository.searchNotes("Hello").first()
         assertEquals(listOf("active"), results.map { it.id })
     }
+
+    @Test
+    fun `searchNotes returns each note once even with duplicate fts postings`() = runTest {
+        val now = Instant.ofEpochMilli(1L)
+        repository.createNote(
+            Note(
+                id = "n1", title = "Apple", contentMarkdown = "Apple pie recipe",
+                excerpt = "Apple pie", createdAt = now, updatedAt = now
+            )
+        )
+
+        // Reproduce the #140 failure mode: a second FTS posting for the same
+        // note rowid, as an out-of-sync index can accumulate. The old JOIN query
+        // listed the note once per posting; the fixed `rowid IN (...)` query must
+        // still return it exactly once.
+        db.openHelper.writableDatabase.execSQL(
+            "INSERT INTO notes_fts(docid, title, contentMarkdown, excerpt) " +
+                "SELECT rowid, title, contentMarkdown, excerpt FROM notes WHERE id = 'n1'"
+        )
+
+        val results = repository.searchNotes("Apple").first()
+        assertEquals(listOf("n1"), results.map { it.id })
+    }
 }

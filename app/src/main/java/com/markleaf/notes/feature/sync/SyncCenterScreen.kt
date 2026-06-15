@@ -32,6 +32,7 @@ import com.markleaf.notes.data.repository.LocalNoteRepository
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.sync.NoteFolderMirror
+import com.markleaf.notes.data.sync.NoteImporter
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.ui.viewmodel.SyncCenterViewModel
 import com.markleaf.notes.util.HapticFeedback
@@ -53,6 +54,7 @@ fun SyncCenterScreen(
     val settingsRepository = remember { AppSettingsRepository(context.applicationContext) }
     val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
     val noteRepository = remember { LocalNoteRepository(AppDatabase.getInstance(context.applicationContext)) }
+    val noteImporter = remember { NoteImporter(AppDatabase.getInstance(context.applicationContext)) }
     
     val conflictNotes by viewModel.conflictNotes.collectAsState()
     
@@ -207,10 +209,10 @@ fun SyncCenterScreen(
                                                     folderUri = uri,
                                                     existing = notes,
                                                     applyUpdate = { updated ->
-                                                        noteRepository.updateNote(updated)
+                                                        noteImporter.update(updated)
                                                     },
                                                     applyCreate = { created ->
-                                                        noteRepository.createNote(created)
+                                                        noteImporter.create(created)
                                                     }
                                                 )
                                             }

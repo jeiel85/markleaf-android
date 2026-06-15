@@ -24,6 +24,29 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="text/plain" />
             </intent-filter>
+            <!-- Receive a shared markdown file (#139). text/plain is handled
+                 above; these cover apps that share .md with a markdown MIME. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/markdown" />
+                <data android:mimeType="text/x-markdown" />
+            </intent-filter>
+            <!-- Open a markdown / text file tapped in a file manager (#139).
+                 The content: and file: schemes are listed explicitly (rather
+                 than relying on the implicit scheme match a mimeType-only
+                 <data> would give) so lint doesn't read this as an incomplete
+                 web-link filter. text/plain is included because many file
+                 managers report .md files as text/plain. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="text/markdown" />
+                <data android:mimeType="text/x-markdown" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
         </activity>
 
         <provider

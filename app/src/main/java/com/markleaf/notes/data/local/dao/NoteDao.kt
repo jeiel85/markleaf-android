@@ -49,11 +49,16 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE trashed = 0 AND archived = 1 ORDER BY updatedAt DESC")
     fun observeArchivedNotes(): Flow<List<NoteEntity>>
 
+    // A plain JOIN on notes_fts can list the same note once per FTS posting:
+    // if the index ever holds duplicate postings for a note's rowid the result
+    // multiplies (#140 "search shows the same note multiple times"). Matching
+    // by `rowid IN (...)` collapses that to one row per note regardless of how
+    // many postings exist.
     @Query("""
-        SELECT notes.* FROM notes
-        JOIN notes_fts ON notes.rowid = notes_fts.rowid
-        WHERE notes.trashed = 0 AND notes.archived = 0 AND notes_fts MATCH :query
-        ORDER BY notes.pinned DESC, notes.sortOrder ASC, notes.updatedAt DESC
+        SELECT * FROM notes
+        WHERE trashed = 0 AND archived = 0
+          AND rowid IN (SELECT rowid FROM notes_fts WHERE notes_fts MATCH :query)
+        ORDER BY pinned DESC, sortOrder ASC, updatedAt DESC
         LIMIT 200
     """)
     fun searchNotesFts(query: String): Flow<List<NoteEntity>>

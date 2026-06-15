@@ -36,6 +36,35 @@ class SyncFrontmatterTest {
     }
 
     @Test
+    fun encode_preservesExtraKeysAndStampsMarkleafId() {
+        // When we re-stamp an imported file (#140 write-back), any frontmatter
+        // keys the file already carried — e.g. an Obsidian tag — must survive
+        // the round-trip rather than being silently dropped.
+        val note = sampleNote()
+        val extras = mapOf("obsidian_tag" to "review", "custom_color" to "blue")
+
+        val parsed = SyncFrontmatter.decode(SyncFrontmatter.encode(note, extras))
+
+        assertEquals(note.id, parsed.markleafId)
+        assertEquals("review", parsed.unknownKeys["obsidian_tag"])
+        assertEquals("blue", parsed.unknownKeys["custom_color"])
+        assertEquals(note.contentMarkdown, parsed.body)
+    }
+
+    @Test
+    fun encode_ignoresReservedKeysPassedAsExtras() {
+        // A defensive caller could pass a reserved key in the extras map; encode
+        // must emit our canonical markleaf_id once and never echo the stray one.
+        val note = sampleNote()
+
+        val encoded = SyncFrontmatter.encode(note, mapOf("markleaf_id" to "STRAY"))
+
+        assertEquals(1, encoded.split("markleaf_id:").size - 1)
+        assertTrue(encoded.contains("markleaf_id: ${note.id}"))
+        assertFalse(encoded.contains("STRAY"))
+    }
+
+    @Test
     fun decode_roundTripsAllFields() {
         val original = sampleNote()
         val parsed = SyncFrontmatter.decode(SyncFrontmatter.encode(original))

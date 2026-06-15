@@ -26,6 +26,11 @@ import java.time.format.DateTimeFormatter
 object SyncFrontmatter {
     private const val DELIMITER = "---"
 
+    /** Keys we own and emit explicitly — never echoed back from [Parsed.unknownKeys]. */
+    private val RESERVED_KEYS = setOf(
+        "markleaf_id", "created_at", "updated_at", "pinned", "archived"
+    )
+
     private val isoFormatter: DateTimeFormatter = DateTimeFormatter.ISO_INSTANT
 
     data class Parsed(
@@ -38,7 +43,14 @@ object SyncFrontmatter {
         val unknownKeys: Map<String, String>
     )
 
-    fun encode(note: Note): String {
+    /**
+     * @param extraKeys frontmatter keys written by other tools (Obsidian
+     *   aliases, tags, custom colors, …) that we don't model. Pass
+     *   [Parsed.unknownKeys] here when re-stamping a file we imported so a
+     *   round-trip through Markleaf doesn't strip them. Reserved keys are
+     *   ignored — we always emit our own canonical versions.
+     */
+    fun encode(note: Note, extraKeys: Map<String, String> = emptyMap()): String {
         val sb = StringBuilder()
         sb.append(DELIMITER).append('\n')
         sb.append("markleaf_id: ").append(note.id).append('\n')
@@ -46,6 +58,11 @@ object SyncFrontmatter {
         sb.append("updated_at: ").append(isoFormatter.format(note.updatedAt)).append('\n')
         sb.append("pinned: ").append(note.pinned).append('\n')
         sb.append("archived: ").append(note.archived).append('\n')
+        extraKeys.forEach { (key, value) ->
+            if (key !in RESERVED_KEYS) {
+                sb.append(key).append(": ").append(value).append('\n')
+            }
+        }
         sb.append(DELIMITER).append('\n')
         sb.append('\n')
         sb.append(note.contentMarkdown)

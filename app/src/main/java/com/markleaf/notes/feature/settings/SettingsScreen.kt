@@ -51,6 +51,7 @@ import com.markleaf.notes.data.settings.ColorPalette
 import com.markleaf.notes.data.settings.EditorLineWidth
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import com.markleaf.notes.data.sync.NoteFolderMirror
+import com.markleaf.notes.data.sync.NoteImporter
 import com.markleaf.notes.feature.lock.canUseBiometric
 import com.markleaf.notes.util.ExportAllNotes
 import com.markleaf.notes.util.HapticFeedback
@@ -71,6 +72,7 @@ fun SettingsScreen(
     val settingsRepository = remember { AppSettingsRepository(context.applicationContext) }
     val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
     val noteRepository = remember { LocalNoteRepository(AppDatabase.getInstance(context.applicationContext)) }
+    val noteImporter = remember { NoteImporter(AppDatabase.getInstance(context.applicationContext)) }
     val exportAllLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocumentTree()
     ) { folderUri ->
@@ -297,10 +299,10 @@ fun SettingsScreen(
                                     folderUri = uri,
                                     existing = notes,
                                     applyUpdate = { updated ->
-                                        noteRepository.updateNote(updated)
+                                        noteImporter.update(updated)
                                     },
                                     applyCreate = { created ->
-                                        noteRepository.createNote(created)
+                                        noteImporter.create(created)
                                     }
                                 )
                             }

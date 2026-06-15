@@ -98,4 +98,34 @@ class LocalTagRepositoryTest {
 
         assertEquals(mapOf("home" to 1, "work" to 2), countsByTag)
     }
+
+    @Test
+    fun `observeTagSummaries hides tags once their note count drops to zero`() = runTest {
+        db.noteDao().insertNote(
+            NoteEntity(
+                id = "n1",
+                title = "Note",
+                contentMarkdown = "Body #keep #drop",
+                excerpt = "Body",
+                createdAt = 1L,
+                updatedAt = 1L
+            )
+        )
+        repository.reindexTagsForNote("n1", "Body #keep #drop")
+
+        assertEquals(
+            setOf("keep", "drop"),
+            repository.observeTagSummaries().first().map { it.tag.name }.toSet()
+        )
+
+        // Remove #drop from the note. Its tag row lingers in `tags` with a
+        // cross-ref count of 0 — it must disappear from the overview (#138)
+        // instead of showing a stale "0" entry.
+        repository.reindexTagsForNote("n1", "Body #keep")
+
+        assertEquals(
+            listOf("keep"),
+            repository.observeTagSummaries().first().map { it.tag.name }
+        )
+    }
 }

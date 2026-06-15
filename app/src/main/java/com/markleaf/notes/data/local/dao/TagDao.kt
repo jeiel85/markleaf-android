@@ -40,6 +40,7 @@ interface TagDao {
         LEFT JOIN note_tag_cross_ref ON tags.id = note_tag_cross_ref.tagId
         LEFT JOIN notes ON notes.id = note_tag_cross_ref.noteId AND notes.trashed = 0
         GROUP BY tags.id, tags.name, tags.createdAt
+        HAVING COUNT(notes.id) > 0
         ORDER BY tags.name ASC
     """)
     fun observeTagsWithCounts(): Flow<List<TagWithCount>>

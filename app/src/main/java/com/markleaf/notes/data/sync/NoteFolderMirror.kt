@@ -71,6 +71,31 @@ object NoteFolderMirror {
     }
 
     /**
+     * Rewrite [file] in place with [note]'s frontmatter (incl. `markleaf_id`)
+     * prepended, preserving any [extraKeys] the file already carried. Used when
+     * importing a file that had no `markleaf_id` so the next reconcile can match
+     * it by id rather than re-creating a duplicate note (#140). Best-effort —
+     * returns false on any IO failure without throwing, so a write-back hiccup
+     * never aborts an import.
+     */
+    private fun stampFrontmatter(
+        context: Context,
+        file: DocumentFile,
+        note: Note,
+        extraKeys: Map<String, String>
+    ): Boolean {
+        if (!file.canWrite()) return false
+        return runCatching {
+            context.contentResolver.openOutputStream(file.uri, "wt")?.use { stream ->
+                BufferedWriter(OutputStreamWriter(stream, Charsets.UTF_8)).use { writer ->
+                    writer.write(SyncFrontmatter.encode(note, extraKeys))
+                }
+            } ?: return@runCatching false
+            true
+        }.getOrDefault(false)
+    }
+
+    /**
      * Delete the mirrored `.md` and any per-note attachment subfolder for
      * [noteId]. Called from the permanent-delete flow so the mirror folder
      * doesn't accumulate orphan files. Idempotent — missing files are not
@@ -215,6 +240,17 @@ object NoteFolderMirror {
                     )
                     applyCreate(newNote)
                     created++
+                    // A file with no `markleaf_id` (created in another app, or
+                    // hand-dropped) has nothing for the next reconcile to match
+                    // on, so every subsequent import would re-create it as a
+                    // brand-new note — the #140 "same note appears 4-5 times"
+                    // duplication. Stamp our id back into the file *in place* so
+                    // the next pass matches by id and updates instead. Existing
+                    // frontmatter keys are preserved. Best-effort: a failed
+                    // write just defers de-duplication to a later sync.
+                    if (parsed.markleafId == null) {
+                        stampFrontmatter(context, file, newNote, parsed.unknownKeys)
+                    }
                 } else {
                     val fileTs = parsed.updatedAt
                         ?: Instant.ofEpochMilli(file.lastModified())

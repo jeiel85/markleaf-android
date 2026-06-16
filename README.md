@@ -18,6 +18,13 @@
   <img src="https://img.shields.io/badge/Google%20Play-Available-3DDC84?logo=googleplay&logoColor=white" alt="Google Play" />
 </p>
 
+<p align="center">
+  <strong>한국어</strong> ·
+  <a href="README.en.md">English</a> ·
+  <a href="README.ja.md">日本語</a> ·
+  <a href="README.de.md">Deutsch</a>
+</p>
+
 ---
 
 ## 🍃 Markleaf란?

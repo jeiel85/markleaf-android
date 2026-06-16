@@ -110,6 +110,32 @@ TXT 파일은 바로 복사/붙여넣기 가능해야 하며, 한글/영문 릴�
 
 따라서 cut 전에 두 fastlane changelog (ko-KR / en-US, BCP 47 region 대문자)가 새 versionCode 파일명으로 작성되어 있어야 task가 통과한다. 누락 시 task가 명시적으로 실패한다.
 
+## GitHub 이슈 대응
+
+메인테이너가 "GitHub 이슈 대응"을 요청하면 다음 순서로 진행하고 완료를 보고한다.
+이는 메인테이너 지시 기반의 유인(有人) 플로다 — `scripts/nightly`의 무인 봇이 댓글·PR만
+하고 릴리스는 하지 않는 것과 구분된다.
+
+1. **트리아지 + 감사 댓글.** 열린 이슈를 확인하고 보고자를 식별한다. 외부 보고자에게는
+   보고자 언어로 감사 댓글을 단다(메인테이너 본인이 연 이슈는 생략). 질문·중복·범위 밖
+   이슈는 댓글로만 응대하고 코드 수정 없이 닫을 수 있다.
+2. **수정.** 재현 후 고치고, 푸시 전 [Quality Checks](#quality-checks)의 하드 게이트
+   (`testDebugUnitTest` + `lintRelease`)를 통과시킨다. 프리뷰/타이포 렌더링을 바꿨으면
+   Roborazzi 골든을 Linux CI 러너에서 재기록한다 (`android-build.yml`의 `record_roborazzi`
+   workflow_dispatch — 로컬 재기록은 폰트 힌팅 차이로 CI verify와 어긋난다).
+3. **F-Droid — 태그 푸시로 자동 배포.** versionCode/versionName bump + `CHANGELOG.md` +
+   fastlane changelog 작성 후 main에 푸시하고 `vX.Y.Z` 태그를 푸시한다. 태그 한 번이 서명
+   APK/AAB CI 릴리스와 F-Droid 자동 픽업을 함께 발동한다. 별도 F-Droid 제출 단계는 없다.
+4. **Play Store — 산출물 핸드오프.** [Release Artifact Export](#release-artifact-export)에 따라
+   Play 제출용 서명 AAB와 릴리즈 노트 TXT를 내보낸다(서명 AAB는 CI 릴리스 산출물 기준).
+   업로드는 메인테이너가 수동으로 한다.
+5. **마감 + 보고.** 해결된 이슈에 감사 댓글을 달고 닫되, 사용자측 확인이 남으면 열어 둔다.
+   굵직한 변경이면 README·랜딩 페이지의 버전 표기를 갱신한다. 마지막으로 무엇이 나갔는지,
+   이슈 상태, 릴리스 링크를 보고한다.
+
+코드 수정이 실제로 들어간 경우에만 3·4단계(태그·Play 핸드오프)를 진행한다. 댓글로 끝나는
+이슈는 1·5단계만 적용한다.
+
 ## Stop Conditions
 
 다음 상황에서는 임의로 진행하지 말고 중단 후 보고한다.

@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.markleaf.notes.R
 import com.markleaf.notes.core.markdown.CalloutKind
+import com.markleaf.notes.core.markdown.PreviewInlineSegment
 import com.markleaf.notes.core.markdown.PreviewInlineType
 import com.markleaf.notes.core.markdown.PreviewLine
 import com.markleaf.notes.core.markdown.PreviewLineType
@@ -128,13 +129,25 @@ fun PreviewLineRenderer(
             color = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.padding(top = 6.dp, bottom = 4.dp)
         )
-        PreviewLineType.BULLET -> Text("• ${line.text}", style = MaterialTheme.typography.bodyLarge)
-        PreviewLineType.CHECKBOX_DONE -> Text(
-            text = "☑ ${line.text}",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+        PreviewLineType.BULLET -> InlineMarkdownText(
+            line = line,
+            leadingMarker = "• ",
+            onWikilinkClick = onWikilinkClick,
+            onFootnoteRefClick = onFootnoteRefClick
         )
-        PreviewLineType.CHECKBOX_TODO -> Text("☐ ${line.text}", style = MaterialTheme.typography.bodyLarge)
+        PreviewLineType.CHECKBOX_DONE -> InlineMarkdownText(
+            line = line,
+            leadingMarker = "☑ ",
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            onWikilinkClick = onWikilinkClick,
+            onFootnoteRefClick = onFootnoteRefClick
+        )
+        PreviewLineType.CHECKBOX_TODO -> InlineMarkdownText(
+            line = line,
+            leadingMarker = "☐ ",
+            onWikilinkClick = onWikilinkClick,
+            onFootnoteRefClick = onFootnoteRefClick
+        )
         PreviewLineType.CODE_BLOCK -> MarkdownCodeBlock(line.text, line.extra)
         PreviewLineType.BODY -> InlineMarkdownText(
             line = line,
@@ -164,9 +177,11 @@ fun PreviewLineRenderer(
         PreviewLineType.FOOTNOTE_DEF -> FootnoteDefRow(line)
         PreviewLineType.IMAGE -> AttachmentImage(line, onLongPress = onImageLongPress)
         PreviewLineType.TABLE -> line.tableData?.let { MarkdownTable(it) }
-        PreviewLineType.ORDERED_LIST -> Text(
-            text = "${line.extra ?: "1"}. ${line.text}",
-            style = MaterialTheme.typography.bodyLarge
+        PreviewLineType.ORDERED_LIST -> InlineMarkdownText(
+            line = line,
+            leadingMarker = "${line.extra ?: "1"}. ",
+            onWikilinkClick = onWikilinkClick,
+            onFootnoteRefClick = onFootnoteRefClick
         )
         PreviewLineType.HORIZONTAL_RULE -> HorizontalDivider(
             modifier = Modifier.padding(vertical = 8.dp),
@@ -180,10 +195,25 @@ fun PreviewLineRenderer(
 internal fun InlineMarkdownText(
     line: PreviewLine,
     onWikilinkClick: (String) -> Unit = {},
-    onFootnoteRefClick: (String) -> Unit = {}
+    onFootnoteRefClick: (String) -> Unit = {},
+    /**
+     * Plain prefix drawn before the inline content — used by list rows to put
+     * the bullet / number / checkbox glyph ahead of the formatted text. Kept as
+     * part of the same [androidx.compose.ui.text.AnnotatedString] (rather than a
+     * separate Text) so wrapping and click offsets stay aligned.
+     */
+    leadingMarker: String = "",
+    color: Color = MaterialTheme.colorScheme.onBackground
 ) {
     val annotated = buildAnnotatedString {
-        line.segments.forEach { segment ->
+        if (leadingMarker.isNotEmpty()) append(leadingMarker)
+        // Some line types (and the legacy hand-rolled parser) can leave segments
+        // empty even when text is present — fall back to the raw text so we never
+        // silently drop content.
+        val segments = line.segments.ifEmpty {
+            listOf(PreviewInlineSegment(line.text, PreviewInlineType.TEXT))
+        }
+        segments.forEach { segment ->
             when (segment.type) {
                 PreviewInlineType.TEXT -> append(segment.text)
                 PreviewInlineType.BOLD -> withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
@@ -254,9 +284,7 @@ internal fun InlineMarkdownText(
     val context = LocalContext.current
     ClickableText(
         text = annotated,
-        style = MaterialTheme.typography.bodyLarge.copy(
-            color = MaterialTheme.colorScheme.onBackground
-        ),
+        style = MaterialTheme.typography.bodyLarge.copy(color = color),
         modifier = Modifier.padding(vertical = 2.dp),
         onClick = { offset ->
             annotated.getStringAnnotations(WIKILINK_TAG, offset, offset).firstOrNull()

@@ -89,6 +89,26 @@ class MarkdownPreviewSnapshotTest {
         Renders("**bold**, *italic*, ~~strike~~, `code`, ***bold-italic***")
     }
 
+    /**
+     * Regression net for #141: inline markdown (bold, italic, wikilinks, code)
+     * must render *inside* list rows, not fall through to plain text. Before the
+     * fix, `- **bold**` showed the literal `**bold**` and `- [[Note]]` showed
+     * `[[Note]]` with brackets.
+     */
+    @Test
+    fun list_inline_formatting_light() = snapshot("list_inline_formatting_light", darkTheme = false) {
+        Renders(
+            """
+            - a **bold** bullet
+            - link to [[Another Note]]
+            1. ordered with *italic*
+            2. ordered with `code`
+            - [ ] todo with **strong**
+            - [x] done with [[Wiki]]
+            """.trimIndent()
+        )
+    }
+
     @Test
     fun blockquote_and_hr_light() = snapshot("blockquote_hr_light", darkTheme = false) {
         Renders(

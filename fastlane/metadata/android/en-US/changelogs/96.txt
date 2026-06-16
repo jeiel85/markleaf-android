@@ -1,0 +1,4 @@
+Formatting now renders inside list items.
+
+- Bold, italics, [[wikilinks]] and inline code written inside bullet, numbered or checkbox list items now show correctly in preview. Previously the ** and [[ ]] markers showed as plain text.
+- Wikilinks inside lists are now tappable and jump straight to the note.

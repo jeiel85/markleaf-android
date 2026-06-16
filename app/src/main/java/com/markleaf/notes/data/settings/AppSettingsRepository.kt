@@ -25,6 +25,9 @@ class AppSettingsRepository(
             screenshotProtection = preferences[SCREENSHOT_PROTECTION] ?: false,
             syncFolderUri = preferences[SYNC_FOLDER_URI],
             syncLastSyncedAt = preferences[SYNC_LAST_SYNCED_AT],
+            syncFileExtension = preferences[SYNC_FILE_EXTENSION]
+                ?.let { value -> enumValueOrDefault(value, SyncFileExtension.MD) }
+                ?: SyncFileExtension.MD,
             colorPalette = preferences[COLOR_PALETTE]
                 ?.let { value -> enumValueOrDefault(value, ColorPalette.MARKLEAF_GREEN) }
                 ?: ColorPalette.MARKLEAF_GREEN,
@@ -86,6 +89,12 @@ class AppSettingsRepository(
         }
     }
 
+    suspend fun setSyncFileExtension(extension: SyncFileExtension) {
+        context.markleafSettingsDataStore.edit { preferences ->
+            preferences[SYNC_FILE_EXTENSION] = extension.name
+        }
+    }
+
     private fun <T : Enum<T>> enumValueOrDefault(value: String, default: T): T {
         return runCatching {
             java.lang.Enum.valueOf(default.declaringJavaClass, value)
@@ -98,6 +107,7 @@ class AppSettingsRepository(
         val SCREENSHOT_PROTECTION = booleanPreferencesKey("screenshot_protection")
         val SYNC_FOLDER_URI = stringPreferencesKey("sync_folder_uri")
         val SYNC_LAST_SYNCED_AT = longPreferencesKey("sync_last_synced_at")
+        val SYNC_FILE_EXTENSION = stringPreferencesKey("sync_file_extension")
         val COLOR_PALETTE = stringPreferencesKey("color_palette")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val BIOMETRIC_LOCK_ENABLED = booleanPreferencesKey("biometric_lock_enabled")

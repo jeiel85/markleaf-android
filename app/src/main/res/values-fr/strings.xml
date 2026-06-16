@@ -146,6 +146,9 @@
     <string name="sync_now">Synchroniser maintenant</string>
     <string name="sync_stop">Arrêter la synchronisation</string>
     <string name="sync_seeded_format">%1$d notes mises en miroir dans le dossier.</string>
+    <string name="sync_file_format">Format de fichier de synchronisation</string>
+    <string name="sync_tidy_filenames">Renommer les fichiers selon le titre</string>
+    <string name="sync_tidy_done_format">%1$d noms de fichiers nettoyés.</string>
     <string name="sync_done_format">Synchronisé — %1$d mises à jour, %2$d nouvelles, %3$d inchangées.</string>
     <string name="sync_done_with_conflicts_format">Synchronisé — %1$d mises à jour, %2$d nouvelles, %3$d conservées en double (conflit), %4$d inchangées.</string>
     <string name="sync_stopped">Synchronisation désactivée.</string>

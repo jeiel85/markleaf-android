@@ -253,7 +253,7 @@ fun EditorScreen(
                     val uri = runCatching { android.net.Uri.parse(uriString) }.getOrNull()
                     if (uri != null) {
                         val ok = withContext(Dispatchers.IO) {
-                            val wrote = NoteFolderMirror.writeNote(context, uri, updatedNote)
+                            val wrote = NoteFolderMirror.writeNote(context, uri, updatedNote, appSettings.syncFileExtension)
                             if (wrote) {
                                 val attachments = AttachmentManager.filesForNote(context, noteId)
                                 if (attachments.isNotEmpty()) {

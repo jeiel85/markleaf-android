@@ -31,6 +31,7 @@ import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.repository.LocalNoteRepository
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
+import com.markleaf.notes.data.settings.SyncFileExtension
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.NoteImporter
 import com.markleaf.notes.domain.model.Note
@@ -78,7 +79,7 @@ fun SyncCenterScreen(
                 var written = 0
                 withContext(Dispatchers.IO) {
                     notes.forEach { note ->
-                        if (NoteFolderMirror.writeNote(context, folderUri, note)) written++
+                        if (NoteFolderMirror.writeNote(context, folderUri, note, appSettings.syncFileExtension)) written++
                     }
                 }
                 settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())
@@ -245,6 +246,51 @@ fun SyncCenterScreen(
                                     Text(if (isSyncing) "Syncing..." else stringResource(R.string.sync_now))
                                 }
                                 
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    text = stringResource(R.string.sync_file_format),
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    SyncFileExtension.values().forEach { ext ->
+                                        FilterChip(
+                                            selected = appSettings.syncFileExtension == ext,
+                                            onClick = {
+                                                scope.launch { settingsRepository.setSyncFileExtension(ext) }
+                                            },
+                                            label = { Text("." + ext.value) }
+                                        )
+                                    }
+                                }
+
+                                OutlinedButton(
+                                    onClick = {
+                                        val uriString = appSettings.syncFolderUri ?: return@OutlinedButton
+                                        val uri = runCatching { Uri.parse(uriString) }.getOrNull()
+                                            ?: return@OutlinedButton
+                                        scope.launch {
+                                            val notes = withContext(Dispatchers.IO) {
+                                                noteRepository.observeNotes().first()
+                                            }.filter { !it.trashed }
+                                            val renamed = withContext(Dispatchers.IO) {
+                                                var n = 0
+                                                notes.forEach {
+                                                    if (NoteFolderMirror.renameToTitle(context, uri, it)) n++
+                                                }
+                                                n
+                                            }
+                                            Toast.makeText(
+                                                context,
+                                                context.getString(R.string.sync_tidy_done_format, renamed),
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(stringResource(R.string.sync_tidy_filenames))
+                                }
+
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)

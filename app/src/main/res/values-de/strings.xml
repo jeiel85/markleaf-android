@@ -146,6 +146,9 @@
     <string name="sync_now">Jetzt synchronisieren</string>
     <string name="sync_stop">Synchronisierung beenden</string>
     <string name="sync_seeded_format">%1$d Notizen in den Ordner gespiegelt.</string>
+    <string name="sync_file_format">Dateiformat der Synchronisierung</string>
+    <string name="sync_tidy_filenames">Dateien nach Notiztitel benennen</string>
+    <string name="sync_tidy_done_format">%1$d Dateinamen aufgeräumt.</string>
     <string name="sync_done_format">Synchronisiert – %1$d aktualisiert, %2$d neu, %3$d unverändert.</string>
     <string name="sync_done_with_conflicts_format">Synchronisiert – %1$d aktualisiert, %2$d neu, %3$d als Duplikate behalten (Konflikt), %4$d unverändert.</string>
     <string name="sync_stopped">Synchronisierung deaktiviert.</string>

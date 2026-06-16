@@ -146,6 +146,9 @@
     <string name="sync_now">今すぐ同期</string>
     <string name="sync_stop">同期を停止</string>
     <string name="sync_seeded_format">%1$d 件のノートをフォルダへ書き出しました。</string>
+    <string name="sync_file_format">同期ファイル形式</string>
+    <string name="sync_tidy_filenames">ファイル名をノートのタイトルに整える</string>
+    <string name="sync_tidy_done_format">ファイル名を %1$d 件整えました。</string>
     <string name="sync_done_format">同期完了 — %1$d 件更新、%2$d 件新規、%3$d 件変更なし。</string>
     <string name="sync_done_with_conflicts_format">同期完了 — %1$d 件更新、%2$d 件新規、%3$d 件は重複として保持 (競合)、%4$d 件変更なし。</string>
     <string name="sync_stopped">同期を停止しました。</string>

@@ -146,6 +146,9 @@
     <string name="sync_now">지금 동기화</string>
     <string name="sync_stop">동기화 끄기</string>
     <string name="sync_seeded_format">노트 %1$d개를 폴더에 미러링했습니다.</string>
+    <string name="sync_file_format">동기화 파일 형식</string>
+    <string name="sync_tidy_filenames">파일명을 노트 제목으로 정리</string>
+    <string name="sync_tidy_done_format">파일명 %1$d개를 정리했습니다.</string>
     <string name="sync_done_format">동기화 완료 — 업데이트 %1$d, 신규 %2$d, 변화 없음 %3$d</string>
     <string name="sync_done_with_conflicts_format">동기화 완료 — 업데이트 %1$d, 신규 %2$d, 충돌 사본 %3$d, 변화 없음 %4$d</string>
     <string name="sync_stopped">동기화를 껐습니다.</string>

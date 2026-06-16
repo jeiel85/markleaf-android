@@ -4,8 +4,8 @@ import android.content.Context
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import com.markleaf.notes.core.text.TitleExtractor
+import com.markleaf.notes.data.settings.SyncFileExtension
 import com.markleaf.notes.domain.model.Note
-import com.markleaf.notes.util.SlugGenerator
 import java.io.BufferedWriter
 import java.io.File
 import java.io.OutputStreamWriter
@@ -13,21 +13,28 @@ import java.time.Instant
 import java.util.UUID
 
 /**
- * Read/write notes to a user-chosen SAF folder as `.md` files with our
+ * Read/write notes to a user-chosen SAF folder as `.md` / `.txt` files with our
  * [SyncFrontmatter] header. This is the heart of the v2.1 multi-device flow:
  * Markleaf itself never goes online — but if the user points us at a folder
  * that some other app (Dropbox / Drive / Syncthing / NAS WebDAV mount) syncs,
  * the notes follow.
  *
- * Safety posture for v2.1.0:
- * - Auto-export on save *only writes* (we are the source of truth for our
- *   own edits). It will overwrite a file we already wrote, but never silently
- *   discards an unread newer file (`importChanges` is what reads).
- * - `importChanges` only updates a DB note when the file is *newer* than the
- *   DB record. Never deletes notes. Never deletes files. (Auto-delete sync is
- *   deliberately deferred to a later cycle.)
- * - Filename collisions are resolved by appending a short suffix derived from
- *   the note id, never overwriting an unrelated file.
+ * Filenames track the note **title** (#134): the canonical link is the
+ * frontmatter `markleaf_id`, so a note's file is located by parsing that id, not
+ * by anything in the filename. When a title changes the file is renamed in place
+ * (never deleted + recreated), so a mid-flight sync client never sees a note
+ * vanish.
+ *
+ * Safety posture:
+ * - Auto-export on save *only writes* (we are the source of truth for our own
+ *   edits). It overwrites a file we already wrote, but never silently discards
+ *   an unread newer file (`importChanges` is what reads).
+ * - `importChanges` only updates a DB note when the file is *newer* than the DB
+ *   record. Never deletes notes. (Auto-delete sync is deliberately deferred.)
+ * - Content is written before any rename, so a failed rename leaves the bytes
+ *   safely persisted under the old name.
+ * - Filename collisions (two notes with the same title) get a " (2)" suffix,
+ *   never overwriting an unrelated file.
  */
 object NoteFolderMirror {
 
@@ -47,20 +54,34 @@ object NoteFolderMirror {
     )
 
     /**
-     * Write a single note to the mirror folder. Idempotent — if the file
-     * already exists for this note id, it's overwritten. Uses [Note.id] as
-     * the canonical link via frontmatter `markleaf_id`, and [SlugGenerator]
-     * for the human-readable filename.
+     * Write a single note to the mirror folder. The file is named after the
+     * note's title: we locate its existing file by frontmatter `markleaf_id`,
+     * and if the title-derived name has drifted we rename the file in place. A
+     * brand-new note's file is created with [extension]; an existing file keeps
+     * whatever extension it already has (flipping the setting never rewrites old
+     * files' suffixes).
      */
-    fun writeNote(context: Context, folderUri: Uri, note: Note): Boolean {
+    fun writeNote(
+        context: Context,
+        folderUri: Uri,
+        note: Note,
+        extension: SyncFileExtension = SyncFileExtension.MD
+    ): Boolean {
         val folder = DocumentFile.fromTreeUri(context, folderUri) ?: return false
         if (!folder.canWrite()) return false
 
-        val target = findFileForNote(folder, note.id)
-            ?: folder.createFile("text/markdown", uniqueFileName(folder, note))
+        val mirrorFiles = folder.listFiles().filter { it.isFile && isMirrorFile(it.name) }
+        val existing = findFileForNote(context, mirrorFiles, note.id)
+        val ext = existing?.mirrorExtension() ?: extension.value
+        val desiredName = resolveName(note, ext, mirrorFiles, ownFile = existing)
+
+        val target = existing
+            ?: folder.createFile(mimeTypeFor(ext), desiredName)
             ?: return false
 
-        return runCatching {
+        // Write content first, then rename. If the rename fails the bytes are
+        // already safely persisted under the old name — no data loss.
+        val wrote = runCatching {
             context.contentResolver.openOutputStream(target.uri, "wt")?.use { stream ->
                 BufferedWriter(OutputStreamWriter(stream, Charsets.UTF_8)).use { writer ->
                     writer.write(SyncFrontmatter.encode(note))
@@ -68,6 +89,28 @@ object NoteFolderMirror {
             } ?: return@runCatching false
             true
         }.getOrDefault(false)
+        if (!wrote) return false
+
+        if (existing != null && existing.name != desiredName) {
+            existing.renameTo(desiredName) // best-effort; old name is fine if it fails
+        }
+        return true
+    }
+
+    /**
+     * Rename a note's mirror file to match its current title *without* rewriting
+     * the body — used by the Sync Center "tidy filenames" action so existing
+     * mirrors created under the old `slug-id…` scheme migrate to clean titles in
+     * one pass. Returns true only if a rename actually happened.
+     */
+    fun renameToTitle(context: Context, folderUri: Uri, note: Note): Boolean {
+        val folder = DocumentFile.fromTreeUri(context, folderUri) ?: return false
+        if (!folder.canWrite()) return false
+        val mirrorFiles = folder.listFiles().filter { it.isFile && isMirrorFile(it.name) }
+        val file = findFileForNote(context, mirrorFiles, note.id) ?: return false
+        val desired = resolveName(note, file.mirrorExtension(), mirrorFiles, ownFile = file)
+        if (file.name == desired) return false
+        return runCatching { file.renameTo(desired) }.getOrDefault(false)
     }
 
     /**
@@ -96,21 +139,22 @@ object NoteFolderMirror {
     }
 
     /**
-     * Delete the mirrored `.md` and any per-note attachment subfolder for
+     * Delete the mirrored note file and any per-note attachment subfolder for
      * [noteId]. Called from the permanent-delete flow so the mirror folder
      * doesn't accumulate orphan files. Idempotent — missing files are not
      * an error. Returns true if anything was actually removed.
      *
-     * Direction is *DB → file only* in v2.6; the inverse (file deleted
-     * externally → drop the DB note) is intentionally not implemented to
-     * avoid silent data loss when a sync client is mid-flight.
+     * Direction is *DB → file only*; the inverse (file deleted externally → drop
+     * the DB note) is intentionally not implemented to avoid silent data loss
+     * when a sync client is mid-flight.
      */
     fun deleteNote(context: Context, folderUri: Uri, noteId: String): Boolean {
         val folder = DocumentFile.fromTreeUri(context, folderUri) ?: return false
         if (!folder.canWrite()) return false
 
         var changed = false
-        findFileForNote(folder, noteId)?.let { file ->
+        val mirrorFiles = folder.listFiles().filter { it.isFile && isMirrorFile(it.name) }
+        findFileForNote(context, mirrorFiles, noteId)?.let { file ->
             if (file.delete()) changed = true
         }
         // Also clear the per-note attachments subfolder.
@@ -124,7 +168,7 @@ object NoteFolderMirror {
      * Mirror the supplied attachment files into
      * `<folder>/attachments/<noteId>/`. Files already present with the same
      * name are *not* re-copied — attachment IDs are UUIDs so collisions imply
-     * the same content. Used by the editor's auto-save hook so the .md and
+     * the same content. Used by the editor's auto-save hook so the note and
      * its referenced images travel together when the chosen folder is synced.
      */
     fun mirrorAttachments(
@@ -180,13 +224,13 @@ object NoteFolderMirror {
     }
 
     /**
-     * Walk the folder, parse each `.md` file, and reconcile with the supplied
+     * Walk the folder, parse each mirror file, and reconcile with the supplied
      * existing notes. Returns aggregated counts.
      *
-     * Conflict rule for v2.1.0: *file wins iff its timestamp is strictly
-     * newer than the DB record* (with a 2-second slack for filesystem clocks).
-     * Otherwise no change is applied. Files without a `markleaf_id` become new
-     * notes (typical when the user dropped a note into the folder by hand).
+     * Conflict rule: *file wins iff its timestamp is strictly newer than the DB
+     * record* (with a 2-second slack for filesystem clocks). Otherwise no change
+     * is applied. Files without a `markleaf_id` become new notes (typical when
+     * the user dropped a note into the folder by hand).
      *
      * `applyUpdate` is invoked synchronously — caller is responsible for
      * shipping the resulting writes onto IO dispatcher and into Room.
@@ -209,7 +253,7 @@ object NoteFolderMirror {
         var conflicts = 0
 
         val byId = existing.associateBy { it.id }
-        val files = folder.listFiles().filter { it.isFile && it.name?.endsWith(".md") == true }
+        val files = folder.listFiles().filter { it.isFile && isMirrorFile(it.name) }
 
         for (file in files) {
             val raw = runCatching {
@@ -320,38 +364,63 @@ object NoteFolderMirror {
         return "(다른 기기 사본 $date $time)"
     }
 
-    private fun findFileForNote(folder: DocumentFile, noteId: String): DocumentFile? {
-        for (file in folder.listFiles()) {
-            if (!file.isFile) continue
-            val name = file.name ?: continue
-            if (!name.endsWith(".md")) continue
-            val raw = runCatching {
-                file.uri // existence check
-                file
-            }.getOrNull() ?: continue
-            // We could parse every file to find the matching id, but that's O(n²) on
-            // every save. Instead, store the id in the filename suffix as a hash — see
-            // [uniqueFileName]. If a file with our slug already exists, we trust it;
-            // otherwise we create a new one. The reconcile pass handles the rare drift.
-            // For now, match by id-suffix in the filename.
-            if (name.contains(noteIdMarker(noteId))) return raw
+    /**
+     * Locate the mirror file that belongs to [noteId] by parsing each file's
+     * frontmatter `markleaf_id`. We only read the leading bytes — the
+     * frontmatter always sits at the very top — so this stays cheap even though
+     * it touches every file. Extension-agnostic: a note's file may be `.md` or
+     * `.txt`.
+     */
+    private fun findFileForNote(
+        context: Context,
+        mirrorFiles: List<DocumentFile>,
+        noteId: String
+    ): DocumentFile? = mirrorFiles.firstOrNull { frontmatterId(context, it) == noteId }
+
+    private fun frontmatterId(context: Context, file: DocumentFile): String? = runCatching {
+        context.contentResolver.openInputStream(file.uri)?.use { stream ->
+            val buf = ByteArray(FRONTMATTER_PEEK_BYTES)
+            var read = 0
+            while (read < buf.size) {
+                val n = stream.read(buf, read, buf.size - read)
+                if (n < 0) break
+                read += n
+            }
+            if (read <= 0) null
+            else SyncFrontmatter.decode(String(buf, 0, read, Charsets.UTF_8)).markleafId
         }
-        return null
+    }.getOrNull()
+
+    /**
+     * The title-derived filename to use for [note], disambiguated against the
+     * other files in the folder. The note's own [ownFile] is not a collision.
+     */
+    private fun resolveName(
+        note: Note,
+        ext: String,
+        mirrorFiles: List<DocumentFile>,
+        ownFile: DocumentFile?
+    ): String {
+        val base = MirrorFileNames.sanitizeBase(note.title)
+        val taken = mirrorFiles
+            .filter { ownFile == null || it.uri != ownFile.uri }
+            .mapNotNull { it.name?.lowercase() }
+            .toHashSet()
+        return MirrorFileNames.uniqueName(base, ext) { it.lowercase() in taken }
     }
 
-    private fun uniqueFileName(folder: DocumentFile, note: Note): String {
-        val slug = SlugGenerator.generateSlug(note.title).ifEmpty { "untitled" }
-        val marker = noteIdMarker(note.id)
-        val candidate = "$slug-$marker.md"
-        // Collision is essentially impossible with the marker, but guard anyway.
-        if (folder.findFile(candidate) == null) return candidate
-        return "$slug-$marker-${System.currentTimeMillis()}.md"
+    private fun isMirrorFile(name: String?): Boolean {
+        val n = name?.lowercase() ?: return false
+        return n.endsWith(".md") || n.endsWith(".txt")
     }
 
-    /** Stable short suffix derived from the note id so we can find the file later. */
-    private fun noteIdMarker(noteId: String): String =
-        "id" + noteId.replace("-", "").take(8)
+    private fun DocumentFile.mirrorExtension(): String =
+        if (name?.lowercase()?.endsWith(".txt") == true) "txt" else "md"
+
+    private fun mimeTypeFor(ext: String): String =
+        if (ext == "txt") "text/plain" else "text/markdown"
 
     private const val SLACK_MILLIS = 2_000L
     private const val ATTACHMENTS_DIR = "attachments"
+    private const val FRONTMATTER_PEEK_BYTES = 4096
 }

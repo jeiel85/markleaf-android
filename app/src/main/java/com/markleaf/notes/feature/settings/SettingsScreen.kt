@@ -107,7 +107,7 @@ fun SettingsScreen(
                 var written = 0
                 withContext(Dispatchers.IO) {
                     notes.forEach { note ->
-                        if (NoteFolderMirror.writeNote(context, folderUri, note)) written++
+                        if (NoteFolderMirror.writeNote(context, folderUri, note, appSettings.syncFileExtension)) written++
                     }
                 }
                 settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())

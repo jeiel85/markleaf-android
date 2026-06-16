@@ -6,10 +6,22 @@ data class AppSettings(
     val screenshotProtection: Boolean = false,
     val syncFolderUri: String? = null,
     val syncLastSyncedAt: Long? = null,
+    val syncFileExtension: SyncFileExtension = SyncFileExtension.MD,
     val colorPalette: ColorPalette = ColorPalette.MARKLEAF_GREEN,
     val onboardingCompleted: Boolean = false,
     val biometricLockEnabled: Boolean = false
 )
+
+/**
+ * File extension Markleaf writes mirrored notes with. The body is always
+ * Markdown text with our YAML frontmatter regardless of extension — only the
+ * suffix differs — and the importer reads both, so flipping this never orphans
+ * already-mirrored files.
+ */
+enum class SyncFileExtension(val value: String) {
+    MD("md"),
+    TXT("txt")
+}
 
 enum class ColorPalette {
     /** Static green palette evoking the leaf in the app name. The original v0.x identity. */

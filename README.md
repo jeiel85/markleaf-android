@@ -15,6 +15,7 @@
   <img src="https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?logo=jetpackcompose&logoColor=white" alt="UI" />
   <img src="https://img.shields.io/badge/License-Apache%202.0-D22128" alt="License" />
   <img src="https://img.shields.io/badge/F--Droid-Available-1976D2?logo=fdroid&logoColor=white" alt="F-Droid" />
+  <img src="https://img.shields.io/badge/Google%20Play-Available-3DDC84?logo=googleplay&logoColor=white" alt="Google Play" />
 </p>
 
 ---
@@ -165,7 +166,7 @@ Markleaf 자체는 절대로 네트워크에 나가지 않습니다. 데이터�
 - [x] **v2.15** F-Droid 제출 안정화와 no-cloud 문서 정비
 - [x] **v2.16** 홈 화면 위젯, 생체 인증 잠금, 오픈소스 투명성, 스마트 Markdown 포맷팅
 - [x] **v2.17** 외부 `.md`/`.txt` 파일 열기·공유 가져오기, 폴더 동기화 중복 노트·태그 인식 개선
-- [ ] Google Play 정식 출시 (현재 비공개 테스트 중)
+- [x] **Google Play 정식 출시** — Play Store에서 누구나 설치할 수 있습니다
 
 ---
 

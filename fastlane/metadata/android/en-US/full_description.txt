@@ -1,25 +1,37 @@
-Markleaf is a lightweight, local-first Markdown note app for Android.
+Markleaf is a local-first Markdown note app for Android.
 
 Write plain Markdown, organize with inline tags, search instantly, and keep your notes under your control. Markleaf stores notes in a local Room database and does not declare the INTERNET permission.
 
-Key features:
+Writing and preview:
 
-* Markdown editor with preview
-* Tags written directly in note bodies
-* Fast local full-text search
+* Live Markdown preview with live syntax coloring
+* GFM tables, checkboxes, blockquotes, callouts (> [!NOTE] …)
+* Code block syntax highlighting for 10 languages
+* Footnote ref ↔ def jump, wikilinks and backlinks
+* Smart formatting to wrap a selection or word in bold/italic/strikethrough/code
+* Focus mode, word and reading-time stats, find and replace within a note
+
+Organizing and navigating:
+
+* Just write #tags in the body for automatic indexing (no folders)
+* Quick switcher and SQLite FTS full-text search
 * Pin, archive, trash, and restore flows
-* Wikilinks and backlinks
-* Image attachments stored in app-private storage
-* Single-note and all-notes Markdown export
-* SAF folder mirror for user-controlled external sync folders
-* Light, dark, and Material You color options
-* Tablet two-pane layout
+
+Sync and import (No-Cloud):
+
+* Mirror each note as a .md file to a folder you pick via SAF
+* Import external .md / .txt files by opening or sharing them in
+* Single-note and all-notes Markdown export, plus system share
+
+Design and accessibility:
+
+* Home screen widget, biometric lock, screenshot blocking option
+* Light / dark / Material You, tablet two-pane layout
+* UI in 6 languages (Korean, English, Spanish, Japanese, French, German)
 
 Privacy and distribution:
 
-* No account
-* No Markleaf server
+* No account, no Markleaf server
 * No analytics, ads, tracking, Firebase, or proprietary crash reporting SDK
-* No INTERNET permission
-* Android Auto Backup disabled
+* No INTERNET permission, Android Auto Backup disabled
 * User data leaves the device only through explicit OS-mediated actions such as export, share, external link opening, or a user-selected SAF folder

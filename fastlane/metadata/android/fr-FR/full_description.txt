@@ -1,25 +1,37 @@
-Markleaf est une application de notes Markdown légère et locale d'abord pour Android.
+Markleaf est une application de notes Markdown locale d'abord (local-first) pour Android.
 
 Rédigez en Markdown brut, organisez avec des étiquettes intégrées, recherchez instantanément et gardez le contrôle de vos notes. Markleaf stocke vos notes dans une base de données Room locale et ne demande pas la permission INTERNET.
 
-Fonctionnalités clés :
+Écriture et aperçu :
 
-* Éditeur Markdown avec aperçu
-* Étiquettes écrites directement dans le corps des notes
-* Recherche en plein texte locale et rapide
+* Aperçu Markdown en temps réel avec coloration syntaxique en direct
+* Tableaux GFM, cases à cocher, citations, encadrés (> [!NOTE] …)
+* Coloration syntaxique des blocs de code pour 10 langages
+* Saut référence ↔ définition des notes de bas de page, liens wiki et rétroliens
+* Mise en forme intelligente pour entourer une sélection ou un mot de gras/italique/barré/code
+* Mode focus, statistiques de mots et de temps de lecture, rechercher et remplacer dans une note
+
+Organisation et navigation :
+
+* Écrivez simplement des #étiquettes dans le corps pour une indexation automatique (sans dossiers)
+* Changeur rapide (quick switcher) et recherche plein texte SQLite FTS
 * Épingler, archiver, corbeille et restauration
-* Liens wiki et rétroliens (backlinks)
-* Images jointes stockées dans l'espace privé de l'application
-* Export Markdown d'une note ou de toutes les notes
-* Miroir de dossier SAF pour synchronisation externe contrôlée par l'utilisateur
-* Options de couleurs claire, sombre et Material You
-* Disposition à deux volets pour tablettes
+
+Synchronisation et import (No-Cloud) :
+
+* Miroir de chaque note en fichier .md vers un dossier choisi via SAF
+* Import de fichiers .md / .txt externes en les ouvrant ou en les partageant
+* Export Markdown d'une note ou de toutes les notes, plus partage système
+
+Design et accessibilité :
+
+* Widget d'écran d'accueil, verrouillage biométrique, option de blocage des captures d'écran
+* Clair / sombre / Material You, disposition à deux volets pour tablettes
+* Interface en 6 langues (coréen, anglais, espagnol, japonais, français, allemand)
 
 Confidentialité et distribution :
 
-* Aucun compte requis
-* Aucun serveur Markleaf
+* Aucun compte, aucun serveur Markleaf
 * Pas de statistiques, publicités, suivi, Firebase ou SDK de rapport de crash propriétaire
-* Aucune permission INTERNET
-* Sauvegarde automatique Android désactivée
-* Les données de l'utilisateur ne quittent l'appareil que par des actions explicites de l'OS, telles que l'exportation, le partage, l'ouverture de liens externes ou l'utilisation d'un dossier SAF sélectionné par l'utilisateur
+* Aucune permission INTERNET, sauvegarde automatique Android désactivée
+* Les données ne quittent l'appareil que par des actions explicites de l'OS, telles que l'exportation, le partage, l'ouverture de liens externes ou un dossier SAF sélectionné par l'utilisateur

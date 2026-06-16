@@ -1,25 +1,37 @@
-Markleaf ist eine leichtgewichtige, lokal-first Markdown-Notiz-App für Android.
+Markleaf ist eine lokal-first Markdown-Notiz-App für Android.
 
 Schreibe einfaches Markdown, organisiere mit Inline-Tags, suche sofort lokal und behalte deine Notizen unter deiner Kontrolle. Markleaf speichert Notizen in einer lokalen Room-Datenbank und deklariert keine INTERNET-Berechtigung.
 
-Wichtige Funktionen:
+Schreiben und Vorschau:
 
-* Markdown-Editor mit Vorschau
-* Tags direkt im Notiztext
-* Schnelle lokale Volltextsuche
+* Live-Markdown-Vorschau mit Live-Syntaxfärbung
+* GFM-Tabellen, Checkboxen, Zitate, Callouts (> [!NOTE] …)
+* Syntax-Highlighting für Codeblöcke in 10 Sprachen
+* Fußnoten-Sprung Referenz ↔ Definition, Wikilinks und Backlinks
+* Smarte Formatierung, um Auswahl oder Wort in Fett/Kursiv/Durchgestrichen/Code einzuschließen
+* Fokusmodus, Wort- und Lesezeit-Statistik, Suchen und Ersetzen innerhalb einer Notiz
+
+Ordnen und Navigieren:
+
+* Schreibe einfach #Tags in den Text für automatische Indizierung (keine Ordner)
+* Quick Switcher und SQLite-FTS-Volltextsuche
 * Anheften, Archivieren, Papierkorb und Wiederherstellen
-* Wikilinks und Backlinks
-* Bildanhänge im app-privaten Speicher
-* Markdown-Export einzelner und aller Notizen
-* SAF-Ordner-Spiegel für benutzergesteuerte externe Sync-Ordner
-* Heller, dunkler und Material-You-Modus
-* Tablet-Layout mit zwei Spalten
+
+Sync und Import (No-Cloud):
+
+* Spiegle jede Notiz als .md-Datei in einen per SAF gewählten Ordner
+* Importiere externe .md / .txt-Dateien per Öffnen oder Teilen
+* Markdown-Export einzelner und aller Notizen, plus System-Teilen
+
+Design und Barrierefreiheit:
+
+* Homescreen-Widget, biometrische Sperre, Option zum Blockieren von Screenshots
+* Hell / dunkel / Material You, Tablet-Layout mit zwei Spalten
+* Oberfläche in 6 Sprachen (Koreanisch, Englisch, Spanisch, Japanisch, Französisch, Deutsch)
 
 Datenschutz und Verteilung:
 
-* Kein Konto
-* Kein Markleaf-Server
+* Kein Konto, kein Markleaf-Server
 * Keine Analytik, Werbung, kein Tracking, kein Firebase, kein proprietäres Crash-Reporting-SDK
-* Keine INTERNET-Berechtigung
-* Android Auto-Backup deaktiviert
+* Keine INTERNET-Berechtigung, Android Auto-Backup deaktiviert
 * Benutzerdaten verlassen das Gerät nur durch explizite, vom Betriebssystem vermittelte Aktionen wie Export, Teilen, Öffnen externer Links oder einen vom Benutzer gewählten SAF-Ordner

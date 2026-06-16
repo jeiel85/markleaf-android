@@ -86,16 +86,17 @@ Android 프로젝트가 아직 초기화되지 않았다면 먼저 표준 Kotlin
 
 ## Release Artifact Export
 
-사용자가 "새 버전 만들기"를 요청하면 버전 bump, changelog, fastlane changelog, 검증, commit/tag 작업과 함께 바탕화면에 Play Console 제출용 파일을 내보낸다. 이 두 파일 dump는 전용 Gradle task로 자동화되어 있다:
+사용자가 "새 버전 만들기"를 요청하면 버전 bump, changelog, fastlane changelog, 검증, commit/tag 작업과 함께 `Desktop\Build`에 Play Console 제출용 파일을 내보낸다. 이 dump는 전용 Gradle task로 자동화되어 있다:
 
 ```bash
 ./gradlew :app:exportReleaseToDesktop
 ```
 
-이 task는 `bundleRelease`에 의존하므로 AAB도 함께 빌드된다. 산출물:
+이 task는 `bundleRelease`에 의존하므로 **서명 AAB**도 함께 빌드된다(서명: repo 루트 `release-signing.properties` + `.secrets/markleaf-release.p12` 키스토어; cert는 Play 업로드 키와 동일). 산출물은 모두 `Desktop\Build\` 평면 배치, 공통 stem `markleaf-v<semver>-vc<versionCode>`:
 
-- AAB 파일: `markleaf-vX.Y.Z.aab` — `app/build/outputs/bundle/release/app-release.aab` 복사본
-- 릴리즈 노트 TXT 파일: `markleaf-vX.Y.Z-release-notes.txt` — **모든 스토어 로케일**(ko-KR / en-US / ja-JP / de-DE / fr-FR / es-ES)의 `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt`를 읽어 하나의 파일에 로케일 태그 블록을 연달아 묶음
+- `markleaf-v<semver>-vc<versionCode>.aab` — `app/build/outputs/bundle/release/app-release.aab`(서명) 복사본
+- `markleaf-v<semver>-vc<versionCode>.mapping.txt` — R8 mapping(Play 크래시 deobfuscation; 있으면 복사)
+- `markleaf-v<semver>-vc<versionCode>-release-notes.txt` — **모든 스토어 로케일**(ko-KR / en-US / ja-JP / de-DE / fr-FR / es-ES)의 `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt`를 읽어 하나의 파일에 로케일 태그 블록을 연달아 묶음
 
 TXT 파일은 바로 복사/붙여넣기 가능해야 하며, 각 로케일 릴리즈 노트만 아래 태그로 감싼다. 태그 밖에는 어떤 설명이나 문구도 넣지 않는다 (Gradle task가 이 형식을 보장한다).
 

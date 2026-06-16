@@ -167,18 +167,20 @@ ksp {
 // ---------------------------------------------------------------------------
 // exportReleaseToDesktop
 // ---------------------------------------------------------------------------
-// Drops the Play-ready AAB and a pre-formatted release-notes TXT onto the
-// user's Desktop, matching the contract in AGENTS.md's "Release Artifact
-// Export" section. The TXT pulls its body from the fastlane locale changelogs
-// keyed off `versionCode`, so the same source-of-truth feeds both F-Droid and
-// the Play Console submission.
+// Drops the Play-ready signed AAB, an all-locale release-notes TXT, and the R8
+// mapping into the user's Desktop\Build folder, matching the contract in
+// AGENTS.md's "Release Artifact Export" section. The TXT pulls its body from the
+// fastlane locale changelogs keyed off `versionCode`, so the same
+// source-of-truth feeds both F-Droid and the Play Console submission.
 //
-// Locale tags follow BCP 47 with uppercase region (`ko-KR`, `en-US`, …).
-// The TXT bundles ALL store locales (ko/en/ja/de/fr/es) into one file as
-// consecutive tag blocks; no surrounding prose, per spec.
+// Files share the `markleaf-v<semver>-vc<versionCode>` stem and land flat in
+// Desktop\Build (per ~/.claude/build-artifacts.md). Locale tags follow BCP 47
+// with uppercase region (`ko-KR`, `en-US`, …); the TXT bundles ALL store locales
+// (ko/en/ja/de/fr/es) into one file as consecutive tag blocks, no surrounding
+// prose.
 val exportReleaseToDesktop by tasks.registering {
     group = "markleaf"
-    description = "Copies the release AAB and an all-locale release-notes TXT to the user's Desktop"
+    description = "Copies the signed AAB, all-locale release notes, and R8 mapping to Desktop\\Build"
 
     dependsOn("bundleRelease")
 
@@ -206,7 +208,13 @@ val exportReleaseToDesktop by tasks.registering {
                     candidates.joinToString("\n") { "  - ${it.absolutePath}" }
             )
 
-        // --- AAB ---
+        // Per ~/.claude/build-artifacts.md, store-upload artifacts land flat in
+        // Desktop\Build under a self-describing `markleaf-v<semver>-vc<vc>` stem,
+        // not on the bare desktop.
+        val buildDir = File(desktop, "Build").apply { mkdirs() }
+        val stem = "markleaf-v$versionName-vc$versionCode"
+
+        // --- AAB (signed via release-signing.properties + .secrets keystore) ---
         val aab = File(layout.buildDirectory.get().asFile, "outputs/bundle/release/app-release.aab")
         if (!aab.isFile) {
             throw GradleException(
@@ -214,9 +222,19 @@ val exportReleaseToDesktop by tasks.registering {
                     "bundleRelease should have produced it — check the build log."
             )
         }
-        val aabTarget = File(desktop, "markleaf-v$versionName.aab")
+        val aabTarget = File(buildDir, "$stem.aab")
         aab.copyTo(aabTarget, overwrite = true)
         logger.lifecycle("Wrote ${aabTarget.absolutePath} (${aab.length()} bytes)")
+
+        // --- R8 mapping (Play crash deobfuscation; copied if R8 produced it) ---
+        val mapping = File(layout.buildDirectory.get().asFile, "outputs/mapping/release/mapping.txt")
+        if (mapping.isFile) {
+            val mappingTarget = File(buildDir, "$stem.mapping.txt")
+            mapping.copyTo(mappingTarget, overwrite = true)
+            logger.lifecycle("Wrote ${mappingTarget.absolutePath}")
+        } else {
+            logger.warn("R8 mapping not found at ${mapping.absolutePath} — skipping (is minify enabled?)")
+        }
 
         // --- Release notes TXT ---
         // All store locales go into ONE file as consecutive BCP 47 tag blocks.
@@ -248,7 +266,7 @@ val exportReleaseToDesktop by tasks.registering {
             )
         }
 
-        val txtTarget = File(desktop, "markleaf-v$versionName-release-notes.txt")
+        val txtTarget = File(buildDir, "$stem-release-notes.txt")
         txtTarget.writeText(
             buildString {
                 noteLocales.forEach { loc ->

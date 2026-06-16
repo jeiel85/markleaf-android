@@ -95,9 +95,9 @@ Android 프로젝트가 아직 초기화되지 않았다면 먼저 표준 Kotlin
 이 task는 `bundleRelease`에 의존하므로 AAB도 함께 빌드된다. 산출물:
 
 - AAB 파일: `markleaf-vX.Y.Z.aab` — `app/build/outputs/bundle/release/app-release.aab` 복사본
-- 릴리즈 노트 TXT 파일: `markleaf-vX.Y.Z-release-notes.txt` — `fastlane/metadata/android/{ko-KR,en-US}/changelogs/<versionCode>.txt`를 읽어 `<ko-KR>`/`<en-US>` 블록으로 묶음
+- 릴리즈 노트 TXT 파일: `markleaf-vX.Y.Z-release-notes.txt` — **모든 스토어 로케일**(ko-KR / en-US / ja-JP / de-DE / fr-FR / es-ES)의 `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt`를 읽어 하나의 파일에 로케일 태그 블록을 연달아 묶음
 
-TXT 파일은 바로 복사/붙여넣기 가능해야 하며, 한글/영문 릴리즈 노트만 아래 태그로 감싼다. 태그 밖에는 어떤 설명이나 문구도 넣지 않는다 (Gradle task가 이 형식을 보장한다).
+TXT 파일은 바로 복사/붙여넣기 가능해야 하며, 각 로케일 릴리즈 노트만 아래 태그로 감싼다. 태그 밖에는 어떤 설명이나 문구도 넣지 않는다 (Gradle task가 이 형식을 보장한다).
 
 ```text
 <ko-KR>
@@ -106,9 +106,21 @@ TXT 파일은 바로 복사/붙여넣기 가능해야 하며, 한글/영문 릴�
 <en-US>
 ...
 </en-US>
+<ja-JP>
+...
+</ja-JP>
+<de-DE>
+...
+</de-DE>
+<fr-FR>
+...
+</fr-FR>
+<es-ES>
+...
+</es-ES>
 ```
 
-따라서 cut 전에 두 fastlane changelog (ko-KR / en-US, BCP 47 region 대문자)가 새 versionCode 파일명으로 작성되어 있어야 task가 통과한다. 누락 시 task가 명시적으로 실패한다.
+따라서 cut 전에 **6개 스토어 로케일 fastlane changelog 전부**(BCP 47 region 대문자)가 새 versionCode 파일명으로 작성되어 있어야 task가 통과한다. 하나라도 누락되거나 로케일당 500자를 넘으면 task가 명시적으로 실패한다.
 
 ## GitHub 이슈 대응
 

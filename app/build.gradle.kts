@@ -173,11 +173,12 @@ ksp {
 // keyed off `versionCode`, so the same source-of-truth feeds both F-Droid and
 // the Play Console submission.
 //
-// Locale tags follow BCP 47 with uppercase region (`ko-KR` / `en-US`).
-// The TXT contains ONLY the two tag blocks; no surrounding prose, per spec.
+// Locale tags follow BCP 47 with uppercase region (`ko-KR`, `en-US`, …).
+// The TXT bundles ALL store locales (ko/en/ja/de/fr/es) into one file as
+// consecutive tag blocks; no surrounding prose, per spec.
 val exportReleaseToDesktop by tasks.registering {
     group = "markleaf"
-    description = "Copies the release AAB and a bilingual release-notes TXT to the user's Desktop"
+    description = "Copies the release AAB and an all-locale release-notes TXT to the user's Desktop"
 
     dependsOn("bundleRelease")
 
@@ -218,43 +219,46 @@ val exportReleaseToDesktop by tasks.registering {
         logger.lifecycle("Wrote ${aabTarget.absolutePath} (${aab.length()} bytes)")
 
         // --- Release notes TXT ---
+        // All store locales go into ONE file as consecutive BCP 47 tag blocks.
+        // Every locale must have a changelog for this versionCode; fail fast so
+        // a cut never ships notes that silently drop a locale.
         val fastlaneRoot = rootProject.file("fastlane/metadata/android")
-        val koSrc = File(fastlaneRoot, "ko-KR/changelogs/$versionCode.txt")
-        val enSrc = File(fastlaneRoot, "en-US/changelogs/$versionCode.txt")
-        listOf(koSrc, enSrc).forEach { f ->
-            if (!f.isFile) {
-                throw GradleException(
-                    "Missing fastlane changelog: ${f.absolutePath}. " +
-                        "Author both ko-KR and en-US changelogs for versionCode $versionCode before cutting."
-                )
-            }
+        val noteLocales = listOf("ko-KR", "en-US", "ja-JP", "de-DE", "fr-FR", "es-ES")
+        val sources = noteLocales.associateWith { File(fastlaneRoot, "$it/changelogs/$versionCode.txt") }
+
+        val missing = noteLocales.filter { !sources.getValue(it).isFile }
+        if (missing.isNotEmpty()) {
+            throw GradleException(
+                "Missing fastlane changelogs for versionCode $versionCode: ${missing.joinToString()}. " +
+                    "Author a changelog for every store locale (${noteLocales.joinToString()}) before cutting."
+            )
         }
         // Play Console hard-caps release notes at 500 characters per locale.
         // Catch overruns here rather than during the upload step — Play
         // simply refuses the submission and the agent has to bisect why.
         val playLimit = 500
-        listOf(koSrc, enSrc).forEach { f ->
-            val len = f.readText().length
-            if (len > playLimit) {
-                throw GradleException(
-                    "${f.name} is $len chars; Play Console limit is $playLimit per locale. " +
-                        "Trim ${len - playLimit} chars before re-running."
-                )
-            }
+        val overLimit = noteLocales.mapNotNull { loc ->
+            val len = sources.getValue(loc).readText().trim().length
+            if (len > playLimit) "$loc ($len, ${len - playLimit} over)" else null
+        }
+        if (overLimit.isNotEmpty()) {
+            throw GradleException(
+                "Release notes exceed the $playLimit-char Play Console limit per locale: " +
+                    "${overLimit.joinToString()}. Trim before re-running."
+            )
         }
 
         val txtTarget = File(desktop, "markleaf-v$versionName-release-notes.txt")
         txtTarget.writeText(
             buildString {
-                append("<ko-KR>\n")
-                append(koSrc.readText().trim())
-                append("\n</ko-KR>\n")
-                append("<en-US>\n")
-                append(enSrc.readText().trim())
-                append("\n</en-US>\n")
+                noteLocales.forEach { loc ->
+                    append("<$loc>\n")
+                    append(sources.getValue(loc).readText().trim())
+                    append("\n</$loc>\n")
+                }
             }
         )
-        logger.lifecycle("Wrote ${txtTarget.absolutePath}")
+        logger.lifecycle("Wrote ${txtTarget.absolutePath} (${noteLocales.size} locales)")
     }
 }
 

@@ -1,0 +1,5 @@
+Folder sync is much tidier.
+
+- Each file in your sync folder is now named after the note's title. Rename the note and the file in the folder follows automatically — no need to rename anything yourself.
+- Choose your sync file format: .md or .txt.
+- A new "Rename files to note titles" button in the Sync Center tidies up files made under the old naming in one tap.

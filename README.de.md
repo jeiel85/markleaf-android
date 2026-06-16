@@ -31,7 +31,7 @@
 
 **Markleaf** ist eine Android-Markdown-Notiz-App, die bewusst auf Ballast verzichtet, damit du dich auf zwei Dinge konzentrieren kannst: festhalten und ordnen. Deine Daten liegen ausschließlich auf deinem Gerät, und das standardisierte Markdown-Format garantiert volle Eigentümerschaft und Portabilität. Auch die Synchronisierung läuft nur über *einen von dir gewählten Ordner* – Markleaf selbst geht nie online.
 
-[**Branding-Seite ansehen**](https://jeiel85.github.io/markleaf-android/) · [Aktuelle Version: v2.17.1](https://github.com/jeiel85/markleaf-android/releases/tag/v2.17.1) · [Datenschutzerklärung](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**Branding-Seite ansehen**](https://jeiel85.github.io/markleaf-android/) · [Aktuelle Version: v2.18.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.18.0) · [Datenschutzerklärung](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -113,7 +113,7 @@ com.markleaf.notes
 ### Installation
 - **F-Droid**: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) – im F-Droid-Client suchen oder über den Link oben installieren. Es wird derselbe Signaturschlüssel (SHA-256 `0be97352…f91a`) verwendet, sodass Updates auch dann nahtlos weiterlaufen, wenn du das APK aus den GitHub Releases per Sideload installiert hast.
 - **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) – installiere die offiziell verteilte Version aus dem Play Store.
-- **Direkte APK-Installation**: lade das neueste APK aus dem [v2.17.1 Release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.17.1) oder von der [Releases](https://github.com/jeiel85/markleaf-android/releases)-Seite herunter und führe es auf deinem Android-Gerät aus.
+- **Direkte APK-Installation**: lade das neueste APK aus dem [v2.18.0 Release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.18.0) oder von der [Releases](https://github.com/jeiel85/markleaf-android/releases)-Seite herunter und führe es auf deinem Android-Gerät aus.
 
 ### Aus dem Quellcode bauen
 Wenn du selbst bauen oder beitragen möchtest, folge diesen Schritten.
@@ -173,6 +173,7 @@ Wie „never leaves your device“ genau funktioniert, ist in der [Datenschutzer
 - [x] **v2.15** Stabilisierung der F-Droid-Einreichung und No-Cloud-Dokumentation
 - [x] **v2.16** Homescreen-Widget, biometrische Sperre, Open-Source-Transparenz, smarte Markdown-Formatierung
 - [x] **v2.17** Öffnen-/Teilen-Import externer `.md`/`.txt`-Dateien, Korrekturen bei Duplikat-Notizen und Tag-Erkennung der Ordnersynchronisierung
+- [x] **v2.18** Ordner-Sync-Dateien nach Notiztitel benannt (Umbenennen folgt) + `.md`/`.txt`-Auswahl
 - [x] **Öffentlicher Google-Play-Start** – jeder kann es aus dem Play Store installieren
 
 ---

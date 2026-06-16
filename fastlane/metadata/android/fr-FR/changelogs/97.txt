@@ -1,0 +1,5 @@
+La synchronisation de dossier est plus claire.
+
+- Chaque fichier de votre dossier de synchronisation porte désormais le titre de la note. Renommez la note et le fichier suit automatiquement, sans rien renommer vous-même.
+- Choisissez le format de fichier de synchronisation : .md ou .txt.
+- Un nouveau bouton « Renommer les fichiers selon le titre » dans le Centre de synchronisation range les anciens noms en une fois.

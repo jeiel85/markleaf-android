@@ -1,0 +1,5 @@
+La sincronización de carpetas es más ordenada.
+
+- Cada archivo de tu carpeta de sincronización ahora lleva el título de la nota. Cambia el título y el archivo de la carpeta se renombra solo, sin que tengas que renombrar nada a mano.
+- Elige el formato de archivo de sincronización: .md o .txt.
+- Un nuevo botón "Renombrar archivos según el título" en el Centro de sincronización ordena los nombres antiguos de una vez.

@@ -1,0 +1,5 @@
+Die Ordner-Synchronisierung ist jetzt aufgeräumter.
+
+- Jede Datei im Sync-Ordner trägt nun den Titel der Notiz. Änderst du den Titel, wird die Datei im Ordner automatisch umbenannt — du musst nichts mehr selbst umbenennen.
+- Wähle das Sync-Dateiformat: .md oder .txt.
+- Eine neue Schaltfläche "Dateien nach Notiztitel benennen" im Sync-Center räumt ältere Dateinamen in einem Schritt auf.

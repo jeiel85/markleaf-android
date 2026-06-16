@@ -31,7 +31,7 @@
 
 **Markleaf** is an Android Markdown note app designed to strip away the clutter so you can focus on just two things: capturing and organizing. Your data is stored only on your device, and standard Markdown guarantees full ownership and portability. Even sync happens only through *a folder you choose* — Markleaf itself never goes online.
 
-[**View the branding page**](https://jeiel85.github.io/markleaf-android/) · [Current version: v2.17.1](https://github.com/jeiel85/markleaf-android/releases/tag/v2.17.1) · [Privacy Policy](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**View the branding page**](https://jeiel85.github.io/markleaf-android/) · [Current version: v2.18.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.18.0) · [Privacy Policy](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -54,7 +54,7 @@
 - **Pin / archive / trash** — trash asks once more before permanent deletion
 
 ### Sync & Export (No-Cloud principle)
-- **Folder mirror sync** — mirrors each note as a `.md` file to a folder you pick via SAF (Drive/Dropbox/Syncthing/OneDrive/NAS, etc.). Markleaf itself stays offline; sync is delegated to *whatever external app syncs that folder*
+- **Folder mirror sync** — mirrors each note as a **title-named** `.md` / `.txt` file to a folder you pick via SAF (Drive/Dropbox/Syncthing/OneDrive/NAS, etc.); rename a note and its file follows. Markleaf itself stays offline; sync is delegated to *whatever external app syncs that folder*
 - **Import external `.md` / `.txt` files** — tap a file in your file manager or share one from another app to bring it in as a new note (the file name becomes the title when there's no heading). Tags in synced-in notes are recognized right away
 - **Export individual / all notes as `.md`**
 - **Send via the system share sheet**
@@ -113,7 +113,7 @@ com.markleaf.notes
 ### Installation
 - **F-Droid**: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — search in the F-Droid client or install via the link above. It uses the same signing key (SHA-256 `0be97352…f91a`), so updates continue seamlessly even if you sideloaded the GitHub Releases APK.
 - **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — install the officially distributed version from the Play Store.
-- **Direct APK install**: download the latest APK from the [v2.17.1 Release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.17.1) or the [Releases](https://github.com/jeiel85/markleaf-android/releases) page and run it on your Android device.
+- **Direct APK install**: download the latest APK from the [v2.18.0 Release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.18.0) or the [Releases](https://github.com/jeiel85/markleaf-android/releases) page and run it on your Android device.
 
 ### Building from source
 If you'd like to build or contribute, follow these steps.
@@ -173,6 +173,7 @@ How "never leaves your device" works exactly is documented in the [Privacy Polic
 - [x] **v2.15** F-Droid submission stabilization and no-cloud documentation
 - [x] **v2.16** Home screen widget, biometric lock, open-source transparency, smart Markdown formatting
 - [x] **v2.17** Open/share import of external `.md`/`.txt` files, folder-sync duplicate-note and tag recognition fixes
+- [x] **v2.18** Folder-sync files named after the note title (rename follows) + `.md`/`.txt` choice
 - [x] **Google Play public launch** — anyone can install it from the Play Store
 
 ---

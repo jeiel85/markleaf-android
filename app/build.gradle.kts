@@ -148,6 +148,10 @@ android {
                     // variant manifest. Skip every snapshot test class in
                     // any non-debug-variant unit test (release, benchmark, …).
                     it.exclude("**/preview/*SnapshotTest*")
+                    // Same reason for the NavHost Compose test: it drives a real
+                    // composition via createComposeRule(), so it only belongs in
+                    // the debug-variant unit test (the documented hard gate).
+                    it.exclude("**/navigation/NavHostIntentImportTest*")
                 }
             }
         }

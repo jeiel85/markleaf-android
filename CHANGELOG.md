@@ -2,6 +2,16 @@
 
 All notable changes to Markleaf are documented in this file.
 
+## v2.18.1 - 파일 열기 재오픈 루프·중복 저장 수정 (Open-file Reopen Loop) - 2026-06-18
+
+`.md`/`.txt` 파일을 열거나 공유해서 가져온 뒤 뒤로가기를 누르면 에디터가 계속 다시 열려 빠져나갈 수 없고, 매번 같은 내용의 중복 노트가 저장되던 문제(#142)를 고친 릴리스입니다.
+
+### Fixed
+- **파일 열기/공유 가져오기 재오픈 루프 + 중복 저장(#142).** 외부에서 파일을 열거나 공유로 가져오는 일회성 처리(#139)를 `MarkleafNavHost`의 NOTES 목적지 내부 `LaunchedEffect`에서 하던 것이 원인이었습니다. 에디터로 진입했다가 뒤로가기로 NOTES 목적지에 재진입하면 그 목적지가 composition을 새로 시작하면서 해당 `LaunchedEffect`가 다시 실행 — intent가 소비되지 않은 채 매번 `createNote(sharedText)`로 새 UUID의 중복 노트를 만들고 곧장 에디터를 다시 열어, 뒤로가기·앱 종료가 먹통이 되는 루프에 빠졌습니다. 일회성 가져오기를 액티비티 인스턴스 수명만큼 살아있는 호스트 스코프의 단일 `LaunchedEffect(Unit)`로 끌어올려, 내부 네비게이션 재진입에는 재발동하지 않고 새 intent(`onNewIntent` → `recreate`)에만 새로 가져오도록 했습니다. 위젯 새 노트·위젯 최근 노트 열기 경로도 같은 재진입 중복에서 함께 해소됩니다.
+
+### Tests
+- 실제 `MarkleafNavHost`를 콜드 스타트 + 뒤로가기로 구동해 가져오기가 정확히 한 번만 실행되는지 검증하는 Robolectric Compose 회귀 테스트(`NavHostIntentImportTest`)를 추가했습니다(수정 전 코드에서는 실패). Room 스레딩 아티팩트를 피하려고 in-memory `NoteRepository`로 격리했습니다.
+
 ## v2.18.0 - 폴더 동기화 파일명 = 노트 제목 (Title-named Sync Files) - 2026-06-16
 
 폴더 동기화 시 각 파일이 **노트 제목**으로 저장되고, 제목을 바꾸면 폴더 안 파일도 자동으로 따라 바뀝니다(#134). `.md`/`.txt` 확장자도 고를 수 있습니다.

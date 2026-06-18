@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,7 +73,37 @@ fun MarkleafNavHost(
     val context = LocalContext.current
     val settingsRepository = remember { AppSettingsRepository(context.applicationContext) }
     val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
-    
+
+    // One-shot intent entry points — widget "new note", text/file shared or
+    // opened into the app (#139), and a widget tap on a recent note. These must
+    // run EXACTLY ONCE per launch. They used to live in LaunchedEffects inside
+    // the NOTES destination, but a navigation destination re-enters composition
+    // every time it returns to the foreground — e.g. pressing back from the
+    // editor — which re-ran the effect, created another duplicate note, and
+    // immediately reopened the editor, trapping the user in a reopen loop
+    // (#142). Hoisting them here ties them to the host, which stays composed for
+    // the whole activity instance, so returning from the editor no longer
+    // re-imports. A genuinely new intent arrives on a fresh activity
+    // (onNewIntent → recreate) and re-composes the host, so new shares/opens
+    // still import. The three sources are mutually exclusive (each derives from
+    // a single intent action), so a `when` handles at most one.
+    val intentEntryViewModel = viewModel<NotesViewModel>(factory = viewModelFactory)
+    LaunchedEffect(Unit) {
+        when {
+            shouldCreateNote -> {
+                val newNote = intentEntryViewModel.createNote()
+                navController.navigate(NavRoutes.editorRoute(newNote.id))
+            }
+            !sharedText.isNullOrBlank() -> {
+                val newNote = intentEntryViewModel.createNote(sharedText)
+                navController.navigate(NavRoutes.editorRoute(newNote.id))
+            }
+            !openNoteId.isNullOrBlank() -> {
+                navController.navigate(NavRoutes.editorRoute(openNoteId))
+            }
+        }
+    }
+
     NavHost(
         navController = navController,
         startDestination = NavRoutes.NOTES
@@ -81,28 +112,9 @@ fun MarkleafNavHost(
             val viewModel = viewModel<NotesViewModel>(factory = viewModelFactory)
             val coroutineScope = rememberCoroutineScope()
 
-            // Handle widget quick note creation
-            androidx.compose.runtime.LaunchedEffect(shouldCreateNote) {
-                if (shouldCreateNote) {
-                    val newNote = viewModel.createNote()
-                    navController.navigate(NavRoutes.editorRoute(newNote.id))
-                }
-            }
-
-            // Handle text shared into the app via the system share sheet
-            androidx.compose.runtime.LaunchedEffect(sharedText) {
-                if (!sharedText.isNullOrBlank()) {
-                    val newNote = viewModel.createNote(sharedText)
-                    navController.navigate(NavRoutes.editorRoute(newNote.id))
-                }
-            }
-
-            // Widget tapped a specific recent note → open it directly
-            androidx.compose.runtime.LaunchedEffect(openNoteId) {
-                if (!openNoteId.isNullOrBlank()) {
-                    navController.navigate(NavRoutes.editorRoute(openNoteId))
-                }
-            }
+            // Intent entry points (widget new-note, shared/opened content, widget
+            // recent-note tap) are handled once at the host scope above, not here
+            // — see the LaunchedEffect in MarkleafNavHost's body (#142).
 
             if (isExpanded) {
                 var selectedNoteId by remember { mutableStateOf<String?>(null) }

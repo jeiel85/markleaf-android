@@ -1,0 +1,5 @@
+Ouvrir et partager des fichiers est plus fiable.
+
+- Corrigé : après l'ouverture ou le partage d'un fichier dans Markleaf, le fichier pouvait se rouvrir en boucle — retour et fermeture inopérants — et enregistrer des copies en double. Les fichiers ne sont désormais importés qu'une seule fois et la navigation arrière fonctionne normalement.
+
+Vos notes et surlignages existants restent intacts.

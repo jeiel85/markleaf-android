@@ -1,0 +1,5 @@
+Dateien öffnen und teilen ist jetzt zuverlässiger.
+
+- Behoben: Nach dem Öffnen oder Teilen einer Datei in Markleaf konnte sich die Datei immer wieder öffnen — Zurück und Schließen funktionierten nicht — und es wurden doppelte Kopien gespeichert. Dateien werden jetzt nur einmal importiert und die Zurück-Navigation funktioniert wie erwartet.
+
+Deine vorhandenen Notizen und Markierungen bleiben unverändert.

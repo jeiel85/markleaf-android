@@ -1,0 +1,5 @@
+Opening and sharing files is more reliable.
+
+- Fixed a problem where opening or sharing a file into Markleaf could get stuck reopening the file — with back and close not working — and save duplicate copies. Files now import just once, and back navigation works as expected.
+
+Your existing notes and highlights are untouched.

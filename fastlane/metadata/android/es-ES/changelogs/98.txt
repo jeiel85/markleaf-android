@@ -1,0 +1,5 @@
+Abrir y compartir archivos es más fiable.
+
+- Corregido: tras abrir o compartir un archivo en Markleaf, el archivo podía volver a abrirse una y otra vez —sin que funcionaran atrás ni cerrar— y guardar copias duplicadas. Ahora los archivos se importan una sola vez y la navegación hacia atrás funciona con normalidad.
+
+Tus notas y resaltados actuales se mantienen intactos.

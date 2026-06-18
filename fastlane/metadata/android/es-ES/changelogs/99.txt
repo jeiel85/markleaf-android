@@ -1,0 +1,6 @@
+Un primer inicio más completo y una exportación más limpia.
+
+- Las nuevas instalaciones incluyen seis notas de ejemplo reales: Markdown, diario, notas de proyecto, etiquetas/búsqueda/retroenlaces y sincronización de carpetas. Míralas y bórralas cuando quieras.
+- Se corrigió un fallo por el que el título aparecía dos veces al exportar una nota a PDF o Markdown. Ahora las notas se exportan tal cual, con el título una sola vez.
+
+Tus notas y resaltados existentes se mantienen intactos.

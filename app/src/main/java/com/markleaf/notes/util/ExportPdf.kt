@@ -35,9 +35,9 @@ object ExportPdf {
         val printManager = context.getSystemService(Context.PRINT_SERVICE) as? PrintManager
             ?: return false
 
-        val bodyHtml = renderer.render(parser.parse(note.contentMarkdown))
-        val title = note.title.ifBlank { context.getString(R.string.untitled) }
-        val html = wrapHtml(title, bodyHtml)
+        val untitled = context.getString(R.string.untitled)
+        val title = note.title.ifBlank { untitled }
+        val html = renderDocument(note, untitled)
 
         // WebView must outlive this call until the print adapter is created.
         // PrintManager keeps a reference to it via the adapter, so a local val
@@ -56,6 +56,20 @@ object ExportPdf {
         }
         webView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
         return true
+    }
+
+    /**
+     * Builds the full printable HTML document for [note]. A note's title is the
+     * first line of its Markdown — Markleaf has no separate title field, so the
+     * body already contains it. We render the Markdown as-is and never inject a
+     * synthetic heading on top, otherwise the first line would print twice: once
+     * as the injected title and again as part of the body (#143). [untitled] is
+     * the fallback used only for the document/tab `<title>` of a blank note.
+     */
+    internal fun renderDocument(note: Note, untitled: String): String {
+        val bodyHtml = renderer.render(parser.parse(note.contentMarkdown))
+        val title = note.title.ifBlank { untitled }
+        return wrapHtml(title, bodyHtml)
     }
 
     private fun wrapHtml(title: String, body: String): String {
@@ -198,7 +212,6 @@ object ExportPdf {
             </style>
             </head>
             <body>
-            <h1>${escape(title)}</h1>
             $body
             </body>
             </html>

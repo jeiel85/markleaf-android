@@ -1,0 +1,6 @@
+Ein reichhaltigerer erster Start und ein sauberer Export.
+
+- Neue Installationen enthalten jetzt sechs echte Beispielnotizen: Markdown, Journaling, Projektnotizen, Tags/Suche/Backlinks und Ordner-Sync. Ansehen und danach löschen.
+- Behoben: Beim Export einer Notiz als PDF oder Markdown erschien der Titel doppelt. Notizen werden jetzt wie geschrieben exportiert, der Titel erscheint nur einmal.
+
+Deine vorhandenen Notizen und Markierungen bleiben unverändert.

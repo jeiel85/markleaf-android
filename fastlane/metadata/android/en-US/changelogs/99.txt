@@ -1,0 +1,6 @@
+A richer first run, plus a cleaner export.
+
+- Fresh installs now come with six real sample notes that show off Markdown, journaling, project notes, tags/search/backlinks, and folder sync. Browse them, then delete when you're ready.
+- Fixed a problem where exporting a note to PDF or Markdown printed the title twice. Notes now export exactly as written, with the title shown once.
+
+Your existing notes and highlights are untouched.

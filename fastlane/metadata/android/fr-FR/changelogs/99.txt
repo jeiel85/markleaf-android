@@ -1,0 +1,6 @@
+Un premier lancement plus riche et un export plus propre.
+
+- Les nouvelles installations incluent six vraies notes d'exemple : Markdown, journal, notes de projet, tags/recherche/rétroliens et synchro de dossier. Parcourez-les, puis supprimez-les.
+- Correction d'un bug où le titre apparaissait deux fois lors de l'export d'une note en PDF ou Markdown. Les notes s'exportent maintenant telles quelles, titre affiché une seule fois.
+
+Vos notes et surlignages existants restent intacts.

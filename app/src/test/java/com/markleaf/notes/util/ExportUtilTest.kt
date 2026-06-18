@@ -8,34 +8,6 @@ import org.junit.Test
 class ExportUtilTest {
 
     @Test
-    fun `generateMarkdownContent includes title as heading`() {
-        val note = Note(
-            id = "1",
-            title = "Test Note",
-            contentMarkdown = "Content here",
-            excerpt = "",
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
-        )
-        val markdown = ExportUtil.generateMarkdownContent(note)
-        assert(markdown.startsWith("# Test Note"))
-    }
-
-    @Test
-    fun `generateMarkdownContent handles blank title`() {
-        val note = Note(
-            id = "1",
-            title = "",
-            contentMarkdown = "Content here",
-            excerpt = "",
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
-        )
-        val markdown = ExportUtil.generateMarkdownContent(note)
-        assert(markdown.startsWith("# Untitled"))
-    }
-
-    @Test
     fun `generateFileName uses slugified title`() {
         val note = Note(
             id = "1",

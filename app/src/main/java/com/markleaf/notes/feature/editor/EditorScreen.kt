@@ -207,7 +207,10 @@ fun EditorScreen(
             coroutineScope.launch {
                 try {
                     context.contentResolver.openOutputStream(uri)?.use { os ->
-                        os.write(ExportUtil.generateMarkdownContent(note).toByteArray())
+                        // The note's first line is already its title (Markleaf has
+                        // no separate title field), so write the Markdown as-is —
+                        // prepending a heading would duplicate the title (#143).
+                        os.write(note.contentMarkdown.toByteArray())
                     }
                     Toast.makeText(context, R.string.export_success, Toast.LENGTH_SHORT).show()
                 } catch (e: Exception) {

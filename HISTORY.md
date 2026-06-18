@@ -1,3 +1,16 @@
+## 2026-06-18 - Phase 25 Final Writing Feel Polish
+
+- Trigger: User approved doing the "last writing-feel polish" before moving on to the richer sample-note onboarding idea.
+- Scope: No new product features. This pass stays inside editor interaction feel: cursor focus continuity, edit/preview transition smoothness, preview/editor canvas alignment, and toolbar density.
+- Work:
+  - Added a scoped editor `FocusRequester` so new notes are immediately writable, Preview -> Edit returns the cursor naturally, and toolbar actions / wikilink completion / Find-Replace edits keep the writing surface active.
+  - Wrapped the editor body in `Crossfade(targetState = isPreviewMode)` so Edit and Preview swap more softly.
+  - Aligned Preview content padding with the editor canvas (`20.dp` horizontal) and tightened toolbar top/group divider spacing while preserving Material `IconButton` touch targets.
+- Verification:
+  - `.\gradlew.bat testDebugUnitTest --no-daemon --stacktrace` -> BUILD SUCCESSFUL after stopping a stale Gradle daemon that had locked `test-results/.../output.bin`.
+  - `.\gradlew.bat assembleDebug --no-daemon --stacktrace` -> BUILD SUCCESSFUL.
+  - `rg "android.permission.INTERNET" -n app/src` -> no matches.
+
 ## 2026-06-15 - v2.17.0 File import & folder-sync fixes (#139, #140, #138)
 
 - Trigger: A batch of GitHub issues — #139 (open/share `.md` files), #140 (search lists the same note multiple times), #138 (a tag removed from every note lingers in the overview), plus #138's comment thread (folder sync creates duplicate notes; imported tags not recognized).

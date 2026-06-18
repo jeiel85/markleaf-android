@@ -7,6 +7,21 @@
 
 ## Confirmed Decisions
 
+### D052 - Final Writing Feel Polish Keeps Focus, Preview, and Toolbar Changes Small
+
+Markleaf treats the final editor polish pass as a tactile interaction pass rather than a feature pass.
+
+Why:
+- The editor already has the larger Bear-class canvas work from D051; the next value is removing small breaks in flow rather than adding more chrome.
+- Returning from Preview, tapping formatting controls, accepting wikilink suggestions, or closing Find/Replace should not leave the user hunting for the cursor again.
+- Preview should feel like the same writing canvas rendered differently, so its left/right rhythm should align with Edit mode.
+- Toolbar density can be made calmer without reducing the Material touch target size.
+
+Implementation:
+- Added an editor `FocusRequester` and a scoped focus flag so new notes, Preview -> Edit, toolbar actions, wikilink completion, and Find/Replace edits return focus to the text field.
+- Wrapped Edit/Preview body swapping in `Crossfade` for a softer transition without changing navigation or persistence behavior.
+- Matched preview content padding to the editor canvas (`20.dp` horizontal) and trimmed toolbar group spacing while keeping `IconButton` touch targets intact.
+
 ### D051 - Bear-class Editor Canvas, Typography, Empty States, and Notes List Spacing/Metadata Polish (Phase 24)
 
 Markleaf refines the core visual identity and typography canvas to deliver a highly polished, serene, and premium writing and browsing experience, aligning with the Bear-class Android Markdown application guidelines.

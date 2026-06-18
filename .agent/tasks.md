@@ -5,6 +5,25 @@
 
 ---
 
+## Phase 25 - Final Writing Feel Polish (Done)
+
+목적: 새 기능을 추가하지 않고, 에디터의 손끝 감각을 마지막으로 다듬습니다. 커서 포커스 복귀, 미리보기 전환 감각, 편집/미리보기 캔버스 정렬, 툴바 밀도처럼 사용자가 매일 느끼는 작은 마찰만 줄입니다.
+
+- [x] **1. Editor Focus Continuity**
+  - [x] 새 노트 진입 시 곧바로 쓸 수 있도록 에디터 포커스를 요청
+  - [x] 미리보기에서 편집으로 돌아올 때 커서 포커스를 자연스럽게 복귀
+  - [x] 포맷팅 툴바, 위키링크 자동완성, 찾기/바꾸기 조작 후 편집 포커스를 유지
+- [x] **2. Preview Transition & Canvas Alignment**
+  - [x] 편집/미리보기 전환을 `Crossfade`로 부드럽게 전환
+  - [x] 미리보기 좌우 패딩을 편집 캔버스와 같은 `20.dp` 기준선으로 정렬
+- [x] **3. Toolbar Density Polish**
+  - [x] 터치 타겟은 유지하면서 툴바의 위쪽 여백과 그룹 디바이더 좌우 여백을 줄여 더 가볍게 조정
+- [x] **4. Verification & Stabilize**
+  - [x] 로컬 유닛 테스트 (`./gradlew testDebugUnitTest`) 구동 및 통과 확인
+  - [x] 앱 빌드 (`./gradlew assembleDebug`) 성공 확인
+
+---
+
 ## Phase 24 - Writing Canvas & Empty State Premium Polish (Done)
 
 목적: 기능 추가보다는 에디터의 캔버스 감각(타이포그래피, 줄간격, 패딩)과 빈 상태(Empty State), 노트 목록의 시각적 리듬(수정 시간 표시, 여백 튜닝)을 Bear-class 수준으로 고급스럽게 개선합니다.

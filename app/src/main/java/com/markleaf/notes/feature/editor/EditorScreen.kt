@@ -3,11 +3,13 @@ package com.markleaf.notes.feature.editor
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -73,6 +75,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isShiftPressed
@@ -139,6 +143,8 @@ fun EditorScreen(
     var editorState by remember(noteId) { mutableStateOf(TextFieldValue("")) }
     var saveTrigger by remember(noteId) { mutableStateOf(0) }
     var isLoaded by remember(noteId) { mutableStateOf(noteId == null) }
+    var shouldRequestEditorFocus by remember(noteId) { mutableStateOf(noteId == null) }
+    val editorFocusRequester = remember(noteId) { FocusRequester() }
     var isPreviewMode by remember(noteId) { mutableStateOf(false) }
     var isFocusMode by remember(noteId) { mutableStateOf(false) }
     var showDeleteConfirm by remember(noteId) { mutableStateOf(false) }
@@ -274,6 +280,13 @@ fun EditorScreen(
         }
     }
 
+    LaunchedEffect(shouldRequestEditorFocus, isLoaded, isPreviewMode) {
+        if (shouldRequestEditorFocus && isLoaded && !isPreviewMode) {
+            editorFocusRequester.requestFocus()
+            shouldRequestEditorFocus = false
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -328,7 +341,13 @@ fun EditorScreen(
                                 )
                             }
                         }
-                        TextButton(onClick = { isPreviewMode = !isPreviewMode }) {
+                        TextButton(onClick = {
+                            val returningToEdit = isPreviewMode
+                            isPreviewMode = !isPreviewMode
+                            if (returningToEdit) {
+                                shouldRequestEditorFocus = true
+                            }
+                        }) {
                             Text(
                                 if (isPreviewMode) stringResource(R.string.edit) else stringResource(R.string.preview),
                                 style = MaterialTheme.typography.labelLarge
@@ -437,222 +456,234 @@ fun EditorScreen(
             )
         }
     ) { paddingValues ->
-        if (isPreviewMode) {
-            val previewLines = SimpleMarkdownPreview.parse(editorState.text)
-            val currentTitle = remember(editorState.text) {
-                TitleExtractor.extractTitle(editorState.text)
-            }
-            val backlinks by linkRepo.observeBacklinks(currentTitle, noteId.orEmpty())
-                .collectAsState(initial = emptyList())
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                MarkdownPreviewList(
-                    lines = previewLines,
-                    modifier = Modifier.weight(1f, fill = false),
-                    onWikilinkClick = { title ->
-                        coroutineScope.launch {
-                            val existing = db.noteDao().getNoteByTitle(title)
-                            val targetId = if (existing != null) {
-                                existing.id
-                            } else {
-                                val seed = "# $title\n\n"
-                                val newNote = com.markleaf.notes.domain.model.Note(
-                                    id = java.util.UUID.randomUUID().toString(),
-                                    title = title,
-                                    contentMarkdown = seed,
-                                    excerpt = "",
-                                    createdAt = java.time.Instant.now(),
-                                    updatedAt = java.time.Instant.now()
-                                )
-                                repo.createNote(newNote)
-                                newNote.id
-                            }
-                            onNavigateToNote(targetId)
-                        }
-                    },
-                    onImageLongPress = { path, currentAlt ->
-                        imageAltEditing = path to currentAlt
-                    }
-                )
-                if (backlinks.isNotEmpty()) {
-                    BacklinksPanel(
-                        backlinks = backlinks,
-                        onClick = { id -> onNavigateToNote(id) }
-                    )
+        Crossfade(
+            targetState = isPreviewMode,
+            label = "Editor preview mode"
+        ) { previewMode ->
+            if (previewMode) {
+                val previewLines = SimpleMarkdownPreview.parse(editorState.text)
+                val currentTitle = remember(editorState.text) {
+                    TitleExtractor.extractTitle(editorState.text)
                 }
-            }
-        } else {
-            // imePadding() shrinks the editor body when the soft keyboard is up so
-            // BasicTextField's built-in cursor bring-into-view can keep the caret
-            // above the keyboard. Without it, enableEdgeToEdge() lets the IME draw
-            // over the last lines and they stay hidden (#136).
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .imePadding()
-                    .padding(horizontal = 20.dp, vertical = 12.dp)
-            ) {
-                if (isFindOpen && !isFocusMode) {
-                    FindBar(
-                        query = findQuery,
-                        onQueryChange = {
-                            findQuery = it
-                            findIndex = 0
-                        },
-                        currentIndex = findIndex,
-                        totalMatches = findMatches.size,
-                        onPrev = {
-                            if (findMatches.isNotEmpty()) {
-                                findIndex = (findIndex - 1 + findMatches.size) % findMatches.size
-                            }
-                        },
-                        onNext = {
-                            if (findMatches.isNotEmpty()) {
-                                findIndex = (findIndex + 1) % findMatches.size
-                            }
-                        },
-                        onClose = {
-                            isFindOpen = false
-                            findQuery = ""
-                            replaceQuery = ""
-                        },
-                        replaceQuery = replaceQuery,
-                        onReplaceQueryChange = { replaceQuery = it },
-                        onReplaceOne = {
-                            if (findMatches.isNotEmpty()) {
-                                val safeIndex = findIndex.coerceIn(findMatches.indices)
-                                val target = findMatches[safeIndex]
-                                editorState = replaceRange(editorState, target, replaceQuery)
-                                if (isLoaded) saveTrigger++
-                            }
-                        },
-                        onReplaceAll = {
-                            if (findMatches.isNotEmpty()) {
-                                val count = findMatches.size
-                                editorState = replaceAllRanges(editorState, findMatches, replaceQuery)
-                                if (isLoaded) saveTrigger++
-                                Toast.makeText(
-                                    context,
-                                    context.getString(R.string.replace_all_done_format, count),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-                    )
-                }
-
-                val colorScheme = MaterialTheme.colorScheme
-                val markdownVisualTransformation = if (
-                    appSettings.markdownSyntaxVisibility == MarkdownSyntaxVisibility.SHOW && !isFocusMode
+                val backlinks by linkRepo.observeBacklinks(currentTitle, noteId.orEmpty())
+                    .collectAsState(initial = emptyList())
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
                 ) {
-                    MarkdownSyntaxVisualTransformation(
-                        MarkdownSyntaxColors(
-                            heading = colorScheme.primary,
-                            emphasis = colorScheme.tertiary,
-                            link = colorScheme.primary,
-                            syntax = colorScheme.onSurfaceVariant,
-                            checkbox = colorScheme.secondary,
-                            code = colorScheme.tertiary
-                        )
-                    )
-                } else {
-                    VisualTransformation.None
-                }
-                Box(Modifier.weight(1f), contentAlignment = Alignment.TopStart) {
-                    BasicTextField(
-                        value = editorState,
-                        onValueChange = { incoming ->
-                            editorState = MarkdownEditActions.applyAutoContinuation(editorState, incoming)
-                            if (isLoaded) saveTrigger++
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .semantics { contentDescription = context.getString(R.string.note_content) }
-                            .onPreviewKeyEvent { event ->
-                                if (event.type == KeyEventType.KeyDown && event.key == Key.Tab) {
-                                    editorState = if (event.isShiftPressed) {
-                                        MarkdownEditActions.outdent(editorState)
-                                    } else {
-                                        MarkdownEditActions.indent(editorState)
-                                    }
-                                    if (isLoaded) saveTrigger++
-                                    true
+                    MarkdownPreviewList(
+                        lines = previewLines,
+                        modifier = Modifier.weight(1f, fill = false),
+                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
+                        onWikilinkClick = { title ->
+                            coroutineScope.launch {
+                                val existing = db.noteDao().getNoteByTitle(title)
+                                val targetId = if (existing != null) {
+                                    existing.id
                                 } else {
-                                    false
+                                    val seed = "# $title\n\n"
+                                    val newNote = com.markleaf.notes.domain.model.Note(
+                                        id = java.util.UUID.randomUUID().toString(),
+                                        title = title,
+                                        contentMarkdown = seed,
+                                        excerpt = "",
+                                        createdAt = java.time.Instant.now(),
+                                        updatedAt = java.time.Instant.now()
+                                    )
+                                    repo.createNote(newNote)
+                                    newNote.id
+                                }
+                                onNavigateToNote(targetId)
+                            }
+                        },
+                        onImageLongPress = { path, currentAlt ->
+                            imageAltEditing = path to currentAlt
+                        }
+                    )
+                    if (backlinks.isNotEmpty()) {
+                        BacklinksPanel(
+                            backlinks = backlinks,
+                            onClick = { id -> onNavigateToNote(id) }
+                        )
+                    }
+                }
+            } else {
+                // imePadding() shrinks the editor body when the soft keyboard is up so
+                // BasicTextField's built-in cursor bring-into-view can keep the caret
+                // above the keyboard. Without it, enableEdgeToEdge() lets the IME draw
+                // over the last lines and they stay hidden (#136).
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .imePadding()
+                        .padding(horizontal = 20.dp, vertical = 12.dp)
+                ) {
+                    if (isFindOpen && !isFocusMode) {
+                        FindBar(
+                            query = findQuery,
+                            onQueryChange = {
+                                findQuery = it
+                                findIndex = 0
+                            },
+                            currentIndex = findIndex,
+                            totalMatches = findMatches.size,
+                            onPrev = {
+                                if (findMatches.isNotEmpty()) {
+                                    findIndex = (findIndex - 1 + findMatches.size) % findMatches.size
                                 }
                             },
-                        textStyle = MaterialTheme.typography.bodyLarge.copy(
-                            color = MaterialTheme.colorScheme.onBackground
-                        ),
-                        visualTransformation = markdownVisualTransformation,
-                        decorationBox = { innerTextField ->
-                            Box(modifier = Modifier.fillMaxSize()) {
-                                innerTextField()
-                                if (editorState.text.isEmpty()) {
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center,
-                                        modifier = Modifier.fillMaxSize().padding(24.dp)
-                                    ) {
-                                        Text(
-                                            text = "✏️",
-                                            style = MaterialTheme.typography.displayMedium.copy(
-                                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
-                                            ),
-                                            modifier = Modifier.padding(bottom = 12.dp)
-                                        )
-                                        Text(
-                                            text = stringResource(R.string.editor_empty_title),
-                                            style = MaterialTheme.typography.titleMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            textAlign = TextAlign.Center,
-                                            fontWeight = FontWeight.SemiBold
-                                        )
-                                        Text(
-                                            text = stringResource(R.string.editor_empty_hint),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                            textAlign = TextAlign.Center,
-                                            modifier = Modifier.padding(top = 6.dp)
-                                        )
+                            onNext = {
+                                if (findMatches.isNotEmpty()) {
+                                    findIndex = (findIndex + 1) % findMatches.size
+                                }
+                            },
+                            onClose = {
+                                isFindOpen = false
+                                findQuery = ""
+                                replaceQuery = ""
+                                shouldRequestEditorFocus = true
+                            },
+                            replaceQuery = replaceQuery,
+                            onReplaceQueryChange = { replaceQuery = it },
+                            onReplaceOne = {
+                                if (findMatches.isNotEmpty()) {
+                                    val safeIndex = findIndex.coerceIn(findMatches.indices)
+                                    val target = findMatches[safeIndex]
+                                    editorState = replaceRange(editorState, target, replaceQuery)
+                                    shouldRequestEditorFocus = true
+                                    if (isLoaded) saveTrigger++
+                                }
+                            },
+                            onReplaceAll = {
+                                if (findMatches.isNotEmpty()) {
+                                    val count = findMatches.size
+                                    editorState = replaceAllRanges(editorState, findMatches, replaceQuery)
+                                    shouldRequestEditorFocus = true
+                                    if (isLoaded) saveTrigger++
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.replace_all_done_format, count),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        )
+                    }
+
+                    val colorScheme = MaterialTheme.colorScheme
+                    val markdownVisualTransformation = if (
+                        appSettings.markdownSyntaxVisibility == MarkdownSyntaxVisibility.SHOW && !isFocusMode
+                    ) {
+                        MarkdownSyntaxVisualTransformation(
+                            MarkdownSyntaxColors(
+                                heading = colorScheme.primary,
+                                emphasis = colorScheme.tertiary,
+                                link = colorScheme.primary,
+                                syntax = colorScheme.onSurfaceVariant,
+                                checkbox = colorScheme.secondary,
+                                code = colorScheme.tertiary
+                            )
+                        )
+                    } else {
+                        VisualTransformation.None
+                    }
+                    Box(Modifier.weight(1f), contentAlignment = Alignment.TopStart) {
+                        BasicTextField(
+                            value = editorState,
+                            onValueChange = { incoming ->
+                                editorState = MarkdownEditActions.applyAutoContinuation(editorState, incoming)
+                                if (isLoaded) saveTrigger++
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .focusRequester(editorFocusRequester)
+                                .semantics { contentDescription = context.getString(R.string.note_content) }
+                                .onPreviewKeyEvent { event ->
+                                    if (event.type == KeyEventType.KeyDown && event.key == Key.Tab) {
+                                        editorState = if (event.isShiftPressed) {
+                                            MarkdownEditActions.outdent(editorState)
+                                        } else {
+                                            MarkdownEditActions.indent(editorState)
+                                        }
+                                        if (isLoaded) saveTrigger++
+                                        true
+                                    } else {
+                                        false
+                                    }
+                                },
+                            textStyle = MaterialTheme.typography.bodyLarge.copy(
+                                color = MaterialTheme.colorScheme.onBackground
+                            ),
+                            visualTransformation = markdownVisualTransformation,
+                            decorationBox = { innerTextField ->
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    innerTextField()
+                                    if (editorState.text.isEmpty()) {
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.Center,
+                                            modifier = Modifier.fillMaxSize().padding(24.dp)
+                                        ) {
+                                            Text(
+                                                text = "✏️",
+                                                style = MaterialTheme.typography.displayMedium.copy(
+                                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+                                                ),
+                                                modifier = Modifier.padding(bottom = 12.dp)
+                                            )
+                                            Text(
+                                                text = stringResource(R.string.editor_empty_title),
+                                                style = MaterialTheme.typography.titleMedium,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                textAlign = TextAlign.Center,
+                                                fontWeight = FontWeight.SemiBold
+                                            )
+                                            Text(
+                                                text = stringResource(R.string.editor_empty_hint),
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                                textAlign = TextAlign.Center,
+                                                modifier = Modifier.padding(top = 6.dp)
+                                            )
+                                        }
                                     }
                                 }
                             }
-                        }
-                    )
-                }
+                        )
+                    }
 
-                if (wikilinkQuery != null && wikilinkSuggestions.isNotEmpty() && !isFocusMode) {
-                    WikilinkSuggestionsRow(
-                        suggestions = wikilinkSuggestions,
-                        onPick = { title ->
-                            editorState = completeWikilink(editorState, title)
-                            if (isLoaded) saveTrigger++
-                        }
-                    )
-                }
+                    if (wikilinkQuery != null && wikilinkSuggestions.isNotEmpty() && !isFocusMode) {
+                        WikilinkSuggestionsRow(
+                            suggestions = wikilinkSuggestions,
+                            onPick = { title ->
+                                editorState = completeWikilink(editorState, title)
+                                shouldRequestEditorFocus = true
+                                if (isLoaded) saveTrigger++
+                            }
+                        )
+                    }
 
-                if (!isFocusMode && editorState.text.isNotEmpty()) {
-                    val stats = remember(editorState.text) { computeStats(editorState.text) }
-                    EditorStatsRow(stats)
-                }
+                    if (!isFocusMode && editorState.text.isNotEmpty()) {
+                        val stats = remember(editorState.text) { computeStats(editorState.text) }
+                        EditorStatsRow(stats)
+                    }
 
-                if (!isFocusMode) {
-                    MarkdownToolbar(
-                        onAction = { action ->
-                            HapticFeedback.light(context)
-                            editorState = action(editorState)
-                            if (isLoaded) saveTrigger++
-                        },
-                        onPickImage = {
-                            HapticFeedback.light(context)
-                            imagePickerLauncher.launch(arrayOf("image/*"))
-                        }
-                    )
+                    if (!isFocusMode) {
+                        MarkdownToolbar(
+                            onAction = { action ->
+                                HapticFeedback.light(context)
+                                editorState = action(editorState)
+                                shouldRequestEditorFocus = true
+                                if (isLoaded) saveTrigger++
+                            },
+                            onPickImage = {
+                                HapticFeedback.light(context)
+                                imagePickerLauncher.launch(arrayOf("image/*"))
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -1037,8 +1068,8 @@ private fun MarkdownToolbar(
         modifier = Modifier
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
-            .padding(top = 8.dp, bottom = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
+            .padding(start = 2.dp, end = 2.dp, top = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(0.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         ToolbarTooltipIconButton(
@@ -1132,7 +1163,7 @@ private fun ToolbarDivider() {
     VerticalDivider(
         modifier = Modifier
             .height(20.dp)
-            .padding(horizontal = 4.dp),
+            .padding(horizontal = 2.dp),
         color = MaterialTheme.colorScheme.outlineVariant
     )
 }

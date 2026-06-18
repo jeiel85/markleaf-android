@@ -15,7 +15,7 @@
   <img src="https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?logo=jetpackcompose&logoColor=white" alt="UI" />
   <img src="https://img.shields.io/badge/License-Apache%202.0-D22128" alt="License" />
   <img src="https://img.shields.io/badge/F--Droid-Available-1976D2?logo=fdroid&logoColor=white" alt="F-Droid" />
-  <img src="https://img.shields.io/badge/Google%20Play-Available-3DDC84?logo=googleplay&logoColor=white" alt="Google Play" />
+  <img src="https://img.shields.io/badge/Google%20Play-Updates%20paused-9E9E9E?logo=googleplay&logoColor=white" alt="Google Play" />
 </p>
 
 <p align="center">
@@ -111,9 +111,13 @@ com.markleaf.notes
 ## 🚀 はじめに
 
 ### インストール方法
-- **F-Droid**: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — F-Droid クライアントで検索するか、上のリンクから直接インストールできます。同じ署名鍵（SHA-256 `0be97352…f91a`）を使用するため、GitHub Releases の APK をサイドロードした場合でも途切れなく更新が続きます。
-- **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — Play ストアで正式配信されているバージョンをインストールします。
+
+> [!NOTE]
+> **現在、Google Play での更新は一時保留中です。** 個人開発者の韓国の事業者登録に関するポリシー要件が解決するまで、新しいバージョンは Play ストアに公開しません。その間は **最新版を F-Droid または GitHub Releases から入手してください。**（すでに Play ストアからインストール済みの場合はそのまま使えます。）
+
+- **F-Droid** *(推奨)*: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — F-Droid クライアントで検索するか、上のリンクから直接インストールできます。同じ署名鍵（SHA-256 `0be97352…f91a`）を使用するため、GitHub Releases の APK をサイドロードした場合でも途切れなく更新が続きます。
 - **APK の直接インストール**: [v2.18.0 Release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.18.0) または [Releases](https://github.com/jeiel85/markleaf-android/releases) ページから最新の APK をダウンロードし、Android 端末で実行してインストールします。
+- **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **更新は一時保留中**です（上の注記を参照）。すでにインストール済みなら引き続き使えますが、最新版は F-Droid・GitHub から入手してください。
 
 ### 開発環境の構築
 自分でビルドしたり貢献したい場合は、次の手順に従ってください。

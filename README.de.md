@@ -15,7 +15,7 @@
   <img src="https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?logo=jetpackcompose&logoColor=white" alt="UI" />
   <img src="https://img.shields.io/badge/License-Apache%202.0-D22128" alt="License" />
   <img src="https://img.shields.io/badge/F--Droid-Available-1976D2?logo=fdroid&logoColor=white" alt="F-Droid" />
-  <img src="https://img.shields.io/badge/Google%20Play-Available-3DDC84?logo=googleplay&logoColor=white" alt="Google Play" />
+  <img src="https://img.shields.io/badge/Google%20Play-Updates%20paused-9E9E9E?logo=googleplay&logoColor=white" alt="Google Play" />
 </p>
 
 <p align="center">
@@ -111,9 +111,13 @@ com.markleaf.notes
 ## 🚀 Erste Schritte
 
 ### Installation
-- **F-Droid**: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) – im F-Droid-Client suchen oder über den Link oben installieren. Es wird derselbe Signaturschlüssel (SHA-256 `0be97352…f91a`) verwendet, sodass Updates auch dann nahtlos weiterlaufen, wenn du das APK aus den GitHub Releases per Sideload installiert hast.
-- **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) – installiere die offiziell verteilte Version aus dem Play Store.
+
+> [!NOTE]
+> **Google-Play-Updates sind derzeit ausgesetzt.** Bis eine koreanische Gewerbeanmeldungs-Anforderung für den Einzelentwickler geklärt ist, werden keine neuen Versionen in den Play Store geladen. Hol dir in der Zwischenzeit **die neueste Version über F-Droid oder GitHub Releases.** (Wenn du sie bereits aus dem Play Store installiert hast, funktioniert sie weiterhin.)
+
+- **F-Droid** *(empfohlen)*: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) – im F-Droid-Client suchen oder über den Link oben installieren. Es wird derselbe Signaturschlüssel (SHA-256 `0be97352…f91a`) verwendet, sodass Updates auch dann nahtlos weiterlaufen, wenn du das APK aus den GitHub Releases per Sideload installiert hast.
 - **Direkte APK-Installation**: lade das neueste APK aus dem [v2.18.0 Release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.18.0) oder von der [Releases](https://github.com/jeiel85/markleaf-android/releases)-Seite herunter und führe es auf deinem Android-Gerät aus.
+- **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) – **Updates sind ausgesetzt** (siehe Hinweis oben). Wenn du die App bereits hast, funktioniert sie weiter, aber die neueste Version gibt es über F-Droid oder GitHub.
 
 ### Aus dem Quellcode bauen
 Wenn du selbst bauen oder beitragen möchtest, folge diesen Schritten.

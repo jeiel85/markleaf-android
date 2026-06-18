@@ -15,7 +15,7 @@
   <img src="https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?logo=jetpackcompose&logoColor=white" alt="UI" />
   <img src="https://img.shields.io/badge/License-Apache%202.0-D22128" alt="License" />
   <img src="https://img.shields.io/badge/F--Droid-Available-1976D2?logo=fdroid&logoColor=white" alt="F-Droid" />
-  <img src="https://img.shields.io/badge/Google%20Play-Available-3DDC84?logo=googleplay&logoColor=white" alt="Google Play" />
+  <img src="https://img.shields.io/badge/Google%20Play-Updates%20paused-9E9E9E?logo=googleplay&logoColor=white" alt="Google Play" />
 </p>
 
 <p align="center">
@@ -111,9 +111,13 @@ com.markleaf.notes
 ## 🚀 Getting Started
 
 ### Installation
-- **F-Droid**: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — search in the F-Droid client or install via the link above. It uses the same signing key (SHA-256 `0be97352…f91a`), so updates continue seamlessly even if you sideloaded the GitHub Releases APK.
-- **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — install the officially distributed version from the Play Store.
+
+> [!NOTE]
+> **Google Play updates are currently on hold.** New versions won't be pushed to the Play Store until a Korean business-registration policy requirement for the solo developer is resolved. In the meantime, **get the latest version from F-Droid or GitHub Releases.** (If you already installed it from the Play Store, it keeps working.)
+
+- **F-Droid** *(recommended)*: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — search in the F-Droid client or install via the link above. It uses the same signing key (SHA-256 `0be97352…f91a`), so updates continue seamlessly even if you sideloaded the GitHub Releases APK.
 - **Direct APK install**: download the latest APK from the [v2.18.0 Release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.18.0) or the [Releases](https://github.com/jeiel85/markleaf-android/releases) page and run it on your Android device.
+- **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **updates are paused** (see the note above). If you already have it, it keeps working, but get the latest version from F-Droid or GitHub.
 
 ### Building from source
 If you'd like to build or contribute, follow these steps.

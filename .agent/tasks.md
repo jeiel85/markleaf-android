@@ -5,6 +5,25 @@
 
 ---
 
+## Phase 26 - Beautiful Sample Notebook Onboarding (Done)
+
+목적: 설명형 온보딩을 늘리는 대신, Markleaf 기능을 실제로 활용한 아름다운 샘플 노트북을 첫 설치 시 제공해 사용자가 3분 안에 쓰임을 체감하게 합니다.
+
+- [x] **1. Starter Notes v2 Content**
+  - [x] 기존 4개 안내 노트를 6개 샘플 노트북으로 확장
+  - [x] Welcome, Markdown showcase, daily journal, project brief, tags/search/backlinks, local folder mirror 흐름으로 구성
+  - [x] 각 지원 로케일(raw, ko, es, de, ja, fr)에 같은 6개 구조 제공
+- [x] **2. Real Feature Demonstration**
+  - [x] 이미지, 콜아웃, 표, 코드 블록, 각주, 체크리스트, 위키링크, 계층 태그, 검색 키워드, 폴더 미러 설명 포함
+  - [x] 번들 feature graphic을 starter attachment로 복사해 미리보기에서 실제 이미지가 렌더링되도록 구성
+  - [x] starter note 생성 시 태그뿐 아니라 위키링크도 색인해 backlinks가 바로 작동하도록 개선
+- [x] **3. Tests & Resource Parity**
+  - [x] starter note 개수, 이미지 참조, 콜아웃/표/각주/위키링크 포함 여부 테스트
+  - [x] seed 시 태그 색인, 링크 색인, starter attachment 복사 검증
+  - [x] 로케일별 starter note separator 개수 검증을 6개 노트 기준으로 갱신
+
+---
+
 ## Phase 25 - Final Writing Feel Polish (Done)
 
 목적: 새 기능을 추가하지 않고, 에디터의 손끝 감각을 마지막으로 다듬습니다. 커서 포커스 복귀, 미리보기 전환 감각, 편집/미리보기 캔버스 정렬, 툴바 밀도처럼 사용자가 매일 느끼는 작은 마찰만 줄입니다.

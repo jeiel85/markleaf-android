@@ -1,3 +1,19 @@
+## 2026-06-18 - Phase 26 Beautiful Sample Notebook Onboarding
+
+- Trigger: After agreeing that a beautiful set of sample notes is stronger onboarding than more explanatory UI, the user asked to proceed after the writing-feel polish loop.
+- Scope: Replace starter notes with a real sample notebook while preserving local-first constraints. No network, account, analytics, or external asset fetches.
+- Work:
+  - Replaced the four starter notes with six sample notes covering Welcome, Markdown showcase, daily writing, project brief, tags/search/backlinks, and local folder mirror.
+  - Added real Markdown examples: image reference, callout, table, code block, footnote, checklist, quote, wikilinks, backlinks, tags, and folder mirror explanation.
+  - Copied the existing Markleaf feature graphic into `app/src/main/res/raw/markleaf_sample_cover.png` and added `StarterNotesSeeder.copyStarterSampleAttachment()` to install it under `attachments/starter-note-2/markleaf-sample-cover.png`.
+  - Added `LocalNoteLinkRepository.reindexLinksForNote` during starter seeding so sample wikilinks/backlinks work immediately, matching the existing tag indexing path.
+  - Updated all starter-note raw resources (`default`, ko, es, de, ja, fr) to the same six-note structure.
+- Verification:
+  - `.\gradlew.bat testDebugUnitTest --tests "com.markleaf.notes.data.onboarding.StarterNotesSeederTest" --tests "com.markleaf.notes.res.ResourceParityTest" --no-daemon --stacktrace` -> BUILD SUCCESSFUL.
+  - `.\gradlew.bat test assembleDebug --no-daemon --stacktrace` -> BUILD SUCCESSFUL.
+  - `rg "android.permission.INTERNET" -n app/src` -> no matches.
+  - `app/build/outputs/apk/debug/app-debug.apk` exists and is 19,191,368 bytes.
+
 ## 2026-06-18 - Phase 25 Final Writing Feel Polish
 
 - Trigger: User approved doing the "last writing-feel polish" before moving on to the richer sample-note onboarding idea.

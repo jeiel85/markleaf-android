@@ -4,14 +4,17 @@ import android.content.Context
 import com.markleaf.notes.R
 import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.data.local.AppDatabase
+import com.markleaf.notes.data.repository.LocalNoteLinkRepository
 import com.markleaf.notes.data.repository.LocalNoteRepository
 import com.markleaf.notes.data.repository.LocalTagRepository
 import com.markleaf.notes.domain.model.Note
+import java.io.File
 import java.time.Instant
 
 object StarterNotesSeeder {
     private const val PREFS_NAME = "markleaf_onboarding"
     private const val KEY_STARTER_NOTES_SEEDED = "starter_notes_seeded"
+    internal const val STARTER_SAMPLE_IMAGE_PATH = "attachments/starter-note-2/markleaf-sample-cover.png"
 
     suspend fun seedIfNeeded(context: Context, database: AppDatabase) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -26,11 +29,14 @@ object StarterNotesSeeder {
 
         val noteRepository = LocalNoteRepository(database)
         val tagRepository = LocalTagRepository(database)
+        val linkRepository = LocalNoteLinkRepository(database)
 
         starterNotes(context).forEach { note ->
             noteRepository.createNote(note)
             tagRepository.reindexTagsForNote(note.id, note.contentMarkdown)
+            linkRepository.reindexLinksForNote(note.id, note.contentMarkdown)
         }
+        copyStarterSampleAttachment(context)
 
         prefs.edit().putBoolean(KEY_STARTER_NOTES_SEEDED, true).apply()
     }
@@ -52,81 +58,25 @@ object StarterNotesSeeder {
 
     internal fun starterNotes(now: Instant = Instant.now()): List<Note> {
         return starterNotes(
-            contents = listOf(
-            """
-            # Welcome to Markleaf
-
-            Markleaf is a local-first Markdown notes app for Android. Quick to open, quiet to write in, and your text stays as plain Markdown.
-
-            ## Try first
-
-            - Tap **+** to start a new note
-            - Use the toolbar to apply headings, lists, bold, code, quotes, and more
-            - Tap **Preview** in the top bar to see how your note renders
-            - Long-press a note in the list for **Pin** or **Move to trash**
-            - Type `#tag` inside the body — tags are picked up automatically
-
-            The next three starter notes cover Markdown, tag organization, and how your data stays on the device. You can edit or delete any of these. #start #guide
-            """.trimIndent(),
-            """
-            # Write beautifully with Markdown
-
-            Markdown keeps your writing readable as plain text while still supporting structure and style. Markleaf highlights syntax live as you type and renders a clean view in **Preview**.
-
-            ## Toolbar at a glance
-
-            - **H** cycles a line through `#`, `##`, `###`, plain
-            - Bullet, numbered, and checklist buttons toggle list prefixes
-            - Bold, italic, strikethrough, and inline code wrap your selection
-            - Quote, code block, and divider drop block elements
-            - Link inserts a `[label](target)` template
-
-            ## Smart Enter
-
-            Press Enter at the end of a list, checklist, or quote line and the prefix is added on the next line automatically. An ordered list increments. Press Enter on an empty prefix line to end the list.
-
-            ## Common syntax
-
-            - **Bold** and _italic_
-            - ~~Strikethrough~~
-            - `inline code`
-            - [ ] Open task
-            - [x] Done task
-            - > A short quote
-
-            #markdown #writing
-            """.trimIndent(),
-            """
-            # Stay organized with tags
-
-            Markleaf is organized around tags rather than folders. One note can wear as many tags as you like.
-
-            ## Use #tags inline
-
-            Write tags such as #project, #meeting, or #reading anywhere in the body and they appear in the **Tags** screen. Tap a tag to filter notes by it.
-
-            ## Pin and group
-
-            Pinned notes float to the top of the list under a **Pinned** section. The rest is grouped by recency: **Today**, **Yesterday**, **Past 7 days**, **Older**.
-
-            Long-press a note to pin it. Long-press again on a pinned note to unpin. #organize
-            """.trimIndent(),
-            """
-            # Your data stays on this device
-
-            Markleaf does not declare an INTERNET permission. There is no account, no analytics, no ads, no server. Your notes live in a local Room database until you choose to take them somewhere else.
-
-            ## Take your notes with you
-
-            - Share a single note as Markdown via the system share sheet
-            - Export all notes as `.md` files into a folder you pick
-            - Trashed notes can be restored before they are permanently deleted
-
-            The trash is the undo button for accidental deletions — a note you move to trash is recoverable from the **Trash** screen. #backup #privacy
-            """.trimIndent()
-            ),
+            contents = DEFAULT_STARTER_NOTE_CONTENTS,
             now = now
         )
+    }
+
+    internal fun copyStarterSampleAttachment(context: Context): Boolean {
+        val target = File(context.filesDir, STARTER_SAMPLE_IMAGE_PATH)
+        if (target.exists() && target.length() > 0L) {
+            return true
+        }
+        return runCatching {
+            target.parentFile?.mkdirs()
+            context.resources.openRawResource(R.raw.markleaf_sample_cover).use { input ->
+                target.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            target.length() > 0L
+        }.getOrDefault(false)
     }
 
     private fun starterNotes(
@@ -147,4 +97,140 @@ object StarterNotesSeeder {
     }
 
     private const val STARTER_NOTE_SEPARATOR = "---markleaf-note---"
+
+    private val DEFAULT_STARTER_NOTE_CONTENTS = listOf(
+        """
+        # Welcome to Markleaf
+
+        Markleaf is a quiet, local-first Markdown notebook for Android. It opens fast, stays out of the way, and keeps your writing as plain text you own.
+
+        ## A tiny tour
+
+        - Open **A Beautiful Markdown Canvas** to see the writing surface.
+        - Open **Daily Writing Ritual** for a journal-style example.
+        - Open **Project Brief** to see tasks, links, and structure.
+        - Open **Local Folder Mirror** when you want files outside the app.
+
+        > [!TIP]
+        > These are regular notes. Edit them, export them, move them to trash, or delete them when you no longer need the tour.
+
+        #start #guide
+        """.trimIndent(),
+        """
+        # A Beautiful Markdown Canvas
+
+        ![Markleaf sample canvas]($STARTER_SAMPLE_IMAGE_PATH)
+
+        Markdown stays readable as text, then becomes calm and polished in **Preview**.
+
+        ## What this note demonstrates
+
+        - **Bold**, _italic_, ~~strikethrough~~, and `inline code`
+        - Headings, lists, checklists, quotes, dividers, code blocks, tables, callouts, footnotes, links, and images
+        - Live syntax styling while you type
+
+        > [!NOTE]
+        > Switch between Edit and Preview from the top bar. The note is still just Markdown.
+
+        | Element | Use it for |
+        | --- | --- |
+        | `#tag` | organization |
+        | `[[Project Brief]]` | local note links |
+        | `![](...)` | image attachments |
+
+        ```kotlin
+        fun markleaf() = "local-first markdown"
+        ```
+
+        A small footnote keeps details nearby without interrupting the paragraph.[^1]
+
+        [^1]: Footnotes, callouts, tables, and code blocks are all rendered locally.
+
+        #markdown #showcase
+        """.trimIndent(),
+        """
+        # Daily Writing Ritual
+
+        ## Morning page
+
+        The goal is not to write more. The goal is to make the first sentence easy.
+
+        - [x] Capture one thought
+        - [ ] Turn one task into a note
+        - [ ] Link related work to [[Project Brief]]
+
+        > Keep the note small enough that you will actually return to it.
+
+        ## Evening close
+
+        What moved today?
+
+        1. One useful decision
+        2. One open question
+        3. One thing to leave for tomorrow
+
+        #journal #writing
+        """.trimIndent(),
+        """
+        # Project Brief
+
+        This note shows how Markleaf can hold a small project without becoming heavy.
+
+        ## Outcome
+
+        Ship a clean sample notebook that teaches by being useful.
+
+        ## Plan
+
+        - [x] Show Markdown syntax beautifully
+        - [x] Include an image attachment
+        - [ ] Try search with `local-first`
+        - [ ] Open backlinks from **Daily Writing Ritual**
+
+        ## Notes
+
+        Related: [[Daily Writing Ritual]] and [[Tags, Search, and Backlinks]]
+
+        #project/markleaf #planning
+        """.trimIndent(),
+        """
+        # Tags, Search, and Backlinks
+
+        Type tags directly in the body: #project, #writing, #privacy, #local-first.
+
+        ## Search ideas
+
+        Try searching for:
+
+        - `local-first`
+        - `folder mirror`
+        - `Project Brief`
+
+        ## Backlinks
+
+        Wikilinks use `[[Note Title]]`. When another note links here, Markleaf can show that relationship locally. No account or server is involved.
+
+        See also [[Project Brief]].
+
+        #organize #search
+        """.trimIndent(),
+        """
+        # Local Folder Mirror
+
+        Markleaf does not need its own cloud. Instead, you can choose a folder and let Android or your sync tool handle that folder.
+
+        ## What happens
+
+        - Markleaf writes each note as a Markdown file.
+        - Frontmatter keeps the stable `markleaf_id`.
+        - Attachments stay beside the mirrored notes.
+        - The app still declares no INTERNET permission.
+
+        ## Why it matters
+
+        Your notes remain readable in other Markdown tools, and sync stays your choice.
+
+        #privacy #folder-mirror #local-first
+        """.trimIndent()
+    )
 }

@@ -1,76 +1,136 @@
 # Willkommen bei Markleaf
 
-Markleaf ist eine lokal-first Markdown-Notiz-App für Android. Schnell zu öffnen, ruhig beim Schreiben — und dein Text bleibt unverändertes Markdown.
+Markleaf ist ein ruhiges, lokales Markdown-Notizbuch fuer Android. Es startet schnell, stoert nicht beim Schreiben und bewahrt deine Texte als eigenes Plain Text auf.
 
-## Zuerst ausprobieren
+## Ein kurzer Rundgang
 
-- Tippe auf **+**, um eine neue Notiz zu starten
-- Nutze die Symbolleiste für Überschriften, Listen, Fett, Code, Zitate und mehr
-- Tippe oben auf **Vorschau**, um das gerenderte Ergebnis zu sehen
-- Halte eine Notiz in der Liste gedrückt für **Anheften** oder **In den Papierkorb**
-- Schreibe `#tag` mitten im Text — Tags werden automatisch erkannt
+- Oeffne **Eine schoene Markdown-Leinwand**, um die Schreibflaeche zu sehen.
+- Oeffne **Taegliches Schreibritual** fuer ein Journal-Beispiel.
+- Oeffne **Projektbriefing** fuer Aufgaben, Links und Struktur.
+- Oeffne **Lokaler Ordnermirror**, wenn du Dateien ausserhalb der App nutzen willst.
 
-Die nächsten drei Notizen behandeln Markdown, Tag-Organisation und wie deine Daten auf dem Gerät bleiben. Du kannst jede davon bearbeiten oder löschen. #start #leitfaden
+> [!TIP]
+> Das sind normale Notizen. Du kannst sie bearbeiten, exportieren, in den Papierkorb legen oder loeschen.
+
+#start #guide #anfang
 
 ---markleaf-note---
 
-# Schön schreiben mit Markdown
+# Eine schoene Markdown-Leinwand
 
-Markdown bleibt als Klartext lesbar und unterstützt trotzdem Struktur und Stil. Markleaf hebt die Syntax live hervor und rendert eine klare Ansicht in **Vorschau**.
+![Markleaf Beispiel-Leinwand](attachments/starter-note-2/markleaf-sample-cover.png)
 
-## Symbolleiste auf einen Blick
+Markdown bleibt als Text lesbar und wird in der **Vorschau** ruhig und aufgeraeumt dargestellt.
 
-- **H** schaltet eine Zeile zwischen `#`, `##`, `###` und ohne Präfix um
-- Aufzählungs-, Nummern- und Checklisten-Buttons aktivieren Listenpräfixe
-- Fett, Kursiv, Durchgestrichen und Inline-Code umschließen deine Auswahl
-- Zitat, Codeblock und Trennlinie setzen Blockelemente
-- Link fügt eine `[Beschriftung](Ziel)`-Vorlage ein
+## Was diese Notiz zeigt
 
-## Intelligentes Enter
+- **Fett**, _kursiv_, ~~durchgestrichen~~ und `Inline-Code`
+- Ueberschriften, Listen, Checklisten, Zitate, Trenner, Codebloecke, Tabellen, Callouts, Fussnoten, Links und Bilder
+- Live-Syntaxstil waehrend des Schreibens
 
-Drücke Enter am Ende einer Listen-, Checklisten- oder Zitatzeile, und das Präfix wird in der nächsten Zeile automatisch ergänzt. Nummerierte Listen zählen weiter. Drücke Enter in einer leeren Präfixzeile, um die Liste zu beenden.
+> [!NOTE]
+> Wechsle oben zwischen Bearbeiten und Vorschau. Die Notiz bleibt Markdown.
 
-## Gängige Syntax
-
-- **Fett** und _kursiv_
-- ~~Durchgestrichen~~
-- `Inline-Code`
-- [ ] Offene Aufgabe
-- [x] Erledigte Aufgabe
-- > Ein kurzes Zitat
+| Element | Zweck |
+| --- | --- |
+| `#tag` | Organisation |
+| `[[Projektbriefing]]` | lokale Notizlinks |
+| `![](...)` | Bildanhaenge |
 
 ```kotlin
-fun hello() = "Markleaf"
+fun markleaf() = "local-first markdown"
 ```
 
-#markdown #schreiben
+Eine kleine Fussnote haelt Details nah am Text.[^1]
+
+[^1]: Fussnoten, Callouts, Tabellen und Codebloecke werden lokal gerendert.
+
+#markdown #showcase #schreiben
 
 ---markleaf-note---
 
-# Mit Tags organisieren
+# Taegliches Schreibritual
 
-Markleaf ist um Tags statt um Ordner herum aufgebaut. Eine Notiz darf so viele Tags tragen, wie du willst.
+## Morgenseite
 
-## #Tags inline verwenden
+Das Ziel ist nicht, mehr zu schreiben. Das Ziel ist, den ersten Satz leicht zu machen.
 
-Schreibe Tags wie #projekt, #meeting oder #leseliste irgendwo im Text, und sie erscheinen im **Tags**-Bildschirm. Tippe auf ein Tag, um Notizen danach zu filtern.
+- [x] Einen Gedanken festhalten
+- [ ] Eine Aufgabe in eine Notiz verwandeln
+- [ ] Verwandte Arbeit mit [[Projektbriefing]] verlinken
 
-## Anheften und gruppieren
+> Halte die Notiz klein genug, damit du wirklich zurueckkommst.
 
-Angeheftete Notizen erscheinen oben in der Liste unter einem **Angeheftet**-Abschnitt. Der Rest wird nach Aktualität gruppiert: **Heute**, **Gestern**, **Letzte 7 Tage**, **Älter**.
+## Abendabschluss
 
-Halte eine Notiz gedrückt, um sie anzuheften. Halte sie noch einmal gedrückt, um sie zu lösen. #organisieren
+Was hat sich heute bewegt?
+
+1. Eine nuetzliche Entscheidung
+2. Eine offene Frage
+3. Etwas fuer morgen
+
+#journal #writing #tagebuch
 
 ---markleaf-note---
 
-# Deine Daten bleiben auf diesem Gerät
+# Projektbriefing
 
-Markleaf deklariert keine INTERNET-Berechtigung. Kein Konto, keine Analytik, keine Werbung, kein Server. Deine Notizen liegen in einer lokalen Room-Datenbank, bis du dich entscheidest, sie woandershin mitzunehmen.
+Diese Notiz zeigt, wie Markleaf ein kleines Projekt halten kann, ohne schwer zu werden.
 
-## Nimm deine Notizen mit
+## Ergebnis
 
-- Teile eine einzelne Notiz als Markdown über das System-Teilen-Menü
-- Exportiere alle Notizen als `.md`-Dateien in einen von dir gewählten Ordner
-- Notizen im Papierkorb können vor dem endgültigen Löschen wiederhergestellt werden
+Ein klares Beispiel-Notizbuch liefern, das durch Nutzung erklaert.
 
-Der Papierkorb ist der Rückgängig-Knopf für versehentliche Löschungen — eine Notiz im Papierkorb kannst du im **Papierkorb**-Bildschirm wiederherstellen. #backup #datenschutz
+## Plan
+
+- [x] Markdown schoen zeigen
+- [x] Einen Bildanhang einbinden
+- [ ] Nach `local-first` suchen
+- [ ] Backlinks aus **Taegliches Schreibritual** oeffnen
+
+## Notizen
+
+Verwandt: [[Taegliches Schreibritual]] und [[Tags, Suche und Backlinks]]
+
+#project/markleaf #planning #projekt
+
+---markleaf-note---
+
+# Tags, Suche und Backlinks
+
+Schreibe Tags direkt in den Text: #project, #writing, #privacy, #local-first.
+
+## Suchideen
+
+Suche nach:
+
+- `local-first`
+- `folder mirror`
+- `Projektbriefing`
+
+## Backlinks
+
+Wikilinks verwenden `[[Notiztitel]]`. Wenn eine andere Notiz hierher verlinkt, zeigt Markleaf diese Beziehung lokal an. Kein Konto, kein Server.
+
+Siehe auch [[Projektbriefing]].
+
+#organize #search #ordnung
+
+---markleaf-note---
+
+# Lokaler Ordnermirror
+
+Markleaf braucht keine eigene Cloud. Du waehlst einen Ordner, und Android oder dein Sync-Tool kuemmert sich darum.
+
+## Was passiert
+
+- Markleaf schreibt jede Notiz als Markdown-Datei.
+- Das Frontmatter behaelt die stabile `markleaf_id`.
+- Anhaenge bleiben neben den gespiegelten Notizen.
+- Die App deklariert weiterhin keine INTERNET-Berechtigung.
+
+## Warum das wichtig ist
+
+Deine Notizen bleiben in anderen Markdown-Tools lesbar, und Sync bleibt deine Entscheidung.
+
+#privacy #folder-mirror #local-first #datenschutz

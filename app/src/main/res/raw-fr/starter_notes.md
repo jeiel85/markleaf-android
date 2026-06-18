@@ -1,76 +1,136 @@
-# Bienvenue sur Markleaf
+# Bienvenue dans Markleaf
 
-Markleaf est une application de notes Markdown calme et locale pour Android. Rapide à ouvrir, agréable pour écrire, votre texte reste au format Markdown brut.
+Markleaf est un carnet Markdown local-first pour Android. Il s'ouvre vite, reste discret et garde vos textes en plain text que vous possedez.
 
-## À essayer en premier
+## Petit tour
 
-- Appuyez sur **+** pour commencer une nouvelle note
-- Utilisez la barre d\'outils pour appliquer des titres, des listes, du gras, du code, des citations et plus encore
-- Appuyez sur **Aperçu** dans la barre supérieure pour voir le rendu de votre note
-- Appuyez longuement sur une note dans la liste pour l\'**épingler** ou la **placer dans la corbeille**
-- Saisissez des `#étiquettes` dans le corps du texte — elles sont détectées automatiquement
+- Ouvrez **Un beau canevas Markdown** pour voir la surface d'ecriture.
+- Ouvrez **Rituel d'ecriture quotidien** pour un exemple de journal.
+- Ouvrez **Brief de projet** pour les taches, liens et sections.
+- Ouvrez **Miroir de dossier local** quand vous voulez des fichiers hors de l'app.
 
-Les trois notes d\'introduction suivantes couvrent le Markdown, l\'organisation par étiquettes et la confidentialité de vos données. Vous pouvez modifier ou supprimer chacune de ces notes. #début #guide
+> [!TIP]
+> Ce sont des notes normales. Modifiez-les, exportez-les, mettez-les a la corbeille ou supprimez-les quand vous n'en avez plus besoin.
+
+#start #guide #debut
 
 ---markleaf-note---
 
-# Écrivez de façon élégante avec Markdown
+# Un beau canevas Markdown
 
-Le Markdown permet de garder vos écrits lisibles sous forme de texte brut tout en prenant en charge la structure et le style. Markleaf met en évidence la syntaxe en direct pendant que vous écrivez et affiche un rendu propre dans **Aperçu**.
+![Canevas d'exemple Markleaf](attachments/starter-note-2/markleaf-sample-cover.png)
 
-## Aperçu de la barre d\'outils
+Markdown reste lisible comme texte, puis devient calme et soigne en **Apercu**.
 
-- **H** fait alterner une ligne entre `#`, `##`, `###` et le texte brut
-- Les boutons de liste à puces, liste numérotée et liste de contrôle activent les préfixes de liste
-- Le gras, l\'italique, le barré et le code en ligne encadrent votre sélection
-- Les boutons de citation, bloc de code et ligne de séparation insèrent des éléments de bloc
-- Le bouton de lien insère un modèle `[étiquette](cible)`
+## Ce que montre cette note
 
-## Entrée intelligente
+- **Gras**, _italique_, ~~barre~~ et `code en ligne`
+- Titres, listes, cases, citations, separateurs, blocs de code, tableaux, callouts, notes de bas de page, liens et images
+- Style de syntaxe en direct pendant l'ecriture
 
-Appuyez sur Entrée à la fin d\'une ligne de liste, de liste de contrôle ou de citation et le préfixe s\'ajoute automatiquement sur la ligne suivante. Une liste ordonnée s\'incrémente. Appuyez sur Entrée sur une ligne de préfixe vide pour terminer la liste.
+> [!NOTE]
+> Basculez entre Edition et Apercu dans la barre du haut. La note reste du Markdown.
 
-## Syntaxe courante
-
-- **Gras** et _italique_
-- ~~Barré~~
-- `code en ligne`
-- [ ] Tâche ouverte
-- [x] Tâche terminée
-- > Une courte citation
+| Element | Usage |
+| --- | --- |
+| `#tag` | organiser |
+| `[[Brief de projet]]` | liens locaux |
+| `![](...)` | images jointes |
 
 ```kotlin
-fun hello() = "Markleaf"
+fun markleaf() = "local-first markdown"
 ```
 
-#markdown #écriture
+Une petite note de bas de page garde les details pres du texte.[^1]
+
+[^1]: Notes de bas de page, callouts, tableaux et blocs de code sont rendus localement.
+
+#markdown #showcase #ecriture
 
 ---markleaf-note---
 
-# Restez organisé avec les étiquettes
+# Rituel d'ecriture quotidien
 
-Markleaf est organisé autour d\'étiquettes plutôt que de dossiers. Une seule note peut porter autant d\'étiquettes que vous le souhaitez.
+## Page du matin
 
-## Utilisez des #étiquettes en ligne
+Le but n'est pas d'ecrire plus. Le but est de rendre la premiere phrase facile.
 
-Écrivez des étiquettes comme #projet, #réunion ou #lecture n\'importe où dans le corps du texte et elles apparaîtront dans l\'écran **Étiquettes**. Appuyez sur une étiquette pour filtrer vos notes.
+- [x] Capturer une idee
+- [ ] Transformer une tache en note
+- [ ] Lier le travail lie a [[Brief de projet]]
 
-## Épingler et regrouper
+> Gardez la note assez petite pour avoir envie d'y revenir.
 
-Les notes épinglées restent en haut de la liste sous une section **Épinglées**. Le reste est regroupé par récence : **Aujourd\'hui**, **Hier**, **7 derniers jours**, **Plus anciennes**.
+## Cloture du soir
 
-Appuyez longuement sur une note pour l\'épingler. Appuyez de nouveau longuement sur une note épinglée pour la détacher. #organisation
+Qu'est-ce qui a avance aujourd'hui ?
+
+1. Une decision utile
+2. Une question ouverte
+3. Une chose pour demain
+
+#journal #writing #journal
 
 ---markleaf-note---
 
-# Vos données restent sur cet appareil
+# Brief de projet
 
-Markleaf ne déclare aucune autorisation INTERNET. Il n\'y a ni compte, ni outil d\'analyse, ni publicité, ni serveur. Vos notes vivent dans une base de données locale Room jusqu\'à ce que vous décidiez de les exporter.
+Cette note montre comment Markleaf peut contenir un petit projet sans devenir lourd.
 
-## Emportez vos notes avec vous
+## Resultat
 
-- Partagez une note individuelle sous forme de Markdown via la feuille de partage du système
-- Exporter toutes vos notes dans des fichiers `.md` dans le dossier de votre choix
-- Les notes placées dans la corbeille peuvent être restaurées avant d\'être supprimées définitivement
+Livrer un carnet d'exemple clair qui enseigne par son utilite.
 
-La corbeille est votre filet de sécurité pour les suppressions accidentelles — une note placée dans la corbeille peut être récupérée depuis l\'écran **Corbeille**. #sauvegarde #confidentialité
+## Plan
+
+- [x] Montrer Markdown joliment
+- [x] Inclure une image jointe
+- [ ] Chercher `local-first`
+- [ ] Ouvrir les backlinks depuis **Rituel d'ecriture quotidien**
+
+## Notes
+
+Lie a : [[Rituel d'ecriture quotidien]] et [[Tags, recherche et backlinks]]
+
+#project/markleaf #planning #projet
+
+---markleaf-note---
+
+# Tags, recherche et backlinks
+
+Ecrivez les tags directement dans le corps : #project, #writing, #privacy, #local-first.
+
+## Idees de recherche
+
+Essayez de chercher :
+
+- `local-first`
+- `folder mirror`
+- `Brief de projet`
+
+## Backlinks
+
+Les wikilinks utilisent `[[Titre de note]]`. Quand une autre note pointe ici, Markleaf peut montrer cette relation localement. Pas de compte, pas de serveur.
+
+Voir aussi [[Brief de projet]].
+
+#organize #search #organisation
+
+---markleaf-note---
+
+# Miroir de dossier local
+
+Markleaf n'a pas besoin de son propre cloud. Vous choisissez un dossier, puis Android ou votre outil de synchronisation s'en occupe.
+
+## Ce qui se passe
+
+- Markleaf ecrit chaque note comme fichier Markdown.
+- Le frontmatter garde le `markleaf_id` stable.
+- Les pieces jointes restent a cote des notes miroir.
+- L'app ne declare toujours aucune permission INTERNET.
+
+## Pourquoi c'est important
+
+Vos notes restent lisibles dans d'autres outils Markdown, et la synchro reste votre choix.
+
+#privacy #folder-mirror #local-first #confidentialite

@@ -1,76 +1,136 @@
 # Bienvenido a Markleaf
 
-Markleaf es una app de notas Markdown local-first para Android. Se abre rapido, te deja escribir sin ruido y guarda tu texto como Markdown plano.
+Markleaf es un cuaderno Markdown local para Android: rápido, silencioso y basado en texto plano que tú controlas.
 
-## Empieza por aqui
+## Un recorrido breve
 
-- Toca **+** para crear una nota
-- Usa la barra para aplicar encabezados, listas, negrita, codigo y citas
-- Toca **Vista previa** arriba para ver el render
-- Manten pulsada una nota para **fijar** o **mover a la papelera**
-- Escribe `#etiqueta` en el cuerpo y se reconocera automaticamente
+- Abre **Un lienzo Markdown bonito** para ver la superficie de escritura.
+- Abre **Ritual diario de escritura** para un ejemplo tipo diario.
+- Abre **Brief de proyecto** para tareas, enlaces y estructura.
+- Abre **Espejo de carpeta local** cuando quieras archivos fuera de la app.
 
-Las siguientes tres notas iniciales explican Markdown, organizacion por etiquetas y como tus datos se quedan en el dispositivo. Edita o borra cualquiera. #inicio #guia
+> [!TIP]
+> Estas son notas normales. Puedes editarlas, exportarlas, enviarlas a la papelera o borrarlas cuando ya no las necesites.
+
+#start #guide #inicio
 
 ---markleaf-note---
 
-# Escribir bonito con Markdown
+# Un lienzo Markdown bonito
 
-Markdown mantiene tu texto legible como plain text mientras admite estructura y estilo. Markleaf resalta la sintaxis en vivo mientras escribes y la renderiza limpia en **Vista previa**.
+![Lienzo de muestra de Markleaf](attachments/starter-note-2/markleaf-sample-cover.png)
 
-## Barra de herramientas
+Markdown sigue siendo legible como texto y se convierte en una vista limpia en **Vista previa**.
 
-- **H** alterna la linea entre `#`, `##`, `###` y plano
-- Los botones de vinetas, numerada y casilla activan el prefijo de linea
-- Negrita, cursiva, tachado y codigo en linea envuelven la seleccion
-- Cita, bloque de codigo y divisor insertan elementos de bloque
-- El boton de enlace inserta una plantilla `[etiqueta](destino)`
+## Qué muestra esta nota
 
-## Enter inteligente
+- **Negrita**, _cursiva_, ~~tachado~~ y `código en línea`
+- Encabezados, listas, tareas, citas, separadores, bloques de código, tablas, avisos, notas al pie, enlaces e imágenes
+- Estilo de sintaxis en vivo mientras escribes
 
-Al pulsar Enter al final de una linea de lista, casilla o cita, el prefijo se anade en la siguiente linea automaticamente. Las listas numeradas incrementan solas. En una linea vacia con solo prefijo, Enter cierra la lista.
+> [!NOTE]
+> Cambia entre Editar y Vista previa desde la barra superior. La nota sigue siendo Markdown.
 
-## Sintaxis comun
-
-- **Negrita** y _cursiva_
-- ~~Tachado~~
-- `codigo en linea`
-- [ ] Tarea pendiente
-- [x] Tarea hecha
-- > Una cita breve
+| Elemento | Para qué sirve |
+| --- | --- |
+| `#tag` | organizar |
+| `[[Brief de proyecto]]` | enlaces locales |
+| `![](...)` | adjuntar imágenes |
 
 ```kotlin
-fun hello() = "Markleaf"
+fun markleaf() = "local-first markdown"
 ```
 
-#markdown #escritura
+Una nota al pie mantiene el detalle cerca sin interrumpir el párrafo.[^1]
+
+[^1]: Las notas al pie, avisos, tablas y bloques de código se renderizan localmente.
+
+#markdown #showcase #escritura
 
 ---markleaf-note---
 
-# Organiza con etiquetas
+# Ritual diario de escritura
 
-Markleaf se organiza por etiquetas en lugar de carpetas. Una nota puede llevar tantas etiquetas como quieras.
+## Página de la mañana
 
-## Etiquetas inline
+El objetivo no es escribir más. Es hacer fácil la primera frase.
 
-Escribe etiquetas como #proyecto, #reunion o #lectura en el cuerpo y aparecen en la pantalla **Etiquetas**. Toca una etiqueta para filtrar las notas que la contienen.
+- [x] Capturar una idea
+- [ ] Convertir una tarea en nota
+- [ ] Enlazar el trabajo relacionado con [[Brief de proyecto]]
 
-## Fijadas y agrupadas
+> Mantén la nota lo bastante pequeña como para volver a ella.
 
-Las notas fijadas suben a una seccion **Fijadas** arriba. El resto se agrupa por recencia: **Hoy**, **Ayer**, **Ultimos 7 dias**, **Anteriores**.
+## Cierre de la tarde
 
-Manten pulsada una nota para fijarla. Vuelve a mantener pulsada una fijada para soltarla. #organizar
+¿Qué avanzó hoy?
+
+1. Una decisión útil
+2. Una pregunta abierta
+3. Algo para mañana
+
+#journal #writing #diario
 
 ---markleaf-note---
 
-# Tus datos se quedan en este dispositivo
+# Brief de proyecto
 
-Markleaf no declara permiso INTERNET. No hay cuenta, ni analiticas, ni anuncios, ni servidor. Tus notas viven en una base Room local hasta que tu decidas llevarlas a otro lado.
+Esta nota muestra cómo Markleaf puede contener un proyecto pequeño sin volverse pesado.
 
-## Llevate tus notas contigo
+## Resultado
 
-- Comparte una nota como Markdown via el panel de compartir del sistema
-- Exporta todas las notas como archivos `.md` a una carpeta que elijas
-- Las notas en la papelera se pueden restaurar antes de borrarlas para siempre
+Crear un cuaderno de muestra que enseña siendo útil.
 
-La papelera es la red de seguridad contra borrados accidentales: una nota enviada a la papelera puede restaurarse desde la pantalla **Papelera**. #copia #privacidad
+## Plan
+
+- [x] Mostrar Markdown con buen aspecto
+- [x] Incluir una imagen adjunta
+- [ ] Buscar `local-first`
+- [ ] Abrir backlinks desde **Ritual diario de escritura**
+
+## Notas
+
+Relacionado: [[Ritual diario de escritura]] y [[Etiquetas, búsqueda y backlinks]]
+
+#project/markleaf #planning #proyecto
+
+---markleaf-note---
+
+# Etiquetas, búsqueda y backlinks
+
+Escribe etiquetas en el cuerpo: #project, #writing, #privacy, #local-first.
+
+## Ideas de búsqueda
+
+Prueba buscar:
+
+- `local-first`
+- `folder mirror`
+- `Brief de proyecto`
+
+## Backlinks
+
+Los wikilinks usan `[[Título de nota]]`. Cuando otra nota enlaza aquí, Markleaf puede mostrar esa relación localmente, sin cuenta ni servidor.
+
+Ver también [[Brief de proyecto]].
+
+#organize #search #organizar
+
+---markleaf-note---
+
+# Espejo de carpeta local
+
+Markleaf no necesita una nube propia. Puedes elegir una carpeta y dejar que Android o tu herramienta de sincronización se encargue de ella.
+
+## Qué ocurre
+
+- Markleaf escribe cada nota como archivo Markdown.
+- El frontmatter conserva el `markleaf_id` estable.
+- Los adjuntos permanecen junto a las notas reflejadas.
+- La app sigue sin declarar permiso INTERNET.
+
+## Por qué importa
+
+Tus notas siguen siendo legibles en otras herramientas Markdown, y la sincronización es tu elección.
+
+#privacy #folder-mirror #local-first #privacidad

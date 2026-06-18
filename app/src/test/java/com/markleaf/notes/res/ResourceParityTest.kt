@@ -44,7 +44,7 @@ class ResourceParityTest {
         ).forEach { path ->
             val file = File(path)
             assertTrue("$path should exist", file.exists())
-            assertEquals(4, file.readText().split("---markleaf-note---").size)
+            assertEquals(6, file.readText().split("---markleaf-note---").size)
         }
     }
 

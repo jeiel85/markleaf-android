@@ -7,6 +7,21 @@
 
 ## Confirmed Decisions
 
+### D053 - Starter Notes Should Teach By Being A Beautiful Sample Notebook
+
+Markleaf's first-run notes should be a useful sample notebook rather than a thin feature checklist.
+
+Why:
+- The best onboarding for a writing app is a small set of notes that users can read, preview, edit, search, link, export, and delete like their own notes.
+- A sample notebook can show the real product surface: Markdown styling, images, callouts, tables, code, footnotes, checklists, tags, wikilinks, backlinks, and folder mirror behavior.
+- This matches the product direction of clearer proof and first-3-minute flow validation without adding network, account, analytics, or API behavior.
+
+Implementation:
+- First-run starter notes now seed six regular notes: Welcome, Markdown showcase, daily journal, project brief, tags/search/backlinks, and local folder mirror.
+- The showcase note references a bundled Markleaf feature graphic copied into app-private `attachments/starter-note-2/`, so Preview renders a real local image.
+- Starter seeding indexes both tags and wikilinks so the sample notebook's organization and backlink behavior are live immediately.
+- All supported starter-note raw resources keep the same six-note separator structure.
+
 ### D052 - Final Writing Feel Polish Keeps Focus, Preview, and Toolbar Changes Small
 
 Markleaf treats the final editor polish pass as a tactile interaction pass rather than a feature pass.

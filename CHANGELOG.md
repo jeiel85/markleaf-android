@@ -10,7 +10,7 @@ All notable changes to Markleaf are documented in this file.
 - **파일 열기/공유 가져오기 재오픈 루프 + 중복 저장(#142).** 외부에서 파일을 열거나 공유로 가져오는 일회성 처리(#139)를 `MarkleafNavHost`의 NOTES 목적지 내부 `LaunchedEffect`에서 하던 것이 원인이었습니다. 에디터로 진입했다가 뒤로가기로 NOTES 목적지에 재진입하면 그 목적지가 composition을 새로 시작하면서 해당 `LaunchedEffect`가 다시 실행 — intent가 소비되지 않은 채 매번 `createNote(sharedText)`로 새 UUID의 중복 노트를 만들고 곧장 에디터를 다시 열어, 뒤로가기·앱 종료가 먹통이 되는 루프에 빠졌습니다. 일회성 가져오기를 액티비티 인스턴스 수명만큼 살아있는 호스트 스코프의 단일 `LaunchedEffect(Unit)`로 끌어올려, 내부 네비게이션 재진입에는 재발동하지 않고 새 intent(`onNewIntent` → `recreate`)에만 새로 가져오도록 했습니다. 위젯 새 노트·위젯 최근 노트 열기 경로도 같은 재진입 중복에서 함께 해소됩니다.
 
 ### Tests
-- 실제 `MarkleafNavHost`를 콜드 스타트 + 뒤로가기로 구동해 가져오기가 정확히 한 번만 실행되는지 검증하는 Robolectric Compose 회귀 테스트(`NavHostIntentImportTest`)를 추가했습니다(수정 전 코드에서는 실패). Room 스레딩 아티팩트를 피하려고 in-memory `NoteRepository`로 격리했습니다.
+- 회귀를 수동으로 검증했습니다 — 수정 전 코드로 되돌리면 파일 가져오기 후 뒤로가기 시 중복 노트와 에디터 재오픈 루프가 재현되고, 수정 후에는 정확히 한 번만 가져오고 루프가 사라집니다. 이 동작에 대한 자동 Robolectric Compose 테스트도 시도했으나, 단위 테스트 suite 내 Compose 테스트 간 전역 idle 상태 오염으로 CI에서 `AppNotIdleException`이 불규칙하게 발생(실행 순서 의존)해 게이트를 신뢰할 수 없어 제외했습니다. 이 라이프사이클 회귀는 향후 계측 테스트(instrumented)로 다루는 것이 적합합니다.
 
 ## v2.18.0 - 폴더 동기화 파일명 = 노트 제목 (Title-named Sync Files) - 2026-06-16
 

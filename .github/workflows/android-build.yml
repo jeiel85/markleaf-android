@@ -207,7 +207,7 @@ jobs:
       - name: Run tests
         run: ./gradlew test
 
-      - name: Build signed release APK and AAB
+      - name: Build signed release APK and Play Console AAB
         env:
           MARKLEAF_RELEASE_STORE_FILE: release/markleaf-release.p12
           MARKLEAF_RELEASE_STORE_PASSWORD: ${{ secrets.MARKLEAF_RELEASE_STORE_PASSWORD }}
@@ -246,13 +246,12 @@ jobs:
           test -s "markleaf-${GITHUB_REF_NAME}.apk"
           ls -lh "markleaf-${GITHUB_REF_NAME}.apk"
 
-      - name: Verify signed release AAB exists
+      - name: Verify Play Console AAB exists
         run: |
           AAB="app/build/outputs/bundle/release/app-release.aab"
           test -f "$AAB"
           test -s "$AAB"
-          cp "$AAB" "markleaf-${GITHUB_REF_NAME}.aab"
-          ls -lh "markleaf-${GITHUB_REF_NAME}.aab"
+          ls -lh "$AAB"
 
       - name: Prepare R8 mapping for release asset
         run: |
@@ -262,7 +261,7 @@ jobs:
           cp "$MAPPING" "markleaf-${GITHUB_REF_NAME}.mapping.txt"
           ls -lh "markleaf-${GITHUB_REF_NAME}.mapping.txt"
 
-      - name: Upload signed release AAB artifact
+      - name: Upload Play Console AAB artifact
         uses: actions/upload-artifact@v7
         with:
           name: markleaf-release-aab
@@ -305,7 +304,6 @@ jobs:
         run: |
           gh release create "$GITHUB_REF_NAME" \
             "markleaf-${GITHUB_REF_NAME}.apk" \
-            "markleaf-${GITHUB_REF_NAME}.aab" \
             "markleaf-${GITHUB_REF_NAME}.mapping.txt" \
             --repo "$GITHUB_REPOSITORY" \
             --title "$(cat release-title.txt)" \

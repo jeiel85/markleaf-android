@@ -7,6 +7,19 @@
 
 ## Confirmed Decisions
 
+### D054 - Tag Filters Use The Stored Tag Index, Not FTS Query Parsing
+
+Tag-filter searches that start with `#` should resolve through the `tags` and `note_tag_cross_ref` tables instead of the general full-text search path.
+
+Why:
+- Markleaf's tag grammar allows characters such as `-`, `_`, and `/`.
+- SQLite FTS query parsing can treat punctuation such as `-` as syntax or token boundaries, so a valid tag like `#old-notes` can be indexed correctly but fail when routed through `MATCH`.
+- A tag tap is an exact local filter, not fuzzy body search, so the cross-ref table is the more accurate source of truth.
+
+Implementation:
+- `LocalNoteRepository.searchNotes` detects non-empty `#tag` queries, normalizes the tag name with `TagParser.normalizeTagName`, and calls a dedicated DAO query.
+- `NoteDao.searchNotesByTag` joins active notes through `note_tag_cross_ref` and `tags`, preserving the existing pinned/sort/updated ordering.
+
 ### D053 - Starter Notes Should Teach By Being A Beautiful Sample Notebook
 
 Markleaf's first-run notes should be a useful sample notebook rather than a thin feature checklist.

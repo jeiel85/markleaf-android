@@ -1,0 +1,1 @@
+Correction du filtrage depuis la page des tags pour les tags comme `#old-notes`. Les recherches `#tag` utilisent maintenant l'index local des tags au lieu du moteur de recherche plein texte, afin que les tags avec tiret ou barre oblique ouvrent les bonnes notes actives.

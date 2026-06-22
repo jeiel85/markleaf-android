@@ -4,6 +4,16 @@ All notable changes to Markleaf are documented in this file.
 
 ## Unreleased
 
+## v2.19.1 - 하이픈 태그 필터 수정 (Dash Tag Filter Fix) - 2026-06-22
+
+태그 목록에서 하이픈이 들어간 태그를 눌렀을 때 해당 노트가 검색 결과에 나오지 않던 문제(#144)를 고친 패치 릴리스입니다.
+
+### Fixed
+- **하이픈 태그 필터(#144).** Markleaf는 `#old-notes` 같은 하이픈 태그를 정상적으로 색인했지만, 태그 목록에서 누른 뒤 검색 화면으로 넘어갈 때는 전문 검색(FTS) 쿼리 경로를 거치면서 `-`가 검색 문법처럼 해석될 수 있었습니다. 이제 `#tag` 필터는 FTS를 우회하고 저장된 태그 인덱스(`tags` + `note_tag_cross_ref`)로 직접 활성 노트를 찾으므로 하이픈/슬래시가 들어간 태그도 안정적으로 열립니다.
+
+### Tests
+- `LocalNoteRepositoryTest`에 `#old-notes` 태그 필터 회귀 테스트를 추가해, 비슷한 `#oldnotes` 태그와 archived note를 섞어도 정확한 활성 노트만 반환하는지 검증했습니다.
+
 ## v2.19.0 - 샘플 노트북 온보딩 · PDF 제목 중복 수정 (Sample Notebook & PDF Title Fix) - 2026-06-18
 
 첫 설치 경험을 6개짜리 실제 샘플 노트북으로 넓히고, 노트를 PDF·Markdown으로 내보낼 때 제목이 두 번 나오던 문제(#143)를 고친 릴리스입니다.

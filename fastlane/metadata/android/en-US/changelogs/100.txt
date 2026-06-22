@@ -1,0 +1,1 @@
+Fixed tag filtering from the Tags page for tags such as `#old-notes`. Markleaf now resolves `#tag` searches through the local tag index instead of the full-text search parser, so dash and slash tags open the correct active notes.

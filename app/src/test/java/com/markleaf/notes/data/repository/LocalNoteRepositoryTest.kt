@@ -22,6 +22,7 @@ import java.time.Instant
 class LocalNoteRepositoryTest {
     private lateinit var db: AppDatabase
     private lateinit var repository: LocalNoteRepository
+    private lateinit var tagRepository: LocalTagRepository
 
     @Before
     fun setUp() {
@@ -30,6 +31,7 @@ class LocalNoteRepositoryTest {
             AppDatabase::class.java
         ).build()
         repository = LocalNoteRepository(db)
+        tagRepository = LocalTagRepository(db)
     }
 
     @After
@@ -195,5 +197,46 @@ class LocalNoteRepositoryTest {
 
         val results = repository.searchNotes("Apple").first()
         assertEquals(listOf("n1"), results.map { it.id })
+    }
+
+    @Test
+    fun `searchNotes with tag query finds dash tag through tag index`() = runTest {
+        val now = Instant.ofEpochMilli(1L)
+        val tagged = Note(
+            id = "tagged",
+            title = "Tagged",
+            contentMarkdown = "Moved from #old-notes",
+            excerpt = "Moved from old notes",
+            createdAt = now,
+            updatedAt = now
+        )
+        val similar = Note(
+            id = "similar",
+            title = "Similar",
+            contentMarkdown = "Moved from #oldnotes",
+            excerpt = "Moved from oldnotes",
+            createdAt = now,
+            updatedAt = now.plusMillis(1L)
+        )
+        val archived = Note(
+            id = "archived",
+            title = "Archived",
+            contentMarkdown = "Archived #old-notes",
+            excerpt = "Archived old notes",
+            createdAt = now,
+            updatedAt = now.plusMillis(2L),
+            archived = true
+        )
+
+        repository.createNote(tagged)
+        repository.createNote(similar)
+        repository.createNote(archived)
+        tagRepository.reindexTagsForNote(tagged.id, tagged.contentMarkdown)
+        tagRepository.reindexTagsForNote(similar.id, similar.contentMarkdown)
+        tagRepository.reindexTagsForNote(archived.id, archived.contentMarkdown)
+
+        val results = repository.searchNotes("#old-notes").first()
+
+        assertEquals(listOf("tagged"), results.map { it.id })
     }
 }

@@ -1,0 +1,1 @@
+Se corrigió el filtrado desde la página de etiquetas para casos como `#old-notes`. Las búsquedas `#tag` ahora usan el índice local de etiquetas en lugar del buscador de texto completo, por lo que las etiquetas con guion o barra abren las notas activas correctas.

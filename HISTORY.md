@@ -1,3 +1,22 @@
+## 2026-06-22 - v2.19.1 Dash tag filter fix (#144)
+
+- Trigger: GitHub issue #144 from bushrang3r reported that tags such as `#old-notes` appeared on the Tags page, but tapping them opened a search result page with no matching notes.
+- Root cause: Tag parsing/indexing already accepts `-`, but the Tags page passed `#old-notes` into the general full-text search path. SQLite FTS can interpret punctuation such as `-` as query syntax/token separation, so a valid Markleaf tag could fail when used as a filter.
+- Work:
+  - Added `NoteDao.searchNotesByTag`, joining `notes`, `note_tag_cross_ref`, and `tags`.
+  - Updated `LocalNoteRepository.searchNotes` so queries starting with `#` bypass FTS and use the stored tag index directly.
+  - Added a regression test proving `#old-notes` returns only the active note with that exact tag, not a similar `#oldnotes` tag or an archived note.
+  - Bumped `app/build.gradle.kts` to `versionName 2.19.1` / `versionCode 100`.
+- Verification:
+  - `.\gradlew.bat :app:testDebugUnitTest --tests "com.markleaf.notes.data.repository.LocalNoteRepositoryTest" --no-daemon --stacktrace` -> BUILD SUCCESSFUL.
+  - `.\gradlew.bat :app:testDebugUnitTest --no-daemon --stacktrace` -> BUILD SUCCESSFUL.
+  - `.\gradlew.bat :app:lintRelease :app:assembleDebug --no-daemon --stacktrace` -> BUILD SUCCESSFUL.
+  - `rg "android.permission.INTERNET" -n app/src/main app/src/debug` -> no matches.
+  - `app/build/outputs/apk/debug/app-debug.apk` exists and is 19,129,072 bytes.
+  - `.\gradlew.bat --no-daemon "-Pmarkleaf.requireReleaseSigning=true" :app:exportReleaseToDesktop --stacktrace` -> BUILD SUCCESSFUL.
+  - Desktop export verified at `C:\Users\jeiel\OneDrive\바탕 화면\Build`: `markleaf-v2.19.1-vc100.aab` (5,196,513 bytes), `markleaf-v2.19.1-vc100.mapping.txt` (38,401,995 bytes), and `markleaf-v2.19.1-vc100-release-notes.txt` (1,729 bytes).
+  - Release bundle manifest verified `package="com.markleaf.notes"`, `versionCode="100"`, and `versionName="2.19.1"`.
+
 ## 2026-06-18 - Phase 26 Beautiful Sample Notebook Onboarding
 
 - Trigger: After agreeing that a beautiful set of sample notes is stronger onboarding than more explanatory UI, the user asked to proceed after the writing-feel polish loop.

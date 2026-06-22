@@ -5,6 +5,15 @@
 
 ---
 
+## GitHub Issue #144 - Dash Tag Filter (Done)
+
+- [x] Triage issue #144 and thank the external reporter
+- [x] Fix tag taps so `#old-notes` and other indexed tags filter through the tag index instead of the FTS query parser
+- [x] Add regression coverage for dash-tag filtering
+- [x] Prepare v2.19.1 release metadata
+
+---
+
 ## Phase 26 - Beautiful Sample Notebook Onboarding (Done)
 
 목적: 설명형 온보딩을 늘리는 대신, Markleaf 기능을 실제로 활용한 아름다운 샘플 노트북을 첫 설치 시 제공해 사용자가 3분 안에 쓰임을 체감하게 합니다.

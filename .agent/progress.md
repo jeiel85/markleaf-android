@@ -1,4 +1,28 @@
 ---
+## 2026-06-22 - GitHub Issue #144 하이픈 태그 필터 수정
+
+Selected task:
+- GitHub issue #144: 태그 페이지에서 `#old-notes` 같은 하이픈 포함 태그를 누르면 검색 결과가 비는 문제 대응.
+
+Decision:
+- 태그 필터는 일반 텍스트 검색이 아니라 태그 인덱스의 정확한 cross-ref 조회로 처리한다. FTS 쿼리 파서는 `-` 같은 태그 문자를 검색 문법으로 해석할 수 있으므로 `#tag` 쿼리에는 적합하지 않다.
+
+What was implemented:
+- `NoteDao.searchNotesByTag` 추가: `notes` + `note_tag_cross_ref` + `tags`를 조인해 활성 노트만 반환.
+- `LocalNoteRepository.searchNotes`에서 `#`로 시작하는 쿼리를 `TagParser.normalizeTagName`으로 정규화한 뒤 태그 전용 검색으로 분기.
+- `LocalNoteRepositoryTest`에 `#old-notes` 회귀 테스트 추가.
+- v2.19.1 / versionCode 100 릴리스 메타데이터 준비.
+
+Build/test result:
+- `.\gradlew.bat :app:testDebugUnitTest --tests "com.markleaf.notes.data.repository.LocalNoteRepositoryTest" --no-daemon --stacktrace` -> BUILD SUCCESSFUL.
+- `.\gradlew.bat :app:testDebugUnitTest --no-daemon --stacktrace` -> BUILD SUCCESSFUL.
+- `.\gradlew.bat :app:lintRelease :app:assembleDebug --no-daemon --stacktrace` -> BUILD SUCCESSFUL.
+- `rg "android.permission.INTERNET" -n app/src/main app/src/debug` -> no matches.
+- `app/build/outputs/apk/debug/app-debug.apk` exists and is 19,129,072 bytes.
+- `.\gradlew.bat --no-daemon "-Pmarkleaf.requireReleaseSigning=true" :app:exportReleaseToDesktop --stacktrace` -> BUILD SUCCESSFUL.
+- Desktop export verified at `C:\Users\jeiel\OneDrive\바탕 화면\Build`: `markleaf-v2.19.1-vc100.aab` (5,196,513 bytes), `markleaf-v2.19.1-vc100.mapping.txt` (38,401,995 bytes), and `markleaf-v2.19.1-vc100-release-notes.txt` (1,729 bytes).
+
+---
 ## 2026-05-27 - Phase 24 글쓰기 캔버스 & 빈 상태 프리미엄 폴리시 완성 (Bear-class UX)
 
 Selected task:

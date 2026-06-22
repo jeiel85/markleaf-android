@@ -66,6 +66,16 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE trashed = 0 AND archived = 0 AND (title LIKE '%' || :query || '%' OR contentMarkdown LIKE '%' || :query || '%' OR excerpt LIKE '%' || :query || '%') ORDER BY pinned DESC, sortOrder ASC, updatedAt DESC LIMIT 200")
     fun searchNotesLike(query: String): Flow<List<NoteEntity>>
 
+    @Query("""
+        SELECT notes.* FROM notes
+        INNER JOIN note_tag_cross_ref ON notes.id = note_tag_cross_ref.noteId
+        INNER JOIN tags ON tags.id = note_tag_cross_ref.tagId
+        WHERE notes.trashed = 0 AND notes.archived = 0 AND tags.name = :tagName
+        ORDER BY notes.pinned DESC, notes.sortOrder ASC, notes.updatedAt DESC
+        LIMIT 200
+    """)
+    fun searchNotesByTag(tagName: String): Flow<List<NoteEntity>>
+
     @Query("UPDATE notes SET sortOrder = :sortOrder WHERE id = :noteId")
     suspend fun updateSortOrder(noteId: String, sortOrder: Int)
 

@@ -5,6 +5,7 @@ import com.markleaf.notes.data.local.entity.toEntity
 import com.markleaf.notes.data.local.entity.toDomain
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.domain.repository.NoteRepository
+import com.markleaf.notes.util.TagParser
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -63,11 +64,23 @@ class LocalNoteRepository(
     }
 
     override fun searchNotes(query: String): Flow<List<Note>> {
-        val ftsQuery = query.toFtsPrefixQuery()
-        val searchFlow = if (ftsQuery.isBlank()) {
-            database.noteDao().searchNotesLike(query)
-        } else {
-            database.noteDao().searchNotesFts(ftsQuery)
+        val trimmedQuery = query.trim()
+        val tagName = trimmedQuery
+            .takeIf { it.startsWith("#") }
+            ?.removePrefix("#")
+            ?.takeIf { it.isNotBlank() }
+            ?.let(TagParser::normalizeTagName)
+
+        val searchFlow = when {
+            tagName != null -> database.noteDao().searchNotesByTag(tagName)
+            else -> {
+                val ftsQuery = query.toFtsPrefixQuery()
+                if (ftsQuery.isBlank()) {
+                    database.noteDao().searchNotesLike(query)
+                } else {
+                    database.noteDao().searchNotesFts(ftsQuery)
+                }
+            }
         }
         return searchFlow.map { entities ->
             entities.map { it.toDomain() }

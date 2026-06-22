@@ -1,0 +1,1 @@
+Ein Fehler beim Filtern von Tags wie `#old-notes` wurde behoben. `#tag`-Suchen verwenden nun den lokalen Tag-Index statt des Volltextsuch-Parsers, damit Tags mit Bindestrich oder Schrägstrich die richtigen aktiven Notizen öffnen.

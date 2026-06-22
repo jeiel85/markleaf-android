@@ -1,4 +1,27 @@
 ---
+## 2026-06-22 - v2.19.1 공개 앱 정보 최신화
+
+Selected task:
+- v2.19.1 릴리스 이후 README, GitHub Pages, No-Cloud 문서, F-Droid metadata draft의 앱 정보가 최신 릴리스와 맞도록 정리.
+
+Decision:
+- GitHub repo description/topics와 포트폴리오의 Markleaf production 상태는 이미 최신이므로 수정하지 않는다.
+- Play Store 업데이트 보류 안내는 유지하고, 최신 설치 경로는 F-Droid/GitHub Releases로 계속 안내한다.
+
+What was implemented:
+- `README.md`, `README.en.md`, `README.ja.md`, `README.de.md`의 current version 및 direct APK release link를 v2.19.1로 갱신.
+- `docs/index.html`의 current release strip과 GitHub Releases download card를 v2.19.1로 갱신.
+- `docs/NOCLOUD_CERTIFICATION.md`의 certification version floor를 2.19.1+로 갱신.
+- `metadata/com.markleaf.notes.yml`에 v2.19.1 / versionCode 100 build entry를 추가하고 CurrentVersion/CurrentVersionCode를 갱신.
+
+Build/test result:
+- `git diff --check` -> PASS.
+- 공개 표면 stale ref 검색(`v2.19.0`, `2.19.0`, `2.16.2+`, old CurrentVersion fields) -> no matches.
+- `metadata/com.markleaf.notes.yml`에서 `versionName 2.19.1`, `versionCode 100`, `commit v2.19.1`, `CurrentVersion 2.19.1`, `CurrentVersionCode 100` 확인.
+- `rg "android.permission.INTERNET" -n app/src/main app/src/debug` -> no matches.
+- `Invoke-WebRequest -Method Head` 확인: GitHub Release v2.19.1, F-Droid package, GitHub Pages landing 모두 HTTP 200.
+
+---
 ## 2026-06-22 - GitHub Issue #144 하이픈 태그 필터 수정
 
 Selected task:

@@ -5,6 +5,15 @@
 
 ---
 
+## Public App Info Refresh for v2.19.1 (Done)
+
+- [x] Update README release links across supported README locales
+- [x] Update GitHub Pages landing current-version strip and GitHub Releases link
+- [x] Update No-Cloud certification version floor
+- [x] Update F-Droid metadata draft current version/build entry
+
+---
+
 ## GitHub Issue #144 - Dash Tag Filter (Done)
 
 - [x] Triage issue #144 and thank the external reporter

@@ -1,3 +1,20 @@
+## 2026-06-22 - v2.19.1 public app info refresh
+
+- Trigger: After shipping v2.19.1, the user noted that app information surfaces should also be updated.
+- Scope: Public information only; no app behavior changes.
+- Work:
+  - Updated `README.md`, `README.en.md`, `README.ja.md`, and `README.de.md` current-version badges and direct APK install links to v2.19.1.
+  - Updated `docs/index.html` current release strip and GitHub Releases download card from v2.19.0 to v2.19.1.
+  - Updated `docs/NOCLOUD_CERTIFICATION.md` certification version floor from 2.16.2+ to 2.19.1+.
+  - Added a v2.19.1 / versionCode 100 build entry to `metadata/com.markleaf.notes.yml` and moved CurrentVersion/CurrentVersionCode to 2.19.1/100.
+  - Confirmed GitHub repo description/topics and the portfolio Markleaf production status were already current, so they were left unchanged.
+- Verification:
+  - `git diff --check` -> PASS.
+  - Stale public refs search for `v2.19.0`, `2.19.0`, `2.16.2+`, and old CurrentVersion fields -> no matches in the checked public surfaces.
+  - `metadata/com.markleaf.notes.yml` verified `versionName 2.19.1`, `versionCode 100`, `commit v2.19.1`, `CurrentVersion 2.19.1`, and `CurrentVersionCode 100`.
+  - `rg "android.permission.INTERNET" -n app/src/main app/src/debug` -> no matches.
+  - `Invoke-WebRequest -Method Head` returned HTTP 200 for the v2.19.1 GitHub Release, F-Droid package page, and GitHub Pages landing.
+
 ## 2026-06-22 - v2.19.1 Dash tag filter fix (#144)
 
 - Trigger: GitHub issue #144 from bushrang3r reported that tags such as `#old-notes` appeared on the Tags page, but tapping them opened a search result page with no matching notes.

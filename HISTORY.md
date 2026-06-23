@@ -1,3 +1,23 @@
+## 2026-06-23 - v2.20.0 Editor writing upgrades & tablet 3-column layout
+
+- Trigger: After mapping the Bear-parity gap, the user approved shipping the "now tier" of editor improvements, then the tablet 3-column layout, and asked to cut a release once it was releasable.
+- Scope: Five user-facing features, all local-only, no new dependencies. No DB schema change.
+- Work:
+  - Keyboard shortcuts (Ctrl/Cmd+B/I/K and Ctrl/Cmd+Shift+S) in the editor; bare Ctrl+S left unbound so the auto-saved body is never accidentally struck through. (commit 1ca506d)
+  - Inline `#tag` autocomplete reusing the wikilink dropdown UI with a TagParser-faithful detector (whitespace-anchored, Unicode, hierarchical, skips URL fragments / `##`). (1ca506d)
+  - Preview table of contents (H1–H3) reusing the footnote scroll path; `listState` hoisted out of `MarkdownPreviewList`. (1ca506d)
+  - Serif/Sans editor font toggle via the theme's default `FontFamily` (system fonts, no bundled assets); Sans default byte-identical to before. (1ca506d)
+  - Tablet 3-column layout (tags | list | editor): new `TagRail` leading pane + `NotesViewModel` `selectedTag`/`displayedNotes` filter; parent tags match their children; phones unchanged. (commit e7044eb)
+  - Bumped `app/build.gradle.kts` to versionName 2.20.0 / versionCode 101.
+  - `CHANGELOG.md` v2.20.0 entry; six fastlane changelogs (`101.txt`, all ≤500 chars); `metadata/com.markleaf.notes.yml` build entry + CurrentVersion 2.20.0/101.
+  - Refreshed `README.md` (+ en/ja/de) and `docs/index.html` version strings, feature lists, and roadmap.
+- Verification:
+  - `.\gradlew.bat test lintRelease` -> BUILD SUCCESSFUL (264 unit tests) for both the now-tier bundle and the 3-column layout.
+  - Added unit tests: `TagAutocompleteTest`, `TocHeadingsTest`, `NoteTagFilterTest`.
+  - fastlane `101.txt` character counts verified ≤500 for all six store locales (ko/en/ja/de/fr/es).
+  - Caveat: interactive UI (keyboard shortcuts, TOC sheet, font swap, tag rail) verified by compile + lint only — not exercised on a device this session.
+- Release: version bump committed to main; tag `v2.20.0` pushed to trigger the CI signed APK/AAB GitHub Release and F-Droid auto-pickup. Play Store updates remain paused (F-Droid/GitHub only).
+
 ## 2026-06-22 - v2.19.1 public app info refresh
 
 - Trigger: After shipping v2.19.1, the user noted that app information surfaces should also be updated.

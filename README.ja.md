@@ -31,7 +31,7 @@
 
 **Markleaf** は、余計なものをそぎ落とし「記録」と「整理」だけに集中できるよう設計された Android 向け Markdown メモアプリです。データは端末内にのみ保存され、標準 Markdown 形式によってデータの所有権と移植性が完全に保証されます。同期も *あなたが選んだフォルダ* を介してのみ行われ、Markleaf 自体はインターネットに接続しません。
 
-[**ブランディングページを見る**](https://jeiel85.github.io/markleaf-android/) · [現在のバージョン: v2.19.1](https://github.com/jeiel85/markleaf-android/releases/tag/v2.19.1) · [プライバシーポリシー](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**ブランディングページを見る**](https://jeiel85.github.io/markleaf-android/) · [現在のバージョン: v2.20.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.20.0) · [プライバシーポリシー](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -44,10 +44,13 @@
 - **脚注 (`[^N]`) の参照 ↔ 定義ジャンプ** — 上付き文字をタップすると定義へスムーズにスクロール
 - **画像添付 + 代替テキスト編集** — アプリ内部ストレージに隔離されたコピーとして保管（メディア権限不要）
 - **スマート Markdown フォーマットの切り替え** — 選択範囲やカーソル周辺の単語を太字/斜体/取り消し線/インラインコードで囲み、すでに囲まれているテキストはもう一度タップして自然に解除
+- **キーボードショートカット** — ハードウェアキーボードで `Ctrl/Cmd+B・I・K・Shift+S` を押して太字・斜体・リンク・取り消し線
+- **目次（TOC）** — プレビューモードで見出し（H1–H3）をタップし、長いノートの該当箇所へジャンプ
+- **セリフ / サンセリフ書体の選択** — 書き味を本のようなセリフ書体に切り替え（コードブロックは常に等幅）
 - **フォーカスモード / 単語・文字・読了時間の統計 / ノート内検索・置換**
 
 ### 整理 & 探索
-- **タグによる分類** — 本文に `#タグ` を書くだけで自動インデックス、フォルダ不要
+- **タグによる分類 + タグ補完** — 本文に `#タグ` を書くだけで自動インデックス、フォルダ不要。`#` を入力中に既存のタグを補完
 - **Wikilinks (`[[Title]]`) + バックリンクパネル** — オートコンプリート、どのノートがこのノートを参照しているか一目で把握
 - **クイックスイッチャー (Ctrl+K)** — Obsidian スタイルのタイトル部分一致ジャンプ
 - **SQLite FTS による全文検索** — 本文まで高速に
@@ -62,7 +65,7 @@
 ### デザイン & アクセシビリティ
 - **Markleaf グリーンテーマ + Material You 切り替え** — Android 12 以降ではシステム壁紙の色もオプション
 - **自動ダークモード** — システム設定に追従
-- **タブレット 2 ペインレイアウト最適化** — 折りたためるノート一覧
+- **タブレット 3 ペインレイアウト** — タグサイドバー · ノート一覧 · エディタ。サイドバーのタグをタップするとノート一覧をその場で絞り込み（ノート一覧は折りたたみ可能）
 - **6 言語 UI** — 韓国語 / 英語 / スペイン語 / 日本語 / フランス語 / ドイツ語のリソースを運用
 - **スクリーンショット / 最近のアプリのプレビュー遮断オプション** — 機密性の高いノート向け
 
@@ -116,7 +119,7 @@ com.markleaf.notes
 > **現在、Google Play での更新は一時保留中です。** 個人開発者の韓国の事業者登録に関するポリシー要件が解決するまで、新しいバージョンは Play ストアに公開しません。その間は **最新版を F-Droid または GitHub Releases から入手してください。**（すでに Play ストアからインストール済みの場合はそのまま使えます。）
 
 - **F-Droid** *(推奨)*: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — F-Droid クライアントで検索するか、上のリンクから直接インストールできます。同じ署名鍵（SHA-256 `0be97352…f91a`）を使用するため、GitHub Releases の APK をサイドロードした場合でも途切れなく更新が続きます。
-- **APK の直接インストール**: [v2.19.1 Release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.19.1) または [Releases](https://github.com/jeiel85/markleaf-android/releases) ページから最新の APK をダウンロードし、Android 端末で実行してインストールします。
+- **APK の直接インストール**: [v2.20.0 Release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.20.0) または [Releases](https://github.com/jeiel85/markleaf-android/releases) ページから最新の APK をダウンロードし、Android 端末で実行してインストールします。
 - **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **更新は一時保留中**です（上の注記を参照）。すでにインストール済みなら引き続き使えますが、最新版は F-Droid・GitHub から入手してください。
 
 ### 開発環境の構築
@@ -179,6 +182,7 @@ Markleaf 自体は決してネットワークに接続しません。データ�
 - [x] **v2.17** 外部 `.md`/`.txt` ファイルの開く・共有取り込み、フォルダ同期の重複ノート・タグ認識の改善
 - [x] **v2.18** フォルダ同期のファイル名をノートのタイトルに(タイトル変更で追従)+ `.md`/`.txt` 選択
 - [x] **v2.19** 初回起動時の6つのサンプルノート + PDF・Markdown 書き出しのタイトル重複を修正
+- [x] **v2.20** キーボードショートカット、`#タグ` 補完、目次（TOC）、セリフ書体、タブレット 3 ペイン（タグサイドバー + その場で絞り込み）レイアウト
 - [x] **Google Play 正式リリース** — Play ストアで誰でもインストールできます
 
 ---

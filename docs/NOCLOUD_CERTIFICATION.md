@@ -4,7 +4,7 @@
 
 **Date:** 2026
 **Application:** Markleaf Android
-**Version:** 2.19.1+
+**Version:** 2.20.0+
 **Certification ID:** MARKLEAF-NC-2024-001
 
 ---
@@ -181,7 +181,7 @@ Markleaf never moves data on its own. The following paths require a deliberate u
 ## Certification Validity
 
 This certification is valid for:
-- **Markleaf Android version 2.19.1 and above**
+- **Markleaf Android version 2.20.0 and above**
 - **All builds from the official repository**
 - **F-Droid builds**
 

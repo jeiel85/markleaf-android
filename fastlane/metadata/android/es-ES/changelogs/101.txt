@@ -1,0 +1,7 @@
+Un paso más hacia el Bear que las tabletas Android nunca tuvieron.
+
+• Atajos de teclado: Ctrl/Cmd+B, I y K para negrita, cursiva y enlaces (teclado físico)
+• Autocompletado de etiquetas: escribe # en la nota para reutilizar tus etiquetas
+• Tabla de contenido: navega por notas largas desde la vista previa
+• Tipografía serif en Ajustes para una escritura tipo libro
+• 3 columnas en tabletas: toca una etiqueta en la barra lateral para filtrar tus notas

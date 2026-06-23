@@ -1,0 +1,7 @@
+Un pas de plus vers le Bear que les tablettes Android n'ont jamais eu.
+
+• Raccourcis clavier : Ctrl/Cmd+B, I, K pour gras, italique et liens (clavier externe)
+• Autocomplétion des tags : tapez # dans la note pour réutiliser vos tags
+• Table des matières : parcourez les longues notes depuis l'aperçu
+• Police serif dans les Réglages pour une écriture façon livre
+• 3 colonnes sur tablette : touchez un tag dans la barre latérale pour filtrer vos notes

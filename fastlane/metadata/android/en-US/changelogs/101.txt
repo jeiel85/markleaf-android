@@ -1,0 +1,9 @@
+A step closer to the Bear that Android tablets never had.
+
+• Keyboard shortcuts: Ctrl/Cmd+B, I and K for bold, italic and links on a hardware keyboard
+• Tag autocomplete: type # in your note to reuse existing tags
+• Table of contents: jump around long notes from the preview
+• Serif font option in Settings for a book-like writing feel (code stays monospaced)
+• Tablet 3-column layout: tap a tag in the sidebar to filter your notes in place
+
+Your notes and highlights are untouched.

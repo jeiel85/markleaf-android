@@ -31,7 +31,7 @@
 
 **Markleaf** is an Android Markdown note app designed to strip away the clutter so you can focus on just two things: capturing and organizing. Your data is stored only on your device, and standard Markdown guarantees full ownership and portability. Even sync happens only through *a folder you choose* — Markleaf itself never goes online.
 
-[**View the branding page**](https://jeiel85.github.io/markleaf-android/) · [Current version: v2.19.1](https://github.com/jeiel85/markleaf-android/releases/tag/v2.19.1) · [Privacy Policy](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**View the branding page**](https://jeiel85.github.io/markleaf-android/) · [Current version: v2.20.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.20.0) · [Privacy Policy](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -44,10 +44,13 @@
 - **Footnote (`[^N]`) ref ↔ def jump** — tap the superscript to scroll smoothly to the definition
 - **Image attachments + alt-text editing** — kept as isolated copies in the app's internal storage (no media permission required)
 - **Smart Markdown formatting toggle** — wrap the selection or the word around the cursor in Bold/Italic/Strikethrough/Inline Code, and tap again to cleanly unwrap text that's already wrapped
+- **Keyboard shortcuts** — Ctrl/Cmd+B, I, K, Shift+S for bold, italic, link and strikethrough on a hardware keyboard
+- **Table of contents (TOC)** — in preview mode, jump to H1–H3 headings to navigate long notes
+- **Serif / Sans font choice** — switch the writing surface to a serif face for a book-like feel; code blocks always stay monospaced
 - **Focus mode / word, character & reading-time stats / find & replace within a note**
 
 ### Organizing & Navigating
-- **Tag-based classification** — just write `#tags` in the body for automatic indexing, no folders
+- **Tag-based classification + autocomplete** — just write `#tags` in the body for automatic indexing, no folders; existing tags autocomplete as you type `#`
 - **Wikilinks (`[[Title]]`) + backlinks panel** — autocomplete, and see at a glance what points to this note
 - **Quick switcher (Ctrl+K)** — Obsidian-style title substring jump
 - **SQLite FTS full-text search** — fast, down to the body text
@@ -62,7 +65,7 @@
 ### Design & Accessibility
 - **Markleaf green theme + Material You toggle** — Android 12+ system wallpaper colors optional
 - **Automatic dark mode** — follows the system setting
-- **Tablet 2-pane layout optimization** — collapsible note list
+- **Tablet 3-pane layout** — tag sidebar · note list · editor; tap a tag in the sidebar to filter the note list in place (note list still collapsible)
 - **UI in 6 languages** — Korean / English / Spanish / Japanese / French / German resources
 - **Block screenshots / recent-apps preview option** — for sensitive notes
 
@@ -116,7 +119,7 @@ com.markleaf.notes
 > **Google Play updates are currently on hold.** New versions won't be pushed to the Play Store until a Korean business-registration policy requirement for the solo developer is resolved. In the meantime, **get the latest version from F-Droid or GitHub Releases.** (If you already installed it from the Play Store, it keeps working.)
 
 - **F-Droid** *(recommended)*: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — search in the F-Droid client or install via the link above. It uses the same signing key (SHA-256 `0be97352…f91a`), so updates continue seamlessly even if you sideloaded the GitHub Releases APK.
-- **Direct APK install**: download the latest APK from the [v2.19.1 Release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.19.1) or the [Releases](https://github.com/jeiel85/markleaf-android/releases) page and run it on your Android device.
+- **Direct APK install**: download the latest APK from the [v2.20.0 Release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.20.0) or the [Releases](https://github.com/jeiel85/markleaf-android/releases) page and run it on your Android device.
 - **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **updates are paused** (see the note above). If you already have it, it keeps working, but get the latest version from F-Droid or GitHub.
 
 ### Building from source
@@ -179,6 +182,7 @@ How "never leaves your device" works exactly is documented in the [Privacy Polic
 - [x] **v2.17** Open/share import of external `.md`/`.txt` files, folder-sync duplicate-note and tag recognition fixes
 - [x] **v2.18** Folder-sync files named after the note title (rename follows) + `.md`/`.txt` choice
 - [x] **v2.19** Six sample notes on first launch + PDF/Markdown export no longer duplicates the title
+- [x] **v2.20** Keyboard shortcuts, `#tag` autocomplete, table of contents, serif font, tablet 3-pane (tag sidebar + in-place filter) layout
 - [x] **Google Play public launch** — anyone can install it from the Play Store
 
 ---

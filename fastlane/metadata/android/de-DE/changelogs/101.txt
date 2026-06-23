@@ -1,0 +1,7 @@
+Einen Schritt näher am Bear, das es auf Android-Tablets nie gab.
+
+• Tastenkürzel: Strg/Cmd+B, I, K für fett, kursiv und Links (Hardware-Tastatur)
+• Tag-Vervollständigung: # in der Notiz tippen, um vorhandene Tags zu nutzen
+• Inhaltsverzeichnis: in der Vorschau durch lange Notizen springen
+• Serifenschrift in den Einstellungen für ein buchähnliches Schreibgefühl
+• 3-Spalten-Layout für Tablets: Tag in der Seitenleiste antippen, Notizen direkt filtern

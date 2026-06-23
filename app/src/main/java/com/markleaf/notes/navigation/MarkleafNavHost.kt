@@ -48,6 +48,7 @@ import com.markleaf.notes.feature.editor.EditorScreen
 import com.markleaf.notes.feature.notes.NotesListScreen
 import com.markleaf.notes.feature.search.SearchScreen
 import com.markleaf.notes.feature.settings.SettingsScreen
+import com.markleaf.notes.feature.tags.TagRail
 import com.markleaf.notes.feature.tags.TagsScreen
 import com.markleaf.notes.feature.trash.TrashScreen
 import com.markleaf.notes.feature.sync.SyncCenterScreen
@@ -119,16 +120,40 @@ fun MarkleafNavHost(
             if (isExpanded) {
                 var selectedNoteId by remember { mutableStateOf<String?>(null) }
                 var isNoteListCollapsed by remember { mutableStateOf(false) }
+                val selectedTag by viewModel.selectedTag.collectAsState()
                 val listPaneColor = MaterialTheme.colorScheme.surfaceVariant
                 val listPaneContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 val editorPaneColor = MaterialTheme.colorScheme.background
                 val dividerColor = MaterialTheme.colorScheme.outlineVariant
-                
+
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(editorPaneColor)
                 ) {
+                    // Tag rail — the persistent sidebar of the 3-column tablet
+                    // layout (tags | note list | editor). Tapping a tag filters
+                    // the note list pane in place via the shared NotesViewModel.
+                    Surface(
+                        modifier = Modifier
+                            .width(220.dp)
+                            .fillMaxHeight()
+                            .systemBarsPadding()
+                            .consumeWindowInsets(WindowInsets.systemBars),
+                        color = listPaneColor,
+                        contentColor = listPaneContentColor
+                    ) {
+                        TagRail(
+                            selectedTag = selectedTag,
+                            onSelectTag = { viewModel.selectTag(it) }
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(1.dp)
+                            .background(dividerColor)
+                    )
                     if (isNoteListCollapsed) {
                         CollapsedNoteListRail(onExpandClick = { isNoteListCollapsed = false })
                     } else {
@@ -161,6 +186,7 @@ fun MarkleafNavHost(
                                 onSettingsClick = { navController.navigate(NavRoutes.SETTINGS) },
                                 onCollapseClick = { isNoteListCollapsed = true },
                                 selectedNoteId = selectedNoteId,
+                                selectedTag = selectedTag,
                                 containerColor = listPaneColor,
                                 contentColor = listPaneContentColor
                             )

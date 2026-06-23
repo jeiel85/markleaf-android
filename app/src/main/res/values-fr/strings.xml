@@ -24,6 +24,8 @@
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>
     <string name="font_description">Le serif donne aux notes une allure classique, comme un livre. Le code reste toujours à chasse fixe.</string>
+    <string name="all_notes">Toutes les notes</string>
+    <string name="no_notes_for_tag">Aucune note avec cette étiquette</string>
     <string name="image_alt_dialog_title">Modifier la description de l\'image</string>
     <string name="image_alt_dialog_description">Le texte alternatif aide les lecteurs d\'écran et s\'affiche lorsque l\'image ne peut pas être chargée.</string>
     <string name="image_alt_dialog_label">Description</string>

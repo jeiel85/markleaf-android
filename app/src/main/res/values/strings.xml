@@ -24,6 +24,8 @@
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>
     <string name="font_description">Serif gives notes a classic, book-like feel. Code always stays monospaced.</string>
+    <string name="all_notes">All notes</string>
+    <string name="no_notes_for_tag">No notes with this tag</string>
     <string name="image_alt_dialog_title">Edit image description</string>
     <string name="image_alt_dialog_description">Alt text helps screen readers and shows when the image can\'t load.</string>
     <string name="image_alt_dialog_label">Description</string>

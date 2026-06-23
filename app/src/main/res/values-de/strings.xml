@@ -24,6 +24,8 @@
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>
     <string name="font_description">Serif verleiht Notizen einen klassischen, buchähnlichen Charakter. Code bleibt immer dicktengleich.</string>
+    <string name="all_notes">Alle Notizen</string>
+    <string name="no_notes_for_tag">Keine Notizen mit diesem Tag</string>
     <string name="image_alt_dialog_title">Bildbeschreibung bearbeiten</string>
     <string name="image_alt_dialog_description">Alternativtext hilft Screenreadern und wird angezeigt, wenn das Bild nicht geladen werden kann.</string>
     <string name="image_alt_dialog_label">Beschreibung</string>

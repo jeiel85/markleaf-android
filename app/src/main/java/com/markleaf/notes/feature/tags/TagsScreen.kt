@@ -121,14 +121,14 @@ fun TagsScreen(
     }
 }
 
-private data class TagRowData(
+internal data class TagRowData(
     val fullName: String,
     val displayName: String,
     val depth: Int,
     val noteCount: Int
 )
 
-private fun buildHierarchicalRows(summaries: List<TagSummary>): List<TagRowData> {
+internal fun buildHierarchicalRows(summaries: List<TagSummary>): List<TagRowData> {
     if (summaries.isEmpty()) return emptyList()
 
     val byFullName = summaries.associateBy { it.tag.name }

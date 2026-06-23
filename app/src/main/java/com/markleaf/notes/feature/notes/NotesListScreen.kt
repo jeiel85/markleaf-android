@@ -91,11 +91,13 @@ fun NotesListScreen(
     onSettingsClick: () -> Unit = {},
     onCollapseClick: (() -> Unit)? = null,
     selectedNoteId: String? = null,
+    selectedTag: String? = null,
     containerColor: Color = MaterialTheme.colorScheme.background,
     contentColor: Color = MaterialTheme.colorScheme.onBackground
 ) {
     val hapticFeedback = LocalHapticFeedback.current
     val notesState = remember { mutableStateOf<List<Note>>(emptyList()) }
+    val displayedState = remember { mutableStateOf<List<Note>>(emptyList()) }
     var overflowExpanded by remember { mutableStateOf(false) }
     var showQuickSwitcher by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
@@ -103,8 +105,17 @@ fun NotesListScreen(
             notesState.value = noteList
         }
     }
+    LaunchedEffect(Unit) {
+        viewModel.displayedNotes.collect { noteList ->
+            displayedState.value = noteList
+        }
+    }
+    // The quick switcher and the "create your first note" state consider every
+    // note; the list itself shows the tag-filtered subset (which equals the full
+    // list on phones, where there is no tag rail to set a filter).
     val notes = notesState.value
-    val sections = remember(notes) { groupNotes(notes) }
+    val displayed = displayedState.value
+    val sections = remember(displayed) { groupNotes(displayed) }
 
     if (showQuickSwitcher) {
         QuickSwitcherDialog(
@@ -274,6 +285,23 @@ fun NotesListScreen(
                         )
                     }
                 }
+            }
+        } else if (displayed.isEmpty() && selectedTag != null) {
+            // A tag filter is active but matches nothing — don't show the
+            // "create your first note" onboarding, which would be misleading.
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.no_notes_for_tag),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(32.dp)
+                )
             }
         } else {
             LazyColumn(

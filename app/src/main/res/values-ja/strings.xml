@@ -24,6 +24,8 @@
     <string name="font_sans">ゴシック</string>
     <string name="font_serif">明朝</string>
     <string name="font_description">明朝は書籍のような落ち着いた雰囲気になります。コードは常に等幅で表示されます。</string>
+    <string name="all_notes">すべてのノート</string>
+    <string name="no_notes_for_tag">このタグのノートはありません</string>
     <string name="image_alt_dialog_title">画像の説明を編集</string>
     <string name="image_alt_dialog_description">代替テキストはスクリーンリーダーや、画像を読み込めない場合に使われます。</string>
     <string name="image_alt_dialog_label">説明</string>

@@ -18,6 +18,12 @@
     <string name="quick_switcher_no_results">Aucune note correspondante.</string>
     <string name="backlinks_section_title">Lié depuis</string>
     <string name="wikilink_suggestions_title">Lier à…</string>
+    <string name="tag_suggestions_title">Étiquettes</string>
+    <string name="table_of_contents">Table des matières</string>
+    <string name="font_label">Police</string>
+    <string name="font_sans">Sans</string>
+    <string name="font_serif">Serif</string>
+    <string name="font_description">Le serif donne aux notes une allure classique, comme un livre. Le code reste toujours à chasse fixe.</string>
     <string name="image_alt_dialog_title">Modifier la description de l\'image</string>
     <string name="image_alt_dialog_description">Le texte alternatif aide les lecteurs d\'écran et s\'affiche lorsque l\'image ne peut pas être chargée.</string>
     <string name="image_alt_dialog_label">Description</string>

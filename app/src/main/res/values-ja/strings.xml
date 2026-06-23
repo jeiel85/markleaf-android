@@ -18,6 +18,12 @@
     <string name="quick_switcher_no_results">該当するノートがありません。</string>
     <string name="backlinks_section_title">リンク元</string>
     <string name="wikilink_suggestions_title">リンク先…</string>
+    <string name="tag_suggestions_title">タグ</string>
+    <string name="table_of_contents">目次</string>
+    <string name="font_label">フォント</string>
+    <string name="font_sans">ゴシック</string>
+    <string name="font_serif">明朝</string>
+    <string name="font_description">明朝は書籍のような落ち着いた雰囲気になります。コードは常に等幅で表示されます。</string>
     <string name="image_alt_dialog_title">画像の説明を編集</string>
     <string name="image_alt_dialog_description">代替テキストはスクリーンリーダーや、画像を読み込めない場合に使われます。</string>
     <string name="image_alt_dialog_label">説明</string>

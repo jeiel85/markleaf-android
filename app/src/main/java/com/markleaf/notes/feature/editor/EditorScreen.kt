@@ -18,10 +18,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.CenterFocusStrong
 import androidx.compose.material.icons.filled.CenterFocusWeak
 import androidx.compose.material.icons.filled.CheckBox
@@ -52,6 +56,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
@@ -79,6 +84,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
@@ -102,6 +109,8 @@ import com.markleaf.notes.core.markdown.MarkdownSyntaxColors
 import com.markleaf.notes.core.markdown.MarkdownSyntaxVisualTransformation
 import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
 import com.markleaf.notes.core.markdown.preview.MarkdownPreviewList
+import com.markleaf.notes.core.markdown.preview.TocHeading
+import com.markleaf.notes.core.markdown.preview.extractHeadings
 import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.repository.LocalNoteLinkRepository
@@ -149,6 +158,16 @@ fun EditorScreen(
     var isFocusMode by remember(noteId) { mutableStateOf(false) }
     var showDeleteConfirm by remember(noteId) { mutableStateOf(false) }
 
+    // Table of contents (preview mode). The outline is only derived in preview
+    // mode so we never parse Markdown on every keystroke while editing; the
+    // preview branch re-parses the same text for rendering, and identical parses
+    // share item indices, so animateScrollToItem lands on the right heading.
+    val previewListState = rememberLazyListState()
+    var showToc by remember(noteId) { mutableStateOf(false) }
+    val tocHeadings = remember(editorState.text, isPreviewMode) {
+        if (isPreviewMode) extractHeadings(SimpleMarkdownPreview.parse(editorState.text)) else emptyList()
+    }
+
     var isFindOpen by remember(noteId) { mutableStateOf(false) }
     var findQuery by remember(noteId) { mutableStateOf("") }
     var findIndex by remember(noteId) { mutableStateOf(0) }
@@ -167,6 +186,26 @@ fun EditorScreen(
             .filter { it.id != noteId && it.title.isNotBlank() }
             .filter { needle.isEmpty() || it.title.lowercase().contains(needle) }
             .take(MAX_WIKILINK_SUGGESTIONS)
+    }
+
+    // Tag autocomplete: when the cursor sits inside an in-progress `#tag`,
+    // surface existing tags. Mirrors the wikilink dropdown but keyed off `#`
+    // with TagParser's rules (see detectTagQuery) so URL fragments and `##`
+    // never trigger it.
+    val allTags by tagRepo.observeAllTags().collectAsState(initial = emptyList())
+    val tagQuery by remember {
+        derivedStateOf { detectTagQuery(editorState) }
+    }
+    val tagSuggestions = remember(tagQuery, allTags) {
+        val q = tagQuery ?: return@remember emptyList()
+        val needle = q.lowercase()
+        val names = allTags.map { it.name }.distinct()
+        val matches = names.filter { needle.isEmpty() || it.contains(needle) }
+        // Prefix matches first, then substring matches; never re-suggest the
+        // exact tag the user has already finished typing.
+        (matches.filter { it.startsWith(needle) } + matches.filterNot { it.startsWith(needle) })
+            .filter { it != needle }
+            .take(MAX_TAG_SUGGESTIONS)
     }
     var shareMenuExpanded by remember(noteId) { mutableStateOf(false) }
     var overflowExpanded by remember(noteId) { mutableStateOf(false) }
@@ -344,6 +383,14 @@ fun EditorScreen(
                                 )
                             }
                         }
+                        if (isPreviewMode && tocHeadings.size >= 2) {
+                            IconButton(onClick = { showToc = true }) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.List,
+                                    contentDescription = stringResource(R.string.table_of_contents)
+                                )
+                            }
+                        }
                         TextButton(onClick = {
                             val returningToEdit = isPreviewMode
                             isPreviewMode = !isPreviewMode
@@ -479,6 +526,7 @@ fun EditorScreen(
                         lines = previewLines,
                         modifier = Modifier.weight(1f, fill = false),
                         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
+                        listState = previewListState,
                         onWikilinkClick = { title ->
                             coroutineScope.launch {
                                 val existing = db.noteDao().getNoteByTitle(title)
@@ -604,7 +652,9 @@ fun EditorScreen(
                                 .focusRequester(editorFocusRequester)
                                 .semantics { contentDescription = context.getString(R.string.note_content) }
                                 .onPreviewKeyEvent { event ->
-                                    if (event.type == KeyEventType.KeyDown && event.key == Key.Tab) {
+                                    if (event.type != KeyEventType.KeyDown) {
+                                        false
+                                    } else if (event.key == Key.Tab) {
                                         editorState = if (event.isShiftPressed) {
                                             MarkdownEditActions.outdent(editorState)
                                         } else {
@@ -612,6 +662,29 @@ fun EditorScreen(
                                         }
                                         if (isLoaded) saveTrigger++
                                         true
+                                    } else if (event.isCtrlPressed || event.isMetaPressed) {
+                                        // Hardware-keyboard formatting shortcuts. Accept Ctrl
+                                        // (typical Android external keyboards) or Meta/Cmd
+                                        // (Mac-style tablet keyboards) so both feel native.
+                                        // Bare Ctrl+S is intentionally NOT bound: writers reflex-
+                                        // hit it to "save", and since Markleaf auto-saves we must
+                                        // not turn that keystroke into a strikethrough that mangles
+                                        // text — strikethrough requires the explicit Shift.
+                                        val action: ((TextFieldValue) -> TextFieldValue)? = when (event.key) {
+                                            Key.B -> MarkdownEditActions::bold
+                                            Key.I -> MarkdownEditActions::italic
+                                            Key.K -> MarkdownEditActions::markdownLink
+                                            Key.S -> if (event.isShiftPressed) MarkdownEditActions::strikethrough else null
+                                            else -> null
+                                        }
+                                        if (action != null) {
+                                            editorState = action(editorState)
+                                            shouldRequestEditorFocus = true
+                                            if (isLoaded) saveTrigger++
+                                            true
+                                        } else {
+                                            false
+                                        }
                                     } else {
                                         false
                                     }
@@ -662,6 +735,15 @@ fun EditorScreen(
                             suggestions = wikilinkSuggestions,
                             onPick = { title ->
                                 editorState = completeWikilink(editorState, title)
+                                shouldRequestEditorFocus = true
+                                if (isLoaded) saveTrigger++
+                            }
+                        )
+                    } else if (tagQuery != null && tagSuggestions.isNotEmpty() && !isFocusMode) {
+                        TagSuggestionsRow(
+                            suggestions = tagSuggestions,
+                            onPick = { tag ->
+                                editorState = completeTag(editorState, tag)
                                 shouldRequestEditorFocus = true
                                 if (isLoaded) saveTrigger++
                             }
@@ -754,9 +836,23 @@ fun EditorScreen(
             }
         )
     }
+
+    if (showToc) {
+        TableOfContentsSheet(
+            headings = tocHeadings,
+            onSelect = { index ->
+                showToc = false
+                coroutineScope.launch {
+                    previewListState.animateScrollToItem(index)
+                }
+            },
+            onDismiss = { showToc = false }
+        )
+    }
 }
 
 private const val MAX_WIKILINK_SUGGESTIONS = 8
+private const val MAX_TAG_SUGGESTIONS = 8
 
 /**
  * If the cursor sits inside an *unclosed* `[[…` wikilink (no `]]` between
@@ -786,6 +882,57 @@ internal fun completeWikilink(value: TextFieldValue, title: String): TextFieldVa
     val replacement = "[[$title]]"
     val newText = value.text.substring(0, openIdx) + replacement + value.text.substring(cursor)
     val newCursor = openIdx + replacement.length
+    return value.copy(text = newText, selection = TextRange(newCursor))
+}
+
+// A tag body may contain letters/digits (any script), `_`, `/` (hierarchy), and
+// `-`; a tag must *start* with a letter or `_`. These mirror TagParser's regex so
+// the autocomplete trigger and the persisted tag index agree on what a tag is.
+private fun isTagBodyChar(c: Char): Boolean =
+    c.isLetterOrDigit() || c == '_' || c == '/' || c == '-'
+
+private fun isTagStartChar(c: Char): Boolean =
+    c.isLetter() || c == '_'
+
+/**
+ * If the cursor sits inside an *in-progress* `#tag` (a `#` that starts the
+ * content or follows whitespace, with only valid tag characters between it and
+ * the cursor), return the partial tag text (possibly empty right after `#`).
+ * Returns null otherwise. Mirrors [com.markleaf.notes.util.TagParser]'s rules so
+ * URL fragments (`…com#frag`), `##`, and mid-word `a#b` never autocomplete.
+ */
+internal fun detectTagQuery(value: TextFieldValue): String? {
+    val cursor = value.selection.start.coerceIn(0, value.text.length)
+    val before = value.text.substring(0, cursor)
+    val hashIdx = before.lastIndexOf('#')
+    if (hashIdx < 0) return null
+    if (hashIdx > 0 && !before[hashIdx - 1].isWhitespace()) return null
+    val query = before.substring(hashIdx + 1)
+    // Whitespace or punctuation between the `#` and the cursor means the tag
+    // already closed — there is nothing to complete.
+    if (query.any { !isTagBodyChar(it) }) return null
+    // A tag cannot start with a digit, `/`, or `-`.
+    if (query.isNotEmpty() && !isTagStartChar(query[0])) return null
+    return query
+}
+
+/**
+ * Replace the open `#query` segment ending at the cursor with `#tag ` (a
+ * trailing space closes the tag so the dropdown dismisses and the writer keeps
+ * typing). Used when the user picks a tag autocomplete suggestion.
+ */
+internal fun completeTag(value: TextFieldValue, tag: String): TextFieldValue {
+    val cursor = value.selection.start.coerceIn(0, value.text.length)
+    val before = value.text.substring(0, cursor)
+    val hashIdx = before.lastIndexOf('#')
+    if (hashIdx < 0) return value
+    val after = value.text.substring(cursor)
+    // Close the tag with a trailing space so the dropdown dismisses, unless the
+    // next character is already whitespace (avoids a doubled space mid-line).
+    val trailing = if (after.firstOrNull()?.isWhitespace() == true) "" else " "
+    val replacement = "#$tag$trailing"
+    val newText = value.text.substring(0, hashIdx) + replacement + after
+    val newCursor = hashIdx + replacement.length
     return value.copy(text = newText, selection = TextRange(newCursor))
 }
 
@@ -1022,6 +1169,86 @@ private fun WikilinkSuggestionsRow(
                         .fillMaxWidth()
                         .clickable { onPick(note.title) }
                         .padding(horizontal = 12.dp, vertical = 8.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TagSuggestionsRow(
+    suggestions: List<String>,
+    onPick: (String) -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 4.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = MaterialTheme.shapes.small,
+        tonalElevation = 1.dp
+    ) {
+        Column(modifier = Modifier.padding(vertical = 4.dp)) {
+            Text(
+                text = stringResource(R.string.tag_suggestions_title),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+            )
+            suggestions.forEach { tag ->
+                Text(
+                    text = "#$tag",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onPick(tag) }
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TableOfContentsSheet(
+    headings: List<TocHeading>,
+    onSelect: (Int) -> Unit,
+    onDismiss: () -> Unit
+) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Text(
+            text = stringResource(R.string.table_of_contents),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+        )
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+        ) {
+            items(headings) { heading ->
+                Text(
+                    text = heading.text,
+                    style = when (heading.level) {
+                        1 -> MaterialTheme.typography.titleMedium
+                        2 -> MaterialTheme.typography.bodyLarge
+                        else -> MaterialTheme.typography.bodyMedium
+                    },
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onSelect(heading.index) }
+                        // Indent deeper levels so the outline reads as a hierarchy.
+                        .padding(
+                            start = (20 + (heading.level - 1) * 16).dp,
+                            end = 20.dp,
+                            top = 10.dp,
+                            bottom = 10.dp
+                        )
                 )
             }
         }

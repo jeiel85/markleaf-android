@@ -22,6 +22,9 @@ class AppSettingsRepository(
             lineWidth = preferences[LINE_WIDTH]
                 ?.let { value -> enumValueOrDefault(value, EditorLineWidth.COMFORTABLE) }
                 ?: EditorLineWidth.COMFORTABLE,
+            editorFont = preferences[EDITOR_FONT]
+                ?.let { value -> enumValueOrDefault(value, EditorFont.SANS) }
+                ?: EditorFont.SANS,
             screenshotProtection = preferences[SCREENSHOT_PROTECTION] ?: false,
             syncFolderUri = preferences[SYNC_FOLDER_URI],
             syncLastSyncedAt = preferences[SYNC_LAST_SYNCED_AT],
@@ -66,6 +69,12 @@ class AppSettingsRepository(
         }
     }
 
+    suspend fun setEditorFont(font: EditorFont) {
+        context.markleafSettingsDataStore.edit { preferences ->
+            preferences[EDITOR_FONT] = font.name
+        }
+    }
+
     suspend fun setScreenshotProtection(enabled: Boolean) {
         context.markleafSettingsDataStore.edit { preferences ->
             preferences[SCREENSHOT_PROTECTION] = enabled
@@ -104,6 +113,7 @@ class AppSettingsRepository(
     private companion object {
         val MARKDOWN_SYNTAX_VISIBILITY = stringPreferencesKey("markdown_syntax_visibility")
         val LINE_WIDTH = stringPreferencesKey("line_width")
+        val EDITOR_FONT = stringPreferencesKey("editor_font")
         val SCREENSHOT_PROTECTION = booleanPreferencesKey("screenshot_protection")
         val SYNC_FOLDER_URI = stringPreferencesKey("sync_folder_uri")
         val SYNC_LAST_SYNCED_AT = longPreferencesKey("sync_last_synced_at")

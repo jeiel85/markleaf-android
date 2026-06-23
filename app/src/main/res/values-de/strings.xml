@@ -18,6 +18,12 @@
     <string name="quick_switcher_no_results">Keine passenden Notizen.</string>
     <string name="backlinks_section_title">Verlinkt von</string>
     <string name="wikilink_suggestions_title">Verlinken mit…</string>
+    <string name="tag_suggestions_title">Tags</string>
+    <string name="table_of_contents">Inhaltsverzeichnis</string>
+    <string name="font_label">Schriftart</string>
+    <string name="font_sans">Sans</string>
+    <string name="font_serif">Serif</string>
+    <string name="font_description">Serif verleiht Notizen einen klassischen, buchähnlichen Charakter. Code bleibt immer dicktengleich.</string>
     <string name="image_alt_dialog_title">Bildbeschreibung bearbeiten</string>
     <string name="image_alt_dialog_description">Alternativtext hilft Screenreadern und wird angezeigt, wenn das Bild nicht geladen werden kann.</string>
     <string name="image_alt_dialog_label">Beschreibung</string>

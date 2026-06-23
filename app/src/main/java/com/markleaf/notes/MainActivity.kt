@@ -24,6 +24,7 @@ import com.markleaf.notes.data.repository.LocalNoteRepository
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.ColorPalette
+import com.markleaf.notes.data.settings.EditorFont
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.NoteImporter
 import com.markleaf.notes.feature.lock.BiometricLockGate
@@ -122,7 +123,8 @@ class MainActivity : FragmentActivity() {
             }
             val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
             MarkleafTheme(
-                dynamicColor = appSettings.colorPalette == ColorPalette.MATERIAL_YOU
+                dynamicColor = appSettings.colorPalette == ColorPalette.MATERIAL_YOU,
+                useSerif = appSettings.editorFont == EditorFont.SERIF
             ) {
                 BiometricLockGate(enabled = appSettings.biometricLockEnabled) {
                     val navController = rememberNavController()

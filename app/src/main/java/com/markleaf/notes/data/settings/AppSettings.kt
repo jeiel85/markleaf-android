@@ -3,6 +3,7 @@ package com.markleaf.notes.data.settings
 data class AppSettings(
     val markdownSyntaxVisibility: MarkdownSyntaxVisibility = MarkdownSyntaxVisibility.SHOW,
     val lineWidth: EditorLineWidth = EditorLineWidth.COMFORTABLE,
+    val editorFont: EditorFont = EditorFont.SANS,
     val screenshotProtection: Boolean = false,
     val syncFolderUri: String? = null,
     val syncLastSyncedAt: Long? = null,
@@ -34,6 +35,19 @@ enum class ColorPalette {
 enum class MarkdownSyntaxVisibility {
     SHOW,
     HIDE
+}
+
+/**
+ * Typeface for the editor and preview writing surface. Both options use the
+ * platform's built-in generic font families, so nothing is bundled with the
+ * app — it stays F-Droid-reproducible and works fully offline.
+ */
+enum class EditorFont {
+    /** The system sans-serif (FontFamily.Default) — Markleaf's original look. */
+    SANS,
+
+    /** The system serif (Noto Serif on most devices) for an editorial feel. */
+    SERIF
 }
 
 enum class EditorLineWidth(

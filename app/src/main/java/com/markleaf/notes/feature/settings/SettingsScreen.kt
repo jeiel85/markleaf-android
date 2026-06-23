@@ -48,6 +48,7 @@ import com.markleaf.notes.data.repository.LocalNoteRepository
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.ColorPalette
+import com.markleaf.notes.data.settings.EditorFont
 import com.markleaf.notes.data.settings.EditorLineWidth
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import com.markleaf.notes.data.sync.NoteFolderMirror
@@ -222,6 +223,40 @@ fun SettingsScreen(
                             }
                         }
                     }
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        text = stringResource(R.string.font_label),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        EditorFont.entries.forEach { font ->
+                            val selected = appSettings.editorFont == font
+                            if (selected) {
+                                Button(onClick = {}) {
+                                    Text(font.localizedLabel())
+                                }
+                            } else {
+                                OutlinedButton(
+                                    onClick = {
+                                        scope.launch {
+                                            settingsRepository.setEditorFont(font)
+                                        }
+                                    }
+                                ) {
+                                    Text(font.localizedLabel())
+                                }
+                            }
+                        }
+                    }
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        text = stringResource(R.string.font_description),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
 
                 SettingsSection(title = stringResource(R.string.settings_privacy)) {
@@ -602,5 +637,13 @@ private fun ColorPalette.localizedLabel(): String {
     return when (this) {
         ColorPalette.MARKLEAF_GREEN -> stringResource(R.string.theme_markleaf_green)
         ColorPalette.MATERIAL_YOU -> stringResource(R.string.theme_material_you)
+    }
+}
+
+@Composable
+private fun EditorFont.localizedLabel(): String {
+    return when (this) {
+        EditorFont.SANS -> stringResource(R.string.font_sans)
+        EditorFont.SERIF -> stringResource(R.string.font_serif)
     }
 }

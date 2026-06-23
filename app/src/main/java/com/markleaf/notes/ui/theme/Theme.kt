@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
@@ -133,10 +134,37 @@ val Typography = androidx.compose.material3.Typography(
     )
 )
 
+/**
+ * Returns a copy of this type scale with [family] applied to every text role.
+ * Used to switch the whole writing surface to a serif face. Code blocks keep
+ * their explicit [FontFamily.Monospace] because they set it at the render site,
+ * not via the theme default.
+ */
+private fun androidx.compose.material3.Typography.withFontFamily(
+    family: FontFamily
+): androidx.compose.material3.Typography = copy(
+    displayLarge = displayLarge.copy(fontFamily = family),
+    displayMedium = displayMedium.copy(fontFamily = family),
+    displaySmall = displaySmall.copy(fontFamily = family),
+    headlineLarge = headlineLarge.copy(fontFamily = family),
+    headlineMedium = headlineMedium.copy(fontFamily = family),
+    headlineSmall = headlineSmall.copy(fontFamily = family),
+    titleLarge = titleLarge.copy(fontFamily = family),
+    titleMedium = titleMedium.copy(fontFamily = family),
+    titleSmall = titleSmall.copy(fontFamily = family),
+    bodyLarge = bodyLarge.copy(fontFamily = family),
+    bodyMedium = bodyMedium.copy(fontFamily = family),
+    bodySmall = bodySmall.copy(fontFamily = family),
+    labelLarge = labelLarge.copy(fontFamily = family),
+    labelMedium = labelMedium.copy(fontFamily = family),
+    labelSmall = labelSmall.copy(fontFamily = family),
+)
+
 @Composable
 fun MarkleafTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = false,
+    useSerif: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
@@ -147,6 +175,9 @@ fun MarkleafTheme(
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
+    // Default (sans) keeps the original Typography untouched — zero rendering
+    // change for existing users; only the serif option swaps the family.
+    val typography = if (useSerif) Typography.withFontFamily(FontFamily.Serif) else Typography
 
     // Keep the system status / nav bar icon appearance in sync with the
     // composable theme. enableEdgeToEdge() detects light vs dark only at
@@ -167,7 +198,7 @@ fun MarkleafTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = typography,
         content = content
     )
 }

@@ -18,6 +18,12 @@
     <string name="quick_switcher_no_results">일치하는 노트가 없습니다.</string>
     <string name="backlinks_section_title">이 노트를 참조한 노트</string>
     <string name="wikilink_suggestions_title">링크할 노트</string>
+    <string name="tag_suggestions_title">태그</string>
+    <string name="table_of_contents">목차</string>
+    <string name="font_label">글꼴</string>
+    <string name="font_sans">산세리프</string>
+    <string name="font_serif">세리프</string>
+    <string name="font_description">세리프는 노트에 책 같은 고전적인 느낌을 줍니다. 코드는 항상 고정폭으로 표시됩니다.</string>
     <string name="image_alt_dialog_title">이미지 설명 편집</string>
     <string name="image_alt_dialog_description">대체 텍스트는 스크린 리더 사용자에게 도움이 되고, 이미지가 보이지 않을 때 대신 표시됩니다.</string>
     <string name="image_alt_dialog_label">설명</string>

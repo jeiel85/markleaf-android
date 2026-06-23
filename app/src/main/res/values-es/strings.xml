@@ -18,6 +18,12 @@
     <string name="quick_switcher_no_results">Ninguna nota coincide.</string>
     <string name="backlinks_section_title">Enlazado desde</string>
     <string name="wikilink_suggestions_title">Enlazar a…</string>
+    <string name="tag_suggestions_title">Etiquetas</string>
+    <string name="table_of_contents">Índice</string>
+    <string name="font_label">Fuente</string>
+    <string name="font_sans">Sans</string>
+    <string name="font_serif">Serif</string>
+    <string name="font_description">La serif da a las notas un aire clásico, como de libro. El código siempre se muestra en monoespaciado.</string>
     <string name="image_alt_dialog_title">Editar descripcion de la imagen</string>
     <string name="image_alt_dialog_description">El texto alternativo ayuda a los lectores de pantalla y se muestra cuando la imagen no carga.</string>
     <string name="image_alt_dialog_label">Descripcion</string>

@@ -18,6 +18,12 @@
     <string name="quick_switcher_no_results">No matching notes.</string>
     <string name="backlinks_section_title">Linked from</string>
     <string name="wikilink_suggestions_title">Link to…</string>
+    <string name="tag_suggestions_title">Tags</string>
+    <string name="table_of_contents">Table of contents</string>
+    <string name="font_label">Font</string>
+    <string name="font_sans">Sans</string>
+    <string name="font_serif">Serif</string>
+    <string name="font_description">Serif gives notes a classic, book-like feel. Code always stays monospaced.</string>
     <string name="image_alt_dialog_title">Edit image description</string>
     <string name="image_alt_dialog_description">Alt text helps screen readers and shows when the image can\'t load.</string>
     <string name="image_alt_dialog_label">Description</string>

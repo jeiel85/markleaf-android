@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.rememberCoroutineScope
@@ -71,10 +72,10 @@ fun MarkdownPreviewList(
     lines: List<PreviewLine>,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+    listState: LazyListState = rememberLazyListState(),
     onWikilinkClick: (String) -> Unit = {},
     onImageLongPress: (path: String, currentAlt: String) -> Unit = { _, _ -> }
 ) {
-    val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     // Footnote ref → def: clicking a superscript `[^N]` scrolls the matching
     // `[^N]: …` definition row into view. If no matching def exists in the
@@ -310,6 +311,29 @@ private const val FOOTNOTE_REF_TAG = "footnote_ref"
 internal fun findFootnoteDefIndex(lines: List<PreviewLine>, label: String): Int =
     lines.indexOfFirst { line ->
         line.type == PreviewLineType.FOOTNOTE_DEF && line.extra == label
+    }
+
+/**
+ * A heading entry for the table of contents: its [index] into the rendered
+ * [PreviewLine] list (so the same `animateScrollToItem` used for footnote jumps
+ * lands on the heading), the display [text], and the [level] (1..3).
+ */
+data class TocHeading(val index: Int, val text: String, val level: Int)
+
+/**
+ * Extracts the H1/H2/H3 outline from rendered [lines] for the table of contents.
+ * The index matches the LazyColumn item index, so tapping an entry can scroll the
+ * preview to that heading. Lifted out of the UI so it can be unit-tested.
+ */
+internal fun extractHeadings(lines: List<PreviewLine>): List<TocHeading> =
+    lines.mapIndexedNotNull { index, line ->
+        val level = when (line.type) {
+            PreviewLineType.H1 -> 1
+            PreviewLineType.H2 -> 2
+            PreviewLineType.H3 -> 3
+            else -> null
+        }
+        level?.let { TocHeading(index = index, text = line.text, level = it) }
     }
 
 /**

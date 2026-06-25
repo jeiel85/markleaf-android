@@ -19,7 +19,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.ui.platform.LocalContext
 import coil.compose.AsyncImage
@@ -36,8 +35,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -206,6 +208,9 @@ internal fun InlineMarkdownText(
     leadingMarker: String = "",
     color: Color = MaterialTheme.colorScheme.onBackground
 ) {
+    // Captured by the LinkAnnotation click listeners built below, so it must be
+    // resolved before buildAnnotatedString rather than at the Text call site.
+    val context = LocalContext.current
     val annotated = buildAnnotatedString {
         if (leadingMarker.isNotEmpty()) append(leadingMarker)
         // Some line types (and the legacy hand-rolled parser) can leave segments
@@ -242,61 +247,66 @@ internal fun InlineMarkdownText(
                     append(segment.text)
                 }
                 PreviewInlineType.FOOTNOTE_REF -> {
-                    pushStringAnnotation(tag = FOOTNOTE_REF_TAG, annotation = segment.text)
-                    withStyle(
-                        SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
-                            fontSize = 11.sp,
-                            baselineShift = BaselineShift.Superscript
+                    val label = segment.text
+                    withLink(
+                        LinkAnnotation.Clickable(
+                            tag = FOOTNOTE_REF_TAG,
+                            styles = TextLinkStyles(
+                                SpanStyle(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontSize = 11.sp,
+                                    baselineShift = BaselineShift.Superscript
+                                )
+                            ),
+                            linkInteractionListener = { onFootnoteRefClick(label) }
                         )
                     ) {
                         append(segment.text)
                     }
-                    pop()
                 }
                 PreviewInlineType.WIKILINK -> {
-                    pushStringAnnotation(tag = WIKILINK_TAG, annotation = segment.text)
-                    withStyle(
-                        SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
-                            textDecoration = TextDecoration.Underline
+                    val target = segment.text
+                    withLink(
+                        LinkAnnotation.Clickable(
+                            tag = WIKILINK_TAG,
+                            styles = TextLinkStyles(
+                                SpanStyle(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    textDecoration = TextDecoration.Underline
+                                )
+                            ),
+                            linkInteractionListener = { onWikilinkClick(target) }
                         )
                     ) {
                         append(segment.text)
                     }
-                    pop()
                 }
                 PreviewInlineType.LINK -> {
                     val href = segment.href.orEmpty()
-                    pushStringAnnotation(tag = LINK_TAG, annotation = href)
-                    withStyle(
-                        SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
-                            textDecoration = TextDecoration.Underline
+                    withLink(
+                        LinkAnnotation.Clickable(
+                            tag = LINK_TAG,
+                            styles = TextLinkStyles(
+                                SpanStyle(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    textDecoration = TextDecoration.Underline
+                                )
+                            ),
+                            linkInteractionListener = { openExternalLink(context, href) }
                         )
                     ) {
                         append(segment.text)
                     }
-                    pop()
                 }
             }
         }
     }
-    val context = LocalContext.current
-    ClickableText(
+    // Links are now embedded as LinkAnnotations in `annotated`, so a plain Text
+    // handles styling, clicks, and accessibility — no offset-mapped onClick.
+    Text(
         text = annotated,
         style = MaterialTheme.typography.bodyLarge.copy(color = color),
-        modifier = Modifier.padding(vertical = 2.dp),
-        onClick = { offset ->
-            annotated.getStringAnnotations(WIKILINK_TAG, offset, offset).firstOrNull()
-                ?.let { onWikilinkClick(it.item); return@ClickableText }
-            annotated.getStringAnnotations(FOOTNOTE_REF_TAG, offset, offset).firstOrNull()
-                ?.let { onFootnoteRefClick(it.item); return@ClickableText }
-            annotated.getStringAnnotations(LINK_TAG, offset, offset).firstOrNull()
-                ?.let { ann ->
-                    openExternalLink(context, ann.item)
-                }
-        }
+        modifier = Modifier.padding(vertical = 2.dp)
     )
 }
 

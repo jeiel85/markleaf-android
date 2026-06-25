@@ -1,0 +1,9 @@
+Plus fluide et interactif – et la barre latérale de la tablette se replie.
+
+• Transitions affinées avec le geste de retour prédictif d'Android
+• Les notes se replacent en douceur quand vous les épinglez ou supprimez
+• Touchez une note et elle s'ouvre dans l'éditeur
+• Tablette : fondu entre les notes, et la barre d'étiquettes se masque pour plus d'espace
+• Le bouton de case à cocher bascule entre fait et à faire
+
+Vos notes et surlignages restent intacts.

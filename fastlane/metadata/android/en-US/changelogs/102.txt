@@ -1,0 +1,10 @@
+Smoother and more interactive — plus a foldaway tablet sidebar.
+
+• Refined screen transitions with Android's predictive back gesture
+• Notes glide into place when you pin, add or delete them
+• Tap a note and it expands into the editor
+• Tablet: the editor cross-fades between notes, and the tag sidebar can be hidden for more writing room
+• The checklist button now toggles a line between done and not-done
+• Performance and stability improvements
+
+Your notes and highlights are untouched.

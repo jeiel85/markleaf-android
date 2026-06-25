@@ -1,0 +1,9 @@
+Flüssiger und interaktiver – die Tablet-Seitenleiste lässt sich einklappen.
+
+• Verfeinerte Übergänge mit Androids Zurück-Geste
+• Notizen gleiten beim Anheften oder Löschen sanft an ihren Platz
+• Tippe eine Notiz an, und sie öffnet sich im Editor
+• Tablet: sanfter Wechsel zwischen Notizen; die Tag-Leiste lässt sich für mehr Platz ausblenden
+• Die Checklisten-Schaltfläche schaltet zwischen erledigt und offen um
+
+Deine Notizen und Markierungen bleiben unberührt.

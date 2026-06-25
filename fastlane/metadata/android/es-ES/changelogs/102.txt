@@ -1,0 +1,9 @@
+Más fluido e interactivo, y la barra lateral de la tablet se pliega.
+
+• Transiciones refinadas con el gesto de retroceso predictivo de Android
+• Las notas se reubican con suavidad al fijarlas, añadirlas o eliminarlas
+• Toca una nota y se expande en el editor
+• Tablet: fundido entre notas y la barra de etiquetas puede ocultarse para más espacio
+• El botón de casilla ahora alterna entre hecho y pendiente
+
+Tus notas y resaltados permanecen intactos.

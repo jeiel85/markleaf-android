@@ -4,6 +4,28 @@ All notable changes to Markleaf are documented in this file.
 
 ## Unreleased
 
+## v2.21.0 - 세련된 인터랙티브 모션 · 태블릿 사이드바 접기 (Interactive Motion & Foldable Sidebar) - 2026-06-25
+
+안드로이드 고유의 인터랙티브 감성을 끌어올린 기능 릴리스입니다. 예측형 뒤로가기, 화면·리스트 전환 애니메이션, 카드→에디터 펼침을 더하고, 태블릿에서 노트 전환 페이드와 태그 사이드바 접기를 도입했습니다. 기반으로 Kotlin 2.0 / Compose 1.7 툴체인으로 현행화했습니다. 모두 로컬 전용이며 메모와 하이라이트는 그대로 유지됩니다.
+
+### Added
+- **예측형 뒤로가기.** 화면 전환에 shared-axis-X 모션을 더해, 가장자리 뒤로가기 제스처가 이전 화면을 미리 보여줍니다(`enableOnBackInvokedCallback` + Navigation 2.8의 seekable pop).
+- **노트 목록 애니메이션.** 노트를 고정·추가·삭제할 때 목록이 `Modifier.animateItem`으로 부드럽게 재배치됩니다.
+- **카드 → 에디터 공유요소 전환.** 폰에서 노트를 누르면 카드가 에디터로 펼쳐집니다(`SharedTransitionLayout` container transform).
+- **태블릿 노트 전환 페이드.** 3단 레이아웃에서 다른 노트를 고를 때 에디터 패널이 부드럽게 cross-fade 됩니다.
+- **태블릿 태그 사이드바 접기.** 태그 레일을 완전히 숨겨 글쓰기 공간을 넓히고("<" 버튼), 노트 목록 헤더의 ">" 버튼으로 다시 엽니다. Bear의 사이드바 접기와 같은 결입니다.
+
+### Fixed
+- **체크박스 토글(#145).** 툴바 체크박스 버튼이 이미 체크리스트인 줄에서는 `- [ ]`↔`- [x]`를 토글합니다(이전에는 항상 새 항목만 삽입). 일반 줄에서는 그대로 새 `- [ ]` 항목을 만듭니다.
+
+### Changed
+- **툴체인 현행화.** Kotlin 1.9.22 → 2.0.21(Compose 컴파일러 Gradle 플러그인 전환), Compose BOM 2024.02.02 → 2024.12.01(Compose 1.7.6), AGP 8.3.0 → 8.7.3, Gradle 8.5 → 8.9, Navigation 2.8 / Activity 1.9 / Lifecycle 2.8, Robolectric 4.14.1, Roborazzi 1.29.0. 위 인터랙션 기능은 Compose 1.7+가 필요합니다. compileSdk/targetSdk는 35 유지.
+- **에디터 입력 성능.** 라이브 마크다운 하이라이팅을 메모이즈하고 VisualTransformation을 안정화해, 큰 노트에서 키 입력마다 전체 문서를 정규식으로 재스캔하지 않습니다.
+- **마크다운 미리보기 링크.** Compose 1.7에서 deprecated된 `ClickableText`를 `LinkAnnotation`으로 교체했습니다(접근성 개선, 렌더링 동일).
+
+### Tests
+- 체크박스 토글(TODO↔DONE, 들여쓰기, 캐럿 보존) 단위 테스트를 추가했습니다. `./gradlew test lintRelease` 통과.
+
 ## v2.20.0 - 에디터 라이팅 강화 · 태블릿 3단 레이아웃 (Editor Writing Upgrades & Tablet 3-Column) - 2026-06-23
 
 iPad의 Bear에 한 걸음 더 다가선 기능 릴리스입니다. 키보드 단축키·태그 자동완성·목차·세리프 글꼴로 글쓰기 경험을 다듬고, 태블릿에서 "태그 · 노트 목록 · 에디터" 3단 레이아웃을 도입했습니다. 모두 로컬 전용이며 새 의존성은 없습니다.

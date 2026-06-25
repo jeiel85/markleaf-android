@@ -311,12 +311,16 @@ fun NotesListScreen(
             ) {
                 sections.forEach { section ->
                     item(key = "header-${section.titleResId}") {
-                        SectionHeader(stringResource(section.titleResId))
+                        SectionHeader(
+                            stringResource(section.titleResId),
+                            modifier = Modifier.animateItem()
+                        )
                     }
                     items(section.notes, key = { it.id }) { note ->
                         NoteRow(
                             note = note,
                             selected = note.id == selectedNoteId,
+                            modifier = Modifier.animateItem(),
                             onClick = { onNoteClick(note.id) },
                             onTogglePin = {
                                 hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
@@ -342,7 +346,7 @@ fun NotesListScreen(
 }
 
 @Composable
-private fun SectionHeader(text: String) {
+private fun SectionHeader(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text,
         style = MaterialTheme.typography.labelMedium.copy(
@@ -350,7 +354,7 @@ private fun SectionHeader(text: String) {
             letterSpacing = 0.5.sp
         ),
         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-        modifier = Modifier
+        modifier = modifier
             .padding(start = 24.dp, top = 20.dp, end = 24.dp, bottom = 6.dp)
             .semantics { heading() }
     )
@@ -365,7 +369,8 @@ private fun NoteRow(
     onTogglePin: () -> Unit,
     onArchive: () -> Unit,
     onMoveToTrash: () -> Unit,
-    onLongPress: () -> Unit
+    onLongPress: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     val itemBackground = if (selected) {
@@ -374,7 +379,7 @@ private fun NoteRow(
         Color.Transparent
     }
 
-    Box {
+    Box(modifier) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()

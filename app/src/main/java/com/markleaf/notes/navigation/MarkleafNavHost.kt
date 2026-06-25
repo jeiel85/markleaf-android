@@ -1,10 +1,18 @@
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
 package com.markleaf.notes.navigation
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.foundation.background
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
@@ -67,6 +75,14 @@ import com.markleaf.notes.ui.viewmodel.TrashViewModel
 import com.markleaf.notes.ui.viewmodel.SyncCenterViewModel
 import kotlinx.coroutines.launch
 
+// Scopes for the list-card -> editor shared-element (container transform). They
+// are only non-null on the phone navigation path (provided around the NavHost
+// and the NOTES destination); the tablet layout opens the editor in-pane with no
+// AnimatedContent to morph through, so its rows read null and render normally.
+val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope?> { null }
+val LocalNavAnimatedVisibilityScope = compositionLocalOf<AnimatedVisibilityScope?> { null }
+
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun MarkleafNavHost(
     navController: NavHostController,
@@ -119,6 +135,12 @@ fun MarkleafNavHost(
     // tablet layout keeps the editor in-pane (no navigation) and never hits these.
     val navMotion = tween<Float>(durationMillis = 280)
     val navOffsetMotion = tween<IntOffset>(durationMillis = 280)
+    // SharedTransitionLayout wraps the graph so a tapped note card can morph into
+    // the editor (container transform). `this` is the SharedTransitionScope; it is
+    // published via LocalSharedTransitionScope so the deeply-nested NoteRow (source)
+    // and the EDITOR destination (target) can tag matching bounds.
+    SharedTransitionLayout {
+    CompositionLocalProvider(LocalSharedTransitionScope provides this) {
     NavHost(
         navController = navController,
         startDestination = NavRoutes.NOTES,
@@ -261,6 +283,11 @@ fun MarkleafNavHost(
                     }
                 }
             } else {
+                // Publish this NOTES destination's AnimatedVisibilityScope so its
+                // rows can act as the shared-element source for the card->editor
+                // morph. Phone path only — the tablet branch above opens the editor
+                // in-pane and provides no scope.
+                CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides this) {
                 NotesListScreen(
                     viewModel = viewModel,
                     onNoteClick = { noteId ->
@@ -278,15 +305,34 @@ fun MarkleafNavHost(
                     onTrashClick = { navController.navigate(NavRoutes.TRASH) },
                     onSettingsClick = { navController.navigate(NavRoutes.SETTINGS) }
                 )
+                }
             }
         }
         composable(NavRoutes.EDITOR) {
             val noteId = it.arguments?.getString("noteId")
-            EditorScreen(
-                noteId = noteId,
-                onBack = { navController.popBackStack() },
-                onNavigateToNote = { id -> navController.navigate(NavRoutes.editorRoute(id)) }
-            )
+            val sharedScope = LocalSharedTransitionScope.current
+            val avScope = this
+            val editorContent = @Composable {
+                EditorScreen(
+                    noteId = noteId,
+                    onBack = { navController.popBackStack() },
+                    onNavigateToNote = { id -> navController.navigate(NavRoutes.editorRoute(id)) }
+                )
+            }
+            // Target half of the container transform: the editor surface morphs
+            // from the tapped row's bounds (matched by the "note-<id>" key).
+            if (sharedScope != null && noteId != null) {
+                with(sharedScope) {
+                    Box(
+                        Modifier.sharedBounds(
+                            rememberSharedContentState(key = "note-$noteId"),
+                            animatedVisibilityScope = avScope
+                        )
+                    ) { editorContent() }
+                }
+            } else {
+                editorContent()
+            }
         }
         composable(NavRoutes.TAGS) {
             TagsScreen(
@@ -350,6 +396,8 @@ fun MarkleafNavHost(
             )
         }
     }
+    } // CompositionLocalProvider(LocalSharedTransitionScope)
+    } // SharedTransitionLayout
 }
 
 @Composable

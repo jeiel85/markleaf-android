@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -67,6 +68,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
 import com.markleaf.notes.domain.model.Note
+import com.markleaf.notes.navigation.LocalNavAnimatedVisibilityScope
+import com.markleaf.notes.navigation.LocalSharedTransitionScope
 import com.markleaf.notes.ui.viewmodel.NotesViewModel
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -360,7 +363,7 @@ private fun SectionHeader(text: String, modifier: Modifier = Modifier) {
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
 private fun NoteRow(
     note: Note,
@@ -379,7 +382,23 @@ private fun NoteRow(
         Color.Transparent
     }
 
-    Box(modifier) {
+    // Source half of the card->editor container transform. Only active on the
+    // phone nav path, where both scopes are published; the tablet in-pane editor
+    // provides neither, so the row just renders normally.
+    val sharedScope = LocalSharedTransitionScope.current
+    val avScope = LocalNavAnimatedVisibilityScope.current
+    val rowModifier = if (sharedScope != null && avScope != null) {
+        with(sharedScope) {
+            modifier.sharedBounds(
+                rememberSharedContentState(key = "note-${note.id}"),
+                animatedVisibilityScope = avScope
+            )
+        }
+    } else {
+        modifier
+    }
+
+    Box(rowModifier) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()

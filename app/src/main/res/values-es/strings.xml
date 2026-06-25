@@ -4,6 +4,8 @@
     <string name="notes_title">Notas</string>
     <string name="collapse_note_list">Contraer lista de notas</string>
     <string name="expand_note_list">Expandir lista de notas</string>
+    <string name="hide_tags">Ocultar etiquetas</string>
+    <string name="show_tags">Mostrar etiquetas</string>
     <string name="search">Buscar</string>
     <string name="tags">Etiquetas</string>
     <string name="trash">Papelera</string>

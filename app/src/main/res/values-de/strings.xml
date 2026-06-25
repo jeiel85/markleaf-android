@@ -4,6 +4,8 @@
     <string name="notes_title">Notizen</string>
     <string name="collapse_note_list">Notizliste einklappen</string>
     <string name="expand_note_list">Notizliste ausklappen</string>
+    <string name="hide_tags">Tags ausblenden</string>
+    <string name="show_tags">Tags einblenden</string>
     <string name="search">Suche</string>
     <string name="tags">Tags</string>
     <string name="trash">Papierkorb</string>

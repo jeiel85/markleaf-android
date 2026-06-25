@@ -4,6 +4,8 @@
     <string name="notes_title">ノート</string>
     <string name="collapse_note_list">ノート一覧を折りたたむ</string>
     <string name="expand_note_list">ノート一覧を展開</string>
+    <string name="hide_tags">タグを非表示</string>
+    <string name="show_tags">タグを表示</string>
     <string name="search">検索</string>
     <string name="tags">タグ</string>
     <string name="trash">ゴミ箱</string>

@@ -16,6 +16,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Archive
@@ -93,6 +94,7 @@ fun NotesListScreen(
     onTrashClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     onCollapseClick: (() -> Unit)? = null,
+    onShowTagRail: (() -> Unit)? = null,
     selectedNoteId: String? = null,
     selectedTag: String? = null,
     containerColor: Color = MaterialTheme.colorScheme.background,
@@ -155,6 +157,19 @@ fun NotesListScreen(
                         text = stringResource(R.string.notes_title),
                         style = MaterialTheme.typography.headlineMedium
                     )
+                },
+                navigationIcon = {
+                    // Re-show the tag rail after it was hidden (tablet only — the
+                    // host passes this just when the rail is collapsed). Paired with
+                    // the rail's own "<" hide button.
+                    if (onShowTagRail != null) {
+                        IconButton(onClick = onShowTagRail) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                contentDescription = stringResource(R.string.show_tags)
+                            )
+                        }
+                    }
                 },
                 actions = {
                     if (onCollapseClick != null) {

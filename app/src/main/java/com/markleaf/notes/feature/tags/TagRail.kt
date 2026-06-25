@@ -4,15 +4,21 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -38,7 +44,8 @@ import com.markleaf.notes.data.repository.LocalTagRepository
 fun TagRail(
     selectedTag: String?,
     onSelectTag: (String?) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onCollapse: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
     val tagRepository = remember { LocalTagRepository(AppDatabase.getInstance(context)) }
@@ -47,13 +54,31 @@ fun TagRail(
 
     LazyColumn(modifier = modifier.fillMaxSize()) {
         item(key = "__rail_header__") {
-            Text(
-                text = stringResource(R.string.tags),
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                modifier = Modifier.padding(start = 16.dp, end = 12.dp, top = 12.dp, bottom = 6.dp)
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.tags),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 16.dp, end = 12.dp, top = 12.dp, bottom = 6.dp)
+                )
+                // Bear-style: hide the whole rail to reclaim writing space. The
+                // re-show affordance lives in the note-list top bar (NotesListScreen).
+                if (onCollapse != null) {
+                    IconButton(onClick = onCollapse) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                            contentDescription = stringResource(R.string.hide_tags),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
         }
         item(key = "__all_notes__") {
             TagRailRow(

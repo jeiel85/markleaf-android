@@ -4,6 +4,8 @@
     <string name="notes_title">Notes</string>
     <string name="collapse_note_list">Collapse note list</string>
     <string name="expand_note_list">Expand note list</string>
+    <string name="hide_tags">Hide tags</string>
+    <string name="show_tags">Show tags</string>
     <string name="search">Search</string>
     <string name="tags">Tags</string>
     <string name="trash">Trash</string>

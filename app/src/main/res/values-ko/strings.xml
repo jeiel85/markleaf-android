@@ -4,6 +4,8 @@
     <string name="notes_title">노트</string>
     <string name="collapse_note_list">노트 목록 접기</string>
     <string name="expand_note_list">노트 목록 펼치기</string>
+    <string name="hide_tags">태그 숨기기</string>
+    <string name="show_tags">태그 보기</string>
     <string name="search">검색</string>
     <string name="tags">태그</string>
     <string name="trash">휴지통</string>

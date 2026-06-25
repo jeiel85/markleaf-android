@@ -3,6 +3,7 @@
 package com.markleaf.notes.navigation
 
 import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
@@ -253,31 +254,46 @@ fun MarkleafNavHost(
                             .background(editorPaneColor),
                         contentAlignment = Alignment.TopCenter
                     ) {
-                        if (selectedNoteId != null) {
-                            Box(
-                                modifier = Modifier
-                                    .widthIn(max = appSettings.lineWidth.maxWidthDp.dp)
-                                    .fillMaxWidth()
-                                    .fillMaxHeight()
-                            ) {
-                                EditorScreen(
-                                    noteId = selectedNoteId,
-                                    onBack = { selectedNoteId = null },
-                                    onNavigateToNote = { id -> selectedNoteId = id }
-                                )
-                            }
-                        } else {
-                            Box(
-                                modifier = Modifier
-                                    .widthIn(max = appSettings.lineWidth.maxWidthDp.dp)
-                                    .fillMaxWidth()
-                                    .fillMaxHeight(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.select_note_to_view),
-                                    color = MaterialTheme.colorScheme.onBackground
-                                )
+                        // Switching notes in the 3-pane swaps the editor content in
+                        // place; cross-fade it (empty state included) so it doesn't
+                        // snap. A fade — not the phone's card morph — because tablet
+                        // users flip between notes rapidly and a morph each time
+                        // would feel heavy. Keyed on selectedNoteId so the outgoing
+                        // editor keeps showing its own note as it fades.
+                        Crossfade(
+                            targetState = selectedNoteId,
+                            animationSpec = tween(durationMillis = 220),
+                            modifier = Modifier.fillMaxSize(),
+                            label = "tablet editor pane"
+                        ) { paneNoteId ->
+                            if (paneNoteId != null) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.TopCenter
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .widthIn(max = appSettings.lineWidth.maxWidthDp.dp)
+                                            .fillMaxWidth()
+                                            .fillMaxHeight()
+                                    ) {
+                                        EditorScreen(
+                                            noteId = paneNoteId,
+                                            onBack = { selectedNoteId = null },
+                                            onNavigateToNote = { id -> selectedNoteId = id }
+                                        )
+                                    }
+                                }
+                            } else {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.select_note_to_view),
+                                        color = MaterialTheme.colorScheme.onBackground
+                                    )
+                                }
                             }
                         }
                     }

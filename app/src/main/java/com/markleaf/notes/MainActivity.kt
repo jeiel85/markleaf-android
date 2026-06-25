@@ -165,23 +165,26 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    // androidx.activity 1.9 tightened this override to a non-null Intent (it
+    // mirrors the platform's @NonNull annotation), so the parameter and the
+    // body's former null-safe calls are now plain non-null accesses.
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         when {
-            intent?.action == QuickNoteWidget.ACTION_CREATE_NOTE -> {
+            intent.action == QuickNoteWidget.ACTION_CREATE_NOTE -> {
                 setIntent(intent)
                 recreate()
             }
-            intent?.action == QuickNoteWidget.ACTION_OPEN_NOTE -> {
+            intent.action == QuickNoteWidget.ACTION_OPEN_NOTE -> {
                 setIntent(intent)
                 recreate()
             }
-            intent?.action == Intent.ACTION_SEND &&
+            intent.action == Intent.ACTION_SEND &&
                 (intent.streamUri() != null || extractSharedText(intent) != null) -> {
                 setIntent(intent)
                 recreate()
             }
-            intent?.action == Intent.ACTION_VIEW && intent.data != null -> {
+            intent.action == Intent.ACTION_VIEW && intent.data != null -> {
                 setIntent(intent)
                 recreate()
             }

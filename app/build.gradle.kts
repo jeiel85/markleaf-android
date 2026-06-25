@@ -3,6 +3,7 @@ import java.util.Properties
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.devtools.ksp")
     id("io.github.takahirom.roborazzi")
 }
@@ -119,9 +120,9 @@ android {
         buildConfig = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
-    }
+    // Compose compiler is configured by the org.jetbrains.kotlin.plugin.compose
+    // Gradle plugin (Kotlin 2.0+); the old composeOptions.kotlinCompilerExtensionVersion
+    // no longer applies.
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -281,7 +282,7 @@ val exportReleaseToDesktop by tasks.registering {
 }
 
 dependencies {
-    val composeBom = platform("androidx.compose:compose-bom:2024.02.02")
+    val composeBom = platform("androidx.compose:compose-bom:2024.12.01")
     implementation(composeBom)
     
     // Compose
@@ -294,15 +295,17 @@ dependencies {
     implementation("androidx.compose.runtime:runtime-livedata")
     
     // Lifecycle
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
-    
-    // Activity Compose
-    implementation("androidx.activity:activity-compose:1.8.2")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+
+    // Activity Compose — 1.9+ wires Compose into the platform predictive-back
+    // dispatcher so PredictiveBackHandler animates the system back gesture.
+    implementation("androidx.activity:activity-compose:1.9.3")
     implementation("androidx.tracing:tracing:1.2.0")
 
-    // Navigation Compose
-    implementation("androidx.navigation:navigation-compose:2.7.7")
+    // Navigation Compose — 2.8+ adds predictive-back support for composable
+    // destinations.
+    implementation("androidx.navigation:navigation-compose:2.8.5")
     
     // Room
     val roomVersion = "2.6.1"
@@ -350,15 +353,15 @@ dependencies {
     testImplementation("androidx.test:core:1.5.0")
     testImplementation("androidx.test.ext:junit:1.2.1")
     testImplementation("org.mockito:mockito-core:5.7.0")
-    testImplementation("org.robolectric:robolectric:4.12.2")
+    testImplementation("org.robolectric:robolectric:4.14.1")
     testImplementation("androidx.room:room-testing:2.6.1")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
     testImplementation(composeBom)
     testImplementation("androidx.compose.ui:ui-test-junit4")
     testImplementation("androidx.compose.ui:ui-test-manifest")
-    testImplementation("io.github.takahirom.roborazzi:roborazzi:1.20.0")
-    testImplementation("io.github.takahirom.roborazzi:roborazzi-compose:1.20.0")
-    testImplementation("io.github.takahirom.roborazzi:roborazzi-junit-rule:1.20.0")
+    testImplementation("io.github.takahirom.roborazzi:roborazzi:1.29.0")
+    testImplementation("io.github.takahirom.roborazzi:roborazzi-compose:1.29.0")
+    testImplementation("io.github.takahirom.roborazzi:roborazzi-junit-rule:1.29.0")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test:core:1.6.1")
     androidTestImplementation("androidx.test:runner:1.6.2")

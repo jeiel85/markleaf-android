@@ -1,5 +1,10 @@
 package com.markleaf.notes.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
@@ -34,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
 import androidx.lifecycle.ViewModelProvider
@@ -105,9 +111,29 @@ fun MarkleafNavHost(
         }
     }
 
+    // Restrained shared-axis-X motion for forward/back navigation: the incoming
+    // screen slides a fifth of the width and cross-fades. Because the manifest
+    // opts into enableOnBackInvokedCallback and Navigation 2.8 makes the pop
+    // transitions seekable, the system back gesture drives popEnter/popExit as a
+    // predictive "peek" of the previous screen rather than an instant swap. The
+    // tablet layout keeps the editor in-pane (no navigation) and never hits these.
+    val navMotion = tween<Float>(durationMillis = 280)
+    val navOffsetMotion = tween<IntOffset>(durationMillis = 280)
     NavHost(
         navController = navController,
-        startDestination = NavRoutes.NOTES
+        startDestination = NavRoutes.NOTES,
+        enterTransition = {
+            slideInHorizontally(navOffsetMotion) { it / 5 } + fadeIn(navMotion)
+        },
+        exitTransition = {
+            slideOutHorizontally(navOffsetMotion) { -it / 5 } + fadeOut(navMotion)
+        },
+        popEnterTransition = {
+            slideInHorizontally(navOffsetMotion) { -it / 5 } + fadeIn(navMotion)
+        },
+        popExitTransition = {
+            slideOutHorizontally(navOffsetMotion) { it / 5 } + fadeOut(navMotion)
+        }
     ) {
         composable(NavRoutes.NOTES) {
             val viewModel = viewModel<NotesViewModel>(factory = viewModelFactory)

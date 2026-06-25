@@ -123,6 +123,36 @@ class MarkdownEditActionsTest {
     }
 
     @Test
+    fun checkbox_togglesTodoToDone() {
+        val result = MarkdownEditActions.checkbox(
+            TextFieldValue("- [ ] task", selection = TextRange(8))
+        )
+
+        assertEquals("- [x] task", result.text)
+        // Toggling swaps one character, so the caret must not move (#145).
+        assertEquals(TextRange(8), result.selection)
+    }
+
+    @Test
+    fun checkbox_togglesDoneToTodo() {
+        val result = MarkdownEditActions.checkbox(
+            TextFieldValue("- [x] task", selection = TextRange(8))
+        )
+
+        assertEquals("- [ ] task", result.text)
+        assertEquals(TextRange(8), result.selection)
+    }
+
+    @Test
+    fun checkbox_togglesIndentedItem() {
+        val result = MarkdownEditActions.checkbox(
+            TextFieldValue("  - [ ] sub", selection = TextRange(10))
+        )
+
+        assertEquals("  - [x] sub", result.text)
+    }
+
+    @Test
     fun markdownLink_usesSelectedTextAsLabelAndTarget() {
         val result = MarkdownEditActions.markdownLink(
             TextFieldValue("Open Target", selection = TextRange(5, 11))

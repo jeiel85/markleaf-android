@@ -8,6 +8,7 @@ object MarkdownEditActions {
     private val bulletPattern = Regex("""^([-*+])\s+""")
     private val orderedPattern = Regex("""^(\d+)\.\s+""")
     private val blockquotePattern = Regex("""^(>+)\s+""")
+    private val checkboxPattern = Regex("""^(\s*[-*+]) \[([ xX])]""")
 
     fun bold(value: TextFieldValue): TextFieldValue =
         wrapSelection(value, "**", "**", "bold")
@@ -21,8 +22,19 @@ object MarkdownEditActions {
     fun inlineCode(value: TextFieldValue): TextFieldValue =
         wrapSelection(value, "`", "`", "code")
 
-    fun checkbox(value: TextFieldValue): TextFieldValue =
-        insertAtLineStart(value, "- [ ] ")
+    /**
+     * On a line that is already a checklist item, toggle it between TODO `[ ]` and
+     * DONE `[x]` (#145). Otherwise turn the current line into a new `- [ ] ` item.
+     * Toggling swaps a single character, so the caret stays put.
+     */
+    fun checkbox(value: TextFieldValue): TextFieldValue {
+        val (lineStart, line) = currentLine(value)
+        val match = checkboxPattern.find(line) ?: return insertAtLineStart(value, "- [ ] ")
+        val markerOffset = lineStart + match.value.indexOf('[') + 1
+        val newMarker = if (value.text[markerOffset] == ' ') 'x' else ' '
+        val updated = value.text.substring(0, markerOffset) + newMarker + value.text.substring(markerOffset + 1)
+        return value.copy(text = updated, selection = value.selection)
+    }
 
     fun markdownLink(value: TextFieldValue): TextFieldValue {
         val selected = selectedText(value)

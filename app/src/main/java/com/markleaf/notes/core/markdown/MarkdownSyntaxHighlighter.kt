@@ -33,13 +33,37 @@ data class MarkdownSyntaxColors(
  * `BasicTextField`'s text manipulation operate on.
  */
 object MarkdownSyntaxHighlighter {
+    private class Memo(
+        val text: String,
+        val colors: MarkdownSyntaxColors,
+        val result: AnnotatedString
+    )
+
+    // Single-entry memo. The editor's `BasicTextField` runs this through a
+    // `VisualTransformation` on the UI thread, and Compose invokes that filter on
+    // every recomposition / measure pass — often more than once per keystroke.
+    // Each uncached call re-scans the whole document with 11 regex passes, so on a
+    // large note that O(n) work lands repeatedly on the main thread and drops
+    // frames. Caching the last (text, colors) keeps it to once per actual change.
+    // `highlight` is a pure function of its inputs and the result is an immutable
+    // `AnnotatedString`, so a benign cross-thread race can at worst recompute —
+    // it can never return wrong output.
+    @Volatile
+    private var memo: Memo? = null
+
     fun highlight(text: String, colors: MarkdownSyntaxColors): AnnotatedString {
+        memo?.let { cached ->
+            if (cached.text == text && cached.colors == colors) return cached.result
+        }
+
         val builder = AnnotatedString.Builder(text)
 
         addLineStyles(builder, text, colors)
         addInlineStyles(builder, text, colors)
 
-        return builder.toAnnotatedString()
+        val result = builder.toAnnotatedString()
+        memo = Memo(text, colors, result)
+        return result
     }
 
     private fun addLineStyles(

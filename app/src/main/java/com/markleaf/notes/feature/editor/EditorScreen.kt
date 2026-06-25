@@ -624,21 +624,28 @@ fun EditorScreen(
                     }
 
                     val colorScheme = MaterialTheme.colorScheme
-                    val markdownVisualTransformation = if (
+                    val markdownSyntaxVisible =
                         appSettings.markdownSyntaxVisibility == MarkdownSyntaxVisibility.SHOW && !isFocusMode
-                    ) {
-                        MarkdownSyntaxVisualTransformation(
-                            MarkdownSyntaxColors(
-                                heading = colorScheme.primary,
-                                emphasis = colorScheme.tertiary,
-                                link = colorScheme.primary,
-                                syntax = colorScheme.onSurfaceVariant,
-                                checkbox = colorScheme.secondary,
-                                code = colorScheme.tertiary
+                    // Stabilise the transformation instance: without `remember` a
+                    // fresh MarkdownSyntaxVisualTransformation is allocated on every
+                    // recomposition (i.e. every keystroke), which forces Compose to
+                    // re-run the syntax filter over the whole document each time.
+                    // Re-key only when the colours or visibility actually change.
+                    val markdownVisualTransformation = remember(colorScheme, markdownSyntaxVisible) {
+                        if (markdownSyntaxVisible) {
+                            MarkdownSyntaxVisualTransformation(
+                                MarkdownSyntaxColors(
+                                    heading = colorScheme.primary,
+                                    emphasis = colorScheme.tertiary,
+                                    link = colorScheme.primary,
+                                    syntax = colorScheme.onSurfaceVariant,
+                                    checkbox = colorScheme.secondary,
+                                    code = colorScheme.tertiary
+                                )
                             )
-                        )
-                    } else {
-                        VisualTransformation.None
+                        } else {
+                            VisualTransformation.None
+                        }
                     }
                     Box(Modifier.weight(1f), contentAlignment = Alignment.TopStart) {
                         BasicTextField(

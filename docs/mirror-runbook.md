@@ -58,4 +58,4 @@ pwsh scripts/verify-mirror.ps1
 
 - Push 순서: **GitLab 먼저 → GitHub 다음** (GitHub 장애가 백업을 막지 않도록)
 - 자동 force push 금지
-- GitHub Actions / 제3자 Actions 미사용
+- GitHub Actions: 빌드/릴리스용으로 **활성** (`.github/workflows/android-build.yml`, 2026-07-10 확인). `v*` 태그 푸시 → 서명 빌드 → 인증서 SHA-256(`0be97352…f91a`) 검증 게이트 → GitHub Release 자동 생성(APK + `mapping.txt`, author `github-actions[bot]`). **원칙: 워크플로는 저장소로 되커밋하지 않는다** — 산출물은 Actions 아티팩트/Release 첨부뿐이며, 과거 flag를 유발한 `.ci-artifacts` 커밋 방식은 폐기됨. 제3자 Actions는 미사용.

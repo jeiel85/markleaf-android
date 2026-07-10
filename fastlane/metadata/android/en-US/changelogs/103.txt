@@ -1,0 +1,5 @@
+A fix for folder sync.
+
+• Fixed: a note you deleted could reappear after you restarted the app while syncing to a folder. Deleted (and archived) notes now stay that way.
+
+Your notes and highlights are untouched.

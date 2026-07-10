@@ -1,0 +1,5 @@
+Une correction pour la synchronisation de dossier.
+
+• Corrigé : une note supprimée pouvait réapparaître au redémarrage de l'application lors d'une synchronisation avec un dossier. Les notes supprimées (et archivées) le restent désormais.
+
+Vos notes et surlignages restent intacts.

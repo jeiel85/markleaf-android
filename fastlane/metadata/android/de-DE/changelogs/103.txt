@@ -1,0 +1,5 @@
+Eine Korrektur für die Ordner-Synchronisierung.
+
+• Behoben: Eine gelöschte Notiz konnte nach einem Neustart der App wieder auftauchen, wenn mit einem Ordner synchronisiert wird. Gelöschte (und archivierte) Notizen bleiben es jetzt.
+
+Deine Notizen und Markierungen bleiben unberührt.

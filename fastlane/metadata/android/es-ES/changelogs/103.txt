@@ -1,0 +1,5 @@
+Una corrección para la sincronización con carpeta.
+
+• Corregido: una nota eliminada podía reaparecer al reiniciar la app mientras se sincroniza con una carpeta. Las notas eliminadas (y archivadas) ahora se mantienen así.
+
+Tus notas y resaltados permanecen intactos.

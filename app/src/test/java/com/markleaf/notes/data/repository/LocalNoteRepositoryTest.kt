@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -114,6 +115,44 @@ class LocalNoteRepositoryTest {
         repository.deleteForever("n1")
 
         assertNull(repository.getNote("n1"))
+    }
+
+    @Test
+    fun `getAllNotes returns active, archived and trashed so sync can match hidden notes`() = runTest {
+        val now = Instant.ofEpochMilli(1L)
+        fun note(id: String) = Note(
+            id = id, title = id, contentMarkdown = id, excerpt = id,
+            createdAt = now, updatedAt = now
+        )
+        repository.createNote(note("active"))
+        repository.createNote(note("archived"))
+        repository.createNote(note("trashed"))
+        repository.setArchived("archived", true)
+        repository.moveToTrash("trashed")
+
+        val all = repository.getAllNotes()
+        assertEquals(setOf("active", "archived", "trashed"), all.map { it.id }.toSet())
+        // The trashed flag must round-trip so the importer can skip it (#148).
+        assertTrue(all.first { it.id == "trashed" }.trashed)
+    }
+
+    @Test
+    fun `restoreFromTrash re-activates a note so folder sync stops skipping it`() = runTest {
+        val now = Instant.ofEpochMilli(1L)
+        val note = Note(
+            id = "n1", title = "T", contentMarkdown = "T", excerpt = "T",
+            createdAt = now, updatedAt = now
+        )
+        repository.createNote(note)
+        repository.moveToTrash("n1")
+        // While trashed, getAllNotes surfaces it flagged so the importer skips it.
+        assertTrue(repository.getAllNotes().first { it.id == "n1" }.trashed)
+
+        repository.restoreFromTrash("n1")
+
+        // After restore it's active again (trashed = false) → reconciled as usual.
+        assertFalse(repository.getAllNotes().first { it.id == "n1" }.trashed)
+        assertEquals(listOf("n1"), repository.observeNotes().first().map { it.id })
     }
 
     @Test

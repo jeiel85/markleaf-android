@@ -6,6 +6,9 @@ import kotlinx.coroutines.flow.Flow
 interface NoteRepository {
     fun observeNotes(): Flow<List<Note>>
     suspend fun getNote(noteId: String): Note?
+    /** Every note regardless of state (active/archived/trashed) — used by the
+     *  folder reconcile so hidden notes aren't re-imported as new (#148). */
+    suspend fun getAllNotes(): List<Note>
     suspend fun createNote(note: Note)
     suspend fun updateNote(note: Note)
     suspend fun moveToTrash(noteId: String)

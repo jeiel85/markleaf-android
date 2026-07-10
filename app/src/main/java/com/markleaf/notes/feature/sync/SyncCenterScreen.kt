@@ -202,7 +202,9 @@ fun SyncCenterScreen(
                                         isSyncing = true
                                         scope.launch {
                                             val notes = withContext(Dispatchers.IO) {
-                                                noteRepository.observeNotes().first()
+                                                // Full set (incl. trashed/archived) so a hidden
+                                                // note isn't re-imported as new — see #148.
+                                                noteRepository.getAllNotes()
                                             }
                                             val result = withContext(Dispatchers.IO) {
                                                 NoteFolderMirror.importChanges(

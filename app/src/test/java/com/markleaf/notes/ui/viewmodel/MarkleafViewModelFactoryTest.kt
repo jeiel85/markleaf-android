@@ -60,6 +60,7 @@ class MarkleafViewModelFactoryTest {
     private class FakeNoteRepository : NoteRepository {
         override fun observeNotes(): Flow<List<Note>> = flowOf(emptyList())
         override suspend fun getNote(noteId: String): Note? = null
+        override suspend fun getAllNotes(): List<Note> = emptyList()
         override suspend fun createNote(note: Note) = Unit
         override suspend fun updateNote(note: Note) = Unit
         override suspend fun moveToTrash(noteId: String) = Unit

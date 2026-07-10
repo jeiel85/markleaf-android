@@ -23,6 +23,10 @@ class LocalNoteRepository(
         return database.noteDao().getNoteById(noteId)?.toDomain()
     }
 
+    override suspend fun getAllNotes(): List<Note> {
+        return database.noteDao().getAllNotes().map { it.toDomain() }
+    }
+
     override suspend fun createNote(note: Note) {
         database.noteDao().insertNote(note.toEntity())
     }

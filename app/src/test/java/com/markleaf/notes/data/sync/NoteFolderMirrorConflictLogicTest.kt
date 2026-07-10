@@ -1,89 +1,128 @@
 package com.markleaf.notes.data.sync
 
+import com.markleaf.notes.data.sync.NoteFolderMirror.Reconcile
 import com.markleaf.notes.domain.model.Note
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.time.Instant
 
 /**
- * Pure-logic checks of [NoteFolderMirror.importChanges]'s conflict
- * decision tree. These don't exercise the SAF IO path — that's tested
- * via the live tablet smoke. They document the four corners of the
- * "newer file vs local edit since last sync" matrix.
+ * Pure-logic checks of [NoteFolderMirror.reconcileAction] — the decision the
+ * folder reconcile makes for a single mirror file. These drive the real
+ * production function (no reimplementation) but don't exercise the SAF IO,
+ * which stays covered by the live tablet smoke.
  */
 class NoteFolderMirrorConflictLogicTest {
 
-    /**
-     * Replays the decision the importChanges branch makes given (file ts,
-     * db ts, last imported ts). Returns one of "OVERWRITE" / "CONFLICT" /
-     * "SKIP". Mirrors the implementation comments without exercising IO.
-     */
-    private enum class Outcome { OVERWRITE, CONFLICT, SKIP }
-
-    private fun decide(fileTs: Long, dbTs: Long, lastImport: Long?): Outcome {
-        val fileNewer = fileTs > dbTs + 2_000L
-        if (!fileNewer) return Outcome.SKIP
-        val import = lastImport ?: 0L
-        val localEditedSinceImport = dbTs > import + 2_000L
-        return if (localEditedSinceImport) Outcome.CONFLICT else Outcome.OVERWRITE
-    }
-
-    private fun base() = Note(
+    /** A note with the given sync timestamps; active unless flagged otherwise. */
+    private fun note(
+        updatedAtMs: Long,
+        lastImportMs: Long? = null,
+        trashed: Boolean = false,
+        archived: Boolean = false
+    ) = Note(
         id = "n1",
         title = "T",
         contentMarkdown = "T",
         excerpt = "T",
         createdAt = Instant.ofEpochMilli(0),
-        updatedAt = Instant.ofEpochMilli(0)
+        updatedAt = Instant.ofEpochMilli(updatedAtMs),
+        trashed = trashed,
+        archived = archived,
+        lastImportedAt = lastImportMs?.let { Instant.ofEpochMilli(it) }
     )
+
+    private fun action(existing: Note?, fileTsMs: Long) =
+        NoteFolderMirror.reconcileAction(existing, Instant.ofEpochMilli(fileTsMs))
+
+    // --- unknown file → new note -------------------------------------------
+
+    @Test
+    fun noMatchingNote_isCreate() {
+        assertEquals(Reconcile.Create, action(existing = null, fileTsMs = 100_000))
+    }
+
+    // --- #148: a note in Trash is never re-imported ------------------------
+
+    @Test
+    fun trashedNote_isSkipped_evenWhenFileIsNewer() {
+        // File looks far newer, but the note is deleted — it must not resurrect.
+        assertEquals(
+            Reconcile.SkipTrashed,
+            action(note(updatedAtMs = 0, trashed = true), fileTsMs = 100_000)
+        )
+    }
+
+    @Test
+    fun archivedNote_reconcilesNormally_notSkipped() {
+        // Archived notes stay hidden but still take folder edits — only Trash is
+        // skipped (#148).
+        assertEquals(
+            Reconcile.Overwrite,
+            action(note(updatedAtMs = 10_000, lastImportMs = 10_000, archived = true), fileTsMs = 100_000)
+        )
+    }
+
+    @Test
+    fun restoredFromTrash_reconcilesNormally() {
+        // After restoreFromTrash the note is active again (trashed = false), so a
+        // later sync updates it as usual instead of skipping it.
+        assertEquals(
+            Reconcile.Overwrite,
+            action(note(updatedAtMs = 10_000, lastImportMs = 10_000, trashed = false), fileTsMs = 100_000)
+        )
+    }
+
+    // --- newer-file vs local-edit conflict matrix --------------------------
 
     @Test
     fun fileOlder_isSkipped() {
-        // Local was edited; remote file hasn't moved past it.
-        assertEquals(Outcome.SKIP, decide(fileTs = 1_000, dbTs = 5_000, lastImport = 0))
+        // Local was edited; the remote file hasn't moved past it.
+        assertEquals(Reconcile.Skip, action(note(updatedAtMs = 5_000, lastImportMs = 0), fileTsMs = 1_000))
     }
 
     @Test
     fun fileNewerAndLocalUntouched_isOverwrite() {
-        // Last sync stamped lastImport at 10s. Local hasn't moved past
-        // that (still 10s). Remote file is at 100s. Safe to overwrite.
+        // Last sync stamped lastImport at 10s; local hasn't moved past that.
+        // Remote file is at 100s → safe to overwrite.
         assertEquals(
-            Outcome.OVERWRITE,
-            decide(fileTs = 100_000, dbTs = 10_000, lastImport = 10_000)
+            Reconcile.Overwrite,
+            action(note(updatedAtMs = 10_000, lastImportMs = 10_000), fileTsMs = 100_000)
         )
     }
 
     @Test
     fun fileNewerAndLocalEditedAfterLastImport_isConflict() {
-        // Last sync at 10s. Local moved to 20s (edited locally after sync).
-        // Remote also at 100s. Both moved → conflict, keep duplicate.
+        // Local moved to 20s after the 10s sync; remote also at 100s → conflict.
         assertEquals(
-            Outcome.CONFLICT,
-            decide(fileTs = 100_000, dbTs = 20_000, lastImport = 10_000)
+            Reconcile.Conflict,
+            action(note(updatedAtMs = 20_000, lastImportMs = 10_000), fileTsMs = 100_000)
         )
     }
 
     @Test
     fun fileNewerAndNoPriorImport_isConflict() {
-        // Note was never imported (lastImport null). Any remote-newer
-        // case is treated as conflict to avoid silent overwrites of
-        // notes the user created locally.
+        // Never imported (lastImport null); any remote-newer case is a conflict
+        // to avoid silently overwriting a locally-created note.
         assertEquals(
-            Outcome.CONFLICT,
-            decide(fileTs = 100_000, dbTs = 50_000, lastImport = null)
+            Reconcile.Conflict,
+            action(note(updatedAtMs = 50_000, lastImportMs = null), fileTsMs = 100_000)
         )
     }
 
     @Test
     fun slackWindowAroundEqualTimestamps_treatedAsSkip() {
         // 1s difference is inside the 2s slack — treat as in sync.
-        assertEquals(Outcome.SKIP, decide(fileTs = 11_000, dbTs = 10_000, lastImport = 10_000))
+        assertEquals(
+            Reconcile.Skip,
+            action(note(updatedAtMs = 10_000, lastImportMs = 10_000), fileTsMs = 11_000)
+        )
     }
 
     @Test
     fun base_noteCarriesLastImportedAtField() {
-        // Smoke check that the new field exists on the domain model and
-        // defaults to null for fresh local notes.
-        assertEquals(null, base().lastImportedAt)
+        // Smoke check that the field exists on the domain model and defaults to
+        // null for fresh local notes.
+        assertEquals(null, note(updatedAtMs = 0).lastImportedAt)
     }
 }

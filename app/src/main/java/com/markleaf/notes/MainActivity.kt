@@ -78,7 +78,9 @@ class MainActivity : FragmentActivity() {
                 val uri = runCatching { android.net.Uri.parse(uriString) }.getOrNull()
                     ?: return@repeatOnLifecycle
                 val notes = withContext(Dispatchers.IO) {
-                    noteRepository.observeNotes().first()
+                    // Full set (incl. trashed/archived) so the reconcile can't
+                    // re-import a hidden note as a brand-new one — see #148.
+                    noteRepository.getAllNotes()
                 }
                 withContext(Dispatchers.IO) {
                     NoteFolderMirror.importChanges(

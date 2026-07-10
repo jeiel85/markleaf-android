@@ -22,6 +22,15 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE title = :title AND trashed = 0 AND archived = 0 LIMIT 1")
     suspend fun getNoteByTitle(title: String): NoteEntity?
 
+    /**
+     * Every note regardless of state — active, archived, or trashed. The folder
+     * reconcile needs the complete id set so a mirror file whose note is only
+     * hidden (in Trash or Archive) is recognised as already-existing instead of
+     * being re-imported as a brand-new active note (#148).
+     */
+    @Query("SELECT * FROM notes")
+    suspend fun getAllNotes(): List<NoteEntity>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNote(note: NoteEntity)
 

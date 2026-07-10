@@ -227,6 +227,11 @@ object NoteFolderMirror {
      * Walk the folder, parse each mirror file, and reconcile with the supplied
      * existing notes. Returns aggregated counts.
      *
+     * [existing] must be the *complete* note set — active, archived and
+     * trashed. A file matching a hidden note is otherwise mistaken for a new
+     * note and re-imported, which un-archives it or resurrects it from Trash
+     * (#148). Files matching a trashed note are skipped outright.
+     *
      * Conflict rule: *file wins iff its timestamp is strictly newer than the DB
      * record* (with a 2-second slack for filesystem clocks). Otherwise no change
      * is applied. Files without a `markleaf_id` become new notes (typical when
@@ -267,78 +272,77 @@ object NoteFolderMirror {
 
             val parsed = SyncFrontmatter.decode(raw)
             val existingNote = parsed.markleafId?.let(byId::get)
+            val fileTs = parsed.updatedAt ?: Instant.ofEpochMilli(file.lastModified())
 
             try {
-                if (existingNote == null) {
-                    val now = Instant.now()
-                    val newNote = Note(
-                        id = parsed.markleafId ?: UUID.randomUUID().toString(),
-                        title = TitleExtractor.extractTitle(parsed.body),
-                        contentMarkdown = parsed.body,
-                        excerpt = TitleExtractor.generateExcerpt(parsed.body),
-                        createdAt = parsed.createdAt ?: now,
-                        updatedAt = parsed.updatedAt ?: now,
-                        pinned = parsed.pinned ?: false,
-                        archived = parsed.archived ?: false,
-                        lastImportedAt = parsed.updatedAt ?: now
-                    )
-                    applyCreate(newNote)
-                    created++
-                    // A file with no `markleaf_id` (created in another app, or
-                    // hand-dropped) has nothing for the next reconcile to match
-                    // on, so every subsequent import would re-create it as a
-                    // brand-new note — the #140 "same note appears 4-5 times"
-                    // duplication. Stamp our id back into the file *in place* so
-                    // the next pass matches by id and updates instead. Existing
-                    // frontmatter keys are preserved. Best-effort: a failed
-                    // write just defers de-duplication to a later sync.
-                    if (parsed.markleafId == null) {
-                        stampFrontmatter(context, file, newNote, parsed.unknownKeys)
-                    }
-                } else {
-                    val fileTs = parsed.updatedAt
-                        ?: Instant.ofEpochMilli(file.lastModified())
-                    val dbTs = existingNote.updatedAt
-                    val fileNewer = fileTs.toEpochMilli() > dbTs.toEpochMilli() + SLACK_MILLIS
-                    if (fileNewer) {
-                        val lastImport = existingNote.lastImportedAt?.toEpochMilli() ?: 0L
-                        val localEditedSinceImport = dbTs.toEpochMilli() > lastImport + SLACK_MILLIS
-                        if (localEditedSinceImport) {
-                            // Both sides moved since the last sync. Keep the
-                            // local note untouched and bring the remote in as
-                            // a separate "(다른 기기 사본 …)" note so the user
-                            // can compare and merge by hand.
-                            val now = Instant.now()
-                            val baseTitle = TitleExtractor.extractTitle(parsed.body)
-                            val suffix = conflictSuffix(now)
-                            val duplicate = Note(
-                                id = UUID.randomUUID().toString(),
-                                title = "$baseTitle $suffix",
-                                contentMarkdown = parsed.body,
-                                excerpt = TitleExtractor.generateExcerpt(parsed.body),
-                                createdAt = parsed.createdAt ?: fileTs,
-                                updatedAt = fileTs,
-                                pinned = false,
-                                archived = false,
-                                lastImportedAt = fileTs
-                            )
-                            applyCreate(duplicate)
-                            conflicts++
-                        } else {
-                            val merged = existingNote.copy(
-                                title = TitleExtractor.extractTitle(parsed.body),
-                                contentMarkdown = parsed.body,
-                                excerpt = TitleExtractor.generateExcerpt(parsed.body),
-                                updatedAt = fileTs,
-                                pinned = parsed.pinned ?: existingNote.pinned,
-                                archived = parsed.archived ?: existingNote.archived,
-                                lastImportedAt = fileTs
-                            )
-                            applyUpdate(merged)
-                            updated++
+                when (reconcileAction(existingNote, fileTs)) {
+                    // A note in Trash keeps its mirror file on disk (deletion is
+                    // reversible; only permanent delete removes it). Re-importing
+                    // it would resurrect the deleted note (#148), so skip it.
+                    Reconcile.SkipTrashed -> skipped++
+                    // File isn't strictly newer than the DB note — nothing to do.
+                    Reconcile.Skip -> skipped++
+                    Reconcile.Create -> {
+                        val now = Instant.now()
+                        val newNote = Note(
+                            id = parsed.markleafId ?: UUID.randomUUID().toString(),
+                            title = TitleExtractor.extractTitle(parsed.body),
+                            contentMarkdown = parsed.body,
+                            excerpt = TitleExtractor.generateExcerpt(parsed.body),
+                            createdAt = parsed.createdAt ?: now,
+                            updatedAt = parsed.updatedAt ?: now,
+                            pinned = parsed.pinned ?: false,
+                            archived = parsed.archived ?: false,
+                            lastImportedAt = parsed.updatedAt ?: now
+                        )
+                        applyCreate(newNote)
+                        created++
+                        // A file with no `markleaf_id` (created in another app, or
+                        // hand-dropped) has nothing for the next reconcile to match
+                        // on, so every subsequent import would re-create it as a
+                        // brand-new note — the #140 "same note appears 4-5 times"
+                        // duplication. Stamp our id back into the file *in place* so
+                        // the next pass matches by id and updates instead. Existing
+                        // frontmatter keys are preserved. Best-effort: a failed
+                        // write just defers de-duplication to a later sync.
+                        if (parsed.markleafId == null) {
+                            stampFrontmatter(context, file, newNote, parsed.unknownKeys)
                         }
-                    } else {
-                        skipped++
+                    }
+                    Reconcile.Conflict -> {
+                        // Both sides moved since the last sync. Keep the local
+                        // note untouched and bring the remote in as a separate
+                        // "(다른 기기 사본 …)" note so the user can compare and
+                        // merge by hand.
+                        val baseTitle = TitleExtractor.extractTitle(parsed.body)
+                        val suffix = conflictSuffix(Instant.now())
+                        val duplicate = Note(
+                            id = UUID.randomUUID().toString(),
+                            title = "$baseTitle $suffix",
+                            contentMarkdown = parsed.body,
+                            excerpt = TitleExtractor.generateExcerpt(parsed.body),
+                            createdAt = parsed.createdAt ?: fileTs,
+                            updatedAt = fileTs,
+                            pinned = false,
+                            archived = false,
+                            lastImportedAt = fileTs
+                        )
+                        applyCreate(duplicate)
+                        conflicts++
+                    }
+                    Reconcile.Overwrite -> {
+                        val note = existingNote!!
+                        val merged = note.copy(
+                            title = TitleExtractor.extractTitle(parsed.body),
+                            contentMarkdown = parsed.body,
+                            excerpt = TitleExtractor.generateExcerpt(parsed.body),
+                            updatedAt = fileTs,
+                            pinned = parsed.pinned ?: note.pinned,
+                            archived = parsed.archived ?: note.archived,
+                            lastImportedAt = fileTs
+                        )
+                        applyUpdate(merged)
+                        updated++
                     }
                 }
             } catch (e: Exception) {
@@ -353,6 +357,36 @@ object NoteFolderMirror {
             errors = errors,
             conflicts = conflicts
         )
+    }
+
+    /** The action the reconcile takes for one mirror file. */
+    internal enum class Reconcile { Create, SkipTrashed, Skip, Overwrite, Conflict }
+
+    /**
+     * Decide what [importChanges] should do with a single mirror file, purely
+     * from its matching DB note (if any) and the file's effective timestamp.
+     * Extracted so the decision — the #148 Trash skip and the newer-file /
+     * local-edit conflict matrix — is unit-testable without the SAF IO path
+     * (which stays covered by the live tablet smoke).
+     *
+     * @param existingNote the DB note whose id matches the file, or null when
+     *   the file is unknown (a genuinely new / hand-dropped note).
+     * @param fileTs the file's effective modified time (frontmatter `updatedAt`,
+     *   falling back to the filesystem mtime).
+     */
+    internal fun reconcileAction(existingNote: Note?, fileTs: Instant): Reconcile {
+        if (existingNote == null) return Reconcile.Create
+        // A note in Trash must never be re-imported — that resurrects a note the
+        // user deleted (#148). Archived notes are *not* skipped: they stay hidden
+        // but still take edits from the folder.
+        if (existingNote.trashed) return Reconcile.SkipTrashed
+        val fileNewer =
+            fileTs.toEpochMilli() > existingNote.updatedAt.toEpochMilli() + SLACK_MILLIS
+        if (!fileNewer) return Reconcile.Skip
+        val lastImport = existingNote.lastImportedAt?.toEpochMilli() ?: 0L
+        val localEditedSinceImport =
+            existingNote.updatedAt.toEpochMilli() > lastImport + SLACK_MILLIS
+        return if (localEditedSinceImport) Reconcile.Conflict else Reconcile.Overwrite
     }
 
     private fun conflictSuffix(now: Instant): String {

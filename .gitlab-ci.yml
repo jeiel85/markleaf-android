@@ -24,7 +24,9 @@ cache:
 verify_android:
   stage: verify
   script:
-    - ./gradlew --no-daemon --stacktrace :app:testDebugUnitTest :app:lintRelease :app:assembleDebug
+    - ./gradlew :app:testDebugUnitTest
+    - ./gradlew :app:lintRelease
+    - ./gradlew :app:assembleDebug
     - test -s app/build/outputs/apk/debug/app-debug.apk
   artifacts:
     name: "markleaf-debug-$CI_COMMIT_SHORT_SHA"
@@ -43,17 +45,15 @@ package_signed_release:
   before_script:
     - chmod +x gradlew
     - install -d -m 700 .secrets
+    - install -d "$GRADLE_USER_HOME"
     - test -n "$MARKLEAF_RELEASE_KEYSTORE_BASE64"
     - printf '%s' "$MARKLEAF_RELEASE_KEYSTORE_BASE64" | base64 --decode > "$MARKLEAF_RELEASE_STORE_FILE"
     - test -s "$MARKLEAF_RELEASE_STORE_FILE"
     - chmod 600 "$MARKLEAF_RELEASE_STORE_FILE"
+    - printf '%s\n' 'markleaf.requireReleaseSigning=true' "markleaf.releaseExportDir=$CI_PROJECT_DIR/dist" > "$GRADLE_USER_HOME/gradle.properties"
   script:
     - rm -rf dist
-    - >-
-      ./gradlew --no-daemon --stacktrace
-      -Pmarkleaf.requireReleaseSigning=true
-      -Pmarkleaf.releaseExportDir="$CI_PROJECT_DIR/dist"
-      :app:exportReleaseArtifacts
+    - ./gradlew :app:exportReleaseArtifacts
     - test "$(find dist -maxdepth 1 -type f | wc -l)" -eq 4
     - test -n "$(find dist -maxdepth 1 -name "markleaf-$CI_COMMIT_TAG-vc*.apk" -print -quit)"
     - test -n "$(find dist -maxdepth 1 -name "markleaf-$CI_COMMIT_TAG-vc*.aab" -print -quit)"
@@ -73,6 +73,7 @@ package_signed_release:
     - grep -q '^<es-ES>$' "$NOTES"
   after_script:
     - rm -rf .secrets
+    - rm -f "$GRADLE_USER_HOME/gradle.properties"
   artifacts:
     name: "markleaf-$CI_COMMIT_TAG"
     expire_in: 7 days

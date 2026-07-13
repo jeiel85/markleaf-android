@@ -1,3 +1,24 @@
+## 2026-07-13 - v2.22.0 Slash Quick Insert
+
+- Trigger: After reviewing Markleaf's product direction, the user chose a `/` Quick Insert menu and asked to ship it as a new GitHub/GitLab release.
+- Scope: Local-only editor acceleration with no toolbar removal, dependency, permission, database, account, analytics, AI, or network change.
+- Work:
+  - Added line-scoped slash-query detection that ignores URLs, prose slashes, whitespace-closed queries, and non-collapsed selections.
+  - Added fourteen plain-Markdown commands: H1–H3, bullet, numbered, checklist, quote, fenced code, divider, GFM table, NOTE callout, wikilink, SAF image, and ISO date.
+  - Added a Material 3 Quick Insert panel with localized labels, Markdown previews, selected semantics, 48dp rows, touch selection, and external-keyboard Up/Down/Enter handling.
+  - Preserved editor focus, autosave, tag/wikilink autocomplete, image picker, focus mode, and the existing formatting toolbar.
+  - Added `DESIGN.md` by extracting the existing Compose visual system and documenting the new suggestion primitive.
+  - Added unit, Robolectric/Compose, resource parity, and instrumented editor coverage.
+  - Changed the release export contract to write directly to the canonical `D:\Build` directory; the Desktop `Build` entry is treated only as a shortcut. Added `exportReleaseToBuildDrive` and retained `exportReleaseToDesktop` as a compatibility alias.
+  - Bumped to versionName 2.22.0 / versionCode 104 and prepared all six fastlane changelogs.
+- Verification:
+  - `test`, `lintRelease`, `assembleDebug`, and `verifyRoborazziDebug` passed together (`BUILD SUCCESSFUL`, 116 tasks).
+  - API 36 `EditorScreenTest` passed 4/4 on an emulator, including `/` heading insertion and URL rejection. This gate exposed an initial `FocusRequester` attachment race; waiting one Compose frame changed the same suite from 4/4 failed to 4/4 passed.
+  - Fresh 360dp English/Korean and 800dp tablet Quick Insert renders showed no clipping or overlap.
+  - Signed `assembleRelease` and `exportReleaseToBuildDrive` passed; `D:\Build` contains the AAB (5,468,658 bytes), R8 mapping (41,545,520 bytes), and six-locale notes (1,845 bytes).
+  - Release APK signer SHA-256: `0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a`; `android.permission.INTERNET` remains absent.
+- Publication evidence is recorded in `.agent/progress.md` after the tag workflows complete.
+
 ## 2026-06-23 - v2.20.0 Editor writing upgrades & tablet 3-column layout
 
 - Trigger: After mapping the Bear-parity gap, the user approved shipping the "now tier" of editor improvements, then the tablet 3-column layout, and asked to cut a release once it was releasable.

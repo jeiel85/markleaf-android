@@ -1,0 +1,1 @@
+Escribe / al inicio de una línea para insertar títulos, listas, tareas, citas, código, tablas, avisos, wikienlaces, imágenes y fechas. Elige por toque o teclado físico; todo sigue siendo Markdown estándar. Sin permisos nuevos ni acceso a la red.

@@ -31,13 +31,14 @@
 
 **Markleaf** is an Android Markdown note app designed to strip away the clutter so you can focus on just two things: capturing and organizing. Your data is stored only on your device, and standard Markdown guarantees full ownership and portability. Even sync happens only through *a folder you choose* — Markleaf itself never goes online.
 
-[**View the branding page**](https://jeiel85.github.io/markleaf-android/) · [Current version: v2.20.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.20.0) · [Privacy Policy](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**View the branding page**](https://jeiel85.github.io/markleaf-android/) · [Current version: v2.22.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.22.0) · [Privacy Policy](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
 ## ✨ Key Features
 
 ### Writing & Preview
+- **`/` Quick Insert** — search commands at the start of a line to insert headings, lists, tables, callouts, wikilinks, images, and more as standard Markdown
 - **Live Markdown preview** — toggle instantly between editing and preview, or use the *Show Markdown syntax* option for live syntax coloring
 - **GFM tables / checkboxes / blockquotes / callouts (`> [!NOTE]` …)** — all rendered in preview
 - **Code block syntax highlighting** — token coloring for 10 languages: Kotlin, Java, Python, JavaScript/TypeScript, Bash, JSON, YAML, XML, SQL
@@ -119,7 +120,7 @@ com.markleaf.notes
 > **Google Play updates are currently on hold.** New versions won't be pushed to the Play Store until a Korean business-registration policy requirement for the solo developer is resolved. In the meantime, **get the latest version from F-Droid or GitHub Releases.** (If you already installed it from the Play Store, it keeps working.)
 
 - **F-Droid** *(recommended)*: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — search in the F-Droid client or install via the link above. It uses the same signing key (SHA-256 `0be97352…f91a`), so updates continue seamlessly even if you sideloaded the GitHub Releases APK.
-- **Direct APK install**: download the latest APK from the [v2.20.0 Release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.20.0) or the [Releases](https://github.com/jeiel85/markleaf-android/releases) page and run it on your Android device.
+- **Direct APK install**: download the latest APK from the [v2.22.0 Release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.22.0) or the [Releases](https://github.com/jeiel85/markleaf-android/releases) page and run it on your Android device.
 - **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **updates are paused** (see the note above). If you already have it, it keeps working, but get the latest version from F-Droid or GitHub.
 
 ### Building from source
@@ -183,6 +184,8 @@ How "never leaves your device" works exactly is documented in the [Privacy Polic
 - [x] **v2.18** Folder-sync files named after the note title (rename follows) + `.md`/`.txt` choice
 - [x] **v2.19** Six sample notes on first launch + PDF/Markdown export no longer duplicates the title
 - [x] **v2.20** Keyboard shortcuts, `#tag` autocomplete, table of contents, serif font, tablet 3-pane (tag sidebar + in-place filter) layout
+- [x] **v2.21** Predictive back, polished transitions, list/card motion, foldable tablet tag rail, checklist toggles
+- [x] **v2.22** `/` Quick Insert commands with touch, hardware-keyboard selection, and six localized menus
 - [x] **Google Play public launch** — anyone can install it from the Play Store
 
 ---

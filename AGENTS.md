@@ -86,13 +86,13 @@ Android 프로젝트가 아직 초기화되지 않았다면 먼저 표준 Kotlin
 
 ## Release Artifact Export
 
-사용자가 "새 버전 만들기"를 요청하면 버전 bump, changelog, fastlane changelog, 검증, commit/tag 작업과 함께 `Desktop\Build`에 Play Console 제출용 파일을 내보낸다. 이 dump는 전용 Gradle task로 자동화되어 있다:
+사용자가 "새 버전 만들기"를 요청하면 버전 bump, changelog, fastlane changelog, 검증, commit/tag 작업과 함께 실제 산출물 디렉터리인 `D:\Build`에 Play Console 제출용 파일을 내보낸다. 바탕화면의 `Build`는 이 디렉터리를 가리키는 바로가기일 뿐이며, 릴리스 task는 바로가기를 경유하지 않는다. 이 dump는 전용 Gradle task로 자동화되어 있다:
 
 ```bash
-./gradlew :app:exportReleaseToDesktop
+./gradlew :app:exportReleaseToBuildDrive
 ```
 
-이 task는 `bundleRelease`에 의존하므로 **서명 AAB**도 함께 빌드된다(서명: repo 루트 `release-signing.properties` + `.secrets/markleaf-release.p12` 키스토어; cert는 Play 업로드 키와 동일). 산출물은 모두 `Desktop\Build\` 평면 배치, 공통 stem `markleaf-v<semver>-vc<versionCode>`:
+이 task는 `bundleRelease`에 의존하므로 **서명 AAB**도 함께 빌드된다(서명: repo 루트 `release-signing.properties` + `.secrets/markleaf-release.p12` 키스토어; cert는 Play 업로드 키와 동일). 산출물은 모두 `D:\Build\` 평면 배치, 공통 stem `markleaf-v<semver>-vc<versionCode>`:
 
 - `markleaf-v<semver>-vc<versionCode>.aab` — `app/build/outputs/bundle/release/app-release.aab`(서명) 복사본
 - `markleaf-v<semver>-vc<versionCode>.mapping.txt` — R8 mapping(Play 크래시 deobfuscation; 있으면 복사)

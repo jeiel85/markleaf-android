@@ -1,0 +1,1 @@
+Mit / am Zeilenanfang lassen sich Überschriften, Listen, Checklisten, Zitate, Code, Tabellen, Callouts, Wikilinks, Bilder und Datum schnell einfügen. Auswahl per Touch oder externer Tastatur; alles bleibt Standard-Markdown. Keine neuen Berechtigungen oder Netzwerkzugriffe.

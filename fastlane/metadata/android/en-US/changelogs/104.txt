@@ -1,0 +1,1 @@
+Type / at the start of a line to quickly insert headings, lists, checklists, quotes, code, tables, callouts, wikilinks, images, and dates. Choose commands by touch or hardware keyboard; everything remains standard Markdown. No new permissions or network access.

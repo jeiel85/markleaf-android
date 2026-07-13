@@ -1,0 +1,1 @@
+Saisissez / au début d’une ligne pour insérer rapidement titres, listes, cases à cocher, citations, code, tableaux, encadrés, wikiliens, images et date. Choix tactile ou au clavier externe, toujours en Markdown standard. Aucun nouvel accès réseau ni permission.

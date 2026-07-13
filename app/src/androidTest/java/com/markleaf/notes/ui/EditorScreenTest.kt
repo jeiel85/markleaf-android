@@ -1,9 +1,7 @@
 package com.markleaf.notes.ui
 
-import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import com.markleaf.notes.R
@@ -60,5 +58,28 @@ class EditorScreenTest {
         
         // Button text should change to "Edit"
         composeTestRule.onNodeWithText(editLabel).assertIsDisplayed()
+    }
+
+    @Test
+    fun editorScreen_quickInsertAddsHeading() {
+        launchEditor()
+        val editor = composeTestRule.onNodeWithContentDescription(context.getString(R.string.note_content))
+
+        editor.performTextInput("/")
+        composeTestRule.onNodeWithText(context.getString(R.string.quick_insert_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.quick_insert_heading_1)).performClick()
+
+        editor.assertTextEquals("# ")
+        composeTestRule.onNodeWithText(context.getString(R.string.quick_insert_title)).assertDoesNotExist()
+    }
+
+    @Test
+    fun editorScreen_urlDoesNotOpenQuickInsert() {
+        launchEditor()
+
+        composeTestRule.onNodeWithContentDescription(context.getString(R.string.note_content))
+            .performTextInput("https://")
+
+        composeTestRule.onNodeWithText(context.getString(R.string.quick_insert_title)).assertDoesNotExist()
     }
 }

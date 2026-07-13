@@ -1,4 +1,33 @@
 ---
+## 2026-07-13 - v2.22.0 슬래시 빠른 삽입 및 D 드라이브 릴리스 내보내기
+
+Selected task:
+- 에디터에 로컬 전용 `/` Quick Insert를 추가하고 v2.22.0으로 릴리스한다.
+- Play 제출 산출물은 바탕화면의 동명 디렉터리가 아니라 바로가기의 실제 대상인 `D:\Build`에 직접 기록한다.
+
+Decision:
+- `/query`는 현재 줄의 선택적 들여쓰기 뒤에서만 활성화하고 일반 Markdown을 삽입한다(D055).
+- 릴리스 내보내기는 `:app:exportReleaseToBuildDrive`가 `D:\Build`를 정식 대상으로 사용하며, 이전 task명은 호환 별칭으로만 유지한다(D056).
+
+What was implemented:
+- H1-H3, 글머리/번호/체크리스트, 인용, 코드, 구분선, 표, 콜아웃, 위키링크, 이미지, 날짜 등 14개 명령과 6개 로케일 UI를 추가.
+- 터치 및 외장 키보드 Up/Down/Enter 선택, 포커스 복원, 자동 저장, 기존 태그/위키링크 제안과 툴바를 보존.
+- 첫 composition에서 포커스 노드 부착보다 요청이 먼저 실행되던 경합을 다음 Compose frame까지 대기하도록 수정.
+- 버전 2.22.0 / versionCode 104, 공개 문서, F-Droid metadata draft, 6개 fastlane changelog를 준비.
+- 릴리스 export 정책과 Gradle task를 `D:\Build` 직접 기록 방식으로 변경.
+
+Build/test result:
+- `./gradlew test :app:lintRelease :app:assembleDebug :app:verifyRoborazziDebug --no-daemon` -> BUILD SUCCESSFUL (116 tasks).
+- API 36 emulator `EditorScreenTest` -> 4/4 passed, 0 skipped, 0 failed. Quick Insert H1 삽입과 URL 비발동을 실제 Android 계층에서 확인.
+- Quick Insert 선택 인덱스 회귀 테스트는 보정 전 실패(`selectedIndex=8`, 결과 1개), 보정 후 전체 Quick Insert 테스트 통과.
+- Roborazzi fresh render: 360x640 영문/한글, 800x600 태블릿 모두 선택 상태·아이콘·문법 미리보기·CJK 잘림 없음.
+- `./gradlew -Pmarkleaf.requireReleaseSigning=true :app:exportReleaseToBuildDrive :app:assembleRelease` -> BUILD SUCCESSFUL.
+- `D:\Build`: AAB 5,468,658 bytes, mapping 41,545,520 bytes, six-locale release notes 1,845 bytes.
+- Release APK signer SHA-256 `0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a` 확인.
+- Debug APK 20,570,148 bytes; `android.permission.INTERNET` 없음; `git diff --check` PASS.
+- GitLab/GitHub push, tag workflow, GitHub Release, F-Droid handoff 확인은 다음 publication 단계에서 기록.
+
+---
 ## 2026-06-22 - v2.19.1 공개 앱 정보 최신화
 
 Selected task:

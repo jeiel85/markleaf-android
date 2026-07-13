@@ -62,8 +62,8 @@ android {
         applicationId = "com.markleaf.notes"
         minSdk = 26
         targetSdk = 35
-        versionCode = 103
-        versionName = "2.21.1"
+        versionCode = 104
+        versionName = "2.22.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -166,22 +166,23 @@ ksp {
 }
 
 // ---------------------------------------------------------------------------
-// exportReleaseToDesktop
+// exportReleaseToBuildDrive
 // ---------------------------------------------------------------------------
 // Drops the Play-ready signed AAB, an all-locale release-notes TXT, and the R8
-// mapping into the user's Desktop\Build folder, matching the contract in
+// mapping directly into D:\Build, matching the contract in
 // AGENTS.md's "Release Artifact Export" section. The TXT pulls its body from the
 // fastlane locale changelogs keyed off `versionCode`, so the same
 // source-of-truth feeds both F-Droid and the Play Console submission.
 //
 // Files share the `markleaf-v<semver>-vc<versionCode>` stem and land flat in
-// Desktop\Build (per ~/.claude/build-artifacts.md). Locale tags follow BCP 47
+// D:\Build. The Desktop Build shortcut is only a user-facing link to this real
+// directory. Locale tags follow BCP 47
 // with uppercase region (`ko-KR`, `en-US`, …); the TXT bundles ALL store locales
 // (ko/en/ja/de/fr/es) into one file as consecutive tag blocks, no surrounding
 // prose.
-val exportReleaseToDesktop by tasks.registering {
+val exportReleaseToBuildDrive by tasks.registering {
     group = "markleaf"
-    description = "Copies the signed AAB, all-locale release notes, and R8 mapping to Desktop\\Build"
+    description = "Copies the signed AAB, all-locale release notes, and R8 mapping to D:\\Build"
 
     dependsOn("bundleRelease")
 
@@ -191,28 +192,14 @@ val exportReleaseToDesktop by tasks.registering {
         val versionCode = android.defaultConfig.versionCode
             ?: throw GradleException("versionCode is not set in defaultConfig")
 
-        // Resolve the user-visible Desktop. On Windows the path is often
-        // redirected by OneDrive ("OneDrive\Desktop" in English locales,
-        // "OneDrive\바탕 화면" in Korean), so a bare $HOME/Desktop write
-        // ends up at the non-OneDrive path that the user no longer looks at.
-        // Check the redirected locations first, then fall through to the
-        // classic path for macOS/Linux/plain Windows.
-        val home = File(System.getProperty("user.home"))
-        val candidates = listOf(
-            File(home, "OneDrive/바탕 화면"),
-            File(home, "OneDrive/Desktop"),
-            File(home, "Desktop")
-        )
-        val desktop = candidates.firstOrNull { it.isDirectory }
-            ?: throw GradleException(
-                "Could not find a Desktop directory. Tried:\n" +
-                    candidates.joinToString("\n") { "  - ${it.absolutePath}" }
-            )
-
-        // Per ~/.claude/build-artifacts.md, store-upload artifacts land flat in
-        // Desktop\Build under a self-describing `markleaf-v<semver>-vc<vc>` stem,
-        // not on the bare desktop.
-        val buildDir = File(desktop, "Build").apply { mkdirs() }
+        // The Desktop contains a shortcut named Build, but the canonical store
+        // upload directory is D:\Build. Write to the real directory explicitly
+        // so OneDrive folders or similarly named Desktop entries cannot capture
+        // release artifacts.
+        val buildDir = File("D:/Build")
+        if ((!buildDir.exists() && !buildDir.mkdirs()) || !buildDir.isDirectory) {
+            throw GradleException("Could not create release export directory at ${buildDir.absolutePath}")
+        }
         val stem = "markleaf-v$versionName-vc$versionCode"
 
         // --- AAB (signed via release-signing.properties + .secrets keystore) ---
@@ -279,6 +266,14 @@ val exportReleaseToDesktop by tasks.registering {
         )
         logger.lifecycle("Wrote ${txtTarget.absolutePath} (${noteLocales.size} locales)")
     }
+}
+
+// Compatibility alias for older local runbooks. New release instructions use
+// exportReleaseToBuildDrive so the destination is no longer ambiguous.
+tasks.register("exportReleaseToDesktop") {
+    group = "markleaf"
+    description = "Deprecated alias for exportReleaseToBuildDrive"
+    dependsOn(exportReleaseToBuildDrive)
 }
 
 dependencies {

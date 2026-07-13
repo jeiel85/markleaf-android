@@ -78,6 +78,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -207,6 +208,26 @@ fun EditorScreen(
             .filter { it != needle }
             .take(MAX_TAG_SUGGESTIONS)
     }
+    val quickInsertQuery by remember {
+        derivedStateOf { detectQuickInsertQuery(editorState) }
+    }
+    val allQuickInsertItems = quickInsertDisplayItems()
+    val quickInsertItems = remember(quickInsertQuery, allQuickInsertItems) {
+        val query = quickInsertQuery ?: return@remember emptyList()
+        val filtered = filterQuickInsertCommands(
+            allQuickInsertItems.map { item ->
+                QuickInsertSearchItem(item.command, item.label)
+            },
+            query.text
+        )
+        filtered.map { searchItem ->
+            allQuickInsertItems.first { it.command == searchItem.command }
+        }
+    }
+    var quickInsertSelectedIndex by remember(noteId) { mutableStateOf(0) }
+    LaunchedEffect(quickInsertQuery?.text, quickInsertItems.size) {
+        quickInsertSelectedIndex = 0
+    }
     var shareMenuExpanded by remember(noteId) { mutableStateOf(false) }
     var overflowExpanded by remember(noteId) { mutableStateOf(false) }
     var pendingExport by remember(noteId) { mutableStateOf<Note?>(null) }
@@ -324,6 +345,7 @@ fun EditorScreen(
 
     LaunchedEffect(shouldRequestEditorFocus, isLoaded, isPreviewMode) {
         if (shouldRequestEditorFocus && isLoaded && !isPreviewMode) {
+            withFrameNanos { }
             editorFocusRequester.requestFocus()
             shouldRequestEditorFocus = false
         }
@@ -647,6 +669,17 @@ fun EditorScreen(
                             VisualTransformation.None
                         }
                     }
+                    val onQuickInsertPick: (QuickInsertCommand) -> Unit = pick@{ command ->
+                        val query = detectQuickInsertQuery(editorState) ?: return@pick
+                        HapticFeedback.light(context)
+                        editorState = applyQuickInsertCommand(editorState, query, command)
+                        quickInsertSelectedIndex = 0
+                        shouldRequestEditorFocus = true
+                        if (isLoaded) saveTrigger++
+                        if (command == QuickInsertCommand.IMAGE) {
+                            imagePickerLauncher.launch(arrayOf("image/*"))
+                        }
+                    }
                     Box(Modifier.weight(1f), contentAlignment = Alignment.TopStart) {
                         BasicTextField(
                             value = editorState,
@@ -661,39 +694,68 @@ fun EditorScreen(
                                 .onPreviewKeyEvent { event ->
                                     if (event.type != KeyEventType.KeyDown) {
                                         false
-                                    } else if (event.key == Key.Tab) {
-                                        editorState = if (event.isShiftPressed) {
-                                            MarkdownEditActions.outdent(editorState)
-                                        } else {
-                                            MarkdownEditActions.indent(editorState)
-                                        }
-                                        if (isLoaded) saveTrigger++
-                                        true
-                                    } else if (event.isCtrlPressed || event.isMetaPressed) {
-                                        // Hardware-keyboard formatting shortcuts. Accept Ctrl
-                                        // (typical Android external keyboards) or Meta/Cmd
-                                        // (Mac-style tablet keyboards) so both feel native.
-                                        // Bare Ctrl+S is intentionally NOT bound: writers reflex-
-                                        // hit it to "save", and since Markleaf auto-saves we must
-                                        // not turn that keystroke into a strikethrough that mangles
-                                        // text — strikethrough requires the explicit Shift.
-                                        val action: ((TextFieldValue) -> TextFieldValue)? = when (event.key) {
-                                            Key.B -> MarkdownEditActions::bold
-                                            Key.I -> MarkdownEditActions::italic
-                                            Key.K -> MarkdownEditActions::markdownLink
-                                            Key.S -> if (event.isShiftPressed) MarkdownEditActions::strikethrough else null
-                                            else -> null
-                                        }
-                                        if (action != null) {
-                                            editorState = action(editorState)
-                                            shouldRequestEditorFocus = true
+                                    } else {
+                                        val quickInsertHandled =
+                                            !isFocusMode && quickInsertQuery != null && quickInsertItems.isNotEmpty() &&
+                                                when (event.key) {
+                                                    Key.DirectionDown -> {
+                                                        quickInsertSelectedIndex =
+                                                            (quickInsertSelectedIndex + 1) % quickInsertItems.size
+                                                        true
+                                                    }
+                                                    Key.DirectionUp -> {
+                                                        quickInsertSelectedIndex =
+                                                            (quickInsertSelectedIndex - 1 + quickInsertItems.size) %
+                                                                quickInsertItems.size
+                                                        true
+                                                    }
+                                                    Key.Enter -> {
+                                                        val safeIndex =
+                                                            safeQuickInsertIndex(
+                                                                quickInsertSelectedIndex,
+                                                                quickInsertItems.size
+                                                            )
+                                                        onQuickInsertPick(quickInsertItems[safeIndex].command)
+                                                        true
+                                                    }
+                                                    else -> false
+                                                }
+                                        if (quickInsertHandled) {
+                                            true
+                                        } else if (event.key == Key.Tab) {
+                                            editorState = if (event.isShiftPressed) {
+                                                MarkdownEditActions.outdent(editorState)
+                                            } else {
+                                                MarkdownEditActions.indent(editorState)
+                                            }
                                             if (isLoaded) saveTrigger++
                                             true
+                                        } else if (event.isCtrlPressed || event.isMetaPressed) {
+                                            // Hardware-keyboard formatting shortcuts. Accept Ctrl
+                                            // (typical Android external keyboards) or Meta/Cmd
+                                            // (Mac-style tablet keyboards) so both feel native.
+                                            // Bare Ctrl+S is intentionally NOT bound: writers reflex-
+                                            // hit it to "save", and since Markleaf auto-saves we must
+                                            // not turn that keystroke into a strikethrough that mangles
+                                            // text — strikethrough requires the explicit Shift.
+                                            val action: ((TextFieldValue) -> TextFieldValue)? = when (event.key) {
+                                                Key.B -> MarkdownEditActions::bold
+                                                Key.I -> MarkdownEditActions::italic
+                                                Key.K -> MarkdownEditActions::markdownLink
+                                                Key.S -> if (event.isShiftPressed) MarkdownEditActions::strikethrough else null
+                                                else -> null
+                                            }
+                                            if (action != null) {
+                                                editorState = action(editorState)
+                                                shouldRequestEditorFocus = true
+                                                if (isLoaded) saveTrigger++
+                                                true
+                                            } else {
+                                                false
+                                            }
                                         } else {
                                             false
                                         }
-                                    } else {
-                                        false
                                     }
                                 },
                             textStyle = MaterialTheme.typography.bodyLarge.copy(
@@ -737,7 +799,13 @@ fun EditorScreen(
                         )
                     }
 
-                    if (wikilinkQuery != null && wikilinkSuggestions.isNotEmpty() && !isFocusMode) {
+                    if (quickInsertQuery != null && quickInsertItems.isNotEmpty() && !isFocusMode) {
+                        QuickInsertPanel(
+                            items = quickInsertItems,
+                            selectedIndex = quickInsertSelectedIndex.coerceIn(quickInsertItems.indices),
+                            onPick = onQuickInsertPick
+                        )
+                    } else if (wikilinkQuery != null && wikilinkSuggestions.isNotEmpty() && !isFocusMode) {
                         WikilinkSuggestionsRow(
                             suggestions = wikilinkSuggestions,
                             onPick = { title ->

@@ -5,6 +5,18 @@
 
 ---
 
+## Phase 27 - Slash Quick Insert & v2.22.0 Release (In Progress)
+
+- [x] Add line-scoped `/` command detection and deterministic Markdown insertion
+- [x] Add localized Quick Insert panel with touch and hardware-keyboard selection
+- [x] Preserve toolbar, focus, autosave, wikilink/tag autocomplete, and SAF image flow
+- [x] Add unit, Compose, resource parity, and instrumented editor coverage
+- [x] Prepare v2.22.0 / versionCode 104 release metadata and six locale notes
+- [x] Verify and export signed release artifacts to `D:\Build`
+- [ ] Publish and verify GitLab/GitHub release refs and F-Droid handoff
+
+---
+
 ## Public App Info Refresh for v2.19.1 (Done)
 
 - [x] Update README release links across supported README locales

@@ -7,6 +7,35 @@
 
 ## Confirmed Decisions
 
+### D056 - Release Artifacts Export To The Canonical Build Drive
+
+Play submission artifacts are written directly to `D:\Build`.
+
+Why:
+- The Desktop `Build` item is a shortcut, while OneDrive can also expose a different directory with the same visible name.
+- Resolving the Desktop first can silently place signed artifacts in the wrong directory even though the expected shortcut exists.
+- A canonical destination makes release verification deterministic and keeps large AAB/mapping files out of OneDrive.
+
+Implementation:
+- `:app:exportReleaseToBuildDrive` creates or reuses `D:\Build` and writes the flat, versioned artifact set there.
+- `:app:exportReleaseToDesktop` remains only as a compatibility alias and delegates to the canonical task.
+- Release verification checks the files under `D:\Build`, not the Desktop path.
+
+### D055 - Quick Insert Emits Plain Markdown And Keeps Existing Editor Chrome
+
+Quick Insert is a local editor accelerator, not a new block model or stored command language.
+
+Why:
+- Markleaf's portability promise requires inserted content to remain ordinary Markdown in Room, exports, shares, and mirrored files.
+- A line-scoped `/query` avoids false positives in URLs and prose while making common structures reachable without adding more toolbar buttons.
+- Keeping the existing toolbar in the first release makes Quick Insert additive and reversible while its real-world usefulness is established.
+
+Implementation:
+- The current line must contain only optional indentation followed by `/query` at a collapsed caret.
+- Fourteen commands insert headings, lists, quote/code/divider/table/callout structures, wikilink/image affordances, or an ISO local date.
+- Filtering, selection, and Markdown transformation run entirely on-device with no permission, dependency, schema, or network change.
+- The panel reuses the editor's Material suggestion-surface language and supports touch plus external-keyboard Up/Down/Enter selection.
+
 ### D054 - Tag Filters Use The Stored Tag Index, Not FTS Query Parsing
 
 Tag-filter searches that start with `#` should resolve through the `tags` and `note_tag_cross_ref` tables instead of the general full-text search path.

@@ -31,13 +31,14 @@
 
 **Markleaf** ist eine Android-Markdown-Notiz-App, die bewusst auf Ballast verzichtet, damit du dich auf zwei Dinge konzentrieren kannst: festhalten und ordnen. Deine Daten liegen ausschließlich auf deinem Gerät, und das standardisierte Markdown-Format garantiert volle Eigentümerschaft und Portabilität. Auch die Synchronisierung läuft nur über *einen von dir gewählten Ordner* – Markleaf selbst geht nie online.
 
-[**Branding-Seite ansehen**](https://jeiel85.github.io/markleaf-android/) · [Aktuelle Version: v2.20.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.20.0) · [Datenschutzerklärung](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**Branding-Seite ansehen**](https://jeiel85.github.io/markleaf-android/) · [Aktuelle Version: v2.22.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.22.0) · [Datenschutzerklärung](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
 ## ✨ Hauptfunktionen
 
 ### Schreiben & Vorschau
+- **`/` Schnelleinfügen** – Befehle am Zeilenanfang suchen und Überschriften, Listen, Tabellen, Callouts, Wikilinks, Bilder und mehr als Standard-Markdown einfügen
 - **Live-Markdown-Vorschau** – sofortiger Wechsel zwischen Bearbeitung und Vorschau, oder Live-Syntaxfärbung über die Option *Show Markdown syntax*
 - **GFM-Tabellen / Checkboxen / Zitate / Callouts (`> [!NOTE]` …)** – alle in der Vorschau gerendert
 - **Syntax-Highlighting für Codeblöcke** – Token-Färbung für 10 Sprachen: Kotlin, Java, Python, JavaScript/TypeScript, Bash, JSON, YAML, XML, SQL
@@ -119,7 +120,7 @@ com.markleaf.notes
 > **Google-Play-Updates sind derzeit ausgesetzt.** Bis eine koreanische Gewerbeanmeldungs-Anforderung für den Einzelentwickler geklärt ist, werden keine neuen Versionen in den Play Store geladen. Hol dir in der Zwischenzeit **die neueste Version über F-Droid oder GitHub Releases.** (Wenn du sie bereits aus dem Play Store installiert hast, funktioniert sie weiterhin.)
 
 - **F-Droid** *(empfohlen)*: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) – im F-Droid-Client suchen oder über den Link oben installieren. Es wird derselbe Signaturschlüssel (SHA-256 `0be97352…f91a`) verwendet, sodass Updates auch dann nahtlos weiterlaufen, wenn du das APK aus den GitHub Releases per Sideload installiert hast.
-- **Direkte APK-Installation**: lade das neueste APK aus dem [v2.20.0 Release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.20.0) oder von der [Releases](https://github.com/jeiel85/markleaf-android/releases)-Seite herunter und führe es auf deinem Android-Gerät aus.
+- **Direkte APK-Installation**: lade das neueste APK aus dem [v2.22.0 Release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.22.0) oder von der [Releases](https://github.com/jeiel85/markleaf-android/releases)-Seite herunter und führe es auf deinem Android-Gerät aus.
 - **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) – **Updates sind ausgesetzt** (siehe Hinweis oben). Wenn du die App bereits hast, funktioniert sie weiter, aber die neueste Version gibt es über F-Droid oder GitHub.
 
 ### Aus dem Quellcode bauen
@@ -183,6 +184,8 @@ Wie „never leaves your device“ genau funktioniert, ist in der [Datenschutzer
 - [x] **v2.18** Ordner-Sync-Dateien nach Notiztitel benannt (Umbenennen folgt) + `.md`/`.txt`-Auswahl
 - [x] **v2.19** Sechs Beispielnotizen beim ersten Start + Titel-Dopplung beim PDF-/Markdown-Export behoben
 - [x] **v2.20** Tastenkürzel, `#tag`-Vervollständigung, Inhaltsverzeichnis, Serifenschrift, 3-Spalten-Layout für Tablets (Tag-Seitenleiste + direktes Filtern)
+- [x] **v2.21** Predictive Back, verfeinerte Übergänge, Listen-/Kartenbewegung, einklappbare Tablet-Tagleiste, Checklisten-Umschaltung
+- [x] **v2.22** `/`-Schnelleinfügebefehle mit Touch, externer Tastatur und sechs lokalisierten Menüs
 - [x] **Öffentlicher Google-Play-Start** – jeder kann es aus dem Play Store installieren
 
 ---

@@ -25,7 +25,11 @@ Build/test result:
 - `D:\Build`: AAB 5,468,658 bytes, mapping 41,545,520 bytes, six-locale release notes 1,845 bytes.
 - Release APK signer SHA-256 `0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a` 확인.
 - Debug APK 20,570,148 bytes; `android.permission.INTERNET` 없음; `git diff --check` PASS.
-- GitLab/GitHub push, tag workflow, GitHub Release, F-Droid handoff 확인은 다음 publication 단계에서 기록.
+- 릴리스 커밋 `67efce2`와 annotated tag `v2.22.0`을 GitLab/GitHub에 푸시했고, GitHub Release와 서명 APK(2,741,187 bytes), Actions AAB artifact(5,328,747-byte archive)가 공개됨.
+- GitHub Release APK를 다시 내려받아 signer SHA-256이 로컬 릴리스와 동일함을 확인했고, Actions AAB도 5,468,445 bytes로 다운로드 및 JAR 서명 검증 통과.
+- 최초 tag workflow의 release job은 성공했으나 build job이 새 Roborazzi 파일을 임시 report 경로에서 찾다가 실패. canonical snapshot 경로로 수정(`7181b96`)하고 Linux runner에서 3개 골든을 기록·반영(`1a86e4f`)한 뒤 main build에서 test, Roborazzi verify, lintRelease, R8 release APK 및 artifact 검증 통과.
+- `scripts/verify-mirror.ps1 -IncludeGitHub` -> local/GitLab 90 refs 일치, GitHub/GitLab 일치.
+- F-Droid 공식 metadata는 GitHub 저장소 + `UpdateCheckMode: Tags`를 사용한다. v2.22.0 tag 인계는 완료됐고, 2026-07-13 확인 시 공개 카탈로그/업스트림 metadata의 최신은 아직 2.21.1(103)이므로 다음 F-Droid 갱신을 대기한다.
 
 ---
 ## 2026-06-22 - v2.19.1 공개 앱 정보 최신화

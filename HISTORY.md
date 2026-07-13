@@ -17,7 +17,11 @@
   - Fresh 360dp English/Korean and 800dp tablet Quick Insert renders showed no clipping or overlap.
   - Signed `assembleRelease` and `exportReleaseToBuildDrive` passed; `D:\Build` contains the AAB (5,468,658 bytes), R8 mapping (41,545,520 bytes), and six-locale notes (1,845 bytes).
   - Release APK signer SHA-256: `0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a`; `android.permission.INTERNET` remains absent.
-- Publication evidence is recorded in `.agent/progress.md` after the tag workflows complete.
+- Publication:
+  - Release commit `67efce2` and annotated tag `v2.22.0` were pushed to both GitHub and GitLab. GitHub published the signed APK, R8 mapping, and signed AAB Actions artifact.
+  - Re-downloaded release APK signature and Actions AAB JAR signature verification passed. `scripts/verify-mirror.ps1 -IncludeGitHub` confirmed all 90 local/GitLab refs and GitHub/GitLab refs match.
+  - The tag workflow's release job passed, while its parallel build job exposed three Quick Insert snapshots pointing at an uncommitted report directory. Commit `7181b96` moved them to the canonical snapshot directory and `1a86e4f` added Linux-recorded goldens; the follow-up main build passed tests, visual regression, release lint, and R8 artifact gates.
+  - F-Droid uses the GitHub repository with tag-based update checks. The v2.22.0 handoff is complete; the official catalog and upstream metadata still showed 2.21.1 (103) when checked on 2026-07-13, so catalog publication remains asynchronous.
 
 ## 2026-06-23 - v2.20.0 Editor writing upgrades & tablet 3-column layout
 

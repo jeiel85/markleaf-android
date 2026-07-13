@@ -25,6 +25,11 @@
   <a href="README.de.md">Deutsch</a>
 </p>
 
+<p align="center">
+  <a href="https://github.com/jeiel85/markleaf-android">GitHub 저장소</a> ·
+  <a href="https://gitlab.com/jeiel85/markleaf-android">GitLab 공개 미러</a>
+</p>
+
 ---
 
 ## 🍃 Markleaf란?

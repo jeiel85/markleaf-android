@@ -28,6 +28,9 @@ Implementation:
   GitLab-specific APK export uses an explicit CI output directory.
 - GitHub tags remain the F-Droid update source, so GitLab redundancy does not
   alter the F-Droid pickup path.
+- Repository updates use ordered dual push from one local history (GitLab,
+  then GitHub). Automatic bidirectional provider mirroring is intentionally
+  disabled to avoid conflicts, propagation loops, and duplicate tag releases.
 
 ### D056 - Release Artifacts Export To The Canonical Build Drive
 

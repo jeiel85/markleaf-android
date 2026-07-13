@@ -25,6 +25,11 @@
   <a href="README.de.md">Deutsch</a>
 </p>
 
+<p align="center">
+  <a href="https://github.com/jeiel85/markleaf-android">GitHub repository</a> ·
+  <a href="https://gitlab.com/jeiel85/markleaf-android">GitLab public mirror</a>
+</p>
+
 ---
 
 ## 🍃 What is Markleaf?

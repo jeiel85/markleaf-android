@@ -1,4 +1,54 @@
 ---
+## 2026-07-13 - GitLab 공개 릴리스 미러 및 저장소 교차 링크
+
+Selected task:
+- GitLab에서도 GitHub와 독립적으로 서명 릴리스 파일을 제공하고, 두 저장소를 서로 찾을 수
+  있게 하며, 실제 업데이트·동기화 범위를 검증한다.
+
+Decision:
+- GitLab은 public 소스/바이너리 미러로 운영하고 tag CI가 production 서명 산출물을 직접
+  빌드한다(D057).
+- 릴리스 자산은 만료되는 job artifact가 아니라 Generic Package Registry에 보존한다.
+- 자동 양방향 mirror 대신 한 로컬 이력에서 GitLab 먼저, GitHub 다음으로 같은 커밋을
+  push하고 ref 대조로 동기화를 판정한다.
+
+What was implemented:
+- `.gitlab-ci.yml`에 branch/MR test·lint·debug APK 검증과 보호된 semver tag의 서명
+  APK/AAB·mapping·6개 언어 노트 빌드 및 GitLab Release 발행을 추가.
+- GitLab `v*` 보호 태그와 hidden/masked/protected 서명 변수 4개를 설정하고 저장소를
+  public으로 전환.
+- v2.22.0의 네 자산을 Generic Package Registry에 백필하고 GitLab Release에 연결.
+- 기존 Play 핸드오프는 `D:\Build`의 AAB·mapping·노트 3종을 그대로 유지하고, CI용
+  `:app:exportReleaseArtifacts`만 APK를 포함하도록 분리.
+- 한국어/영어/일본어/독일어 README에 GitHub 저장소와 GitLab 공개 미러 교차 링크 및
+  양쪽 릴리스 다운로드 링크를 추가.
+
+Build/test result:
+- 로컬 `:app:testDebugUnitTest :app:lintRelease :app:assembleDebug` -> BUILD SUCCESSFUL.
+- CI export 4종: APK 2,741,187 bytes, AAB 5,468,653 bytes, mapping 41,545,520 bytes,
+  notes 1,845 bytes. APK signer SHA-256은 production 인증서
+  `0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a`.
+- `:app:exportReleaseToBuildDrive` -> BUILD SUCCESSFUL; `D:\Build`에는 APK 없이
+  AAB·mapping·notes 3종만 존재.
+- GitLab 첫 pipeline 2671648352가 legacy Linux wrapper의 다중 인자 병합 문제를 발견.
+  Gradle task를 단일 호출로 분리한 뒤 pipeline 2671657376에서 unit test, lintRelease,
+  assembleDebug 및 debug APK artifact가 모두 성공.
+- 공개 GitLab Release에서 비로그인으로 4개 파일을 다시 내려받아 원본 SHA-256과 모두
+  일치함을 확인. APK production 인증서와 AAB JAR 서명도 통과.
+- GitHub Actions run 29227717198의 build job에서 test, Roborazzi, lintRelease,
+  R8 release APK, debug APK artifact가 통과.
+- GitLab remote mirror API는 빈 목록이고 자동 mirror workflow도 없음. 대신 이 환경에서
+  GitLab/GitHub 양쪽 main push가 성공했으며 최종 ref 대조를 운영 게이트로 유지.
+
+Runtime audit hypotheses:
+- H1: public Release 파일이 로그인을 요구할 수 있음 -> 비로그인 API 조회와 4개 직접
+  다운로드로 refuted.
+- H2: Release 링크가 7일 뒤 만료되는 job artifact일 수 있음 -> 링크가 Generic Package
+  Registry package URL이고 package 상태가 `default`임을 확인해 방지.
+- H3: GitLab APK/AAB가 기존 설치와 호환되지 않는 다른 키로 서명됐을 수 있음 -> 공개
+  다운로드 APK의 production certificate digest와 AAB JAR 서명 검증으로 refuted.
+
+---
 ## 2026-07-13 - v2.22.0 슬래시 빠른 삽입 및 D 드라이브 릴리스 내보내기
 
 Selected task:

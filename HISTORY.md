@@ -1,3 +1,33 @@
+## 2026-07-13 - Public GitLab Release Mirror
+
+- Trigger: The user wanted downloadable GitLab release files as a resilient
+  alternative to GitHub and asked to confirm both repositories remain
+  updateable.
+- Scope: Distribution infrastructure and documentation only. No app permission,
+  dependency, network, API, account, analytics, database, or UI behavior changed.
+- Work:
+  - Added independent GitLab branch/MR verification and protected semantic-tag
+    release jobs.
+  - Added a shared Gradle export path for signed APK/AAB, mapping, and six-locale
+    notes while preserving the three-file `D:\Build` Play hand-off.
+  - Configured protected tags and protected signing variables, made the GitLab
+    project public, and backfilled v2.22.0 into the Generic Package Registry.
+  - Added GitHub/GitLab repository cross-links and release links to all README
+    locales.
+  - Documented ordered dual push as the synchronization contract; automatic
+    bidirectional provider mirroring remains intentionally disabled.
+- Verification:
+  - Local unit tests, release lint, debug build, signed four-file CI export,
+    production APK certificate, AAB JAR signature, six-locale notes, and
+    `D:\Build` three-file compatibility all passed.
+  - GitLab pipeline 2671657376 passed on a Linux shared runner after the first
+    run exposed and fixed legacy-wrapper multi-argument forwarding.
+  - Four public GitLab release assets were downloaded without authentication;
+    every SHA-256 matched the local source, and the downloaded APK/AAB signatures
+    verified.
+  - GitHub Actions run 29227717198 passed its build job, including tests,
+    Roborazzi, release lint, R8 release APK, and debug APK artifact gates.
+
 ## 2026-07-13 - v2.22.0 Slash Quick Insert
 
 - Trigger: After reviewing Markleaf's product direction, the user chose a `/` Quick Insert menu and asked to ship it as a new GitHub/GitLab release.

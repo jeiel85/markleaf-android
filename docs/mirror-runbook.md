@@ -9,6 +9,8 @@ markleaf-android 저장소의 재해 복구(이중 백업) 운영 문서.
 - GitLab은 공개 소스 미러이자 독립 서명 릴리스 채널이다.
 - GitHub 태그는 GitHub Release와 F-Droid 자동 픽업의 기준이고, GitLab 태그는
   GitLab CI의 독립 빌드와 Generic Package Registry 기반 Release를 발동한다.
+- 두 원격 모두 이 작업 환경에서 push 가능하지만, 제공자 간 자동 양방향 mirror는
+  설정하지 않는다.
 
 ## 원격 구성
 
@@ -19,6 +21,16 @@ markleaf-android 저장소의 재해 복구(이중 백업) 운영 문서.
 | `github` | `https://github.com/jeiel85/markleaf-android.git` | GitHub Actions·Release·F-Droid 기준 |
 
 인증: GitLab = SSH 키(`~/.ssh/id_ed25519`, GitLab 계정에 등록됨). GitHub = HTTPS + Git Credential Manager.
+
+## 동기화 범위
+
+- 로컬의 같은 커밋을 GitLab 먼저, GitHub 다음으로 push하는 것이 정식 동기화 경로다.
+- GitHub 또는 GitLab 웹 UI에서 직접 만든 커밋은 다른 제공자로 자동 복사되지 않는다.
+- 자동 양방향 mirror는 동시 편집 시 충돌·재전파 루프와 태그 릴리스 중복 실행 위험이
+  있으므로 사용하지 않는다.
+- 웹 UI 직접 수정이 꼭 필요하면 먼저 해당 원격을 fetch해 로컬에서 이력을 합친 뒤,
+  두 원격에 같은 커밋을 순서대로 push한다.
+- `scripts/verify-mirror.ps1 -IncludeGitHub`가 두 원격의 ref 일치를 판정하는 최종 게이트다.
 
 ## 평상시 작업
 

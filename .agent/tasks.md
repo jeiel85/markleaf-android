@@ -5,13 +5,15 @@
 
 ---
 
-## Phase 28 - Public GitLab Releases (In Progress)
+## Phase 28 - Public GitLab Releases (Done)
 
-- [ ] Publish the GitLab mirror as a public repository
-- [ ] Add independent GitLab branch/MR verification and protected tag signing
-- [ ] Store GitLab Release assets permanently in the Generic Package Registry
-- [ ] Preserve the local Play hand-off contract at `D:\Build`
-- [ ] Backfill and publicly verify all four v2.22.0 GitLab Release assets
+- [x] Publish the GitLab mirror as a public repository
+- [x] Add independent GitLab branch/MR verification and protected tag signing
+- [x] Store GitLab Release assets permanently in the Generic Package Registry
+- [x] Preserve the local Play hand-off contract at `D:\Build`
+- [x] Backfill and publicly verify all four v2.22.0 GitLab Release assets
+- [x] Cross-link the GitHub repository and GitLab mirror in all README locales
+- [x] Verify both remotes are writable and document ordered dual-push synchronization
 
 ---
 

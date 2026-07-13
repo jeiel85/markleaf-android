@@ -55,7 +55,7 @@ class QuickInsertPanelSnapshotTest {
         composeRule.onNodeWithText("Code block").performClick()
         assertEquals(QuickInsertCommand.CODE_BLOCK, picked)
         composeRule.onRoot().captureRoboImage(
-            filePath = "build/reports/quick-insert/quick-insert-panel-phone.png"
+            filePath = "src/test/snapshots/roborazzi/quick_insert_panel_phone.png"
         )
     }
 
@@ -80,7 +80,7 @@ class QuickInsertPanelSnapshotTest {
 
         composeRule.onNodeWithText("제목 1").assertIsDisplayed().assertIsSelected()
         composeRule.onRoot().captureRoboImage(
-            filePath = "build/reports/quick-insert/quick-insert-panel-korean.png"
+            filePath = "src/test/snapshots/roborazzi/quick_insert_panel_korean.png"
         )
     }
 
@@ -105,7 +105,7 @@ class QuickInsertPanelSnapshotTest {
 
         composeRule.onNodeWithText("Link to note").assertIsDisplayed().assertIsSelected()
         composeRule.onRoot().captureRoboImage(
-            filePath = "build/reports/quick-insert/quick-insert-panel-tablet.png"
+            filePath = "src/test/snapshots/roborazzi/quick_insert_panel_tablet.png"
         )
     }
 

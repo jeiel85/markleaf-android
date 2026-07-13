@@ -1,9 +1,9 @@
-# Release Signing and GitHub Releases
+# Release Signing and Mirrored Releases
 
 Markleaf release builds are signed only when release signing values are supplied.
 The release keystore is a secret and must not be committed.
 
-The production release certificate is fixed. GitHub tag releases verify the signed APK against this SHA-256 certificate digest before creating a release:
+The production release certificate is fixed. Both GitHub and GitLab tag releases verify the signed APK against this SHA-256 certificate digest before creating a release:
 
 ```text
 0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a
@@ -62,8 +62,8 @@ crash reports:
 app/build/outputs/mapping/release/mapping.txt
 ```
 
-Keep the mapping that corresponds to each released APK. GitHub Actions
-attaches `markleaf-vX.Y.Z.mapping.txt` to every tag release so historical
+Keep the mapping that corresponds to each released APK. GitHub Actions and
+GitLab CI attach a versioned mapping file to every tag release so historical
 versions can still be deobfuscated.
 
 If R8 strips something at runtime (NoClassDefFoundError, missing reflection
@@ -85,9 +85,17 @@ marked `continue-on-error: true` because of historical emulator flakiness on
 GitHub-hosted runners. A release-APK runtime smoke (R8-shrunk, debug-signed)
 is a planned follow-up.
 
-## GitHub Actions Secrets
+GitLab CI independently runs `testDebugUnitTest`, `lintRelease`, and
+`assembleDebug` for branches and merge requests. A semantic version tag
+matching `vX.Y.Z` additionally builds the signed APK/AAB, exports the R8
+mapping and six-locale notes, and verifies the APK certificate before
+publishing. GitHub remains the canonical Roborazzi and emulator-smoke runner;
+GitLab is an independent build and binary-distribution path.
 
-Add these repository secrets in GitHub:
+## CI Signing Secrets
+
+Add the following names as GitHub Actions secrets and as GitLab CI/CD
+variables:
 
 ```text
 MARKLEAF_RELEASE_KEYSTORE_BASE64
@@ -97,6 +105,11 @@ MARKLEAF_RELEASE_KEY_PASSWORD
 ```
 
 `MARKLEAF_RELEASE_KEYSTORE_BASE64` is the Base64-encoded PKCS12 keystore file.
+
+On GitLab, all four variables must be masked, hidden, and protected. Protect
+the `v*` tag pattern so only Maintainers can create release tags and protected
+tag pipelines can read the signing variables. Never expose these variables to
+branch or merge-request jobs.
 
 On tag pushes matching `v*`, GitHub Actions runs tests, builds the signed
 release APK and AAB, attaches the R8 mapping file, and creates a GitHub
@@ -110,9 +123,34 @@ The release job fails before publishing if the keystore secret is missing,
 if the APK certificate SHA-256 digest differs from the fixed production
 certificate, or if any of the three artifacts is missing.
 
-Example:
+## GitLab Release Assets
+
+GitLab tag pipelines call `:app:exportReleaseArtifacts` with an explicit
+`markleaf.releaseExportDir`. The task exports four flat, versioned files:
+
+- `markleaf-vX.Y.Z-vcN.apk`
+- `markleaf-vX.Y.Z-vcN.aab`
+- `markleaf-vX.Y.Z-vcN.mapping.txt`
+- `markleaf-vX.Y.Z-vcN-release-notes.txt`
+
+The release job uploads them to the GitLab Generic Package Registry through
+`glab release create --use-package-registry`. Release links therefore point to
+persistent package files rather than expiring CI job artifacts. Job artifacts
+are retained only long enough to transfer the files between CI stages.
+
+The local Play Console hand-off remains separate:
+
+```powershell
+.\gradlew.bat :app:exportReleaseToBuildDrive
+```
+
+It writes only the signed AAB, mapping, and six-locale notes to `D:\Build`.
+The GitLab APK does not change that local directory contract.
+
+Push the release tag to GitLab first, then GitHub:
 
 ```bash
 git tag v0.1.0
-git push origin v0.1.0
+git push gitlab v0.1.0
+git push github v0.1.0
 ```

@@ -79,8 +79,9 @@ com.markleaf.notes
 CI 또는 릴리즈 검증 시에는 APK 산출물 확인을 반드시 포함한다.
 
 - `app/build/outputs/apk/debug/app-debug.apk` 파일 존재 여부 확인
-- GitHub Actions artifact에서 APK 다운로드 가능 여부 확인
-- 다운로드한 APK 파일 크기가 0보다 큰지 확인
+- GitHub Actions/Release와 GitLab Release에서 APK 다운로드 가능 여부 확인
+- 두 배포 채널에서 다운로드한 APK 파일 크기가 0보다 큰지 확인
+- GitLab Release 자산이 만료되는 job artifact가 아니라 Generic Package Registry 영구 링크인지 확인
 
 Android 프로젝트가 아직 초기화되지 않았다면 먼저 표준 Kotlin + Jetpack Compose Android 프로젝트를 생성한다.
 
@@ -123,6 +124,12 @@ TXT 파일은 바로 복사/붙여넣기 가능해야 하며, 각 로케일 릴�
 
 따라서 cut 전에 **6개 스토어 로케일 fastlane changelog 전부**(BCP 47 region 대문자)가 새 versionCode 파일명으로 작성되어 있어야 task가 통과한다. 하나라도 누락되거나 로케일당 500자를 넘으면 task가 명시적으로 실패한다.
 
+GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
+`:app:exportReleaseArtifacts`를 실행한다. 이 task는 위 3개 파일에 서명 APK를 더해 내보내며,
+로컬 Play 핸드오프인 `D:\Build`에는 APK를 추가하지 않는다. GitLab의 `v*` 태그는 보호되고,
+서명 변수는 masked/hidden/protected로 유지한다. 공개 Release 링크는 만료되는 CI artifact가
+아니라 Generic Package Registry 자산을 사용한다.
+
 ## GitHub 이슈 대응
 
 메인테이너가 "GitHub 이슈 대응"을 요청하면 다음 순서로 진행하고 완료를 보고한다.
@@ -137,8 +144,9 @@ TXT 파일은 바로 복사/붙여넣기 가능해야 하며, 각 로케일 릴�
    Roborazzi 골든을 Linux CI 러너에서 재기록한다 (`android-build.yml`의 `record_roborazzi`
    workflow_dispatch — 로컬 재기록은 폰트 힌팅 차이로 CI verify와 어긋난다).
 3. **F-Droid — 태그 푸시로 자동 배포.** versionCode/versionName bump + `CHANGELOG.md` +
-   fastlane changelog 작성 후 main에 푸시하고 `vX.Y.Z` 태그를 푸시한다. 태그 한 번이 서명
-   APK/AAB CI 릴리스와 F-Droid 자동 픽업을 함께 발동한다. 별도 F-Droid 제출 단계는 없다.
+   fastlane changelog 작성 후 main에 푸시하고 `vX.Y.Z` 태그를 GitLab 먼저, GitHub 다음으로
+   푸시한다. 같은 태그가 양쪽의 독립 서명 APK/AAB 릴리스를 만들고 GitHub 태그는 F-Droid
+   자동 픽업도 발동한다. 별도 F-Droid 제출 단계는 없다.
 4. **Play Store — 산출물 핸드오프.** [Release Artifact Export](#release-artifact-export)에 따라
    Play 제출용 서명 AAB와 릴리즈 노트 TXT를 내보낸다(서명 AAB는 CI 릴리스 산출물 기준).
    업로드는 메인테이너가 수동으로 한다.

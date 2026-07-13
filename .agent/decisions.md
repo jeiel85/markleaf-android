@@ -7,6 +7,28 @@
 
 ## Confirmed Decisions
 
+### D057 - GitLab Is A Public, Independently Built Release Mirror
+
+GitLab is a public source and binary mirror with its own signed tag pipeline,
+not merely a private Git ref backup or a link back to GitHub artifacts.
+
+Why:
+- Users need a second place to download a release when GitHub is unavailable.
+- Expiring CI artifacts are unsuitable as public release files.
+- Rebuilding on GitLab verifies that the mirrored source can produce the same
+  update-compatible binaries without depending on GitHub Actions.
+
+Implementation:
+- Branches and merge requests run non-secret test, lint, and debug APK gates.
+- Protected `vX.Y.Z` tags can access hidden/protected signing variables, build
+  signed APK/AAB files, and verify the fixed production certificate digest.
+- The APK, AAB, R8 mapping, and six-locale notes are uploaded to the GitLab
+  Generic Package Registry and linked from a GitLab Release.
+- The Play Console export remains `D:\Build` with AAB, mapping, and notes only;
+  GitLab-specific APK export uses an explicit CI output directory.
+- GitHub tags remain the F-Droid update source, so GitLab redundancy does not
+  alter the F-Droid pickup path.
+
 ### D056 - Release Artifacts Export To The Canonical Build Drive
 
 Play submission artifacts are written directly to `D:\Build`.

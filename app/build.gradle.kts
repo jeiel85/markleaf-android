@@ -166,20 +166,120 @@ ksp {
 }
 
 // ---------------------------------------------------------------------------
-// exportReleaseToBuildDrive
+// Release artifact export
 // ---------------------------------------------------------------------------
+// Both the local Play hand-off and GitLab CI use this writer so artifact names,
+// six-locale notes, and validation cannot drift between distribution channels.
+// Local exports omit the APK because D:\Build is the Play Console hand-off;
+// GitLab exports include it for direct sideload downloads.
+val writeReleaseArtifacts: (File, Boolean) -> Unit = { exportDir, includeApk ->
+    val versionName = android.defaultConfig.versionName
+        ?: throw GradleException("versionName is not set in defaultConfig")
+    val versionCode = android.defaultConfig.versionCode
+        ?: throw GradleException("versionCode is not set in defaultConfig")
+
+    if ((!exportDir.exists() && !exportDir.mkdirs()) || !exportDir.isDirectory) {
+        throw GradleException("Could not create release export directory at ${exportDir.absolutePath}")
+    }
+    val stem = "markleaf-v$versionName-vc$versionCode"
+
+    if (includeApk) {
+        val apk = File(layout.buildDirectory.get().asFile, "outputs/apk/release/app-release.apk")
+        if (!apk.isFile) {
+            throw GradleException(
+                "Release APK not found at ${apk.absolutePath}. " +
+                    "assembleRelease should have produced it — check the build log."
+            )
+        }
+        val apkTarget = File(exportDir, "$stem.apk")
+        apk.copyTo(apkTarget, overwrite = true)
+        logger.lifecycle("Wrote ${apkTarget.absolutePath} (${apk.length()} bytes)")
+    }
+
+    // --- AAB (signed via release-signing.properties + .secrets keystore) ---
+    val aab = File(layout.buildDirectory.get().asFile, "outputs/bundle/release/app-release.aab")
+    if (!aab.isFile) {
+        throw GradleException(
+            "Release AAB not found at ${aab.absolutePath}. " +
+                "bundleRelease should have produced it — check the build log."
+        )
+    }
+    val aabTarget = File(exportDir, "$stem.aab")
+    aab.copyTo(aabTarget, overwrite = true)
+    logger.lifecycle("Wrote ${aabTarget.absolutePath} (${aab.length()} bytes)")
+
+    // --- R8 mapping (Play crash deobfuscation; copied if R8 produced it) ---
+    val mapping = File(layout.buildDirectory.get().asFile, "outputs/mapping/release/mapping.txt")
+    if (mapping.isFile) {
+        val mappingTarget = File(exportDir, "$stem.mapping.txt")
+        mapping.copyTo(mappingTarget, overwrite = true)
+        logger.lifecycle("Wrote ${mappingTarget.absolutePath}")
+    } else {
+        logger.warn("R8 mapping not found at ${mapping.absolutePath} — skipping (is minify enabled?)")
+    }
+
+    // --- Release notes TXT ---
+    // All store locales go into ONE file as consecutive BCP 47 tag blocks.
+    // Every locale must have a changelog for this versionCode; fail fast so
+    // a cut never ships notes that silently drop a locale.
+    val fastlaneRoot = rootProject.file("fastlane/metadata/android")
+    val noteLocales = listOf("ko-KR", "en-US", "ja-JP", "de-DE", "fr-FR", "es-ES")
+    val sources = noteLocales.associateWith { File(fastlaneRoot, "$it/changelogs/$versionCode.txt") }
+
+    val missing = noteLocales.filter { !sources.getValue(it).isFile }
+    if (missing.isNotEmpty()) {
+        throw GradleException(
+            "Missing fastlane changelogs for versionCode $versionCode: ${missing.joinToString()}. " +
+                "Author a changelog for every store locale (${noteLocales.joinToString()}) before cutting."
+        )
+    }
+    // Play Console hard-caps release notes at 500 characters per locale.
+    // Catch overruns here rather than during the upload step — Play
+    // simply refuses the submission and the agent has to bisect why.
+    val playLimit = 500
+    val overLimit = noteLocales.mapNotNull { loc ->
+        val len = sources.getValue(loc).readText().trim().length
+        if (len > playLimit) "$loc ($len, ${len - playLimit} over)" else null
+    }
+    if (overLimit.isNotEmpty()) {
+        throw GradleException(
+            "Release notes exceed the $playLimit-char Play Console limit per locale: " +
+                "${overLimit.joinToString()}. Trim before re-running."
+        )
+    }
+
+    val txtTarget = File(exportDir, "$stem-release-notes.txt")
+    txtTarget.writeText(
+        buildString {
+            noteLocales.forEach { loc ->
+                append("<$loc>\n")
+                append(sources.getValue(loc).readText().trim())
+                append("\n</$loc>\n")
+            }
+        }
+    )
+    logger.lifecycle("Wrote ${txtTarget.absolutePath} (${noteLocales.size} locales)")
+}
+
+val releaseExportDirectory = providers.gradleProperty("markleaf.releaseExportDir")
+
+val exportReleaseArtifacts by tasks.registering {
+    group = "markleaf"
+    description = "Exports the signed APK/AAB, R8 mapping, and all-locale release notes to a configured directory"
+
+    dependsOn("assembleRelease", "bundleRelease")
+
+    doLast {
+        val configuredDirectory = releaseExportDirectory.orNull
+            ?: throw GradleException(
+                "Set -Pmarkleaf.releaseExportDir=<directory> when running exportReleaseArtifacts."
+            )
+        writeReleaseArtifacts(rootProject.file(configuredDirectory), true)
+    }
+}
+
 // Drops the Play-ready signed AAB, an all-locale release-notes TXT, and the R8
-// mapping directly into D:\Build, matching the contract in
-// AGENTS.md's "Release Artifact Export" section. The TXT pulls its body from the
-// fastlane locale changelogs keyed off `versionCode`, so the same
-// source-of-truth feeds both F-Droid and the Play Console submission.
-//
-// Files share the `markleaf-v<semver>-vc<versionCode>` stem and land flat in
-// D:\Build. The Desktop Build shortcut is only a user-facing link to this real
-// directory. Locale tags follow BCP 47
-// with uppercase region (`ko-KR`, `en-US`, …); the TXT bundles ALL store locales
-// (ko/en/ja/de/fr/es) into one file as consecutive tag blocks, no surrounding
-// prose.
+// mapping directly into D:\Build. The Desktop Build entry is only a shortcut.
 val exportReleaseToBuildDrive by tasks.registering {
     group = "markleaf"
     description = "Copies the signed AAB, all-locale release notes, and R8 mapping to D:\\Build"
@@ -187,84 +287,7 @@ val exportReleaseToBuildDrive by tasks.registering {
     dependsOn("bundleRelease")
 
     doLast {
-        val versionName = android.defaultConfig.versionName
-            ?: throw GradleException("versionName is not set in defaultConfig")
-        val versionCode = android.defaultConfig.versionCode
-            ?: throw GradleException("versionCode is not set in defaultConfig")
-
-        // The Desktop contains a shortcut named Build, but the canonical store
-        // upload directory is D:\Build. Write to the real directory explicitly
-        // so OneDrive folders or similarly named Desktop entries cannot capture
-        // release artifacts.
-        val buildDir = File("D:/Build")
-        if ((!buildDir.exists() && !buildDir.mkdirs()) || !buildDir.isDirectory) {
-            throw GradleException("Could not create release export directory at ${buildDir.absolutePath}")
-        }
-        val stem = "markleaf-v$versionName-vc$versionCode"
-
-        // --- AAB (signed via release-signing.properties + .secrets keystore) ---
-        val aab = File(layout.buildDirectory.get().asFile, "outputs/bundle/release/app-release.aab")
-        if (!aab.isFile) {
-            throw GradleException(
-                "Release AAB not found at ${aab.absolutePath}. " +
-                    "bundleRelease should have produced it — check the build log."
-            )
-        }
-        val aabTarget = File(buildDir, "$stem.aab")
-        aab.copyTo(aabTarget, overwrite = true)
-        logger.lifecycle("Wrote ${aabTarget.absolutePath} (${aab.length()} bytes)")
-
-        // --- R8 mapping (Play crash deobfuscation; copied if R8 produced it) ---
-        val mapping = File(layout.buildDirectory.get().asFile, "outputs/mapping/release/mapping.txt")
-        if (mapping.isFile) {
-            val mappingTarget = File(buildDir, "$stem.mapping.txt")
-            mapping.copyTo(mappingTarget, overwrite = true)
-            logger.lifecycle("Wrote ${mappingTarget.absolutePath}")
-        } else {
-            logger.warn("R8 mapping not found at ${mapping.absolutePath} — skipping (is minify enabled?)")
-        }
-
-        // --- Release notes TXT ---
-        // All store locales go into ONE file as consecutive BCP 47 tag blocks.
-        // Every locale must have a changelog for this versionCode; fail fast so
-        // a cut never ships notes that silently drop a locale.
-        val fastlaneRoot = rootProject.file("fastlane/metadata/android")
-        val noteLocales = listOf("ko-KR", "en-US", "ja-JP", "de-DE", "fr-FR", "es-ES")
-        val sources = noteLocales.associateWith { File(fastlaneRoot, "$it/changelogs/$versionCode.txt") }
-
-        val missing = noteLocales.filter { !sources.getValue(it).isFile }
-        if (missing.isNotEmpty()) {
-            throw GradleException(
-                "Missing fastlane changelogs for versionCode $versionCode: ${missing.joinToString()}. " +
-                    "Author a changelog for every store locale (${noteLocales.joinToString()}) before cutting."
-            )
-        }
-        // Play Console hard-caps release notes at 500 characters per locale.
-        // Catch overruns here rather than during the upload step — Play
-        // simply refuses the submission and the agent has to bisect why.
-        val playLimit = 500
-        val overLimit = noteLocales.mapNotNull { loc ->
-            val len = sources.getValue(loc).readText().trim().length
-            if (len > playLimit) "$loc ($len, ${len - playLimit} over)" else null
-        }
-        if (overLimit.isNotEmpty()) {
-            throw GradleException(
-                "Release notes exceed the $playLimit-char Play Console limit per locale: " +
-                    "${overLimit.joinToString()}. Trim before re-running."
-            )
-        }
-
-        val txtTarget = File(buildDir, "$stem-release-notes.txt")
-        txtTarget.writeText(
-            buildString {
-                noteLocales.forEach { loc ->
-                    append("<$loc>\n")
-                    append(sources.getValue(loc).readText().trim())
-                    append("\n</$loc>\n")
-                }
-            }
-        )
-        logger.lifecycle("Wrote ${txtTarget.absolutePath} (${noteLocales.size} locales)")
+        writeReleaseArtifacts(File("D:/Build"), false)
     }
 }
 

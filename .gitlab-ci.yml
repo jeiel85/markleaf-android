@@ -1,0 +1,105 @@
+image: ghcr.io/cirruslabs/android-sdk:35
+
+stages:
+  - verify
+  - package
+  - release
+
+variables:
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
+  MARKLEAF_RELEASE_STORE_FILE: ".secrets/markleaf-release.p12"
+  MARKLEAF_RELEASE_CERT_SHA256: "0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a"
+
+default:
+  interruptible: true
+  before_script:
+    - chmod +x gradlew
+
+cache:
+  key: "markleaf-gradle-$CI_PROJECT_ID"
+  paths:
+    - .gradle/caches/
+    - .gradle/wrapper/
+
+verify_android:
+  stage: verify
+  script:
+    - ./gradlew --no-daemon --stacktrace :app:testDebugUnitTest :app:lintRelease :app:assembleDebug
+    - test -s app/build/outputs/apk/debug/app-debug.apk
+  artifacts:
+    name: "markleaf-debug-$CI_COMMIT_SHORT_SHA"
+    expire_in: 7 days
+    paths:
+      - app/build/outputs/apk/debug/app-debug.apk
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH'
+    - if: '$CI_COMMIT_TAG'
+
+package_signed_release:
+  stage: package
+  needs:
+    - job: verify_android
+  before_script:
+    - chmod +x gradlew
+    - install -d -m 700 .secrets
+    - test -n "$MARKLEAF_RELEASE_KEYSTORE_BASE64"
+    - printf '%s' "$MARKLEAF_RELEASE_KEYSTORE_BASE64" | base64 --decode > "$MARKLEAF_RELEASE_STORE_FILE"
+    - test -s "$MARKLEAF_RELEASE_STORE_FILE"
+    - chmod 600 "$MARKLEAF_RELEASE_STORE_FILE"
+  script:
+    - rm -rf dist
+    - >-
+      ./gradlew --no-daemon --stacktrace
+      -Pmarkleaf.requireReleaseSigning=true
+      -Pmarkleaf.releaseExportDir="$CI_PROJECT_DIR/dist"
+      :app:exportReleaseArtifacts
+    - test "$(find dist -maxdepth 1 -type f | wc -l)" -eq 4
+    - test -n "$(find dist -maxdepth 1 -name "markleaf-$CI_COMMIT_TAG-vc*.apk" -print -quit)"
+    - test -n "$(find dist -maxdepth 1 -name "markleaf-$CI_COMMIT_TAG-vc*.aab" -print -quit)"
+    - test -n "$(find dist -maxdepth 1 -name "markleaf-$CI_COMMIT_TAG-vc*.mapping.txt" -print -quit)"
+    - test -n "$(find dist -maxdepth 1 -name "markleaf-$CI_COMMIT_TAG-vc*-release-notes.txt" -print -quit)"
+    - APK="$(find dist -maxdepth 1 -name '*.apk' -print -quit)"
+    - APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
+    - test -x "$APKSIGNER"
+    - ACTUAL_CERT_SHA256="$("$APKSIGNER" verify --print-certs "$APK" | sed -n 's/^Signer .*certificate SHA-256 digest:[[:space:]]*//p' | tr '[:upper:]' '[:lower:]')"
+    - test "$ACTUAL_CERT_SHA256" = "$MARKLEAF_RELEASE_CERT_SHA256"
+    - NOTES="$(find dist -maxdepth 1 -name '*-release-notes.txt' -print -quit)"
+    - grep -q '^<ko-KR>$' "$NOTES"
+    - grep -q '^<en-US>$' "$NOTES"
+    - grep -q '^<ja-JP>$' "$NOTES"
+    - grep -q '^<de-DE>$' "$NOTES"
+    - grep -q '^<fr-FR>$' "$NOTES"
+    - grep -q '^<es-ES>$' "$NOTES"
+  after_script:
+    - rm -rf .secrets
+  artifacts:
+    name: "markleaf-$CI_COMMIT_TAG"
+    expire_in: 7 days
+    paths:
+      - dist/
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
+
+publish_gitlab_release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/cli:latest
+  needs:
+    - job: package_signed_release
+      artifacts: true
+  variables:
+    GLAB_ENABLE_CI_AUTOLOGIN: "true"
+  before_script: []
+  script:
+    - NOTES="$(find dist -maxdepth 1 -name '*-release-notes.txt' -print -quit)"
+    - test -s "$NOTES"
+    - >-
+      glab release create "$CI_COMMIT_TAG" dist/*
+      --repo "$CI_PROJECT_PATH"
+      --name "$CI_COMMIT_TAG"
+      --notes-file "$NOTES"
+      --package-name markleaf-android
+      --use-package-registry
+      --no-update
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'

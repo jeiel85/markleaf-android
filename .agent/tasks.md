@@ -5,6 +5,16 @@
 
 ---
 
+## Phase 28 - Public GitLab Releases (In Progress)
+
+- [ ] Publish the GitLab mirror as a public repository
+- [ ] Add independent GitLab branch/MR verification and protected tag signing
+- [ ] Store GitLab Release assets permanently in the Generic Package Registry
+- [ ] Preserve the local Play hand-off contract at `D:\Build`
+- [ ] Backfill and publicly verify all four v2.22.0 GitLab Release assets
+
+---
+
 ## Phase 27 - Slash Quick Insert & v2.22.0 Release (Done)
 
 - [x] Add line-scoped `/` command detection and deterministic Markdown insertion

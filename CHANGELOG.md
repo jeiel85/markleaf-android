@@ -4,6 +4,9 @@ All notable changes to Markleaf are documented in this file.
 
 ## Unreleased
 
+### Changed
+- Added a public GitLab release mirror with independently built, production-signed APK/AAB downloads and permanent package-backed release links.
+
 ## v2.22.0 - 슬래시 빠른 삽입 (Quick Insert Commands) - 2026-07-13
 
 에디터에서 줄 시작에 `/`를 입력해 자주 쓰는 Markdown 구조를 즉시 삽입하는 기능 릴리스입니다. 모든 명령은 표준 Markdown으로 변환되며, 로컬 우선·No-Cloud 원칙과 기존 툴바를 그대로 유지합니다.

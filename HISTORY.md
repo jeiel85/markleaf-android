@@ -11,6 +11,10 @@
   - The focused nine-state `EditorFormattingControlsSnapshotTest` Roborazzi verification passed.
   - Signed `:app:exportReleaseToBuildDrive :app:assembleRelease` passed. The release APK reports `com.markleaf.notes`, versionName 2.23.0, versionCode 105, and production certificate SHA-256 `0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a`; the AAB certificate matches.
   - Local outputs: debug APK 20,368,092 bytes; release APK 2,760,967 bytes; AAB 5,493,207 bytes; mapping 41,840,923 bytes; combined notes 2,138 bytes.
+- Main-CI correction:
+  - GitHub Actions run `29388289814` exposed that aggregate `test` also ran the 19 new Compose UI tests in the release-derived benchmark variant, whose manifest intentionally lacks the debug-only `androidx.activity.ComponentActivity`.
+  - Expanded the existing non-debug test exclusion to cover all snapshot classes and the new editor Compose behavior class. The pre-fix benchmark repro failed 10/10; after the fix, `:app:testBenchmarkUnitTest` and the exact aggregate `test` command passed.
+  - Force-ran the authoritative debug path: 10 behavior tests and 9 Roborazzi snapshots passed with zero failures. Hardening follow-ups were recorded in GitHub issue #150.
 - Publication: pending ordered main/tag push and independent GitLab/GitHub Release asset verification.
 
 ## 2026-07-15 - Phase 29 Quiet Editor Formatting Surfaces

@@ -29,9 +29,17 @@ Verification:
   certificate SHA-256은 D023과 일치했다. AAB certificate도 동일하다.
 - local 산출물: debug APK 20,368,092 bytes, release APK 2,760,967 bytes,
   AAB 5,493,207 bytes, mapping 41,840,923 bytes, combined notes 2,138 bytes.
+- 초기 main push 뒤 GitHub Actions run `29388289814`의 aggregate `test`가 새 Compose UI
+  테스트 19개를 release-derived benchmark variant에서도 실행해 `ComponentActivity`를 찾지
+  못하고 실패했다. 기존 non-debug test exclusion을 모든 snapshot class와 새 editor behavior
+  class까지 확장했다.
+- 수정 전 benchmark 재현은 10/10 실패했고, 수정 뒤 `:app:testBenchmarkUnitTest`와 CI 동일
+  `test`가 성공했다. debug 기준 변형에서는 behavior 10개와 snapshot 9개를 강제 재실행해
+  19/19 통과와 Roborazzi 일치를 확인했다.
+- minor release 하드닝 후보는 GitHub issue #150에 기록했다.
 
 Remaining:
-- hardening candidates issue, ordered main/tag push, GitLab/GitHub CI와 공개 Release 자산의
+- CI fix commit과 ordered main/tag push, GitLab/GitHub CI와 공개 Release 자산의
   비로그인 다운로드·크기·서명·영구 링크를 검증한 뒤 release task를 닫는다.
 
 ---

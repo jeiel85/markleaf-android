@@ -144,11 +144,12 @@ android {
                 // ships a ComponentActivity entry in the debug manifest. Skip them
                 // in release-variant unit tests so `:app:test` stays green.
                 if (it.name != "testDebugUnitTest") {
-                    // Roborazzi/Compose snapshot tests need ui-test-manifest's
+                    // Roborazzi/Compose UI tests need ui-test-manifest's
                     // ComponentActivity entry, which only ships in the debug
-                    // variant manifest. Skip every snapshot test class in
+                    // variant manifest. Skip every Compose UI test class in
                     // any non-debug-variant unit test (release, benchmark, …).
-                    it.exclude("**/preview/*SnapshotTest*")
+                    it.exclude("**/*SnapshotTest*")
+                    it.exclude("**/EditorFormattingControlsTest*")
                 }
             }
         }

@@ -2,6 +2,10 @@
 
 Date: 2026-05-01
 
+> Historical snapshot: 이 문서는 MVP 직후의 최초 gap review를 보존한다. v2.22.0 이후의
+> 현재 평가와 실행 순서는 [`docs/ROADMAP.md`](ROADMAP.md)의
+> **v2.23+ — Bear-class 제품 응집도**를 source of truth로 사용한다.
+
 ## Position
 
 Markleaf should aim for a Bear-class local Markdown writing experience on Android, while remaining an independent product.

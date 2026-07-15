@@ -82,10 +82,10 @@ Layout rules:
 
 ### Writing canvas
 
-- Structure: top app bar, editor/preview body, optional contextual surface, statistics, formatting toolbar.
-- States: empty, editing, preview, focus, find/replace, autocomplete, loading existing note.
+- Structure: top app bar, editor/preview body, optional temporary surface, and a quiet footer utility row containing statistics and the compact formatting entry.
+- States: empty, editing, selected text, formatting expanded, preview, focus, find/replace, autocomplete, loading existing note.
 - Spacing: Writing and Comfortable tokens.
-- Accessibility: editor has a content description; toolbar actions have tooltips and semantics.
+- Accessibility: the editor has a content description; footer actions have labels, tooltips, and state semantics.
 - Motion: editor/preview uses the existing standard crossfade only.
 
 ### Suggestion surface
@@ -106,12 +106,54 @@ Layout rules:
 - Accessibility: 48dp rows, selected semantics, deterministic Up/Down/Enter navigation, screen-reader labels.
 - Motion: none beyond normal Compose pressed-state feedback.
 
-### Formatting toolbar
+### Compact formatting entry
 
-- Structure: horizontally scrollable icon-button groups separated by subtle dividers.
-- States: default, pressed, focused, disabled.
-- Accessibility: Material touch targets, content descriptions, long-press/hover tooltips.
-- Quick Insert does not remove or reorder toolbar actions in v2.22.0.
+- Purpose: expose formatting without reserving a permanent row of editor chrome.
+- Structure: one 48dp `Aa` button in the editor footer, leading-aligned opposite the quiet statistics. It uses an icon plus the localized accessible label `Formatting`; `Aa` is a visual affordance, not the accessible name.
+- Visibility: shown only while the Markdown source is editable. It is hidden in preview and focus modes and while Quick Insert, autocomplete, find/replace, or an external picker owns the current interaction.
+- States: collapsed, pressed, keyboard/accessibility focused, expanded, disabled during save/load transitions where source edits are unavailable.
+- Styling: collapsed uses `onSurfaceVariant` on the canvas. Expanded uses `secondaryContainer` and `onSecondaryContainer`. State is never communicated by color alone.
+- Adaptive behavior: the entry stays attached to the editor column, not the window edge. Compact and expanded layouts use the same entry and action order; expanded width does not reintroduce a persistent toolbar.
+
+### Selection-context actions
+
+- Trigger: a non-collapsed source selection replaces the lone compact entry with a short footer action group. It supplements, and never replaces, Android's Cut/Copy/Paste selection menu.
+- Primary order: Bold, Italic, Link, More. `More` opens the expanded style panel with the same selection intact.
+- Structure: four 48dp icon buttons in a fixed, non-scrolling row. Each action has a localized content description and long-press/hover tooltip.
+- Behavior: applying Bold, Italic, or Link uses the existing Markdown transformation, keeps the resulting text selected when possible, and returns input focus to the editor. Collapsing the selection restores the compact `Aa` entry.
+- Fallback: when available width or font scaling cannot present the group without clipping, show Bold, Italic, and More; Link remains the first inline action in the expanded panel. No action becomes horizontal-scroll-only.
+
+### Expanded style panel
+
+- Purpose: provide the complete existing formatting inventory within two deliberate actions while keeping the writing canvas visually primary.
+- Structure: a non-modal tonal surface anchored above the active footer trigger (`Aa` or `More`). On compact widths it spans the editor content width above the IME; on expanded widths it is a bounded popover anchored to the editor column. It never dims the canvas or becomes full-screen.
+- Groups and stable order:
+  - Inline: Bold, Italic, Strikethrough, Inline code, Link.
+  - Structure: Heading, Bulleted list, Numbered list, Checklist, Quote.
+  - Block and media: Code block, Divider, Image.
+- Labels: every action combines an icon and localized text in the panel. Existing insertion/transformation semantics remain unchanged; the Heading action continues to use the existing heading behavior rather than introducing a new document model.
+- States: closed, opening, open, action pressed, action keyboard/accessibility focused, disabled, and internally scrolled. The first and last groups remain discoverable at Android font scaling without clipping critical labels.
+- Coexistence: Quick Insert remains the slash-command path and keeps its v2.22 command order. Opening Quick Insert, autocomplete, find/replace, preview, or focus mode closes the style panel. Opening the style panel dismisses a transient suggestion surface without changing source text.
+
+### Formatting state and focus contract
+
+| Editor context | Formatting surface | Input and accessibility focus | Dismissal/result |
+|---|---|---|---|
+| Editable, collapsed caret | Compact `Aa` entry | Editor keeps text input focus | Entry opens the expanded panel |
+| Editable, selected text | Bold / Italic / Link / More group | Text selection remains authoritative | Direct action returns focus to editor; More opens panel |
+| Expanded panel opened by touch | Active trigger plus anchored panel | Editor retains input focus and IME; panel receives touch semantics | Action closes panel and restores the resulting caret/selection |
+| Expanded panel opened by keyboard or assistive technology | Active trigger plus anchored panel | First enabled action receives navigation/accessibility focus; source selection is retained | Back/Escape closes first and returns focus to the originating trigger/editor |
+| Quick Insert, autocomplete, or find/replace active | Formatting surfaces hidden | Active temporary surface owns navigation focus | Dismiss temporary surface before formatting can open |
+| Preview or focus mode | Formatting surfaces hidden | Current mode keeps focus | Return to editable mode before formatting |
+| SAF image picker active | Formatting surfaces hidden | Platform picker owns focus | Cancel/result returns to editor at the retained insertion point |
+
+Focus rules:
+
+- Opening formatting by touch must not explicitly dismiss the IME or collapse the source selection.
+- Back and Escape close the expanded panel before leaving the editor. Tapping outside closes the panel without editing source text.
+- Existing hardware formatting shortcuts remain authoritative and work whether the panel is open or closed. The editor keeps its current Tab behavior; the formatting entry must not steal Tab while source input has focus.
+- D-pad, switch access, TalkBack, and keyboard activation reach the same actions in visual order. When the panel opens from non-touch input, focus begins at the first enabled action and does not cycle outside the panel until it is dismissed.
+- Image launches the existing Storage Access Framework path. On cancel or completion, restore the editor selection/insertion point and do not reopen the panel automatically.
 
 ### Note list row and adaptive panes
 
@@ -131,6 +173,8 @@ Rules:
 
 - Motion communicates navigation, content replacement, or selection only.
 - Quick Insert appears and disappears with query state and adds no ornamental animation.
+- The compact entry and selection-context group replace each other with Material state feedback only; no bouncing, scaling, or decorative morph is introduced.
+- The expanded style panel uses the Material visibility transition appropriate to its anchored surface and respects the system animation scale.
 - Preserve focus after formatting, autocomplete, and Quick Insert actions.
 - Respect the system animation scale and Compose accessibility behavior.
 
@@ -140,12 +184,21 @@ The strategy is tonal shift with minimal Material elevation.
 
 - Main editor: `background`.
 - Navigation/list panes: `surfaceVariant`.
-- Temporary suggestion surfaces: `surfaceVariant` with 1dp tonal elevation.
+- Temporary suggestion and formatting surfaces: `surfaceVariant` with 1dp tonal elevation.
 - Selection: `secondaryContainer` or the existing selected-note container.
 - Dividers: `outlineVariant` only where grouping is otherwise ambiguous.
 - Avoid new drop shadows, gradients, glass effects, and arbitrary borders.
 
 ## 8. Accessibility Constraints & Accepted Debt
+
+Inclusive interaction contexts:
+
+| Context | Product need | Formatting contract response |
+|---|---|---|
+| Phone writer with the IME visible | Maximum writing height and one-handed recovery from a formatting action | One compact entry; anchored panel does not explicitly dismiss the IME |
+| Tablet or hardware-keyboard writer | Predictable shortcuts and focus order without a phone-only layout | Existing shortcuts stay authoritative; panel is anchored to the editor column |
+| TalkBack, switch-access, or limited-dexterity writer | Large targets, named state, deterministic traversal | 48dp actions, localized labels/state, fixed visual and semantic order |
+| Large-text or translation-expanded UI | No clipped critical action or hidden horizontal-scroll dependency | Panel scrolls vertically; contextual group uses the documented fallback |
 
 Constraints:
 
@@ -154,7 +207,15 @@ Constraints:
 - Interactive rows are at least 48dp high and work with touch and external keyboards.
 - Selection is communicated through semantics as well as color.
 - Text remains usable with Android font scaling and in all six supported locales.
+- Formatting entry exposes expanded/collapsed state; panel groups and selected/toggled actions expose their role and state to accessibility services.
+- No formatting command depends on hover, color, gesture timing, or a horizontally scrolled icon strip.
 - No interaction requires network access, analytics, or account state.
+
+Implementation evidence (2026-07-15):
+
+- The focused Roborazzi harness covers collapsed, selected-text, expanded, keyboard-focused, disabled, dark-theme, 1.5x font-scale, Korean, and expanded-width states.
+- Compose behavior tests cover touch and keyboard opening, first-action focus and activation, wrapped panel navigation, panel-focus shortcuts, Escape/context-action dismissal, direct selected-text actions, expanded actions, and disabled state. Product integration tests cover Markdown application and Quick Insert preemption.
+- The permanent toolbar was removed after the showcase passed. Full unit tests, release lint, debug APK assembly, and the new snapshot suite pass; API 36 emulator boot remained `offline`, so device-level IME/TalkBack coverage stays in the Phase 29 final QA task.
 
 Accepted pre-existing debt:
 

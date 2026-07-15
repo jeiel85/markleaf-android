@@ -74,6 +74,33 @@ class EditorScreenTest {
     }
 
     @Test
+    fun editorScreen_formattingPanelAppliesBold() {
+        launchEditor()
+        val editor = composeTestRule.onNodeWithContentDescription(context.getString(R.string.note_content))
+        val formattingLabel = context.getString(R.string.formatting)
+
+        composeTestRule.onNodeWithContentDescription(formattingLabel).performClick()
+        composeTestRule.onNodeWithText(context.getString(R.string.formatting_inline)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.bold)).performClick()
+
+        editor.assertTextEquals("**bold**")
+        composeTestRule.onNodeWithText(context.getString(R.string.formatting_inline)).assertDoesNotExist()
+    }
+
+    @Test
+    fun editorScreen_quickInsertPreemptsFormattingControls() {
+        launchEditor()
+        val editor = composeTestRule.onNodeWithContentDescription(context.getString(R.string.note_content))
+        val formattingLabel = context.getString(R.string.formatting)
+
+        composeTestRule.onNodeWithContentDescription(formattingLabel).assertIsDisplayed()
+        editor.performTextInput("/")
+
+        composeTestRule.onNodeWithText(context.getString(R.string.quick_insert_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription(formattingLabel).assertDoesNotExist()
+    }
+
+    @Test
     fun editorScreen_urlDoesNotOpenQuickInsert() {
         launchEditor()
 

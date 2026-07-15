@@ -49,6 +49,12 @@
     <string name="editor_empty_title">静かなページが用意できました</string>
     <string name="editor_empty_hint">Markdown、#タグ、リンク、チェックボックスが使えます。Markleaf は入力中に端末内へ自動保存します。</string>
     <string name="bold">太字</string>
+    <string name="formatting">書式</string>
+    <string name="formatting_inline">インライン</string>
+    <string name="formatting_structure">構造</string>
+    <string name="formatting_block_media">ブロックとメディア</string>
+    <string name="expanded">展開</string>
+    <string name="collapsed">折りたたみ</string>
     <string name="italic">斜体</string>
     <string name="strikethrough">取り消し線</string>
     <string name="inline_code">インラインコード</string>

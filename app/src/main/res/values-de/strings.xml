@@ -49,6 +49,12 @@
     <string name="editor_empty_title">Eine ruhige Seite wartet</string>
     <string name="editor_empty_hint">Nutze Markdown, #Tags, Links und Checkboxen. Markleaf speichert während des Tippens lokal.</string>
     <string name="bold">Fett</string>
+    <string name="formatting">Formatierung</string>
+    <string name="formatting_inline">Inline</string>
+    <string name="formatting_structure">Struktur</string>
+    <string name="formatting_block_media">Blöcke und Medien</string>
+    <string name="expanded">Erweitert</string>
+    <string name="collapsed">Reduziert</string>
     <string name="italic">Kursiv</string>
     <string name="strikethrough">Durchgestrichen</string>
     <string name="inline_code">Inline-Code</string>

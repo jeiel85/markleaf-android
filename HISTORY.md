@@ -1,3 +1,18 @@
+## 2026-07-15 - Phase 29 Quiet Editor Formatting Surfaces
+
+- Trigger: After recording the Bear-class product-cohesion roadmap and freezing the formatting interaction contract, the user asked to start the next Phase 29 task.
+- Scope: Replace only the permanent editor formatting toolbar. No permission, dependency, database, account, analytics, network, or stored-Markdown contract changed.
+- Work:
+  - Added a compact `Aa` footer entry, selected-text Bold/Italic/Link/More actions, and a phone-width/tablet-bounded expanded panel containing all 13 prior formatting actions.
+  - Preserved `Ctrl/Cmd+B`, `I`, `K`, `Shift+S`, Tab indentation, Quick Insert, tag/wikilink suggestions, autosave, and the existing SAF image picker.
+  - Added localized accessibility labels and expanded/collapsed state in all six locales, 48dp targets, keyboard-first focus, Escape/Back dismissal, and visual focus feedback.
+  - Added behavior, instrumented integration, and nine-state Roborazzi coverage for phone/tablet, dark theme, large text, Korean, disabled, selection, and keyboard focus.
+- Verification:
+  - `:app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintRelease :app:assembleDebug` passed; debug APK size 21,238,174 bytes.
+  - The new `EditorFormattingControlsSnapshotTest` Roborazzi suite passed 9/9.
+  - Full Roborazzi verification also exposed a pre-existing 8-pixel mismatch in two unchanged Quick Insert goldens; the rendered reference/new images are visually identical and the Korean Quick Insert golden remains exact.
+  - Two API 36 Pixel 6 AVDs were attempted with clean data and software/host GPU paths, but both stayed `adb offline`; device IME/TalkBack verification remains in the dedicated Phase 29 final QA task.
+
 ## 2026-07-13 - Public GitLab Release Mirror
 
 - Trigger: The user wanted downloadable GitLab release files as a resilient

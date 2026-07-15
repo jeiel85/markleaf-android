@@ -5,6 +5,70 @@
 
 ---
 
+## Phase 29 - Quiet Editor (In Progress)
+
+목적: v2.22까지 쌓인 기능을 상시 chrome으로 노출하지 않고, 글이 중심이 되는 편집 화면으로
+재구성합니다. 전체 계약과 후속 단계는 `docs/ROADMAP.md`의 *v2.23+ — Bear-class 제품
+응집도*를 따릅니다.
+
+- [x] `DESIGN.md`에 compact formatting entry, selection-context actions, expanded style panel의 상태·포커스·접근성 계약 고정
+- [x] 상시 가로 스크롤 툴바를 작은 진입점과 문맥 패널로 재구성하되 기존 액션·단축키·Quick Insert 보존
+- [ ] Quiet Editor 포맷팅 단계를 v2.23.0 / versionCode 105로 릴리스하고 양쪽 배포 자산 검증
+- [ ] 에디터 상단 앱 바와 통계·목차·백링크 Info surface의 정보 구조 정리
+- [ ] 제목 중복 excerpt, Android plurals, vector empty state, tablet sparse Tags/Settings surface 마감
+- [ ] phone/tablet 수동 QA, TalkBack, 6개 언어 parity, Roborazzi, test/lint/build 검증
+
+---
+
+## Phase 30 - Living Markdown (Planned, after Phase 29)
+
+목적: 저장 데이터는 순수 Markdown으로 유지하면서 편집 화면 자체를 읽기 좋은 문서 표면으로
+발전시킵니다. full WYSIWYG/block editor는 범위 밖입니다.
+
+- [ ] Compose cursor/selection/IME/offset/performance feasibility harness 구축
+- [ ] 활성 줄·선택 영역은 마커를 보이고 비활성 영역은 마커가 물러나는 syntax reveal 구현
+- [ ] 편집/미리보기 체크리스트 직접 조작의 동작과 접근성 일치
+- [ ] 저장 원문을 바꾸지 않는 heading/list folding 구현
+- [ ] 표준 GFM Markdown에 행·열을 조작하는 구조화된 table actions 구현
+- [ ] 한글·일본어 IME, RTL 후보 텍스트, TalkBack, hardware keyboard, large-note 회귀 검증
+
+---
+
+## Phase 31 - Smart Library (Planned, after Phase 30)
+
+목적: 태그·검색·스마트 컬렉션을 phone/tablet 공통 탐색 구조로 통합합니다.
+
+- [ ] phone navigation sheet와 tablet tag rail의 공통 information architecture 구현
+- [ ] All Notes / Today / Todos / Attachments / Untagged / Conflicts 로컬 스마트 컬렉션 구현
+- [ ] 태그 고정, 태그 트리 검색·접기, 정확한 note counts 구현
+- [ ] 저장된 검색과 Quick Switcher/Search 결과 규칙 통합
+- [ ] 목록 정렬·preview density·attachment thumbnail 설정과 10k+ 노트 성능 검증
+
+---
+
+## Phase 32 - Capture Everywhere (Planned, after Phase 31)
+
+목적: Android의 명시적 공유·선택 동작으로만 외부 내용을 로컬 Markdown 노트에 빠르게 담습니다.
+
+- [ ] `ACTION_PROCESS_TEXT` 선택 텍스트를 새 노트 또는 기존 노트에 추가
+- [ ] 공유 앱이 제공한 `EXTRA_HTML_TEXT`만 기기 안에서 Markdown으로 변환
+- [ ] 여러 이미지 공유와 출처 URL/제목 보존 규칙 구현
+- [ ] 새 노트·검색·고정 태그 런처 바로가기 구현
+- [ ] no-INTERNET, MIME/크기 경계, attachment/export/mirror round-trip 검증
+
+---
+
+## Phase 33 - Personal Writing (Planned, after Phase 32)
+
+목적: Markleaf identity를 유지하는 소수의 palette와 제한된 typography preset을 제공합니다.
+
+- [ ] Markleaf Paper / Forest Night / Graphite 후보 palette의 light/dark 접근성 계약 검토
+- [ ] 본문 크기·줄 간격·문단 간격 preset 구현
+- [ ] system sans/serif, Material You, 6개 언어, large-font 조합 검증
+- [ ] phone/tablet Roborazzi와 APK 크기·렌더링 성능 회귀 검증
+
+---
+
 ## Phase 28 - Public GitLab Releases (Done)
 
 - [x] Publish the GitLab mirror as a public repository

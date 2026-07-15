@@ -1,11 +1,13 @@
 package com.markleaf.notes.feature.editor
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,32 +23,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.CenterFocusStrong
 import androidx.compose.material.icons.filled.CenterFocusWeak
-import androidx.compose.material.icons.filled.CheckBox
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.DataObject
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.FormatBold
-import androidx.compose.material.icons.filled.FormatItalic
-import androidx.compose.material.icons.filled.FormatListNumbered
-import androidx.compose.material.icons.filled.FormatQuote
-import androidx.compose.material.icons.filled.FormatStrikethrough
-import androidx.compose.material.icons.filled.HorizontalRule
-import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Title
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
@@ -58,17 +46,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.VerticalDivider
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -91,6 +74,8 @@ import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -157,6 +142,7 @@ fun EditorScreen(
     val editorFocusRequester = remember(noteId) { FocusRequester() }
     var isPreviewMode by remember(noteId) { mutableStateOf(false) }
     var isFocusMode by remember(noteId) { mutableStateOf(false) }
+    var isFormattingExpanded by remember(noteId) { mutableStateOf(false) }
     var showDeleteConfirm by remember(noteId) { mutableStateOf(false) }
 
     // Table of contents (preview mode). The outline is only derived in preview
@@ -235,6 +221,7 @@ fun EditorScreen(
     val imagePickerLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri ->
+        shouldRequestEditorFocus = true
         val nid = noteId
         if (uri != null && nid != null) {
             coroutineScope.launch {
@@ -349,6 +336,25 @@ fun EditorScreen(
             editorFocusRequester.requestFocus()
             shouldRequestEditorFocus = false
         }
+    }
+
+    val isFormattingPreempted =
+        isFindOpen ||
+            isFocusMode ||
+            isPreviewMode ||
+            shareMenuExpanded ||
+            overflowExpanded ||
+            showDeleteConfirm ||
+            imageAltEditing != null ||
+            (quickInsertQuery != null && quickInsertItems.isNotEmpty()) ||
+            (wikilinkQuery != null && wikilinkSuggestions.isNotEmpty()) ||
+            (tagQuery != null && tagSuggestions.isNotEmpty())
+    LaunchedEffect(isFormattingPreempted) {
+        if (isFormattingPreempted) isFormattingExpanded = false
+    }
+    BackHandler(enabled = isFormattingExpanded) {
+        isFormattingExpanded = false
+        shouldRequestEditorFocus = true
     }
 
     Scaffold(
@@ -680,10 +686,23 @@ fun EditorScreen(
                             imagePickerLauncher.launch(arrayOf("image/*"))
                         }
                     }
-                    Box(Modifier.weight(1f), contentAlignment = Alignment.TopStart) {
+                    Box(
+                        Modifier
+                            .weight(1f)
+                            .pointerInput(isFormattingExpanded) {
+                                if (isFormattingExpanded) {
+                                    awaitEachGesture {
+                                        awaitFirstDown(pass = PointerEventPass.Initial)
+                                        isFormattingExpanded = false
+                                    }
+                                }
+                            },
+                        contentAlignment = Alignment.TopStart
+                    ) {
                         BasicTextField(
                             value = editorState,
                             onValueChange = { incoming ->
+                                isFormattingExpanded = false
                                 editorState = MarkdownEditActions.applyAutoContinuation(editorState, incoming)
                                 if (isLoaded) saveTrigger++
                             },
@@ -825,23 +844,45 @@ fun EditorScreen(
                         )
                     }
 
-                    if (!isFocusMode && editorState.text.isNotEmpty()) {
-                        val stats = remember(editorState.text) { computeStats(editorState.text) }
-                        EditorStatsRow(stats)
-                    }
-
-                    if (!isFocusMode) {
-                        MarkdownToolbar(
+                    if (!isFormattingPreempted) {
+                        val stats = remember(editorState.text) {
+                            if (editorState.text.isEmpty()) null else computeStats(editorState.text)
+                        }
+                        val statsText = if (stats == null) {
+                            null
+                        } else {
+                            stringResource(
+                                R.string.editor_stats_format,
+                                stats.words,
+                                stats.chars,
+                                stats.readMinutes
+                            )
+                        }
+                        EditorFormattingControls(
+                            state = EditorFormattingUiState(
+                                selectionActive = !editorState.selection.collapsed,
+                                expanded = isFormattingExpanded,
+                                enabled = isLoaded,
+                                statsText = statsText
+                            ),
+                            onExpandedChange = { expanded ->
+                                isFormattingExpanded = expanded
+                                if (!expanded) shouldRequestEditorFocus = true
+                            },
                             onAction = { action ->
                                 HapticFeedback.light(context)
-                                editorState = action(editorState)
-                                shouldRequestEditorFocus = true
-                                if (isLoaded) saveTrigger++
+                                when (val result = action.applyTo(editorState)) {
+                                    is EditorFormattingResult.Edited -> {
+                                        editorState = result.value
+                                        shouldRequestEditorFocus = true
+                                        if (isLoaded) saveTrigger++
+                                    }
+                                    EditorFormattingResult.PickImage -> {
+                                        imagePickerLauncher.launch(arrayOf("image/*"))
+                                    }
+                                }
                             },
-                            onPickImage = {
-                                HapticFeedback.light(context)
-                                imagePickerLauncher.launch(arrayOf("image/*"))
-                            }
+                            backgroundColor = MaterialTheme.colorScheme.background
                         )
                     }
                 }
@@ -925,7 +966,6 @@ fun EditorScreen(
         )
     }
 }
-
 private const val MAX_WIKILINK_SUGGESTIONS = 8
 private const val MAX_TAG_SUGGESTIONS = 8
 
@@ -1194,28 +1234,6 @@ private fun computeStats(text: String): EditorStats {
 }
 
 @Composable
-private fun EditorStatsRow(stats: EditorStats) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 4.dp, bottom = 2.dp),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = stringResource(
-                R.string.editor_stats_format,
-                stats.words,
-                stats.chars,
-                stats.readMinutes
-            ),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
-@Composable
 private fun WikilinkSuggestionsRow(
     suggestions: List<com.markleaf.notes.domain.model.Note>,
     onPick: (String) -> Unit
@@ -1362,141 +1380,3 @@ private fun BacklinksPanel(
         }
     }
 }
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun MarkdownToolbar(
-    onAction: ((TextFieldValue) -> TextFieldValue) -> Unit,
-    onPickImage: () -> Unit = {}
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
-            .padding(start = 2.dp, end = 2.dp, top = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(0.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.heading),
-            onClick = { onAction(MarkdownEditActions::heading) }
-        ) {
-            Icon(Icons.Default.Title, contentDescription = stringResource(R.string.heading))
-        }
-        ToolbarDivider()
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.bullet_list),
-            onClick = { onAction(MarkdownEditActions::bulletList) }
-        ) {
-            Icon(Icons.AutoMirrored.Filled.FormatListBulleted, contentDescription = stringResource(R.string.bullet_list))
-        }
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.ordered_list),
-            onClick = { onAction(MarkdownEditActions::orderedList) }
-        ) {
-            Icon(Icons.Default.FormatListNumbered, contentDescription = stringResource(R.string.ordered_list))
-        }
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.checkbox),
-            onClick = { onAction(MarkdownEditActions::checkbox) }
-        ) {
-            Icon(Icons.Default.CheckBox, contentDescription = stringResource(R.string.checkbox))
-        }
-        ToolbarDivider()
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.bold),
-            onClick = { onAction(MarkdownEditActions::bold) }
-        ) {
-            Icon(Icons.Default.FormatBold, contentDescription = stringResource(R.string.bold))
-        }
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.italic),
-            onClick = { onAction(MarkdownEditActions::italic) }
-        ) {
-            Icon(Icons.Default.FormatItalic, contentDescription = stringResource(R.string.italic))
-        }
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.strikethrough),
-            onClick = { onAction(MarkdownEditActions::strikethrough) }
-        ) {
-            Icon(Icons.Default.FormatStrikethrough, contentDescription = stringResource(R.string.strikethrough))
-        }
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.inline_code),
-            onClick = { onAction(MarkdownEditActions::inlineCode) }
-        ) {
-            Icon(Icons.Default.Code, contentDescription = stringResource(R.string.inline_code))
-        }
-        ToolbarDivider()
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.blockquote),
-            onClick = { onAction(MarkdownEditActions::blockquote) }
-        ) {
-            Icon(Icons.Default.FormatQuote, contentDescription = stringResource(R.string.blockquote))
-        }
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.code_block),
-            onClick = { onAction(MarkdownEditActions::codeBlock) }
-        ) {
-            Icon(Icons.Default.DataObject, contentDescription = stringResource(R.string.code_block))
-        }
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.horizontal_rule),
-            onClick = { onAction(MarkdownEditActions::horizontalRule) }
-        ) {
-            Icon(Icons.Default.HorizontalRule, contentDescription = stringResource(R.string.horizontal_rule))
-        }
-        ToolbarDivider()
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.markdown_link),
-            onClick = { onAction(MarkdownEditActions::markdownLink) }
-        ) {
-            Icon(Icons.Default.Link, contentDescription = stringResource(R.string.markdown_link))
-        }
-        ToolbarTooltipIconButton(
-            label = stringResource(R.string.insert_image),
-            onClick = onPickImage
-        ) {
-            Icon(Icons.Default.Image, contentDescription = stringResource(R.string.insert_image))
-        }
-    }
-}
-
-
-@Composable
-private fun ToolbarDivider() {
-    VerticalDivider(
-        modifier = Modifier
-            .height(20.dp)
-            .padding(horizontal = 2.dp),
-        color = MaterialTheme.colorScheme.outlineVariant
-    )
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun ToolbarTooltipIconButton(
-    label: String,
-    onClick: () -> Unit,
-    enabled: Boolean = true,
-    content: @Composable () -> Unit
-) {
-    TooltipBox(
-        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-        tooltip = {
-            PlainTooltip {
-                Text(label)
-            }
-        },
-        state = rememberTooltipState()
-    ) {
-        IconButton(
-            modifier = Modifier.semantics { contentDescription = label },
-            onClick = onClick,
-            enabled = enabled
-        ) {
-            content()
-        }
-    }
-}
-

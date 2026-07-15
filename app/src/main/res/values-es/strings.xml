@@ -49,6 +49,12 @@
     <string name="editor_empty_title">Una pagina tranquila esta lista</string>
     <string name="editor_empty_hint">Usa Markdown, #etiquetas, enlaces y casillas. Markleaf guarda localmente mientras escribes.</string>
     <string name="bold">Negrita</string>
+    <string name="formatting">Formato</string>
+    <string name="formatting_inline">En línea</string>
+    <string name="formatting_structure">Estructura</string>
+    <string name="formatting_block_media">Bloques y multimedia</string>
+    <string name="expanded">Expandido</string>
+    <string name="collapsed">Contraído</string>
     <string name="italic">Cursiva</string>
     <string name="strikethrough">Tachado</string>
     <string name="inline_code">Codigo en linea</string>

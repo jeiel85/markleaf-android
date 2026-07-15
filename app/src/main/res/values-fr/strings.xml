@@ -49,6 +49,12 @@
     <string name="editor_empty_title">Une page calme vous attend</string>
     <string name="editor_empty_hint">Utilisez Markdown, des #étiquettes, des liens et des cases à cocher. Markleaf enregistre localement pendant que vous écrivez.</string>
     <string name="bold">Gras</string>
+    <string name="formatting">Mise en forme</string>
+    <string name="formatting_inline">En ligne</string>
+    <string name="formatting_structure">Structure</string>
+    <string name="formatting_block_media">Blocs et médias</string>
+    <string name="expanded">Développé</string>
+    <string name="collapsed">Réduit</string>
     <string name="italic">Italique</string>
     <string name="strikethrough">Barré</string>
     <string name="inline_code">Code en ligne</string>

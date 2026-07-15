@@ -49,6 +49,12 @@
     <string name="editor_empty_title">A quiet page is ready</string>
     <string name="editor_empty_hint">Use Markdown, #tags, links, and checkboxes. Markleaf saves locally as you write.</string>
     <string name="bold">Bold</string>
+    <string name="formatting">Formatting</string>
+    <string name="formatting_inline">Inline</string>
+    <string name="formatting_structure">Structure</string>
+    <string name="formatting_block_media">Blocks and media</string>
+    <string name="expanded">Expanded</string>
+    <string name="collapsed">Collapsed</string>
     <string name="italic">Italic</string>
     <string name="strikethrough">Strikethrough</string>
     <string name="inline_code">Inline code</string>

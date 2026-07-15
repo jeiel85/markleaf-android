@@ -7,6 +7,74 @@
 
 ## Confirmed Decisions
 
+### D059 - Quiet Editor Uses Three Progressive Formatting Surfaces
+
+The Phase 29 editor replaces permanent formatting chrome with progressive
+disclosure while preserving the full Markdown action inventory.
+
+Why:
+- A permanently visible horizontal toolbar competes with the document and uses
+  scarce phone viewport height even when formatting is not needed.
+- Selection has a smaller, more predictable action set than general block and
+  structure formatting.
+- Android's platform selection menu, IME, accessibility focus, and Storage
+  Access Framework picker must keep their established ownership boundaries.
+
+Decision:
+- Use a compact, footer-anchored `Aa` entry for normal editing.
+- Replace that entry with Bold, Italic, Link, and More actions while source text
+  is selected; keep Android Cut/Copy/Paste platform-owned.
+- Put the complete existing action inventory in a non-modal expanded style
+  panel anchored to the editor column. Use a content-width surface on phones
+  and a bounded popover on expanded layouts without restoring a permanent
+  tablet toolbar.
+- Preserve the editor focus/selection and IME for touch entry. Keyboard or
+  assistive-technology entry moves navigation focus into the panel and returns
+  it on Back/Escape dismissal.
+- Quick Insert, autocomplete, find/replace, preview, focus mode, and external
+  pickers preempt formatting surfaces. Existing shortcuts and formatting
+  transformations remain authoritative.
+- Require a component-state showcase or Roborazzi harness before integrating
+  the new primitives into `EditorScreen.kt`.
+
+Implementation:
+- Keep the 13 formatting transformations behind one `EditorFormattingAction`
+  inventory, while retaining the editor's existing hardware shortcut handling
+  and Quick Insert transformation path.
+- Hide formatting whenever Quick Insert, autocomplete, find/replace, preview,
+  focus mode, top-bar menus, dialogs, or the SAF picker owns the interaction.
+- Use 48dp actions in a vertically scrolling panel. On phones it follows the
+  editor content width; at expanded width it is capped at 360dp.
+- Touch actions restore the editor caret/selection, keyboard opening focuses
+  Bold first, and Back/Escape dismiss before leaving the editor.
+
+### D058 - Bear-Class Roadmap Prioritizes Product Cohesion Over More Feature Breadth
+
+After v2.22.0, Markleaf already covers the main local Markdown feature set. The
+next roadmap prioritizes how existing capabilities appear, connect, and recede
+over copying additional Bear checklist items.
+
+Why:
+- The remaining daily friction is concentrated in editor chrome, raw syntax
+  presentation, fragmented navigation, and capture entry points.
+- Bear is useful as an interaction-quality benchmark, but Markleaf must keep its
+  own visual identity, Android conventions, and local-first product contract.
+- OCR, sketching, broad document export, and dozens of themes have lower value
+  than improving the open -> write -> organize -> find -> export loop.
+
+Decision:
+- Execute the sequence Quiet Editor -> Living Markdown -> Smart Library ->
+  Capture Everywhere -> Personal Writing.
+- Keep Markdown text as the database, export, and folder-mirror source of truth.
+  Active-context marker hiding is a reversible presentation layer, not a block
+  document model or full WYSIWYG editor.
+- Preserve no-INTERNET, no-account, no-analytics, F-Droid-friendly constraints
+  in every phase.
+- Do not schedule per-note encryption/E2EE until a separate threat model covers
+  search, attachments, folder mirror, migration, and recovery behavior.
+- Treat `docs/ROADMAP.md` v2.23+ as the current execution contract and
+  `docs/BEAR_BENCHMARK_GAP.md` as a historical MVP-era assessment.
+
 ### D057 - GitLab Is A Public, Independently Built Release Mirror
 
 GitLab is a public source and binary mirror with its own signed tag pipeline,

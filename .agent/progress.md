@@ -1,4 +1,112 @@
 ---
+## 2026-07-15 - Phase 29 Quiet Editor 포맷팅 UI 구현
+
+Selected task:
+- 상시 가로 스크롤 툴바를 작은 진입점과 문맥 패널로 재구성하되 기존 액션·단축키·
+  Quick Insert를 보존한다.
+
+Decision:
+- D059 계약대로 normal/selection/expanded 3개 표면을 적용하고, 기존 13개 action은
+  `EditorFormattingAction` inventory 한 곳에서 기존 `MarkdownEditActions`로 위임한다.
+- Quick Insert, 태그/위키링크 자동완성, 찾기, preview/focus, 상단 메뉴·dialog·SAF가 활성화되면
+  formatting surface가 물러난다.
+
+What was implemented:
+- 영구 `MarkdownToolbar`와 별도 stats row를 제거하고 footer의 `Aa` entry + quiet stats,
+  선택 시 Bold/Italic/Link/More, 확장 시 13개 action의 세로 panel로 교체했다.
+- phone은 editor content width, tablet은 360dp bounded panel을 사용하고 48dp row,
+  localized tooltip/state semantics, keyboard 첫 Bold focus, focus-visible background,
+  Back/Escape/canvas tap dismissal을 적용했다.
+- 기존 단축키, Tab indent/outdent, autosave, Quick Insert, tag/wikilink suggestion, image SAF
+  경로를 유지하고 picker 복귀 시 editor focus를 복원한다.
+- 6개 locale string parity와 9개 Roborazzi golden, Compose behavior test 10개,
+  EditorScreen instrumented integration test 2개를 추가했다.
+
+Verification:
+- TDD: 신규 symbol 부재 compile failure -> 구현 -> pointer/keyboard/action/disabled 및
+  focused action keyboard activation, panel-focus shortcut, focus wrap, Escape 및 context-action
+  dismissal 10개 test PASS.
+- `:app:compileDebugAndroidTestKotlin` -> BUILD SUCCESSFUL.
+- `:app:verifyRoborazziDebug --tests ...EditorFormattingControlsSnapshotTest` -> BUILD SUCCESSFUL
+  (collapsed/selected/expanded/disabled/dark/1.5x/tablet/Korean/keyboard-focus 9종).
+- `:app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintRelease :app:assembleDebug`
+  -> BUILD SUCCESSFUL (84 tasks),
+  `app-debug.apk` 21,238,174 bytes.
+- 전체 Roborazzi에서는 변경하지 않은 Quick Insert phone/tablet golden 각각 8 pixels mismatch가
+  재현되었다. compare 이미지는 시각적으로 동일하고 Korean golden은 0 pixel diff라 이번 변경의
+  golden을 덮어쓰지 않았다.
+- API 36 Pixel 6 AVD 2개를 clean data + software/host GPU로 시도했으나 모두 `adb offline`에서
+  부팅이 완료되지 않았다. 실기기 IME/TalkBack 항목은 Phase 29 최종 QA task에 유지했다.
+
+---
+## 2026-07-15 - Phase 29 Quiet Editor 포맷팅 상호작용 계약
+
+Selected task:
+- `DESIGN.md`에 compact formatting entry, selection-context actions, expanded style panel의
+  상태·포커스·접근성 계약을 고정한다.
+
+Decision:
+- 상시 가로 툴바를 compact `Aa` entry -> selected-text actions -> expanded style panel의
+  점진적 공개 구조로 교체한다(D059).
+- Android Cut/Copy/Paste, IME, SAF picker의 플랫폼 소유권은 유지하고 기존 13개 Markdown
+  액션, 단축키, Quick Insert 동작은 보존한다.
+- touch 진입은 editor focus/selection과 IME를 유지하고, keyboard/assistive-technology
+  진입은 panel 안에 탐색 focus를 제공한 뒤 Back/Escape로 복귀한다.
+
+What was implemented:
+- `DESIGN.md`에 compact entry, selection-context action group, 전체 style panel의 action
+  inventory, responsive surface, state matrix, focus/dismissal, motion, accessibility 계약을
+  추가했다.
+- phone+IME, tablet+hardware keyboard, TalkBack/switch access, large-text/translation 확장을
+  inclusive stress context로 고정했다.
+- 구현 전 component-state showcase/Roborazzi gate와 기존 툴바의 명시적 design debt를
+  기록했다.
+- `.omo/frontend-design/state.md`에 결정, persona, adaptive preference, verification matrix,
+  debt register, 다음 구현 handoff를 남겼다.
+- `.agent/decisions.md`에 D059를 추가하고 이 태스크만 완료 처리했다. 다음 UI 구현 task는
+  unchecked 상태로 유지했다.
+
+Verification:
+- 현재 `MarkdownToolbar`의 13개 action과 DESIGN inventory 수동 대조 -> PASS (누락 0).
+- required headings/actions, source path, 현재 task checked, 다음 task unchecked 자동 대조 ->
+  PASS.
+- `git diff --quiet -- app/src` -> PASS (app source 변경 없음).
+- `git diff --check` -> PASS (Windows LF/CRLF conversion warnings only).
+- Documentation-only change; Gradle test/build and visual QA not run because product UI, resources,
+  manifest, and build configuration were not changed. Objective visual QA is the documented next-task
+  implementation gate.
+
+---
+## 2026-07-15 - v2.23+ Bear-class 제품 응집도 로드맵 기록
+
+Selected task:
+- v2.22 기준 Markleaf와 Bear의 제품 경험 격차 분석을 향후 실행 가능한 저장소 로드맵으로
+  남긴다.
+
+Decision:
+- 기능 수를 더 늘리기보다 Quiet Editor -> Living Markdown -> Smart Library -> Capture
+  Everywhere -> Personal Writing 순서로 기존 기능의 응집도를 높인다(D058).
+- Bear는 interaction-quality benchmark로만 사용하고 Markleaf identity, Android 관습,
+  local-first/no-INTERNET 계약은 독립적으로 유지한다.
+- Living Markdown은 원문 위의 가역적 표현 계층이며 DB/export/folder mirror의 source of
+  truth는 계속 순수 Markdown이다.
+
+What was implemented:
+- `docs/ROADMAP.md`를 v2.22까지의 완료 상태로 갱신하고 v2.23–v2.27의 목표, 작업, 완료 기준,
+  공통 전달 게이트, 명시적 비범위를 추가했다.
+- `.agent/tasks.md`에 Phase 29–33의 실행 순서와 unchecked 작업을 추가했다.
+- `.agent/decisions.md`에 제품 응집도를 기능 폭보다 우선하는 D058을 기록했다.
+- `docs/BEAR_BENCHMARK_GAP.md`를 MVP 직후의 역사적 스냅샷으로 표시하고 현재 로드맵으로
+  연결했다.
+
+Verification:
+- `git diff --check` -> PASS (Windows LF/CRLF conversion warnings only).
+- ROADMAP Phase 29–33, common delivery gates, non-goals, tasks, and D058 anchor search -> PASS.
+- local Markdown relative-link check -> PASS, broken links 0.
+- Documentation-only change; Gradle test/build not run because app code, resources, manifest, and
+  build configuration were not changed.
+
+---
 ## 2026-07-13 - GitLab 공개 릴리스 미러 및 저장소 교차 링크
 
 Selected task:

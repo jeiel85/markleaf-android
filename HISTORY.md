@@ -15,6 +15,7 @@
   - GitHub Actions run `29388289814` exposed that aggregate `test` also ran the 19 new Compose UI tests in the release-derived benchmark variant, whose manifest intentionally lacks the debug-only `androidx.activity.ComponentActivity`.
   - Expanded the existing non-debug test exclusion to cover all snapshot classes and the new editor Compose behavior class. The pre-fix benchmark repro failed 10/10; after the fix, `:app:testBenchmarkUnitTest` and the exact aggregate `test` command passed.
   - Force-ran the authoritative debug path: 10 behavior tests and 9 Roborazzi snapshots passed with zero failures. Hardening follow-ups were recorded in GitHub issue #150.
+  - GitHub run `29389449837` confirmed `Run tests` green, then exposed six Windows-vs-Linux raster differences in the new formatting goldens. The dedicated Linux recorder job in run `29389737305` succeeded; its six failing-state images are byte-identical to the CI actuals. Replaced only the eight new formatting PNGs that differ from the canonical Linux artifact.
 - Publication: pending ordered main/tag push and independent GitLab/GitHub Release asset verification.
 
 ## 2026-07-15 - Phase 29 Quiet Editor Formatting Surfaces

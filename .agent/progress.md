@@ -36,6 +36,10 @@ Verification:
 - 수정 전 benchmark 재현은 10/10 실패했고, 수정 뒤 `:app:testBenchmarkUnitTest`와 CI 동일
   `test`가 성공했다. debug 기준 변형에서는 behavior 10개와 snapshot 9개를 강제 재실행해
   19/19 통과와 Roborazzi 일치를 확인했다.
+- 후속 GitHub run `29389449837`에서 `Run tests`는 성공했지만 Windows에서 기록한 새
+  formatting golden 6개가 Linux 폰트 래스터와 달라 visual gate가 실패했다. 전용 Linux
+  record workflow run `29389737305`가 만든 canonical artifact를 대조해, 실제 차이가 있는
+  새 formatting PNG 8개만 교체했다(실패 actual 6개와 artifact는 byte-identical).
 - minor release 하드닝 후보는 GitHub issue #150에 기록했다.
 
 Remaining:

@@ -42,9 +42,23 @@ Verification:
   새 formatting PNG 8개만 교체했다(실패 actual 6개와 artifact는 byte-identical).
 - minor release 하드닝 후보는 GitHub issue #150에 기록했다.
 
-Remaining:
-- CI fix commit과 ordered main/tag push, GitLab/GitHub CI와 공개 Release 자산의
-  비로그인 다운로드·크기·서명·영구 링크를 검증한 뒤 release task를 닫는다.
+Publication:
+- `v2.23.0` annotated tag를 commit `4d1da8d`에 생성해 GitLab 먼저, GitHub 다음으로
+  push했다. GitHub tag workflow `29390626463`은 build/release/launch-smoke 전체 성공,
+  GitLab tag pipeline `2677520856`은 verify/package/release 전체 성공했다.
+- GitHub Release의 APK 2,760,967 bytes와 mapping 41,840,800 bytes를 비로그인
+  다운로드했다. APK는 `com.markleaf.notes` / 2.23.0 / 105이며 production certificate
+  SHA-256 `0be97352...7eecf91a`로 검증됐다.
+- GitHub Actions signed AAB 5,494,421 bytes도 다운로드해 `jar verified.`와 같은 production
+  certificate를 확인했다.
+- GitLab Release의 Generic Package Registry 영구 링크 4종을 비로그인 다운로드했다:
+  APK 2,760,967 bytes, AAB 5,494,421 bytes, mapping 41,840,800 bytes, six-locale notes
+  2,138 bytes. APK/AAB 서명과 package/version, 6개 locale tag를 모두 확인했다.
+- GitHub/GitLab 공개 APK·AAB·mapping의 SHA-256은 서로 일치했다. release task를 닫았다.
+
+Next:
+- Phase 29의 다음 unchecked task인 editor top app bar와 통계·목차·백링크 Info surface
+  정보 구조 정리를 진행한다.
 
 ---
 ## 2026-07-15 - Phase 29 Quiet Editor 포맷팅 UI 구현

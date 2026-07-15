@@ -16,7 +16,11 @@
   - Expanded the existing non-debug test exclusion to cover all snapshot classes and the new editor Compose behavior class. The pre-fix benchmark repro failed 10/10; after the fix, `:app:testBenchmarkUnitTest` and the exact aggregate `test` command passed.
   - Force-ran the authoritative debug path: 10 behavior tests and 9 Roborazzi snapshots passed with zero failures. Hardening follow-ups were recorded in GitHub issue #150.
   - GitHub run `29389449837` confirmed `Run tests` green, then exposed six Windows-vs-Linux raster differences in the new formatting goldens. The dedicated Linux recorder job in run `29389737305` succeeded; its six failing-state images are byte-identical to the CI actuals. Replaced only the eight new formatting PNGs that differ from the canonical Linux artifact.
-- Publication: pending ordered main/tag push and independent GitLab/GitHub Release asset verification.
+- Publication:
+  - Tagged commit `4d1da8d75555277f2aec8f40e849356f0f5e02d8` as `v2.23.0` and pushed GitLab first, then GitHub.
+  - GitHub workflow `29390626463` passed build, signed release, and emulator launch-smoke jobs. GitLab pipeline `2677520856` passed verify, signed package, and public release jobs.
+  - Unauthenticated GitHub downloads: APK 2,760,967 bytes and mapping 41,840,800 bytes. The APK reports `com.markleaf.notes` / 2.23.0 / 105 and the production certificate. The signed Actions AAB is 5,494,421 bytes, reports `jar verified.`, and uses the same certificate.
+  - Unauthenticated GitLab Generic Package Registry downloads: APK 2,760,967 bytes, AAB 5,494,421 bytes, mapping 41,840,800 bytes, and six-locale notes 2,138 bytes. APK/AAB signatures, package/version, locale blocks, and permanent package-registry URLs were verified. GitHub/GitLab public binary hashes match.
 
 ## 2026-07-15 - Phase 29 Quiet Editor Formatting Surfaces
 

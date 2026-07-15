@@ -1,0 +1,1 @@
+La barra de formato permanente ahora es un discreto acceso Aa. Al seleccionar texto aparecen Negrita, Cursiva, Enlace y Más; el panel ampliado conserva las 13 acciones Markdown. Siguen funcionando los atajos de teclado, la inserción rápida / y el guardado automático. Sin permisos nuevos ni acceso a la red.

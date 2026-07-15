@@ -1,3 +1,18 @@
+## 2026-07-15 - v2.23.0 Quiet Formatting Release Preparation
+
+- Trigger: The user asked whether the completed Quiet Editor work had been pushed and requested a new release if it had not.
+- Scope: Package the completed progressive-formatting change as versionName 2.23.0 / versionCode 105, refresh public version surfaces, and prepare the signed GitHub/GitLab/F-Droid/Play hand-off. No additional product behavior was added.
+- Work:
+  - Promoted the Quiet Formatting changelog and added six Play/F-Droid locale notes, each within the 500-character store limit.
+  - Updated all README release links, the landing-page current-version strip, and the F-Droid metadata draft to v2.23.0.
+  - Exported the signed AAB, R8 mapping, and six-locale combined notes to the canonical `D:\\Build` directory.
+- Local verification:
+  - `:app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintRelease :app:assembleDebug` passed (`BUILD SUCCESSFUL`, 84 tasks).
+  - The focused nine-state `EditorFormattingControlsSnapshotTest` Roborazzi verification passed.
+  - Signed `:app:exportReleaseToBuildDrive :app:assembleRelease` passed. The release APK reports `com.markleaf.notes`, versionName 2.23.0, versionCode 105, and production certificate SHA-256 `0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a`; the AAB certificate matches.
+  - Local outputs: debug APK 20,368,092 bytes; release APK 2,760,967 bytes; AAB 5,493,207 bytes; mapping 41,840,923 bytes; combined notes 2,138 bytes.
+- Publication: pending ordered main/tag push and independent GitLab/GitHub Release asset verification.
+
 ## 2026-07-15 - Phase 29 Quiet Editor Formatting Surfaces
 
 - Trigger: After recording the Bear-class product-cohesion roadmap and freezing the formatting interaction contract, the user asked to start the next Phase 29 task.

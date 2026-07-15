@@ -4,8 +4,26 @@ All notable changes to Markleaf are documented in this file.
 
 ## Unreleased
 
+## v2.23.0 - 조용한 포맷팅 (Quiet Formatting) - 2026-07-15
+
+글쓰기 화면을 덜 가리고도 기존 Markdown 도구를 모두 쓸 수 있게 포맷팅 UI를 재구성한 기능 릴리스입니다. 선택 문맥, 터치, 외장 키보드, 접근성 포커스를 함께 다듬었으며 저장 형식과 로컬 우선 원칙은 그대로 유지합니다.
+
 ### Changed
-- Added a public GitLab release mirror with independently built, production-signed APK/AAB downloads and permanent package-backed release links.
+- **조용한 `Aa` 진입점.** 항상 보이던 가로 스크롤 포맷 툴바를 작은 `Aa` 버튼과 간결한 글자·단어 통계로 교체해 본문에 더 많은 공간을 돌려줍니다.
+- **선택 문맥 액션.** 텍스트를 선택하면 굵게, 기울임, 링크, 더보기 액션이 가까이 나타나며 Android의 잘라내기·복사·붙여넣기 메뉴는 그대로 유지됩니다.
+- **전체 스타일 패널.** 확장 패널에서 기존 13개 Markdown 액션을 모두 제공하고, phone에서는 에디터 너비, tablet에서는 최대 360dp의 차분한 표면을 사용합니다.
+- **공개 GitLab 릴리스 미러.** GitHub와 별도로 빌드한 production-signed APK/AAB와 영구 패키지 기반 다운로드 링크를 제공합니다.
+
+### Accessibility
+- 48dp 터치 영역, 현지화된 라벨과 펼침 상태, 키보드 첫 포커스·순환 탐색·시각적 포커스 표시, Back/Escape/캔버스 탭 닫기를 추가했습니다.
+
+### Compatibility
+- 기존 13개 포맷팅 명령, `Ctrl/Cmd+B`, `I`, `K`, `Shift+S`, Tab 들여쓰기, `/` 빠른 삽입, 태그·위키링크 자동완성, 자동 저장과 SAF 이미지 선택 흐름을 보존했습니다.
+- 새 권한, 네트워크, 계정, 분석, 광고, 데이터베이스 변경 또는 외부 의존성을 추가하지 않았습니다.
+
+### Tests
+- 포맷 액션·disabled 상태·포커스 순환·Escape·단축키·문맥 액션 닫기 동작과 실제 에디터 연동을 테스트했습니다.
+- phone/tablet, light/dark, 큰 글자, 한국어, 선택·disabled·키보드 포커스 상태의 Roborazzi 골든 9종을 추가했습니다.
 
 ## v2.22.0 - 슬래시 빠른 삽입 (Quick Insert Commands) - 2026-07-13
 

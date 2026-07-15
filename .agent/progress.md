@@ -1,4 +1,40 @@
 ---
+## 2026-07-15 - v2.23.0 Quiet Formatting 릴리스 준비
+
+Selected task:
+- 아직 원격에 올라가지 않은 Quiet Editor 포맷팅 변경을 새 버전으로 묶어 양쪽 배포 채널에
+  릴리스한다.
+
+Decision:
+- 사용자 영향이 큰 editor UI 기능이므로 v2.23.0 / versionCode 105 minor release로 올린다.
+- D057에 따라 동일 이력을 GitLab 먼저, GitHub 다음으로 push하고 tag release 자산을 각각
+  독립 검증한다.
+
+What was implemented:
+- `CHANGELOG.md`에 Quiet Formatting 릴리스 섹션을 만들고 6개 store locale의 `105.txt`를
+  작성했다(모두 500자 이내).
+- README 4종, landing page, F-Droid metadata draft의 current version과 release link를
+  v2.23.0으로 맞췄다.
+- `:app:exportReleaseToBuildDrive`로 서명 AAB, R8 mapping, 6개 언어 통합 노트를 `D:\\Build`에
+  생성했다.
+
+Verification:
+- `:app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintRelease :app:assembleDebug`
+  -> BUILD SUCCESSFUL (84 tasks).
+- `:app:verifyRoborazziDebug --tests ...EditorFormattingControlsSnapshotTest`
+  -> BUILD SUCCESSFUL (9 states).
+- `-Pmarkleaf.requireReleaseSigning=true :app:exportReleaseToBuildDrive :app:assembleRelease`
+  -> BUILD SUCCESSFUL.
+- APK package는 `com.markleaf.notes`, versionName 2.23.0, versionCode 105이며 production
+  certificate SHA-256은 D023과 일치했다. AAB certificate도 동일하다.
+- local 산출물: debug APK 20,368,092 bytes, release APK 2,760,967 bytes,
+  AAB 5,493,207 bytes, mapping 41,840,923 bytes, combined notes 2,138 bytes.
+
+Remaining:
+- hardening candidates issue, ordered main/tag push, GitLab/GitHub CI와 공개 Release 자산의
+  비로그인 다운로드·크기·서명·영구 링크를 검증한 뒤 release task를 닫는다.
+
+---
 ## 2026-07-15 - Phase 29 Quiet Editor 포맷팅 UI 구현
 
 Selected task:

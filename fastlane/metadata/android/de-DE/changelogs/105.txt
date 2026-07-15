@@ -1,0 +1,1 @@
+Die dauerhafte Formatleiste wurde durch einen ruhigen Aa-Einstieg ersetzt. Bei einer Textauswahl erscheinen Fett, Kursiv, Link und Mehr; das erweiterte Panel enthält weiterhin alle 13 Markdown-Aktionen. Tastenkürzel, / Quick Insert und Autospeichern bleiben erhalten. Keine neuen Berechtigungen oder Netzwerkzugriffe.

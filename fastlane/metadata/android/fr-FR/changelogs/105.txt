@@ -1,0 +1,1 @@
+La barre de mise en forme permanente devient un discret bouton Aa. Une sélection affiche Gras, Italique, Lien et Plus, tandis que le panneau étendu conserve les 13 actions Markdown. Les raccourcis clavier, l’insertion rapide / et l’enregistrement automatique restent disponibles. Aucun nouvel accès réseau ni permission.

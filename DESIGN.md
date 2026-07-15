@@ -223,3 +223,123 @@ Accepted pre-existing debt:
 |---|---|---|---|
 | Empty editor uses a pencil emoji instead of a vector icon | `EditorScreen.kt` empty state | Pre-existing visual behavior outside the Quick Insert scope | Replace during a dedicated editor visual consolidation cycle |
 | Some large settings/tag surfaces are sparse on tablets | Settings and standalone Tags screens | Does not block writing or Quick Insert | Address in a dedicated adaptive-layout polish cycle |
+
+## 9. Public Web Landing Contract
+
+### Audience and page job
+
+The GitHub Pages landing surface serves Android writers who are deciding whether
+to install Markleaf, especially privacy-conscious F-Droid users and people who
+need portable Markdown files. Its single job is to prove the real writing
+experience and data-ownership contract, then lead visitors to the current
+F-Droid release without overstating unavailable distribution channels.
+
+Inclusive review contexts:
+
+- A phone visitor comparing note apps one-handed before installation.
+- A privacy-conscious visitor verifying the no-account and no-INTERNET claims.
+- A keyboard or low-vision visitor who needs visible focus, predictable reading
+  order, AA contrast, and comfortable Korean line wrapping.
+
+### Direction and signature
+
+The direction is **Quiet proof**: warm green-neutral paper, restrained leaf
+green, large plain-spoken Korean copy, and real product evidence rather than
+decorative marketing chrome. The memorable moment is a real editor screenshot
+paired with a small DOM-rendered `.md` receipt that makes local ownership
+visible. The existing feature graphic may remain an Open Graph asset, but it is
+not the hero background because its embedded logo and copy compete with the
+page heading.
+
+No testimonial, pricing, generic three-card feature row, stock photography, or
+ornamental motion is introduced. The product screenshots and the local-file
+receipt carry the visual identity.
+
+### Web tokens
+
+The web surface maps directly to the product palette and declares the following
+CSS custom properties before use:
+
+| Web token | Value | Product role / usage |
+|---|---:|---|
+| `--color-canvas` | `#F9FBF9` | `background`; page canvas |
+| `--color-surface` | `#FFFFFF` | `surface`; screenshot and primary action surfaces |
+| `--color-surface-soft` | `#EEF4EA` | quiet alternate section |
+| `--color-primary` | `#2E7D32` | primary action and Markdown evidence |
+| `--color-primary-strong` | `#1B5E20` | headings and strong action state |
+| `--color-primary-ink` | `#00390A` | high-contrast brand text |
+| `--color-primary-soft` | `#D5E8CF` | proof and selected surfaces |
+| `--color-ink` | `#191C19` | primary copy |
+| `--color-muted` | `#52634F` | secondary copy |
+| `--color-line` | `#C2C9BD` | separators where tonal shift is insufficient |
+| `--color-focus` | `#38656A` | keyboard focus outline |
+
+Spacing uses the existing 4-unit rhythm through `--space-1` (4px),
+`--space-2` (8px), `--space-3` (12px), `--space-4` (16px), `--space-6`
+(24px), `--space-8` (32px), `--space-12` (48px), `--space-16` (64px), and
+`--space-24` (96px). Corner radii are `--radius-small` (8px),
+`--radius-medium` (16px), and `--radius-large` (24px); inner controls never
+use a larger radius than their container.
+
+The only pronounced elevation is `--shadow-product`, a green-tinted two-layer
+shadow for real app screenshots. Other hierarchy uses whitespace, separators,
+and tonal shifts rather than card shadows.
+
+### Web typography
+
+- Use a local system stack only; the public page does not contact a font CDN.
+- Display and section headings use the system display face at SemiBold/Bold with
+  tight tracking and balanced wrapping.
+- Body copy uses the system UI face with a maximum readable measure of 65ch.
+- Permission names, file paths, and `.md` evidence use the system monospace
+  stack and never simulate code with literal backticks in prose.
+- The minimum visible text size is 14px; long Korean copy uses `text-wrap:
+  pretty` and avoids forced single-line layout.
+
+### Web layout and primitives
+
+The content order is fixed:
+
+1. Sticky header with brand and in-page navigation.
+2. Asymmetric hero: value proposition and install action beside real app proof.
+3. Trust ledger: current version, no-INTERNET, and plain Markdown ownership.
+4. Three sequential story rows: write, organize, own/export.
+5. Privacy flow: device storage -> explicit user action -> chosen destination.
+6. Download hand-off with F-Droid recommended and other channels accurately
+   labeled.
+7. Compact legal/source footer.
+
+Reusable primitives and states:
+
+- `Action link`: primary, secondary, hover, pressed, keyboard focus.
+- `Proof item`: label, value, supporting copy; separated by rules rather than a
+  floating card.
+- `Product frame`: real screenshot, caption, loading state provided by the
+  image element, and responsive crop that never replaces the screenshot with a
+  mock UI.
+- `Story row`: text-first and media-first variants, alternating only on wide
+  screens; DOM reading order stays text then evidence.
+- `Privacy step`: ordered step with connector, compact stacked mobile state,
+  and no color-only meaning.
+- `Channel row`: recommended, available, and paused states with textual status.
+
+### Web responsive, motion, and accessibility rules
+
+- Validate at 375px, 768px, and 1280px. No horizontal overflow or clipped CJK
+  text is accepted.
+- Images declare intrinsic width and height. Below-fold screenshots use native
+  lazy loading; the hero screenshot is eagerly fetched.
+- Interactive targets are at least 48px high. Every link has a visible
+  `:focus-visible` outline that is stronger than a color-only change.
+- A skip link precedes the sticky header. Section anchors account for the
+  sticky header offset.
+- Motion is limited to hover, press, and focus feedback on interactive
+  elements, using only `transform`, `opacity`, and color. There is no decorative
+  entrance or scroll animation. `prefers-reduced-motion: reduce` removes smooth
+  scrolling and non-essential transitions.
+- Semantic landmarks, heading order, descriptive screenshot alternative text,
+  and native ordered lists remain authoritative. The visual arrangement never
+  changes DOM task order.
+- The page makes no analytics, advertising, tracking, account, or runtime API
+  requests. Metadata may link to public Markleaf pages, and fonts/assets ship
+  from the same GitHub Pages origin.

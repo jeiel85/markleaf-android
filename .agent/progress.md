@@ -1,4 +1,39 @@
 ---
+
+## 2026-07-15 - Quiet proof 랜딩 페이지 리뉴얼
+
+Selected task:
+- 사용자가 승인한 진단을 기준으로 GitHub Pages 랜딩을 실제 제품과 데이터 소유권 중심으로
+  리뉴얼한다.
+
+Decision:
+- Android 설치를 검토하는 방문자에게 실제 화면과 검증 가능한 로컬 우선 근거를 먼저
+  보여주는 `Quiet proof` 방향을 사용한다.
+- F-Droid를 권장 CTA로 두고 GitHub 최신 APK, Google Play 업데이트 보류, Source code를
+  같은 중요도로 오인하지 않도록 상태를 명시한다.
+
+What was implemented:
+- `DESIGN.md`에 웹 전용 색상·타입·간격·컴포넌트·반응형·접근성 계약을 추가했다.
+- `docs/index.html`과 새 `docs/landing.css`를 실제 앱 화면 기반 hero, 3단계 사용 흐름,
+  privacy data flow, 설치 채널 hand-off 구조로 재작성했다.
+- fastlane의 2560x1600 실제 스크린샷 4장에서 720/1280px 반응형 WebP를 만들어 UI 내용을
+  바꾸지 않으면서 과대 전송을 제거했다.
+- Google Fonts 요청을 제거하고 canonical, Open Graph, Twitter card, SoftwareApplication
+  JSON-LD를 추가했다.
+
+Verification:
+- Chrome/Playwright 375x812, 768x1024, 1280x960 fresh capture에서 수평 overflow, 48px
+  미만 target, console/request/external-runtime 오류가 모두 0이고 responsive image가 전부
+  로드됨을 확인했다.
+- 첫 시각 검증에서 발견한 CJK 단어 분리 결함을 heading keep-all 규칙과
+  `Markdown으로` non-breaking span으로 수정했다. hover/focus/pressed, skip link, sticky
+  anchor, local policy/asset response, reduced-motion 상태도 통과했다.
+- Lighthouse 3회 중앙값은 mobile/desktop 모두 Performance, Accessibility, Best Practices,
+  SEO 100이었다. CLS는 모두 0, median TBT는 mobile 0ms / desktop 8.8ms였다.
+- 독립 read-only visual QA 2개 lane이 CJK 줄바꿈, 14px mobile navigation, link hover,
+  compact skip-link evidence 보정 후 blocker 없이 최종 PASS했다.
+- `./gradlew test assembleDebug`가 성공했고 debug APK 20,368,092 bytes를 확인했다.
+
 ## 2026-07-15 - v2.23.0 Quiet Formatting 릴리스 준비
 
 Selected task:

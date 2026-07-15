@@ -5,6 +5,12 @@
 
 ---
 
+## User-requested Public Surface Renewal (Done, 2026-07-15)
+
+- [x] GitHub Pages 랜딩을 Quiet proof 방향으로 재구성하고 실제 앱 화면, no-INTERNET 증거, F-Droid 우선 설치 경로, 반응형·접근성·SEO를 검증
+
+---
+
 ## Phase 29 - Quiet Editor (In Progress)
 
 목적: v2.22까지 쌓인 기능을 상시 chrome으로 노출하지 않고, 글이 중심이 되는 편집 화면으로

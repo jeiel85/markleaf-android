@@ -1,3 +1,19 @@
+## 2026-07-15 - Quiet Proof Landing Page Renewal
+
+- Trigger: The user accepted the landing-page audit and asked to implement the proposed renewal.
+- Scope: Rebuild only the GitHub Pages landing surface and its design contract. No Android behavior, permission, dependency, database, release version, or distribution artifact changed.
+- Work:
+  - Added the `DESIGN.md` public-web contract with the Quiet proof direction, product-aligned tokens, responsive primitives, keyboard/motion rules, and F-Droid-first install hierarchy.
+  - Replaced the repeated feature-card layout with an asymmetric real-product hero, three sequential writing stories, a no-INTERNET data-flow proof, and accurately labeled download channels.
+  - Derived 720px and 1280px responsive WebP renditions from four existing 2560x1600 store screenshots; the landing keeps real product content while avoiding oversized transfers.
+  - Added canonical/Open Graph/Twitter/SoftwareApplication metadata and removed landing-page Google Fonts requests.
+- Verification:
+  - Real Chrome/Playwright rendered fresh 375x812, 768x1024, and 1280x960 captures with `scrollWidth === clientWidth`, all responsive images loaded, no sub-48px targets, and zero console, request, or external-runtime errors.
+  - Hover, focus, pressed, skip-link, sticky-anchor, local policy/asset responses, and reduced-motion states passed. The first render exposed Korean word splitting; `word-break: keep-all` plus a bounded no-break hero phrase fixed it without hiding overflow.
+  - Three-run Lighthouse medians were 100 for Performance, Accessibility, Best Practices, and SEO on both mobile and desktop; median LCP was 1.43s mobile / 0.38s desktop, CLS was 0, and median TBT was 0ms / 8.8ms.
+  - Two independent read-only visual QA lanes passed the final responsive and interaction evidence with no blockers after CJK wrapping, 14px mobile navigation, hover feedback, and compact skip-link evidence were corrected.
+  - `./gradlew test assembleDebug` passed (`BUILD SUCCESSFUL`, 91 tasks); `app-debug.apk` exists and is 20,368,092 bytes.
+
 ## 2026-07-15 - v2.23.0 Quiet Formatting Release Preparation
 
 - Trigger: The user asked whether the completed Quiet Editor work had been pushed and requested a new release if it had not.

@@ -7,6 +7,34 @@
 
 ## Confirmed Decisions
 
+### D060 - Public Landing Uses Quiet Proof And Real Product Evidence
+
+The GitHub Pages landing page prioritizes verifiable product behavior and data
+ownership over a decorative feature graphic or repeated marketing cards.
+
+Why:
+- The previous hero repeated the Markleaf wordmark inside both the background
+  graphic and heading, while no real app screen appeared on the page.
+- Equal feature and download cards flattened the product story and made a
+  paused Google Play channel look as current as F-Droid.
+- A privacy-first app should not require a third-party font request merely to
+  explain that promise.
+
+Decision:
+- Use the Quiet proof direction: product-aligned green-neutral tokens, large
+  plain-spoken Korean copy, real store screenshots, and one DOM-rendered `.md`
+  receipt as the signature visual.
+- Structure the page as hero -> trust ledger -> write/organize/own stories ->
+  privacy flow -> install hand-off.
+- Recommend F-Droid, link GitHub to `releases/latest`, label Google Play as
+  update-paused, and keep source/license visible.
+- Ship static semantic HTML and token-driven CSS with no analytics, runtime API,
+  font CDN, or decorative JavaScript. Motion is limited to interactive feedback
+  and respects reduced-motion preferences.
+- Derive only responsive WebP renditions from the existing fastlane screenshots
+  so the landing shows real UI rather than an invented interface while avoiding
+  oversized image transfers.
+
 ### D059 - Quiet Editor Uses Three Progressive Formatting Surfaces
 
 The Phase 29 editor replaces permanent formatting chrome with progressive

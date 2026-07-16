@@ -84,7 +84,7 @@ fun SettingsScreen(
                 val count = withContext(Dispatchers.IO) {
                     ExportAllNotes.exportAllNotes(context, folderUri, notes)
                 }
-                val msg = context.getString(R.string.export_all_done_format, count)
+                val msg = context.resources.getQuantityString(R.plurals.export_all_done_format, count, count)
                 Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
             }
         }
@@ -112,7 +112,7 @@ fun SettingsScreen(
                     }
                 }
                 settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())
-                val msg = context.getString(R.string.sync_seeded_format, written)
+                val msg = context.resources.getQuantityString(R.plurals.sync_seeded_format, written, written)
                 Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
             }
         }

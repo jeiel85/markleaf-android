@@ -97,7 +97,10 @@
     <string name="replace_in_note_hint">Remplacer</string>
     <string name="replace_match">Remplacer</string>
     <string name="replace_all_matches">Remplacer tout</string>
-    <string name="replace_all_done_format">%1$d correspondances remplacées.</string>
+    <plurals name="replace_all_done_format">
+        <item quantity="one">%1$d correspondance remplacée.</item>
+        <item quantity="other">%1$d correspondances remplacées.</item>
+    </plurals>
     <string name="close">Fermer</string>
     <string name="share_note">Partager ou exporter</string>
     <string name="share_via_system">Partager via…</string>
@@ -130,7 +133,10 @@
     <string name="tag_result_format">#%1$s</string>
     <string name="no_tags_yet">Aucune étiquette pour le moment</string>
     <string name="tags_empty_hint">Saisissez des #étiquettes dans une note pour l\'organiser</string>
-    <string name="tag_note_count_format">%1$d notes</string>
+    <plurals name="tag_note_count_format">
+        <item quantity="one">%1$d note</item>
+        <item quantity="other">%1$d notes</item>
+    </plurals>
 
     <string name="trash_empty">La corbeille est vide</string>
     <string name="trash_empty_hint">Les notes que vous supprimez apparaissent ici</string>
@@ -166,7 +172,10 @@
     <string name="settings_data">Données</string>
     <string name="export_all_notes">Exporter toutes les notes…</string>
     <string name="export_all_notes_description">Choisissez un dossier et Markleaf enregistrera chaque note dans un fichier .md séparé. Les notes de la corbeille sont ignorées.</string>
-    <string name="export_all_done_format">%1$d notes exportées.</string>
+    <plurals name="export_all_done_format">
+        <item quantity="one">%1$d note exportée.</item>
+        <item quantity="other">%1$d notes exportées.</item>
+    </plurals>
 
     <string name="sync_title">Multi-device sync (folder mirror)</string>
     <string name="sync_explainer">Markleaf ne se connecte jamais à Internet lui-même. Au lieu de cela, vous choisissez un dossier et Markleaf y enregistre chaque note sous forme de fichier `.md`. Si ce dossier est synchronisé par une autre application — Dropbox, Drive, Syncthing, OneDrive, a NAS — vos notes suivent vos autres appareils.</string>
@@ -180,10 +189,16 @@
     <string name="sync_change_folder">Changer de dossier</string>
     <string name="sync_now">Synchroniser maintenant</string>
     <string name="sync_stop">Arrêter la synchronisation</string>
-    <string name="sync_seeded_format">%1$d notes mises en miroir dans le dossier.</string>
+    <plurals name="sync_seeded_format">
+        <item quantity="one">%1$d note mise en miroir dans le dossier.</item>
+        <item quantity="other">%1$d notes mises en miroir dans le dossier.</item>
+    </plurals>
     <string name="sync_file_format">Format de fichier de synchronisation</string>
     <string name="sync_tidy_filenames">Renommer les fichiers selon le titre</string>
-    <string name="sync_tidy_done_format">%1$d noms de fichiers nettoyés.</string>
+    <plurals name="sync_tidy_done_format">
+        <item quantity="one">%1$d nom de fichier nettoyé.</item>
+        <item quantity="other">%1$d noms de fichiers nettoyés.</item>
+    </plurals>
     <string name="sync_done_format">Synchronisé — %1$d mises à jour, %2$d nouvelles, %3$d inchangées.</string>
     <string name="sync_done_with_conflicts_format">Synchronisé — %1$d mises à jour, %2$d nouvelles, %3$d conservées en double (conflit), %4$d inchangées.</string>
     <string name="sync_stopped">Synchronisation désactivée.</string>

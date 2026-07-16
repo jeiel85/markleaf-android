@@ -83,7 +83,7 @@ fun SyncCenterScreen(
                     }
                 }
                 settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())
-                val msg = context.getString(R.string.sync_seeded_format, written)
+                val msg = context.resources.getQuantityString(R.plurals.sync_seeded_format, written, written)
                 Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
             }
         }
@@ -283,7 +283,7 @@ fun SyncCenterScreen(
                                             }
                                             Toast.makeText(
                                                 context,
-                                                context.getString(R.string.sync_tidy_done_format, renamed),
+                                                context.resources.getQuantityString(R.plurals.sync_tidy_done_format, renamed, renamed),
                                                 Toast.LENGTH_SHORT
                                             ).show()
                                         }

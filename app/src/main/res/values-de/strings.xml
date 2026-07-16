@@ -97,7 +97,10 @@
     <string name="replace_in_note_hint">Ersetzen</string>
     <string name="replace_match">Ersetzen</string>
     <string name="replace_all_matches">Alle ersetzen</string>
-    <string name="replace_all_done_format">%1$d Treffer ersetzt.</string>
+    <plurals name="replace_all_done_format">
+        <item quantity="one">%1$d Treffer ersetzt.</item>
+        <item quantity="other">%1$d Treffer ersetzt.</item>
+    </plurals>
     <string name="close">Schließen</string>
     <string name="share_note">Teilen oder exportieren</string>
     <string name="share_via_system">Teilen über…</string>
@@ -130,7 +133,10 @@
     <string name="tag_result_format">#%1$s</string>
     <string name="no_tags_yet">Noch keine Tags</string>
     <string name="tags_empty_hint">Tippe #Tags in eine Notiz, um sie zu organisieren</string>
-    <string name="tag_note_count_format">%1$d Notizen</string>
+    <plurals name="tag_note_count_format">
+        <item quantity="one">%1$d Notiz</item>
+        <item quantity="other">%1$d Notizen</item>
+    </plurals>
 
     <string name="trash_empty">Papierkorb ist leer</string>
     <string name="trash_empty_hint">Gelöschte Notizen erscheinen hier</string>
@@ -166,7 +172,10 @@
     <string name="settings_data">Daten</string>
     <string name="export_all_notes">Alle Notizen exportieren…</string>
     <string name="export_all_notes_description">Wähle einen Ordner und Markleaf speichert jede Notiz als separate .md-Datei. Notizen im Papierkorb werden übersprungen.</string>
-    <string name="export_all_done_format">%1$d Notizen exportiert.</string>
+    <plurals name="export_all_done_format">
+        <item quantity="one">%1$d Notiz exportiert.</item>
+        <item quantity="other">%1$d Notizen exportiert.</item>
+    </plurals>
 
     <string name="sync_title">Synchronisierung über mehrere Geräte (Ordner-Spiegel)</string>
     <string name="sync_explainer">Markleaf selbst geht nicht online. Stattdessen wählst du einen Ordner, und Markleaf speichert jede Notiz dort als `.md`-Datei. Wenn dieser Ordner von einer anderen App synchronisiert wird – Dropbox, Drive, Syncthing, OneDrive, NAS – folgen deine Notizen deinen anderen Geräten.</string>
@@ -180,10 +189,16 @@
     <string name="sync_change_folder">Ordner ändern</string>
     <string name="sync_now">Jetzt synchronisieren</string>
     <string name="sync_stop">Synchronisierung beenden</string>
-    <string name="sync_seeded_format">%1$d Notizen in den Ordner gespiegelt.</string>
+    <plurals name="sync_seeded_format">
+        <item quantity="one">%1$d Notiz in den Ordner gespiegelt.</item>
+        <item quantity="other">%1$d Notizen in den Ordner gespiegelt.</item>
+    </plurals>
     <string name="sync_file_format">Dateiformat der Synchronisierung</string>
     <string name="sync_tidy_filenames">Dateien nach Notiztitel benennen</string>
-    <string name="sync_tidy_done_format">%1$d Dateinamen aufgeräumt.</string>
+    <plurals name="sync_tidy_done_format">
+        <item quantity="one">%1$d Dateiname aufgeräumt.</item>
+        <item quantity="other">%1$d Dateinamen aufgeräumt.</item>
+    </plurals>
     <string name="sync_done_format">Synchronisiert – %1$d aktualisiert, %2$d neu, %3$d unverändert.</string>
     <string name="sync_done_with_conflicts_format">Synchronisiert – %1$d aktualisiert, %2$d neu, %3$d als Duplikate behalten (Konflikt), %4$d unverändert.</string>
     <string name="sync_stopped">Synchronisierung deaktiviert.</string>

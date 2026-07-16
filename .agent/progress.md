@@ -1,5 +1,41 @@
 ---
 
+## 2026-07-16 - main 브랜치 통합과 GitLab v2.24 정렬
+
+Selected task:
+- 이전 세션의 미푸시·미병합 작업과 양쪽 원격에서 갈라진 v2.24 계보를 감사해 모두 `main`에
+  모은다.
+
+Audit:
+- live local branch는 `main`과 `docs-i18n-wip` 둘뿐이고 stash와 추가 worktree는 없었다.
+- 이전 Phase 29 임시 브랜치의 삭제된 commit chain은 현재 history의 커밋들과 patch-equivalent라
+  누락된 구현이 없었다.
+- GitHub `main`의 깨끗한 릴리스 commit `d81fdd1`과 GitLab `main`의 landing-i18n 포함 commit
+  `16feaac`이 같은 릴리스를 서로 다른 tree로 기록한 상태였다.
+
+Integration:
+- tablet QA fix `8dcc4ac`, Linux golden `df1a16f`, 완료 기록 `b3d847a`를 GitLab과 GitHub의
+  `docs-i18n-wip`에 순서대로 push했다.
+- `d81fdd1`과 `b3d847a`를 부모로 하는 merge commit `4b2dfd9`를 만들었다. 기본 README/landing은
+  English, 한국어는 `README.ko.md`/`index.ko.html`, 중복 `README.en.md`는 삭제하는 계약으로
+  충돌을 해결했고 최종 tree가 `docs-i18n-wip`와 동일함을 확인했다.
+- GitLab `main`을 먼저, GitHub `main`을 다음으로 fast-forward push했다. `push.followTags`가 기존
+  annotated `v2.24.0` tag도 GitLab에 동기화해 누락됐던 GitLab Release를 함께 완결했다.
+
+Verification:
+- merge tree에서 `testDebugUnitTest + compileDebugAndroidTestKotlin + lintRelease + assembleDebug`
+  BUILD SUCCESSFUL(84 tasks, 2 executed), debug APK 30,963,761 B, landing 4개 언어 버전 parity 통과.
+- GitLab main pipeline `2680987479`과 tag pipeline `2680987486`, GitHub main run
+  `29481751909`의 build/Roborazzi/lint/R8/launch-smoke가 모두 성공했다.
+- GitLab Release의 Generic Package Registry 영구 링크 4개가 HTTP 200이며 APK 2,763,707 B,
+  AAB 5,497,895 B, mapping 41,774,899 B, release notes 2,749 B임을 확인했다.
+
+Status:
+- 두 원격 `main`은 같은 통합 history를 가리키며 `docs-i18n-wip`의 모든 commit이 `main`에
+  포함된다. hardening 후속은 기존 #154/#152/#150에서 별도로 추적한다.
+
+---
+
 ## 2026-07-16 - Phase 29 tablet QA and empty-editor correction
 
 Selected task:
@@ -65,13 +101,15 @@ Incident:
   13파일 릴리스 커밋으로 reset+force. 하드닝 이슈 #154.
 
 Publication:
-- 깨끗한 커밋 d81fdd1에 v2.24.0 태그, GitHub만 push. tag workflow(build/release/launch-smoke) 전체 green.
-- GitLab main protected(allow_force_push=false)라 force 거부 → 16feaac 유지. 사용자가 protected 조정 후
-  재정렬 예정.
+- 최초 공개 시 깨끗한 커밋 d81fdd1에 v2.24.0 태그를 GitHub에 push했고
+  tag workflow(build/release/launch-smoke)가 전체 green이었다.
+- 당시 GitLab main protected(allow_force_push=false)가 force를 거부해 16feaac에 머물렀지만,
+  후속 merge `4b2dfd9`로 두 계보를 보존해 fast-forward 정렬하고 같은 annotated tag와 영구 Release
+  자산까지 발행했다.
 
-Next:
-- GitLab main을 GitHub와 재정렬(사용자 protected 조정). docs-i18n-wip 검증·PR. Phase 29 QA(tasks.md
-  마지막 항목). 하드닝 #154/#152/#150.
+Resolution:
+- GitLab/GitHub main 정렬, docs-i18n-wip 검증·통합, Phase 29 QA를 모두 완료했다. 남은 후속은
+  hardening #154/#152/#150이다.
 
 ---
 

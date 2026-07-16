@@ -1,3 +1,11 @@
+## 2026-07-16 - Main Branch Consolidation and GitLab v2.24 Alignment
+
+- Trigger: The user asked to consolidate every completed local/remote branch and prior-session change into `main`.
+- Audit: only `main` and `docs-i18n-wip` were live locally, with no stashes or extra worktrees. Deleted Phase 29 branch tips were patch-equivalent to commits already reachable from the current history. GitHub `main` held the clean release commit `d81fdd1`, while GitLab `main` held the alternate release commit `16feaac` that included the preserved landing-i18n work.
+- Integration: pushed the tablet focus/vector fix (`8dcc4ac`), canonical Linux golden (`df1a16f`), and Phase 29 completion record (`b3d847a`) to both remotes. Created merge `4b2dfd9` with parents `d81fdd1` and `b3d847a`; resolved the public surface to an English default README/landing, dedicated Korean files, and no duplicate `README.en.md`. The resolved merge tree is identical to `docs-i18n-wip`.
+- Verification: the merge tree passed `testDebugUnitTest + compileDebugAndroidTestKotlin + lintRelease + assembleDebug` (`84 tasks`, `2 executed`), produced a non-empty 30,963,761-byte debug APK, and passed four-language landing version parity. GitLab main pipeline `2680987479`, GitLab tag pipeline `2680987486`, and GitHub main run `29481751909` all passed, including Linux Roborazzi, release lint/R8, and API 35 launch smoke.
+- Release alignment: pushing GitLab first fast-forwarded its protected `main` and synchronized the existing annotated `v2.24.0` tag. The resulting GitLab Release exposes four permanent Generic Package Registry links (all HTTP 200): APK 2,763,707 bytes, AAB 5,497,895 bytes, mapping 41,774,899 bytes, and six-locale notes 2,749 bytes. GitHub was pushed second; both remotes now share the integrated history.
+
 ## 2026-07-16 - Phase 29 Tablet QA and Empty-Editor Correction
 
 - Trigger: The user asked to create a tablet-sized virtual device, validate the Phase 29 editor on it, and carry the result through branch consolidation.
@@ -15,7 +23,7 @@
 - Work: bumped the version, promoted the CHANGELOG v2.24.0 section, wrote six store-locale `106.txt` changelogs (all <500 chars), and updated the four READMEs and the landing version strings.
 - Verification: `testDebugUnitTest + compileDebugAndroidTestKotlin + lintRelease + assembleDebug` plus signed `exportReleaseToBuildDrive + assembleRelease` were BUILD SUCCESSFUL; D:\Build holds the signed AAB (5,496,930 B), mapping, and six-locale notes. Signing cert SHA-256 = production key `0be97352…7eecf91a`.
 - Incident + recovery: the release `git add -A` swept in uncommitted landing-i18n work (README en→ko, index.ko.html, privacy translations) because the initial git status was truncated. Preserved that work on branch `docs-i18n-wip`, reset main to a clean 13-file release commit, and force-pushed. Logged as hardening issue #154.
-- Publication: tagged `v2.24.0` on the clean commit `d81fdd1` and pushed to GitHub only. The GitHub tag workflow (build / release / launch-smoke) was all green; the GitHub Release APK is 2,763,707 B with mapping, signed with the production key. GitLab `main` is protected (`allow_force_push=false`) and remains at the pre-recovery commit `16feaac` — the user will realign it after adjusting protection.
+- Publication: tagged `v2.24.0` on the clean commit `d81fdd1` and initially pushed to GitHub, where build / release / launch-smoke passed and the production-signed APK is 2,763,707 B. The later consolidation merge `4b2dfd9` preserved both release lineages, fast-forwarded protected GitLab `main`, synchronized the same annotated tag, and completed the GitLab permanent-package Release.
 
 ## 2026-07-16 - Phase 29 UI Polish
 

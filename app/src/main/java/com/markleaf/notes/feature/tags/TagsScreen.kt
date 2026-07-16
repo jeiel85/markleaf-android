@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Sell
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,6 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
 import com.markleaf.notes.data.local.AppDatabase
+import com.markleaf.notes.ui.component.EmptyState
 import com.markleaf.notes.data.repository.LocalTagRepository
 import com.markleaf.notes.domain.model.TagSummary
 
@@ -77,27 +80,11 @@ fun TagsScreen(
             color = MaterialTheme.colorScheme.background
         ) {
             if (tagSummaries.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = stringResource(R.string.no_tags_yet),
-                            style = MaterialTheme.typography.titleMedium,
-                            textAlign = TextAlign.Center
-                        )
-                        Text(
-                            text = stringResource(R.string.tags_empty_hint),
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
+                EmptyState(
+                    icon = Icons.Outlined.Sell,
+                    title = stringResource(R.string.no_tags_yet),
+                    hint = stringResource(R.string.tags_empty_hint)
+                )
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()

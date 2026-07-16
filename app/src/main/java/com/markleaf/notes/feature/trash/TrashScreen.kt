@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,6 +42,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
+import com.markleaf.notes.ui.component.EmptyState
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.sync.NoteFolderMirror
@@ -98,27 +101,11 @@ fun TrashScreen(
             color = MaterialTheme.colorScheme.background
         ) {
             if (trashedNotes.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = stringResource(R.string.trash_empty),
-                            style = MaterialTheme.typography.headlineMedium,
-                            textAlign = TextAlign.Center
-                        )
-                        Text(
-                            text = stringResource(R.string.trash_empty_hint),
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
+                EmptyState(
+                    icon = Icons.Outlined.DeleteOutline,
+                    title = stringResource(R.string.trash_empty),
+                    hint = stringResource(R.string.trash_empty_hint)
+                )
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()

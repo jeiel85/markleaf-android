@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Unarchive
+import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,6 +47,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
+import com.markleaf.notes.ui.component.EmptyState
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.ui.viewmodel.ArchiveViewModel
 
@@ -89,28 +91,11 @@ fun ArchiveScreen(
             color = MaterialTheme.colorScheme.background
         ) {
             if (notes.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = stringResource(R.string.archive_empty),
-                        style = MaterialTheme.typography.headlineMedium,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        text = stringResource(R.string.archive_empty_hint),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
+            EmptyState(
+                icon = Icons.Outlined.Archive,
+                title = stringResource(R.string.archive_empty),
+                hint = stringResource(R.string.archive_empty_hint)
+            )
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(notes, key = { it.id }) { note ->

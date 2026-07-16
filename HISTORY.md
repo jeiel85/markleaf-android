@@ -1,3 +1,17 @@
+## 2026-07-16 - Phase 29 UI Polish
+
+- Trigger: After merging the editor note-information surface, the user chose to complete the remaining Phase 29 UI tasks in sequence.
+- Scope: Note-list excerpts, Android plurals, empty states, and tablet content width. No permission, dependency, database, or stored-Markdown contract changed.
+- Work:
+  - `generateExcerpt` now skips the line used as the title (shared `titleLineIndex` helper) so note list, search, archive, trash, and sync rows stop repeating the title in their preview.
+  - Converted five single-quantity strings to `<plurals>` across all six locales and switched their call sites to `getQuantityString` / `pluralStringResource`.
+  - Added `ui/component/EmptyState` and routed the trash, tags, search, and archive empty screens through it with screen-appropriate outlined icons.
+  - Capped the tags list and settings column at 640dp centered on wide screens; phone widths are below the cap and unchanged.
+- Verification:
+  - `./gradlew test` (debug/release/benchmark) plus `lintRelease` and `assembleDebug` were BUILD SUCCESSFUL after each step; lint confirmed six-locale plurals parity and `TitleExtractorTest` gained three anti-duplication cases (11 pass).
+  - Commits: excerpt `d71fd71`, plurals `1d92dc7`, empty-state `9b55de0`, tablet `14bc033`.
+  - Roborazzi goldens for the new empty and tablet surfaces are left to the Phase 29 QA task (manual QA, TalkBack, snapshot record).
+
 ## 2026-07-16 - Phase 29 Editor App Bar and Note Information Surface
 
 - Trigger: Picked up the previous session's uncommitted implementation; the user asked to verify it and carry it through to completion.

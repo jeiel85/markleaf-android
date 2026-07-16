@@ -150,6 +150,7 @@ android {
                     // any non-debug-variant unit test (release, benchmark, …).
                     it.exclude("**/*SnapshotTest*")
                     it.exclude("**/EditorFormattingControlsTest*")
+                    it.exclude("**/EditorInfoSheetTest*")
                 }
             }
         }

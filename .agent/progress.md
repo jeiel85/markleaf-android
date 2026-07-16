@@ -24,16 +24,24 @@ Manual QA:
 
 Verification:
 - 변경 전 `EditorScreenTest` 9개 중 focus/emoji 2개가 실패했고, 수정 후 동일 9/9가 통과했다.
-- standalone `testDebugUnitTest`, `lintRelease`, `assembleDebug`가 각각 BUILD SUCCESSFUL이었다.
+- `:app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintRelease :app:assembleDebug`
+  통합 하드 게이트가 BUILD SUCCESSFUL이었다(84 tasks, 18 executed).
 - 전체 instrumentation은 기존 compact NavHost shared-transition 종료 경합으로
   `AppIntegrationTest`의 Activity teardown에서 `INITIALIZED -> DESTROYED` 예외가 재현된다.
   현재 editor 두 파일 변경과 무관한 경로이며 대기, test-host disposal, Navigation 2.9.8
   세 진단 토글은 모두 실패해 원복했다.
 - Windows `verifyRoborazziDebug`는 canonical Linux goldens 15개와 플랫폼 raster 차이로 실패했다.
-  브랜치 push 후 전용 Linux `record_roborazzi` workflow로 필요한 golden만 교체하고 CI verify한다.
+  전용 Linux recorder run `29478985691` 산출물 42개를 byte/pixel 대조해 실제 변경된
+  `editor_screen_quiet_appbar_phone.png` 하나만 교체했다(commit `df1a16f`). 후속 run
+  `29479296610`에서 unit tests, Linux Roborazzi verify, release lint, R8 release APK,
+  debug APK와 API 35 launch smoke가 모두 성공했다.
+- 최신 APK의 fresh phone/tablet 캡처와 5개 번역·TalkBack 증거를 두 개의 독립 read-only
+  visual QA lane이 검토했다. 둘 다 clipping, overlap, CJK break, focus affordance 차단 이슈 없이
+  PASS했다.
 
 Status:
-- Phase 29 task check는 Linux Roborazzi 및 main 통합 검증이 끝날 때까지 열어 둔다.
+- Phase 29의 마지막 QA 항목을 완료했다. 태블릿·TalkBack VM은 후속 회귀 검증에 재사용할 수
+  있도록 유지하고, display override와 TalkBack 서비스는 기본 상태로 원복했다.
 
 ---
 

@@ -19,8 +19,8 @@
 </p>
 
 <p align="center">
-  <a href="README.md">한국어</a> ·
-  <a href="README.en.md">English</a> ·
+  <a href="README.ko.md">한국어</a> ·
+  <a href="README.md">English</a> ·
   <strong>日本語</strong> ·
   <a href="README.de.md">Deutsch</a>
 </p>

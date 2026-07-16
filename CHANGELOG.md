@@ -4,6 +4,12 @@ All notable changes to Markleaf are documented in this file.
 
 ## Unreleased
 
+### Fixed
+- **빈 노트 즉시 입력.** 새로 저장된 빈 노트를 열 때 편집기가 바로 포커스를 받아 태블릿과 폰에서 즉시 입력할 수 있습니다.
+
+### Changed
+- **편집기 빈 상태 아이콘.** 기기·글꼴에 따라 모양이 달라지는 이모지 대신 앱의 다른 빈 화면과 일관된 Material 벡터 아이콘을 사용합니다.
+
 ## v2.24.0 - 노트 정보 시트와 마감 - 2026-07-16
 
 ### Changed

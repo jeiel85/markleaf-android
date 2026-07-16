@@ -11,7 +11,7 @@
 
 ---
 
-## Phase 29 - Quiet Editor (In Progress)
+## Phase 29 - Quiet Editor (Done, 2026-07-16)
 
 목적: v2.22까지 쌓인 기능을 상시 chrome으로 노출하지 않고, 글이 중심이 되는 편집 화면으로
 재구성합니다. 전체 계약과 후속 단계는 `docs/ROADMAP.md`의 *v2.23+ — Bear-class 제품
@@ -22,7 +22,7 @@
 - [x] Quiet Editor 포맷팅 단계를 v2.23.0 / versionCode 105로 릴리스하고 양쪽 배포 자산 검증
 - [x] 에디터 상단 앱 바와 통계·목차·백링크 Info surface의 정보 구조 정리
 - [x] 제목 중복 excerpt, Android plurals, vector empty state, tablet sparse Tags/Settings surface 마감
-- [ ] phone/tablet 수동 QA, TalkBack, 6개 언어 parity, Roborazzi, test/lint/build 검증
+- [x] phone/tablet 수동 QA, TalkBack, 6개 언어 parity, Roborazzi, test/lint/build 검증
 
 ---
 

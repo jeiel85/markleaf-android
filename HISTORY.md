@@ -1,3 +1,22 @@
+## 2026-07-16 - Phase 29 Tablet QA and Empty-Editor Correction
+
+- Trigger: The user asked to create a tablet-sized virtual device, validate the Phase 29 editor on it, and carry the result through branch consolidation.
+- Scope: Correct only two runtime defects found by tablet QA: missing initial focus for a persisted empty note and the editor's remaining literal emoji empty-state icon. No permission, dependency, database, network, account, analytics, or stored-Markdown contract changed.
+- Work: requested editor focus after loading empty persisted content, replaced the pencil emoji with `Icons.Outlined.EditNote`, and added two API-level regression tests covering focus and semantics.
+- Manual verification: API 36 Pixel Tablet at 2560x1600/320dpi, responsive phone override at 1080x2400/420dpi, six app locales, and a Google Play API 36 TalkBack image all passed the relevant writing, formatting, autosave, label, traversal, and 48dp-target checks. Emulator overrides and TalkBack state were restored.
+- Automated verification: the pre-fix `EditorScreenTest` run failed 2/9 and the identical post-fix run passed 9/9. The combined `testDebugUnitTest + compileDebugAndroidTestKotlin + lintRelease + assembleDebug` hard gate passed (`84 tasks`, `18 executed`). Full instrumentation remains blocked by an existing compact NavHost shared-transition teardown lifecycle crash unrelated to these two editor paths; three diagnostic toggles were reverted after reproducing the same failure.
+- Visual regression: Windows verification reported 15 platform-raster mismatches against Linux canonical goldens. Linux recorder run `29478985691` showed that only `editor_screen_quiet_appbar_phone.png` changed; the other 41 snapshots were byte-identical. After committing that one authoritative golden (`df1a16f`), run `29479296610` passed unit tests, Linux Roborazzi verification, release lint, R8 release APK, debug APK, and the API 35 launch smoke job.
+- Final visual audit: two independent read-only reviewers passed the fresh phone/tablet captures plus Korean, Japanese, German, French, Spanish, and TalkBack evidence with no clipping, overlap, CJK-breaking, contrast, or focus-affordance blocker.
+
+## 2026-07-16 - v2.24.0 Release (Note Information Sheet + Phase 29 UI Polish)
+
+- Trigger: After Phase 29 UI polish merged and the GitLab pipeline passed, the user asked to release v2.24.0.
+- Scope: versionCode 106 / versionName 2.24.0, bundling the editor note-information surface, excerpt de-duplication, plurals, empty states, and tablet width from the Unreleased section. No new product code.
+- Work: bumped the version, promoted the CHANGELOG v2.24.0 section, wrote six store-locale `106.txt` changelogs (all <500 chars), and updated the four READMEs and the landing version strings.
+- Verification: `testDebugUnitTest + compileDebugAndroidTestKotlin + lintRelease + assembleDebug` plus signed `exportReleaseToBuildDrive + assembleRelease` were BUILD SUCCESSFUL; D:\Build holds the signed AAB (5,496,930 B), mapping, and six-locale notes. Signing cert SHA-256 = production key `0be97352…7eecf91a`.
+- Incident + recovery: the release `git add -A` swept in uncommitted landing-i18n work (README en→ko, index.ko.html, privacy translations) because the initial git status was truncated. Preserved that work on branch `docs-i18n-wip`, reset main to a clean 13-file release commit, and force-pushed. Logged as hardening issue #154.
+- Publication: tagged `v2.24.0` on the clean commit `d81fdd1` and pushed to GitHub only. The GitHub tag workflow (build / release / launch-smoke) was all green; the GitHub Release APK is 2,763,707 B with mapping, signed with the production key. GitLab `main` is protected (`allow_force_push=false`) and remains at the pre-recovery commit `16feaac` — the user will realign it after adjusting protection.
+
 ## 2026-07-16 - Phase 29 UI Polish
 
 - Trigger: After merging the editor note-information surface, the user chose to complete the remaining Phase 29 UI tasks in sequence.

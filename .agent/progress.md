@@ -1,5 +1,80 @@
 ---
 
+## 2026-07-16 - Phase 29 tablet QA and empty-editor correction
+
+Selected task:
+- Phase 29의 마지막 phone/tablet 수동 QA, TalkBack, 6개 언어 parity, Roborazzi,
+  test/lint/build 검증을 수행한다.
+
+What was implemented:
+- 실제 새 노트 경로가 먼저 빈 노트를 저장한 뒤 non-null ID로 편집기를 연다는 것을 확인하고,
+  빈 persisted note를 로드한 경우에도 초기 편집 포커스를 요청하도록 수정했다.
+- 편집기 빈 상태의 literal pencil emoji를 `Icons.Outlined.EditNote` 벡터로 교체했다.
+- persisted empty note focus와 emoji semantics 제거를 고정하는 instrumentation regression test 2개를
+  추가했다.
+
+Manual QA:
+- API 36 Pixel Tablet AVD(2560x1600 / 320dpi)에서 3-pane, 빈 노트 IME, 포맷 패널,
+  미리보기, 정보 시트, 긴 문서를 검증했다.
+- 같은 VM의 1080x2400 / 420dpi phone override에서 compact navigation, 선택 문맥 액션,
+  Bold 적용, 1초 autosave를 검증하고 display override를 원복했다.
+- en-US, ko-KR, ja-JP, de-DE, fr-FR, es-ES를 전환해 잘림 없이 렌더링되는지 확인했다.
+- Google Play API 36 tablet image의 실제 TalkBack 서비스로 48dp controls, grouped note card,
+  Add Note, editor traversal과 현지화된 accessibility labels를 확인한 뒤 서비스를 비활성화했다.
+
+Verification:
+- 변경 전 `EditorScreenTest` 9개 중 focus/emoji 2개가 실패했고, 수정 후 동일 9/9가 통과했다.
+- `:app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintRelease :app:assembleDebug`
+  통합 하드 게이트가 BUILD SUCCESSFUL이었다(84 tasks, 18 executed).
+- 전체 instrumentation은 기존 compact NavHost shared-transition 종료 경합으로
+  `AppIntegrationTest`의 Activity teardown에서 `INITIALIZED -> DESTROYED` 예외가 재현된다.
+  현재 editor 두 파일 변경과 무관한 경로이며 대기, test-host disposal, Navigation 2.9.8
+  세 진단 토글은 모두 실패해 원복했다.
+- Windows `verifyRoborazziDebug`는 canonical Linux goldens 15개와 플랫폼 raster 차이로 실패했다.
+  전용 Linux recorder run `29478985691` 산출물 42개를 byte/pixel 대조해 실제 변경된
+  `editor_screen_quiet_appbar_phone.png` 하나만 교체했다(commit `df1a16f`). 후속 run
+  `29479296610`에서 unit tests, Linux Roborazzi verify, release lint, R8 release APK,
+  debug APK와 API 35 launch smoke가 모두 성공했다.
+- 최신 APK의 fresh phone/tablet 캡처와 5개 번역·TalkBack 증거를 두 개의 독립 read-only
+  visual QA lane이 검토했다. 둘 다 clipping, overlap, CJK break, focus affordance 차단 이슈 없이
+  PASS했다.
+
+Status:
+- Phase 29의 마지막 QA 항목을 완료했다. 태블릿·TalkBack VM은 후속 회귀 검증에 재사용할 수
+  있도록 유지하고, display override와 TalkBack 서비스는 기본 상태로 원복했다.
+
+---
+
+## 2026-07-16 - v2.24.0 릴리스 (노트 정보 시트 + Phase 29 UI 마감)
+
+Selected task:
+- Phase 29 UI 마감 머지·GitLab 통과 후 v2.24.0으로 릴리스한다.
+
+What was implemented:
+- versionCode 106 / 2.24.0. Unreleased(정보 시트·excerpt·plurals·빈 상태·태블릿)를 v2.24.0 섹션으로.
+- 6개 store locale 106.txt(모두 500자 이내), README 4종·landing 버전 갱신.
+
+Verification:
+- test/compileAndroidTest/lintRelease/assembleDebug + 서명 exportReleaseToBuildDrive/assembleRelease
+  = BUILD SUCCESSFUL. 서명 인증서 SHA-256 = production 키 0be97352…7eecf91a.
+  GitHub Release APK 2,763,707 B + mapping.
+
+Incident:
+- 릴리스 `git add -A`가 이전 미커밋 landing 다국어 작업(README en→ko, index.ko.html, privacy 번역)을
+  v2.24.0에 섞음(초기 git status가 truncate돼 인지 못 함). docs-i18n-wip 브랜치에 보존, main을 깨끗한
+  13파일 릴리스 커밋으로 reset+force. 하드닝 이슈 #154.
+
+Publication:
+- 깨끗한 커밋 d81fdd1에 v2.24.0 태그, GitHub만 push. tag workflow(build/release/launch-smoke) 전체 green.
+- GitLab main protected(allow_force_push=false)라 force 거부 → 16feaac 유지. 사용자가 protected 조정 후
+  재정렬 예정.
+
+Next:
+- GitLab main을 GitHub와 재정렬(사용자 protected 조정). docs-i18n-wip 검증·PR. Phase 29 QA(tasks.md
+  마지막 항목). 하드닝 #154/#152/#150.
+
+---
+
 ## 2026-07-16 - Phase 29 UI 마감 (excerpt·plurals·빈 상태·태블릿)
 
 Selected task:

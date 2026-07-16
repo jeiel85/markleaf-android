@@ -70,7 +70,7 @@ Verification:
   전용 Linux recorder run `29478985691` 산출물 42개를 byte/pixel 대조해 실제 변경된
   `editor_screen_quiet_appbar_phone.png` 하나만 교체했다(commit `df1a16f`). 후속 run
   `29479296610`에서 unit tests, Linux Roborazzi verify, release lint, R8 release APK,
-  debug APK와 API 35 launch smoke가 모두 성공했다.
+  debug APK와 API 30 launch smoke가 모두 성공했다.
 - 최신 APK의 fresh phone/tablet 캡처와 5개 번역·TalkBack 증거를 두 개의 독립 read-only
   visual QA lane이 검토했다. 둘 다 clipping, overlap, CJK break, focus affordance 차단 이슈 없이
   PASS했다.

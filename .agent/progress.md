@@ -1,5 +1,32 @@
 ---
 
+## 2026-07-16 - Phase 29 UI 마감 (excerpt·plurals·빈 상태·태블릿)
+
+Selected task:
+- Phase 29의 "제목 중복 excerpt, Android plurals, vector empty state, tablet sparse
+  Tags/Settings surface 마감" 항목을 전부 순차 완결한다.
+
+What was implemented:
+- generateExcerpt가 title로 쓰인 줄(공유 titleLineIndex)을 건너뛰어 목록·검색·보관·휴지통·
+  동기화 미리보기가 제목을 반복하지 않는다.
+- 단일 수량 문자열 5개를 6개 로케일 <plurals>로 전환하고 호출부를 getQuantityString /
+  pluralStringResource로 바꿨다.
+- ui/component/EmptyState 공통 컴포넌트를 만들고 휴지통·태그·검색·보관 빈 화면을 화면별
+  Outlined 아이콘과 함께 통일했다.
+- 태그 목록과 설정 화면을 넓은 화면에서 640dp 중앙 정렬로 제한했다(phone 영향 없음).
+
+Verification:
+- `./gradlew test`(debug/release/benchmark) + lintRelease + assembleDebug 각 단계 BUILD
+  SUCCESSFUL. lint가 6개 로케일 plurals parity를 확인. TitleExtractorTest 중복 방지 3케이스
+  추가(11 통과).
+- 커밋: excerpt d71fd71, plurals 1d92dc7, empty-state 9b55de0, tablet 14bc033.
+
+Next:
+- Phase 29 잔여(tasks.md 마지막 항목): phone/tablet 수동 QA, TalkBack, 6개 언어 parity,
+  Roborazzi 골든(빈 상태·태블릿 스냅샷) 기록, test/lint/build 최종 검증.
+
+---
+
 ## 2026-07-16 - Phase 29 에디터 앱 바·노트 정보 시트 마감
 
 Selected task:

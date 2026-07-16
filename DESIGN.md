@@ -82,10 +82,10 @@ Layout rules:
 
 ### Writing canvas
 
-- Structure: top app bar, editor/preview body, optional temporary surface, and a quiet footer utility row containing statistics and the compact formatting entry.
+- Structure: quiet top app bar, editor/preview body, optional temporary surface, and a footer containing only the contextual formatting entry/actions while source editing is available.
 - States: empty, editing, selected text, formatting expanded, preview, focus, find/replace, autocomplete, loading existing note.
 - Spacing: Writing and Comfortable tokens.
-- Accessibility: the editor has a content description; footer actions have labels, tooltips, and state semantics.
+- Accessibility: the editor has a content description; app-bar and footer actions have localized labels, tooltips where ambiguous, and state semantics.
 - Motion: editor/preview uses the existing standard crossfade only.
 
 ### Suggestion surface
@@ -154,6 +154,20 @@ Focus rules:
 - Existing hardware formatting shortcuts remain authoritative and work whether the panel is open or closed. The editor keeps its current Tab behavior; the formatting entry must not steal Tab while source input has focus.
 - D-pad, switch access, TalkBack, and keyboard activation reach the same actions in visual order. When the panel opens from non-touch input, focus begins at the first enabled action and does not cycle outside the panel until it is dismissed.
 - Image launches the existing Storage Access Framework path. On cancel or completion, restore the editor selection/insertion point and do not reopen the panel automatically.
+
+### Editor app bar and note information surface
+
+- Purpose: keep the document title and mode change legible while collecting secondary document facts in one predictable place instead of scattering them across the footer, preview app bar, and document tail.
+- App-bar order: Back, screen title, Preview/Edit, Note information, More. The mode action uses distinct Preview/Edit vector icons plus localized accessible names, preserving title width at large text sizes without relying on color alone. Focus mode replaces the action set with Exit focus mode. Find, Focus mode, system share, Markdown export, PDF export, and Move to trash live in More in task order; saved-note-only actions remain hidden for a new unsaved note.
+- Note information trigger: one 48dp icon action is present in both edit and preview modes. It is not nested in More and uses the localized accessible name `Note information`.
+- Surface: a Material modal bottom sheet with the fixed reading order Note information -> Statistics -> Table of contents -> Linked from. The sheet uses the existing canvas/alternate surface roles and spacing tokens; it adds no new color, elevation, or decorative motion.
+- Statistics: the existing localized word, character, and reading-time summary is always the first section. Moving it into this sheet removes permanent statistics text from the editor footer.
+- Table of contents: headings are derived only while preview or the information sheet needs them, avoiding Markdown parsing on every editing keystroke. Heading rows preserve level indentation and a 48dp target. Selecting a heading while editing enters Preview and scrolls to the same rendered heading; selecting in Preview scrolls directly.
+- Linked from: backlinks are available from edit and preview for a saved note. Each row opens the source note. New notes and notes without backlinks show a localized quiet empty state instead of omitting the section.
+- States: new/empty note, saved note without headings or backlinks, populated statistics only, populated outline, populated backlinks, long vertically scrolling content, dark theme, large text, and all supported locales.
+- Dismissal and coexistence: Back, swipe, or outside tap dismisses the sheet without changing source text. Opening it closes formatting and overflow surfaces. Returning from the sheet does not force editor focus unless a heading navigation explicitly changes mode.
+- Accessibility: the sheet title and section labels expose heading semantics; every navigable row has a localized label and at least a 48dp target. Empty states are textual, traversal order matches visual order, and hierarchy is never communicated by indentation or color alone.
+- Adaptive behavior: phone uses the standard bottom sheet; expanded layouts keep Material's bounded sheet width so information stays attached to the editor task rather than spanning the whole window.
 
 ### Note list row and adaptive panes
 

@@ -50,14 +50,27 @@ class EditorScreenTest {
         val previewLabel = context.getString(R.string.preview)
         val editLabel = context.getString(R.string.edit)
 
-        // Click Preview button
-        composeTestRule.onNodeWithText(previewLabel).performClick()
-        
-        // Check if "Preview" text (from TopAppBar title) is displayed
+        composeTestRule.onNodeWithContentDescription(previewLabel).performClick()
+
         composeTestRule.onNodeWithText(previewLabel).assertIsDisplayed()
-        
-        // Button text should change to "Edit"
-        composeTestRule.onNodeWithText(editLabel).assertIsDisplayed()
+
+        composeTestRule.onNodeWithContentDescription(editLabel).assertIsDisplayed()
+    }
+
+    @Test
+    fun editorScreen_noteInformationNavigatesOutlineFromEditMode() {
+        launchEditor()
+        val editor = composeTestRule.onNodeWithContentDescription(context.getString(R.string.note_content))
+
+        editor.performTextInput("# Overview\n\nBody")
+        composeTestRule.onNodeWithContentDescription(context.getString(R.string.note_information)).performClick()
+
+        composeTestRule.onNodeWithText(context.getString(R.string.note_statistics)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.table_of_contents)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.backlinks_section_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText("Overview").performClick()
+
+        composeTestRule.onNodeWithContentDescription(context.getString(R.string.edit)).assertIsDisplayed()
     }
 
     @Test

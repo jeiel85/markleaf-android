@@ -1,5 +1,41 @@
 ---
 
+## 2026-07-16 - Phase 29 에디터 앱 바·노트 정보 시트 마감
+
+Selected task:
+- 이전 세션이 미커밋으로 남긴 "에디터 상단 앱 바와 통계·목차·백링크 Info surface" 구현을
+  검증하고 구현 완료(문서·커밋)까지 마감한다.
+
+Decision:
+- 단일 세션이 분석 -> 검증 -> 감사 세 역할을 순차 수행했다. DESIGN.md에 이미 고정된
+  "Editor app bar and note information surface" 계약을 acceptance criteria로 삼았다.
+- Roborazzi 골든은 로컬 Windows record본이므로, push 시 Linux CI 재기록이 필요함을 명시한다
+  (AGENTS.md 규칙, v2.23.0에서 동일 흐름 확인).
+
+What was implemented (이전 세션 코드 기준 확인):
+- EditorScreen의 상단 앱 바를 EditorTopAppBar로 분리(Back·제목·Preview/Edit·Note information·More)
+  하고 Find/Focus/공유/내보내기/휴지통을 More 메뉴로 옮겼다.
+- 통계·목차·백링크를 EditorInfoSheet(모달 바텀시트)로 통합하고 상시 통계 텍스트를 포맷팅
+  푸터에서 제거했다. 개요 파싱을 미리보기·정보 시트가 필요할 때로 한정하고 heading 선택 시
+  미리보기 진입 후 해당 인덱스로 스크롤한다.
+- 새 문자열 4개를 6개 로케일에 추가하고 InfoSheet/TopAppBar/EditorScreen snapshot,
+  InfoSheet behavior, instrumented outline navigation 테스트를 추가했다.
+
+Verification:
+- `:app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintRelease :app:assembleDebug`
+  -> BUILD SUCCESSFUL (84 tasks, 2 executed).
+- 전체 diff를 DESIGN 계약과 1:1 대조했다. computeStats("")와 빈 title backlinks 경로의 경계
+  안전, 6개 로케일 string parity(각 4개), 범위 밖 변경 없음을 확인했다.
+- Roborazzi 골든 16개(수정 8 + 신규 8)는 로컬 Windows record본이라 push 시 Linux CI 재기록이
+  필요하다. 로컬 픽셀 verify는 폰트 힌팅 차이로 신뢰할 수 없어 생략했다.
+
+Next:
+- push 여부는 사용자 결정. push 시 record_roborazzi workflow로 Linux 골든을 교체한 뒤 진행한다.
+- Phase 29 잔여: 제목 중복 excerpt, Android plurals, vector empty state, tablet sparse
+  Tags/Settings surface 마감과 phone/tablet 수동 QA·TalkBack·6개 언어 parity 검증.
+
+---
+
 ## 2026-07-15 - Quiet proof 랜딩 페이지 리뉴얼
 
 Selected task:

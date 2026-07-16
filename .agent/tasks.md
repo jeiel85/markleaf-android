@@ -20,7 +20,7 @@
 - [x] `DESIGN.md`에 compact formatting entry, selection-context actions, expanded style panel의 상태·포커스·접근성 계약 고정
 - [x] 상시 가로 스크롤 툴바를 작은 진입점과 문맥 패널로 재구성하되 기존 액션·단축키·Quick Insert 보존
 - [x] Quiet Editor 포맷팅 단계를 v2.23.0 / versionCode 105로 릴리스하고 양쪽 배포 자산 검증
-- [ ] 에디터 상단 앱 바와 통계·목차·백링크 Info surface의 정보 구조 정리
+- [x] 에디터 상단 앱 바와 통계·목차·백링크 Info surface의 정보 구조 정리
 - [ ] 제목 중복 excerpt, Android plurals, vector empty state, tablet sparse Tags/Settings surface 마감
 - [ ] phone/tablet 수동 QA, TalkBack, 6개 언어 parity, Roborazzi, test/lint/build 검증
 

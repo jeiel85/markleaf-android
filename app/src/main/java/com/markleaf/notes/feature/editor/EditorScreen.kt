@@ -20,38 +20,28 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.CenterFocusStrong
-import androidx.compose.material.icons.filled.CenterFocusWeak
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -77,7 +67,6 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -88,14 +77,12 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.markleaf.notes.R
 import com.markleaf.notes.core.markdown.MarkdownEditActions
 import com.markleaf.notes.core.markdown.MarkdownSyntaxColors
 import com.markleaf.notes.core.markdown.MarkdownSyntaxVisualTransformation
 import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
 import com.markleaf.notes.core.markdown.preview.MarkdownPreviewList
-import com.markleaf.notes.core.markdown.preview.TocHeading
 import com.markleaf.notes.core.markdown.preview.extractHeadings
 import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.data.local.AppDatabase
@@ -145,15 +132,28 @@ fun EditorScreen(
     var isFormattingExpanded by remember(noteId) { mutableStateOf(false) }
     var showDeleteConfirm by remember(noteId) { mutableStateOf(false) }
 
-    // Table of contents (preview mode). The outline is only derived in preview
-    // mode so we never parse Markdown on every keystroke while editing; the
-    // preview branch re-parses the same text for rendering, and identical parses
-    // share item indices, so animateScrollToItem lands on the right heading.
     val previewListState = rememberLazyListState()
-    var showToc by remember(noteId) { mutableStateOf(false) }
-    val tocHeadings = remember(editorState.text, isPreviewMode) {
-        if (isPreviewMode) extractHeadings(SimpleMarkdownPreview.parse(editorState.text)) else emptyList()
+    var showInfo by remember(noteId) { mutableStateOf(false) }
+    var pendingPreviewScrollIndex by remember(noteId) { mutableStateOf<Int?>(null) }
+    val shouldPreparePreview = isPreviewMode || showInfo
+    val previewLines = remember(editorState.text, shouldPreparePreview) {
+        if (shouldPreparePreview) SimpleMarkdownPreview.parse(editorState.text) else emptyList()
     }
+    val tocHeadings = remember(previewLines) { extractHeadings(previewLines) }
+    val currentTitle = remember(editorState.text, noteId) {
+        if (noteId == null) "" else TitleExtractor.extractTitle(editorState.text)
+    }
+    val backlinksFlow = remember(currentTitle, noteId) {
+        linkRepo.observeBacklinks(currentTitle, noteId.orEmpty())
+    }
+    val backlinks by backlinksFlow.collectAsState(initial = emptyList())
+    val editorStats = remember(editorState.text) { computeStats(editorState.text) }
+    val editorStatsText = stringResource(
+        R.string.editor_stats_format,
+        editorStats.words,
+        editorStats.chars,
+        editorStats.readMinutes
+    )
 
     var isFindOpen by remember(noteId) { mutableStateOf(false) }
     var findQuery by remember(noteId) { mutableStateOf("") }
@@ -214,7 +214,6 @@ fun EditorScreen(
     LaunchedEffect(quickInsertQuery?.text, quickInsertItems.size) {
         quickInsertSelectedIndex = 0
     }
-    var shareMenuExpanded by remember(noteId) { mutableStateOf(false) }
     var overflowExpanded by remember(noteId) { mutableStateOf(false) }
     var pendingExport by remember(noteId) { mutableStateOf<Note?>(null) }
     var imageAltEditing by remember(noteId) { mutableStateOf<Pair<String, String>?>(null) }
@@ -338,11 +337,20 @@ fun EditorScreen(
         }
     }
 
+    LaunchedEffect(isPreviewMode, pendingPreviewScrollIndex) {
+        val index = pendingPreviewScrollIndex ?: return@LaunchedEffect
+        if (isPreviewMode) {
+            withFrameNanos { }
+            previewListState.animateScrollToItem(index)
+            pendingPreviewScrollIndex = null
+        }
+    }
+
     val isFormattingPreempted =
         isFindOpen ||
             isFocusMode ||
             isPreviewMode ||
-            shareMenuExpanded ||
+            showInfo ||
             overflowExpanded ||
             showDeleteConfirm ||
             imageAltEditing != null ||
@@ -359,178 +367,113 @@ fun EditorScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    val titleText = when {
-                        isFocusMode -> stringResource(R.string.focus_mode)
-                        isPreviewMode -> stringResource(R.string.preview)
-                        noteId != null -> stringResource(R.string.edit_note)
-                        else -> stringResource(R.string.new_note)
-                    }
-                    val baseStyle = MaterialTheme.typography.headlineMedium
-                    val baseFontSize = baseStyle.fontSize
-                    val minFontSize = baseFontSize * 0.7f
-                    var fontSize by remember(titleText) { mutableStateOf(baseFontSize) }
-                    Text(
-                        text = titleText,
-                        style = baseStyle.copy(fontSize = fontSize),
-                        maxLines = 1,
-                        softWrap = false,
-                        onTextLayout = { result ->
-                            if (result.didOverflowWidth && fontSize.value > minFontSize.value) {
-                                fontSize = (fontSize.value * 0.9f).sp
-                            }
-                        }
-                    )
+            EditorTopAppBar(
+                title = when {
+                    isFocusMode -> stringResource(R.string.focus_mode)
+                    isPreviewMode -> stringResource(R.string.preview)
+                    noteId != null -> stringResource(R.string.edit_note)
+                    else -> stringResource(R.string.new_note)
                 },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(painterResource(R.drawable.ic_back), stringResource(R.string.back))
-                    }
+                isPreviewMode = isPreviewMode,
+                isFocusMode = isFocusMode,
+                showMore = !isPreviewMode || noteId != null,
+                moreExpanded = overflowExpanded,
+                onBack = onBack,
+                onTogglePreview = {
+                    val returningToEdit = isPreviewMode
+                    isPreviewMode = !isPreviewMode
+                    if (returningToEdit) shouldRequestEditorFocus = true
                 },
-                actions = {
-                    if (isFocusMode) {
-                        IconButton(onClick = { isFocusMode = false }) {
-                            Icon(
-                                Icons.Default.CenterFocusWeak,
-                                contentDescription = stringResource(R.string.exit_focus_mode)
-                            )
-                        }
-                    } else {
-                        if (!isPreviewMode) {
-                            IconButton(onClick = {
+                onExitFocusMode = { isFocusMode = false },
+                onOpenInfo = {
+                    overflowExpanded = false
+                    showInfo = true
+                },
+                onOpenMore = { overflowExpanded = true },
+                onDismissMore = { overflowExpanded = false },
+                moreMenuContent = {
+                    if (!isPreviewMode) {
+                        DropdownMenuItem(
+                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                            text = { Text(stringResource(R.string.find_in_note)) },
+                            onClick = {
+                                overflowExpanded = false
                                 isFindOpen = !isFindOpen
                                 if (isFindOpen) {
                                     findQuery = ""
                                     replaceQuery = ""
                                 }
-                            }) {
-                                Icon(
-                                    Icons.Default.Search,
-                                    contentDescription = stringResource(R.string.find_in_note)
-                                )
                             }
-                        }
-                        if (isPreviewMode && tocHeadings.size >= 2) {
-                            IconButton(onClick = { showToc = true }) {
-                                Icon(
-                                    Icons.AutoMirrored.Filled.List,
-                                    contentDescription = stringResource(R.string.table_of_contents)
-                                )
+                        )
+                        DropdownMenuItem(
+                            leadingIcon = {
+                                Icon(Icons.Default.CenterFocusStrong, contentDescription = null)
+                            },
+                            text = { Text(stringResource(R.string.focus_mode)) },
+                            onClick = {
+                                overflowExpanded = false
+                                isFocusMode = true
                             }
-                        }
-                        TextButton(onClick = {
-                            val returningToEdit = isPreviewMode
-                            isPreviewMode = !isPreviewMode
-                            if (returningToEdit) {
-                                shouldRequestEditorFocus = true
-                            }
-                        }) {
-                            Text(
-                                if (isPreviewMode) stringResource(R.string.edit) else stringResource(R.string.preview),
-                                style = MaterialTheme.typography.labelLarge
-                            )
-                        }
-                        if (noteId != null) {
-                            Box {
-                                IconButton(onClick = { shareMenuExpanded = true }) {
-                                    Icon(
-                                        Icons.Default.Share,
-                                        contentDescription = stringResource(R.string.share_note)
-                                    )
-                                }
-                                DropdownMenu(
-                                    expanded = shareMenuExpanded,
-                                    onDismissRequest = { shareMenuExpanded = false }
-                                ) {
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.share_via_system)) },
-                                        onClick = {
-                                            shareMenuExpanded = false
-                                            coroutineScope.launch {
-                                                val current = repo.getNote(noteId) ?: return@launch
-                                                val live = current.copy(
-                                                    title = TitleExtractor.extractTitle(editorState.text),
-                                                    contentMarkdown = editorState.text,
-                                                    excerpt = TitleExtractor.generateExcerpt(editorState.text)
-                                                )
-                                                ShareNoteUtil.shareNote(context, live)
-                                            }
-                                        }
-                                    )
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.export_as_file)) },
-                                        onClick = {
-                                            shareMenuExpanded = false
-                                            coroutineScope.launch {
-                                                val current = repo.getNote(noteId) ?: return@launch
-                                                val live = current.copy(
-                                                    title = TitleExtractor.extractTitle(editorState.text),
-                                                    contentMarkdown = editorState.text,
-                                                    excerpt = TitleExtractor.generateExcerpt(editorState.text)
-                                                )
-                                                pendingExport = live
-                                                exportSingleLauncher.launch(ExportUtil.generateFileName(live))
-                                            }
-                                        }
-                                    )
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.export_pdf)) },
-                                        onClick = {
-                                            shareMenuExpanded = false
-                                            coroutineScope.launch {
-                                                val current = repo.getNote(noteId) ?: return@launch
-                                                val live = current.copy(
-                                                    title = TitleExtractor.extractTitle(editorState.text),
-                                                    contentMarkdown = editorState.text,
-                                                    excerpt = TitleExtractor.generateExcerpt(editorState.text)
-                                                )
-                                                ExportPdf.export(context, live)
-                                            }
-                                        }
-                                    )
-                                }
-                            }
-                            Box {
-                                IconButton(onClick = { overflowExpanded = true }) {
-                                    Icon(
-                                        Icons.Default.MoreVert,
-                                        contentDescription = stringResource(R.string.more_options)
-                                    )
-                                }
-                                DropdownMenu(
-                                    expanded = overflowExpanded,
-                                    onDismissRequest = { overflowExpanded = false }
-                                ) {
-                                    if (!isPreviewMode) {
-                                        DropdownMenuItem(
-                                            leadingIcon = {
-                                                Icon(Icons.Default.CenterFocusStrong, contentDescription = null)
-                                            },
-                                            text = { Text(stringResource(R.string.focus_mode)) },
-                                            onClick = {
-                                                overflowExpanded = false
-                                                isFocusMode = true
-                                            }
-                                        )
-                                    }
-                                    DropdownMenuItem(
-                                        leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null) },
-                                        text = { Text(stringResource(R.string.move_to_trash)) },
-                                        onClick = {
-                                            overflowExpanded = false
-                                            showDeleteConfirm = true
-                                        }
-                                    )
-                                }
-                            }
-                        }
+                        )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground
-                )
+                    if (noteId != null) {
+                        DropdownMenuItem(
+                            leadingIcon = { Icon(Icons.Default.Share, contentDescription = null) },
+                            text = { Text(stringResource(R.string.share_via_system)) },
+                            onClick = {
+                                overflowExpanded = false
+                                coroutineScope.launch {
+                                    val current = repo.getNote(noteId) ?: return@launch
+                                    val live = current.copy(
+                                        title = TitleExtractor.extractTitle(editorState.text),
+                                        contentMarkdown = editorState.text,
+                                        excerpt = TitleExtractor.generateExcerpt(editorState.text)
+                                    )
+                                    ShareNoteUtil.shareNote(context, live)
+                                }
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.export_as_file)) },
+                            onClick = {
+                                overflowExpanded = false
+                                coroutineScope.launch {
+                                    val current = repo.getNote(noteId) ?: return@launch
+                                    val live = current.copy(
+                                        title = TitleExtractor.extractTitle(editorState.text),
+                                        contentMarkdown = editorState.text,
+                                        excerpt = TitleExtractor.generateExcerpt(editorState.text)
+                                    )
+                                    pendingExport = live
+                                    exportSingleLauncher.launch(ExportUtil.generateFileName(live))
+                                }
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.export_pdf)) },
+                            onClick = {
+                                overflowExpanded = false
+                                coroutineScope.launch {
+                                    val current = repo.getNote(noteId) ?: return@launch
+                                    val live = current.copy(
+                                        title = TitleExtractor.extractTitle(editorState.text),
+                                        contentMarkdown = editorState.text,
+                                        excerpt = TitleExtractor.generateExcerpt(editorState.text)
+                                    )
+                                    ExportPdf.export(context, live)
+                                }
+                            }
+                        )
+                        DropdownMenuItem(
+                            leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null) },
+                            text = { Text(stringResource(R.string.move_to_trash)) },
+                            onClick = {
+                                overflowExpanded = false
+                                showDeleteConfirm = true
+                            }
+                        )
+                    }
+                }
             )
         }
     ) { paddingValues ->
@@ -539,12 +482,6 @@ fun EditorScreen(
             label = "Editor preview mode"
         ) { previewMode ->
             if (previewMode) {
-                val previewLines = SimpleMarkdownPreview.parse(editorState.text)
-                val currentTitle = remember(editorState.text) {
-                    TitleExtractor.extractTitle(editorState.text)
-                }
-                val backlinks by linkRepo.observeBacklinks(currentTitle, noteId.orEmpty())
-                    .collectAsState(initial = emptyList())
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -580,12 +517,6 @@ fun EditorScreen(
                             imageAltEditing = path to currentAlt
                         }
                     )
-                    if (backlinks.isNotEmpty()) {
-                        BacklinksPanel(
-                            backlinks = backlinks,
-                            onClick = { id -> onNavigateToNote(id) }
-                        )
-                    }
                 }
             } else {
                 // imePadding() shrinks the editor body when the soft keyboard is up so
@@ -845,25 +776,11 @@ fun EditorScreen(
                     }
 
                     if (!isFormattingPreempted) {
-                        val stats = remember(editorState.text) {
-                            if (editorState.text.isEmpty()) null else computeStats(editorState.text)
-                        }
-                        val statsText = if (stats == null) {
-                            null
-                        } else {
-                            stringResource(
-                                R.string.editor_stats_format,
-                                stats.words,
-                                stats.chars,
-                                stats.readMinutes
-                            )
-                        }
                         EditorFormattingControls(
                             state = EditorFormattingUiState(
                                 selectionActive = !editorState.selection.collapsed,
                                 expanded = isFormattingExpanded,
-                                enabled = isLoaded,
-                                statsText = statsText
+                                enabled = isLoaded
                             ),
                             onExpandedChange = { expanded ->
                                 isFormattingExpanded = expanded
@@ -953,16 +870,23 @@ fun EditorScreen(
         )
     }
 
-    if (showToc) {
-        TableOfContentsSheet(
-            headings = tocHeadings,
-            onSelect = { index ->
-                showToc = false
-                coroutineScope.launch {
-                    previewListState.animateScrollToItem(index)
-                }
+    if (showInfo) {
+        EditorInfoSheet(
+            state = EditorInfoUiState(
+                statsText = editorStatsText,
+                headings = tocHeadings,
+                backlinks = backlinks
+            ),
+            onHeadingClick = { index ->
+                showInfo = false
+                pendingPreviewScrollIndex = index
+                if (!isPreviewMode) isPreviewMode = true
             },
-            onDismiss = { showToc = false }
+            onBacklinkClick = { id ->
+                showInfo = false
+                onNavigateToNote(id)
+            },
+            onDismiss = { showInfo = false }
         )
     }
 }
@@ -1303,80 +1227,3 @@ private fun TagSuggestionsRow(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TableOfContentsSheet(
-    headings: List<TocHeading>,
-    onSelect: (Int) -> Unit,
-    onDismiss: () -> Unit
-) {
-    ModalBottomSheet(onDismissRequest = onDismiss) {
-        Text(
-            text = stringResource(R.string.table_of_contents),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
-        )
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
-        ) {
-            items(headings) { heading ->
-                Text(
-                    text = heading.text,
-                    style = when (heading.level) {
-                        1 -> MaterialTheme.typography.titleMedium
-                        2 -> MaterialTheme.typography.bodyLarge
-                        else -> MaterialTheme.typography.bodyMedium
-                    },
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 2,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onSelect(heading.index) }
-                        // Indent deeper levels so the outline reads as a hierarchy.
-                        .padding(
-                            start = (20 + (heading.level - 1) * 16).dp,
-                            end = 20.dp,
-                            top = 10.dp,
-                            bottom = 10.dp
-                        )
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun BacklinksPanel(
-    backlinks: List<com.markleaf.notes.domain.model.Note>,
-    onClick: (String) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = stringResource(R.string.backlinks_section_title),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.SemiBold
-        )
-        Spacer(Modifier.height(6.dp))
-        backlinks.forEach { note ->
-            Text(
-                text = note.title.ifEmpty { stringResource(R.string.untitled) },
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-                    .clickable { onClick(note.id) }
-            )
-        }
-    }
-}

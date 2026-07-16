@@ -22,6 +22,10 @@
     <string name="wikilink_suggestions_title">Link to…</string>
     <string name="tag_suggestions_title">Tags</string>
     <string name="table_of_contents">Table of contents</string>
+    <string name="note_information">Note information</string>
+    <string name="note_statistics">Statistics</string>
+    <string name="note_information_no_headings">No headings yet.</string>
+    <string name="note_information_no_backlinks">No notes link here yet.</string>
     <string name="font_label">Font</string>
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>

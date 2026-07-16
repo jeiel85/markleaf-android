@@ -22,6 +22,10 @@
     <string name="wikilink_suggestions_title">링크할 노트</string>
     <string name="tag_suggestions_title">태그</string>
     <string name="table_of_contents">목차</string>
+    <string name="note_information">노트 정보</string>
+    <string name="note_statistics">통계</string>
+    <string name="note_information_no_headings">아직 제목이 없습니다.</string>
+    <string name="note_information_no_backlinks">아직 이 노트를 참조한 노트가 없습니다.</string>
     <string name="font_label">글꼴</string>
     <string name="font_sans">산세리프</string>
     <string name="font_serif">세리프</string>

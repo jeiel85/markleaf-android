@@ -22,6 +22,10 @@
     <string name="wikilink_suggestions_title">Enlazar a…</string>
     <string name="tag_suggestions_title">Etiquetas</string>
     <string name="table_of_contents">Índice</string>
+    <string name="note_information">Información de la nota</string>
+    <string name="note_statistics">Estadísticas</string>
+    <string name="note_information_no_headings">Aún no hay encabezados.</string>
+    <string name="note_information_no_backlinks">Todavía no hay notas que enlacen aquí.</string>
     <string name="font_label">Fuente</string>
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>

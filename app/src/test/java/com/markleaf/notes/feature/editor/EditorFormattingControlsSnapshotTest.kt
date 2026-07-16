@@ -39,7 +39,7 @@ class EditorFormattingControlsSnapshotTest {
     @Test
     fun collapsedPhone() = snapshot(
         name = "editor_formatting_collapsed_phone",
-        state = EditorFormattingUiState(statsText = "12 words • 86 characters • 1 min")
+        state = EditorFormattingUiState()
     )
 
     @Test
@@ -51,26 +51,26 @@ class EditorFormattingControlsSnapshotTest {
     @Test
     fun expandedPhone() = snapshot(
         name = "editor_formatting_expanded_phone",
-        state = EditorFormattingUiState(expanded = true, statsText = "12 words • 86 characters • 1 min")
+        state = EditorFormattingUiState(expanded = true)
     )
 
     @Test
     fun disabledPhone() = snapshot(
         name = "editor_formatting_disabled_phone",
-        state = EditorFormattingUiState(enabled = false, statsText = "Loading")
+        state = EditorFormattingUiState(enabled = false)
     )
 
     @Test
     fun expandedDarkPhone() = snapshot(
         name = "editor_formatting_expanded_dark_phone",
-        state = EditorFormattingUiState(expanded = true, statsText = "12 words • 86 characters • 1 min"),
+        state = EditorFormattingUiState(expanded = true),
         darkTheme = true
     )
 
     @Test
     fun expandedLargeTextPhone() = snapshot(
         name = "editor_formatting_expanded_large_text_phone",
-        state = EditorFormattingUiState(expanded = true, statsText = "12 words • 86 characters • 1 min"),
+        state = EditorFormattingUiState(expanded = true),
         fontScale = 1.5f
     )
 
@@ -78,14 +78,14 @@ class EditorFormattingControlsSnapshotTest {
     @Config(sdk = [33], qualifiers = "w800dp-h600dp-mdpi")
     fun expandedTablet() = snapshot(
         name = "editor_formatting_expanded_tablet",
-        state = EditorFormattingUiState(expanded = true, statsText = "12 words • 86 characters • 1 min")
+        state = EditorFormattingUiState(expanded = true)
     )
 
     @Test
     @Config(sdk = [33], qualifiers = "ko-rKR-w360dp-h640dp-notnight-mdpi")
     fun expandedKoreanPhone() = snapshot(
         name = "editor_formatting_expanded_korean_phone",
-        state = EditorFormattingUiState(expanded = true, statsText = "단어 12 • 글자 86 • 1분")
+        state = EditorFormattingUiState(expanded = true)
     )
 
     @Test

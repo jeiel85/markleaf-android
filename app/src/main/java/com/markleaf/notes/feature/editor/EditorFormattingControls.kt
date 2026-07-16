@@ -71,15 +71,13 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
 
 internal data class EditorFormattingUiState(
     val selectionActive: Boolean = false,
     val expanded: Boolean = false,
-    val enabled: Boolean = true,
-    val statsText: String? = null
+    val enabled: Boolean = true
 )
 
 private data class FormattingItem(
@@ -213,17 +211,6 @@ private fun FormattingEntryRow(
                     )
                 }
             }
-        }
-        Spacer(Modifier.width(8.dp))
-        state.statsText?.let { stats ->
-            Text(
-                text = stats,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
-            )
         }
     }
 }

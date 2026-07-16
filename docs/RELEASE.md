@@ -92,6 +92,26 @@ mapping and six-locale notes, and verifies the APK certificate before
 publishing. GitHub remains the canonical Roborazzi and emulator-smoke runner;
 GitLab is an independent build and binary-distribution path.
 
+## Localized Landing Version Check
+
+The landing page ships in four languages: `docs/index.html` (English, the
+canonical / x-default), `docs/index.ko.html`, `docs/index.ja.html`, and
+`docs/index.de.html`. Their "current release" version must match across all
+four before a release. It appears in three places per file — the JSON-LD
+`softwareVersion`, the hero `release-line`, and the trust-ledger `<strong>`.
+
+Run the check before pushing a release tag:
+
+```powershell
+pwsh scripts/verify-landing-versions.ps1
+```
+
+It prints each language's release and screenshot versions and exits non-zero if
+the release version differs between languages. The hero `figcaption` screenshot
+version is tracked separately (it lags until screenshots are re-taken) but must
+also stay consistent across the four languages. When the check fails, update the
+lagging language file — not the check.
+
 ## CI Signing Secrets
 
 Add the following names as GitHub Actions secrets and as GitLab CI/CD

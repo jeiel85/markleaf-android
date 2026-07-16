@@ -44,15 +44,32 @@ class TitleExtractorTest {
 
     @Test
     fun `generateExcerpt truncates long content`() {
-        val longContent = "a".repeat(200)
+        val longContent = "# Title\n" + "a".repeat(200)
         val excerpt = TitleExtractor.generateExcerpt(longContent)
         assertEquals(103, excerpt.length) // 100 + "..."
     }
 
     @Test
     fun `generateExcerpt removes markdown syntax`() {
-        val content = "**bold** and *italic* and ~~strike~~ and `code`"
+        val content = "# Note\n**bold** and *italic* and ~~strike~~ and `code`"
         val excerpt = TitleExtractor.generateExcerpt(content)
         assertEquals("bold and italic and strike and code", excerpt)
+    }
+
+    @Test
+    fun `generateExcerpt skips heading used as the title`() {
+        val content = "# Project brief\n\nBody content follows here"
+        assertEquals("Body content follows here", TitleExtractor.generateExcerpt(content))
+    }
+
+    @Test
+    fun `generateExcerpt skips first line when no heading`() {
+        val content = "First line title\nSecond line body"
+        assertEquals("Second line body", TitleExtractor.generateExcerpt(content))
+    }
+
+    @Test
+    fun `generateExcerpt is empty when the note is only a title`() {
+        assertEquals("", TitleExtractor.generateExcerpt("# Only title"))
     }
 }

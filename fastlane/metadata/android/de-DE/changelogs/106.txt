@@ -1,0 +1,1 @@
+Statistik, Inhaltsverzeichnis und Backlinks liegen jetzt in einem Notiz-Infoblatt, und die obere Editorleiste ist ruhiger. Leere Tag-, Such- und Papierkorb-Ansichten teilen ein Aussehen mit Symbolen, und Zahlen erscheinen grammatisch korrekt. Tablet-Seiten bleiben zentriert und Listenvorschauen wiederholen den Titel nicht mehr. Keine neuen Berechtigungen oder Netzwerkzugriffe.

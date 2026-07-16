@@ -22,6 +22,10 @@
     <string name="wikilink_suggestions_title">Lier à…</string>
     <string name="tag_suggestions_title">Étiquettes</string>
     <string name="table_of_contents">Table des matières</string>
+    <string name="note_information">Informations sur la note</string>
+    <string name="note_statistics">Statistiques</string>
+    <string name="note_information_no_headings">Aucun titre pour le moment.</string>
+    <string name="note_information_no_backlinks">Aucune note ne pointe encore ici.</string>
     <string name="font_label">Police</string>
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>

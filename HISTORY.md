@@ -1,3 +1,17 @@
+## 2026-07-16 - Phase 29 Editor App Bar and Note Information Surface
+
+- Trigger: Picked up the previous session's uncommitted implementation; the user asked to verify it and carry it through to completion.
+- Scope: Restructure only the editor top app bar and the note-information (statistics, outline, backlinks) surface. No permission, dependency, database, or stored-Markdown contract changed.
+- Work:
+  - Extracted the top app bar into `EditorTopAppBar` (Back, title, Preview/Edit, Note information, More) and moved Find, Focus mode, system share, Markdown/PDF export, and Move to trash into the More menu in task order.
+  - Consolidated statistics, table of contents, and backlinks into a single `EditorInfoSheet` modal bottom sheet and removed the permanent statistics text from the formatting footer.
+  - Limited outline parsing to when preview or the info sheet needs it, and made heading selection enter preview and scroll to the matching item.
+  - Added four strings across six locales, plus InfoSheet/TopAppBar/EditorScreen snapshot tests, InfoSheet behavior tests, and an instrumented outline-navigation test.
+- Verification (single session, sequential analyze -> implement-check -> audit):
+  - `:app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintRelease :app:assembleDebug` passed (`BUILD SUCCESSFUL`, 84 tasks, 2 executed).
+  - Re-read the full diff against the `DESIGN.md` "Editor app bar and note information surface" contract. Confirmed boundary safety for `computeStats("")` and the empty-title backlinks path, six-locale string parity (four each), and no out-of-scope changes.
+  - The 16 Roborazzi goldens (8 modified, 8 new) are local Windows recordings and must be re-recorded on the Linux CI runner before push (AGENTS.md rule); local pixel verification was skipped because font hinting diverges from CI.
+
 ## 2026-07-15 - Quiet Proof Landing Page Renewal
 
 - Trigger: The user accepted the landing-page audit and asked to implement the proposed renewal.

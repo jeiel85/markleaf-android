@@ -97,7 +97,9 @@
     <string name="replace_in_note_hint">置換</string>
     <string name="replace_match">置換</string>
     <string name="replace_all_matches">すべて置換</string>
-    <string name="replace_all_done_format">%1$d 件を置換しました。</string>
+    <plurals name="replace_all_done_format">
+        <item quantity="other">%1$d 件を置換しました。</item>
+    </plurals>
     <string name="close">閉じる</string>
     <string name="share_note">共有 / 書き出し</string>
     <string name="share_via_system">共有…</string>
@@ -130,7 +132,9 @@
     <string name="tag_result_format">#%1$s</string>
     <string name="no_tags_yet">タグがまだありません</string>
     <string name="tags_empty_hint">ノートに #タグ を入力して整理しましょう</string>
-    <string name="tag_note_count_format">%1$d 件のノート</string>
+    <plurals name="tag_note_count_format">
+        <item quantity="other">%1$d 件のノート</item>
+    </plurals>
 
     <string name="trash_empty">ゴミ箱は空です</string>
     <string name="trash_empty_hint">削除したノートはここに表示されます</string>
@@ -166,7 +170,9 @@
     <string name="settings_data">データ</string>
     <string name="export_all_notes">すべてのノートを書き出し…</string>
     <string name="export_all_notes_description">フォルダを選ぶと、Markleaf がすべてのノートを個別の .md ファイルとして保存します。ゴミ箱内のノートは除外されます。</string>
-    <string name="export_all_done_format">%1$d 件のノートを書き出しました。</string>
+    <plurals name="export_all_done_format">
+        <item quantity="other">%1$d 件のノートを書き出しました。</item>
+    </plurals>
 
     <string name="sync_title">マルチデバイス同期 (フォルダミラー)</string>
     <string name="sync_explainer">Markleaf 自体はオンラインに出ません。代わりに任意のフォルダを選ぶと、各ノートを `.md` ファイルとしてそこへ保存します。そのフォルダを他のアプリ — Dropbox、Drive、Syncthing、OneDrive、NAS — が同期していれば、ノートも他の端末へ追従します。</string>
@@ -180,10 +186,14 @@
     <string name="sync_change_folder">フォルダを変更</string>
     <string name="sync_now">今すぐ同期</string>
     <string name="sync_stop">同期を停止</string>
-    <string name="sync_seeded_format">%1$d 件のノートをフォルダへ書き出しました。</string>
+    <plurals name="sync_seeded_format">
+        <item quantity="other">%1$d 件のノートをフォルダへ書き出しました。</item>
+    </plurals>
     <string name="sync_file_format">同期ファイル形式</string>
     <string name="sync_tidy_filenames">ファイル名をノートのタイトルに整える</string>
-    <string name="sync_tidy_done_format">ファイル名を %1$d 件整えました。</string>
+    <plurals name="sync_tidy_done_format">
+        <item quantity="other">ファイル名を %1$d 件整えました。</item>
+    </plurals>
     <string name="sync_done_format">同期完了 — %1$d 件更新、%2$d 件新規、%3$d 件変更なし。</string>
     <string name="sync_done_with_conflicts_format">同期完了 — %1$d 件更新、%2$d 件新規、%3$d 件は重複として保持 (競合)、%4$d 件変更なし。</string>
     <string name="sync_stopped">同期を停止しました。</string>

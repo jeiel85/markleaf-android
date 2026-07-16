@@ -574,7 +574,7 @@ fun EditorScreen(
                                     if (isLoaded) saveTrigger++
                                     Toast.makeText(
                                         context,
-                                        context.getString(R.string.replace_all_done_format, count),
+                                        context.resources.getQuantityString(R.plurals.replace_all_done_format, count, count),
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }

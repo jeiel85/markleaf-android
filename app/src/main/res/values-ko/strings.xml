@@ -97,7 +97,9 @@
     <string name="replace_in_note_hint">바꾸기</string>
     <string name="replace_match">바꾸기</string>
     <string name="replace_all_matches">모두 바꾸기</string>
-    <string name="replace_all_done_format">%1$d개를 바꿨습니다.</string>
+    <plurals name="replace_all_done_format">
+        <item quantity="other">%1$d개를 바꿨습니다.</item>
+    </plurals>
     <string name="close">닫기</string>
     <string name="share_note">공유 / 내보내기</string>
     <string name="share_via_system">공유 시트로 보내기</string>
@@ -130,7 +132,9 @@
     <string name="tag_result_format">#%1$s</string>
     <string name="no_tags_yet">아직 태그가 없습니다</string>
     <string name="tags_empty_hint">노트에 #태그를 입력해 정리해보세요</string>
-    <string name="tag_note_count_format">노트 %1$d개</string>
+    <plurals name="tag_note_count_format">
+        <item quantity="other">노트 %1$d개</item>
+    </plurals>
 
     <string name="trash_empty">휴지통이 비어 있습니다</string>
     <string name="trash_empty_hint">삭제한 노트가 여기에 표시됩니다</string>
@@ -166,7 +170,9 @@
     <string name="settings_data">데이터</string>
     <string name="export_all_notes">전체 노트 내보내기</string>
     <string name="export_all_notes_description">폴더를 선택하면 각 노트를 별도의 .md 파일로 저장합니다. 휴지통의 노트는 제외됩니다.</string>
-    <string name="export_all_done_format">노트 %1$d개를 내보냈습니다.</string>
+    <plurals name="export_all_done_format">
+        <item quantity="other">노트 %1$d개를 내보냈습니다.</item>
+    </plurals>
 
     <string name="sync_title">다중 기기 동기화 (폴더 미러)</string>
     <string name="sync_explainer">Markleaf는 직접 인터넷에 접속하지 않습니다. 대신 사용자가 지정한 폴더에 각 노트를 .md 파일로 저장합니다. 그 폴더를 다른 앱(Dropbox, Drive, Syncthing, OneDrive, NAS 등)이 동기화하면, 노트가 자연스럽게 다른 기기에 따라옵니다.</string>
@@ -180,10 +186,14 @@
     <string name="sync_change_folder">폴더 변경</string>
     <string name="sync_now">지금 동기화</string>
     <string name="sync_stop">동기화 끄기</string>
-    <string name="sync_seeded_format">노트 %1$d개를 폴더에 미러링했습니다.</string>
+    <plurals name="sync_seeded_format">
+        <item quantity="other">노트 %1$d개를 폴더에 미러링했습니다.</item>
+    </plurals>
     <string name="sync_file_format">동기화 파일 형식</string>
     <string name="sync_tidy_filenames">파일명을 노트 제목으로 정리</string>
-    <string name="sync_tidy_done_format">파일명 %1$d개를 정리했습니다.</string>
+    <plurals name="sync_tidy_done_format">
+        <item quantity="other">파일명 %1$d개를 정리했습니다.</item>
+    </plurals>
     <string name="sync_done_format">동기화 완료 — 업데이트 %1$d, 신규 %2$d, 변화 없음 %3$d</string>
     <string name="sync_done_with_conflicts_format">동기화 완료 — 업데이트 %1$d, 신규 %2$d, 충돌 사본 %3$d, 변화 없음 %4$d</string>
     <string name="sync_stopped">동기화를 껐습니다.</string>

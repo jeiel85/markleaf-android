@@ -97,7 +97,10 @@
     <string name="replace_in_note_hint">Replace</string>
     <string name="replace_match">Replace</string>
     <string name="replace_all_matches">Replace all</string>
-    <string name="replace_all_done_format">Replaced %1$d matches.</string>
+    <plurals name="replace_all_done_format">
+        <item quantity="one">Replaced %1$d match.</item>
+        <item quantity="other">Replaced %1$d matches.</item>
+    </plurals>
     <string name="close">Close</string>
     <string name="share_note">Share or export</string>
     <string name="share_via_system">Share via…</string>
@@ -130,7 +133,10 @@
     <string name="tag_result_format">#%1$s</string>
     <string name="no_tags_yet">No tags yet</string>
     <string name="tags_empty_hint">Type #tags in a note to organize it</string>
-    <string name="tag_note_count_format">%1$d notes</string>
+    <plurals name="tag_note_count_format">
+        <item quantity="one">%1$d note</item>
+        <item quantity="other">%1$d notes</item>
+    </plurals>
 
     <string name="trash_empty">Trash is empty</string>
     <string name="trash_empty_hint">Notes you delete appear here</string>
@@ -166,7 +172,10 @@
     <string name="settings_data">Data</string>
     <string name="export_all_notes">Export all notes…</string>
     <string name="export_all_notes_description">Pick a folder and Markleaf saves every note as a separate .md file. Trashed notes are skipped.</string>
-    <string name="export_all_done_format">Exported %1$d notes.</string>
+    <plurals name="export_all_done_format">
+        <item quantity="one">Exported %1$d note.</item>
+        <item quantity="other">Exported %1$d notes.</item>
+    </plurals>
 
     <string name="sync_title">Multi-device sync (folder mirror)</string>
     <string name="sync_explainer">Markleaf never goes online itself. Instead, you choose a folder and Markleaf saves each note as a `.md` file in it. If that folder is synced by another app — Dropbox, Drive, Syncthing, OneDrive, a NAS — your notes follow your other devices.</string>
@@ -180,10 +189,16 @@
     <string name="sync_change_folder">Change folder</string>
     <string name="sync_now">Sync now</string>
     <string name="sync_stop">Stop syncing</string>
-    <string name="sync_seeded_format">Mirrored %1$d notes to the folder.</string>
+    <plurals name="sync_seeded_format">
+        <item quantity="one">Mirrored %1$d note to the folder.</item>
+        <item quantity="other">Mirrored %1$d notes to the folder.</item>
+    </plurals>
     <string name="sync_file_format">Sync file format</string>
     <string name="sync_tidy_filenames">Rename files to note titles</string>
-    <string name="sync_tidy_done_format">Tidied %1$d filenames.</string>
+    <plurals name="sync_tidy_done_format">
+        <item quantity="one">Tidied %1$d filename.</item>
+        <item quantity="other">Tidied %1$d filenames.</item>
+    </plurals>
     <string name="sync_done_format">Synced — %1$d updated, %2$d new, %3$d unchanged.</string>
     <string name="sync_done_with_conflicts_format">Synced — %1$d updated, %2$d new, %3$d kept as duplicates (conflict), %4$d unchanged.</string>
     <string name="sync_stopped">Sync turned off.</string>

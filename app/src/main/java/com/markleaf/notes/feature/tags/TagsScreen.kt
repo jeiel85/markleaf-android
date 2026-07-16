@@ -6,10 +6,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -86,22 +88,30 @@ fun TagsScreen(
                     hint = stringResource(R.string.tags_empty_hint)
                 )
             } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize()
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.TopCenter
                 ) {
-                    items(rows, key = { row -> row.fullName }) { row ->
-                        TagRow(
-                            row = row,
-                            onClick = { onTagClick("#${row.fullName}") },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    start = 16.dp + (row.depth * 20).dp,
-                                    end = 16.dp,
-                                    top = 10.dp,
-                                    bottom = 10.dp
-                                )
-                        )
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .widthIn(max = 640.dp)
+                            .fillMaxWidth()
+                    ) {
+                        items(rows, key = { row -> row.fullName }) { row ->
+                            TagRow(
+                                row = row,
+                                onClick = { onTagClick("#${row.fullName}") },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        start = 16.dp + (row.depth * 20).dp,
+                                        end = 16.dp,
+                                        top = 10.dp,
+                                        bottom = 10.dp
+                                    )
+                            )
+                        }
                     }
                 }
             }

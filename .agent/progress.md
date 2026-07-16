@@ -1,5 +1,42 @@
 ---
 
+## 2026-07-16 - Phase 29 tablet QA and empty-editor correction
+
+Selected task:
+- Phase 29의 마지막 phone/tablet 수동 QA, TalkBack, 6개 언어 parity, Roborazzi,
+  test/lint/build 검증을 수행한다.
+
+What was implemented:
+- 실제 새 노트 경로가 먼저 빈 노트를 저장한 뒤 non-null ID로 편집기를 연다는 것을 확인하고,
+  빈 persisted note를 로드한 경우에도 초기 편집 포커스를 요청하도록 수정했다.
+- 편집기 빈 상태의 literal pencil emoji를 `Icons.Outlined.EditNote` 벡터로 교체했다.
+- persisted empty note focus와 emoji semantics 제거를 고정하는 instrumentation regression test 2개를
+  추가했다.
+
+Manual QA:
+- API 36 Pixel Tablet AVD(2560x1600 / 320dpi)에서 3-pane, 빈 노트 IME, 포맷 패널,
+  미리보기, 정보 시트, 긴 문서를 검증했다.
+- 같은 VM의 1080x2400 / 420dpi phone override에서 compact navigation, 선택 문맥 액션,
+  Bold 적용, 1초 autosave를 검증하고 display override를 원복했다.
+- en-US, ko-KR, ja-JP, de-DE, fr-FR, es-ES를 전환해 잘림 없이 렌더링되는지 확인했다.
+- Google Play API 36 tablet image의 실제 TalkBack 서비스로 48dp controls, grouped note card,
+  Add Note, editor traversal과 현지화된 accessibility labels를 확인한 뒤 서비스를 비활성화했다.
+
+Verification:
+- 변경 전 `EditorScreenTest` 9개 중 focus/emoji 2개가 실패했고, 수정 후 동일 9/9가 통과했다.
+- standalone `testDebugUnitTest`, `lintRelease`, `assembleDebug`가 각각 BUILD SUCCESSFUL이었다.
+- 전체 instrumentation은 기존 compact NavHost shared-transition 종료 경합으로
+  `AppIntegrationTest`의 Activity teardown에서 `INITIALIZED -> DESTROYED` 예외가 재현된다.
+  현재 editor 두 파일 변경과 무관한 경로이며 대기, test-host disposal, Navigation 2.9.8
+  세 진단 토글은 모두 실패해 원복했다.
+- Windows `verifyRoborazziDebug`는 canonical Linux goldens 15개와 플랫폼 raster 차이로 실패했다.
+  브랜치 push 후 전용 Linux `record_roborazzi` workflow로 필요한 golden만 교체하고 CI verify한다.
+
+Status:
+- Phase 29 task check는 Linux Roborazzi 및 main 통합 검증이 끝날 때까지 열어 둔다.
+
+---
+
 ## 2026-07-16 - v2.24.0 릴리스 (노트 정보 시트 + Phase 29 UI 마감)
 
 Selected task:

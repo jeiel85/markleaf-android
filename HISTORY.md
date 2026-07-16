@@ -1,3 +1,12 @@
+## 2026-07-16 - Phase 29 Tablet QA and Empty-Editor Correction
+
+- Trigger: The user asked to create a tablet-sized virtual device, validate the Phase 29 editor on it, and carry the result through branch consolidation.
+- Scope: Correct only two runtime defects found by tablet QA: missing initial focus for a persisted empty note and the editor's remaining literal emoji empty-state icon. No permission, dependency, database, network, account, analytics, or stored-Markdown contract changed.
+- Work: requested editor focus after loading empty persisted content, replaced the pencil emoji with `Icons.Outlined.EditNote`, and added two API-level regression tests covering focus and semantics.
+- Manual verification: API 36 Pixel Tablet at 2560x1600/320dpi, responsive phone override at 1080x2400/420dpi, six app locales, and a Google Play API 36 TalkBack image all passed the relevant writing, formatting, autosave, label, traversal, and 48dp-target checks. Emulator overrides and TalkBack state were restored.
+- Automated verification: the pre-fix `EditorScreenTest` run failed 2/9 and the identical post-fix run passed 9/9. Standalone `testDebugUnitTest`, `lintRelease`, and `assembleDebug` passed. Full instrumentation remains blocked by an existing compact NavHost shared-transition teardown lifecycle crash unrelated to these two editor paths; three diagnostic toggles were reverted after reproducing the same failure.
+- Visual regression: Windows verification reports 15 platform-raster mismatches against Linux canonical goldens. The dedicated Linux recorder/verify workflow will provide the authoritative snapshot update after the branch is pushed.
+
 ## 2026-07-16 - v2.24.0 Release (Note Information Sheet + Phase 29 UI Polish)
 
 - Trigger: After Phase 29 UI polish merged and the GitLab pipeline passed, the user asked to release v2.24.0.

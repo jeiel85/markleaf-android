@@ -6,8 +6,14 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import com.markleaf.notes.R
 import com.markleaf.notes.TestHostActivity
+import com.markleaf.notes.data.local.AppDatabase
+import com.markleaf.notes.data.repository.LocalNoteRepository
+import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.feature.editor.EditorScreen
 import com.markleaf.notes.ui.theme.MarkleafTheme
+import java.time.Instant
+import java.util.UUID
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -25,10 +31,10 @@ class EditorScreenTest {
         TestHostActivity.content = null
     }
 
-    private fun launchEditor() {
+    private fun launchEditor(noteId: String? = null) {
         TestHostActivity.content = {
             MarkleafTheme {
-                EditorScreen(onBack = {})
+                EditorScreen(noteId = noteId, onBack = {})
             }
         }
         scenario = ActivityScenario.launch(TestHostActivity::class.java)
@@ -41,6 +47,43 @@ class EditorScreenTest {
 
         val newNoteLabel = context.getString(R.string.new_note)
         composeTestRule.onNodeWithText(newNoteLabel).assertIsDisplayed()
+    }
+
+    @Test
+    fun editorScreen_persistedEmptyNoteRequestsInitialFocus() {
+        val noteId = UUID.randomUUID().toString()
+        val repository = LocalNoteRepository(AppDatabase.getInstance(context))
+        val now = Instant.now()
+        runBlocking {
+            repository.createNote(
+                Note(
+                    id = noteId,
+                    title = "",
+                    contentMarkdown = "",
+                    excerpt = "",
+                    createdAt = now,
+                    updatedAt = now
+                )
+            )
+        }
+
+        try {
+            launchEditor(noteId)
+
+            composeTestRule
+                .onNodeWithContentDescription(context.getString(R.string.note_content))
+                .assertIsFocused()
+        } finally {
+            runBlocking { repository.deleteForever(noteId) }
+        }
+    }
+
+    @Test
+    fun editorScreen_emptyStateDoesNotExposeEmojiText() {
+        launchEditor()
+
+        composeTestRule.onNodeWithText("✏️").assertDoesNotExist()
+        composeTestRule.onNodeWithText(context.getString(R.string.editor_empty_title)).assertIsDisplayed()
     }
 
     @Test

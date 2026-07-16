@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicTextField
@@ -30,6 +31,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
@@ -284,7 +286,9 @@ fun EditorScreen(
         if (noteId == null) {
             isLoaded = true
         } else {
-            editorState = TextFieldValue(repo.getNote(noteId)?.contentMarkdown.orEmpty())
+            val content = repo.getNote(noteId)?.contentMarkdown.orEmpty()
+            editorState = TextFieldValue(content)
+            shouldRequestEditorFocus = content.isEmpty()
             isLoaded = true
         }
     }
@@ -721,13 +725,13 @@ fun EditorScreen(
                                             verticalArrangement = Arrangement.Center,
                                             modifier = Modifier.fillMaxSize().padding(24.dp)
                                         ) {
-                                            Text(
-                                                text = "✏️",
-                                                style = MaterialTheme.typography.displayMedium.copy(
-                                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
-                                                ),
-                                                modifier = Modifier.padding(bottom = 12.dp)
+                                            Icon(
+                                                imageVector = Icons.Outlined.EditNote,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
+                                                modifier = Modifier.size(64.dp)
                                             )
+                                            Spacer(modifier = Modifier.height(12.dp))
                                             Text(
                                                 text = stringResource(R.string.editor_empty_title),
                                                 style = MaterialTheme.typography.titleMedium,

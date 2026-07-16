@@ -4,6 +4,8 @@ All notable changes to Markleaf are documented in this file.
 
 ## Unreleased
 
+## v2.24.0 - 노트 정보 시트와 마감 - 2026-07-16
+
 ### Changed
 - **노트 목록 excerpt 정리.** 제목으로 쓰인 첫 줄을 미리보기에서 반복하지 않아 목록·검색·보관·휴지통이 더 깔끔해집니다.
 - **수량 표시 문법 정확도(plurals).** 태그별 노트 수, 찾기·내보내기·동기화 결과 문구가 1개일 때와 여러 개일 때를 문법에 맞게 표시합니다(6개 언어).

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - Markleaf</title>
+    <meta name="description" content="Markleaf のプライバシーポリシー。Markleaf は INTERNET 権限、アカウント、分析、広告、トラッキングなしで動作するローカルファーストの Markdown メモアプリです。">
+    <link rel="canonical" href="https://jeiel85.github.io/markleaf-android/privacy.ja.html">
+    <link rel="alternate" hreflang="en" href="https://jeiel85.github.io/markleaf-android/privacy.html">
+    <link rel="alternate" hreflang="ko" href="https://jeiel85.github.io/markleaf-android/privacy.ko.html">
+    <link rel="alternate" hreflang="ja" href="https://jeiel85.github.io/markleaf-android/privacy.ja.html">
+    <link rel="alternate" hreflang="de" href="https://jeiel85.github.io/markleaf-android/privacy.de.html">
+    <link rel="alternate" hreflang="x-default" href="https://jeiel85.github.io/markleaf-android/privacy.html">
+    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav aria-label="メインナビゲーション">
+            <a class="logo" href="index.ja.html" aria-label="Markleaf ホーム">
+                <img src="assets/logo.svg" alt="">
+                <span>Markleaf</span>
+            </a>
+            <div class="nav-cluster">
+                <ul>
+                    <li><a href="index.ja.html">ホーム</a></li>
+                    <li><a href="privacy.ja.html">プライバシー</a></li>
+                    <li><a href="https://github.com/jeiel85/markleaf-android">GitHub</a></li>
+                </ul>
+                <div class="lang-switch" aria-label="言語">
+                    <a href="privacy.html" hreflang="en" aria-label="English">EN</a>
+                    <a href="privacy.ko.html" hreflang="ko" aria-label="한국어">KO</a>
+                    <a href="privacy.ja.html" hreflang="ja" aria-current="page">JA</a>
+                    <a href="privacy.de.html" hreflang="de" aria-label="Deutsch">DE</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <article class="content">
+            <h1>Markleaf プライバシーポリシー</h1>
+            <p class="updated">最終更新: 2026年5月26日 · 対象: Markleaf Android v2.x</p>
+
+            <h2>基本原則</h2>
+            <p>Markleaf はローカルファーストの Markdown メモアプリです。Markleaf 自体には <code>android.permission.INTERNET</code> 権限がなく、独自のサーバーも運用せず、ノート、タグ、添付ファイル、メタデータを外部サーバーへ自動的にアップロードすることは一切ありません。</p>
+
+            <h2>Markleaf が収集しない情報</h2>
+            <ul>
+                <li>氏名、メールアドレス、連絡先、位置情報</li>
+                <li>アカウントまたはログイン情報</li>
+                <li>ノート本文、タイトル、タグ、添付画像、ファイル名、メタデータ</li>
+                <li>使用統計、テレメトリ、分析イベント、広告識別子</li>
+                <li>クラッシュレポートや端末識別子</li>
+            </ul>
+            <p>また、分析、広告、トラッキング、リモート設定、Firebase、クローズドソースのクラッシュレポート SDK も含まれていません。</p>
+
+            <h2>ネットワーク</h2>
+            <p>Markleaf はインターネット権限を宣言していません。</p>
+            <pre>android.permission.INTERNET   なし</pre>
+
+            <h2>データの保存場所</h2>
+            <ul>
+                <li>ノート本文、タイトル、タグインデックスは、アプリ内部の Room データベースに保存されます。</li>
+                <li>ユーザー設定は DataStore に保存されます。</li>
+                <li>添付画像はアプリ内部ストレージにコピーされ、保存時に機微な EXIF メタデータを除去します。</li>
+            </ul>
+
+            <h2>Android システムバックアップポリシー</h2>
+            <p>Markleaf は <code>android:allowBackup="false"</code> を設定し、Android 自動バックアップおよび端末間転送からアプリのデータを除外します。新しい端末への移行や複数端末での利用が必要な場合は、Markdown エクスポート、共有、または SAF フォルダミラーをご自身で選択します。</p>
+
+            <h2>ユーザー主導のデータ移動</h2>
+            <p>以下の操作は、ご自身が実行した場合にのみ発生し、Android の明示的な権限ダイアログ、またはご自身が行う UI 上の選択を経由します。</p>
+            <ul>
+                <li>個別のノートまたは全ノートを Markdown（<code>.md</code>）としてエクスポート</li>
+                <li>Android システムの共有シートでノートのテキストまたはファイルを共有</li>
+                <li>本文内の外部リンクをタップして OS / 既定のブラウザに委譲</li>
+                <li>クリップボードへコピー</li>
+                <li>ご自身が選択した SAF フォルダへ Markdown ファイルをミラーリング</li>
+            </ul>
+            <p>SAF フォルダが Drive、Dropbox、OneDrive、Syncthing、NAS マウントといった外部同期クライアントによって同期されるかどうかは、その外部アプリの責任です。Markleaf 自体がその同期を行うことはありません。</p>
+
+            <h2>権限</h2>
+            <p>Markleaf が宣言するランタイム的な権限は、触覚フィードバックのための <code>android.permission.VIBRATE</code> のみです。位置情報、マイク、カメラ、連絡先、通知、外部ストレージの読み取り、メディアの読み取り、ネットワークに関する権限は宣言していません。</p>
+
+            <h2>お問い合わせ</h2>
+            <p>ご質問や、セキュリティ / プライバシーに関する報告は、<a class="text-link" href="https://github.com/jeiel85/markleaf-android/issues">GitHub Issues</a> からお寄せください。</p>
+        </article>
+    </main>
+
+    <footer>
+        <p>Markleaf · Android 向けの軽量なローカルファースト Markdown メモアプリ。</p>
+        <p><a href="index.ja.html">ホーム</a> · <a href="https://github.com/jeiel85/markleaf-android">GitHub</a> · <a href="https://github.com/jeiel85/markleaf-android/blob/main/LICENSE">Apache-2.0</a></p>
+    </footer>
+</body>
+</html>

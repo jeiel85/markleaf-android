@@ -1,5 +1,35 @@
 ---
 
+## 2026-07-16 - v2.24.0 릴리스 (노트 정보 시트 + Phase 29 UI 마감)
+
+Selected task:
+- Phase 29 UI 마감 머지·GitLab 통과 후 v2.24.0으로 릴리스한다.
+
+What was implemented:
+- versionCode 106 / 2.24.0. Unreleased(정보 시트·excerpt·plurals·빈 상태·태블릿)를 v2.24.0 섹션으로.
+- 6개 store locale 106.txt(모두 500자 이내), README 4종·landing 버전 갱신.
+
+Verification:
+- test/compileAndroidTest/lintRelease/assembleDebug + 서명 exportReleaseToBuildDrive/assembleRelease
+  = BUILD SUCCESSFUL. 서명 인증서 SHA-256 = production 키 0be97352…7eecf91a.
+  GitHub Release APK 2,763,707 B + mapping.
+
+Incident:
+- 릴리스 `git add -A`가 이전 미커밋 landing 다국어 작업(README en→ko, index.ko.html, privacy 번역)을
+  v2.24.0에 섞음(초기 git status가 truncate돼 인지 못 함). docs-i18n-wip 브랜치에 보존, main을 깨끗한
+  13파일 릴리스 커밋으로 reset+force. 하드닝 이슈 #154.
+
+Publication:
+- 깨끗한 커밋 d81fdd1에 v2.24.0 태그, GitHub만 push. tag workflow(build/release/launch-smoke) 전체 green.
+- GitLab main protected(allow_force_push=false)라 force 거부 → 16feaac 유지. 사용자가 protected 조정 후
+  재정렬 예정.
+
+Next:
+- GitLab main을 GitHub와 재정렬(사용자 protected 조정). docs-i18n-wip 검증·PR. Phase 29 QA(tasks.md
+  마지막 항목). 하드닝 #154/#152/#150.
+
+---
+
 ## 2026-07-16 - Phase 29 UI 마감 (excerpt·plurals·빈 상태·태블릿)
 
 Selected task:

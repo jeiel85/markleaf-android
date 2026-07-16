@@ -1,3 +1,12 @@
+## 2026-07-16 - v2.24.0 Release (Note Information Sheet + Phase 29 UI Polish)
+
+- Trigger: After Phase 29 UI polish merged and the GitLab pipeline passed, the user asked to release v2.24.0.
+- Scope: versionCode 106 / versionName 2.24.0, bundling the editor note-information surface, excerpt de-duplication, plurals, empty states, and tablet width from the Unreleased section. No new product code.
+- Work: bumped the version, promoted the CHANGELOG v2.24.0 section, wrote six store-locale `106.txt` changelogs (all <500 chars), and updated the four READMEs and the landing version strings.
+- Verification: `testDebugUnitTest + compileDebugAndroidTestKotlin + lintRelease + assembleDebug` plus signed `exportReleaseToBuildDrive + assembleRelease` were BUILD SUCCESSFUL; D:\Build holds the signed AAB (5,496,930 B), mapping, and six-locale notes. Signing cert SHA-256 = production key `0be97352…7eecf91a`.
+- Incident + recovery: the release `git add -A` swept in uncommitted landing-i18n work (README en→ko, index.ko.html, privacy translations) because the initial git status was truncated. Preserved that work on branch `docs-i18n-wip`, reset main to a clean 13-file release commit, and force-pushed. Logged as hardening issue #154.
+- Publication: tagged `v2.24.0` on the clean commit `d81fdd1` and pushed to GitHub only. The GitHub tag workflow (build / release / launch-smoke) was all green; the GitHub Release APK is 2,763,707 B with mapping, signed with the production key. GitLab `main` is protected (`allow_force_push=false`) and remains at the pre-recovery commit `16feaac` — the user will realign it after adjusting protection.
+
 ## 2026-07-16 - Phase 29 UI Polish
 
 - Trigger: After merging the editor note-information surface, the user chose to complete the remaining Phase 29 UI tasks in sequence.

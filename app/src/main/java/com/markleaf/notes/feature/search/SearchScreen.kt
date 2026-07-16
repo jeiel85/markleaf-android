@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,6 +39,7 @@ import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.repository.LocalTagRepository
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.domain.model.Tag
+import com.markleaf.notes.ui.component.EmptyState
 import com.markleaf.notes.ui.viewmodel.SearchViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -107,16 +110,11 @@ fun SearchScreen(
                     )
                 }
             } else if (searchResults.isEmpty() && matchingTags.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize().weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(R.string.no_results_found),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                EmptyState(
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Outlined.SearchOff,
+                    title = stringResource(R.string.no_results_found)
+                )
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize().weight(1f),

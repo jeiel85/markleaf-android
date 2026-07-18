@@ -52,7 +52,7 @@
     <string name="back">뒤로</string>
     <string name="note_content">노트 본문</string>
     <string name="editor_empty_title">새 노트가 준비됐어요</string>
-    <string name="editor_empty_hint">Markdown, #태그, 링크, 체크박스를 쓸 수 있고, 작성하는 동안 자동으로 저장됩니다.</string>
+    <string name="editor_empty_hint">Markdown, #태그, 링크, 체크박스를 쓸 수 있고, 작성하는 동안 기기에 자동으로 저장됩니다.</string>
     <string name="bold">굵게</string>
     <string name="formatting">서식</string>
     <string name="formatting_inline">인라인</string>

@@ -297,7 +297,7 @@
     <string name="privacy_guarantee_title">Vos données restent locales</string>
     <string name="privacy_guarantee_desc">Markleaf est conçu avec la confidentialité au cœur de ses priorités. Vos notes ne quittent jamais votre appareil, sauf si vous choisissez explicitement de les exporter ou de les partager.</string>
     <string name="privacy_data_storage_title">Stockage local en priorité</string>
-    <string name="privacy_data_storage_desc">Toutes vos notes et étiquettes sont stockées localement sur votre appareil à l\'aide de la base de données sécurisée Room d\'Android. Aucun serveur cloud, aucun téléchargement de données.</string>
+    <string name="privacy_data_storage_desc">Toutes vos notes et étiquettes sont stockées localement sur votre appareil à l\'aide de la base de données sécurisée Room d\'Android. Aucun serveur cloud, aucun envoi de données.</string>
     <string name="privacy_no_cloud_title">Aucune dépendance au cloud</string>
     <string name="privacy_no_cloud_desc">Nous n\'utilisons aucun service cloud pour les fonctionnalités de base. Pas de synchronisation Google Drive, pas d\'intégration Dropbox, pas de serveurs dorsaux propriétaires.</string>
     <string name="privacy_no_tracking_title">Zéro suivi</string>

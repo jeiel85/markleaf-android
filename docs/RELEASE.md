@@ -94,11 +94,12 @@ GitLab is an independent build and binary-distribution path.
 
 ## Localized Landing Version Check
 
-The landing page ships in four languages: `docs/index.html` (English, the
-canonical / x-default), `docs/index.ko.html`, `docs/index.ja.html`, and
-`docs/index.de.html`. Their "current release" version must match across all
-four before a release. It appears in three places per file — the JSON-LD
-`softwareVersion`, the hero `release-line`, and the trust-ledger `<strong>`.
+The landing page ships in six languages: `docs/index.html` (English, the
+canonical / x-default), `docs/index.ko.html`, `docs/index.ja.html`,
+`docs/index.de.html`, `docs/index.es.html`, and `docs/index.fr.html`. Their
+"current release" version must match across all six before a release. It
+appears in three places per file — the JSON-LD `softwareVersion`, the hero
+`release-line`, and the trust-ledger `<strong>`.
 
 Run the check before pushing a release tag:
 
@@ -109,8 +110,36 @@ pwsh scripts/verify-landing-versions.ps1
 It prints each language's release and screenshot versions and exits non-zero if
 the release version differs between languages. The hero `figcaption` screenshot
 version is tracked separately (it lags until screenshots are re-taken) but must
-also stay consistent across the four languages. When the check fails, update the
+also stay consistent across the six languages. When the check fails, update the
 lagging language file — not the check.
+
+The privacy pages (`docs/privacy*.html`) ship in the same six languages and
+carry no version string, so they are outside this check.
+
+## Release Notes Source and Language
+
+GitHub release notes are not written separately — the tag job extracts them from
+`CHANGELOG.md`. The `Prepare release notes` step in
+`.github/workflows/android-build.yml` uses `awk` to take the section whose
+heading starts with `## v<version>`, strips the trailing ` - YYYY-MM-DD` to form
+the release title, and passes the remaining lines to `gh release create
+--notes-file`.
+
+Two consequences follow:
+
+- `CHANGELOG.md` is written in **English**, so GitHub releases read in English
+  by default. The Korean edition is kept in `CHANGELOG.ko.md`.
+- The heading must stay in `## vX.Y.Z - Title - YYYY-MM-DD` form. A heading the
+  parser cannot match yields an empty title file, and the job fails at
+  `test -s release-title.txt` before anything is published.
+
+Entries older than v2.16.0 remain in Korean below the "Earlier releases
+(Korean)" heading and are not retranslated. That heading also stops the parser
+from pulling Korean text into the v2.16.0 release body.
+
+GitLab releases take a different path: they use the six-locale fastlane notes
+bundled by `:app:exportReleaseArtifacts`, so they are already multilingual and
+are unaffected by the language of `CHANGELOG.md`.
 
 ## CI Signing Secrets
 

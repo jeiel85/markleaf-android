@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Politique de confidentialité - Markleaf</title>
+    <meta name="description" content="Politique de confidentialité de Markleaf. Markleaf est une application de notes Markdown local-first qui fonctionne sans permission INTERNET, compte, analyse, publicité ni suivi.">
+    <link rel="canonical" href="https://jeiel85.github.io/markleaf-android/privacy.fr.html">
+    <link rel="alternate" hreflang="en" href="https://jeiel85.github.io/markleaf-android/privacy.html">
+    <link rel="alternate" hreflang="ko" href="https://jeiel85.github.io/markleaf-android/privacy.ko.html">
+    <link rel="alternate" hreflang="ja" href="https://jeiel85.github.io/markleaf-android/privacy.ja.html">
+    <link rel="alternate" hreflang="de" href="https://jeiel85.github.io/markleaf-android/privacy.de.html">
+    <link rel="alternate" hreflang="es" href="https://jeiel85.github.io/markleaf-android/privacy.es.html">
+    <link rel="alternate" hreflang="fr" href="https://jeiel85.github.io/markleaf-android/privacy.fr.html">
+    <link rel="alternate" hreflang="x-default" href="https://jeiel85.github.io/markleaf-android/privacy.html">
+    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav aria-label="Navigation principale">
+            <a class="logo" href="index.fr.html" aria-label="Accueil Markleaf">
+                <img src="assets/logo.svg" alt="">
+                <span>Markleaf</span>
+            </a>
+            <div class="nav-cluster">
+                <ul>
+                    <li><a href="index.fr.html">Accueil</a></li>
+                    <li><a href="privacy.fr.html">Confidentialité</a></li>
+                    <li><a href="https://github.com/jeiel85/markleaf-android">GitHub</a></li>
+                </ul>
+                <div class="lang-switch" aria-label="Langue">
+                    <a href="privacy.html" hreflang="en" aria-label="English">EN</a>
+                    <a href="privacy.ko.html" hreflang="ko" aria-label="한국어">KO</a>
+                    <a href="privacy.ja.html" hreflang="ja" aria-label="日本語">JA</a>
+                    <a href="privacy.de.html" hreflang="de" aria-label="Deutsch">DE</a>
+                    <a href="privacy.es.html" hreflang="es" aria-label="Español">ES</a>
+                    <a href="privacy.fr.html" hreflang="fr" aria-current="page">FR</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <article class="content">
+            <h1>Politique de confidentialité de Markleaf</h1>
+            <p class="updated">Dernière mise à jour : 26 mai 2026 · S'applique à Markleaf Android v2.x</p>
+
+            <h2>Principe fondamental</h2>
+            <p>Markleaf est une application de notes Markdown local-first. Markleaf lui-même n'a pas la permission <code>android.permission.INTERNET</code>, n'exploite aucun serveur propre, et ne télécharge jamais automatiquement de notes, étiquettes, pièces jointes ou métadonnées vers un serveur externe.</p>
+
+            <h2>Informations que Markleaf ne collecte pas</h2>
+            <ul>
+                <li>Nom, e-mail, contacts, localisation</li>
+                <li>Informations de compte ou de connexion</li>
+                <li>Corps de la note, titre, étiquettes, images jointes, noms de fichiers, métadonnées</li>
+                <li>Statistiques d'utilisation, télémétrie, événements d'analyse, identifiants publicitaires</li>
+                <li>Rapports de plantage ou identifiants d'appareil</li>
+            </ul>
+            <p>Elle ne contient pas non plus d'analyse, de publicité, de suivi, de configuration à distance, de Firebase, ni de SDK de rapport de plantage à code source fermé.</p>
+
+            <h2>Réseau</h2>
+            <p>Markleaf ne déclare aucune permission internet.</p>
+            <pre>android.permission.INTERNET   aucune</pre>
+
+            <h2>Où sont stockées les données</h2>
+            <ul>
+                <li>Le contenu des notes, les titres et l'index des étiquettes sont stockés dans la base de données Room interne de l'application.</li>
+                <li>Les paramètres utilisateur sont stockés dans DataStore.</li>
+                <li>Les images jointes sont copiées dans le stockage interne de l'application, les métadonnées EXIF sensibles étant supprimées lors de l'enregistrement.</li>
+            </ul>
+
+            <h2>Politique de sauvegarde du système Android</h2>
+            <p>Markleaf définit <code>android:allowBackup="false"</code> pour exclure les données de l'application de la sauvegarde automatique Android et du transfert d'appareil à appareil. Si vous devez passer à un nouvel appareil ou utiliser plusieurs appareils, c'est vous qui choisissez l'export Markdown, le partage, ou un miroir de dossier SAF.</p>
+
+            <h2>Mouvement de données initié par l'utilisateur</h2>
+            <p>Les actions suivantes ne se produisent que lorsque vous les effectuez vous-même, via la boîte de dialogue de permission explicite d'Android ou un choix que vous faites dans l'interface.</p>
+            <ul>
+                <li>Exporter une note ou toutes les notes au format Markdown (<code>.md</code>)</li>
+                <li>Partager le texte d'une note ou des fichiers via la feuille de partage du système Android</li>
+                <li>Appuyer sur un lien externe dans le corps du texte pour le déléguer au système / au navigateur par défaut</li>
+                <li>Copier dans le presse-papiers</li>
+                <li>Refléter les fichiers Markdown dans un dossier SAF de votre choix</li>
+            </ul>
+            <p>La synchronisation d'un dossier SAF par un client de synchronisation externe comme Drive, Dropbox, OneDrive, Syncthing ou un montage NAS relève de la responsabilité de cette application externe. Markleaf n'effectue pas cette synchronisation lui-même.</p>
+
+            <h2>Autorisations</h2>
+            <p>La seule permission de type runtime que déclare Markleaf est <code>android.permission.VIBRATE</code> pour le retour haptique. Elle ne déclare aucune permission de localisation, microphone, appareil photo, contacts, notifications, lecture du stockage externe, lecture des médias ou réseau.</p>
+
+            <h2>Contact</h2>
+            <p>Pour toute question ou signalement de sécurité/confidentialité, contactez-nous via <a class="text-link" href="https://github.com/jeiel85/markleaf-android/issues">GitHub Issues</a>.</p>
+        </article>
+    </main>
+
+    <footer>
+        <p>Markleaf · Une application de notes Markdown local-first et légère pour Android.</p>
+        <p><a href="index.fr.html">Accueil</a> · <a href="https://github.com/jeiel85/markleaf-android">GitHub</a> · <a href="https://github.com/jeiel85/markleaf-android/blob/main/LICENSE">Apache-2.0</a></p>
+    </footer>
+</body>
+</html>

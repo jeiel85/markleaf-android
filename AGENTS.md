@@ -143,10 +143,11 @@ GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
    (`testDebugUnitTest` + `lintRelease`)를 통과시킨다. 프리뷰/타이포 렌더링을 바꿨으면
    Roborazzi 골든을 Linux CI 러너에서 재기록한다 (`android-build.yml`의 `record_roborazzi`
    workflow_dispatch — 로컬 재기록은 폰트 힌팅 차이로 CI verify와 어긋난다).
-3. **F-Droid — 태그 푸시로 자동 배포.** versionCode/versionName bump + `CHANGELOG.md` +
-   fastlane changelog 작성 후 main에 푸시하고 `vX.Y.Z` 태그를 GitLab 먼저, GitHub 다음으로
-   푸시한다. 같은 태그가 양쪽의 독립 서명 APK/AAB 릴리스를 만들고 GitHub 태그는 F-Droid
-   자동 픽업도 발동한다. 별도 F-Droid 제출 단계는 없다.
+3. **F-Droid — 태그 푸시로 자동 배포.** versionCode/versionName bump + `CHANGELOG.md`(영어,
+   릴리즈 노트 원본) + `CHANGELOG.ko.md`(한국어판) + fastlane changelog 작성 후 main에
+   푸시하고 `vX.Y.Z` 태그를 GitLab 먼저, GitHub 다음으로 푸시한다. 같은 태그가 양쪽의
+   독립 서명 APK/AAB 릴리스를 만들고 GitHub 태그는 F-Droid 자동 픽업도 발동한다. 별도
+   F-Droid 제출 단계는 없다.
    릴리스 커밋은 `git add -A`로 만들지 않는다 — 변경 파일을 명시적으로 stage하거나 커밋 전
    working tree가 릴리스 대상만 담고 있는지 확인한다(무관한 작업이 태그에 섞여 나가는 것을
    막기 위함, v2.24.0에서 landing-i18n 유입 사고 → #154).
@@ -154,7 +155,8 @@ GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
    Play 제출용 서명 AAB와 릴리즈 노트 TXT를 내보낸다(서명 AAB는 CI 릴리스 산출물 기준).
    업로드는 메인테이너가 수동으로 한다.
 5. **마감 + 보고.** 해결된 이슈에 감사 댓글을 달고 닫되, 사용자측 확인이 남으면 열어 둔다.
-   굵직한 변경이면 README·랜딩 페이지의 버전 표기를 갱신한다. 마지막으로 무엇이 나갔는지,
+   굵직한 변경이면 README·랜딩 페이지의 버전 표기를 6개 언어 모두 갱신하고
+   `scripts/verify-landing-versions.ps1`로 검증한다. 마지막으로 무엇이 나갔는지,
    이슈 상태, 릴리스 링크를 보고한다.
 
 코드 수정이 실제로 들어간 경우에만 3·4단계(태그·Play 핸드오프)를 진행한다. 댓글로 끝나는
@@ -191,7 +193,8 @@ docs: update project decisions
 
 공통 템플릿 문서를 이 프로젝트에 통합해 아래 문서를 운영한다.
 
-- `CHANGELOG.md`: 사용자에게 공개 가능한 변경 요약
+- `CHANGELOG.md`: 사용자에게 공개 가능한 변경 요약 (**영어** — GitHub 릴리즈 노트의 원본)
+- `CHANGELOG.ko.md`: 같은 변경 요약의 한국어판
 - `HISTORY.md`: 작업 과정, 검증, 후속 작업 기록
 
 코드 변경 시 문서 반영 원칙:
@@ -199,3 +202,18 @@ docs: update project decisions
 - 사용자 영향 변경은 `CHANGELOG.md`에 기록
 - 작업 단위 이력은 `HISTORY.md`에 기록
 - 중요한 기술 결정은 `.agent/decisions.md`에 기록
+
+### 공개 문서 언어 — 영어 기본
+
+Markleaf 사용자 대부분이 영어를 쓰므로 공개 문서의 기본 언어는 **영어**이고, 다른 언어는 번역판으로 병기한다.
+
+`CHANGELOG.md`는 영어로 작성한다. GitHub Actions가 태그 푸시 때 이 파일에서 해당 버전 섹션을 그대로 잘라 릴리즈 제목·본문으로 쓰므로(`.github/workflows/android-build.yml`의 `Prepare release notes` 스텝), **CHANGELOG의 언어가 곧 GitHub 릴리즈 노트의 언어다.** 별도로 릴리즈 노트를 작성하는 단계는 없다.
+
+- 헤딩은 `## vX.Y.Z - Title - YYYY-MM-DD` 형식을 지킨다. CI awk 파서가 `## v<version>` 접두와 말미 날짜 패턴에 의존하며, 릴리즈 제목은 날짜를 뗀 `vX.Y.Z - Title`이 된다. 이 형식을 벗어나면 릴리즈 job이 `test -s release-title.txt`에서 실패한다.
+- 한국어판은 같은 버전 섹션을 `CHANGELOG.ko.md`에 병기한다. 영어판이 원본이고 한국어판이 번역이다.
+- 이슈 번호(`#123`), 코드 식별자, 파일 경로, 제품명은 번역하지 않고 그대로 둔다.
+- v2.16.0 이전 항목은 영어화 대상이 아니다. `CHANGELOG.md`의 "Earlier releases (Korean)" 이후 구간과 `CHANGELOG.ko.md`에 한국어로 보존되어 있으며 소급 번역하지 않는다.
+
+Play/F-Droid용 `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt`는 기존대로 **6개 스토어 로케일 전부** 작성한다. 이 지침은 [Release Artifact Export](#release-artifact-export)의 6개 로케일 요구사항을 대체하지 않는다.
+
+README와 GitHub Pages 랜딩도 영어가 기본이며 앱이 지원하는 6개 언어(en · ko · ja · de · es · fr)로 병기한다. 영어판이 canonical이고 `x-default`다. 공개 표면의 버전 표기를 갱신할 때는 6개 언어를 함께 갱신하고 `scripts/verify-landing-versions.ps1`로 검증한다.

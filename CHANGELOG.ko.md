@@ -1,292 +1,290 @@
-# CHANGELOG
+# CHANGELOG (한국어)
 
-All notable changes to Markleaf are documented in this file. This English edition is the source for GitHub release notes; the Korean edition is kept at [CHANGELOG.ko.md](CHANGELOG.ko.md).
+Markleaf의 주요 변경 사항을 기록합니다. 영어판이 기본이며 GitHub 릴리즈 노트의 원본입니다 — [CHANGELOG.md](CHANGELOG.md).
 
-## v2.25.0 - Locked notes - 2026-07-18
+v2.15.3 이전 항목은 이 파일에만 한국어로 보존되어 있습니다.
 
-A feature release that adds a "Locked notes" space for keeping selected notes behind an app passcode. The lock is a UI gate that hides notes from view; note bodies stay in the same on-device local database as before (this is not encryption at rest). The local-first, no-INTERNET principle and the storage format are unchanged.
+## v2.25.0 - 잠긴 노트 (Locked notes) - 2026-07-18
+
+메모 일부를 앱 암호 뒤에 숨길 수 있는 "잠긴 노트" 공간을 추가한 기능 릴리스입니다. 잠금은 화면에서 노트를 가려 주는 UI 게이트이며, 본문은 기존과 동일하게 기기 내 로컬 DB에 저장됩니다(저장 시 암호화는 아님). 로컬 우선·no-INTERNET 원칙과 저장 형식은 그대로 유지합니다.
 
 ### Added
-- **Locked notes + app passcode (#155).** "Move to lock" in the note menu hides a note in a separate locked space, reachable only through "Locked notes" in the overflow menu with the app passcode. Locked notes are excluded from the note list, search, tags, archive, the home screen widget, and folder sync export. The passcode is set in Settings and stored on the device only as a salt + PBKDF2 hash — never in plain text. Removing the passcode returns locked notes to the normal note list. This lock hides notes from view and is not encryption at rest — available in six languages.
+- **잠긴 노트 + 앱 암호(#155).** 노트 메뉴의 "잠금으로 이동"으로 노트를 별도의 잠금 공간에 숨기고, 더보기 메뉴의 "잠긴 노트"에서 앱 암호로만 열 수 있습니다. 잠긴 노트는 노트 목록·검색·태그·보관·홈 위젯·폴더 동기화 내보내기에서 모두 제외됩니다. 암호는 설정에서 지정하며 기기에 salt + PBKDF2 해시로만 저장되고 원문은 저장하지 않습니다. 암호를 제거하면 잠긴 노트는 일반 노트 목록으로 돌아옵니다. 이 잠금은 화면에서 가리는 방식이며 저장 시 암호화는 아닙니다 — 6개 언어를 지원합니다.
 
 ### Fixed
-- **Type immediately in an empty note.** Opening a newly saved empty note now focuses the editor right away, so you can start typing at once on both tablets and phones.
+- **빈 노트 즉시 입력.** 새로 저장된 빈 노트를 열 때 편집기가 바로 포커스를 받아 태블릿과 폰에서 즉시 입력할 수 있습니다.
 
 ### Changed
-- **Editor empty state icon.** Replaced the emoji, whose shape varied by device and font, with a Material vector icon consistent with the app's other empty states.
+- **편집기 빈 상태 아이콘.** 기기·글꼴에 따라 모양이 달라지는 이모지 대신 앱의 다른 빈 화면과 일관된 Material 벡터 아이콘을 사용합니다.
 
 ### Accessibility
-- **Note info sheet action hints (#152).** Outline entries and backlink rows are announced as buttons with "jump to section" and "open note" action labels, making tap behavior clear in TalkBack.
+- **노트 정보 시트 액션 안내(#152).** 목차 항목과 백링크 행을 버튼 역할로 알리고 "구획으로 이동"·"노트 열기" 동작 라벨을 붙여 TalkBack에서 탭 동작이 분명해집니다.
 
-## v2.24.0 - Note info sheet and polish - 2026-07-16
-
-### Changed
-- **Cleaner note list excerpts.** The first line, already used as the title, is no longer repeated in the preview, making the list, search, archive, and trash tidier.
-- **Grammatically correct counts (plurals).** Per-tag note counts and the result text for find, export, and sync now use correct singular and plural forms (six languages).
-- **Consistent empty states.** Empty screens for tags, search, archive, and trash now share one component, each with its own icon.
-- **Tablet margins.** On wide screens, tag and settings content is centered at 640dp instead of stretching across the full width.
-- **Quiet top app bar and note info sheet.** The editor's top bar is now Back · title · preview/edit · note info · overflow, with find, focus mode, share, export, and trash collected into the overflow menu. Character statistics, the outline, and backlinks — previously scattered — are unified into a single note info sheet, and the always-on statistics text was removed from the formatting area to give the body more room. Tapping an outline entry switches to preview and scrolls to that position. While editing, outline computation is deferred to when the preview or info sheet needs it, so Markdown is no longer parsed on every keystroke.
-- **GitHub Pages landing redesign.** The public page was rebuilt around actual Markleaf editor, preview, and tag screens, showing the write → organize → own your files flow and the no-INTERNET privacy model at a glance. F-Droid is now clearly the recommended install path, with the latest GitHub APK, the paused Google Play update status, and the source code each stated accurately.
-- **Public page accessibility and privacy.** Added 375/768/1280px responsive layouts, a skip to content link, strong keyboard focus, 48px actions, reduced motion support, and social/search metadata. Google Fonts requests were removed from the landing page, so every font and visual asset renders from local or same-origin sources.
-
-## v2.23.0 - Quiet formatting - 2026-07-15
-
-A feature release that restructures the formatting UI so it covers less of the writing surface while keeping every existing Markdown tool. Selection context, touch, external keyboards, and accessibility focus were refined together; the storage format and local-first principle are unchanged.
+## v2.24.0 - 노트 정보 시트와 마감 - 2026-07-16
 
 ### Changed
-- **Quiet `Aa` entry point.** The always-visible horizontal scrolling format toolbar was replaced with a small `Aa` button and compact character and word statistics, giving more space back to the body.
-- **Selection context actions.** Selecting text brings bold, italic, link, and more actions close at hand, while Android's cut, copy, and paste menu is preserved.
-- **Full style panel.** The expanded panel offers all 13 existing Markdown actions, using the editor width on phones and a calm surface of up to 360dp on tablets.
-- **Public GitLab release mirror.** Provides independently built, production-signed APK and AAB files with permanent package-based download links, separate from GitHub.
+- **노트 목록 excerpt 정리.** 제목으로 쓰인 첫 줄을 미리보기에서 반복하지 않아 목록·검색·보관·휴지통이 더 깔끔해집니다.
+- **수량 표시 문법 정확도(plurals).** 태그별 노트 수, 찾기·내보내기·동기화 결과 문구가 1개일 때와 여러 개일 때를 문법에 맞게 표시합니다(6개 언어).
+- **일관된 빈 상태.** 태그·검색·보관·휴지통의 빈 화면을 공통 컴포넌트로 통일하고 화면별 아이콘을 더했습니다.
+- **태블릿 여백 정리.** 넓은 화면에서 태그·설정 콘텐츠를 640dp로 중앙 정렬해 화면 전체로 늘어지지 않게 했습니다.
+- **조용한 상단 앱 바와 노트 정보 시트.** 편집기 상단을 Back · 제목 · 미리보기/편집 · 노트 정보 · 더보기로 정리하고, 찾기·집중 모드·공유·내보내기·휴지통을 더보기 메뉴로 모았습니다. 흩어져 있던 글자 수 통계·목차·백링크를 하나의 노트 정보 시트로 통합하고, 상시 통계 텍스트를 포맷팅 영역에서 제거해 본문 공간을 넓혔습니다. 목차 항목을 누르면 미리보기로 이동해 해당 위치로 스크롤하며, 편집 중에는 매 입력마다 Markdown을 파싱하지 않도록 개요 계산을 미리보기·정보 시트가 필요할 때로 한정했습니다.
+- **GitHub Pages 랜딩 리뉴얼.** 실제 Markleaf 편집기·미리보기·태그 화면을 중심으로 공개 페이지를 재구성하고, 쓰기 → 정리 → 파일 소유권 흐름과 no-INTERNET 개인정보 모델을 한눈에 확인할 수 있게 했습니다. F-Droid를 권장 설치 경로로 명확히 하고 GitHub 최신 APK, Google Play 업데이트 보류 상태, 소스 코드를 각각 정확히 표시합니다.
+- **공개 페이지 접근성·개인정보 보호.** 375/768/1280px 반응형 레이아웃, 본문 바로가기, 강한 키보드 포커스, 48px 액션, 모션 축소 대응과 소셜/검색 메타데이터를 추가했습니다. 랜딩 페이지의 Google Fonts 요청을 제거해 모든 글꼴과 시각 자산이 로컬 또는 동일 출처에서 렌더링됩니다.
+
+## v2.23.0 - 조용한 포맷팅 (Quiet Formatting) - 2026-07-15
+
+글쓰기 화면을 덜 가리고도 기존 Markdown 도구를 모두 쓸 수 있게 포맷팅 UI를 재구성한 기능 릴리스입니다. 선택 문맥, 터치, 외장 키보드, 접근성 포커스를 함께 다듬었으며 저장 형식과 로컬 우선 원칙은 그대로 유지합니다.
+
+### Changed
+- **조용한 `Aa` 진입점.** 항상 보이던 가로 스크롤 포맷 툴바를 작은 `Aa` 버튼과 간결한 글자·단어 통계로 교체해 본문에 더 많은 공간을 돌려줍니다.
+- **선택 문맥 액션.** 텍스트를 선택하면 굵게, 기울임, 링크, 더보기 액션이 가까이 나타나며 Android의 잘라내기·복사·붙여넣기 메뉴는 그대로 유지됩니다.
+- **전체 스타일 패널.** 확장 패널에서 기존 13개 Markdown 액션을 모두 제공하고, phone에서는 에디터 너비, tablet에서는 최대 360dp의 차분한 표면을 사용합니다.
+- **공개 GitLab 릴리스 미러.** GitHub와 별도로 빌드한 production-signed APK/AAB와 영구 패키지 기반 다운로드 링크를 제공합니다.
 
 ### Accessibility
-- Added 48dp touch targets, localized labels and expansion states, keyboard first focus and cyclic navigation, visible focus indicators, and Back/Escape/canvas-tap dismissal.
+- 48dp 터치 영역, 현지화된 라벨과 펼침 상태, 키보드 첫 포커스·순환 탐색·시각적 포커스 표시, Back/Escape/캔버스 탭 닫기를 추가했습니다.
 
 ### Compatibility
-- Preserved all 13 formatting commands, `Ctrl/Cmd+B`, `I`, `K`, `Shift+S`, Tab indentation, `/` quick insert, tag and wikilink autocomplete, autosave, and the SAF image picker flow.
-- No new permissions, network access, accounts, analytics, ads, database changes, or external dependencies.
+- 기존 13개 포맷팅 명령, `Ctrl/Cmd+B`, `I`, `K`, `Shift+S`, Tab 들여쓰기, `/` 빠른 삽입, 태그·위키링크 자동완성, 자동 저장과 SAF 이미지 선택 흐름을 보존했습니다.
+- 새 권한, 네트워크, 계정, 분석, 광고, 데이터베이스 변경 또는 외부 의존성을 추가하지 않았습니다.
 
 ### Tests
-- Tested format actions, disabled states, focus cycling, Escape, shortcuts, context action dismissal, and real editor integration.
-- Added nine Roborazzi goldens covering phone and tablet, light and dark, large text, Korean, and selected, disabled, and keyboard focus states.
+- 포맷 액션·disabled 상태·포커스 순환·Escape·단축키·문맥 액션 닫기 동작과 실제 에디터 연동을 테스트했습니다.
+- phone/tablet, light/dark, 큰 글자, 한국어, 선택·disabled·키보드 포커스 상태의 Roborazzi 골든 9종을 추가했습니다.
 
-## v2.22.0 - Quick insert commands - 2026-07-13
+## v2.22.0 - 슬래시 빠른 삽입 (Quick Insert Commands) - 2026-07-13
 
-A feature release that inserts common Markdown structures instantly by typing `/` at the start of a line in the editor. Every command produces standard Markdown, and the local-first, no-cloud principle and the existing toolbar are unchanged.
+에디터에서 줄 시작에 `/`를 입력해 자주 쓰는 Markdown 구조를 즉시 삽입하는 기능 릴리스입니다. 모든 명령은 표준 Markdown으로 변환되며, 로컬 우선·No-Cloud 원칙과 기존 툴바를 그대로 유지합니다.
 
 ### Added
-- **Quick insert commands.** Typing a command name after `/` lets you search for and insert headings (H1–H3), bullet, numbered, and checklists, quotes, code blocks, dividers, tables, callouts, wikilinks, images, and today's date.
-- **Touch and keyboard selection.** Commands can be chosen by tap or with the up and down arrow keys and Enter on an external keyboard, and the cursor returns naturally to the writing surface after insertion.
-- **Command names in six languages.** The quick insert menu is localized in Korean, English, Spanish, Japanese, French, and German.
+- **빠른 삽입 명령.** `/` 뒤에 명령 이름을 입력하면 제목(H1–H3), 글머리·번호·체크리스트, 인용, 코드 블록, 구분선, 표, 콜아웃, 위키링크, 이미지, 오늘 날짜를 검색해 삽입할 수 있습니다.
+- **터치·키보드 선택.** 명령을 탭하거나 외장 키보드의 위/아래 방향키와 Enter로 선택할 수 있으며, 삽입 후 커서가 자연스럽게 글쓰기 화면으로 돌아옵니다.
+- **6개 언어 명령명.** 한국어·영어·스페인어·일본어·프랑스어·독일어에서 빠른 삽입 메뉴를 현지화했습니다.
 
 ### Privacy
-- Command handling and search happen entirely on the device. No new permissions, network access, accounts, analytics, ads, database changes, or external dependencies.
+- 명령 처리와 검색은 모두 기기 안에서 이루어집니다. 새 권한, 네트워크, 계정, 분석, 광고, 데이터베이스 변경, 외부 의존성을 추가하지 않았습니다.
 
 ### Tests
-- Unit tested `/` trigger boundaries, exclusion of URLs and mid-line slashes, command filter ordering, and the Markdown output and cursor position of all 14 commands.
-- Added Compose tests for the quick insert panel's selection and touch behavior and for the real editor insertion path.
+- `/` 트리거 경계, URL·중간 슬래시 제외, 명령 필터 순서, 14개 명령의 Markdown과 커서 위치를 단위 테스트로 검증했습니다.
+- 빠른 삽입 패널의 선택·터치 동작과 실제 에디터 삽입 경로에 Compose 테스트를 추가했습니다.
 
-## v2.21.1 - Folder sync: deleted-note resurrection fix - 2026-07-10
+## v2.21.1 - 폴더 동기화 삭제 노트 부활 수정 (Folder Sync: Deleted-Note Resurrection Fix) - 2026-07-10
 
-A patch release fixing an issue (#148) where deleted notes came back after an app restart when folder sync was in use. Local-only; notes and highlights are unchanged.
+폴더 동기화를 사용할 때 삭제한 노트가 앱 재시작 후 되살아나던 문제(#148)를 고친 패치 릴리스입니다. 로컬 전용이며 메모와 하이라이트는 그대로 유지됩니다.
 
 ### Fixed
-- **Deleted-note resurrection (#148).** With folder sync, deleting a note (moving it to trash) leaves the mirrored `.md` file in place. On restart, folder reconciliation considered only active notes, so it mistook that file for a new note and restored it — the same defect also returned archived notes to active. Reconciliation now considers all notes (active, archived, and trashed) and skips files belonging to deleted notes. Permanent deletion (emptying the trash) is unaffected.
+- **삭제 노트 부활(#148).** 폴더 동기화를 쓰면 노트를 삭제(휴지통 이동)해도 미러 `.md` 파일이 남는데, 재시작 시 폴더 재조정이 활성 노트만 기준으로 삼아 그 파일을 새 노트로 오인해 되살리던 문제를 고쳤습니다(보관 노트가 활성으로 돌아오던 동일 결함 포함). 재조정이 이제 전체 노트(활성·보관·휴지통)를 기준으로 하여 삭제된 노트의 파일은 건너뜁니다. 영구 삭제(휴지통 비우기)는 영향이 없습니다.
 
 ### Tests
-- Extracted the folder reconciliation decision into a pure `reconcileAction` function and added unit tests for trash skipping, correct archive reconciliation, re-sync after restore, and `getAllNotes`. `./gradlew testDebugUnitTest` passes.
+- 폴더 재조정 결정을 순수 함수 `reconcileAction`으로 추출하고, 휴지통 건너뛰기·보관 정상 재조정·복구 후 재동기화·`getAllNotes` 단위 테스트를 추가했습니다. `./gradlew testDebugUnitTest` 통과.
 
-## v2.21.0 - Interactive motion & foldable sidebar - 2026-06-25
+## v2.21.0 - 세련된 인터랙티브 모션 · 태블릿 사이드바 접기 (Interactive Motion & Foldable Sidebar) - 2026-06-25
 
-A feature release that raises the app's distinctly Android interactive feel. It adds predictive back, screen and list transition animations, and a card to editor expansion, plus note switch fading and a collapsible tag sidebar on tablets. As groundwork, the toolchain was brought up to Kotlin 2.0 and Compose 1.7. Everything is local-only; notes and highlights are unchanged.
+안드로이드 고유의 인터랙티브 감성을 끌어올린 기능 릴리스입니다. 예측형 뒤로가기, 화면·리스트 전환 애니메이션, 카드→에디터 펼침을 더하고, 태블릿에서 노트 전환 페이드와 태그 사이드바 접기를 도입했습니다. 기반으로 Kotlin 2.0 / Compose 1.7 툴체인으로 현행화했습니다. 모두 로컬 전용이며 메모와 하이라이트는 그대로 유지됩니다.
 
 ### Added
-- **Predictive back.** Screen transitions gained shared-axis-X motion, so the edge back gesture previews the previous screen (`enableOnBackInvokedCallback` + Navigation 2.8 seekable pop).
-- **Note list animations.** The list reflows smoothly with `Modifier.animateItem` when notes are pinned, added, or deleted.
-- **Card to editor shared element transition.** On phones, tapping a note expands the card into the editor (`SharedTransitionLayout` container transform).
-- **Tablet note switch fade.** In the 3-column layout, the editor panel cross-fades smoothly when a different note is selected.
-- **Collapsible tablet tag sidebar.** The tag rail can be hidden entirely to widen the writing space (the "<" button) and reopened with the ">" button in the note list header — the same idea as Bear's sidebar collapse.
+- **예측형 뒤로가기.** 화면 전환에 shared-axis-X 모션을 더해, 가장자리 뒤로가기 제스처가 이전 화면을 미리 보여줍니다(`enableOnBackInvokedCallback` + Navigation 2.8의 seekable pop).
+- **노트 목록 애니메이션.** 노트를 고정·추가·삭제할 때 목록이 `Modifier.animateItem`으로 부드럽게 재배치됩니다.
+- **카드 → 에디터 공유요소 전환.** 폰에서 노트를 누르면 카드가 에디터로 펼쳐집니다(`SharedTransitionLayout` container transform).
+- **태블릿 노트 전환 페이드.** 3단 레이아웃에서 다른 노트를 고를 때 에디터 패널이 부드럽게 cross-fade 됩니다.
+- **태블릿 태그 사이드바 접기.** 태그 레일을 완전히 숨겨 글쓰기 공간을 넓히고("<" 버튼), 노트 목록 헤더의 ">" 버튼으로 다시 엽니다. Bear의 사이드바 접기와 같은 결입니다.
 
 ### Fixed
-- **Checkbox toggle (#145).** The toolbar checkbox button now toggles `- [ ]`↔`- [x]` on lines that are already checklist items (previously it always inserted a new item). On regular lines it still creates a new `- [ ]` item.
+- **체크박스 토글(#145).** 툴바 체크박스 버튼이 이미 체크리스트인 줄에서는 `- [ ]`↔`- [x]`를 토글합니다(이전에는 항상 새 항목만 삽입). 일반 줄에서는 그대로 새 `- [ ]` 항목을 만듭니다.
 
 ### Changed
-- **Toolchain update.** Kotlin 1.9.22 → 2.0.21 (switching to the Compose compiler Gradle plugin), Compose BOM 2024.02.02 → 2024.12.01 (Compose 1.7.6), AGP 8.3.0 → 8.7.3, Gradle 8.5 → 8.9, Navigation 2.8 / Activity 1.9 / Lifecycle 2.8, Robolectric 4.14.1, Roborazzi 1.29.0. The interaction features above require Compose 1.7+. compileSdk and targetSdk remain 35.
-- **Editor input performance.** Live Markdown highlighting is memoized and the VisualTransformation stabilized, so large notes no longer re-scan the whole document with regular expressions on every keystroke.
-- **Markdown preview links.** Replaced `ClickableText`, deprecated in Compose 1.7, with `LinkAnnotation` (better accessibility, identical rendering).
+- **툴체인 현행화.** Kotlin 1.9.22 → 2.0.21(Compose 컴파일러 Gradle 플러그인 전환), Compose BOM 2024.02.02 → 2024.12.01(Compose 1.7.6), AGP 8.3.0 → 8.7.3, Gradle 8.5 → 8.9, Navigation 2.8 / Activity 1.9 / Lifecycle 2.8, Robolectric 4.14.1, Roborazzi 1.29.0. 위 인터랙션 기능은 Compose 1.7+가 필요합니다. compileSdk/targetSdk는 35 유지.
+- **에디터 입력 성능.** 라이브 마크다운 하이라이팅을 메모이즈하고 VisualTransformation을 안정화해, 큰 노트에서 키 입력마다 전체 문서를 정규식으로 재스캔하지 않습니다.
+- **마크다운 미리보기 링크.** Compose 1.7에서 deprecated된 `ClickableText`를 `LinkAnnotation`으로 교체했습니다(접근성 개선, 렌더링 동일).
 
 ### Tests
-- Added checkbox toggle unit tests (TODO↔DONE, indentation, caret preservation). `./gradlew test lintRelease` passes.
+- 체크박스 토글(TODO↔DONE, 들여쓰기, 캐럿 보존) 단위 테스트를 추가했습니다. `./gradlew test lintRelease` 통과.
 
-## v2.20.0 - Editor writing upgrades & tablet 3-column - 2026-06-23
+## v2.20.0 - 에디터 라이팅 강화 · 태블릿 3단 레이아웃 (Editor Writing Upgrades & Tablet 3-Column) - 2026-06-23
 
-A feature release that moves another step closer to Bear on iPad. It refines the writing experience with keyboard shortcuts, tag autocomplete, an outline, and serif typography, and introduces a "tags · note list · editor" 3-column layout on tablets. All local-only, with no new dependencies.
+iPad의 Bear에 한 걸음 더 다가선 기능 릴리스입니다. 키보드 단축키·태그 자동완성·목차·세리프 글꼴로 글쓰기 경험을 다듬고, 태블릿에서 "태그 · 노트 목록 · 에디터" 3단 레이아웃을 도입했습니다. 모두 로컬 전용이며 새 의존성은 없습니다.
 
 ### Added
-- **Keyboard shortcuts.** On a hardware keyboard, `Ctrl/Cmd+B` (bold), `I` (italic), `K` (link), and `Shift+S` (strikethrough) apply formatting. `Ctrl+S` alone is deliberately left unbound so that autosaved writing is not accidentally struck through.
-- **Inline `#tag` autocomplete.** Typing `#` in the body autocompletes existing tags, just like `[[wikilinks]]`. URL fragments (`…com#frag`) and `##` do not trigger it, and hierarchical tags (`#parent/child`) are supported.
-- **Outline (table of contents).** In preview mode, open an outline of headings (H1–H3) to jump straight to that position in a long note.
-- **Serif and sans-serif typeface choice.** Settings > Markdown can switch the editor and preview to a serif face for a book-like feel. It uses system fonts, so no assets are bundled, and code blocks always stay monospaced.
-- **Tablet 3-column layout.** Wide screens expand into "tag sidebar · note list · editor". Tapping a tag in the sidebar filters the adjacent note list in place (a parent tag includes notes from its child tags), and "All notes" or tapping the same tag again clears the filter. The phone layout is unchanged.
+- **키보드 단축키.** 하드웨어 키보드에서 `Ctrl/Cmd+B`(굵게)·`I`(기울임)·`K`(링크)·`Shift+S`(취소선)로 서식을 적용합니다. `Ctrl+S` 단독은 의도적으로 비워 두어, 자동 저장되는 글이 실수로 취소선 처리되지 않게 했습니다.
+- **인라인 `#태그` 자동완성.** `[[위키링크]]`처럼 본문에 `#`를 입력하면 기존 태그가 자동완성됩니다. URL 조각(`…com#frag`)·`##`은 트리거하지 않으며 계층 태그(`#parent/child`)를 지원합니다.
+- **목차(TOC).** 미리보기 모드에서 제목(H1–H3) 목차를 열어 긴 노트의 해당 위치로 바로 이동합니다.
+- **세리프 / 산세리프 글꼴 선택.** 설정 > Markdown에서 에디터·미리보기 글꼴을 세리프로 바꿔 책 같은 느낌을 낼 수 있습니다. 시스템 글꼴을 쓰므로 번들 에셋이 없고, 코드 블록은 항상 고정폭을 유지합니다.
+- **태블릿 3단 레이아웃.** 넓은 화면에서 "태그 사이드바 · 노트 목록 · 에디터" 3단으로 펼쳐집니다. 사이드바의 태그를 누르면 옆 노트 목록이 그 자리에서 필터링되고(상위 태그는 하위 태그 노트까지 포함), "전체 노트" 또는 같은 태그 재탭으로 필터를 해제합니다. 폰 레이아웃은 그대로입니다.
 
 ### Changed
-- Preview note list scroll state is now host controlled, and that control is reused for outline navigation.
+- 미리보기 노트 목록의 스크롤 상태를 호스트에서 제어하도록 정리해 목차 이동에 재사용했습니다.
 
 ### Tests
-- Added unit tests for `#tag` autocomplete detection and completion (`TagAutocompleteTest`), outline extraction (`TocHeadingsTest`), and tag filter hierarchy, normalization, and Unicode matching (`NoteTagFilterTest`). `./gradlew test lintRelease` passes.
+- `#태그` 자동완성 감지/완성(`TagAutocompleteTest`), 목차 추출(`TocHeadingsTest`), 태그 필터의 계층·정규화·유니코드 매칭(`NoteTagFilterTest`) 단위 테스트를 추가했습니다. `./gradlew test lintRelease` 통과.
 
-## v2.19.1 - Dash tag filter fix - 2026-06-22
+## v2.19.1 - 하이픈 태그 필터 수정 (Dash Tag Filter Fix) - 2026-06-22
 
-A patch release fixing an issue (#144) where tapping a tag containing a dash in the tag list returned no notes.
+태그 목록에서 하이픈이 들어간 태그를 눌렀을 때 해당 노트가 검색 결과에 나오지 않던 문제(#144)를 고친 패치 릴리스입니다.
 
 ### Fixed
-- **Dash tag filter (#144).** Markleaf indexed dashed tags such as `#old-notes` correctly, but tapping one in the tag list and moving to the search screen routed through the full-text search (FTS) query path, where `-` could be interpreted as search syntax. `#tag` filters now bypass FTS and find active notes directly from the stored tag index (`tags` + `note_tag_cross_ref`), so tags containing dashes or slashes open reliably.
+- **하이픈 태그 필터(#144).** Markleaf는 `#old-notes` 같은 하이픈 태그를 정상적으로 색인했지만, 태그 목록에서 누른 뒤 검색 화면으로 넘어갈 때는 전문 검색(FTS) 쿼리 경로를 거치면서 `-`가 검색 문법처럼 해석될 수 있었습니다. 이제 `#tag` 필터는 FTS를 우회하고 저장된 태그 인덱스(`tags` + `note_tag_cross_ref`)로 직접 활성 노트를 찾으므로 하이픈/슬래시가 들어간 태그도 안정적으로 열립니다.
 
 ### Tests
-- Added an `#old-notes` tag filter regression test to `LocalNoteRepositoryTest`, verifying that only the correct active notes are returned even when a similar `#oldnotes` tag and archived notes are mixed in.
+- `LocalNoteRepositoryTest`에 `#old-notes` 태그 필터 회귀 테스트를 추가해, 비슷한 `#oldnotes` 태그와 archived note를 섞어도 정확한 활성 노트만 반환하는지 검증했습니다.
 
-## v2.19.0 - Sample notebook & PDF title fix - 2026-06-18
+## v2.19.0 - 샘플 노트북 온보딩 · PDF 제목 중복 수정 (Sample Notebook & PDF Title Fix) - 2026-06-18
 
-A release that broadens the first-install experience into a real six-note sample notebook and fixes an issue (#143) where the title appeared twice when exporting a note to PDF or Markdown.
+첫 설치 경험을 6개짜리 실제 샘플 노트북으로 넓히고, 노트를 PDF·Markdown으로 내보낼 때 제목이 두 번 나오던 문제(#143)를 고친 릴리스입니다.
 
 ### Added
-- **Beautiful sample notebook onboarding.** First-install starter notes grew from four instructional notes into a real six-note sample notebook — a Markdown showcase, a journal-style note, a project brief, tags, search, and backlinks, and a local folder mirror guide, all as ordinary notes.
-- **Sample note with a local image.** Bundled Markleaf graphics are copied into the app's internal attachments so real images render in the sample note preview.
+- **아름다운 샘플 노트북 온보딩.** 첫 설치 starter notes를 4개 안내문에서 6개짜리 실제 샘플 노트북으로 확장했습니다. Markdown 쇼케이스, 일기형 노트, 프로젝트 브리프, 태그/검색/백링크, 로컬 폴더 미러 안내를 일반 노트로 제공합니다.
+- **로컬 이미지가 들어간 샘플 노트.** 번들 Markleaf 그래픽을 앱 내부 attachment로 복사해 샘플 노트 미리보기에서 실제 이미지가 렌더링됩니다.
 
 ### Changed
-- **Editor tactile polish.** New notes take focus so you can type immediately, and the cursor returns naturally to the editing surface after leaving preview or using the toolbar, wikilinks, or find and replace.
-- **Preview transitions and canvas alignment.** Edit and preview switching is smoother, and preview side margins now match the editing canvas, reinforcing the sense of one shared note surface.
-- **Toolbar density.** Slightly reduced the toolbar's top padding and group divider spacing while keeping button touch targets, so the writing surface feels lighter.
-- **Better starter note indexing.** Sample note creation now indexes wikilinks as well as tags, so the backlink and local link examples work from the start.
+- **에디터 손끝 감각 폴리시.** 새 노트는 바로 입력할 수 있게 포커스가 잡히고, 미리보기에서 편집으로 돌아오거나 툴바/위키링크/찾기-바꾸기 조작을 한 뒤에도 커서가 자연스럽게 편집면으로 돌아옵니다.
+- **미리보기 전환과 캔버스 정렬.** 편집/미리보기 전환을 부드럽게 만들고, 미리보기 좌우 여백을 편집 캔버스와 맞춰 같은 노트 표면을 보는 느낌을 강화했습니다.
+- **툴바 밀도 조정.** 버튼 터치 영역은 유지하면서 툴바의 상단 여백과 그룹 디바이더 간격을 조금 줄여 글쓰기 화면이 더 가볍게 느껴지도록 다듬었습니다.
+- **starter note 색인 개선.** 샘플 노트 생성 시 태그뿐 아니라 위키링크도 즉시 색인해 백링크/로컬 링크 예제가 처음부터 작동합니다.
 
 ### Fixed
-- **Duplicated title in PDF and Markdown export (#143).** Markleaf uses a note's first line as its title (there is no separate title field), but PDF export inserted that first line again as a title heading above the body, showing the title twice — including forcing it in as a title even when the first line was not a heading. Export no longer injects a synthetic title and instead renders the note exactly as the in-app preview does, so the first line (the title) appears exactly once. Single `.md` file export (`ExportUtil`), which duplicated for the same reason, was fixed alongside it, so every export path (PDF, `.md`, share, and full export) now outputs note content as-is.
+- **PDF·Markdown 내보내기 제목 중복(#143).** Markleaf는 노트의 첫 줄을 제목으로 쓰는데(별도 제목 필드 없음), PDF 내보내기는 그 첫 줄을 제목 헤딩으로 한 번 더 본문 위에 끼워 넣어 제목이 두 번 보였습니다. 첫 줄이 헤딩이 아니어도 강제로 제목처럼 앞에 붙던 것까지 포함됩니다. 이제 합성 제목을 넣지 않고 노트를 인앱 미리보기와 똑같이 그대로 렌더하므로 첫 줄(제목)이 정확히 한 번만 나옵니다. 같은 원인으로 중복되던 단일 `.md` 파일 내보내기(`ExportUtil`)도 함께 고쳐, 모든 내보내기 경로(PDF/`.md`/공유/전체 내보내기)가 노트 내용을 있는 그대로 출력합니다.
 
 ### Tests
-- Extracted `ExportPdf.renderDocument` into a pure function and added regression unit tests (`ExportPdfTest`) verifying that the title is not duplicated in the body for heading first lines, plain first lines, and empty notes. Removed `ExportUtil.generateMarkdownContent`, which appended the title, and cleaned up its tests.
+- `ExportPdf.renderDocument`를 순수 함수로 분리하고, 헤딩/일반 첫 줄/빈 노트에 대해 제목이 본문에 중복되지 않음을 검증하는 회귀 단위 테스트(`ExportPdfTest`)를 추가했습니다. 제목을 덧붙이던 `ExportUtil.generateMarkdownContent`를 제거하고 해당 테스트를 정리했습니다.
 
-## v2.18.1 - Open-file reopen loop - 2026-06-18
+## v2.18.1 - 파일 열기 재오픈 루프·중복 저장 수정 (Open-file Reopen Loop) - 2026-06-18
 
-A release fixing an issue (#142) where, after opening or sharing in a `.md` or `.txt` file, pressing back reopened the editor endlessly with no way out, saving a duplicate note with identical content each time.
+`.md`/`.txt` 파일을 열거나 공유해서 가져온 뒤 뒤로가기를 누르면 에디터가 계속 다시 열려 빠져나갈 수 없고, 매번 같은 내용의 중복 노트가 저장되던 문제(#142)를 고친 릴리스입니다.
 
 ### Fixed
-- **File open and share import reopen loop plus duplicate saves (#142).** The cause was handling the one-shot external file open and share import (#139) inside a `LaunchedEffect` within `MarkleafNavHost`'s NOTES destination. Entering the editor and returning to the NOTES destination via back restarted that destination's composition, re-running the `LaunchedEffect` — so with the intent never consumed, each pass called `createNote(sharedText)` to create a duplicate note with a new UUID and immediately reopened the editor, trapping back navigation and app exit in a loop. The one-shot import was lifted to a single host-scoped `LaunchedEffect(Unit)` that lives as long as the activity instance, so it no longer re-fires on internal navigation re-entry and imports only on a new intent (`onNewIntent` → `recreate`). The widget new note and widget recent note paths are resolved by the same change.
+- **파일 열기/공유 가져오기 재오픈 루프 + 중복 저장(#142).** 외부에서 파일을 열거나 공유로 가져오는 일회성 처리(#139)를 `MarkleafNavHost`의 NOTES 목적지 내부 `LaunchedEffect`에서 하던 것이 원인이었습니다. 에디터로 진입했다가 뒤로가기로 NOTES 목적지에 재진입하면 그 목적지가 composition을 새로 시작하면서 해당 `LaunchedEffect`가 다시 실행 — intent가 소비되지 않은 채 매번 `createNote(sharedText)`로 새 UUID의 중복 노트를 만들고 곧장 에디터를 다시 열어, 뒤로가기·앱 종료가 먹통이 되는 루프에 빠졌습니다. 일회성 가져오기를 액티비티 인스턴스 수명만큼 살아있는 호스트 스코프의 단일 `LaunchedEffect(Unit)`로 끌어올려, 내부 네비게이션 재진입에는 재발동하지 않고 새 intent(`onNewIntent` → `recreate`)에만 새로 가져오도록 했습니다. 위젯 새 노트·위젯 최근 노트 열기 경로도 같은 재진입 중복에서 함께 해소됩니다.
 
 ### Tests
-- Verified the regression manually — reverting to the pre-fix code reproduces the duplicate notes and editor reopen loop when pressing back after a file import, and after the fix the import happens exactly once and the loop is gone. An automated Robolectric Compose test for this behavior was attempted but excluded: global idle state pollution between Compose tests in the unit test suite caused intermittent, execution-order-dependent `AppNotIdleException` failures in CI, making the gate unreliable. This lifecycle regression is better covered by an instrumented test in future.
+- 회귀를 수동으로 검증했습니다 — 수정 전 코드로 되돌리면 파일 가져오기 후 뒤로가기 시 중복 노트와 에디터 재오픈 루프가 재현되고, 수정 후에는 정확히 한 번만 가져오고 루프가 사라집니다. 이 동작에 대한 자동 Robolectric Compose 테스트도 시도했으나, 단위 테스트 suite 내 Compose 테스트 간 전역 idle 상태 오염으로 CI에서 `AppNotIdleException`이 불규칙하게 발생(실행 순서 의존)해 게이트를 신뢰할 수 없어 제외했습니다. 이 라이프사이클 회귀는 향후 계측 테스트(instrumented)로 다루는 것이 적합합니다.
 
-## v2.18.0 - Title-named sync files - 2026-06-16
+## v2.18.0 - 폴더 동기화 파일명 = 노트 제목 (Title-named Sync Files) - 2026-06-16
 
-With folder sync, each file is now saved under its **note title**, and renaming a note renames the file in the folder automatically (#134). You can also choose between `.md` and `.txt` extensions.
+폴더 동기화 시 각 파일이 **노트 제목**으로 저장되고, 제목을 바꾸면 폴더 안 파일도 자동으로 따라 바뀝니다(#134). `.md`/`.txt` 확장자도 고를 수 있습니다.
 
 ### Added
-- **Filename equals note title (#134).** Folder sync saves notes as `Title.md` instead of the internal `slug-id…` name. Renaming a note renames the file in the folder in place — no need to go into the folder and rename it yourself. Duplicate titles get a ` (2)` suffix, and characters not allowed in filenames are cleaned up automatically.
-- **`.md` and `.txt` choice.** Pick the sync file format in the sync center. New files use the chosen format, existing files keep theirs, and import recognizes both.
-- **"Rename files to note titles" button.** Converts existing files created under the old naming scheme (`slug-id…`) to title names in one pass.
+- **파일명 = 노트 제목(#134).** 폴더 동기화가 노트를 `제목.md`로 저장합니다(기존 `slug-id…` 내부 이름 대신). 제목을 바꾸면 폴더 안 파일도 그 자리에서 리네임됩니다 — 폴더에 들어가 직접 이름을 바꿀 필요가 없습니다. 같은 제목이 둘이면 ` (2)`가 붙고, 파일명에 못 쓰는 문자는 자동 정리됩니다.
+- **`.md` / `.txt` 선택.** 동기화 센터에서 동기화 파일 형식을 고릅니다. 새 파일은 선택한 형식으로 저장되고, 기존 파일은 형식을 유지하며, 가져오기는 두 형식을 모두 인식합니다.
+- **"파일명을 노트 제목으로 정리" 버튼.** 예전 이름(`slug-id…`)으로 만들어진 기존 파일을 한 번에 제목 이름으로 정리합니다.
 
 ### Changed
-- Notes and folder files are now matched by the frontmatter `markleaf_id` rather than the filename, so matching survives any rename. Renames always write content first and rename second, so data is never lost on failure.
+- 노트와 폴더 파일의 연결을 파일명이 아니라 frontmatter `markleaf_id`로 판별하도록 바꿔, 파일을 어떻게 리네임해도 매칭이 유지됩니다. 리네임은 항상 "내용 먼저 쓰고 이름 변경" 순서라 실패해도 데이터가 사라지지 않습니다.
 
 ### Tests
-- Added unit tests for filename sanitization and collision handling (`MirrorFileNames`).
+- 파일명 정제·충돌 처리(`MirrorFileNames`) 단위 테스트 추가.
 
-## v2.17.1 - List inline formatting - 2026-06-16
+## v2.17.1 - 목록 안 서식 렌더링 수정 (List Inline Formatting) - 2026-06-16
 
-A release fixing an issue (#141) where formatting such as bold, italic, wikilinks, and inline code was not applied inside bullet, numbered, and checkbox list items, showing the raw markers instead.
+글머리 기호·번호 목록·체크박스 항목 안에서 굵게·기울임·위키링크·인라인 코드 같은 서식이 적용되지 않고 원본 기호가 그대로 보이던 문제(#141)를 고친 릴리스입니다.
 
 ### Fixed
-- **Inline formatting not applied inside list items (#141).** Bold, italic, `[[wikilinks]]`, inline code, and links written inside bullet, numbered, or checkbox items — such as `- **bold**` or `- [[note]]` — appeared unformatted in preview with raw markers (`**`, `[[ ]]`). List rows took a different render path than body paragraphs and discarded the parsed inline spans. Formatting is now applied identically to body text, and `[[wikilinks]]` inside lists can be tapped to navigate.
+- **목록 항목 안 인라인 서식 미적용(#141).** `- **굵게**`나 `- [[노트]]`처럼 글머리 기호·번호 목록·체크박스 항목 안에 쓴 굵게·기울임·`[[위키링크]]`·인라인 코드·링크가 미리보기에서 서식 없이 원본 기호(`**`, `[[ ]]` 등)로 보이던 문제를 고쳤습니다. 목록 행이 본문 문단과 다른 렌더 경로를 타면서 파싱된 인라인 스팬을 버리고 있었습니다. 이제 본문과 동일하게 서식이 적용되고, 목록 안 `[[위키링크]]`도 탭해서 이동할 수 있습니다.
 
 ### Tests
-- Added a `list_inline_formatting` snapshot test covering bold, italic, wikilink, and inline code rendering inside list items, and re-recorded existing goldens that contain lists.
+- 목록 항목 안 굵게·기울임·위키링크·인라인 코드 렌더링을 검증하는 `list_inline_formatting` 스냅샷 테스트를 추가하고, 목록을 포함한 기존 골든을 재기록했습니다.
 
-## v2.17.0 - File import & sync - 2026-06-15
+## v2.17.0 - 파일 열기·공유 & 폴더 동기화 개선 (File Import & Sync) - 2026-06-15
 
-A release that adds opening `.md` and text files from a file manager or importing them as notes via share (#139), along with fixes for duplicate notes and unrecognized tags in folder sync and for search and tag list bugs (#140, #138).
+파일 관리자에서 `.md`/텍스트 파일을 열거나 다른 앱에서 공유해 노트로 가져오는 기능(#139)을 추가하고, 폴더 동기화의 중복 노트·태그 미인식 문제와 검색·태그 목록 버그(#140·#138)를 함께 고친 릴리스입니다.
 
 ### Added
-- **Open and share import external Markdown and text files (#139).** Tapping a `.md` or `.txt` file in a file manager (`ACTION_VIEW`) or sharing a file from another app (`ACTION_SEND` file stream) imports it into Markleaf as a new note. If the body has no title line, the filename becomes the note title. Previously only plain text sharing was supported.
+- **외부 마크다운/텍스트 파일 열기·공유 가져오기(#139).** 파일 관리자에서 `.md`·`.txt` 파일을 탭(`ACTION_VIEW`)하거나 다른 앱에서 파일을 공유(`ACTION_SEND` 파일 스트림)하면 Markleaf가 새 노트로 가져옵니다. 본문에 제목 머리말이 없으면 파일 이름이 노트 제목이 됩니다. (기존엔 평문 텍스트 공유만 지원)
 
 ### Fixed
-- **Duplicate search results (#140).** The `JOIN` in full-text search (`searchNotesFts`) listed a note once per posting when the FTS index held several postings for it; changing to a `rowid IN (...)` form returns each note exactly once.
-- **Leftover zero-count tags (#138).** Tags removed from every note remained in the tag list with a count of 0; adding `HAVING COUNT(notes.id) > 0` to `observeTagsWithCounts` shows only tags with at least one active note.
-- **Duplicate notes in folder sync (#140 root cause).** `.md` files created by other apps, without a frontmatter `markleaf_id`, were recreated as new notes on every sync; the id is now written to the file on first import, preserving existing frontmatter keys, so later syncs match and update instead. Duplicates already created are not merged automatically, so a single cleanup is enough to stop them recurring.
-- **Unrecognized tags and links in sync-imported notes (#138 related).** `#tags` and `[[wikilinks]]` in notes imported from a folder were not indexed until the note was saved again in the editor; the three sync paths were unified into `NoteImporter` so they are indexed at import time.
+- **검색 결과 중복(#140).** 전문 검색(`searchNotesFts`)의 `JOIN`이 FTS 인덱스에 같은 노트의 posting이 여러 개면 노트를 그 수만큼 나열하던 문제를, `rowid IN (...)` 형태로 바꿔 노트당 한 번만 반환하도록 고쳤습니다.
+- **0개짜리 잔여 태그(#138).** 노트에서 모두 제거된 태그가 태그 목록에 카운트 0으로 남던 문제를, `observeTagsWithCounts`에 `HAVING COUNT(notes.id) > 0`을 추가해 활성 노트가 1개 이상인 태그만 표시하도록 고쳤습니다.
+- **폴더 동기화 중복 노트(#140 근본 원인).** 다른 앱에서 만든(프론트매터 `markleaf_id`가 없는) `.md` 파일이 동기화할 때마다 새 노트로 다시 만들어지던 문제를, 첫 가져오기 시 파일에 id를 기록(기존 프론트매터 키는 보존)해 이후 동기화에서 매칭·업데이트되도록 고쳤습니다. 이미 만들어진 중복은 자동 병합되지 않으므로 한 번만 정리하면 다시 생기지 않습니다.
+- **동기화로 가져온 노트의 태그·링크 미인식(#138 관련).** 폴더에서 가져온 노트가 에디터에서 다시 저장되기 전까지 `#태그`와 `[[위키링크]]`가 인덱싱되지 않던 문제를, 가져오기 시점에 함께 인덱싱하도록 세 동기화 경로를 `NoteImporter`로 일원화해 해결했습니다.
 
 ### Tests
-- Added unit tests for hiding zero-count tags, returning a single search result for duplicate FTS postings, frontmatter encoding that preserves unknown keys, and tag and wikilink indexing on import.
+- 태그 0개 숨김, 중복 FTS posting 시 단일 검색 결과, 프론트매터 unknown 키 보존 인코딩, 가져오기 시 태그·위키링크 인덱싱에 대한 단위 테스트를 추가했습니다.
 
-## v2.16.5 - i18n & screenshots - 2026-06-11
+## v2.16.5 - 날짜 표기 다국어화 & F-Droid 스크린샷 (i18n & Screenshots) - 2026-06-11
 
-A release that localizes relative date labels in the note list and adds F-Droid screenshots as requested in GitHub issue #132.
+노트 목록의 상대 날짜 표기를 다국어화하고, GitHub 이슈 #132 요청대로 F-Droid 스크린샷을 추가한 릴리스입니다.
 
 ### Fixed
-- **Removed hardcoded Korean from note list dates.** Unlike the section headers, `formatUpdatedTime` hardcoded row timestamps as Korean literals for "today", "yesterday", and "n days ago". Users whose device language was not Korean (English, Japanese, German, and so on) saw Korean dates inside an otherwise English UI. These moved to string resources (`relative_today`, `relative_yesterday`, `relative_days_ago`) with translations for all six locales (en, ko, ja, de, es, fr).
+- **노트 목록 날짜의 한국어 하드코딩 제거.** `formatUpdatedTime`이 섹션 헤더와 달리 행 타임스탬프를 `"오늘 …"`, `"어제 …"`, `"n일 전"` 한국어 리터럴로 하드코딩하고 있었습니다. 기기 언어가 한국어가 아닌 사용자(영어·일본어·독일어 등)는 영어 UI에서도 날짜만 한국어로 보였습니다. 문자열 리소스(`relative_today`/`relative_yesterday`/`relative_days_ago`)로 옮기고 6개 로케일(en·ko·ja·de·es·fr) 번역을 추가했습니다.
 
 ### Distribution
-- **Added F-Droid phone screenshots (#132).** Four real-device captures (TB320FC, Android 15) were added to `fastlane/metadata/android/en-US/images/phoneScreenshots/` — the live Markdown editor, the code-highlighted preview, the tag screen, and the local-first guide. Per-locale duplicate icon cleanup was completed in an earlier release, so only `en-US/images/icon.png` remains.
+- **F-Droid 폰 스크린샷 추가(#132).** `fastlane/metadata/android/en-US/images/phoneScreenshots/`에 실기기(TB320FC, Android 15) 캡처 4장을 추가했습니다 — 라이브 마크다운 에디터, 코드 하이라이트 프리뷰, 태그 화면, 로컬-퍼스트 안내. 로케일별 중복 아이콘 정리는 이전 릴리스에서 완료되어 `en-US/images/icon.png`만 유지합니다.
 
-## v2.16.4 - Tags in lists - 2026-06-11
+## v2.16.4 - 목록 안 태그 인식 (Tags in Lists) - 2026-06-11
 
-A patch release resolving GitHub issue #137, where tags inside bullet list items did not appear in the tag view.
+GitHub 이슈 #137(글머리 기호 목록 안의 태그가 태그 뷰에 나타나지 않는 문제)을 해결한 패치 릴리스입니다.
 
 ### Fixed
-- **Tags in lists (#137).** `TagParser` matched a tag body as "everything up to the next whitespace", so a period or comma at the end of a list item (`#shopping.`, `#work,`) was absorbed into the tag name, failed validation, and dropped the tag entirely. Tag bodies are now matched directly against the set of valid characters (`\p{L}` and `\p{N}`), which naturally excludes trailing punctuation.
-- **Multilingual tag support.** The segment character set was limited to Latin and Hangul, rejecting German umlauts and Japanese and Chinese tags; it was widened to Unicode character categories.
-- **Removed unnecessary heading and URL exclusion logic.** The `(^|\s)#` prefix condition already filters out URL fragments and leading heading markers, so the previous exclusion pass had no effect other than the side effect of blocking a tag across the whole note if it appeared once in a heading.
+- **목록 안 태그 인식(#137).** `TagParser`가 태그 본문을 "공백 직전까지 전부"로 매칭하던 탓에, 목록 항목 끝의 마침표·쉼표(`#shopping.`, `#work,`)가 태그 이름에 흡수돼 검증에 실패하고 태그가 통째로 누락됐습니다. 태그 본문을 유효 문자 집합(`\p{L}`/`\p{N}`)으로 직접 매칭하도록 바꿔, 뒤따르는 구두점을 자연스럽게 배제합니다.
+- **다국어 태그 지원.** 세그먼트 문자 집합이 라틴 + 한글로 한정돼 독일어 움라우트·일본어·중국어 태그가 거부되던 문제를 유니코드 문자 카테고리 기반으로 확장해 해결했습니다.
+- **불필요한 heading/URL 제외 로직 제거.** `(^|\s)#` 접두 조건이 이미 URL 프래그먼트와 heading 선행 마커를 걸러내므로, 기존 제외 패스는 동작 없이 "heading에 한 번 등장한 태그를 노트 전체에서 차단"하는 부작용만 있었습니다.
 
 ### Tests
-- Added unit tests for list items, trailing punctuation, comma separation, headings, and German, Japanese, and Chinese tags.
-- Added an instrumented test verifying that the Unicode class regular expression works on the Android ICU engine as well as the host JVM.
+- 목록 항목·후행 구두점·쉼표 구분·heading·독일어/일본어/중국어 태그에 대한 단위 테스트를 추가했습니다.
+- 유니코드 클래스 정규식이 호스트 JVM뿐 아니라 Android ICU 엔진에서도 동작하는지 검증하는 instrumented 테스트를 추가했습니다.
 
-## v2.16.3 - Stability - 2026-06-10
+## v2.16.3 - 실행 크래시 · 키보드 가림 수정 (Stability) - 2026-06-10
 
-A stability patch resolving a launch crash on some devices and the keyboard covering text while editing.
+일부 기기에서의 실행 크래시와 편집 중 키보드 가림 문제를 해결한 안정성 패치입니다.
 
 ### Fixed
-- **Launch crash on some devices.** The app failed to start on devices without the `unicode61` FTS tokenizer; it now falls back to the default tokenizer, with a migration added. Existing notes are unaffected.
-- **Keyboard covering long notes.** The keyboard covered the current line when typing in long notes; `imePadding` now keeps the cursor visible above the keyboard.
+- **일부 기기 실행 크래시.** `unicode61` FTS 토크나이저가 없는 기기에서 앱이 실행되지 않던 문제를 기본 토크나이저로 전환하고 마이그레이션을 추가해 해결했습니다. 기존 메모는 그대로 유지됩니다.
+- **긴 메모 키보드 가림.** 긴 메모 입력 시 키보드가 현재 줄을 가리던 문제를 `imePadding`으로 고쳐, 커서가 항상 키보드 위로 보이도록 했습니다.
 
 ### Added
-- **Monochrome (themed) launcher icon.** On Android 13 and later, the icon adapts its color to the home screen theme.
+- **단색(themed) 런처 아이콘.** Android 13 이상에서 홈 화면 테마 색에 맞춰 색이 바뀌는 monochrome 아이콘을 지원합니다.
 
-## v2.16.2 - Play production readiness - 2026-05-27
+## v2.16.2 - Play 프로덕션 배포 준비 (Play Production Readiness) - 2026-05-27
 
-A distribution release preparing the first production submission after Play production access was granted.
+Play 프로덕션 권한 확보 후 첫 정식 제출을 위한 배포 준비 릴리즈입니다.
 
 ### Distribution
-- **Version bump for Play Console submission.** `versionCode 90 → 91` and `versionName 2.16.1 → 2.16.2`, so a new AAB can be submitted to the production track without upload conflicts.
-- **Public surfaces brought up to date.** GitHub Pages, the README, the privacy page, F-Droid metadata, and repository metadata were aligned with current v2.16.x features and the no-cloud policy, and that state is included in this patch release.
-- **Play release notes packaging.** `ko-KR` and `en-US` fastlane changelogs were written against versionCode 91 so the desktop export TXT is generated in a form that can be pasted directly into Play Console.
+- **Play Console 제출용 버전 갱신.** `versionCode 90 → 91`, `versionName 2.16.1 → 2.16.2`로 올려 프로덕션 트랙 업로드 충돌 없이 새 AAB를 제출할 수 있도록 했습니다.
+- **공개 표면 최신화 반영.** GitHub Pages, README, Privacy 페이지, F-Droid metadata, repository metadata를 v2.16.x 현재 기능과 no-cloud 정책 기준으로 정리한 상태를 새 패치 릴리즈에 포함했습니다.
+- **Play 릴리즈 노트 패키징.** `ko-KR` / `en-US` fastlane changelog를 versionCode 91 기준으로 작성해 데스크톱 export TXT가 Play Console에 바로 붙여넣을 수 있는 형식으로 생성되도록 했습니다.
 
-## v2.16.1 - Smart formatting toggle & word wrapping - 2026-05-21
+## v2.16.1 - 스마트 포맷팅 토글 & 단어 감싸기 - 2026-05-21
 
-A release bundling Bear-class smart text formatting improvements for bold, italic, strikethrough, and inline code.
+Bear 앱 수준의 스마트 텍스트 포맷팅 UX(Bold, Italic, Strikethrough, Inline Code) 개선 묶음 릴리즈입니다.
 
 ### Added
-- **Smart word wrapping.** When there is no drag selection and only a cursor (collapsed), applying a formatting shortcut or toolbar action analyzes Korean, English, and symbol boundaries to identify and wrap the surrounding word precisely.
-- **Smart toggle and unwrap.** Applying a formatting button again from inside or just outside text already wrapped in formatting markers (`**`, `*`, `~~`, `` ` ``) intelligently removes the markers.
-- **Selection preserved through formatting.** Toggling formatting on dragged text keeps the entire formatted range block-selected instead of clearing the selection, for a smooth continuous editing flow.
+- **지능형 주변 단어 감싸기(Smart Word Wrapping)**: 드래그 선택 영역이 없고 커서만 있는 상태(Collapsed)에서 포맷팅 단축키/툴바를 적용할 때, 한글/영어/기호 경계를 분석하여 주변 단어를 정확히 식별해 묶습니다.
+- **스마트 포맷팅 토글 및 언랩(Smart Toggle / Unwrap)**: 이미 포맷팅 마커(`**`, `*`, `~~`, `` ` ``)로 감싸진 텍스트 내부나 바로 바깥에서 다시 포맷팅 버튼을 적용하면, 마커를 지능적으로 제거(Unwrap)합니다.
+- **포맷팅 시 선택 영역 보존**: 텍스트 드래그 상태에서 포맷팅을 토글해도, 선택 영역 해제 없이 포맷팅된 전체 텍스트 영역이 그대로 블록 선택된 채로 유지되도록 개선하여 매끄러운 연속 편집 흐름을 보장합니다.
 
 ### Distribution
-- **F-Droid catalog icon metadata.** Added 512x512 PNG icons at `fastlane/metadata/android/*/images/icon.png` so the F-Droid web and client show the Markleaf launcher icon instead of a placeholder.
-- **Public surfaces aligned to v2.16.1.** The GitHub Pages landing, privacy page, README, F-Droid metadata, and GitHub repository description and topics were aligned with current features and the no-cloud policy.
+- **F-Droid 카탈로그 아이콘 메타데이터 추가.** `fastlane/metadata/android/*/images/icon.png`에 512x512 PNG 아이콘을 추가해, F-Droid 웹/클라이언트가 기본 아이콘 대신 Markleaf 런처 아이콘을 표시할 수 있도록 했습니다.
+- **공개 표면 v2.16.1 정렬.** GitHub Pages 랜딩, Privacy 페이지, README, F-Droid metadata, GitHub repository description/topics를 최신 기능과 no-cloud 정책에 맞춰 정리했습니다.
 
-## v2.16.0 - Nine Bear-class finishing touches - 2026-05-21
+## v2.16.0 - Bear-class 마무리 9종 셋 - 2026-05-21
 
-A feature bundle release that handled nine remaining GitHub issues at once against the project's OSS philosophy of local-first, privacy, and open source transparency. Play marketing issues (#52, #53, #54) were triaged separately and closed; only issues aligned with the core values were turned into code.
+남아 있던 GitHub 이슈 9개를 OSS 철학(로컬-퍼스트 · 프라이버시 · 오픈소스 투명성) 기준으로 동시 처리한 기능 묶음 릴리스. Play 마케팅성 이슈(#52/#53/#54)는 별도로 정리해 닫고, 코어 가치와 정렬된 이슈만 코드로 옮겼습니다.
 
 ### Added
-- **French (fr-FR) UI translation and onboarding assets.** Added `res/values-fr/strings.xml` and French starter note assets (`starter_notes.md`), substantially widening resource coverage and reaching parity for the French-speaking European market.
-- **Automatic EXIF metadata stripping for images.** Private information inside image headers — GPS coordinates, device make and model, time offsets — is removed completely when attachments are inserted or mirrored, protecting local privacy.
-- **Multi-device sync center and conflict center UI.** Added a local conflict management hub that collects the "copy from another device" conflict notes produced during SAF folder mirroring into one intuitive view, where they can be deleted individually and merged or cleaned up by hand. Wired into the Settings menu.
-- **PDF output layout tuning.** Markdown HTML rendering gained A4 margins (20mm x 18mm), a page-break-inside avoid policy, and the JetBrains Mono font for print-quality output.
-- **Four-step first-run guide sheet (#57).** `WelcomeOnboardingSheet` appears exactly once, in `Welcome → Markdown → #tags → local-first` order, without hovering. The DataStore `onboardingCompleted` flag hides it from the second launch onward.
-- **Biometric app lock (#37).** `BiometricLockGate` requires fingerprint or face authentication via `androidx.biometric` (AOSP). Toggled in settings, off by default. Authentication completes entirely on-device and notes stay in the same Room DB — the lock is a UI gate and does not affect data. `MainActivity` was promoted to `FragmentActivity` to host `BiometricPrompt`.
-- **Note to PDF export (#38).** Added `Export as PDF…` to the editor share menu. The pipeline is `commonmark HtmlRenderer → hidden WebView → PrintManager`. The system print dialog owns the resulting file, so Markleaf never owns the output URI and adds no INTERNET or storage permissions. A4, 18mm and 16mm margins, Markleaf green accent inline styles.
-- **Home screen widget as a recent note list (#39).** The previous single-button widget was rewritten as a `ListView`-based collection widget: a `+` button at the top, retaining legacy quick compose, plus the 10 most recent non-trashed, non-archived notes. Tapping a row goes straight to the editor through `ACTION_OPEN_NOTE` → the new `openNoteId` route in `MarkleafNavHost`. `MainActivity.onPause()` refreshes widget data so returning to the launcher shows current state.
-- **Japanese (ja) UI translation (#51).** New `res/values-ja/strings.xml` covering every key across notes, editor, settings, privacy dashboard, sync, open source, onboarding, biometrics, and PDF. Japanese was prioritized as the largest Bear user pool identified in the roadmap.
-- **Open source section in settings (#55).** Four links — the license (Apache 2.0), the GitHub repo, the full license text, and the F-Droid package page — are collected under `Settings → Open source`, showing the OSS difference from Bear in-product.
+- **프랑스어(fr-FR) UI 번역 및 온보딩 에셋.** `res/values-fr/strings.xml` 및 스타터 노트 `starter_notes.md` 프랑스어 에셋 추가. 프랑스어를 사용하는 유럽 시장을 타깃으로 리소스를 대폭 확대하고 Parity를 맞췄습니다.
+- **이미지 EXIF 메타데이터 자동 스트리핑.** 첨부파일 삽입 또는 미러링 시 이미지 헤더 내부의 사생활 정보(GPS 좌표, 기기 제조사/모델, 시간 오프셋)를 완벽하게 제거하여 로컬 프라이버시를 지킵니다.
+- **다중 기기 Sync Center 및 Conflict Center UI.** SAF 폴더 미러링 중 발생한 `(다른 기기 사본)` 충돌 노트들을 직관적으로 한눈에 모아 확인하고, 개별 삭제하여 수동으로 merge/정리할 수 있는 로컬 충돌 관리 허브를 추가했습니다. Settings 메뉴에 연동되었습니다.
+- **PDF 출력 레이아웃 튜닝.** Markdown HTML 렌더링에 A4 규격 여백(20mm x 18mm), page-break-inside avoid 정책, JetBrains Mono 폰트를 도입하여 인쇄물 수준의 고품질 출력을 지원합니다.
+- **첫 실행 4단계 안내 시트(#57).** `WelcomeOnboardingSheet`이 `Welcome → Markdown → #tags → local-first` 순서로 호버 없이 한 번만 노출. DataStore의 `onboardingCompleted` 플래그로 두 번째 실행부터는 사라집니다.
+- **생체 인증 앱 잠금(#37).** `BiometricLockGate`가 `androidx.biometric` (AOSP)로 지문/얼굴 인증을 요구합니다. 설정에서 토글, 기본 OFF. 인증은 100% 기기 내부에서 끝나며 노트는 같은 Room DB에 그대로 — 잠금은 UI 차단일 뿐 데이터에는 영향이 없습니다. `MainActivity`는 `BiometricPrompt`를 호스팅하기 위해 `FragmentActivity`로 승격.
+- **노트 → PDF 내보내기(#38).** 에디터 공유 메뉴에 `Export as PDF…` 추가. 파이프라인은 `commonmark HtmlRenderer → 숨김 WebView → PrintManager`. 결과 파일은 시스템 인쇄 대화상자가 책임지므로 Markleaf는 출력 URI를 소유하지 않고 INTERNET·저장소 권한도 추가하지 않습니다. A4 / 18mm·16mm 여백 / Markleaf 그린 액센트 인라인 스타일.
+- **홈 화면 위젯이 최근 노트 리스트(#39).** 기존 1버튼 위젯이 `ListView` 기반 컬렉션 위젯으로 재작성. 상단 `+` 버튼(legacy quick-compose 유지) + 비-휴지통/비-보관 최근 10개 노트. 행 탭은 `ACTION_OPEN_NOTE` → `MarkleafNavHost`의 새 `openNoteId` 경로로 바로 에디터 진입. `MainActivity.onPause()`에서 위젯 데이터를 갱신해 launcher로 돌아갔을 때 최신 상태가 반영됩니다.
+- **일본어(ja) UI 번역(#51).** `res/values-ja/strings.xml` 신규. 노트/에디터/설정/Privacy Dashboard/Sync/오픈소스/Onboarding/Biometric/PDF 모든 키 커버. 로드맵에서 가장 큰 Bear 사용자 풀로 식별된 일본어를 우선.
+- **설정에 오픈소스 섹션(#55).** 라이선스(Apache 2.0), GitHub repo, 전체 라이선스 본문, F-Droid 패키지 페이지 링크 4개를 `Settings → Open source` 한 곳에 모았습니다. Bear와의 OSS 차별점을 in-product에서 그대로 보여줍니다.
 
 ### Changed
-- **Search uses the unicode61 tokenizer (#65).** `notes_fts` was rebuilt from the `simple` tokenizer to `unicode61 remove_diacritics=2`, ending the regression where Korean, Japanese, and Chinese notes were only searchable through the LIKE fallback. DB v12 → v13; `MIGRATION_12_13` destructively recreates `notes_fts`, a derived index, so no user data is lost. The reason Room does not support `@Fts5` and the trade-off of staying on FTS4 are documented in the `NoteFtsEntity.kt` KDoc.
-- **Predictive back gesture (#27).** `android:enableOnBackInvokedCallback="true"` was already active in `AndroidManifest`, and no `BackHandler` intercepts anywhere in the code, so the Android 13+ predictive back animation already worked. Explicitly closed out in this release.
-- **TalkBack heading semantics (#76, partial).** Added `heading()` semantics to `SettingsSection` titles and the section headers in `NotesListScreen` (`Pinned / Today / Yesterday / Past 7 days / Older`), so TalkBack swipe up and down skips between sections. `NoteRow` is grouped with `semantics(mergeDescendants = true)` so each note reads as a single focus stop.
+- **검색이 unicode61 토크나이저(#65).** `notes_fts`를 `simple` 토크나이저에서 `unicode61 remove_diacritics=2`로 재구성. 한국어/일본어/중국어 노트가 그동안 LIKE fallback으로만 검색되던 회귀가 사라집니다. DB v12 → v13, `MIGRATION_12_13`은 `notes_fts`를 destructive recreate(파생 인덱스이므로 사용자 데이터는 손실되지 않음). Room이 `@Fts5`를 지원하지 않는 이유와 FTS4를 유지하기로 한 trade-off는 `NoteFtsEntity.kt`의 KDoc에 정리.
+- **Predictive Back 제스처(#27).** `AndroidManifest`의 `android:enableOnBackInvokedCallback="true"`는 이미 활성 상태였고, 코드 전반에 `BackHandler`로 가로채는 지점이 없어 Android 13+ Predictive Back 애니메이션이 그대로 동작하는 것을 확인. 이번 릴리스에서 명시적으로 추적 종료.
+- **TalkBack 헤딩 시맨틱(#76, partial).** `SettingsSection` 제목과 `NotesListScreen`의 섹션 헤더(`Pinned / Today / Yesterday / Past 7 days / Older`)에 `heading()` 시맨틱 추가. TalkBack swipe-up/down으로 섹션을 건너뛸 수 있습니다. `NoteRow`는 `semantics(mergeDescendants = true)`로 묶어서 한 노트가 한 포커스 정류장으로 들립니다.
 
 ### Build
 - versionCode 88 → 89, versionName 2.15.3 → 2.16.0.
-- Added `androidx.biometric:biometric:1.1.0` (Apache 2.0, F-Droid friendly).
-- Added `androidx.exifinterface:exifinterface:1.3.7` (Apache 2.0, F-Droid friendly).
+- `androidx.biometric:biometric:1.1.0` 추가 (Apache 2.0, F-Droid 친화).
+- `androidx.exifinterface:exifinterface:1.3.7` 추가 (Apache 2.0, F-Droid 친화).
 - `MainActivity`: `ComponentActivity` → `FragmentActivity`.
-- DB schema 12 → 13, including a new `13.json` schema export.
-- Added the `QuickNoteWidgetService` service and widget intents to `app/src/main/AndroidManifest.xml`.
+- DB schema 12 → 13, 새 `13.json` schema export 포함.
+- `app/src/main/AndroidManifest.xml`에 `QuickNoteWidgetService` 서비스 + 위젯 인텐트 추가.
 
 ### Issues closed
 - #27 #37 #38 #39 #51 #55 #57 #65 #76 [Commercial P1-1] [Commercial P1-3] [Commercial P2-1]
-
-## Earlier releases (Korean)
-
-Entries below predate the move to English-first release notes and are preserved in Korean. The complete Korean changelog, including every entry above, is kept at [CHANGELOG.ko.md](CHANGELOG.ko.md).
 
 ## 2026-05-20 - 랜딩페이지 다운로드 링크 줄바꿈 수정 및 모바일 반응형 개선 (Hotfix)
 

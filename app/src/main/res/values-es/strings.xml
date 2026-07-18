@@ -300,6 +300,10 @@
     <string name="locked_passcode_remove_confirm_title">¿Quitar código?</string>
     <string name="locked_passcode_remove_confirm_message">Esto devuelve todas las notas bloqueadas a tus notas.</string>
 
+    <!-- Note information sheet accessibility (#152) -->
+    <string name="note_information_heading_action">Ir a la sección</string>
+    <string name="note_information_backlink_action">Abrir nota</string>
+
     <!-- PDF export -->
     <string name="export_pdf">Exportar como PDF…</string>
     <string name="export_pdf_job_name">Markleaf — %1$s</string>

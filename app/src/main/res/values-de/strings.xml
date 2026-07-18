@@ -276,6 +276,10 @@
     <string name="locked_passcode_remove_confirm_title">Passcode entfernen?</string>
     <string name="locked_passcode_remove_confirm_message">Dadurch werden alle gesperrten Notizen zurück zu deinen Notizen verschoben.</string>
 
+    <!-- Note information sheet accessibility (#152) -->
+    <string name="note_information_heading_action">Zum Abschnitt springen</string>
+    <string name="note_information_backlink_action">Notiz öffnen</string>
+
     <!-- PDF export -->
     <string name="export_pdf">Als PDF exportieren…</string>
     <string name="export_pdf_job_name">Markleaf — %1$s</string>

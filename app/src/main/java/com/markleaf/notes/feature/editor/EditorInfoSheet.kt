@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -56,6 +57,11 @@ internal fun EditorInfoSheetContent(
     onBacklinkClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Resolved here (a @Composable context) rather than inside the LazyListScope
+    // lambda below, which is not composable. Used as the TalkBack action labels
+    // for the clickable outline/backlink rows (#152).
+    val headingActionLabel = stringResource(R.string.note_information_heading_action)
+    val backlinkActionLabel = stringResource(R.string.note_information_backlink_action)
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(bottom = 24.dp)
@@ -108,7 +114,13 @@ internal fun EditorInfoSheetContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .defaultMinSize(minHeight = 48.dp)
-                            .clickable { onHeadingClick(heading.index) }
+                            // Announce as a button with an explicit action so
+                            // TalkBack offers "double-tap to jump to section"
+                            // instead of reading the heading text as static (#152).
+                            .clickable(
+                                onClickLabel = headingActionLabel,
+                                role = Role.Button
+                            ) { onHeadingClick(heading.index) }
                             .padding(
                                 start = (20 + (heading.level - 1) * 16).dp,
                                 end = 20.dp,
@@ -140,7 +152,10 @@ internal fun EditorInfoSheetContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .defaultMinSize(minHeight = 48.dp)
-                            .clickable { onBacklinkClick(note.id) }
+                            .clickable(
+                                onClickLabel = backlinkActionLabel,
+                                role = Role.Button
+                            ) { onBacklinkClick(note.id) }
                             .padding(horizontal = 20.dp, vertical = 12.dp)
                     )
                 }

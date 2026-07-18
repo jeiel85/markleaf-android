@@ -271,6 +271,10 @@
     <string name="locked_passcode_remove_confirm_title">パスコードを削除しますか？</string>
     <string name="locked_passcode_remove_confirm_message">すべてのロックされたノートがノート一覧に戻ります。</string>
 
+    <!-- Note information sheet accessibility (#152) -->
+    <string name="note_information_heading_action">セクションへ移動</string>
+    <string name="note_information_backlink_action">ノートを開く</string>
+
     <!-- PDF export -->
     <string name="export_pdf">PDF として書き出し…</string>
     <string name="export_pdf_job_name">Markleaf — %1$s</string>

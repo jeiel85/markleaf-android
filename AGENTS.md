@@ -147,6 +147,9 @@ GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
    fastlane changelog 작성 후 main에 푸시하고 `vX.Y.Z` 태그를 GitLab 먼저, GitHub 다음으로
    푸시한다. 같은 태그가 양쪽의 독립 서명 APK/AAB 릴리스를 만들고 GitHub 태그는 F-Droid
    자동 픽업도 발동한다. 별도 F-Droid 제출 단계는 없다.
+   릴리스 커밋은 `git add -A`로 만들지 않는다 — 변경 파일을 명시적으로 stage하거나 커밋 전
+   working tree가 릴리스 대상만 담고 있는지 확인한다(무관한 작업이 태그에 섞여 나가는 것을
+   막기 위함, v2.24.0에서 landing-i18n 유입 사고 → #154).
 4. **Play Store — 산출물 핸드오프.** [Release Artifact Export](#release-artifact-export)에 따라
    Play 제출용 서명 AAB와 릴리즈 노트 TXT를 내보낸다(서명 AAB는 CI 릴리스 산출물 기준).
    업로드는 메인테이너가 수동으로 한다.

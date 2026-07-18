@@ -276,6 +276,10 @@
     <string name="locked_passcode_remove_confirm_title">Remove passcode?</string>
     <string name="locked_passcode_remove_confirm_message">This moves all locked notes back to your notes.</string>
 
+    <!-- Note information sheet accessibility (#152) -->
+    <string name="note_information_heading_action">Jump to section</string>
+    <string name="note_information_backlink_action">Open note</string>
+
     <!-- PDF export -->
     <string name="export_pdf">Export as PDF…</string>
     <string name="export_pdf_job_name">Markleaf — %1$s</string>

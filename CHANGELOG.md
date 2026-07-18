@@ -15,6 +15,9 @@ All notable changes to Markleaf are documented in this file.
 ### Changed
 - **편집기 빈 상태 아이콘.** 기기·글꼴에 따라 모양이 달라지는 이모지 대신 앱의 다른 빈 화면과 일관된 Material 벡터 아이콘을 사용합니다.
 
+### Accessibility
+- **노트 정보 시트 액션 안내(#152).** 목차 항목과 백링크 행을 버튼 역할로 알리고 "구획으로 이동"·"노트 열기" 동작 라벨을 붙여 TalkBack에서 탭 동작이 분명해집니다.
+
 ## v2.24.0 - 노트 정보 시트와 마감 - 2026-07-16
 
 ### Changed

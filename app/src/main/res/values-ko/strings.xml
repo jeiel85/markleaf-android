@@ -271,6 +271,10 @@
     <string name="locked_passcode_remove_confirm_title">암호를 제거할까요?</string>
     <string name="locked_passcode_remove_confirm_message">모든 잠긴 노트가 노트 목록으로 돌아갑니다.</string>
 
+    <!-- Note information sheet accessibility (#152) -->
+    <string name="note_information_heading_action">구획으로 이동</string>
+    <string name="note_information_backlink_action">노트 열기</string>
+
     <!-- PDF export -->
     <string name="export_pdf">PDF로 내보내기…</string>
     <string name="export_pdf_job_name">Markleaf — %1$s</string>

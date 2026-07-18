@@ -38,7 +38,7 @@
 
 **Markleaf** は、余計なものをそぎ落とし「記録」と「整理」だけに集中できるよう設計された Android 向け Markdown メモアプリです。データは端末内にのみ保存され、標準 Markdown 形式によってデータの所有権と移植性が完全に保証されます。同期も *あなたが選んだフォルダ* を介してのみ行われ、Markleaf 自体はインターネットに接続しません。
 
-[**ブランディングページを見る**](https://jeiel85.github.io/markleaf-android/) · [現在のバージョン: v2.24.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.24.0) · [GitLab リリースミラー](https://gitlab.com/jeiel85/markleaf-android/-/releases/v2.24.0) · [プライバシーポリシー](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**ブランディングページを見る**](https://jeiel85.github.io/markleaf-android/) · [現在のバージョン: v2.26.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.26.0) · [GitLab リリースミラー](https://gitlab.com/jeiel85/markleaf-android/-/releases/v2.26.0) · [プライバシーポリシー](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -127,7 +127,7 @@ com.markleaf.notes
 > **現在、Google Play での更新は一時保留中です。** 個人開発者の韓国の事業者登録に関するポリシー要件が解決するまで、新しいバージョンは Play ストアに公開しません。その間は **最新版を F-Droid、GitHub Releases、または GitLab Releases から入手してください。**（すでに Play ストアからインストール済みの場合はそのまま使えます。）
 
 - **F-Droid** *(推奨)*: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — F-Droid クライアントで検索するか、上のリンクから直接インストールできます。同じ署名鍵（SHA-256 `0be97352…f91a`）を使用するため、GitHub/GitLab Releases の APK をサイドロードした場合でも途切れなく更新が続きます。
-- **APK の直接インストール**: [GitHub v2.24.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.24.0) または [GitLab v2.24.0](https://gitlab.com/jeiel85/markleaf-android/-/releases/v2.24.0) リリースから APK をダウンロードし、Android 端末で実行してインストールします。
+- **APK の直接インストール**: [GitHub v2.26.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.26.0) または [GitLab v2.26.0](https://gitlab.com/jeiel85/markleaf-android/-/releases/v2.26.0) リリースから APK をダウンロードし、Android 端末で実行してインストールします。
 - **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **更新は一時保留中**です（上の注記を参照）。すでにインストール済みなら引き続き使えますが、最新版は F-Droid・GitHub・GitLab から入手してください。
 
 ### 開発環境の構築

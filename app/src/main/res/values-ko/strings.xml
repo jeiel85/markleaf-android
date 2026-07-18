@@ -147,7 +147,7 @@
 
     <string name="move_to_trash">휴지통으로 이동</string>
     <string name="move_to_trash_title">휴지통으로 옮길까요?</string>
-    <string name="move_to_trash_message">\"%1$s\"를 휴지통으로 옮길까요? 나중에 다시 꺼낼 수 있습니다.</string>
+    <string name="move_to_trash_message">\"%1$s\" 노트를 휴지통으로 옮길까요? 나중에 다시 꺼낼 수 있습니다.</string>
     <string name="move_to_trash_editor_message">이 노트를 휴지통으로 옮길까요? 나중에 다시 꺼낼 수 있습니다.</string>
 
     <string name="settings_appearance">테마</string>

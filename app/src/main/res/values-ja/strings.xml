@@ -10,6 +10,7 @@
     <string name="tags">タグ</string>
     <string name="trash">ゴミ箱</string>
     <string name="archive">アーカイブ</string>
+    <string name="archive_action">アーカイブ</string>
     <string name="unarchive">アーカイブ解除</string>
     <string name="archive_empty">アーカイブされたノートはありません</string>
     <string name="archive_empty_hint">メイン一覧でノートを長押しし、アーカイブを選ぶとここに移動します。</string>

@@ -10,6 +10,7 @@
     <string name="tags">Tags</string>
     <string name="trash">Papierkorb</string>
     <string name="archive">Archiv</string>
+    <string name="archive_action">Archivieren</string>
     <string name="unarchive">Aus Archiv holen</string>
     <string name="archive_empty">Keine archivierten Notizen</string>
     <string name="archive_empty_hint">Halte eine Notiz in der Hauptliste gedrückt und wähle „Archivieren“, um sie hierher zu verschieben.</string>

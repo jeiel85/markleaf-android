@@ -10,6 +10,7 @@
     <string name="tags">Étiquettes</string>
     <string name="trash">Corbeille</string>
     <string name="archive">Archives</string>
+    <string name="archive_action">Archiver</string>
     <string name="unarchive">Désarchiver</string>
     <string name="archive_empty">Aucune note archivée</string>
     <string name="archive_empty_hint">Appuyez longuement sur une note dans la liste principale et choisissez Archiver pour la déplacer ici.</string>

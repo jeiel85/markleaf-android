@@ -10,6 +10,7 @@
     <string name="tags">Etiquetas</string>
     <string name="trash">Papelera</string>
     <string name="archive">Archivo</string>
+    <string name="archive_action">Archivar</string>
     <string name="unarchive">Quitar del archivo</string>
     <string name="archive_empty">No hay notas archivadas</string>
     <string name="archive_empty_hint">Mantén pulsada una nota en la lista principal y elige Archivar para moverla aquí.</string>

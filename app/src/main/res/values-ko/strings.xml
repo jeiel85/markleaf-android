@@ -10,6 +10,7 @@
     <string name="tags">태그</string>
     <string name="trash">휴지통</string>
     <string name="archive">보관함</string>
+    <string name="archive_action">보관</string>
     <string name="unarchive">보관 해제</string>
     <string name="archive_empty">보관된 노트가 없습니다</string>
     <string name="archive_empty_hint">노트 목록에서 길게 눌러 \"보관\"을 선택하면 여기로 옮겨집니다.</string>

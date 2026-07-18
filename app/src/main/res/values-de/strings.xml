@@ -58,8 +58,8 @@
     <string name="formatting_inline">Inline</string>
     <string name="formatting_structure">Struktur</string>
     <string name="formatting_block_media">Blöcke und Medien</string>
-    <string name="expanded">Erweitert</string>
-    <string name="collapsed">Reduziert</string>
+    <string name="expanded">Ausgeklappt</string>
+    <string name="collapsed">Eingeklappt</string>
     <string name="italic">Kursiv</string>
     <string name="strikethrough">Durchgestrichen</string>
     <string name="inline_code">Inline-Code</string>

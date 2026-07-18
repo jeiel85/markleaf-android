@@ -255,6 +255,8 @@
     <string name="locked_passcode_label">Code</string>
     <string name="locked_unlock_button">Déverrouiller</string>
     <string name="locked_wrong_passcode">Code incorrect.</string>
+    <string name="locked_too_many_attempts">Trop de tentatives. Réessayez dans %1$s.</string>
+    <string name="wikilink_target_locked">Cette note se trouve dans les notes verrouillées.</string>
     <string name="locked_no_passcode_title">Aucun code défini</string>
     <string name="locked_no_passcode_hint">Définissez un code dans les Paramètres pour protéger vos notes verrouillées.</string>
     <string name="locked_open_settings">Ouvrir les Paramètres</string>

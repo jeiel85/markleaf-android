@@ -177,7 +177,7 @@ fun Context.canUseBiometric(): Boolean {
     return result == BiometricManager.BIOMETRIC_SUCCESS
 }
 
-private tailrec fun Context.findFragmentActivity(): FragmentActivity? = when (this) {
+internal tailrec fun Context.findFragmentActivity(): FragmentActivity? = when (this) {
     is FragmentActivity -> this
     is android.content.ContextWrapper -> this.baseContext.findFragmentActivity()
     else -> null

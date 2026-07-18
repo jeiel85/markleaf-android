@@ -279,6 +279,8 @@
     <string name="locked_passcode_label">Código</string>
     <string name="locked_unlock_button">Desbloquear</string>
     <string name="locked_wrong_passcode">Código incorrecto.</string>
+    <string name="locked_too_many_attempts">Demasiados intentos. Vuelve a intentarlo en %1$s.</string>
+    <string name="wikilink_target_locked">Esa nota está en Notas bloqueadas.</string>
     <string name="locked_no_passcode_title">Sin código configurado</string>
     <string name="locked_no_passcode_hint">Configura un código en Ajustes para proteger tus notas bloqueadas.</string>
     <string name="locked_open_settings">Abrir Ajustes</string>

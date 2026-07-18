@@ -60,8 +60,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.isCtrlPressed
-import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
@@ -243,6 +241,23 @@ fun EditorScreen(
                 } else {
                     Toast.makeText(context, R.string.attachment_failed, Toast.LENGTH_SHORT).show()
                 }
+            }
+        }
+    }
+    // Single dispatch path for every formatting action, whether it arrives from
+    // a panel tap, a selection action, or a hardware-keyboard shortcut. Keeping
+    // one handler means haptics, focus restore, and autosave cannot diverge
+    // between the touch and keyboard paths.
+    val applyFormattingAction: (EditorFormattingAction) -> Unit = { action ->
+        HapticFeedback.light(context)
+        when (val result = action.applyTo(editorState)) {
+            is EditorFormattingResult.Edited -> {
+                editorState = result.value
+                shouldRequestEditorFocus = true
+                if (isLoaded) saveTrigger++
+            }
+            EditorFormattingResult.PickImage -> {
+                imagePickerLauncher.launch(arrayOf("image/*"))
             }
         }
     }
@@ -502,8 +517,20 @@ fun EditorScreen(
                         onWikilinkClick = { title ->
                             coroutineScope.launch {
                                 val existing = db.noteDao().getNoteByTitle(title)
-                                val targetId = if (existing != null) {
-                                    existing.id
+                                if (existing != null) {
+                                    onNavigateToNote(existing.id)
+                                } else if (db.noteDao().countLockedNotesWithTitle(title) > 0) {
+                                    // The note exists but lives in the Locked space.
+                                    // Opening it here would bypass the passcode, and
+                                    // creating a new one would leave two notes sharing
+                                    // a title, so say where it is instead (#156). The
+                                    // title is already visible in this note's body, so
+                                    // naming its whereabouts leaks nothing new.
+                                    Toast.makeText(
+                                        context,
+                                        R.string.wikilink_target_locked,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 } else {
                                     val seed = "# $title\n\n"
                                     val newNote = com.markleaf.notes.domain.model.Note(
@@ -515,9 +542,8 @@ fun EditorScreen(
                                         updatedAt = java.time.Instant.now()
                                     )
                                     repo.createNote(newNote)
-                                    newNote.id
+                                    onNavigateToNote(newNote.id)
                                 }
-                                onNavigateToNote(targetId)
                             }
                         },
                         onImageLongPress = { path, currentAlt ->
@@ -687,31 +713,17 @@ fun EditorScreen(
                                             }
                                             if (isLoaded) saveTrigger++
                                             true
-                                        } else if (event.isCtrlPressed || event.isMetaPressed) {
-                                            // Hardware-keyboard formatting shortcuts. Accept Ctrl
-                                            // (typical Android external keyboards) or Meta/Cmd
-                                            // (Mac-style tablet keyboards) so both feel native.
-                                            // Bare Ctrl+S is intentionally NOT bound: writers reflex-
-                                            // hit it to "save", and since Markleaf auto-saves we must
-                                            // not turn that keystroke into a strikethrough that mangles
-                                            // text — strikethrough requires the explicit Shift.
-                                            val action: ((TextFieldValue) -> TextFieldValue)? = when (event.key) {
-                                                Key.B -> MarkdownEditActions::bold
-                                                Key.I -> MarkdownEditActions::italic
-                                                Key.K -> MarkdownEditActions::markdownLink
-                                                Key.S -> if (event.isShiftPressed) MarkdownEditActions::strikethrough else null
-                                                else -> null
-                                            }
-                                            if (action != null) {
-                                                editorState = action(editorState)
-                                                shouldRequestEditorFocus = true
-                                                if (isLoaded) saveTrigger++
+                                        } else {
+                                            // Hardware-keyboard formatting shortcuts resolve through
+                                            // the shared keymap in EditorFormattingAction.kt, the same
+                                            // one the expanded panel uses.
+                                            val shortcut = event.toFormattingAction()
+                                            if (shortcut != null) {
+                                                applyFormattingAction(shortcut)
                                                 true
                                             } else {
                                                 false
                                             }
-                                        } else {
-                                            false
                                         }
                                     }
                                 },
@@ -793,19 +805,7 @@ fun EditorScreen(
                                 isFormattingExpanded = expanded
                                 if (!expanded) shouldRequestEditorFocus = true
                             },
-                            onAction = { action ->
-                                HapticFeedback.light(context)
-                                when (val result = action.applyTo(editorState)) {
-                                    is EditorFormattingResult.Edited -> {
-                                        editorState = result.value
-                                        shouldRequestEditorFocus = true
-                                        if (isLoaded) saveTrigger++
-                                    }
-                                    EditorFormattingResult.PickImage -> {
-                                        imagePickerLauncher.launch(arrayOf("image/*"))
-                                    }
-                                }
-                            },
+                            onAction = applyFormattingAction,
                             backgroundColor = MaterialTheme.colorScheme.background
                         )
                     }

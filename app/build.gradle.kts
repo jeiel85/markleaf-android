@@ -140,20 +140,15 @@ android {
             isIncludeAndroidResources = true
             all {
                 it.systemProperty("robolectric.sqliteMode", "NATIVE")
-                // Roborazzi snapshot tests rely on `ui-test-manifest` which only
-                // ships a ComponentActivity entry in the debug manifest. Skip them
-                // in release-variant unit tests so `:app:test` stays green.
-                if (it.name != "testDebugUnitTest") {
-                    // Roborazzi/Compose UI tests need ui-test-manifest's
-                    // ComponentActivity entry, which only ships in the debug
-                    // variant manifest. Skip every Compose UI test class in
-                    // any non-debug-variant unit test (release, benchmark, …).
-                    it.exclude("**/*SnapshotTest*")
-                    it.exclude("**/EditorFormattingControlsTest*")
-                    it.exclude("**/EditorInfoSheetTest*")
-                }
             }
         }
+        // Compose UI and Roborazzi tests need the ComponentActivity entry that
+        // `ui-test-manifest` contributes only to the debug variant manifest, so
+        // they live in the debug-only `src/testDebug` source set rather than in
+        // `src/test`. That makes the split structural: the release and benchmark
+        // unit-test variants never compile them, so no per-class exclusion list
+        // has to be maintained by hand as tests are added (#152).
+        // `ComposeTestSourceSetTest` fails the build if one lands in `src/test`.
     }
 
     sourceSets {

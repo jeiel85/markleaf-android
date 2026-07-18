@@ -68,6 +68,62 @@ pwsh scripts/verify-mirror.ps1
 4. 이력이 갈라졌으면 자동 덮어쓰지 않고 수동 확인한다.
 5. `pwsh scripts/verify-mirror.ps1 -IncludeGitHub`로 3자 일치를 확인한다.
 
+## 이력이 갈라졌을 때 복구 (보호 브랜치)
+
+한쪽 원격의 `main`을 재작성(reset + force push)하면 다른 원격은 따라갈 수 없다.
+GitLab `main`은 `allow_force_push=false`로 보호되어 있어 재작성된 이력을 그대로
+받을 수 없고, 두 원격이 갈라진 채로 남는다. v2.24.0에서 실제로 발생했다 — 릴리스
+커밋이 무관한 landing-i18n 변경을 쓸어담아 GitHub 쪽을 되돌렸고, GitLab은 옛 이력을
+유지한 상태로 며칠간 divergent했다 (#154).
+
+**원칙: 재작성이 아니라 전진 수정(forward fix)으로 복구한다.** 두 원격 모두
+fast-forward로 받을 수 있는 새 커밋을 만드는 방법이 보호 설정을 건드리지 않고,
+이미 태그를 받아간 F-Droid·다운로더의 이력도 깨지 않는다.
+
+1. 갈라진 지점을 먼저 확인한다. 되돌릴 대상이 무엇인지 눈으로 본 뒤에 움직인다.
+   ```
+   git fetch gitlab && git fetch github
+   git log --oneline --graph gitlab/main github/main
+   git merge-base gitlab/main github/main
+   ```
+2. **아직 force push하지 않았다면** 잘못된 커밋을 `git revert`로 되돌린다.
+   `git reset --hard` + force push는 쓰지 않는다. revert 커밋은 양쪽 모두
+   fast-forward이므로 보호 설정을 그대로 두고 평소 순서로 push하면 끝난다.
+   ```
+   git revert <bad-sha>
+   git push gitlab main
+   git push github main
+   ```
+3. **이미 한쪽을 재작성해 갈라졌다면** 재작성한 쪽을 되돌리는 대신 두 이력을
+   로컬에서 merge해 양쪽이 받을 수 있는 공통 커밋을 만든다. v2.24.0은 이 경로로
+   해결했다 (merge `4b2dfd9`).
+   ```
+   git checkout main
+   git merge gitlab/main          # 또는 github/main — 뒤처진 쪽을 합친다
+   # 충돌은 릴리스에 나가야 할 내용 기준으로 해소한다
+   git push gitlab main
+   git push github main
+   ```
+4. merge로도 해결이 안 되는 경우(예: 유출된 시크릿처럼 이력에서 반드시 제거해야
+   하는 내용)에만 보호를 임시로 내린다. 이때는 순서를 지킨다.
+   1. GitLab → Settings → Repository → Protected branches에서 `main`의
+      **Allowed to force push**를 켠다.
+   2. `git push gitlab main --force-with-lease` (`--force`가 아니라
+      `--force-with-lease` — 다른 세션의 push를 덮어쓰지 않는다).
+   3. **즉시 보호를 원상 복구한다.** 이 단계를 잊으면 보호되지 않은 `main`이
+      남는다.
+   4. 태그도 재작성해야 하면 보호된 `v*` 태그를 지우고 다시 만들어야 하며,
+      GitHub Release·F-Droid 픽업·GitLab Release가 모두 재실행된다. 이미 배포된
+      버전 번호는 재사용하지 말고 새 patch 버전으로 올리는 쪽을 우선한다.
+5. 어느 경로든 마지막에 3자 일치를 확인한다.
+   ```
+   pwsh scripts/verify-mirror.ps1 -IncludeGitHub
+   ```
+
+예방: 릴리스 커밋은 `git add -A`로 만들지 않는다. 변경 파일을 명시적으로 stage하거나
+커밋 전 working tree가 릴리스 대상만 담고 있는지 확인한다 (AGENTS.md의 릴리스 절차).
+갈라짐을 만들지 않는 것이 갈라짐을 복구하는 것보다 항상 싸다.
+
 ## 원칙 (설계 준수)
 
 - Push 순서: **GitLab 먼저 → GitHub 다음** (GitHub 장애가 백업을 막지 않도록)

@@ -250,6 +250,8 @@
     <string name="locked_passcode_label">パスコード</string>
     <string name="locked_unlock_button">ロック解除</string>
     <string name="locked_wrong_passcode">パスコードが正しくありません。</string>
+    <string name="locked_too_many_attempts">試行回数が多すぎます。%1$s後にもう一度お試しください。</string>
+    <string name="wikilink_target_locked">このノートはロック済みノートにあります。</string>
     <string name="locked_no_passcode_title">パスコード未設定</string>
     <string name="locked_no_passcode_hint">ロックされたノートを保護するには、設定でパスコードを設定してください。</string>
     <string name="locked_open_settings">設定を開く</string>

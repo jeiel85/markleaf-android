@@ -1,5 +1,11 @@
 package com.markleaf.notes.feature.editor
 
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.isMetaPressed
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
 import androidx.compose.ui.text.input.TextFieldValue
 import com.markleaf.notes.core.markdown.MarkdownEditActions
 
@@ -23,6 +29,33 @@ internal sealed interface EditorFormattingResult {
     data class Edited(val value: TextFieldValue) : EditorFormattingResult
     data object PickImage : EditorFormattingResult
 }
+
+/**
+ * The single hardware-keyboard formatting keymap.
+ *
+ * Both the editor text field and the expanded formatting panel resolve
+ * shortcuts through [toFormattingAction] so the two dispatch paths cannot
+ * drift as actions evolve.
+ *
+ * Bare Ctrl+S is intentionally NOT bound: writers reflex-hit it to "save",
+ * and since Markleaf auto-saves we must not turn that keystroke into a
+ * strikethrough that mangles text — strikethrough requires the explicit Shift.
+ */
+internal fun formattingShortcutFor(key: Key, shiftPressed: Boolean): EditorFormattingAction? = when (key) {
+    Key.B -> EditorFormattingAction.BOLD
+    Key.I -> EditorFormattingAction.ITALIC
+    Key.K -> EditorFormattingAction.LINK
+    Key.S -> if (shiftPressed) EditorFormattingAction.STRIKETHROUGH else null
+    else -> null
+}
+
+/**
+ * Resolves a key event to a formatting action, or null when it is not a
+ * formatting shortcut. Accepts Ctrl (typical Android external keyboards) or
+ * Meta/Cmd (Mac-style tablet keyboards) so both feel native.
+ */
+internal fun KeyEvent.toFormattingAction(): EditorFormattingAction? =
+    if (isCtrlPressed || isMetaPressed) formattingShortcutFor(key, isShiftPressed) else null
 
 internal fun EditorFormattingAction.applyTo(value: TextFieldValue): EditorFormattingResult = when (this) {
     EditorFormattingAction.BOLD -> EditorFormattingResult.Edited(MarkdownEditActions.bold(value))

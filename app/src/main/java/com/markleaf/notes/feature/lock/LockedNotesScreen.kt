@@ -1,5 +1,6 @@
 package com.markleaf.notes.feature.lock
 
+import android.view.WindowManager
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -34,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,11 +62,17 @@ import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
+import com.markleaf.notes.data.settings.LockPasscodeAttempt
+import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.ui.component.EmptyState
 import com.markleaf.notes.ui.viewmodel.LockedNotesViewModel
 import androidx.compose.runtime.collectAsState
+import java.util.Locale
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * The passcode-gated "Locked notes" space (#155).
@@ -88,6 +96,21 @@ fun LockedNotesScreen(
     val settingsRepository = remember { AppSettingsRepository(context.applicationContext) }
     val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
     var unlocked by rememberSaveable { mutableStateOf(false) }
+
+    // Locked notes are private by definition, so this screen raises FLAG_SECURE
+    // regardless of the global screenshot-protection setting — otherwise their
+    // titles and bodies leak through screenshots and the Recents thumbnail
+    // (#156). On exit the flag returns to whatever the setting asks for.
+    val screenshotProtection = appSettings.screenshotProtection
+    DisposableEffect(screenshotProtection) {
+        val window = context.findFragmentActivity()?.window
+        window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        onDispose {
+            if (!screenshotProtection) {
+                window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -117,7 +140,8 @@ fun LockedNotesScreen(
             when {
                 !appSettings.lockPasscodeSet -> NoPasscodeState(onOpenSettings = onOpenSettings)
                 !unlocked -> UnlockGate(
-                    verify = { settingsRepository.verifyLockPasscode(it) },
+                    attempt = { settingsRepository.attemptLockPasscode(it) },
+                    retryAtMillis = { settingsRepository.lockPasscodeRetryAtMillis() },
                     onUnlocked = { unlocked = true }
                 )
                 else -> LockedNotesList(
@@ -165,27 +189,63 @@ private fun NoPasscodeState(onOpenSettings: () -> Unit) {
     }
 }
 
+/**
+ * Remaining backoff as `m:ss`, rounded up so a fresh 30s wait never reads "0:29".
+ * Digits follow the device locale.
+ */
+private fun formatLockoutWait(millis: Long): String {
+    val totalSeconds = ((millis + 999L) / 1_000L).toInt()
+    return String.format(Locale.getDefault(), "%d:%02d", totalSeconds / 60, totalSeconds % 60)
+}
+
 @Composable
 private fun UnlockGate(
-    verify: suspend (String) -> Boolean,
+    attempt: suspend (String) -> LockPasscodeAttempt,
+    retryAtMillis: suspend () -> Long,
     onUnlocked: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     var passcode by rememberSaveable { mutableStateOf("") }
     var error by remember { mutableStateOf(false) }
     var checking by remember { mutableStateOf(false) }
+    // Millis remaining on the persisted brute-force backoff, 0 when attempts are
+    // allowed. Ticked down once a second so the gate re-enables itself (#156).
+    var lockoutRemaining by remember { mutableStateOf(0L) }
+
+    fun applyRetryAt(retryAt: Long) {
+        lockoutRemaining = (retryAt - System.currentTimeMillis()).coerceAtLeast(0L)
+    }
+
+    // A backoff started in an earlier session is still in force on re-entry.
+    LaunchedEffect(Unit) { applyRetryAt(retryAtMillis()) }
+
+    LaunchedEffect(lockoutRemaining > 0L) {
+        while (lockoutRemaining > 0L) {
+            delay(1_000L)
+            lockoutRemaining = (lockoutRemaining - 1_000L).coerceAtLeast(0L)
+        }
+    }
 
     fun submit() {
-        if (checking || passcode.isEmpty()) return
+        if (checking || passcode.isEmpty() || lockoutRemaining > 0L) return
         checking = true
         scope.launch {
-            val ok = verify(passcode)
-            checking = false
-            if (ok) {
-                onUnlocked()
-            } else {
-                error = true
-                passcode = ""
+            when (val result = attempt(passcode)) {
+                is LockPasscodeAttempt.Success -> {
+                    checking = false
+                    onUnlocked()
+                }
+                is LockPasscodeAttempt.Wrong -> {
+                    checking = false
+                    error = true
+                    passcode = ""
+                    applyRetryAt(result.retryAtMillis)
+                }
+                is LockPasscodeAttempt.LockedOut -> {
+                    checking = false
+                    passcode = ""
+                    applyRetryAt(result.retryAtMillis)
+                }
             }
         }
     }
@@ -225,16 +285,30 @@ private fun UnlockGate(
                 imeAction = ImeAction.Done
             ),
             keyboardActions = KeyboardActions(onDone = { submit() }),
-            isError = error,
-            supportingText = if (error) {
-                { Text(stringResource(R.string.locked_wrong_passcode)) }
-            } else null,
+            enabled = lockoutRemaining == 0L,
+            isError = error || lockoutRemaining > 0L,
+            supportingText = when {
+                lockoutRemaining > 0L -> {
+                    {
+                        Text(
+                            stringResource(
+                                R.string.locked_too_many_attempts,
+                                formatLockoutWait(lockoutRemaining)
+                            )
+                        )
+                    }
+                }
+                error -> {
+                    { Text(stringResource(R.string.locked_wrong_passcode)) }
+                }
+                else -> null
+            },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(16.dp))
         Button(
             onClick = { submit() },
-            enabled = passcode.isNotEmpty() && !checking,
+            enabled = passcode.isNotEmpty() && !checking && lockoutRemaining == 0L,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(stringResource(R.string.locked_unlock_button))
@@ -249,6 +323,10 @@ private fun LockedNotesList(
 ) {
     val lockedNotes by viewModel.lockedNotes.collectAsState()
     val haptics = LocalHapticFeedback.current
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val settingsRepository = remember { AppSettingsRepository(context.applicationContext) }
+    val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
 
     if (lockedNotes.isEmpty()) {
         EmptyState(
@@ -265,6 +343,25 @@ private fun LockedNotesList(
                     onRemoveLock = {
                         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                         viewModel.removeLock(note.id)
+                        // Locking deleted the note's mirror file, so unlocking has to
+                        // put it back — otherwise the note would stay missing from the
+                        // sync folder until its next edit (#156).
+                        appSettings.syncFolderUri?.let { uriString ->
+                            val uri = runCatching {
+                                android.net.Uri.parse(uriString)
+                            }.getOrNull()
+                            if (uri != null) {
+                                scope.launch {
+                                    withContext(Dispatchers.IO) {
+                                        NoteFolderMirror.writeNote(
+                                            context,
+                                            uri,
+                                            note.copy(locked = false)
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     },
                     onMoveToTrash = {
                         haptics.performHapticFeedback(HapticFeedbackType.LongPress)

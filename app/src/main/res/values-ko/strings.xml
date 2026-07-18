@@ -243,7 +243,7 @@
     <!-- Locked notes (#155) -->
     <string name="locked_notes_title">잠긴 노트</string>
     <string name="move_to_locked">잠금으로 이동</string>
-    <string name="remove_from_locked">잠금 해제</string>
+    <string name="remove_from_locked">잠금에서 제거</string>
     <string name="locked_notes_empty">잠긴 노트 없음</string>
     <string name="locked_notes_empty_hint">잠금으로 옮긴 노트가 암호 뒤에 여기 표시됩니다.</string>
     <string name="locked_unlock_hint">잠긴 노트를 열려면 암호를 입력하세요.</string>

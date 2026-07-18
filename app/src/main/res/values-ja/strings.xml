@@ -243,7 +243,7 @@
     <!-- Locked notes (#155) -->
     <string name="locked_notes_title">ロックされたノート</string>
     <string name="move_to_locked">ロックに移動</string>
-    <string name="remove_from_locked">ロックを解除</string>
+    <string name="remove_from_locked">ロックから戻す</string>
     <string name="locked_notes_empty">ロックされたノートはありません</string>
     <string name="locked_notes_empty_hint">ロックに移動したノートは、パスコードの内側にここに表示されます。</string>
     <string name="locked_unlock_hint">ロックされたノートを開くにはパスコードを入力してください。</string>

@@ -17,7 +17,13 @@ interface NoteLinkDao {
     @Query("DELETE FROM note_links WHERE sourceNoteId = :noteId")
     suspend fun clearForNote(noteId: String)
 
-    /** Notes whose body contains at least one `[[…]]` matching the supplied normalized title. */
+    /**
+     * Notes whose body contains at least one `[[…]]` matching the supplied normalized title.
+     *
+     * Locked notes are excluded: a backlink row shows the linking note's title, so
+     * without this filter a locked note's title would surface in the note-information
+     * sheet of any note it links to (#156).
+     */
     @Query(
         """
         SELECT DISTINCT notes.* FROM notes
@@ -25,6 +31,7 @@ interface NoteLinkDao {
         WHERE note_links.normalizedTitle = :normalizedTitle
           AND notes.trashed = 0
           AND notes.archived = 0
+          AND notes.locked = 0
           AND notes.id != :excludeNoteId
         ORDER BY notes.updatedAt DESC
         """

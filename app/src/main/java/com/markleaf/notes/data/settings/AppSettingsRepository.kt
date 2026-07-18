@@ -3,9 +3,11 @@ package com.markleaf.notes.data.settings
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.markleaf.notes.core.security.PasscodeBackoff
 import com.markleaf.notes.core.security.PasscodeHasher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -14,6 +16,17 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 private val Context.markleafSettingsDataStore by preferencesDataStore(name = "markleaf_settings")
+
+/** Outcome of an unlock attempt against the "Locked notes" passcode (#156). */
+sealed interface LockPasscodeAttempt {
+    data object Success : LockPasscodeAttempt
+
+    /** Wrong passcode. [retryAtMillis] is 0 while attempts are still free. */
+    data class Wrong(val retryAtMillis: Long) : LockPasscodeAttempt
+
+    /** Refused without checking — a backoff from earlier failures is still running. */
+    data class LockedOut(val retryAtMillis: Long) : LockPasscodeAttempt
+}
 
 class AppSettingsRepository(
     private val context: Context
@@ -67,6 +80,9 @@ class AppSettingsRepository(
         context.markleafSettingsDataStore.edit { preferences ->
             preferences[LOCK_PASSCODE_SALT] = salt
             preferences[LOCK_PASSCODE_HASH] = hash
+            // A new passcode starts a clean streak; the owner just proved intent.
+            preferences.remove(LOCK_FAILED_ATTEMPTS)
+            preferences.remove(LOCK_RETRY_AT)
         }
     }
 
@@ -76,6 +92,8 @@ class AppSettingsRepository(
         context.markleafSettingsDataStore.edit { preferences ->
             preferences.remove(LOCK_PASSCODE_HASH)
             preferences.remove(LOCK_PASSCODE_SALT)
+            preferences.remove(LOCK_FAILED_ATTEMPTS)
+            preferences.remove(LOCK_RETRY_AT)
         }
     }
 
@@ -87,6 +105,49 @@ class AppSettingsRepository(
         val hash = preferences[LOCK_PASSCODE_HASH] ?: return false
         return withContext(Dispatchers.Default) {
             PasscodeHasher.verify(passcode, salt, hash)
+        }
+    }
+
+    /**
+     * Wall-clock instant before which unlock attempts are refused, or 0 when no
+     * backoff is active. Read on gate entry so a persisted lockout survives an
+     * app restart (#156).
+     */
+    suspend fun lockPasscodeRetryAtMillis(): Long =
+        context.markleafSettingsDataStore.data.first()[LOCK_RETRY_AT] ?: 0L
+
+    /**
+     * Verify [passcode], applying and maintaining the [PasscodeBackoff] policy.
+     * This is the only unlock entry point, so the lockout cannot be bypassed by
+     * calling [verifyLockPasscode] directly from a new caller.
+     */
+    suspend fun attemptLockPasscode(
+        passcode: String,
+        now: Long = System.currentTimeMillis()
+    ): LockPasscodeAttempt {
+        val preferences = context.markleafSettingsDataStore.data.first()
+        val retryAt = preferences[LOCK_RETRY_AT] ?: 0L
+        if (PasscodeBackoff.isLockedOut(retryAt, now)) return LockPasscodeAttempt.LockedOut(retryAt)
+
+        if (verifyLockPasscode(passcode)) {
+            resetLockPasscodeBackoff()
+            return LockPasscodeAttempt.Success
+        }
+
+        val previousFailures = preferences[LOCK_FAILED_ATTEMPTS] ?: 0
+        val nextRetryAt = PasscodeBackoff.retryAtAfterFailure(previousFailures, now)
+        context.markleafSettingsDataStore.edit { edited ->
+            edited[LOCK_FAILED_ATTEMPTS] = previousFailures + 1
+            if (nextRetryAt > 0L) edited[LOCK_RETRY_AT] = nextRetryAt else edited.remove(LOCK_RETRY_AT)
+        }
+        return LockPasscodeAttempt.Wrong(nextRetryAt)
+    }
+
+    /** Clear the failure streak — on success, and whenever the passcode changes. */
+    suspend fun resetLockPasscodeBackoff() {
+        context.markleafSettingsDataStore.edit { preferences ->
+            preferences.remove(LOCK_FAILED_ATTEMPTS)
+            preferences.remove(LOCK_RETRY_AT)
         }
     }
 
@@ -162,5 +223,7 @@ class AppSettingsRepository(
         val BIOMETRIC_LOCK_ENABLED = booleanPreferencesKey("biometric_lock_enabled")
         val LOCK_PASSCODE_HASH = stringPreferencesKey("lock_passcode_hash")
         val LOCK_PASSCODE_SALT = stringPreferencesKey("lock_passcode_salt")
+        val LOCK_FAILED_ATTEMPTS = intPreferencesKey("lock_failed_attempts")
+        val LOCK_RETRY_AT = longPreferencesKey("lock_retry_at")
     }
 }

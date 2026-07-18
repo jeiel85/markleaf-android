@@ -59,8 +59,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.isCtrlPressed
-import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
@@ -319,17 +317,7 @@ private fun FormattingPanel(
                     actionFocusRequesters[focusedIndex].requestFocus()
                     return@onPreviewKeyEvent true
                 }
-                val shortcut = if (event.isCtrlPressed || event.isMetaPressed) {
-                    when (event.key) {
-                        Key.B -> EditorFormattingAction.BOLD
-                        Key.I -> EditorFormattingAction.ITALIC
-                        Key.K -> EditorFormattingAction.LINK
-                        Key.S -> if (event.isShiftPressed) EditorFormattingAction.STRIKETHROUGH else null
-                        else -> null
-                    }
-                } else {
-                    null
-                }
+                val shortcut = event.toFormattingAction()
                 if (shortcut == null) false else {
                     onAction(shortcut)
                     true

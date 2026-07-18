@@ -250,6 +250,8 @@
     <string name="locked_passcode_label">암호</string>
     <string name="locked_unlock_button">잠금 해제</string>
     <string name="locked_wrong_passcode">암호가 올바르지 않습니다.</string>
+    <string name="locked_too_many_attempts">시도 횟수가 너무 많습니다. %1$s 후에 다시 시도하세요.</string>
+    <string name="wikilink_target_locked">이 노트는 잠긴 노트에 있습니다.</string>
     <string name="locked_no_passcode_title">설정된 암호 없음</string>
     <string name="locked_no_passcode_hint">잠긴 노트를 보호하려면 설정에서 암호를 지정하세요.</string>
     <string name="locked_open_settings">설정 열기</string>

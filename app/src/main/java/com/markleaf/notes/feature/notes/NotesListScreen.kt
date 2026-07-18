@@ -47,9 +47,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,10 +74,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
+import com.markleaf.notes.data.settings.AppSettings
+import com.markleaf.notes.data.settings.AppSettingsRepository
+import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.navigation.LocalNavAnimatedVisibilityScope
 import com.markleaf.notes.navigation.LocalSharedTransitionScope
 import com.markleaf.notes.ui.viewmodel.NotesViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import android.content.Context
@@ -108,6 +116,10 @@ fun NotesListScreen(
     contentColor: Color = MaterialTheme.colorScheme.onBackground
 ) {
     val hapticFeedback = LocalHapticFeedback.current
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val settingsRepository = remember { AppSettingsRepository(context.applicationContext) }
+    val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
     val notesState = remember { mutableStateOf<List<Note>>(emptyList()) }
     val displayedState = remember { mutableStateOf<List<Note>>(emptyList()) }
     var overflowExpanded by remember { mutableStateOf(false) }
@@ -392,6 +404,23 @@ fun NotesListScreen(
                                 if (lockPasscodeSet) {
                                     hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                                     viewModel.setLocked(note.id, true)
+                                    // The export guard only stops *future* saves, so a note
+                                    // mirrored before it was locked would leave a readable
+                                    // plaintext copy in the sync folder. Remove it now, or
+                                    // the Locked space's privacy promise is only skin deep.
+                                    // LockedNotesScreen re-mirrors on unlock (#156).
+                                    appSettings.syncFolderUri?.let { uriString ->
+                                        val uri = runCatching {
+                                            android.net.Uri.parse(uriString)
+                                        }.getOrNull()
+                                        if (uri != null) {
+                                            scope.launch {
+                                                withContext(Dispatchers.IO) {
+                                                    NoteFolderMirror.deleteNote(context, uri, note.id)
+                                                }
+                                            }
+                                        }
+                                    }
                                 } else {
                                     showSetPasscodePrompt = true
                                 }

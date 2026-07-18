@@ -100,6 +100,42 @@ class LocalTagRepositoryTest {
     }
 
     @Test
+    fun `observeTagSummaries excludes locked notes from tag counts`() = runTest {
+        db.noteDao().insertNote(
+            NoteEntity(
+                id = "visible",
+                title = "Visible",
+                contentMarkdown = "Body #shared",
+                excerpt = "Body",
+                createdAt = 1L,
+                updatedAt = 1L
+            )
+        )
+        db.noteDao().insertNote(
+            NoteEntity(
+                id = "locked",
+                title = "Locked",
+                contentMarkdown = "Body #shared #secret",
+                excerpt = "Body",
+                createdAt = 2L,
+                updatedAt = 2L,
+                locked = true
+            )
+        )
+
+        repository.reindexTagsForNote("visible", "Body #shared")
+        repository.reindexTagsForNote("locked", "Body #shared #secret")
+
+        val countsByTag = repository.observeTagSummaries()
+            .first()
+            .associate { it.tag.name to it.noteCount }
+
+        // "secret" is used only by the locked note, so it must not surface at all;
+        // "shared" must not count the locked note toward its total (#156).
+        assertEquals(mapOf("shared" to 1), countsByTag)
+    }
+
+    @Test
     fun `observeTagSummaries hides tags once their note count drops to zero`() = runTest {
         db.noteDao().insertNote(
             NoteEntity(

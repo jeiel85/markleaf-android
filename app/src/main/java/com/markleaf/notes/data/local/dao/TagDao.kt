@@ -34,11 +34,17 @@ interface TagDao {
     @Query("SELECT * FROM tags ORDER BY name ASC")
     fun observeAllTags(): Flow<List<TagEntity>>
 
+    /**
+     * Locked notes are excluded from the count so a tag used only by locked notes
+     * disappears from the tag list entirely. Without the filter such a tag showed a
+     * non-zero count that drilled down to an empty list, since `searchNotesByTag`
+     * already filters locked notes (#156).
+     */
     @Query("""
         SELECT tags.id, tags.name, tags.createdAt, COUNT(notes.id) AS noteCount
         FROM tags
         LEFT JOIN note_tag_cross_ref ON tags.id = note_tag_cross_ref.tagId
-        LEFT JOIN notes ON notes.id = note_tag_cross_ref.noteId AND notes.trashed = 0
+        LEFT JOIN notes ON notes.id = note_tag_cross_ref.noteId AND notes.trashed = 0 AND notes.locked = 0
         GROUP BY tags.id, tags.name, tags.createdAt
         HAVING COUNT(notes.id) > 0
         ORDER BY tags.name ASC

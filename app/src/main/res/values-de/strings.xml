@@ -255,6 +255,8 @@
     <string name="locked_passcode_label">Passcode</string>
     <string name="locked_unlock_button">Entsperren</string>
     <string name="locked_wrong_passcode">Falscher Passcode.</string>
+    <string name="locked_too_many_attempts">Zu viele Versuche. Erneut versuchen in %1$s.</string>
+    <string name="wikilink_target_locked">Diese Notiz liegt in den gesperrten Notizen.</string>
     <string name="locked_no_passcode_title">Kein Passcode festgelegt</string>
     <string name="locked_no_passcode_hint">Lege in den Einstellungen einen Passcode fest, um deine gesperrten Notizen zu schützen.</string>
     <string name="locked_open_settings">Einstellungen öffnen</string>

@@ -156,336 +156,336 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.TopCenter
             ) {
-            Column(
-                modifier = Modifier
-                    .widthIn(max = 640.dp)
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 20.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp)
-            ) {
-                SettingsSection(title = stringResource(R.string.settings_appearance)) {
-                    Text(
-                        text = stringResource(R.string.theme_label),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        ColorPalette.entries.forEach { palette ->
-                            val selected = appSettings.colorPalette == palette
-                            if (selected) {
-                                Button(onClick = {}) {
-                                    Text(palette.localizedLabel())
-                                }
-                            } else {
-                                OutlinedButton(
-                                    onClick = {
-                                        scope.launch { settingsRepository.setColorPalette(palette) }
+                Column(
+                    modifier = Modifier
+                        .widthIn(max = 640.dp)
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 20.dp, vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    SettingsSection(title = stringResource(R.string.settings_appearance)) {
+                        Text(
+                            text = stringResource(R.string.theme_label),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            ColorPalette.entries.forEach { palette ->
+                                val selected = appSettings.colorPalette == palette
+                                if (selected) {
+                                    Button(onClick = {}) {
+                                        Text(palette.localizedLabel())
                                     }
-                                ) {
-                                    Text(palette.localizedLabel())
-                                }
-                            }
-                        }
-                    }
-                    Spacer(Modifier.height(6.dp))
-                    Text(
-                        text = stringResource(R.string.theme_description),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
-                SettingsSection(title = stringResource(R.string.settings_markdown)) {
-                    SettingsSwitchRow(
-                        title = stringResource(R.string.show_markdown_syntax),
-                        description = stringResource(R.string.show_markdown_syntax_description),
-                        checked = appSettings.markdownSyntaxVisibility == MarkdownSyntaxVisibility.SHOW,
-                        onCheckedChange = { checked ->
-                            HapticFeedback.light(context)
-                            scope.launch {
-                                settingsRepository.setMarkdownSyntaxVisibility(
-                                    if (checked) MarkdownSyntaxVisibility.SHOW else MarkdownSyntaxVisibility.HIDE
-                                )
-                            }
-                        }
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    Text(
-                        text = stringResource(R.string.line_width),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        EditorLineWidth.entries.forEach { lineWidth ->
-                            val selected = appSettings.lineWidth == lineWidth
-                            if (selected) {
-                                Button(onClick = {}) {
-                                    Text(lineWidth.localizedLabel())
-                                }
-                            } else {
-                                OutlinedButton(
-                                    onClick = {
-                                        scope.launch {
-                                            settingsRepository.setLineWidth(lineWidth)
+                                } else {
+                                    OutlinedButton(
+                                        onClick = {
+                                            scope.launch { settingsRepository.setColorPalette(palette) }
                                         }
+                                    ) {
+                                        Text(palette.localizedLabel())
                                     }
-                                ) {
-                                    Text(lineWidth.localizedLabel())
                                 }
                             }
                         }
+                        Spacer(Modifier.height(6.dp))
+                        Text(
+                            text = stringResource(R.string.theme_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
-                    Spacer(Modifier.height(12.dp))
-                    Text(
-                        text = stringResource(R.string.font_label),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        EditorFont.entries.forEach { font ->
-                            val selected = appSettings.editorFont == font
-                            if (selected) {
-                                Button(onClick = {}) {
-                                    Text(font.localizedLabel())
-                                }
-                            } else {
-                                OutlinedButton(
-                                    onClick = {
-                                        scope.launch {
-                                            settingsRepository.setEditorFont(font)
-                                        }
-                                    }
-                                ) {
-                                    Text(font.localizedLabel())
-                                }
-                            }
-                        }
-                    }
-                    Spacer(Modifier.height(6.dp))
-                    Text(
-                        text = stringResource(R.string.font_description),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
 
-                SettingsSection(title = stringResource(R.string.settings_privacy)) {
-                    SettingLine(stringResource(R.string.privacy_no_tracking))
-                    SettingLine(stringResource(R.string.privacy_no_internet))
-                    SettingLine(stringResource(R.string.privacy_local_first))
-                    Spacer(Modifier.height(12.dp))
-                    SettingsSwitchRow(
-                        title = stringResource(R.string.screenshot_protection),
-                        description = stringResource(R.string.screenshot_protection_description),
-                        checked = appSettings.screenshotProtection,
-                        onCheckedChange = { checked ->
-                            HapticFeedback.light(context)
-                            scope.launch {
-                                settingsRepository.setScreenshotProtection(checked)
+                    SettingsSection(title = stringResource(R.string.settings_markdown)) {
+                        SettingsSwitchRow(
+                            title = stringResource(R.string.show_markdown_syntax),
+                            description = stringResource(R.string.show_markdown_syntax_description),
+                            checked = appSettings.markdownSyntaxVisibility == MarkdownSyntaxVisibility.SHOW,
+                            onCheckedChange = { checked ->
+                                HapticFeedback.light(context)
+                                scope.launch {
+                                    settingsRepository.setMarkdownSyntaxVisibility(
+                                        if (checked) MarkdownSyntaxVisibility.SHOW else MarkdownSyntaxVisibility.HIDE
+                                    )
+                                }
+                            }
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        Text(
+                            text = stringResource(R.string.line_width),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            EditorLineWidth.entries.forEach { lineWidth ->
+                                val selected = appSettings.lineWidth == lineWidth
+                                if (selected) {
+                                    Button(onClick = {}) {
+                                        Text(lineWidth.localizedLabel())
+                                    }
+                                } else {
+                                    OutlinedButton(
+                                        onClick = {
+                                            scope.launch {
+                                                settingsRepository.setLineWidth(lineWidth)
+                                            }
+                                        }
+                                    ) {
+                                        Text(lineWidth.localizedLabel())
+                                    }
+                                }
                             }
                         }
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    val biometricAvailable = remember(context) { context.canUseBiometric() }
-                    SettingsSwitchRow(
-                        title = stringResource(R.string.biometric_lock_setting),
-                        description = if (biometricAvailable) {
-                            stringResource(R.string.biometric_lock_description)
-                        } else {
-                            stringResource(R.string.biometric_lock_unavailable)
+                        Spacer(Modifier.height(12.dp))
+                        Text(
+                            text = stringResource(R.string.font_label),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            EditorFont.entries.forEach { font ->
+                                val selected = appSettings.editorFont == font
+                                if (selected) {
+                                    Button(onClick = {}) {
+                                        Text(font.localizedLabel())
+                                    }
+                                } else {
+                                    OutlinedButton(
+                                        onClick = {
+                                            scope.launch {
+                                                settingsRepository.setEditorFont(font)
+                                            }
+                                        }
+                                    ) {
+                                        Text(font.localizedLabel())
+                                    }
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        Text(
+                            text = stringResource(R.string.font_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    SettingsSection(title = stringResource(R.string.settings_privacy)) {
+                        SettingLine(stringResource(R.string.privacy_no_tracking))
+                        SettingLine(stringResource(R.string.privacy_no_internet))
+                        SettingLine(stringResource(R.string.privacy_local_first))
+                        Spacer(Modifier.height(12.dp))
+                        SettingsSwitchRow(
+                            title = stringResource(R.string.screenshot_protection),
+                            description = stringResource(R.string.screenshot_protection_description),
+                            checked = appSettings.screenshotProtection,
+                            onCheckedChange = { checked ->
+                                HapticFeedback.light(context)
+                                scope.launch {
+                                    settingsRepository.setScreenshotProtection(checked)
+                                }
+                            }
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        val biometricAvailable = remember(context) { context.canUseBiometric() }
+                        SettingsSwitchRow(
+                            title = stringResource(R.string.biometric_lock_setting),
+                            description = if (biometricAvailable) {
+                                stringResource(R.string.biometric_lock_description)
+                            } else {
+                                stringResource(R.string.biometric_lock_unavailable)
+                            },
+                            checked = appSettings.biometricLockEnabled && biometricAvailable,
+                            onCheckedChange = { checked ->
+                                if (!biometricAvailable && checked) return@SettingsSwitchRow
+                                HapticFeedback.light(context)
+                                scope.launch {
+                                    settingsRepository.setBiometricLockEnabled(checked)
+                                }
+                            }
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        LockedNotesPasscodeSetting(
+                            passcodeSet = appSettings.lockPasscodeSet,
+                            onSetPasscode = { passcode ->
+                                scope.launch {
+                                    settingsRepository.setLockPasscode(passcode)
+                                    Toast.makeText(
+                                        context,
+                                        R.string.locked_passcode_set_done,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            },
+                            onRemovePasscode = {
+                                scope.launch {
+                                    settingsRepository.clearLockPasscode()
+                                    withContext(Dispatchers.IO) { noteRepository.unlockAllLocked() }
+                                    Toast.makeText(
+                                        context,
+                                        R.string.locked_passcode_removed_done,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        Button(
+                            onClick = onPrivacyClick,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(stringResource(R.string.privacy_dashboard_button))
+                        }
+                    }
+
+                    SettingsSection(title = stringResource(R.string.settings_data)) {
+                        Text(
+                            text = stringResource(R.string.export_all_notes_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        OutlinedButton(
+                            onClick = { exportAllLauncher.launch(null) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(stringResource(R.string.export_all_notes))
+                        }
+                    }
+
+                    SyncSection(
+                        folderUri = appSettings.syncFolderUri,
+                        lastSyncedAt = appSettings.syncLastSyncedAt,
+                        onPickFolder = { syncFolderLauncher.launch(null) },
+                        onSyncNow = {
+                            val uriString = appSettings.syncFolderUri ?: return@SyncSection
+                            val uri = runCatching { Uri.parse(uriString) }.getOrNull() ?: return@SyncSection
+                            scope.launch {
+                                val notes = withContext(Dispatchers.IO) {
+                                    // Full set (incl. trashed/archived) so a hidden note
+                                    // isn't re-imported as new — see #148.
+                                    noteRepository.getAllNotes()
+                                }
+                                val result = withContext(Dispatchers.IO) {
+                                    NoteFolderMirror.importChanges(
+                                        context = context,
+                                        folderUri = uri,
+                                        existing = notes,
+                                        applyUpdate = { updated ->
+                                            noteImporter.update(updated)
+                                        },
+                                        applyCreate = { created ->
+                                            noteImporter.create(created)
+                                        }
+                                    )
+                                }
+                                settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())
+                                val msg = if (result.conflicts > 0) {
+                                    context.getString(
+                                        R.string.sync_done_with_conflicts_format,
+                                        result.updated,
+                                        result.created,
+                                        result.conflicts,
+                                        result.skipped
+                                    )
+                                } else {
+                                    context.getString(
+                                        R.string.sync_done_format,
+                                        result.updated,
+                                        result.created,
+                                        result.skipped
+                                    )
+                                }
+                                Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                            }
                         },
-                        checked = appSettings.biometricLockEnabled && biometricAvailable,
-                        onCheckedChange = { checked ->
-                            if (!biometricAvailable && checked) return@SettingsSwitchRow
-                            HapticFeedback.light(context)
+                        onStopSync = {
                             scope.launch {
-                                settingsRepository.setBiometricLockEnabled(checked)
-                            }
-                        }
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    LockedNotesPasscodeSetting(
-                        passcodeSet = appSettings.lockPasscodeSet,
-                        onSetPasscode = { passcode ->
-                            scope.launch {
-                                settingsRepository.setLockPasscode(passcode)
+                                settingsRepository.setSyncFolderUri(null)
                                 Toast.makeText(
                                     context,
-                                    R.string.locked_passcode_set_done,
+                                    R.string.sync_stopped,
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
                         },
-                        onRemovePasscode = {
-                            scope.launch {
-                                settingsRepository.clearLockPasscode()
-                                withContext(Dispatchers.IO) { noteRepository.unlockAllLocked() }
-                                Toast.makeText(
-                                    context,
-                                    R.string.locked_passcode_removed_done,
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
+                        onSyncCenterClick = onSyncCenterClick
                     )
-                    Spacer(Modifier.height(12.dp))
-                    Button(
-                        onClick = onPrivacyClick,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(stringResource(R.string.privacy_dashboard_button))
-                    }
-                }
 
-                SettingsSection(title = stringResource(R.string.settings_data)) {
-                    Text(
-                        text = stringResource(R.string.export_all_notes_description),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    OutlinedButton(
-                        onClick = { exportAllLauncher.launch(null) },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(stringResource(R.string.export_all_notes))
-                    }
-                }
-
-                SyncSection(
-                    folderUri = appSettings.syncFolderUri,
-                    lastSyncedAt = appSettings.syncLastSyncedAt,
-                    onPickFolder = { syncFolderLauncher.launch(null) },
-                    onSyncNow = {
-                        val uriString = appSettings.syncFolderUri ?: return@SyncSection
-                        val uri = runCatching { Uri.parse(uriString) }.getOrNull() ?: return@SyncSection
-                        scope.launch {
-                            val notes = withContext(Dispatchers.IO) {
-                                // Full set (incl. trashed/archived) so a hidden note
-                                // isn't re-imported as new — see #148.
-                                noteRepository.getAllNotes()
-                            }
-                            val result = withContext(Dispatchers.IO) {
-                                NoteFolderMirror.importChanges(
-                                    context = context,
-                                    folderUri = uri,
-                                    existing = notes,
-                                    applyUpdate = { updated ->
-                                        noteImporter.update(updated)
-                                    },
-                                    applyCreate = { created ->
-                                        noteImporter.create(created)
+                    SettingsSection(title = stringResource(R.string.settings_open_source)) {
+                        Text(
+                            text = stringResource(R.string.oss_explainer),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        SettingLine(
+                            stringResource(R.string.oss_license_label) + ": " +
+                                stringResource(R.string.oss_license_value)
+                        )
+                        Spacer(Modifier.height(10.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedButton(
+                                onClick = {
+                                    runCatching {
+                                        context.startActivity(
+                                            Intent(
+                                                Intent.ACTION_VIEW,
+                                                Uri.parse(context.getString(R.string.oss_source_url))
+                                            )
+                                        )
                                     }
-                                )
+                                },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(stringResource(R.string.oss_view_source))
                             }
-                            settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())
-                            val msg = if (result.conflicts > 0) {
-                                context.getString(
-                                    R.string.sync_done_with_conflicts_format,
-                                    result.updated,
-                                    result.created,
-                                    result.conflicts,
-                                    result.skipped
-                                )
-                            } else {
-                                context.getString(
-                                    R.string.sync_done_format,
-                                    result.updated,
-                                    result.created,
-                                    result.skipped
-                                )
+                            OutlinedButton(
+                                onClick = {
+                                    runCatching {
+                                        context.startActivity(
+                                            Intent(
+                                                Intent.ACTION_VIEW,
+                                                Uri.parse(context.getString(R.string.oss_fdroid_url))
+                                            )
+                                        )
+                                    }
+                                },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(stringResource(R.string.oss_view_fdroid))
                             }
-                            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
                         }
-                    },
-                    onStopSync = {
-                        scope.launch {
-                            settingsRepository.setSyncFolderUri(null)
-                            Toast.makeText(
-                                context,
-                                R.string.sync_stopped,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    },
-                    onSyncCenterClick = onSyncCenterClick
-                )
-
-                SettingsSection(title = stringResource(R.string.settings_open_source)) {
-                    Text(
-                        text = stringResource(R.string.oss_explainer),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    SettingLine(
-                        stringResource(R.string.oss_license_label) + ": " +
-                            stringResource(R.string.oss_license_value)
-                    )
-                    Spacer(Modifier.height(10.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Spacer(Modifier.height(6.dp))
                         OutlinedButton(
                             onClick = {
                                 runCatching {
                                     context.startActivity(
                                         Intent(
                                             Intent.ACTION_VIEW,
-                                            Uri.parse(context.getString(R.string.oss_source_url))
+                                            Uri.parse(context.getString(R.string.oss_license_url))
                                         )
                                     )
                                 }
                             },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(stringResource(R.string.oss_view_source))
-                        }
-                        OutlinedButton(
-                            onClick = {
-                                runCatching {
-                                    context.startActivity(
-                                        Intent(
-                                            Intent.ACTION_VIEW,
-                                            Uri.parse(context.getString(R.string.oss_fdroid_url))
-                                        )
-                                    )
-                                }
-                            },
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(stringResource(R.string.oss_view_fdroid))
+                            Text(stringResource(R.string.oss_view_license))
                         }
                     }
-                    Spacer(Modifier.height(6.dp))
-                    OutlinedButton(
-                        onClick = {
-                            runCatching {
-                                context.startActivity(
-                                    Intent(
-                                        Intent.ACTION_VIEW,
-                                        Uri.parse(context.getString(R.string.oss_license_url))
-                                    )
-                                )
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(stringResource(R.string.oss_view_license))
-                    }
-                }
 
-                SettingsSection(title = stringResource(R.string.settings_app)) {
-                    SettingLine(stringResource(R.string.version_format, BuildConfig.VERSION_NAME))
-                    SettingLine(stringResource(R.string.application_id_format, BuildConfig.APPLICATION_ID))
+                    SettingsSection(title = stringResource(R.string.settings_app)) {
+                        SettingLine(stringResource(R.string.version_format, BuildConfig.VERSION_NAME))
+                        SettingLine(stringResource(R.string.application_id_format, BuildConfig.APPLICATION_ID))
+                    }
                 }
-            }
             }
         }
     }

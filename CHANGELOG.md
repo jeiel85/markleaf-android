@@ -2,6 +2,28 @@
 
 All notable changes to Markleaf are documented in this file. This English edition is the source for GitHub release notes; the Korean edition is kept at [CHANGELOG.ko.md](CHANGELOG.ko.md).
 
+## v2.26.0 - Locked notes hardening - 2026-07-18
+
+A hardening release that closes the remaining gaps in the locked notes space added in v2.25.0. The lock is still a UI gate that hides notes from view and is not encryption at rest. The storage format and the local-first, no-INTERNET principle are unchanged.
+
+### Fixed
+- **Sync folder copies removed on lock (#156).** A note already exported to a folder before being locked stayed there as a plain text file. Moving a note into the lock now deletes the matching file in the sync folder, and unlocking exports it again.
+- **Locked notes hidden from backlinks (#156).** When a locked note pointed at an ordinary note with a `[[link]]`, the locked note's title was still visible in that ordinary note's note info sheet.
+- **Locked notes excluded from tag counts (#156).** A tag used only by locked notes stayed in the tag list with a count but showed an empty list when tapped. Such tags no longer appear.
+- **Wikilinks pointing at locked notes (#156).** When `[[Title]]` pointed at a locked note, a new empty note with the same title was created instead. It now reports that the note is in Locked notes, without opening it without the passcode and without creating a duplicate.
+
+### Security
+- **Backoff after repeated passcode failures (#156).** Repeatedly entering the wrong passcode now introduces a wait. The first four attempts retry immediately; after that the wait starts at 30 seconds and doubles with each failure, up to five minutes. The backoff state is stored on the device, so force quitting the app does not reset it.
+- **Screen capture blocked on locked notes (#156).** The locked notes screens always block screenshots and recent-apps previews, regardless of the global "block screen capture" setting. Leaving those screens restores the configured value.
+
+### Changed
+- **Unified editor shortcut handling (#150).** External keyboard shortcuts (`Ctrl/Cmd+B`, `I`, `K`, and `Shift+S`) are resolved from one shared table by both the editing surface and the style panel. Shortcuts pressed in the editing surface now give the same haptics and take the same save path as the panel.
+
+### Internal
+- Compose UI and Roborazzi tests moved to the debug-only `src/testDebug` source set so they drop out of the release and benchmark variants automatically. The per-class exclusion list in `app/build.gradle.kts` is gone, and a dedicated guard test fails immediately if a new Compose test is placed in `src/test` (#152).
+- The GitHub↔GitLab mirror recovery procedure for diverged history on protected branches is documented in `docs/mirror-runbook.md` (#154).
+- Cleaned up indentation that drifted while centering the tablet settings screen (#154).
+
 ## v2.25.0 - Locked notes - 2026-07-18
 
 A feature release that adds a "Locked notes" space for keeping selected notes behind an app passcode. The lock is a UI gate that hides notes from view; note bodies stay in the same on-device local database as before (this is not encryption at rest). The local-first, no-INTERNET principle and the storage format are unchanged.

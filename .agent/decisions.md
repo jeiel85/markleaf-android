@@ -7,6 +7,50 @@
 
 ## Confirmed Decisions
 
+### D061 - Locked Notes Stay Hidden From Every Derived Read Path
+
+The Locked space is a UI-visibility gate, so every surface that derives text
+from note rows — not just the note list — must apply the `locked = 0` filter.
+
+Why:
+- v2.25.0 filtered the primary list, search, tags drill-down, widget, and sync
+  export, but backlinks and tag counts still read locked rows. A locked note's
+  title appeared in the note-information sheet of any note it linked to, and a
+  tag used only by locked notes showed a non-zero count that drilled down to an
+  empty list.
+- A note mirrored to the sync folder *before* being locked kept its readable
+  plaintext file, because the export guard only stops future saves.
+- `[[Title]]` pointing at a locked note fell through to the "create a new note"
+  branch, silently producing a second note under the same title.
+
+Decision:
+- `NoteLinkDao.observeBacklinks` and `TagDao.observeTagsWithCounts` filter
+  `locked = 0`, matching the queries that already did.
+- Locking a note deletes its mirror file when a sync folder is configured, and
+  unlocking rewrites it. Delete-on-lock without restore-on-unlock would make the
+  note permanently absent from the user's folder.
+- Wikilink resolution asks `countLockedNotesWithTitle` after a miss and reports
+  "That note is in Locked notes." It does not open the note (that would bypass
+  the passcode) and does not create a duplicate. Naming the whereabouts leaks
+  nothing new, because the link text is already visible in the current body.
+- The Locked screen raises `FLAG_SECURE` for as long as it is composed,
+  independent of the global screenshot-protection setting, and restores the
+  setting's value on exit.
+- Wrong passcodes are rate-limited by `PasscodeBackoff`: four free attempts,
+  then a 30s wait doubling per failure to a 5-minute cap. The counter and
+  deadline live in DataStore so force-stopping the app cannot clear an
+  in-progress backoff. `attemptLockPasscode` is the only unlock entry point so
+  the policy cannot be bypassed by a new caller.
+
+Not decided here:
+- Encryption at rest for locked notes stays out of scope per `docs/ROADMAP.md`
+  ("명시적 비범위와 보류"), which reserves per-note encryption until a separate
+  threat model and migration design covering search, attachments, and folder
+  mirror is approved.
+- Biometric unlock of the Locked space is deferred: it would let anyone who can
+  pass the device biometric read notes gated on a *separate* secret, which is a
+  product decision about what the passcode promises rather than a hardening fix.
+
 ### D060 - Public Landing Uses Quiet Proof And Real Product Evidence
 
 The GitHub Pages landing page prioritizes verifiable product behavior and data

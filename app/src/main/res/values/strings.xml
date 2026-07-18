@@ -255,6 +255,8 @@
     <string name="locked_passcode_label">Passcode</string>
     <string name="locked_unlock_button">Unlock</string>
     <string name="locked_wrong_passcode">Incorrect passcode.</string>
+    <string name="locked_too_many_attempts">Too many attempts. Try again in %1$s.</string>
+    <string name="wikilink_target_locked">That note is in Locked notes.</string>
     <string name="locked_no_passcode_title">No passcode set</string>
     <string name="locked_no_passcode_hint">Set a passcode in Settings to protect your locked notes.</string>
     <string name="locked_open_settings">Open Settings</string>

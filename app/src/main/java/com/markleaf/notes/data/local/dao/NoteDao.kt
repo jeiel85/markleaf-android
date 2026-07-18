@@ -32,6 +32,17 @@ interface NoteDao {
     suspend fun getNoteByTitle(title: String): NoteEntity?
 
     /**
+     * Whether a *locked* note claims [title]. Wikilink resolution asks this after
+     * [getNoteByTitle] misses, so following `[[Title]]` into the Locked space
+     * reports where the note lives instead of silently creating a second note
+     * under the same title (#156).
+     */
+    @Query(
+        "SELECT COUNT(*) FROM notes WHERE title = :title AND trashed = 0 AND archived = 0 AND locked = 1"
+    )
+    suspend fun countLockedNotesWithTitle(title: String): Int
+
+    /**
      * Every note regardless of state — active, archived, or trashed. The folder
      * reconcile needs the complete id set so a mirror file whose note is only
      * hidden (in Trash or Archive) is recognised as already-existing instead of

@@ -576,7 +576,7 @@ private fun NoteRow(
             )
             DropdownMenuItem(
                 leadingIcon = { Icon(Icons.Default.Archive, contentDescription = null) },
-                text = { Text(stringResource(R.string.archive)) },
+                text = { Text(stringResource(R.string.archive_action)) },
                 onClick = {
                     menuExpanded = false
                     onArchive()

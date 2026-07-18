@@ -10,9 +10,10 @@
     <string name="tags">태그</string>
     <string name="trash">휴지통</string>
     <string name="archive">보관함</string>
+    <string name="archive_action">보관</string>
     <string name="unarchive">보관 해제</string>
     <string name="archive_empty">보관된 노트가 없습니다</string>
-    <string name="archive_empty_hint">노트 목록에서 길게 눌러 "보관"을 선택하면 여기로 옮겨집니다.</string>
+    <string name="archive_empty_hint">노트 목록에서 길게 눌러 \"보관\"을 선택하면 여기로 옮겨집니다.</string>
     <string name="settings">설정</string>
     <string name="more_options">추가 옵션</string>
     <string name="quick_switcher_title">빠른 이동</string>
@@ -147,14 +148,14 @@
 
     <string name="move_to_trash">휴지통으로 이동</string>
     <string name="move_to_trash_title">휴지통으로 옮길까요?</string>
-    <string name="move_to_trash_message">\"%1$s\"를 휴지통으로 옮길까요? 나중에 다시 꺼낼 수 있습니다.</string>
+    <string name="move_to_trash_message">\"%1$s\" 노트를 휴지통으로 옮길까요? 나중에 다시 꺼낼 수 있습니다.</string>
     <string name="move_to_trash_editor_message">이 노트를 휴지통으로 옮길까요? 나중에 다시 꺼낼 수 있습니다.</string>
 
     <string name="settings_appearance">테마</string>
     <string name="theme_label">테마</string>
     <string name="theme_markleaf_green">Markleaf 그린</string>
     <string name="theme_material_you">Material You</string>
-    <string name="theme_description">Markleaf 그린은 앱 이름의 leaf와 어울리는 원래 색상입니다. Material You는 Android 12 이상에서 시스템 배경화면의 색을 따라갑니다.</string>
+    <string name="theme_description">Markleaf 그린은 앱 이름의 잎과 어울리는 원래 색상입니다. Material You는 Android 12 이상에서 시스템 배경화면의 색을 따라갑니다.</string>
 
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Markdown 문법 표시</string>
@@ -181,7 +182,7 @@
     <string name="sync_status_folder_format">현재 폴더: %1$s</string>
     <string name="sync_status_last_synced_format">마지막 동기화: %1$s</string>
     <string name="sync_status_last_synced_never">마지막 동기화: 아직 없음</string>
-    <string name="sync_behavior_summary">· 편집하고 약 1초 뒤 폴더에 자동으로 저장됩니다.\n· "지금 동기화"를 누르면 다른 기기의 변경 내용을 가져옵니다.\n· 같은 노트가 양쪽에서 바뀌면 더 최근에 수정한 쪽이 남습니다.\n· 삭제는 동기화되지 않습니다 — 각 기기에서 따로 정리해 주세요.</string>
+    <string name="sync_behavior_summary">· 편집하고 약 1초 뒤 폴더에 자동으로 저장됩니다.\n· \"지금 동기화\"를 누르면 다른 기기의 변경 내용을 가져옵니다.\n· 같은 노트가 양쪽에서 바뀌면 더 최근에 수정한 쪽이 남습니다.\n· 삭제는 동기화되지 않습니다 — 각 기기에서 따로 정리해 주세요.</string>
     <string name="sync_pick_folder">동기화 폴더 선택</string>
     <string name="sync_change_folder">폴더 변경</string>
     <string name="sync_now">지금 동기화</string>
@@ -201,7 +202,7 @@
     <string name="screenshot_protection_description">노트 본문이 스크린샷과 최근 앱 화면에 표시되지 않도록 합니다. 변경 사항이 반영되려면 에디터를 다시 열어주세요.</string>
     <string name="settings_app">앱</string>
     <string name="version_format">버전 %1$s</string>
-    <string name="application_id_format">Application ID %1$s</string>
+    <string name="application_id_format">애플리케이션 ID %1$s</string>
 
     <string name="settings_open_source">오픈소스</string>
     <string name="oss_license_label">라이선스</string>
@@ -243,7 +244,7 @@
     <!-- Locked notes (#155) -->
     <string name="locked_notes_title">잠긴 노트</string>
     <string name="move_to_locked">잠금으로 이동</string>
-    <string name="remove_from_locked">잠금 해제</string>
+    <string name="remove_from_locked">잠금에서 제거</string>
     <string name="locked_notes_empty">잠긴 노트 없음</string>
     <string name="locked_notes_empty_hint">잠금으로 옮긴 노트가 암호 뒤에 여기 표시됩니다.</string>
     <string name="locked_unlock_hint">잠긴 노트를 열려면 암호를 입력하세요.</string>

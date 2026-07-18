@@ -10,6 +10,7 @@
     <string name="tags">タグ</string>
     <string name="trash">ゴミ箱</string>
     <string name="archive">アーカイブ</string>
+    <string name="archive_action">アーカイブ</string>
     <string name="unarchive">アーカイブ解除</string>
     <string name="archive_empty">アーカイブされたノートはありません</string>
     <string name="archive_empty_hint">メイン一覧でノートを長押しし、アーカイブを選ぶとここに移動します。</string>
@@ -201,7 +202,7 @@
     <string name="screenshot_protection_description">スクリーンショットや最近使ったアプリ画面でノート内容を非表示にします。変更を反映するにはエディタを開き直してください。</string>
     <string name="settings_app">アプリ</string>
     <string name="version_format">バージョン %1$s</string>
-    <string name="application_id_format">Application ID %1$s</string>
+    <string name="application_id_format">アプリケーション ID %1$s</string>
 
     <string name="settings_open_source">オープンソース</string>
     <string name="oss_license_label">ライセンス</string>
@@ -243,7 +244,7 @@
     <!-- Locked notes (#155) -->
     <string name="locked_notes_title">ロックされたノート</string>
     <string name="move_to_locked">ロックに移動</string>
-    <string name="remove_from_locked">ロックを解除</string>
+    <string name="remove_from_locked">ロックから戻す</string>
     <string name="locked_notes_empty">ロックされたノートはありません</string>
     <string name="locked_notes_empty_hint">ロックに移動したノートは、パスコードの内側にここに表示されます。</string>
     <string name="locked_unlock_hint">ロックされたノートを開くにはパスコードを入力してください。</string>

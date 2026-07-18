@@ -10,6 +10,7 @@
     <string name="tags">Étiquettes</string>
     <string name="trash">Corbeille</string>
     <string name="archive">Archives</string>
+    <string name="archive_action">Archiver</string>
     <string name="unarchive">Désarchiver</string>
     <string name="archive_empty">Aucune note archivée</string>
     <string name="archive_empty_hint">Appuyez longuement sur une note dans la liste principale et choisissez Archiver pour la déplacer ici.</string>
@@ -177,9 +178,9 @@
         <item quantity="other">%1$d notes exportées.</item>
     </plurals>
 
-    <string name="sync_title">Multi-device sync (folder mirror)</string>
-    <string name="sync_explainer">Markleaf ne se connecte jamais à Internet lui-même. Au lieu de cela, vous choisissez un dossier et Markleaf y enregistre chaque note sous forme de fichier `.md`. Si ce dossier est synchronisé par une autre application — Dropbox, Drive, Syncthing, OneDrive, a NAS — vos notes suivent vos autres appareils.</string>
-    <string name="sync_recommended_locations">Good places to point Markleaf at:\n· /Internal storage/Dropbox/Markleaf\n· /Internal storage/Drive/Markleaf\n· /Internal storage/Sync/Markleaf  (Syncthing)</string>
+    <string name="sync_title">Synchronisation multi-appareils (dossier miroir)</string>
+    <string name="sync_explainer">Markleaf ne se connecte jamais à Internet lui-même. Au lieu de cela, vous choisissez un dossier et Markleaf y enregistre chaque note sous forme de fichier `.md`. Si ce dossier est synchronisé par une autre application — Dropbox, Drive, Syncthing, OneDrive, un NAS — vos notes suivent vos autres appareils.</string>
+    <string name="sync_recommended_locations">Emplacements recommandés pour Markleaf :\n· /Stockage interne/Dropbox/Markleaf\n· /Stockage interne/Drive/Markleaf\n· /Stockage interne/Sync/Markleaf  (Syncthing)</string>
     <string name="sync_status_unset">Aucun dossier sélectionné.</string>
     <string name="sync_status_folder_format">Dossier : %1$s</string>
     <string name="sync_status_last_synced_format">Dernière synchronisation : %1$s</string>
@@ -263,7 +264,7 @@
     <string name="locked_need_passcode_title">Définissez d\'abord un code</string>
     <string name="locked_need_passcode_message">Pour verrouiller des notes, définissez un code de notes verrouillées dans les Paramètres.</string>
     <string name="locked_passcode_setting_title">Code des notes verrouillées</string>
-    <string name="locked_passcode_setting_description">Protège les notes déplacées vers Verrouillées. Les masque dans l\'app — ce n\'est pas un chiffrement complet.</string>
+    <string name="locked_passcode_setting_description">Protège les notes déplacées vers Verrouillées. Cela les masque dans l\'application — ce n\'est pas un chiffrement complet.</string>
     <string name="locked_passcode_set">Définir un code</string>
     <string name="locked_passcode_change">Modifier le code</string>
     <string name="locked_passcode_remove">Supprimer le code</string>

@@ -9,7 +9,12 @@
     <string name="search">Search</string>
     <string name="tags">Tags</string>
     <string name="trash">Trash</string>
+    <!-- "archive" names the destination: the Archive screen title, and the overflow
+         item that navigates there. "archive_action" is the verb on a note's own menu.
+         English spells both the same, but most locales need a noun and a verb, and
+         archive_empty_hint tells the user which menu entry to look for. -->
     <string name="archive">Archive</string>
+    <string name="archive_action">Archive</string>
     <string name="unarchive">Unarchive</string>
     <string name="archive_empty">No archived notes</string>
     <string name="archive_empty_hint">Long-press a note in the main list and choose Archive to move it here.</string>
@@ -184,7 +189,7 @@
     <string name="sync_status_folder_format">Folder: %1$s</string>
     <string name="sync_status_last_synced_format">Last synced: %1$s</string>
     <string name="sync_status_last_synced_never">Last synced: never</string>
-    <string name="sync_behavior_summary">· Saves to the folder ~1 second after each edit.\n· "Sync now" pulls in changes from other devices.\n· Conflicts: the most recent edit wins.\n· Deletions are not synced — manage trash on each device.</string>
+    <string name="sync_behavior_summary">· Saves to the folder ~1 second after each edit.\n· \"Sync now\" pulls in changes from other devices.\n· Conflicts: the most recent edit wins.\n· Deletions are not synced — manage trash on each device.</string>
     <string name="sync_pick_folder">Choose sync folder</string>
     <string name="sync_change_folder">Change folder</string>
     <string name="sync_now">Sync now</string>

@@ -10,12 +10,13 @@
     <string name="tags">Etiquetas</string>
     <string name="trash">Papelera</string>
     <string name="archive">Archivo</string>
+    <string name="archive_action">Archivar</string>
     <string name="unarchive">Quitar del archivo</string>
     <string name="archive_empty">No hay notas archivadas</string>
-    <string name="archive_empty_hint">Manten pulsada una nota en la lista principal y elige Archivar para moverla aqui.</string>
+    <string name="archive_empty_hint">Mantén pulsada una nota en la lista principal y elige Archivar para moverla aquí.</string>
     <string name="settings">Ajustes</string>
-    <string name="more_options">Mas opciones</string>
-    <string name="quick_switcher_title">Salto rapido</string>
+    <string name="more_options">Más opciones</string>
+    <string name="quick_switcher_title">Salto rápido</string>
     <string name="quick_switcher_hint">Saltar a nota…</string>
     <string name="quick_switcher_no_results">Ninguna nota coincide.</string>
     <string name="backlinks_section_title">Enlazado desde</string>
@@ -32,25 +33,25 @@
     <string name="font_description">La serif da a las notas un aire clásico, como de libro. El código siempre se muestra en monoespaciado.</string>
     <string name="all_notes">Todas las notas</string>
     <string name="no_notes_for_tag">No hay notas con esta etiqueta</string>
-    <string name="image_alt_dialog_title">Editar descripcion de la imagen</string>
+    <string name="image_alt_dialog_title">Editar descripción de la imagen</string>
     <string name="image_alt_dialog_description">El texto alternativo ayuda a los lectores de pantalla y se muestra cuando la imagen no carga.</string>
-    <string name="image_alt_dialog_label">Descripcion</string>
+    <string name="image_alt_dialog_label">Descripción</string>
     <string name="image_alt_dialog_save">Guardar</string>
     <string name="add_note">Agregar nota</string>
-    <string name="no_notes_yet">Aun no hay notas</string>
+    <string name="no_notes_yet">Aún no hay notas</string>
     <string name="create_first_note_hint">Toca + para crear tu primera nota</string>
     <string name="create_note">Crear nota</string>
-    <string name="untitled">Sin titulo</string>
-    <string name="untitled_parenthesized">(Sin titulo)</string>
+    <string name="untitled">Sin título</string>
+    <string name="untitled_parenthesized">(Sin título)</string>
     <string name="select_note_to_view">Selecciona una nota para verla</string>
 
     <string name="preview">Vista previa</string>
     <string name="edit">Editar</string>
     <string name="edit_note">Editar nota</string>
     <string name="new_note">Nueva nota</string>
-    <string name="back">Atras</string>
+    <string name="back">Atrás</string>
     <string name="note_content">Contenido de la nota</string>
-    <string name="editor_empty_title">Una pagina tranquila esta lista</string>
+    <string name="editor_empty_title">Una página tranquila está lista</string>
     <string name="editor_empty_hint">Usa Markdown, #etiquetas, enlaces y casillas. Markleaf guarda localmente mientras escribes.</string>
     <string name="bold">Negrita</string>
     <string name="formatting">Formato</string>
@@ -61,16 +62,16 @@
     <string name="collapsed">Contraído</string>
     <string name="italic">Cursiva</string>
     <string name="strikethrough">Tachado</string>
-    <string name="inline_code">Codigo en linea</string>
+    <string name="inline_code">Código en línea</string>
     <string name="checkbox">Casilla</string>
     <string name="markdown_link">Enlace Markdown</string>
     <string name="insert_image">Insertar imagen</string>
     <string name="attachment_failed">No se pudo adjuntar la imagen.</string>
     <string name="heading">Encabezado</string>
-    <string name="bullet_list">Lista con vinetas</string>
+    <string name="bullet_list">Lista con viñetas</string>
     <string name="ordered_list">Lista numerada</string>
     <string name="blockquote">Cita</string>
-    <string name="code_block">Bloque de codigo</string>
+    <string name="code_block">Bloque de código</string>
     <string name="horizontal_rule">Divisor</string>
     <string name="quick_insert_title">Inserción rápida</string>
     <string name="quick_insert_heading_1">Encabezado 1</string>
@@ -111,7 +112,7 @@
     <string name="callout_tip">Consejo</string>
     <string name="callout_important">Importante</string>
     <string name="callout_warning">Advertencia</string>
-    <string name="callout_caution">Precaucion</string>
+    <string name="callout_caution">Precaución</string>
 
     <string name="pin">Fijar</string>
     <string name="unpin">Quitar fijado</string>
@@ -119,7 +120,7 @@
     <string name="section_pinned">Fijadas</string>
     <string name="section_today">Hoy</string>
     <string name="section_yesterday">Ayer</string>
-    <string name="section_past_week">Ultimos 7 dias</string>
+    <string name="section_past_week">Últimos 7 días</string>
     <string name="section_older">Anteriores</string>
     <string name="relative_today">Hoy %1$s</string>
     <string name="relative_yesterday">Ayer %1$s</string>
@@ -131,26 +132,26 @@
     <string name="matching_notes">Notas</string>
     <string name="matching_tags">Etiquetas</string>
     <string name="tag_result_format">#%1$s</string>
-    <string name="no_tags_yet">Aun no hay etiquetas</string>
+    <string name="no_tags_yet">Aún no hay etiquetas</string>
     <string name="tags_empty_hint">Escribe #etiquetas en una nota para organizarla</string>
     <plurals name="tag_note_count_format">
         <item quantity="one">%1$d nota</item>
         <item quantity="other">%1$d notas</item>
     </plurals>
 
-    <string name="trash_empty">La papelera esta vacia</string>
-    <string name="trash_empty_hint">Las notas que elimines apareceran aqui</string>
+    <string name="trash_empty">La papelera está vacía</string>
+    <string name="trash_empty_hint">Las notas que elimines aparecerán aquí</string>
     <string name="restore">Restaurar</string>
     <string name="delete">Eliminar</string>
-    <string name="delete_forever_title">Eliminar para siempre?</string>
-    <string name="delete_forever_message">Esta nota se eliminara permanentemente y no se podra recuperar.</string>
+    <string name="delete_forever_title">¿Eliminar para siempre?</string>
+    <string name="delete_forever_message">Esta nota se eliminará permanentemente y no se podrá recuperar.</string>
     <string name="delete_forever">Eliminar para siempre</string>
     <string name="cancel">Cancelar</string>
 
     <string name="move_to_trash">Mover a la papelera</string>
-    <string name="move_to_trash_title">Mover a la papelera?</string>
-    <string name="move_to_trash_message">Mover \"%1$s\" a la papelera? Puedes restaurarla despues desde la Papelera.</string>
-    <string name="move_to_trash_editor_message">Mover esta nota a la papelera? Puedes restaurarla despues desde la Papelera.</string>
+    <string name="move_to_trash_title">¿Mover a la papelera?</string>
+    <string name="move_to_trash_message">¿Mover \"%1$s\" a la papelera? Puedes restaurarla después desde la Papelera.</string>
+    <string name="move_to_trash_editor_message">¿Mover esta nota a la papelera? Puedes restaurarla después desde la Papelera.</string>
 
     <string name="settings_appearance">Apariencia</string>
     <string name="theme_label">Tema</string>
@@ -161,14 +162,14 @@
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Mostrar sintaxis Markdown</string>
     <string name="show_markdown_syntax_description">El editor resalta caracteres Markdown mientras escribes.</string>
-    <string name="line_width">Ancho de linea</string>
+    <string name="line_width">Ancho de línea</string>
     <string name="line_width_narrow">Estrecho</string>
-    <string name="line_width_comfortable">Comodo</string>
+    <string name="line_width_comfortable">Cómodo</string>
     <string name="line_width_wide">Ancho</string>
     <string name="settings_privacy">Privacidad</string>
-    <string name="privacy_no_tracking">Sin cuenta, analiticas, anuncios, configuracion remota ni SDK propietario de fallos.</string>
+    <string name="privacy_no_tracking">Sin cuenta, analíticas, anuncios, configuración remota ni SDK propietario de fallos.</string>
     <string name="privacy_no_internet">El MVP no declara permiso INTERNET.</string>
-    <string name="privacy_local_first">Las notas salen del dispositivo solo cuando las exportas o compartes explicitamente.</string>
+    <string name="privacy_local_first">Las notas salen del dispositivo solo cuando las exportas o compartes explícitamente.</string>
     <string name="settings_data">Datos</string>
     <string name="export_all_notes">Exportar todas las notas…</string>
     <string name="export_all_notes_description">Elige una carpeta y Markleaf guarda cada nota como un archivo .md independiente. Las notas en la papelera se omiten.</string>
@@ -177,18 +178,18 @@
         <item quantity="other">%1$d notas exportadas.</item>
     </plurals>
 
-    <string name="sync_title">Sincronizacion entre dispositivos (carpeta espejo)</string>
-    <string name="sync_explainer">Markleaf nunca se conecta a internet por si mismo. En su lugar, tu eliges una carpeta y Markleaf guarda cada nota como archivo .md ahi. Si esa carpeta la sincroniza otra app — Dropbox, Drive, Syncthing, OneDrive, un NAS — tus notas siguen a tus otros dispositivos.</string>
+    <string name="sync_title">Sincronización entre dispositivos (carpeta espejo)</string>
+    <string name="sync_explainer">Markleaf nunca se conecta a internet por sí mismo. En su lugar, tú eliges una carpeta y Markleaf guarda cada nota como archivo .md ahí. Si esa carpeta la sincroniza otra app — Dropbox, Drive, Syncthing, OneDrive, un NAS — tus notas siguen a tus otros dispositivos.</string>
     <string name="sync_recommended_locations">Lugares recomendados:\n· /Almacenamiento interno/Dropbox/Markleaf\n· /Almacenamiento interno/Drive/Markleaf\n· /Almacenamiento interno/Sync/Markleaf  (Syncthing)</string>
     <string name="sync_status_unset">Ninguna carpeta seleccionada.</string>
     <string name="sync_status_folder_format">Carpeta: %1$s</string>
-    <string name="sync_status_last_synced_format">Ultima sincronizacion: %1$s</string>
-    <string name="sync_status_last_synced_never">Ultima sincronizacion: nunca</string>
-    <string name="sync_behavior_summary">· Guarda en la carpeta ~1 segundo despues de cada edicion.\n· "Sincronizar ahora" trae los cambios de otros dispositivos.\n· Conflictos: gana la edicion mas reciente.\n· Los borrados no se sincronizan — gestiona la papelera en cada dispositivo.</string>
+    <string name="sync_status_last_synced_format">Última sincronización: %1$s</string>
+    <string name="sync_status_last_synced_never">Última sincronización: nunca</string>
+    <string name="sync_behavior_summary">· Guarda en la carpeta ~1 segundo después de cada edición.\n· \"Sincronizar ahora\" trae los cambios de otros dispositivos.\n· Conflictos: gana la edición más reciente.\n· Los borrados no se sincronizan — gestiona la papelera en cada dispositivo.</string>
     <string name="sync_pick_folder">Elegir carpeta</string>
     <string name="sync_change_folder">Cambiar carpeta</string>
     <string name="sync_now">Sincronizar ahora</string>
-    <string name="sync_stop">Desactivar sincronizacion</string>
+    <string name="sync_stop">Desactivar sincronización</string>
     <plurals name="sync_seeded_format">
         <item quantity="one">%1$d nota reflejada en la carpeta.</item>
         <item quantity="other">%1$d notas reflejadas en la carpeta.</item>
@@ -201,41 +202,41 @@
     </plurals>
     <string name="sync_done_format">Sincronizado — %1$d actualizadas, %2$d nuevas, %3$d sin cambios.</string>
     <string name="sync_done_with_conflicts_format">Sincronizado — %1$d actualizadas, %2$d nuevas, %3$d guardadas como duplicado (conflicto), %4$d sin cambios.</string>
-    <string name="sync_stopped">Sincronizacion desactivada.</string>
+    <string name="sync_stopped">Sincronización desactivada.</string>
     <string name="screenshot_protection">Bloquear capturas y vista previa de Recientes</string>
     <string name="screenshot_protection_description">Oculta el contenido de las notas en capturas de pantalla y en la vista de aplicaciones recientes. Reabre el editor para aplicar el cambio.</string>
-    <string name="settings_app">Aplicacion</string>
-    <string name="version_format">Version %1$s</string>
-    <string name="application_id_format">Application ID %1$s</string>
+    <string name="settings_app">Aplicación</string>
+    <string name="version_format">Versión %1$s</string>
+    <string name="application_id_format">ID de aplicación %1$s</string>
 
     <!-- Widget -->
-    <string name="quick_note_widget_label">Nota rapida</string>
-    <string name="quick_note_widget_description">Toca para crear rapidamente una nueva nota</string>
+    <string name="quick_note_widget_label">Nota rápida</string>
+    <string name="quick_note_widget_description">Toca para crear rápidamente una nueva nota</string>
 
     <!-- Privacy Dashboard -->
     <string name="privacy_dashboard_title">Panel de privacidad</string>
     <string name="privacy_guarantee_title">Tus datos se quedan locales</string>
-    <string name="privacy_guarantee_desc">Markleaf esta disenado con la privacidad como nucleo. Tus notas nunca abandonan tu dispositivo a menos que elijas exportarlas o compartirlas explicitamente.</string>
+    <string name="privacy_guarantee_desc">Markleaf está diseñado con la privacidad como núcleo. Tus notas nunca abandonan tu dispositivo a menos que elijas exportarlas o compartirlas explícitamente.</string>
     <string name="privacy_data_storage_title">Almacenamiento local primero</string>
     <string name="privacy_data_storage_desc">Todas tus notas y etiquetas se almacenan localmente en tu dispositivo usando la base de datos segura Room de Android. Sin servidores en la nube, sin subidas de datos.</string>
     <string name="privacy_no_cloud_title">Sin dependencias de la nube</string>
-    <string name="privacy_no_cloud_desc">No usamos servicios en la nube para la funcionalidad principal. Sin sincronizacion con Google Drive, sin integracion con Dropbox, sin servidores backend propietarios.</string>
+    <string name="privacy_no_cloud_desc">No usamos servicios en la nube para la funcionalidad principal. Sin sincronización con Google Drive, sin integración con Dropbox, sin servidores backend propietarios.</string>
     <string name="privacy_no_tracking_title">Rastreo cero</string>
-    <string name="privacy_no_tracking_desc">Sin analiticas, sin SDKs de reporte de fallos, sin redes publicitarias. No tenemos idea de como usas la aplicacion, y nos gusta asi.</string>
-    <string name="privacy_verification_title">Verificacion de privacidad</string>
+    <string name="privacy_no_tracking_desc">Sin analíticas, sin SDKs de reporte de fallos, sin redes publicitarias. No tenemos idea de cómo usas la aplicación, y nos gusta así.</string>
+    <string name="privacy_verification_title">Verificación de privacidad</string>
     <string name="privacy_verify_no_internet">Permiso INTERNET no declarado</string>
     <string name="privacy_verify_local_only">Procesamiento de datos 100% local</string>
     <string name="privacy_verify_no_ads">Sin anuncios ni rastreadores</string>
-    <string name="privacy_verify_no_analytics">Sin analiticas ni telemetria</string>
-    <string name="privacy_verify_open_source">Codigo abierto y auditable</string>
-    <string name="privacy_app_info_title">Acerca de esta version</string>
-    <string name="privacy_app_info_desc">Version %1$s\n\nEsta version de Markleaf mantiene estrictos estandares de privacidad. Todas las caracteristicas funcionan completamente sin conexion.</string>
+    <string name="privacy_verify_no_analytics">Sin analíticas ni telemetría</string>
+    <string name="privacy_verify_open_source">Código abierto y auditable</string>
+    <string name="privacy_app_info_title">Acerca de esta versión</string>
+    <string name="privacy_app_info_desc">Versión %1$s\n\nEsta versión de Markleaf mantiene estrictos estándares de privacidad. Todas las características funcionan completamente sin conexión.</string>
     <string name="privacy_dashboard_button">Ver panel de privacidad</string>
 
-    <string name="settings_open_source">Codigo abierto</string>
+    <string name="settings_open_source">Código abierto</string>
     <string name="oss_license_label">Licencia</string>
     <string name="oss_license_value">Apache License 2.0</string>
-    <string name="oss_source_label">Codigo fuente</string>
+    <string name="oss_source_label">Código fuente</string>
     <string name="oss_source_url">https://github.com/jeiel85/markleaf-android</string>
     <string name="oss_view_source">Ver en GitHub</string>
     <string name="oss_view_license">Ver licencia completa</string>
@@ -243,31 +244,31 @@
     <string name="oss_fdroid_label">F-Droid</string>
     <string name="oss_fdroid_url">https://f-droid.org/packages/com.markleaf.notes/</string>
     <string name="oss_view_fdroid">Ver en F-Droid</string>
-    <string name="oss_explainer">Markleaf es totalmente codigo abierto bajo Apache 2.0. Lee el codigo, audita como se guardan tus notas y contribuye en GitHub.</string>
+    <string name="oss_explainer">Markleaf es totalmente código abierto bajo Apache 2.0. Lee el código, audita cómo se guardan tus notas y contribuye en GitHub.</string>
 
     <!-- Onboarding -->
     <string name="onboarding_title_welcome">Bienvenido a Markleaf</string>
-    <string name="onboarding_body_welcome">Una aplicacion tranquila de notas Markdown local-first para Android. Tu texto se queda en este dispositivo a menos que decidas compartirlo o exportarlo.</string>
+    <string name="onboarding_body_welcome">Una aplicación tranquila de notas Markdown, con almacenamiento local primero, para Android. Tu texto se queda en este dispositivo a menos que decidas compartirlo o exportarlo.</string>
     <string name="onboarding_title_markdown">Escribe en Markdown</string>
-    <string name="onboarding_body_markdown">Usa **negrita**, _cursiva_, # titulos, listas, codigo y citas. Toca Vista previa en la barra superior para ver el resultado renderizado en cualquier momento.</string>
+    <string name="onboarding_body_markdown">Usa **negrita**, _cursiva_, # títulos, listas, código y citas. Toca Vista previa en la barra superior para ver el resultado renderizado en cualquier momento.</string>
     <string name="onboarding_title_tags">Organiza con #etiquetas</string>
-    <string name="onboarding_body_tags">Escribe #proyecto o #reunion en cualquier parte de una nota. Las etiquetas se detectan automaticamente y aparecen en la pantalla de Etiquetas.</string>
+    <string name="onboarding_body_tags">Escribe #proyecto o #reunión en cualquier parte de una nota. Las etiquetas se detectan automáticamente y aparecen en la pantalla de Etiquetas.</string>
     <string name="onboarding_title_local">Tus datos se quedan locales</string>
-    <string name="onboarding_body_local">Sin cuenta, sin analiticas, sin nube. Exporta cualquier nota como archivo .md, o apunta Markleaf a una carpeta sincronizada (Dropbox / Drive / Syncthing) para multi-dispositivo.</string>
+    <string name="onboarding_body_local">Sin cuenta, sin analíticas, sin nube. Exporta cualquier nota como archivo .md, o apunta Markleaf a una carpeta sincronizada (Dropbox / Drive / Syncthing) para multi-dispositivo.</string>
     <string name="onboarding_next">Siguiente</string>
     <string name="onboarding_done">Empezar</string>
     <string name="onboarding_skip">Omitir</string>
 
     <!-- Biometric lock -->
-    <string name="biometric_lock_title">Bloqueo de la aplicacion</string>
-    <string name="biometric_lock_setting">Requerir biometria al abrir</string>
-    <string name="biometric_lock_description">Se requiere huella o reconocimiento facial cuando se abre Markleaf. Las notas en si nunca salen del dispositivo.</string>
+    <string name="biometric_lock_title">Bloqueo de la aplicación</string>
+    <string name="biometric_lock_setting">Requerir biometría al abrir</string>
+    <string name="biometric_lock_description">Se requiere huella o reconocimiento facial cuando se abre Markleaf. Las notas en sí nunca salen del dispositivo.</string>
     <string name="biometric_lock_prompt_title">Desbloquear Markleaf</string>
-    <string name="biometric_lock_prompt_subtitle">Autenticate para acceder a tus notas</string>
+    <string name="biometric_lock_prompt_subtitle">Autentícate para acceder a tus notas</string>
     <string name="biometric_lock_cancel">Cancelar</string>
-    <string name="biometric_lock_unavailable">La autenticacion biometrica no esta disponible en este dispositivo. Configura una huella o cara en los ajustes del sistema para usar el bloqueo.</string>
+    <string name="biometric_lock_unavailable">La autenticación biométrica no está disponible en este dispositivo. Configura una huella o cara en los ajustes del sistema para usar el bloqueo.</string>
     <string name="biometric_lock_retry">Reintentar</string>
-    <string name="biometric_lock_locked_message">Markleaf esta bloqueado.</string>
+    <string name="biometric_lock_locked_message">Markleaf está bloqueado.</string>
 
     <!-- Locked notes (#155) -->
     <string name="locked_notes_title">Notas bloqueadas</string>
@@ -309,7 +310,7 @@
     <!-- PDF export -->
     <string name="export_pdf">Exportar como PDF…</string>
     <string name="export_pdf_job_name">Markleaf — %1$s</string>
-    <string name="export_pdf_unavailable">La exportacion a PDF solo esta disponible en Android 5 y posteriores.</string>
+    <string name="export_pdf_unavailable">La exportación a PDF solo está disponible en Android 5 y posteriores.</string>
 
     <!-- Sync & Conflict Center -->
     <string name="sync_center_title">Centro de sincronización</string>

@@ -245,6 +245,37 @@
     <string name="biometric_lock_retry">Try again</string>
     <string name="biometric_lock_locked_message">Markleaf is locked.</string>
 
+    <!-- Locked notes (#155) -->
+    <string name="locked_notes_title">Locked notes</string>
+    <string name="move_to_locked">Move to Locked</string>
+    <string name="remove_from_locked">Remove from Locked</string>
+    <string name="locked_notes_empty">No locked notes</string>
+    <string name="locked_notes_empty_hint">Notes you move to Locked appear here, behind your passcode.</string>
+    <string name="locked_unlock_hint">Enter your passcode to open Locked notes.</string>
+    <string name="locked_passcode_label">Passcode</string>
+    <string name="locked_unlock_button">Unlock</string>
+    <string name="locked_wrong_passcode">Incorrect passcode.</string>
+    <string name="locked_no_passcode_title">No passcode set</string>
+    <string name="locked_no_passcode_hint">Set a passcode in Settings to protect your locked notes.</string>
+    <string name="locked_open_settings">Open Settings</string>
+    <string name="locked_need_passcode_title">Set a passcode first</string>
+    <string name="locked_need_passcode_message">To lock notes, set a Locked notes passcode in Settings.</string>
+    <string name="locked_passcode_setting_title">Locked notes passcode</string>
+    <string name="locked_passcode_setting_description">Protects notes you move to Locked. This hides them in the app — it isn\'t full encryption.</string>
+    <string name="locked_passcode_set">Set passcode</string>
+    <string name="locked_passcode_change">Change passcode</string>
+    <string name="locked_passcode_remove">Remove passcode</string>
+    <string name="locked_passcode_dialog_title">Locked notes passcode</string>
+    <string name="locked_passcode_new_label">New passcode</string>
+    <string name="locked_passcode_confirm_label">Confirm passcode</string>
+    <string name="locked_passcode_save">Save</string>
+    <string name="locked_passcode_too_short">Use at least 4 characters.</string>
+    <string name="locked_passcode_mismatch">Passcodes don\'t match.</string>
+    <string name="locked_passcode_set_done">Passcode set.</string>
+    <string name="locked_passcode_removed_done">Passcode removed. Locked notes moved back to your notes.</string>
+    <string name="locked_passcode_remove_confirm_title">Remove passcode?</string>
+    <string name="locked_passcode_remove_confirm_message">This moves all locked notes back to your notes.</string>
+
     <!-- PDF export -->
     <string name="export_pdf">Export as PDF…</string>
     <string name="export_pdf_job_name">Markleaf — %1$s</string>

@@ -18,6 +18,13 @@ interface NoteRepository {
     suspend fun deleteForever(noteId: String)
     fun observeTrashedNotes(): Flow<List<Note>>
     fun observeArchivedNotes(): Flow<List<Note>>
+    /** Notes in the passcode-gated "Locked notes" space (#155). */
+    fun observeLockedNotes(): Flow<List<Note>>
+    /** Move a note into ([locked] = true) or out of ([locked] = false) the
+     *  Locked space. */
+    suspend fun setLocked(noteId: String, locked: Boolean)
+    /** Clear the lock on every locked note (used when the passcode is removed). */
+    suspend fun unlockAllLocked()
     fun searchNotes(query: String): Flow<List<Note>>
     suspend fun reorderNotes(notes: List<Note>)
     fun observeConflictNotes(): Flow<List<Note>>

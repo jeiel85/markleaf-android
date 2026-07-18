@@ -84,6 +84,14 @@ class NotesViewModel(
         }
     }
 
+    /** Move a note into the passcode-gated "Locked notes" space (#155). It drops
+     *  out of this list immediately because observeNotes filters `locked = 0`. */
+    fun setLocked(noteId: String, locked: Boolean) {
+        viewModelScope.launch {
+            noteRepository.setLocked(noteId, locked)
+        }
+    }
+
     fun reorderNotes(reorderedNotes: List<Note>) {
         viewModelScope.launch {
             _notes.value = reorderedNotes

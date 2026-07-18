@@ -57,6 +57,13 @@ class MarkleafViewModelFactoryTest {
         assertTrue(viewModel is ArchiveViewModel)
     }
 
+    @Test
+    fun createsLockedNotesViewModel() {
+        val viewModel = factory.create(LockedNotesViewModel::class.java) as Any
+
+        assertTrue(viewModel is LockedNotesViewModel)
+    }
+
     private class FakeNoteRepository : NoteRepository {
         override fun observeNotes(): Flow<List<Note>> = flowOf(emptyList())
         override suspend fun getNote(noteId: String): Note? = null
@@ -71,6 +78,9 @@ class MarkleafViewModelFactoryTest {
         override suspend fun reorderNotes(notes: List<Note>) = Unit
         override fun observeTrashedNotes(): Flow<List<Note>> = flowOf(emptyList())
         override fun observeArchivedNotes(): Flow<List<Note>> = flowOf(emptyList())
+        override fun observeLockedNotes(): Flow<List<Note>> = flowOf(emptyList())
+        override suspend fun setLocked(noteId: String, locked: Boolean) = Unit
+        override suspend fun unlockAllLocked() = Unit
         override fun searchNotes(query: String): Flow<List<Note>> = flowOf(emptyList())
         override fun observeConflictNotes(): Flow<List<Note>> = flowOf(emptyList())
     }

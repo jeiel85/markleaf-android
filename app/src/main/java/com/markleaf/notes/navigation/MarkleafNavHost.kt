@@ -60,6 +60,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.markleaf.notes.feature.archive.ArchiveScreen
 import com.markleaf.notes.feature.editor.EditorScreen
+import com.markleaf.notes.feature.lock.LockedNotesScreen
 import com.markleaf.notes.feature.notes.NotesListScreen
 import com.markleaf.notes.feature.search.SearchScreen
 import com.markleaf.notes.feature.settings.SettingsScreen
@@ -70,6 +71,7 @@ import com.markleaf.notes.feature.sync.SyncCenterScreen
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.ui.viewmodel.ArchiveViewModel
+import com.markleaf.notes.ui.viewmodel.LockedNotesViewModel
 import com.markleaf.notes.ui.viewmodel.NotesViewModel
 import com.markleaf.notes.ui.viewmodel.SearchViewModel
 import com.markleaf.notes.ui.viewmodel.TrashViewModel
@@ -237,8 +239,11 @@ fun MarkleafNavHost(
                                 onSearchClick = { navController.navigate(NavRoutes.SEARCH) },
                                 onTagsClick = { navController.navigate(NavRoutes.TAGS) },
                                 onArchiveClick = { navController.navigate(NavRoutes.ARCHIVE) },
+                                onLockedClick = { navController.navigate(NavRoutes.LOCKED) },
                                 onTrashClick = { navController.navigate(NavRoutes.TRASH) },
                                 onSettingsClick = { navController.navigate(NavRoutes.SETTINGS) },
+                                lockPasscodeSet = appSettings.lockPasscodeSet,
+                                onRequestSetPasscode = { navController.navigate(NavRoutes.SETTINGS) },
                                 onCollapseClick = { isNoteListCollapsed = true },
                                 onShowTagRail = if (isTagRailCollapsed) ({ isTagRailCollapsed = false }) else null,
                                 selectedNoteId = selectedNoteId,
@@ -325,8 +330,11 @@ fun MarkleafNavHost(
                     onSearchClick = { navController.navigate(NavRoutes.SEARCH) },
                     onTagsClick = { navController.navigate(NavRoutes.TAGS) },
                     onArchiveClick = { navController.navigate(NavRoutes.ARCHIVE) },
+                    onLockedClick = { navController.navigate(NavRoutes.LOCKED) },
                     onTrashClick = { navController.navigate(NavRoutes.TRASH) },
-                    onSettingsClick = { navController.navigate(NavRoutes.SETTINGS) }
+                    onSettingsClick = { navController.navigate(NavRoutes.SETTINGS) },
+                    lockPasscodeSet = appSettings.lockPasscodeSet,
+                    onRequestSetPasscode = { navController.navigate(NavRoutes.SETTINGS) }
                 )
                 }
             }
@@ -394,6 +402,15 @@ fun MarkleafNavHost(
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() },
                 onNoteClick = { noteId -> navController.navigate(NavRoutes.editorRoute(noteId)) }
+            )
+        }
+        composable(NavRoutes.LOCKED) {
+            val viewModel = viewModel<LockedNotesViewModel>(factory = viewModelFactory)
+            LockedNotesScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() },
+                onNoteClick = { noteId -> navController.navigate(NavRoutes.editorRoute(noteId)) },
+                onOpenSettings = { navController.navigate(NavRoutes.SETTINGS) }
             )
         }
         composable(NavRoutes.SETTINGS) {

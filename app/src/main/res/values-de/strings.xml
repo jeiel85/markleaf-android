@@ -245,6 +245,37 @@
     <string name="biometric_lock_retry">Erneut versuchen</string>
     <string name="biometric_lock_locked_message">Markleaf ist gesperrt.</string>
 
+    <!-- Locked notes (#155) -->
+    <string name="locked_notes_title">Gesperrte Notizen</string>
+    <string name="move_to_locked">Zu Gesperrt verschieben</string>
+    <string name="remove_from_locked">Aus Gesperrt entfernen</string>
+    <string name="locked_notes_empty">Keine gesperrten Notizen</string>
+    <string name="locked_notes_empty_hint">Notizen, die du nach Gesperrt verschiebst, erscheinen hier hinter deinem Passcode.</string>
+    <string name="locked_unlock_hint">Gib deinen Passcode ein, um gesperrte Notizen zu öffnen.</string>
+    <string name="locked_passcode_label">Passcode</string>
+    <string name="locked_unlock_button">Entsperren</string>
+    <string name="locked_wrong_passcode">Falscher Passcode.</string>
+    <string name="locked_no_passcode_title">Kein Passcode festgelegt</string>
+    <string name="locked_no_passcode_hint">Lege in den Einstellungen einen Passcode fest, um deine gesperrten Notizen zu schützen.</string>
+    <string name="locked_open_settings">Einstellungen öffnen</string>
+    <string name="locked_need_passcode_title">Zuerst Passcode festlegen</string>
+    <string name="locked_need_passcode_message">Um Notizen zu sperren, lege in den Einstellungen einen Passcode für gesperrte Notizen fest.</string>
+    <string name="locked_passcode_setting_title">Passcode für gesperrte Notizen</string>
+    <string name="locked_passcode_setting_description">Schützt Notizen, die du nach Gesperrt verschiebst. Das blendet sie in der App aus — es ist keine vollständige Verschlüsselung.</string>
+    <string name="locked_passcode_set">Passcode festlegen</string>
+    <string name="locked_passcode_change">Passcode ändern</string>
+    <string name="locked_passcode_remove">Passcode entfernen</string>
+    <string name="locked_passcode_dialog_title">Passcode für gesperrte Notizen</string>
+    <string name="locked_passcode_new_label">Neuer Passcode</string>
+    <string name="locked_passcode_confirm_label">Passcode bestätigen</string>
+    <string name="locked_passcode_save">Speichern</string>
+    <string name="locked_passcode_too_short">Verwende mindestens 4 Zeichen.</string>
+    <string name="locked_passcode_mismatch">Passcodes stimmen nicht überein.</string>
+    <string name="locked_passcode_set_done">Passcode festgelegt.</string>
+    <string name="locked_passcode_removed_done">Passcode entfernt. Gesperrte Notizen wurden zurück zu deinen Notizen verschoben.</string>
+    <string name="locked_passcode_remove_confirm_title">Passcode entfernen?</string>
+    <string name="locked_passcode_remove_confirm_message">Dadurch werden alle gesperrten Notizen zurück zu deinen Notizen verschoben.</string>
+
     <!-- PDF export -->
     <string name="export_pdf">Als PDF exportieren…</string>
     <string name="export_pdf_job_name">Markleaf — %1$s</string>

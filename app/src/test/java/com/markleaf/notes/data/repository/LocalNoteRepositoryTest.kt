@@ -278,4 +278,69 @@ class LocalNoteRepositoryTest {
 
         assertEquals(listOf("tagged"), results.map { it.id })
     }
+
+    // --- Locked notes (#155) ---
+
+    private fun note(id: String, title: String = id, now: Instant = Instant.ofEpochMilli(1L)) =
+        Note(
+            id = id, title = title, contentMarkdown = title, excerpt = title,
+            createdAt = now, updatedAt = now
+        )
+
+    @Test
+    fun `setLocked hides note from active list and exposes it in locked list`() = runTest {
+        repository.createNote(note("n1", "Secret"))
+        repository.setLocked("n1", true)
+
+        assertTrue(repository.observeNotes().first().isEmpty())
+        assertEquals(listOf("n1"), repository.observeLockedNotes().first().map { it.id })
+        assertTrue(repository.observeArchivedNotes().first().isEmpty())
+        assertTrue(repository.observeTrashedNotes().first().isEmpty())
+    }
+
+    @Test
+    fun `setLocked false brings note back to active list`() = runTest {
+        repository.createNote(note("n1"))
+        repository.setLocked("n1", true)
+        repository.setLocked("n1", false)
+
+        assertEquals(listOf("n1"), repository.observeNotes().first().map { it.id })
+        assertTrue(repository.observeLockedNotes().first().isEmpty())
+    }
+
+    @Test
+    fun `searchNotes excludes locked notes`() = runTest {
+        repository.createNote(note("active", "Hello there"))
+        repository.createNote(note("secret", "Hello secret"))
+        repository.setLocked("secret", true)
+
+        val results = repository.searchNotes("Hello").first()
+        assertEquals(listOf("active"), results.map { it.id })
+    }
+
+    @Test
+    fun `moveToTrash clears the locked flag`() = runTest {
+        repository.createNote(note("n1"))
+        repository.setLocked("n1", true)
+        repository.moveToTrash("n1")
+
+        // A trashed note is never still locked: it shows in Trash, not in the
+        // Locked space, so it can't become an unreachable locked+trashed orphan.
+        assertTrue(repository.observeLockedNotes().first().isEmpty())
+        assertEquals(listOf("n1"), repository.observeTrashedNotes().first().map { it.id })
+        assertFalse(repository.getNote("n1")!!.locked)
+    }
+
+    @Test
+    fun `unlockAllLocked returns every locked note to the active list`() = runTest {
+        repository.createNote(note("a"))
+        repository.createNote(note("b"))
+        repository.setLocked("a", true)
+        repository.setLocked("b", true)
+
+        repository.unlockAllLocked()
+
+        assertTrue(repository.observeLockedNotes().first().isEmpty())
+        assertEquals(setOf("a", "b"), repository.observeNotes().first().map { it.id }.toSet())
+    }
 }

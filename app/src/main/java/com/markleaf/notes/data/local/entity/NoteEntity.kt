@@ -28,7 +28,12 @@ data class NoteEntity(
     val trashed: Boolean = false,
     val deletedAt: Long? = null,
     val sortOrder: Int = 0,
-    val lastImportedAt: Long? = null
+    val lastImportedAt: Long? = null,
+    /** When true the note lives in the passcode-gated "Locked notes" space and is
+     *  hidden from every normal list, search, tag and export path. This is a
+     *  UI-visibility gate — the body still sits in the same Room DB in plain
+     *  text, not encrypted at rest. See [com.markleaf.notes.feature.lock]. */
+    val locked: Boolean = false
 )
 
 fun NoteEntity.toDomain(): Note {
@@ -45,7 +50,8 @@ fun NoteEntity.toDomain(): Note {
         deletedAt = deletedAt?.let { Instant.ofEpochMilli(it) },
         tags = emptyList(),
         sortOrder = sortOrder,
-        lastImportedAt = lastImportedAt?.let { Instant.ofEpochMilli(it) }
+        lastImportedAt = lastImportedAt?.let { Instant.ofEpochMilli(it) },
+        locked = locked
     )
 }
 
@@ -62,6 +68,7 @@ fun Note.toEntity(): NoteEntity {
         trashed = trashed,
         deletedAt = deletedAt?.toEpochMilli(),
         sortOrder = sortOrder,
-        lastImportedAt = lastImportedAt?.toEpochMilli()
+        lastImportedAt = lastImportedAt?.toEpochMilli(),
+        locked = locked
     )
 }

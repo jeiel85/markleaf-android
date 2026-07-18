@@ -10,7 +10,12 @@ data class AppSettings(
     val syncFileExtension: SyncFileExtension = SyncFileExtension.MD,
     val colorPalette: ColorPalette = ColorPalette.MARKLEAF_GREEN,
     val onboardingCompleted: Boolean = false,
-    val biometricLockEnabled: Boolean = false
+    val biometricLockEnabled: Boolean = false,
+    /** True when a "Locked notes" passcode has been set (#155). The passcode
+     *  hash/salt themselves stay inside [AppSettingsRepository]; only this
+     *  derived flag is exposed so UI can decide whether to offer locking and
+     *  whether to prompt for setup. */
+    val lockPasscodeSet: Boolean = false
 )
 
 /**

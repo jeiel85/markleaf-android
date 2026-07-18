@@ -23,11 +23,14 @@ import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.KeyboardCommandKey
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,6 +40,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Button
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -91,8 +95,11 @@ fun NotesListScreen(
     onSearchClick: () -> Unit = {},
     onTagsClick: () -> Unit = {},
     onArchiveClick: () -> Unit = {},
+    onLockedClick: () -> Unit = {},
     onTrashClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
+    lockPasscodeSet: Boolean = false,
+    onRequestSetPasscode: () -> Unit = {},
     onCollapseClick: (() -> Unit)? = null,
     onShowTagRail: (() -> Unit)? = null,
     selectedNoteId: String? = null,
@@ -105,6 +112,9 @@ fun NotesListScreen(
     val displayedState = remember { mutableStateOf<List<Note>>(emptyList()) }
     var overflowExpanded by remember { mutableStateOf(false) }
     var showQuickSwitcher by remember { mutableStateOf(false) }
+    // Shown when the user taps "Move to Locked" but hasn't set a passcode yet —
+    // locking a note is only meaningful once there's a passcode to gate it (#155).
+    var showSetPasscodePrompt by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         viewModel.notes.collect { noteList ->
             notesState.value = noteList
@@ -130,6 +140,28 @@ fun NotesListScreen(
                 onNoteClick(id)
             },
             onDismiss = { showQuickSwitcher = false }
+        )
+    }
+
+    if (showSetPasscodePrompt) {
+        AlertDialog(
+            onDismissRequest = { showSetPasscodePrompt = false },
+            icon = { Icon(Icons.Outlined.Lock, contentDescription = null) },
+            title = { Text(stringResource(R.string.locked_need_passcode_title)) },
+            text = { Text(stringResource(R.string.locked_need_passcode_message)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showSetPasscodePrompt = false
+                    onRequestSetPasscode()
+                }) {
+                    Text(stringResource(R.string.locked_open_settings))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showSetPasscodePrompt = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
         )
     }
 
@@ -208,6 +240,14 @@ fun NotesListScreen(
                                 onClick = {
                                     overflowExpanded = false
                                     onArchiveClick()
+                                }
+                            )
+                            DropdownMenuItem(
+                                leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = null) },
+                                text = { Text(stringResource(R.string.locked_notes_title)) },
+                                onClick = {
+                                    overflowExpanded = false
+                                    onLockedClick()
                                 }
                             )
                             DropdownMenuItem(
@@ -348,6 +388,14 @@ fun NotesListScreen(
                                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                                 viewModel.setArchived(note.id, true)
                             },
+                            onLock = {
+                                if (lockPasscodeSet) {
+                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    viewModel.setLocked(note.id, true)
+                                } else {
+                                    showSetPasscodePrompt = true
+                                }
+                            },
                             onMoveToTrash = {
                                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                                 viewModel.moveToTrash(note.id)
@@ -386,6 +434,7 @@ private fun NoteRow(
     onClick: (String) -> Unit,
     onTogglePin: () -> Unit,
     onArchive: () -> Unit,
+    onLock: () -> Unit,
     onMoveToTrash: () -> Unit,
     onLongPress: () -> Unit,
     modifier: Modifier = Modifier
@@ -502,6 +551,14 @@ private fun NoteRow(
                 onClick = {
                     menuExpanded = false
                     onArchive()
+                }
+            )
+            DropdownMenuItem(
+                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                text = { Text(stringResource(R.string.move_to_locked)) },
+                onClick = {
+                    menuExpanded = false
+                    onLock()
                 }
             )
             DropdownMenuItem(

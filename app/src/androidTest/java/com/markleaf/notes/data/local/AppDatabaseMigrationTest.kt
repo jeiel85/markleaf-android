@@ -32,12 +32,17 @@ class AppDatabaseMigrationTest {
             .allowMainThreadQueries()
             .build()
 
-        db.openHelper.writableDatabase.query("SELECT id, title, sortOrder, lastImportedAt FROM notes").use { cursor ->
+        db.openHelper.writableDatabase.query(
+            "SELECT id, title, sortOrder, lastImportedAt, locked FROM notes"
+        ).use { cursor ->
             assertTrue(cursor.moveToFirst())
             assertEquals("42", cursor.getString(0))
             assertEquals("Legacy Note", cursor.getString(1))
             assertEquals(0, cursor.getInt(2))
             assertTrue(cursor.isNull(3))
+            // #155: the v14→v15 migration adds `locked`, defaulting existing rows
+            // to 0 (not locked) so a legacy note stays visible after upgrading.
+            assertEquals(0, cursor.getInt(4))
         }
 
         db.openHelper.writableDatabase.query("SELECT noteId, tagId FROM note_tag_cross_ref").use { cursor ->

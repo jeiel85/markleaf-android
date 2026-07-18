@@ -26,7 +26,7 @@ import com.markleaf.notes.data.local.entity.TagEntity
         NoteLinkEntity::class,
         AttachmentEntity::class
     ],
-    version = 14,
+    version = 15,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -251,6 +251,18 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // v14 → v15 (#155 password-protected "Locked notes"): add a `locked`
+        // flag so a note can be moved into the passcode-gated space and hidden
+        // from every normal list/search/export. Mirrors the sortOrder column
+        // add (v7→v8): a NOT NULL column with a DEFAULT so existing rows fill in
+        // 0 (not locked). The entity declares no @ColumnInfo default, and Room
+        // ignores a DB default the entity doesn't track — same as sortOrder.
+        private val MIGRATION_14_15 = object : Migration(14, 15) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `notes` ADD COLUMN `locked` INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         internal val ALL_MIGRATIONS = arrayOf(
             MIGRATION_4_5,
             MIGRATION_5_6,
@@ -262,7 +274,8 @@ abstract class AppDatabase : RoomDatabase() {
             MIGRATION_11_12,
             MIGRATION_12_13,
             MIGRATION_12_14,
-            MIGRATION_13_14
+            MIGRATION_13_14,
+            MIGRATION_14_15
         )
     }
 }

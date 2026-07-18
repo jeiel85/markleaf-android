@@ -245,6 +245,37 @@
     <string name="biometric_lock_retry">Réessayer</string>
     <string name="biometric_lock_locked_message">Markleaf est verrouillé.</string>
 
+    <!-- Locked notes (#155) -->
+    <string name="locked_notes_title">Notes verrouillées</string>
+    <string name="move_to_locked">Déplacer vers Verrouillées</string>
+    <string name="remove_from_locked">Retirer de Verrouillées</string>
+    <string name="locked_notes_empty">Aucune note verrouillée</string>
+    <string name="locked_notes_empty_hint">Les notes déplacées vers Verrouillées apparaissent ici, derrière votre code.</string>
+    <string name="locked_unlock_hint">Saisissez votre code pour ouvrir les notes verrouillées.</string>
+    <string name="locked_passcode_label">Code</string>
+    <string name="locked_unlock_button">Déverrouiller</string>
+    <string name="locked_wrong_passcode">Code incorrect.</string>
+    <string name="locked_no_passcode_title">Aucun code défini</string>
+    <string name="locked_no_passcode_hint">Définissez un code dans les Paramètres pour protéger vos notes verrouillées.</string>
+    <string name="locked_open_settings">Ouvrir les Paramètres</string>
+    <string name="locked_need_passcode_title">Définissez d\'abord un code</string>
+    <string name="locked_need_passcode_message">Pour verrouiller des notes, définissez un code de notes verrouillées dans les Paramètres.</string>
+    <string name="locked_passcode_setting_title">Code des notes verrouillées</string>
+    <string name="locked_passcode_setting_description">Protège les notes déplacées vers Verrouillées. Les masque dans l\'app — ce n\'est pas un chiffrement complet.</string>
+    <string name="locked_passcode_set">Définir un code</string>
+    <string name="locked_passcode_change">Modifier le code</string>
+    <string name="locked_passcode_remove">Supprimer le code</string>
+    <string name="locked_passcode_dialog_title">Code des notes verrouillées</string>
+    <string name="locked_passcode_new_label">Nouveau code</string>
+    <string name="locked_passcode_confirm_label">Confirmer le code</string>
+    <string name="locked_passcode_save">Enregistrer</string>
+    <string name="locked_passcode_too_short">Utilisez au moins 4 caractères.</string>
+    <string name="locked_passcode_mismatch">Les codes ne correspondent pas.</string>
+    <string name="locked_passcode_set_done">Code défini.</string>
+    <string name="locked_passcode_removed_done">Code supprimé. Les notes verrouillées sont revenues dans vos notes.</string>
+    <string name="locked_passcode_remove_confirm_title">Supprimer le code ?</string>
+    <string name="locked_passcode_remove_confirm_message">Toutes les notes verrouillées reviendront dans vos notes.</string>
+
     <!-- PDF export -->
     <string name="export_pdf">Exporter au format PDF…</string>
     <string name="export_pdf_job_name">Markleaf — %1$s</string>

@@ -240,6 +240,37 @@
     <string name="biometric_lock_retry">다시 시도</string>
     <string name="biometric_lock_locked_message">Markleaf가 잠겨 있습니다.</string>
 
+    <!-- Locked notes (#155) -->
+    <string name="locked_notes_title">잠긴 노트</string>
+    <string name="move_to_locked">잠금으로 이동</string>
+    <string name="remove_from_locked">잠금 해제</string>
+    <string name="locked_notes_empty">잠긴 노트 없음</string>
+    <string name="locked_notes_empty_hint">잠금으로 옮긴 노트가 암호 뒤에 여기 표시됩니다.</string>
+    <string name="locked_unlock_hint">잠긴 노트를 열려면 암호를 입력하세요.</string>
+    <string name="locked_passcode_label">암호</string>
+    <string name="locked_unlock_button">잠금 해제</string>
+    <string name="locked_wrong_passcode">암호가 올바르지 않습니다.</string>
+    <string name="locked_no_passcode_title">설정된 암호 없음</string>
+    <string name="locked_no_passcode_hint">잠긴 노트를 보호하려면 설정에서 암호를 지정하세요.</string>
+    <string name="locked_open_settings">설정 열기</string>
+    <string name="locked_need_passcode_title">먼저 암호를 설정하세요</string>
+    <string name="locked_need_passcode_message">노트를 잠그려면 설정에서 잠긴 노트 암호를 지정하세요.</string>
+    <string name="locked_passcode_setting_title">잠긴 노트 암호</string>
+    <string name="locked_passcode_setting_description">잠금으로 옮긴 노트를 보호합니다. 앱에서 숨기는 방식이며 완전한 암호화는 아닙니다.</string>
+    <string name="locked_passcode_set">암호 설정</string>
+    <string name="locked_passcode_change">암호 변경</string>
+    <string name="locked_passcode_remove">암호 제거</string>
+    <string name="locked_passcode_dialog_title">잠긴 노트 암호</string>
+    <string name="locked_passcode_new_label">새 암호</string>
+    <string name="locked_passcode_confirm_label">암호 확인</string>
+    <string name="locked_passcode_save">저장</string>
+    <string name="locked_passcode_too_short">4자 이상 입력하세요.</string>
+    <string name="locked_passcode_mismatch">암호가 일치하지 않습니다.</string>
+    <string name="locked_passcode_set_done">암호를 설정했습니다.</string>
+    <string name="locked_passcode_removed_done">암호를 제거했습니다. 잠긴 노트를 노트 목록으로 되돌렸습니다.</string>
+    <string name="locked_passcode_remove_confirm_title">암호를 제거할까요?</string>
+    <string name="locked_passcode_remove_confirm_message">모든 잠긴 노트가 노트 목록으로 돌아갑니다.</string>
+
     <!-- PDF export -->
     <string name="export_pdf">PDF로 내보내기…</string>
     <string name="export_pdf_job_name">Markleaf — %1$s</string>

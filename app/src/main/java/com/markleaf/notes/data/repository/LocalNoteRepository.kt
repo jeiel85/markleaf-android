@@ -67,6 +67,20 @@ class LocalNoteRepository(
         }
     }
 
+    override fun observeLockedNotes(): Flow<List<Note>> {
+        return database.noteDao().observeLockedNotes().map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
+
+    override suspend fun setLocked(noteId: String, locked: Boolean) {
+        database.noteDao().setLocked(noteId, locked)
+    }
+
+    override suspend fun unlockAllLocked() {
+        database.noteDao().unlockAllLocked()
+    }
+
     override fun searchNotes(query: String): Flow<List<Note>> {
         val trimmedQuery = query.trim()
         val tagName = trimmedQuery

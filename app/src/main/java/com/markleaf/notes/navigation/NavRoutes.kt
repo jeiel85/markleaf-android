@@ -8,6 +8,7 @@ object NavRoutes {
     const val SEARCH = "search"
     const val TRASH = "trash"
     const val ARCHIVE = "archive"
+    const val LOCKED = "locked"
     const val SETTINGS = "settings"
     const val PRIVACY = "privacy"
     const val SYNC_CENTER = "sync_center"

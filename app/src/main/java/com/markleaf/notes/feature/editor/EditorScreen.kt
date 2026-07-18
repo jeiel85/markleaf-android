@@ -310,7 +310,10 @@ fun EditorScreen(
                 linkRepo.reindexLinksForNote(noteId, content)
                 appSettings.syncFolderUri?.let { uriString ->
                     val uri = runCatching { android.net.Uri.parse(uriString) }.getOrNull()
-                    if (uri != null) {
+                    // Never mirror a locked note to the sync folder — the Locked
+                    // space is meant to stay on-device, and the mirror writes plain
+                    // text (#155). Removing the lock re-includes it on the next save.
+                    if (uri != null && !updatedNote.locked) {
                         val ok = withContext(Dispatchers.IO) {
                             val wrote = NoteFolderMirror.writeNote(context, uri, updatedNote, appSettings.syncFileExtension)
                             if (wrote) {

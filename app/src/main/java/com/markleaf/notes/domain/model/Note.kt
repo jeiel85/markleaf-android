@@ -20,5 +20,9 @@ data class Note(
      *  baseline: if [updatedAt] is later than this, the local copy has been
      *  edited since the last sync and an incoming newer file is treated as a
      *  conflict (kept as a duplicate) rather than silently overwriting. */
-    val lastImportedAt: Instant? = null
+    val lastImportedAt: Instant? = null,
+    /** When true the note is in the passcode-gated "Locked notes" space: hidden
+     *  from every normal list, search, tag view and sync/export path until the
+     *  user unlocks that space. UI-visibility gate only — not encryption. */
+    val locked: Boolean = false
 )

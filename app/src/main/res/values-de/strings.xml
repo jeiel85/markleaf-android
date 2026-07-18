@@ -223,7 +223,7 @@
 
     <!-- Onboarding -->
     <string name="onboarding_title_welcome">Willkommen bei Markleaf</string>
-    <string name="onboarding_body_welcome">Eine ruhige, lokal-first Markdown-Notiz-App für Android. Dein Text bleibt auf diesem Gerät, sofern du ihn nicht ausdrücklich teilst oder exportierst.</string>
+    <string name="onboarding_body_welcome">Eine ruhige Markdown-Notiz-App für Android, die deine Notizen zuerst lokal speichert. Dein Text bleibt auf diesem Gerät, sofern du ihn nicht ausdrücklich teilst oder exportierst.</string>
     <string name="onboarding_title_markdown">In Markdown schreiben</string>
     <string name="onboarding_body_markdown">Nutze **fett**, _kursiv_, # Überschriften, Listen, Code und Zitate. Tippe oben auf Vorschau, um das Ergebnis jederzeit zu sehen.</string>
     <string name="onboarding_title_tags">Mit #Tags organisieren</string>
@@ -295,7 +295,7 @@
     <string name="privacy_dashboard_title">Datenschutz-Dashboard</string>
     <string name="privacy_guarantee_title">Deine Daten bleiben lokal</string>
     <string name="privacy_guarantee_desc">Markleaf ist konsequent auf Datenschutz ausgelegt. Deine Notizen verlassen dein Gerät nur, wenn du sie ausdrücklich exportierst oder teilst.</string>
-    <string name="privacy_data_storage_title">Lokal-first-Speicherung</string>
+    <string name="privacy_data_storage_title">Zuerst lokal gespeichert</string>
     <string name="privacy_data_storage_desc">Alle Notizen und Tags werden lokal auf deinem Gerät in Androids sicherer Room-Datenbank gespeichert. Keine Cloud-Server, keine Daten-Uploads.</string>
     <string name="privacy_no_cloud_title">Keine Cloud-Abhängigkeiten</string>
     <string name="privacy_no_cloud_desc">Wir nutzen für die Kernfunktionen keine Cloud-Dienste. Keine Google-Drive-Synchronisation, keine Dropbox-Integration, keine proprietären Backend-Server.</string>

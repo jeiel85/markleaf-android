@@ -201,7 +201,7 @@
     <string name="screenshot_protection_description">スクリーンショットや最近使ったアプリ画面でノート内容を非表示にします。変更を反映するにはエディタを開き直してください。</string>
     <string name="settings_app">アプリ</string>
     <string name="version_format">バージョン %1$s</string>
-    <string name="application_id_format">Application ID %1$s</string>
+    <string name="application_id_format">アプリケーション ID %1$s</string>
 
     <string name="settings_open_source">オープンソース</string>
     <string name="oss_license_label">ライセンス</string>

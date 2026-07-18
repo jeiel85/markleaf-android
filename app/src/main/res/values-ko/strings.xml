@@ -154,7 +154,7 @@
     <string name="theme_label">테마</string>
     <string name="theme_markleaf_green">Markleaf 그린</string>
     <string name="theme_material_you">Material You</string>
-    <string name="theme_description">Markleaf 그린은 앱 이름의 leaf와 어울리는 원래 색상입니다. Material You는 Android 12 이상에서 시스템 배경화면의 색을 따라갑니다.</string>
+    <string name="theme_description">Markleaf 그린은 앱 이름의 잎과 어울리는 원래 색상입니다. Material You는 Android 12 이상에서 시스템 배경화면의 색을 따라갑니다.</string>
 
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Markdown 문법 표시</string>
@@ -201,7 +201,7 @@
     <string name="screenshot_protection_description">노트 본문이 스크린샷과 최근 앱 화면에 표시되지 않도록 합니다. 변경 사항이 반영되려면 에디터를 다시 열어주세요.</string>
     <string name="settings_app">앱</string>
     <string name="version_format">버전 %1$s</string>
-    <string name="application_id_format">Application ID %1$s</string>
+    <string name="application_id_format">애플리케이션 ID %1$s</string>
 
     <string name="settings_open_source">오픈소스</string>
     <string name="oss_license_label">라이선스</string>

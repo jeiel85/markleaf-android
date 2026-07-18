@@ -49,8 +49,13 @@ git commit -m "..."
 git push github <branch>
 gh pr create --base main
 # build 통과 후
-gh pr merge --squash        # 또는 웹 UI에서 머지
+gh pr merge --merge         # 또는 웹 UI에서 머지
 ```
+
+머지 방식은 통일되어 있지 않다 — #151·#153은 단일 부모(squash/rebase), #157·#162는
+merge commit이다. 미러 정합성에는 어느 쪽도 영향이 없으므로 이 런북은 최근 방식인
+`--merge`를 예시로 쓴다. 방식을 통일하고 싶으면 저장소 설정에서 하나만 남기는 편이
+문서로 강제하는 것보다 확실하다.
 
 머지된 `main`을 GitLab으로 전달한다. 로컬 `main`을 checkout하지 않고 원격 추적
 ref를 그대로 밀면 다른 워크트리의 체크아웃을 건드리지 않는다:

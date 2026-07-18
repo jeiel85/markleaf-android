@@ -1,0 +1,208 @@
+# <img src="docs/assets/logo.svg" width="48" height="48" align="center" /> Markleaf
+
+<p align="center">
+  <img src="docs/assets/logo.svg" width="160" height="160" alt="Markleaf Logo" />
+</p>
+
+<p align="center">
+  <strong>Des pensées qui s'accumulent en douceur, des notes Markdown bien rangées</strong><br />
+  Une application de notes Markdown minimaliste et local-first pour Android
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Platform-Android-3DDC84?logo=android&logoColor=white" alt="Platform" />
+  <img src="https://img.shields.io/badge/Language-Kotlin-7F52FF?logo=kotlin&logoColor=white" alt="Language" />
+  <img src="https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?logo=jetpackcompose&logoColor=white" alt="UI" />
+  <img src="https://img.shields.io/badge/License-Apache%202.0-D22128" alt="License" />
+  <img src="https://img.shields.io/badge/F--Droid-Available-1976D2?logo=fdroid&logoColor=white" alt="F-Droid" />
+  <img src="https://img.shields.io/badge/Google%20Play-Updates%20paused-9E9E9E?logo=googleplay&logoColor=white" alt="Google Play" />
+</p>
+
+<p align="center">
+  <a href="README.md">English</a> ·
+  <a href="README.ko.md">한국어</a> ·
+  <a href="README.ja.md">日本語</a> ·
+  <a href="README.de.md">Deutsch</a> ·
+  <a href="README.es.md">Español</a> ·
+  <strong>Français</strong>
+</p>
+
+<p align="center">
+  <a href="https://github.com/jeiel85/markleaf-android">Dépôt GitHub</a> ·
+  <a href="https://gitlab.com/jeiel85/markleaf-android">Miroir public GitLab</a>
+</p>
+
+---
+
+## 🍃 Qu'est-ce que Markleaf ?
+
+**Markleaf** est une application Android de prise de notes Markdown conçue pour éliminer le superflu afin que vous puissiez vous concentrer sur seulement deux choses : capturer et organiser. Vos données sont stockées uniquement sur votre appareil, et le format Markdown standard garantit une propriété et une portabilité complètes. Même la synchronisation ne passe que par *un dossier que vous choisissez* — Markleaf lui-même ne se connecte jamais à internet.
+
+[**Voir la page de branding**](https://jeiel85.github.io/markleaf-android/) · [Version actuelle : v2.26.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.26.0) · [Miroir des versions GitLab](https://gitlab.com/jeiel85/markleaf-android/-/releases/v2.26.0) · [Politique de confidentialité](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+
+---
+
+## ✨ Fonctionnalités principales
+
+### Écriture et aperçu
+- **Insertion rapide avec `/`** — recherchez des commandes en début de ligne pour insérer titres, listes, tableaux, encadrés, wikiliens, images et plus encore, en Markdown standard
+- **Aperçu Markdown en direct** — basculez instantanément entre édition et aperçu, ou utilisez l'option *Afficher la syntaxe Markdown* pour une coloration syntaxique en direct
+- **Tableaux GFM / cases à cocher / citations / encadrés (`> [!NOTE]` …)** — tous rendus dans l'aperçu
+- **Coloration syntaxique des blocs de code** — coloration par tokens pour 10 langages : Kotlin, Java, Python, JavaScript/TypeScript, Bash, JSON, YAML, XML, SQL
+- **Saut référence ↔ définition pour les notes de bas de page (`[^N]`)** — appuyez sur l'exposant pour défiler en douceur jusqu'à la définition
+- **Pièces jointes image + édition du texte alternatif** — conservées comme copies isolées dans le stockage interne de l'application (aucune permission média requise)
+- **Bascule de mise en forme Markdown intelligente** — entourez la sélection ou le mot autour du curseur de Gras/Italique/Barré/Code en ligne, et appuyez à nouveau pour retirer proprement la mise en forme d'un texte déjà entouré
+- **Raccourcis clavier** — Ctrl/Cmd+B, I, K, Maj+S pour le gras, l'italique, le lien et le barré sur un clavier physique
+- **Table des matières (TOC)** — en mode aperçu, sautez vers les titres H1–H3 pour naviguer dans les notes longues
+- **Choix de police Serif / Sans** — basculez la surface d'écriture vers une police avec empattements pour un rendu proche du livre ; les blocs de code restent toujours à chasse fixe
+- **Mode concentration / statistiques de mots, caractères et temps de lecture / recherche et remplacement dans une note**
+
+### Organisation et navigation
+- **Classification par étiquettes + auto-complétion** — écrivez simplement des `#étiquettes` dans le corps du texte pour une indexation automatique, sans dossiers ; les étiquettes existantes se complètent automatiquement lorsque vous tapez `#`
+- **Wikiliens (`[[Titre]]`) + panneau des liens entrants** — auto-complétion, et voyez en un coup d'œil ce qui pointe vers cette note
+- **Accès rapide (Ctrl+K)** — saut par sous-chaîne de titre façon Obsidian
+- **Recherche plein texte avec SQLite FTS** — rapide, jusque dans le corps du texte
+- **Épingler / archives / corbeille** — la corbeille redemande confirmation avant la suppression définitive
+
+### Synchronisation et export (principe No-Cloud)
+- **Synchronisation en miroir de dossier** — reflète chaque note sous forme de fichier `.md` / `.txt` **nommé selon le titre** dans un dossier que vous choisissez via SAF (Drive/Dropbox/Syncthing/OneDrive/NAS, etc.) ; renommez une note et son fichier suit. Markleaf lui-même reste hors ligne ; la synchronisation est déléguée à *l'application externe qui synchronise ce dossier*
+- **Import de fichiers externes `.md` / `.txt`** — appuyez sur un fichier dans votre gestionnaire de fichiers ou partagez-en un depuis une autre application pour l'importer comme nouvelle note (le nom du fichier devient le titre s'il n'y a pas de titre dans le texte). Les étiquettes des notes importées par synchronisation sont reconnues immédiatement
+- **Export des notes individuelles ou de toutes les notes en `.md`**
+- **Envoi via la feuille de partage du système**
+
+### Design et accessibilité
+- **Thème vert Markleaf + bascule Material You** — couleurs du fond d'écran système en option sur Android 12+
+- **Mode sombre automatique** — suit le paramètre système
+- **Disposition en 3 panneaux pour tablette** — barre latérale des étiquettes · liste des notes · éditeur ; appuyez sur une étiquette dans la barre latérale pour filtrer la liste des notes sur place (la liste des notes reste réductible)
+- **Interface en 6 langues** — ressources en coréen / anglais / espagnol / japonais / français / allemand
+- **Option de blocage des captures d'écran / aperçu dans les applications récentes** — pour les notes sensibles
+
+---
+
+## 🛠 Stack technique
+
+Markleaf suit les standards actuels du développement Android avec un stack moderne et facile à maintenir.
+
+- **UI** : [Jetpack Compose](https://developer.android.com/jetpack/compose) + Material 3 + couleur dynamique Material You
+- **Architecture** : séparation simple en couches (core / data / domain / feature / ui) + patron Repository
+- **Base de données** : [Room](https://developer.android.com/training/data-storage/room) — persistance locale reposant sur SQLite, tables virtuelles FTS4 pour la recherche plein texte
+- **Analyseur Markdown** : [commonmark-java](https://github.com/commonmark/commonmark-java) (CommonMark 0.30 + extensions GFM : tableaux, barré, listes de tâches, notes de bas de page, YAML frontmatter)
+- **Asynchrone** : [Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html) et [Flow](https://kotlinlang.org/docs/flow.html)
+- **Storage Access Framework (SAF)** — synchronisation en miroir de dossier + pièces jointes image
+- **Chargement d'images** : [Coil](https://coil-kt.github.io/coil/) — Apache 2.0, adapté à F-Droid
+- **DataStore Preferences** — paramètres de l'application
+- **Profile Installer 1.4.0 + Macrobenchmark** — mesure du baseline profile au démarrage à froid (326ms sur un TB320FC)
+- **Tests** : JUnit + Robolectric + tests de régression visuelle [Roborazzi](https://github.com/takahirom/roborazzi) (goldens Linux, seuil 0.005)
+- **CI** : GitHub Actions + GitLab CI — builds indépendants et releases signées, launch-smoke, record-roborazzi
+
+---
+
+## 🏗 Architecture
+
+Markleaf utilise la structure en couches suivante pour séparer les responsabilités et faciliter les tests.
+
+```text
+com.markleaf.notes
+├── core          # logique cœur partagée : traitement markdown, pièces jointes, synchronisation
+├── data          # DB Room, entités, implémentations de repository (source de données)
+├── domain        # modèles, interfaces de repository (logique métier)
+├── feature       # UI et ViewModels par écran (présentation)
+│   ├── editor    # éditeur, recherche/remplacement, auto-complétion des wikiliens, encadrés, tableaux
+│   ├── notes     # liste des notes, accès rapide, archives
+│   ├── search    # recherche plein texte FTS
+│   ├── tags      # index des étiquettes
+│   ├── trash     # corbeille / suppression définitive
+│   └── settings  # thème, dossier de synchronisation, blocage des captures, etc.
+├── navigation    # configuration de Jetpack Compose Navigation
+└── ui            # thème (Markleaf green / Material You), composants partagés
+```
+
+---
+
+## 🚀 Prise en main
+
+### Installation
+
+> [!NOTE]
+> **Les mises à jour sur Google Play sont actuellement en pause.** Aucune nouvelle version ne sera publiée sur le Play Store tant qu'une exigence de politique d'enregistrement d'entreprise en Corée pour le développeur indépendant ne sera pas résolue. En attendant, **obtenez la dernière version via F-Droid, GitHub Releases ou GitLab Releases.** (Si vous l'avez déjà installée depuis le Play Store, elle continue de fonctionner.)
+
+- **F-Droid** *(recommandé)* : [Markleaf sur F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — recherchez-le dans le client F-Droid ou installez-le via le lien ci-dessus. Il utilise la même clé de signature (SHA-256 `0be97352…f91a`), donc les mises à jour continuent sans interruption même si vous avez installé un APK via sideload depuis GitHub ou GitLab Releases.
+- **Installation directe de l'APK** : téléchargez l'APK depuis la [release GitHub v2.26.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.26.0) ou la [release GitLab v2.26.0](https://gitlab.com/jeiel85/markleaf-android/-/releases/v2.26.0), puis exécutez-le sur votre appareil Android.
+- **Google Play** : [Markleaf sur Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **les mises à jour sont en pause** (voir la note ci-dessus). Si vous l'avez déjà, elle continue de fonctionner, mais obtenez la dernière version via F-Droid, GitHub ou GitLab.
+
+### Compilation depuis les sources
+Si vous souhaitez compiler le projet ou contribuer, suivez ces étapes.
+
+```bash
+# Cloner le dépôt
+git clone https://github.com/jeiel85/markleaf-android.git
+
+# Entrer dans le dossier du projet
+cd markleaf-android
+
+# Compiler et installer
+./gradlew installDebug
+```
+
+---
+
+## 🔒 No-Cloud by design
+
+Markleaf lui-même ne se connecte jamais au réseau. Que vos données quittent l'appareil ou non est *entièrement votre choix*.
+
+- ✅ **Aucune** déclaration de `android.permission.INTERNET` — Markleaf n'effectue lui-même aucune requête réseau
+- ✅ **Aucun** serveur / backend Markleaf
+- ✅ **Aucune** analyse / publicité / traçage / SDK à code source fermé
+- ✅ `android:allowBackup="false"` — les données de Markleaf sont exclues de la sauvegarde automatique Android et du transfert entre appareils
+- ✅ Les données ne circulent par les chemins du système que lorsque *vous* exportez, partagez, ouvrez un lien externe ou choisissez un dossier SAF
+- ✅ Entièrement open source, vérifiable par n'importe qui sous licence Apache 2.0
+
+Le fonctionnement exact de « never leaves your device » est documenté dans la [Politique de confidentialité](docs/PRIVACY.md) et la [No-Cloud Certification](docs/NOCLOUD_CERTIFICATION.md).
+
+---
+
+## 🗺 Feuille de route
+
+### v1.x — MVP
+- [x] Édition et sauvegarde Markdown de base
+- [x] Filtrage et recherche par étiquettes
+- [x] Nouvelle icône d'application et nouveau branding
+- [x] Aperçu Markdown en direct et mode sombre
+- [x] Recherche SQLite FTS haute performance
+- [x] Optimisation de la disposition à 2 panneaux pour tablette
+- [x] Export Markdown d'une note ou de toutes les notes
+- [x] Version stable v1.0.0
+
+### v2.x — Extension classe Bear (actuelle)
+- [x] **v2.3** Analyseur CommonMark — encadrés, barré GFM, listes de tâches, notes de bas de page, YAML frontmatter
+- [x] **v2.4–2.5** Wikiliens (`[[Titre]]`) + auto-complétion + panneau des liens entrants
+- [x] **v2.6** Pièces jointes image + texte alternatif + lightbox
+- [x] **v2.7** Synchronisation en miroir de dossier SAF (délégation à Drive/Dropbox/Syncthing, toujours sans INTERNET)
+- [x] **v2.8** Bascule Material You + thème vert Markleaf restauré
+- [x] **v2.9** Option de blocage des captures d'écran, tests de régression visuelle (Roborazzi) mis en place
+- [x] **v2.10** Coloration syntaxique des blocs de code (10 langages)
+- [x] **v2.11** Aperçu des tableaux GFM ressuscité
+- [x] **v2.12** Accès rapide (Ctrl+K)
+- [x] **v2.13** Recherche / remplacement dans une note
+- [x] **v2.14** Saut par clic référence ↔ définition pour les notes de bas de page
+- [x] **v2.15** Stabilisation de la soumission F-Droid et documentation no-cloud
+- [x] **v2.16** Widget d'écran d'accueil, verrouillage biométrique, transparence open source, mise en forme Markdown intelligente
+- [x] **v2.17** Import par ouverture/partage de fichiers externes `.md`/`.txt`, corrections des notes dupliquées et de la reconnaissance des étiquettes lors de la synchronisation de dossier
+- [x] **v2.18** Fichiers de synchronisation de dossier nommés selon le titre de la note (le renommage suit) + choix `.md`/`.txt`
+- [x] **v2.19** Six notes d'exemple au premier lancement + l'export PDF/Markdown ne duplique plus le titre
+- [x] **v2.20** Raccourcis clavier, auto-complétion `#étiquette`, table des matières, police serif, disposition tablette à 3 panneaux (barre d'étiquettes + filtrage sur place)
+- [x] **v2.21** Retour prédictif, transitions affinées, animation des listes/cartes, barre d'étiquettes rétractable pour tablette pliable, bascule des cases des listes de tâches
+- [x] **v2.22** Commandes d'insertion rapide `/` avec sélection tactile et au clavier physique, et six menus localisés
+- [x] **Lancement public sur Google Play** — n'importe qui peut l'installer depuis le Play Store
+
+---
+
+## 📜 Licence
+
+Ce projet est distribué sous licence **Apache License 2.0**. Consultez le fichier `LICENSE` pour plus de détails.
+
+---
+
+<p align="center">
+  Made with ❤️ by <strong>Markleaf Team</strong>
+</p>

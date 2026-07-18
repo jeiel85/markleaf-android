@@ -19,10 +19,12 @@
 </p>
 
 <p align="center">
-  <a href="README.ko.md">한국어</a> ·
   <a href="README.md">English</a> ·
+  <a href="README.ko.md">한국어</a> ·
   <strong>日本語</strong> ·
-  <a href="README.de.md">Deutsch</a>
+  <a href="README.de.md">Deutsch</a> ·
+  <a href="README.es.md">Español</a> ·
+  <a href="README.fr.md">Français</a>
 </p>
 
 <p align="center">

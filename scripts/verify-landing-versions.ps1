@@ -4,11 +4,11 @@
 .DESCRIPTION
   각 언어 랜딩 페이지에는 "현재 릴리스"를 가리키는 버전 표기가 세 곳 있다:
   JSON-LD 의 softwareVersion, hero 의 release-line, trust-ledger 의 <strong>.
-  이 세 값은 네 언어(en/ko/ja/de) 전부에서 동일해야 한다.
+  이 세 값은 여섯 언어(en/ko/ja/de/es/fr) 전부에서 동일해야 한다.
 
   스크린샷을 가리키는 hero figcaption 버전은 릴리스 버전과 별개다(스크린샷을
   다시 찍기 전까지 이전 버전으로 남는다). 릴리스 버전과 달라도 정상이지만,
-  네 언어 사이에서는 서로 일치해야 한다(모두 같은 스크린샷을 쓰므로).
+  여섯 언어 사이에서는 서로 일치해야 한다(모두 같은 스크린샷을 쓰므로).
 
   어느 그룹이든 언어 간에 어긋나면 어긋난 값을 보고하고 exit 2 로 종료한다.
   릴리스 직전(태그 푸시 전)에 실행해 언어별 버전 표기 누락을 잡는다.
@@ -25,7 +25,7 @@ param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
-$files = @("index.html", "index.ko.html", "index.ja.html", "index.de.html")
+$files = @("index.html", "index.ko.html", "index.ja.html", "index.de.html", "index.es.html", "index.fr.html")
 
 function Get-Version([string]$Text, [string]$Pattern, [string]$Label, [string]$File) {
     $m = [regex]::Match($Text, $Pattern)

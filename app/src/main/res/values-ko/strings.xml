@@ -12,7 +12,7 @@
     <string name="archive">보관함</string>
     <string name="unarchive">보관 해제</string>
     <string name="archive_empty">보관된 노트가 없습니다</string>
-    <string name="archive_empty_hint">노트 목록에서 길게 눌러 "보관"을 선택하면 여기로 옮겨집니다.</string>
+    <string name="archive_empty_hint">노트 목록에서 길게 눌러 \"보관\"을 선택하면 여기로 옮겨집니다.</string>
     <string name="settings">설정</string>
     <string name="more_options">추가 옵션</string>
     <string name="quick_switcher_title">빠른 이동</string>
@@ -181,7 +181,7 @@
     <string name="sync_status_folder_format">현재 폴더: %1$s</string>
     <string name="sync_status_last_synced_format">마지막 동기화: %1$s</string>
     <string name="sync_status_last_synced_never">마지막 동기화: 아직 없음</string>
-    <string name="sync_behavior_summary">· 편집하고 약 1초 뒤 폴더에 자동으로 저장됩니다.\n· "지금 동기화"를 누르면 다른 기기의 변경 내용을 가져옵니다.\n· 같은 노트가 양쪽에서 바뀌면 더 최근에 수정한 쪽이 남습니다.\n· 삭제는 동기화되지 않습니다 — 각 기기에서 따로 정리해 주세요.</string>
+    <string name="sync_behavior_summary">· 편집하고 약 1초 뒤 폴더에 자동으로 저장됩니다.\n· \"지금 동기화\"를 누르면 다른 기기의 변경 내용을 가져옵니다.\n· 같은 노트가 양쪽에서 바뀌면 더 최근에 수정한 쪽이 남습니다.\n· 삭제는 동기화되지 않습니다 — 각 기기에서 따로 정리해 주세요.</string>
     <string name="sync_pick_folder">동기화 폴더 선택</string>
     <string name="sync_change_folder">폴더 변경</string>
     <string name="sync_now">지금 동기화</string>

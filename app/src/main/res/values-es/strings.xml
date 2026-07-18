@@ -184,7 +184,7 @@
     <string name="sync_status_folder_format">Carpeta: %1$s</string>
     <string name="sync_status_last_synced_format">Última sincronización: %1$s</string>
     <string name="sync_status_last_synced_never">Última sincronización: nunca</string>
-    <string name="sync_behavior_summary">· Guarda en la carpeta ~1 segundo después de cada edición.\n· "Sincronizar ahora" trae los cambios de otros dispositivos.\n· Conflictos: gana la edición más reciente.\n· Los borrados no se sincronizan — gestiona la papelera en cada dispositivo.</string>
+    <string name="sync_behavior_summary">· Guarda en la carpeta ~1 segundo después de cada edición.\n· \"Sincronizar ahora\" trae los cambios de otros dispositivos.\n· Conflictos: gana la edición más reciente.\n· Los borrados no se sincronizan — gestiona la papelera en cada dispositivo.</string>
     <string name="sync_pick_folder">Elegir carpeta</string>
     <string name="sync_change_folder">Cambiar carpeta</string>
     <string name="sync_now">Sincronizar ahora</string>

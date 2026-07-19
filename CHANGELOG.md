@@ -2,6 +2,26 @@
 
 All notable changes to Markleaf are documented in this file. This English edition is the source for GitHub release notes; the Korean edition is kept at [CHANGELOG.ko.md](CHANGELOG.ko.md).
 
+## v2.26.1 - Localization accuracy - 2026-07-19
+
+A patch release that repairs localization defects across the six shipped languages. Some strings still held their English source text, Spanish had lost its accents, and a few translations had drifted from what the app actually does — including one privacy claim. No feature, permission, or storage changes.
+
+### Fixed
+- **Untranslated strings on shipped locales.** `sync_title`, `sync_recommended_locations`, and `application_id_format` still rendered in English on French, Japanese, and Korean devices. Android lint cannot catch this — `MissingTranslation` only fires when a string is *absent*, not when a present one was never translated.
+- **Spanish accents.** Around sixty Spanish strings had lost their diacritics (`Mas`, `aqui`, `descripcion`, `Aun`), which read as typos to native speakers.
+- **"Remove from lock" mistranslation (ja, ko).** The action read as "unlock", suggesting it cleared the passcode, when it actually moves a note back out of the locked space.
+- **Korean object particle.** The trash confirmation built its prompt directly from the note title, producing the wrong particle whenever the title ended in a consonant. It now names the object explicitly so the particle is always correct.
+- **Quotes stripped at build time.** Unescaped quotes in the sync explainer were removed by the resource compiler, so "Sync now" lost its quotation marks on every locale.
+- **Archive: destination vs action.** One string served both the Archive screen title and the per-note archive action. Most locales need a distinct noun and verb, and the archive empty-state hint names the menu entry to look for — so the hint could describe an entry that did not exist under that name.
+- **Three claims restored (de, fr, ko).** German `expanded`/`collapsed` used words meaning "extended"/"reduced"; the French privacy line claimed no data *download* where the English claims none is *sent*; the Korean editor hint had dropped the fact that autosave writes to the device.
+
+### Added
+- **Build-time guard for untranslated strings.** A test compares every locale value with the English source and fails the build when they match, with an allowlist for values that are legitimately identical (brand names, URLs, format-only strings). A second test fails once an allowlist entry stops being needed, so the list cannot decay into a blanket exemption.
+
+### Documentation
+- **English-first public docs.** `CHANGELOG.md` is now written in English and is the file the release job extracts GitHub release notes from; the Korean edition lives in `CHANGELOG.ko.md`. Releases from v2.16.0 onward were retranslated.
+- **Six-language README and landing pages.** Spanish and French joined the existing four, matching the locales the app ships, with a unified language switcher and hreflang metadata.
+
 ## v2.26.0 - Locked notes hardening - 2026-07-18
 
 A hardening release that closes the remaining gaps in the locked notes space added in v2.25.0. The lock is still a UI gate that hides notes from view and is not encryption at rest. The storage format and the local-first, no-INTERNET principle are unchanged.

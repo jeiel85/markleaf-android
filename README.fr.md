@@ -38,7 +38,7 @@
 
 **Markleaf** est une application Android de prise de notes Markdown conçue pour éliminer le superflu afin que vous puissiez vous concentrer sur seulement deux choses : capturer et organiser. Vos données sont stockées uniquement sur votre appareil, et le format Markdown standard garantit une propriété et une portabilité complètes. Même la synchronisation ne passe que par *un dossier que vous choisissez* — Markleaf lui-même ne se connecte jamais à internet.
 
-[**Voir la page de branding**](https://jeiel85.github.io/markleaf-android/) · [Version actuelle : v2.26.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.26.0) · [Miroir des versions GitLab](https://gitlab.com/jeiel85/markleaf-android/-/releases/v2.26.0) · [Politique de confidentialité](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**Voir la page de branding**](https://jeiel85.github.io/markleaf-android/) · [Version actuelle : v2.26.1](https://github.com/jeiel85/markleaf-android/releases/tag/v2.26.1) · [Miroir des versions GitLab](https://gitlab.com/jeiel85/markleaf-android/-/releases/v2.26.1) · [Politique de confidentialité](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -127,7 +127,7 @@ com.markleaf.notes
 > **Les mises à jour sur Google Play sont actuellement en pause.** Aucune nouvelle version ne sera publiée sur le Play Store tant qu'une exigence de politique d'enregistrement d'entreprise en Corée pour le développeur indépendant ne sera pas résolue. En attendant, **obtenez la dernière version via F-Droid, GitHub Releases ou GitLab Releases.** (Si vous l'avez déjà installée depuis le Play Store, elle continue de fonctionner.)
 
 - **F-Droid** *(recommandé)* : [Markleaf sur F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — recherchez-le dans le client F-Droid ou installez-le via le lien ci-dessus. Il utilise la même clé de signature (SHA-256 `0be97352…f91a`), donc les mises à jour continuent sans interruption même si vous avez installé un APK via sideload depuis GitHub ou GitLab Releases.
-- **Installation directe de l'APK** : téléchargez l'APK depuis la [release GitHub v2.26.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.26.0) ou la [release GitLab v2.26.0](https://gitlab.com/jeiel85/markleaf-android/-/releases/v2.26.0), puis exécutez-le sur votre appareil Android.
+- **Installation directe de l'APK** : téléchargez l'APK depuis la [release GitHub v2.26.1](https://github.com/jeiel85/markleaf-android/releases/tag/v2.26.1) ou la [release GitLab v2.26.1](https://gitlab.com/jeiel85/markleaf-android/-/releases/v2.26.1), puis exécutez-le sur votre appareil Android.
 - **Google Play** : [Markleaf sur Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **les mises à jour sont en pause** (voir la note ci-dessus). Si vous l'avez déjà, elle continue de fonctionner, mais obtenez la dernière version via F-Droid, GitHub ou GitLab.
 
 ### Compilation depuis les sources

@@ -68,6 +68,8 @@ import com.markleaf.notes.feature.tags.TagRail
 import com.markleaf.notes.feature.tags.TagsScreen
 import com.markleaf.notes.feature.trash.TrashScreen
 import com.markleaf.notes.feature.sync.SyncCenterScreen
+import com.markleaf.notes.data.local.AppDatabase
+import com.markleaf.notes.data.repository.LocalNoteRepository
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.ui.viewmodel.ArchiveViewModel
@@ -99,6 +101,10 @@ fun MarkleafNavHost(
     val context = LocalContext.current
     val settingsRepository = remember { AppSettingsRepository(context.applicationContext) }
     val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
+    // Only used to decide where an incoming open-note intent may land; see
+    // resolveOpenNoteRoute. AppDatabase.getInstance is a singleton, so this
+    // shares the instance MainActivity already built the factory from.
+    val noteRepository = remember { LocalNoteRepository(AppDatabase.getInstance(context)) }
 
     // One-shot intent entry points — widget "new note", text/file shared or
     // opened into the app (#139), and a widget tap on a recent note. These must
@@ -125,7 +131,10 @@ fun MarkleafNavHost(
                 navController.navigate(NavRoutes.editorRoute(newNote.id))
             }
             !openNoteId.isNullOrBlank() -> {
-                navController.navigate(NavRoutes.editorRoute(openNoteId))
+                // Not editorRoute directly: this is the one entry point an
+                // external app can reach, and a locked id must land on the
+                // passcode gate instead of the editor (#158).
+                navController.navigate(resolveOpenNoteRoute(openNoteId, noteRepository))
             }
         }
     }

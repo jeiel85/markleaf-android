@@ -11,23 +11,34 @@
   GitHub가 flagged/접근 불가인 동안에는 기본적으로 GitHub를 건드리지 않는다.
   -IncludeGitHub 스위치를 줄 때만 GitHub ref를 읽는다.
 
+  -MirrorOnly는 로컬 비교를 통째로 건너뛰고 GitHub vs GitLab만 본다. CI 러너처럼
+  로컬 ref가 작업 사본이 아니라 체크아웃 설정의 부산물인 환경을 위한 것이다
+  (shallow checkout은 태그가 없어 로컬 비교가 항상 어긋난다). GitHub를 읽지 않고는
+  미러를 판정할 수 없으므로 -MirrorOnly는 -IncludeGitHub를 함축한다 — 스위치 하나만
+  줘도 완결된 호출이다.
+
   종료 코드:
     0  요청한 검사가 모두 통과
     1  실행 오류 (GitLab ref를 읽을 수 없음)
     2  로컬이 GitLab과 불일치 — 로컬 최신화 필요. 미러 자체는 정상
+       (-MirrorOnly에서는 로컬을 보지 않으므로 발생하지 않는다)
     3  GitHub와 GitLab의 미러 ref가 갈라짐 — 이 게이트가 잡으려는 실패
-    4  -IncludeGitHub를 줬으나 GitHub를 읽지 못해 미러 일치를 판정하지 못함
+    4  GitHub를 읽지 못해 미러 일치를 판정하지 못함
   둘 이상 해당하면 3 > 4 > 2 순으로 심각한 쪽을 반환한다.
 .EXAMPLE
   pwsh scripts/verify-mirror.ps1
 .EXAMPLE
   pwsh scripts/verify-mirror.ps1 -IncludeGitHub
+.EXAMPLE
+  # CI: 로컬 ref가 없는 러너에서 미러 정합성만 본다
+  pwsh scripts/verify-mirror.ps1 -MirrorOnly
 #>
 [CmdletBinding()]
 param(
     [string]$GitLabRemote = "gitlab",
     [string]$GitHubRemote = "github",
-    [switch]$IncludeGitHub
+    [switch]$IncludeGitHub,
+    [switch]$MirrorOnly
 )
 
 $ErrorActionPreference = "Stop"
@@ -82,8 +93,9 @@ function Compare-RefSet($a, $aName, $b, $bName) {
     return $diff
 }
 
-$localAll = Get-LocalRefs
-$local    = Select-MirrorRefs $localAll
+# 미러를 판정하려면 GitHub를 읽어야 하므로 -MirrorOnly는 -IncludeGitHub를 함축한다.
+# (함축하지 않으면 -MirrorOnly 단독 호출이 아무것도 비교하지 않고 0으로 통과한다.)
+$checkGitHub = $IncludeGitHub -or $MirrorOnly
 
 $gitlabAll = Get-RemoteRefs $GitLabRemote
 if ($null -eq $gitlabAll) {
@@ -93,16 +105,24 @@ if ($null -eq $gitlabAll) {
 $gitlab = Select-MirrorRefs $gitlabAll
 
 Write-Host "미러 범위: refs/heads/main + refs/tags/v*  (범위 내/전체)"
-Write-Host "  로컬 $($local.Count)/$($localAll.Count)  |  GitLab $($gitlab.Count)/$($gitlabAll.Count)"
 
-$localDiff = Compare-RefSet $local "local" $gitlab "gitlab"
-if ($localDiff -eq 0) { Write-Host "OK: GitLab이 로컬과 일치합니다 ($($local.Count) refs)." -ForegroundColor Green }
-else                  { Write-Host "$localDiff 건의 로컬 vs GitLab 차이 — 로컬 최신화 필요." -ForegroundColor Red }
+$localDiff = 0
+if ($MirrorOnly) {
+    Write-Host "  GitLab $($gitlab.Count)/$($gitlabAll.Count)  |  로컬 비교 생략 (-MirrorOnly)"
+} else {
+    $localAll = Get-LocalRefs
+    $local    = Select-MirrorRefs $localAll
+    Write-Host "  로컬 $($local.Count)/$($localAll.Count)  |  GitLab $($gitlab.Count)/$($gitlabAll.Count)"
+
+    $localDiff = Compare-RefSet $local "local" $gitlab "gitlab"
+    if ($localDiff -eq 0) { Write-Host "OK: GitLab이 로컬과 일치합니다 ($($local.Count) refs)." -ForegroundColor Green }
+    else                  { Write-Host "$localDiff 건의 로컬 vs GitLab 차이 — 로컬 최신화 필요." -ForegroundColor Red }
+}
 
 $mirrorDiff    = 0
 $mirrorUnknown = $false
 
-if ($IncludeGitHub) {
+if ($checkGitHub) {
     $githubAll = Get-RemoteRefs $GitHubRemote
     if ($null -eq $githubAll) {
         $mirrorUnknown = $true

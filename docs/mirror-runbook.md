@@ -97,10 +97,36 @@ pwsh scripts/verify-mirror.ps1 -IncludeGitHub
 | 1 | GitLab ref를 읽지 못함 | 원격·인증 확인 |
 | 2 | 로컬이 GitLab과 불일치 | `git fetch`로 로컬을 최신화. 미러 자체는 정상 |
 | 3 | **GitHub와 GitLab의 미러 ref가 갈라짐** | 아래 "이력이 갈라졌을 때 복구"로 간다 |
-| 4 | `-IncludeGitHub`를 줬으나 GitHub를 읽지 못함 | 미러 상태 미판정. 통과로 취급하지 않는다 |
+| 4 | GitHub를 읽지 못해 미러를 판정하지 못함 | 미러 상태 미판정. 통과로 취급하지 않는다 |
 
 둘 이상 해당하면 `3 > 4 > 2` 순으로 심각한 쪽을 반환한다. `3`은 사람이 개입해야
 하는 신호이고, `2`는 로컬 사정이라 미러 정합성과는 무관하다.
+
+### 자동화·CI에서 (`-MirrorOnly`)
+
+```
+pwsh scripts/verify-mirror.ps1 -MirrorOnly
+```
+
+로컬 비교를 건너뛰고 GitHub vs GitLab만 판정한다. 미러를 보려면 GitHub를 읽어야
+하므로 이 스위치는 `-IncludeGitHub`를 함축한다 — 단독으로 완결된 호출이다. 종료
+코드는 `0`/`1`/`3`/`4`만 나오고 `2`는 발생하지 않는다.
+
+CI 러너에서는 이 스위치가 **필수다.** `actions/checkout`은 기본이 shallow라 태그를
+가져오지 않으므로, 로컬 비교를 켜면 러너의 ref 1개가 GitLab의 95개와 대조되어
+미러가 멀쩡해도 매번 `2`로 실패한다(실측: 태그 94건이 전부 `<missing>`). 로컬 ref는
+작업 사본이 아니라 체크아웃 설정의 부산물이므로 비교 자체가 무의미하다.
+
+두 원격 모두 익명 HTTPS로 읽히므로 시크릿이 필요 없다. 원격 이름 대신 URL을 직접
+넘길 수 있어 원격이 설정되지 않은 러너에서도 그대로 동작한다:
+
+```
+pwsh scripts/verify-mirror.ps1 -MirrorOnly `
+  -GitLabRemote https://gitlab.com/jeiel85/markleaf-android.git `
+  -GitHubRemote https://github.com/jeiel85/markleaf-android.git
+```
+
+이 검사를 실제 CI 잡으로 거는 작업은 아직 미완이다 (#172).
 
 ## 한쪽 원격 장애 시
 

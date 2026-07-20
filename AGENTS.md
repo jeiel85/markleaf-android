@@ -153,6 +153,10 @@ GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
    릴리스 커밋은 `git add -A`로 만들지 않는다 — 변경 파일을 명시적으로 stage하거나 커밋 전
    working tree가 릴리스 대상만 담고 있는지 확인한다(무관한 작업이 태그에 섞여 나가는 것을
    막기 위함, v2.24.0에서 landing-i18n 유입 사고 → #154).
+   버전 bump에 딸린 손 편집(CHANGELOG 두 판, fastlane changelog 6개, 랜딩·README 버전 표기)은
+   `build` 워크플로가 `scripts/verify-release-notes.ps1`과 `scripts/verify-landing-versions.ps1`로
+   검사한다. 기준은 `app/build.gradle.kts`의 versionName/versionCode이므로, bump만 하고 나머지를
+   빠뜨리면 태그를 밀기 전에 PR 단계에서 실패한다(#167).
 4. **Play Store — 산출물 핸드오프.** [Release Artifact Export](#release-artifact-export)에 따라
    Play 제출용 서명 AAB와 릴리즈 노트 TXT를 내보낸다(서명 AAB는 CI 릴리스 산출물 기준).
    업로드는 메인테이너가 수동으로 한다.

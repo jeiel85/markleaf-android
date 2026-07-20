@@ -35,7 +35,10 @@ markleaf-android 저장소의 재해 복구(이중 백업) 운영 문서.
   있으므로 사용하지 않는다.
 - 웹 UI 직접 수정이 꼭 필요하면 먼저 해당 원격을 fetch해 로컬에서 이력을 합친 뒤,
   GitHub는 PR로 올리고 머지된 커밋을 GitLab으로 전달한다.
+- 미러 대상은 `refs/heads/main`과 릴리스 태그(`refs/tags/v*`)뿐이다. 기능 브랜치는
+  미러하지 않으므로 한쪽 원격에만 있어도 정상이다.
 - `scripts/verify-mirror.ps1 -IncludeGitHub`가 두 원격의 ref 일치를 판정하는 최종 게이트다.
+  이 스크립트의 비교 범위는 바로 위 미러 대상과 같다 — 한쪽을 바꾸면 다른 쪽도 바꾼다.
 
 ## 평상시 작업
 
@@ -75,10 +78,29 @@ git push github vX.Y.Z
 ## 백업 검증
 
 ```
-pwsh scripts/verify-mirror.ps1
+pwsh scripts/verify-mirror.ps1 -IncludeGitHub
 ```
 
-항상 `-IncludeGitHub`로 로컬·GitLab·GitHub 3자 ref를 대조한다.
+항상 `-IncludeGitHub`로 로컬·GitLab·GitHub 3자 ref를 대조한다. 스위치 없이 실행하면
+로컬 vs GitLab만 보므로 **미러 일치는 판정되지 않는다.**
+
+비교 범위는 위 "동기화 범위"와 같은 `refs/heads/main` + `refs/tags/v*`뿐이다. 기능
+브랜치는 애초에 미러 대상이 아니므로 양쪽 원격 어디에 있든 비교에서 제외한다 —
+범위에 넣으면 작업 브랜치가 남아 있는 정상 작업 사본이 매번 실패해 게이트가
+무의미해진다. 출력의 `95/104`는 "범위 내 95개 / 전체 104개"라는 뜻이다.
+
+종료 코드로 실패 종류를 구분한다:
+
+| 코드 | 의미 | 대응 |
+|---|---|---|
+| 0 | 요청한 검사가 모두 통과 | — |
+| 1 | GitLab ref를 읽지 못함 | 원격·인증 확인 |
+| 2 | 로컬이 GitLab과 불일치 | `git fetch`로 로컬을 최신화. 미러 자체는 정상 |
+| 3 | **GitHub와 GitLab의 미러 ref가 갈라짐** | 아래 "이력이 갈라졌을 때 복구"로 간다 |
+| 4 | `-IncludeGitHub`를 줬으나 GitHub를 읽지 못함 | 미러 상태 미판정. 통과로 취급하지 않는다 |
+
+둘 이상 해당하면 `3 > 4 > 2` 순으로 심각한 쪽을 반환한다. `3`은 사람이 개입해야
+하는 신호이고, `2`는 로컬 사정이라 미러 정합성과는 무관하다.
 
 ## 한쪽 원격 장애 시
 

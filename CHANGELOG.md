@@ -2,6 +2,22 @@
 
 All notable changes to Markleaf are documented in this file. This English edition is the source for GitHub release notes; the Korean edition is kept at [CHANGELOG.ko.md](CHANGELOG.ko.md).
 
+## v2.26.2 - Terminology consistency - 2026-07-20
+
+A patch release that settles wording drift across the five translated languages, and adds release checks that run before a version can ship. No feature, permission, or storage changes.
+
+### Changed
+- **Consistent terminology in Korean, French, German, Japanese, and Spanish.** Twenty-four strings named one concept two different ways inside a single screen, or broke a convention the rest of the file kept. Korean called the Conflict Center an "archive" — the word already used for the Archive screen — and headed the Appearance section with the same word as the Theme row inside it. German used a word for "unpin" that shares no stem with "pin" and reads as "solve". Japanese mixed half- and full-width question marks and named analytics two ways. French left a determiner disagreeing with the nouns after it. Spanish called headings "titles", which is what it calls note titles elsewhere.
+
+### Added
+- **Release checks that run before the tag, not after.** Two scripts now run in CI on every push and pull request. The first compares the version shown on the six landing pages and six READMEs against the app's own `versionName`; the previous check only compared the languages to each other, so a release where all six were equally out of date passed — which is how two consecutive releases shipped with stale version strings. The second asserts that all six store changelogs exist for the current build and fit the 500-character store limit, and that the English and Korean changelogs carry the same versions in the same order with the same dates.
+
+### Documentation
+- **What the Locked space protects, and what it does not.** The security notes now separate the two locks the app has, and state plainly that locked note bodies are not encrypted and that the passcode retry delay is cleared by moving the device clock forward. Both were already true; neither was written down. The reasoning for leaving the delay as it is — every alternative trades one bypass for another, and the delay was never the boundary — is recorded as a decision.
+
+### Internal
+- **One helper for reading the sync folder.** Nine call sites each re-implemented the same "is sync configured, and does the stored value still parse" pair of checks, in three different shapes. Consolidating them made visible the one call site that carries an extra condition: the editor also refuses to mirror a locked note.
+
 ## v2.26.1 - Localization accuracy - 2026-07-19
 
 A patch release that repairs localization defects across the six shipped languages. Some strings still held their English source text, Spanish had lost its accents, and a few translations had drifted from what the app actually does — including one privacy claim. No feature, permission, or storage changes.

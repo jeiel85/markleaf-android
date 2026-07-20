@@ -55,7 +55,7 @@ fun SearchScreen(
     val tagRepository = remember { LocalTagRepository(db) }
     val searchQuery by viewModel.searchQuery.collectAsState()
     val searchResults by viewModel.searchResults.collectAsState()
-    val allTags by tagRepository.observeAllTags().collectAsState(initial = emptyList())
+    val allTags by tagRepository.observeVisibleTags().collectAsState(initial = emptyList())
     val matchingTags = remember(searchQuery, allTags) {
         if (searchQuery.isBlank()) emptyList() else allTags.quickFilter(searchQuery) { it.name }.take(12)
     }

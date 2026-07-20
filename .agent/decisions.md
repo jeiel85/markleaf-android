@@ -7,6 +7,39 @@
 
 ## Confirmed Decisions
 
+### D063 - Passcode Backoff Uses Wall-Clock And Does Not Resist Clock Tampering
+
+`PasscodeBackoff`'s retry deadline is an absolute `System.currentTimeMillis`
+timestamp persisted in DataStore, so moving the device clock forward clears an
+in-progress wait. That is accepted, and the limit is now written down instead of
+being left implied by the changelog's "force quitting the app does not reset it"
+(#158).
+
+Why:
+- Every alternative trades one bypass for another. `SystemClock.elapsedRealtime`
+  is monotonic and survives a clock change, but resets on reboot — and rebooting
+  is cheaper than opening Settings to change the date, so that swap makes the
+  gate weaker, not stronger. Persisting both and taking the longer remaining wait
+  closes each one individually but still falls to reboot *plus* clock change, and
+  doubles the state that has to stay consistent.
+- Closing it properly needs a time source the device owner cannot move: a server,
+  or a TEE-backed monotonic counter. Markleaf has no INTERNET permission
+  (`AGENTS.md` non-negotiables), so a server is out, and a TEE counter is real
+  work for a gate that is not the security boundary.
+- The backoff exists to slow someone guessing at the keypad — a shoulder-surfer,
+  or a borrowed unlocked phone. Against an attacker who can open Settings and
+  change the system date, the Locked space was never the obstacle: note bodies
+  are unencrypted in the app database (D061, `docs/ROADMAP.md`), so the same
+  access already reads them without a passcode at all.
+
+Decision:
+- Keep the wall-clock deadline. Do not add `elapsedRealtime` tracking.
+- `docs/SECURITY.md` states what the Locked space does and does not protect
+  against, naming the clock-tampering limit. A rate limit whose strength is
+  overstated is worse than one whose ceiling is written down.
+- Revisit only if the Locked space stops being a visibility gate — that is, if
+  per-note encryption lands and makes the passcode the actual boundary.
+
 ### D062 - The AAB Is Not A GitHub Release Asset
 
 The GitHub Release carries exactly two assets — the signed APK and the R8

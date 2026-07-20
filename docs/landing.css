@@ -98,8 +98,8 @@ h2,
 h3 {
     font-family: var(--font-display);
     letter-spacing: -0.035em;
+    overflow-wrap: break-word;
     text-wrap: balance;
-    word-break: keep-all;
 }
 
 h1 {
@@ -111,10 +111,6 @@ h1 {
 
 h1 span {
     color: var(--color-primary);
-}
-
-.no-break {
-    white-space: nowrap;
 }
 
 h2 {
@@ -133,7 +129,15 @@ h3 {
 
 p,
 li {
+    overflow-wrap: break-word;
     text-wrap: pretty;
+}
+
+/* Korean puts spaces between words, so keep-all only suppresses breaks inside a
+   word and still wraps at those spaces. Japanese and Chinese have no such
+   spaces — keep-all there makes a whole sentence one unbreakable run, so they
+   keep the default line-breaking rules. */
+:lang(ko) :is(h1, h2, h3, p, li) {
     word-break: keep-all;
 }
 
@@ -179,16 +183,19 @@ li {
 .site-nav {
     align-items: center;
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     margin-inline: auto;
     max-width: var(--container);
     padding: var(--space-3) var(--space-6);
+    row-gap: var(--space-2);
 }
 
 .brand {
     align-items: center;
     color: var(--color-primary-ink);
     display: inline-flex;
+    flex-shrink: 0;
     font-family: var(--font-display);
     font-size: 1.25rem;
     font-weight: 750;
@@ -210,6 +217,7 @@ li {
 .nav-links {
     align-items: center;
     display: flex;
+    flex-wrap: wrap;
     gap: var(--space-2);
     list-style: none;
     padding: 0;
@@ -237,12 +245,14 @@ li {
 .nav-cluster {
     align-items: center;
     display: flex;
+    flex-wrap: wrap;
     gap: var(--space-4);
 }
 
 .lang-switch {
     align-items: center;
     display: flex;
+    flex-wrap: wrap;
     gap: var(--space-1);
 }
 

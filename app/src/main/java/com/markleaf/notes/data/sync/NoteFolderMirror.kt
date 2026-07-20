@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import com.markleaf.notes.core.text.TitleExtractor
+import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.SyncFileExtension
 import com.markleaf.notes.domain.model.Note
 import java.io.BufferedWriter
@@ -458,3 +459,16 @@ object NoteFolderMirror {
     private const val ATTACHMENTS_DIR = "attachments"
     private const val FRONTMATTER_PEEK_BYTES = 4096
 }
+
+/**
+ * The sync folder as a [Uri], or null when folder sync is off or the persisted
+ * value no longer parses.
+ *
+ * Both guards are needed wherever the folder is touched: sync may be
+ * unconfigured, and the stored string is opaque text that a revoked or
+ * rewritten SAF grant can leave unparseable. Nine call sites spelled them out
+ * separately, in three different shapes, which made the one call site carrying
+ * an *extra* condition (the editor's `!note.locked`) hard to pick out (#158).
+ */
+fun AppSettings.syncFolderUriOrNull(): Uri? =
+    syncFolderUri?.let { raw -> runCatching { Uri.parse(raw) }.getOrNull() }

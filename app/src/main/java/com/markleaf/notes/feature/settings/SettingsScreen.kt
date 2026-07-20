@@ -65,6 +65,7 @@ import com.markleaf.notes.data.settings.EditorLineWidth
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.NoteImporter
+import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.feature.lock.canUseBiometric
 import com.markleaf.notes.util.ExportAllNotes
 import com.markleaf.notes.util.HapticFeedback
@@ -365,8 +366,7 @@ fun SettingsScreen(
                         lastSyncedAt = appSettings.syncLastSyncedAt,
                         onPickFolder = { syncFolderLauncher.launch(null) },
                         onSyncNow = {
-                            val uriString = appSettings.syncFolderUri ?: return@SyncSection
-                            val uri = runCatching { Uri.parse(uriString) }.getOrNull() ?: return@SyncSection
+                            val uri = appSettings.syncFolderUriOrNull() ?: return@SyncSection
                             scope.launch {
                                 val notes = withContext(Dispatchers.IO) {
                                     // Full set (incl. trashed/archived) so a hidden note

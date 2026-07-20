@@ -77,6 +77,7 @@ import com.markleaf.notes.R
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.sync.NoteFolderMirror
+import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.navigation.LocalNavAnimatedVisibilityScope
 import com.markleaf.notes.navigation.LocalSharedTransitionScope
@@ -409,15 +410,10 @@ fun NotesListScreen(
                                     // plaintext copy in the sync folder. Remove it now, or
                                     // the Locked space's privacy promise is only skin deep.
                                     // LockedNotesScreen re-mirrors on unlock (#156).
-                                    appSettings.syncFolderUri?.let { uriString ->
-                                        val uri = runCatching {
-                                            android.net.Uri.parse(uriString)
-                                        }.getOrNull()
-                                        if (uri != null) {
-                                            scope.launch {
-                                                withContext(Dispatchers.IO) {
-                                                    NoteFolderMirror.deleteNote(context, uri, note.id)
-                                                }
+                                    appSettings.syncFolderUriOrNull()?.let { uri ->
+                                        scope.launch {
+                                            withContext(Dispatchers.IO) {
+                                                NoteFolderMirror.deleteNote(context, uri, note.id)
                                             }
                                         }
                                     }

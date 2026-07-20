@@ -151,7 +151,7 @@
     <string name="move_to_trash_message">\"%1$s\" 노트를 휴지통으로 옮길까요? 나중에 다시 꺼낼 수 있습니다.</string>
     <string name="move_to_trash_editor_message">이 노트를 휴지통으로 옮길까요? 나중에 다시 꺼낼 수 있습니다.</string>
 
-    <string name="settings_appearance">테마</string>
+    <string name="settings_appearance">외관</string>
     <string name="theme_label">테마</string>
     <string name="theme_markleaf_green">Markleaf 그린</string>
     <string name="theme_material_you">Material You</string>
@@ -219,7 +219,7 @@
 
     <!-- Onboarding -->
     <string name="onboarding_title_welcome">Markleaf에 오신 것을 환영합니다</string>
-    <string name="onboarding_body_welcome">조용하고 로컬 우선인 안드로이드 마크다운 노트 앱입니다. 사용자가 직접 공유하거나 내보내지 않는 한 텍스트는 이 기기에만 머뭅니다.</string>
+    <string name="onboarding_body_welcome">조용하고 로컬 우선인 Android Markdown 노트 앱입니다. 사용자가 직접 공유하거나 내보내지 않는 한 텍스트는 이 기기에만 머뭅니다.</string>
     <string name="onboarding_title_markdown">Markdown으로 쓰세요</string>
     <string name="onboarding_body_markdown">**굵게**, _기울임_, # 제목, 목록, 코드, 인용을 자유롭게 사용하세요. 상단의 미리보기를 탭하면 언제든 렌더링된 화면을 볼 수 있습니다.</string>
     <string name="onboarding_title_tags">#태그로 정리하세요</string>
@@ -309,7 +309,7 @@
 
     <!-- Sync & Conflict Center -->
     <string name="sync_center_title">동기화 센터</string>
-    <string name="conflict_center_title">충돌 보관함</string>
+    <string name="conflict_center_title">충돌 센터</string>
     <string name="conflict_center_desc">여러 기기에서 동시에 수정되어 생성된 충돌 사본 목록입니다. 사본을 탭하여 비교/편집하거나, 불필요한 사본을 삭제하세요.</string>
     <string name="conflict_center_empty">감지된 충돌이 없습니다</string>
     <string name="conflict_center_empty_desc">모든 미러링 노트가 완벽히 동기화되어 있습니다.</string>

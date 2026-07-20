@@ -124,7 +124,7 @@
     <string name="section_older">Plus anciennes</string>
     <string name="relative_today">Aujourd\'hui %1$s</string>
     <string name="relative_yesterday">Hier %1$s</string>
-    <string name="relative_days_ago">il y a %1$d jours</string>
+    <string name="relative_days_ago">Il y a %1$d jours</string>
 
     <string name="search_notes_hint">Rechercher des notes...</string>
     <string name="type_to_search_notes">Saisissez du texte pour rechercher des notes</string>
@@ -167,7 +167,7 @@
     <string name="line_width_comfortable">Confortable</string>
     <string name="line_width_wide">Large</string>
     <string name="settings_privacy">Confidentialité</string>
-    <string name="privacy_no_tracking">Aucun compte, outil d\'analyse, publicité, configuration à distance ou SDK propriétaire de rapport d\'erreurs.</string>
+    <string name="privacy_no_tracking">Aucun compte, aucune analyse, aucune publicité, aucune configuration à distance, aucun SDK propriétaire de rapport d\'erreurs.</string>
     <string name="privacy_no_internet">Aucune autorisation INTERNET n\'est déclarée pour la version MVP.</string>
     <string name="privacy_local_first">Les notes ne quittent l\'appareil que lorsque vous les exportez ou les partagez explicitement.</string>
     <string name="settings_data">Données</string>
@@ -230,7 +230,7 @@
     <string name="onboarding_title_tags">Organisez avec des #étiquettes</string>
     <string name="onboarding_body_tags">Saisissez des #étiquettes n\'importe où dans une note. Elles sont détectées automatiquement et affichées sur l\'écran Étiquettes.</string>
     <string name="onboarding_title_local">Vos données restent locales</string>
-    <string name="onboarding_body_local">Aucun compte, aucun outil d\'analyse, aucun cloud. Exportez n\'importe quelle note au format .md, ou connectez Markleaf à un dossier synchronisé (Dropbox / Drive / Syncthing) pour l\'utiliser sur plusieurs appareils.</string>
+    <string name="onboarding_body_local">Aucun compte, aucune analyse, aucun cloud. Exportez n\'importe quelle note au format .md, ou connectez Markleaf à un dossier synchronisé (Dropbox / Drive / Syncthing) pour l\'utiliser sur plusieurs appareils.</string>
     <string name="onboarding_next">Suivant</string>
     <string name="onboarding_done">Commencer</string>
     <string name="onboarding_skip">Passer</string>
@@ -242,7 +242,7 @@
     <string name="biometric_lock_prompt_title">Déverrouiller Markleaf</string>
     <string name="biometric_lock_prompt_subtitle">Authentifiez-vous pour accéder à vos notes</string>
     <string name="biometric_lock_cancel">Annuler</string>
-    <string name="biometric_lock_unavailable">L\'authentification biométrique n\'est pas disponible sur cet appareil. Configurez une empreinte digitale ou un visage dans les paramètres du système pour utiliser le verrouillage de l\'application.</string>
+    <string name="biometric_lock_unavailable">L\'authentification biométrique n\'est pas disponible sur cet appareil. Configurez une empreinte digitale ou la reconnaissance faciale dans les paramètres du système pour utiliser le verrouillage de l\'application.</string>
     <string name="biometric_lock_retry">Réessayer</string>
     <string name="biometric_lock_locked_message">Markleaf est verrouillé.</string>
 

@@ -141,15 +141,15 @@
     <string name="trash_empty_hint">削除したノートはここに表示されます</string>
     <string name="restore">復元</string>
     <string name="delete">削除</string>
-    <string name="delete_forever_title">完全に削除しますか?</string>
+    <string name="delete_forever_title">完全に削除しますか？</string>
     <string name="delete_forever_message">このノートは完全に削除され、復元できません。</string>
     <string name="delete_forever">完全に削除</string>
     <string name="cancel">キャンセル</string>
 
     <string name="move_to_trash">ゴミ箱へ移動</string>
-    <string name="move_to_trash_title">ゴミ箱へ移動しますか?</string>
-    <string name="move_to_trash_message">\"%1$s\" をゴミ箱へ移動しますか? あとでゴミ箱から復元できます。</string>
-    <string name="move_to_trash_editor_message">このノートをゴミ箱へ移動しますか? あとでゴミ箱から復元できます。</string>
+    <string name="move_to_trash_title">ゴミ箱へ移動しますか？</string>
+    <string name="move_to_trash_message">\"%1$s\" をゴミ箱へ移動しますか？あとでゴミ箱から復元できます。</string>
+    <string name="move_to_trash_editor_message">このノートをゴミ箱へ移動しますか？あとでゴミ箱から復元できます。</string>
 
     <string name="settings_appearance">外観</string>
     <string name="theme_label">テーマ</string>
@@ -165,7 +165,7 @@
     <string name="line_width_comfortable">標準</string>
     <string name="line_width_wide">広め</string>
     <string name="settings_privacy">プライバシー</string>
-    <string name="privacy_no_tracking">アカウント・分析・広告・リモート設定・独自クラッシュ報告 SDK は一切ありません。</string>
+    <string name="privacy_no_tracking">アカウント・アナリティクス・広告・リモート設定・独自クラッシュ報告 SDK は一切ありません。</string>
     <string name="privacy_no_internet">MVP では INTERNET 権限を宣言していません。</string>
     <string name="privacy_local_first">ノートはユーザーが明示的に書き出し / 共有しない限り端末外へ出ません。</string>
     <string name="settings_data">データ</string>
@@ -198,7 +198,7 @@
     <string name="sync_done_format">同期完了 — %1$d 件更新、%2$d 件新規、%3$d 件変更なし。</string>
     <string name="sync_done_with_conflicts_format">同期完了 — %1$d 件更新、%2$d 件新規、%3$d 件は重複として保持 (競合)、%4$d 件変更なし。</string>
     <string name="sync_stopped">同期を停止しました。</string>
-    <string name="screenshot_protection">スクリーンショットと履歴のプレビューを禁止</string>
+    <string name="screenshot_protection">スクリーンショットと最近使ったアプリのプレビューを禁止</string>
     <string name="screenshot_protection_description">スクリーンショットや最近使ったアプリ画面でノート内容を非表示にします。変更を反映するにはエディタを開き直してください。</string>
     <string name="settings_app">アプリ</string>
     <string name="version_format">バージョン %1$s</string>
@@ -251,7 +251,7 @@
     <string name="locked_passcode_label">パスコード</string>
     <string name="locked_unlock_button">ロック解除</string>
     <string name="locked_wrong_passcode">パスコードが正しくありません。</string>
-    <string name="locked_too_many_attempts">試行回数が多すぎます。%1$s後にもう一度お試しください。</string>
+    <string name="locked_too_many_attempts">試行回数が多すぎます。%1$s 後にもう一度お試しください。</string>
     <string name="wikilink_target_locked">このノートはロック済みノートにあります。</string>
     <string name="locked_no_passcode_title">パスコード未設定</string>
     <string name="locked_no_passcode_hint">ロックされたノートを保護するには、設定でパスコードを設定してください。</string>

@@ -186,7 +186,7 @@
     <string name="sync_status_last_synced_format">Última sincronización: %1$s</string>
     <string name="sync_status_last_synced_never">Última sincronización: nunca</string>
     <string name="sync_behavior_summary">· Guarda en la carpeta ~1 segundo después de cada edición.\n· \"Sincronizar ahora\" trae los cambios de otros dispositivos.\n· Conflictos: gana la edición más reciente.\n· Los borrados no se sincronizan — gestiona la papelera en cada dispositivo.</string>
-    <string name="sync_pick_folder">Elegir carpeta</string>
+    <string name="sync_pick_folder">Elegir carpeta de sincronización</string>
     <string name="sync_change_folder">Cambiar carpeta</string>
     <string name="sync_now">Sincronizar ahora</string>
     <string name="sync_stop">Desactivar sincronización</string>
@@ -250,11 +250,11 @@
     <string name="onboarding_title_welcome">Bienvenido a Markleaf</string>
     <string name="onboarding_body_welcome">Una aplicación tranquila de notas Markdown, con almacenamiento local primero, para Android. Tu texto se queda en este dispositivo a menos que decidas compartirlo o exportarlo.</string>
     <string name="onboarding_title_markdown">Escribe en Markdown</string>
-    <string name="onboarding_body_markdown">Usa **negrita**, _cursiva_, # títulos, listas, código y citas. Toca Vista previa en la barra superior para ver el resultado renderizado en cualquier momento.</string>
+    <string name="onboarding_body_markdown">Usa **negrita**, _cursiva_, # encabezados, listas, código y citas. Toca Vista previa en la barra superior para ver el resultado renderizado en cualquier momento.</string>
     <string name="onboarding_title_tags">Organiza con #etiquetas</string>
     <string name="onboarding_body_tags">Escribe #proyecto o #reunión en cualquier parte de una nota. Las etiquetas se detectan automáticamente y aparecen en la pantalla de Etiquetas.</string>
     <string name="onboarding_title_local">Tus datos se quedan locales</string>
-    <string name="onboarding_body_local">Sin cuenta, sin analíticas, sin nube. Exporta cualquier nota como archivo .md, o apunta Markleaf a una carpeta sincronizada (Dropbox / Drive / Syncthing) para multi-dispositivo.</string>
+    <string name="onboarding_body_local">Sin cuenta, sin analíticas, sin nube. Exporta cualquier nota como archivo .md, o apunta Markleaf a una carpeta sincronizada (Dropbox / Drive / Syncthing) para usarla entre dispositivos.</string>
     <string name="onboarding_next">Siguiente</string>
     <string name="onboarding_done">Empezar</string>
     <string name="onboarding_skip">Omitir</string>

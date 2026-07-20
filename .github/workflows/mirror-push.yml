@@ -1,0 +1,65 @@
+# 머지된 main을 GitLab으로 자동 전달한다 (#167).
+#
+# main이 보호된 뒤로 모든 변경은 GitHub PR 머지로 들어오는데 GitLab 전달만 수동이라,
+# 잊으면 DR 미러가 조용히 뒤처졌다. 실제로 v2.26.1 사이클에서만 두 번(#157·#163),
+# 그리고 mirror-check 첫 실행에서 한 번 더 잡혔다.
+#
+# 범위는 main뿐이다. 태그는 자동화하지 않는다 — 릴리스 태그는 GitLab 먼저,
+# GitHub 다음 순서이고(docs/mirror-runbook.md "원칙"), 이 잡이 GitHub→GitLab으로
+# 태그를 밀면 그 순서가 뒤집혀 양쪽 릴리스가 중복 발동할 수 있다.
+#
+# 이력 재작성은 이 잡으로 전파되지 않는다. GitLab main은 allow_force_push=false라
+# non-fast-forward push를 서버가 거부한다. 즉 이 잡은 GitLab을 fast-forward로
+# 전진시키는 것만 할 수 있고, GitHub 쪽 이력이 재작성되면 push가 실패해 잡이 빨개진다.
+# 그게 올바른 동작이다 — 자동으로 덮어쓰지 않는다.
+
+name: Mirror push
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# 연속 머지 시 push가 서로 앞지르지 않게 직렬화한다.
+# cancel-in-progress는 false — 진행 중인 push를 취소하면 전달이 누락된다.
+concurrency:
+  group: mirror-push
+  cancel-in-progress: false
+
+jobs:
+  push-to-gitlab:
+    name: main → GitLab
+    # fork에서는 돌리지 않는다. upstream GitLab에 밀 이유도, 시크릿도 없다.
+    if: github.repository == 'jeiel85/markleaf-android'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # fetch-depth: 0 필수 — shallow 클론에서는 push가 거부된다
+      # ("shallow update not allowed").
+      - name: Check out full history
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Push main to GitLab
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${GITLAB_TOKEN:-}" ]; then
+            echo "::error::GITLAB_TOKEN 시크릿이 없다. docs/mirror-runbook.md의 '미러 push 자동화 설정'을 따라 GitLab Project Access Token(write_repository)을 만들어 등록할 것."
+            exit 1
+          fi
+
+          # --force 계열을 쓰지 않는다. 기본 push는 fast-forward만 허용하므로,
+          # 이력이 갈라지면 여기서 실패하는 것이 의도된 동작이다.
+          # 토큰은 secrets에서 오므로 Actions 로그에서 자동 마스킹된다.
+          git push "https://oauth2:${GITLAB_TOKEN}@gitlab.com/jeiel85/markleaf-android.git" \
+            "${GITHUB_SHA}:refs/heads/main"
+
+          echo "GitLab main ← ${GITHUB_SHA}"
+          echo "GitLab \`main\` ← \`${GITHUB_SHA:0:7}\`" >> "$GITHUB_STEP_SUMMARY"

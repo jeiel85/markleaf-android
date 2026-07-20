@@ -7,6 +7,35 @@
 
 ## Confirmed Decisions
 
+### D062 - The AAB Is Not A GitHub Release Asset
+
+The GitHub Release carries exactly two assets — the signed APK and the R8
+mapping. The signed AAB is built and verified in the same tag job, but it is
+published everywhere except the GitHub Release.
+
+Why:
+- The AAB exists for one consumer, Play Console, and that hand-off is local:
+  `:app:exportReleaseToBuildDrive` writes it to `D:\Build` and the maintainer
+  uploads it by hand. A GitHub copy would be a third artifact nobody installs —
+  an `.aab` cannot be sideloaded, so offering it to the people who download from
+  GitHub Releases invites the wrong file.
+- A permanent download link already exists for anyone who needs one: GitLab
+  publishes the AAB to its Generic Package Registry and links it from the GitLab
+  Release (D057). The mirror is what makes the omission safe.
+- CI still verifies the AAB — it is uploaded as the `markleaf-release-aab`
+  workflow artifact, and the release job fails if the APK, AAB, or mapping is
+  missing from the build outputs. Not attaching it is a distribution choice, not
+  a gap in verification.
+
+Decision:
+- `gh release create` attaches `markleaf-vX.Y.Z.apk` and
+  `markleaf-vX.Y.Z.mapping.txt` only. Do not add the AAB.
+- Docs describing the release state the two-asset reality and say where the AAB
+  actually goes. This drifted twice — `docs/RELEASE.md` claimed "all three
+  assets" for two releases (#158, fixed in #168) and `AGENTS.md` claimed both
+  providers publish "APK/AAB 릴리스" until this entry — so treat the asset list
+  as a documented interface, not incidental prose.
+
 ### D061 - Locked Notes Stay Hidden From Every Derived Read Path
 
 The Locked space is a UI-visibility gate, so every surface that derives text

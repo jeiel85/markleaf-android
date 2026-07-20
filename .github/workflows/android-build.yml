@@ -180,6 +180,11 @@ jobs:
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
+    # 태그 push 에서도 build 가 돌지만, needs 가 없으면 둘이 병렬로 달려서 게이트가
+    # 빨개져도 릴리스가 그대로 발행된다. release 는 자체적으로 test 만 재실행하므로
+    # lintRelease·verifyRoborazziDebug·버전 표기 검사는 아무도 확인하지 않은 채
+    # 지나간다. 릴리스가 몇 분 늦어지는 대신 게이트를 실제 게이트로 만든다 (#184).
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write

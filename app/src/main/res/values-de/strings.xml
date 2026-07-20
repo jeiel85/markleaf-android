@@ -115,7 +115,7 @@
     <string name="callout_caution">Achtung</string>
 
     <string name="pin">Anheften</string>
-    <string name="unpin">Lösen</string>
+    <string name="unpin">Anheften aufheben</string>
     <string name="pinned">Angeheftet</string>
     <string name="section_pinned">Angeheftet</string>
     <string name="section_today">Heute</string>
@@ -124,7 +124,7 @@
     <string name="section_older">Älter</string>
     <string name="relative_today">Heute %1$s</string>
     <string name="relative_yesterday">Gestern %1$s</string>
-    <string name="relative_days_ago">vor %1$d Tagen</string>
+    <string name="relative_days_ago">Vor %1$d Tagen</string>
 
     <string name="search_notes_hint">Notizen durchsuchen…</string>
     <string name="type_to_search_notes">Tippen, um Notizen zu durchsuchen</string>
@@ -168,7 +168,7 @@
     <string name="line_width_wide">Breit</string>
     <string name="settings_privacy">Datenschutz</string>
     <string name="privacy_no_tracking">Kein Konto, keine Analytik, keine Werbung, keine Remote-Konfiguration und kein proprietäres Crash-Reporting-SDK.</string>
-    <string name="privacy_no_internet">Für das MVP wird die INTERNET-Berechtigung nicht angefordert.</string>
+    <string name="privacy_no_internet">Für das MVP wird die INTERNET-Berechtigung nicht deklariert.</string>
     <string name="privacy_local_first">Notizen verlassen das Gerät nur, wenn du sie explizit exportierst oder teilst.</string>
     <string name="settings_data">Daten</string>
     <string name="export_all_notes">Alle Notizen exportieren…</string>
@@ -204,7 +204,7 @@
     <string name="sync_done_with_conflicts_format">Synchronisiert – %1$d aktualisiert, %2$d neu, %3$d als Duplikate behalten (Konflikt), %4$d unverändert.</string>
     <string name="sync_stopped">Synchronisierung deaktiviert.</string>
     <string name="screenshot_protection">Screenshots und Vorschau in „Zuletzt verwendet“ blockieren</string>
-    <string name="screenshot_protection_description">Verbirgt Notizinhalte in Screenshots und im „Zuletzt verwendet“-Bildschirm. Editor neu öffnen, damit die Änderung wirksam wird.</string>
+    <string name="screenshot_protection_description">Verbirgt Notizinhalte in Screenshots und auf dem „Zuletzt verwendet“-Bildschirm. Editor neu öffnen, damit die Änderung wirksam wird.</string>
     <string name="settings_app">App</string>
     <string name="version_format">Version %1$s</string>
     <string name="application_id_format">Application ID %1$s</string>
@@ -228,7 +228,7 @@
     <string name="onboarding_title_markdown">In Markdown schreiben</string>
     <string name="onboarding_body_markdown">Nutze **fett**, _kursiv_, # Überschriften, Listen, Code und Zitate. Tippe oben auf Vorschau, um das Ergebnis jederzeit zu sehen.</string>
     <string name="onboarding_title_tags">Mit #Tags organisieren</string>
-    <string name="onboarding_body_tags">Schreibe #projekt oder #meeting irgendwo in eine Notiz. Tags werden automatisch erkannt und im Tags-Bildschirm angezeigt.</string>
+    <string name="onboarding_body_tags">Schreibe #projekt oder #meeting irgendwo in eine Notiz. Tags werden automatisch erkannt und auf dem Tags-Bildschirm angezeigt.</string>
     <string name="onboarding_title_local">Deine Daten bleiben lokal</string>
     <string name="onboarding_body_local">Kein Konto, keine Analytik, keine Cloud. Exportiere jede Notiz als .md-Datei oder zeige Markleaf einen synchronisierten Ordner (Dropbox / Drive / Syncthing) für die Nutzung auf mehreren Geräten.</string>
     <string name="onboarding_next">Weiter</string>
@@ -248,7 +248,7 @@
 
     <!-- Locked notes (#155) -->
     <string name="locked_notes_title">Gesperrte Notizen</string>
-    <string name="move_to_locked">Zu Gesperrt verschieben</string>
+    <string name="move_to_locked">Nach Gesperrt verschieben</string>
     <string name="remove_from_locked">Aus Gesperrt entfernen</string>
     <string name="locked_notes_empty">Keine gesperrten Notizen</string>
     <string name="locked_notes_empty_hint">Notizen, die du nach Gesperrt verschiebst, erscheinen hier hinter deinem Passcode.</string>
@@ -300,7 +300,7 @@
     <string name="privacy_data_storage_desc">Alle Notizen und Tags werden lokal auf deinem Gerät in Androids sicherer Room-Datenbank gespeichert. Keine Cloud-Server, keine Daten-Uploads.</string>
     <string name="privacy_no_cloud_title">Keine Cloud-Abhängigkeiten</string>
     <string name="privacy_no_cloud_desc">Wir nutzen für die Kernfunktionen keine Cloud-Dienste. Keine Google-Drive-Synchronisation, keine Dropbox-Integration, keine proprietären Backend-Server.</string>
-    <string name="privacy_no_tracking_title">Null Tracking</string>
+    <string name="privacy_no_tracking_title">Kein Tracking</string>
     <string name="privacy_no_tracking_desc">Keine Analytik, keine Crash-Reporting-SDKs, keine Werbenetzwerke. Wir haben keine Ahnung, wie du die App benutzt – und das ist Absicht.</string>
     <string name="privacy_verification_title">Datenschutz-Prüfung</string>
     <string name="privacy_verify_no_internet">Keine INTERNET-Berechtigung deklariert</string>

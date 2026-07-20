@@ -27,6 +27,7 @@ import com.markleaf.notes.data.settings.ColorPalette
 import com.markleaf.notes.data.settings.EditorFont
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.NoteImporter
+import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.feature.lock.BiometricLockGate
 import com.markleaf.notes.feature.onboarding.WelcomeOnboardingSheet
 import com.markleaf.notes.navigation.MarkleafNavHost
@@ -74,9 +75,7 @@ class MainActivity : FragmentActivity() {
                 if (now - lastReconcileMs < THROTTLE_MS) return@repeatOnLifecycle
                 lastReconcileMs = now
                 val settings = settingsRepository.settings.first()
-                val uriString = settings.syncFolderUri ?: return@repeatOnLifecycle
-                val uri = runCatching { android.net.Uri.parse(uriString) }.getOrNull()
-                    ?: return@repeatOnLifecycle
+                val uri = settings.syncFolderUriOrNull() ?: return@repeatOnLifecycle
                 val notes = withContext(Dispatchers.IO) {
                     // Full set (incl. trashed/archived) so the reconcile can't
                     // re-import a hidden note as a brand-new one — see #148.

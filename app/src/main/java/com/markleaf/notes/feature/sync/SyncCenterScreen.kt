@@ -1,7 +1,6 @@
 package com.markleaf.notes.feature.sync
 
 import android.content.Intent
-import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -34,6 +33,7 @@ import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.SyncFileExtension
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.NoteImporter
+import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.ui.viewmodel.SyncCenterViewModel
 import com.markleaf.notes.util.HapticFeedback
@@ -197,8 +197,7 @@ fun SyncCenterScreen(
                                 
                                 Button(
                                     onClick = {
-                                        val uriString = appSettings.syncFolderUri ?: return@Button
-                                        val uri = runCatching { Uri.parse(uriString) }.getOrNull() ?: return@Button
+                                        val uri = appSettings.syncFolderUriOrNull() ?: return@Button
                                         isSyncing = true
                                         scope.launch {
                                             val notes = withContext(Dispatchers.IO) {
@@ -267,9 +266,7 @@ fun SyncCenterScreen(
 
                                 OutlinedButton(
                                     onClick = {
-                                        val uriString = appSettings.syncFolderUri ?: return@OutlinedButton
-                                        val uri = runCatching { Uri.parse(uriString) }.getOrNull()
-                                            ?: return@OutlinedButton
+                                        val uri = appSettings.syncFolderUriOrNull() ?: return@OutlinedButton
                                         scope.launch {
                                             val notes = withContext(Dispatchers.IO) {
                                                 noteRepository.observeNotes().first()
@@ -464,13 +461,10 @@ fun SyncCenterScreen(
                             scope.launch(Dispatchers.IO) {
                                 com.markleaf.notes.util.AttachmentManager.deleteAllForNote(context, note.id)
                             }
-                            appSettings.syncFolderUri?.let { uriString ->
-                                val uri = runCatching { Uri.parse(uriString) }.getOrNull()
-                                if (uri != null) {
-                                    scope.launch {
-                                        withContext(Dispatchers.IO) {
-                                            NoteFolderMirror.deleteNote(context, uri, note.id)
-                                        }
+                            appSettings.syncFolderUriOrNull()?.let { uri ->
+                                scope.launch {
+                                    withContext(Dispatchers.IO) {
+                                        NoteFolderMirror.deleteNote(context, uri, note.id)
                                     }
                                 }
                             }

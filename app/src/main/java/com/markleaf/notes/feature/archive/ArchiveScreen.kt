@@ -91,32 +91,32 @@ fun ArchiveScreen(
             color = MaterialTheme.colorScheme.background
         ) {
             if (notes.isEmpty()) {
-            EmptyState(
-                icon = Icons.Outlined.Archive,
-                title = stringResource(R.string.archive_empty),
-                hint = stringResource(R.string.archive_empty_hint)
-            )
-        } else {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(notes, key = { it.id }) { note ->
-                    ArchiveRow(
-                        note = note,
-                        onClick = { onNoteClick(note.id) },
-                        onUnarchive = {
-                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                            viewModel.unarchive(note.id)
-                        },
-                        onMoveToTrash = {
-                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                            viewModel.moveToTrash(note.id)
-                        },
-                        onLongPress = {
-                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                        }
-                    )
+                EmptyState(
+                    icon = Icons.Outlined.Archive,
+                    title = stringResource(R.string.archive_empty),
+                    hint = stringResource(R.string.archive_empty_hint)
+                )
+            } else {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(notes, key = { it.id }) { note ->
+                        ArchiveRow(
+                            note = note,
+                            onClick = { onNoteClick(note.id) },
+                            onUnarchive = {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                viewModel.unarchive(note.id)
+                            },
+                            onMoveToTrash = {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                viewModel.moveToTrash(note.id)
+                            },
+                            onLongPress = {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                            }
+                        )
+                    }
                 }
             }
-        }
         }
     }
 }

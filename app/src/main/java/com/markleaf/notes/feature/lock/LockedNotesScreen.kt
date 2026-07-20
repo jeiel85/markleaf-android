@@ -64,6 +64,7 @@ import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.LockPasscodeAttempt
 import com.markleaf.notes.data.sync.NoteFolderMirror
+import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.ui.component.EmptyState
 import com.markleaf.notes.ui.viewmodel.LockedNotesViewModel
@@ -346,19 +347,14 @@ private fun LockedNotesList(
                         // Locking deleted the note's mirror file, so unlocking has to
                         // put it back — otherwise the note would stay missing from the
                         // sync folder until its next edit (#156).
-                        appSettings.syncFolderUri?.let { uriString ->
-                            val uri = runCatching {
-                                android.net.Uri.parse(uriString)
-                            }.getOrNull()
-                            if (uri != null) {
-                                scope.launch {
-                                    withContext(Dispatchers.IO) {
-                                        NoteFolderMirror.writeNote(
-                                            context,
-                                            uri,
-                                            note.copy(locked = false)
-                                        )
-                                    }
+                        appSettings.syncFolderUriOrNull()?.let { uri ->
+                            scope.launch {
+                                withContext(Dispatchers.IO) {
+                                    NoteFolderMirror.writeNote(
+                                        context,
+                                        uri,
+                                        note.copy(locked = false)
+                                    )
                                 }
                             }
                         }

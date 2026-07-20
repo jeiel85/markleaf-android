@@ -31,6 +31,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
+      # 버전 표기·릴리스 노트 검사는 Gradle 앞에 둔다. 초 단위로 끝나고, 릴리스
+      # 준비 커밋에서 빠뜨리기 가장 쉬운 것들이라 먼저 실패하는 편이 낫다.
+      - name: Verify public version strings (landing + README)
+        run: pwsh -File scripts/verify-landing-versions.ps1
+
+      - name: Verify release notes (fastlane changelogs + CHANGELOG parity)
+        run: pwsh -File scripts/verify-release-notes.ps1
+
       - name: Set up JDK 17
         uses: actions/setup-java@v5
         with:

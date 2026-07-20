@@ -74,11 +74,17 @@ rule in `app/proguard-rules.pro` — not to disable R8.
 
 Every push to `main` and every pull request runs:
 
+- `pwsh -File scripts/verify-landing-versions.ps1` — public version strings match `versionName`
+- `pwsh -File scripts/verify-release-notes.ps1` — fastlane changelogs exist and fit, CHANGELOG editions agree
 - `./gradlew assembleDebug`
 - `./gradlew test`
 - `./gradlew verifyRoborazziDebug`
 - `./gradlew :app:lintRelease` — fails on any Error-severity lint issue in the release variant
 - `./gradlew :app:assembleRelease` — proves R8 still produces a valid APK
+
+The two script checks run ahead of Gradle. They finish in seconds and cover what
+a release-preparation commit most often forgets, so failing on them first costs
+nothing. See [Release Version and Notes Checks](#release-version-and-notes-checks).
 
 The `launch-smoke` job (emulator-based) currently runs on a debug APK and is
 marked `continue-on-error: true` because of historical emulator flakiness on
@@ -92,29 +98,65 @@ mapping and six-locale notes, and verifies the APK certificate before
 publishing. GitHub remains the canonical Roborazzi and emulator-smoke runner;
 GitLab is an independent build and binary-distribution path.
 
-## Localized Landing Version Check
+## Release Version and Notes Checks
 
-The landing page ships in six languages: `docs/index.html` (English, the
-canonical / x-default), `docs/index.ko.html`, `docs/index.ja.html`,
-`docs/index.de.html`, `docs/index.es.html`, and `docs/index.fr.html`. Their
-"current release" version must match across all six before a release. It
-appears in three places per file — the JSON-LD `softwareVersion`, the hero
-`release-line`, and the trust-ledger `<strong>`.
+Two PowerShell checks guard the parts of a release that are maintained by hand.
+Both run in CI on every push and pull request, and both take their expected
+version from `app/build.gradle.kts`. `versionName` and `versionCode` are the
+source of truth rather than the latest git tag, because these checks run *before*
+the tag is pushed — during release preparation the newest tag still points at the
+previous version.
 
-Run the check before pushing a release tag:
+### Public version strings
 
 ```powershell
 pwsh scripts/verify-landing-versions.ps1
 ```
 
-It prints each language's release and screenshot versions and exits non-zero if
-the release version differs between languages. The hero `figcaption` screenshot
-version is tracked separately (it lags until screenshots are re-taken) but must
-also stay consistent across the six languages. When the check fails, update the
-lagging language file — not the check.
+The landing page ships in six languages: `docs/index.html` (English, the
+canonical / x-default), `docs/index.ko.html`, `docs/index.ja.html`,
+`docs/index.de.html`, `docs/index.es.html`, and `docs/index.fr.html`. The
+"current release" version appears in three places per file — the JSON-LD
+`softwareVersion`, the hero `release-line`, and the trust-ledger `<strong>`.
+
+The six READMEs are checked as well. There the target is any line carrying a
+release link (`releases/tag/vX.Y.Z` or `-/releases/vX.Y.Z`), and every version
+string on such a line must match — so a stale link label is caught even when the
+URL beside it was updated. Roadmap entries such as `- [x] v1.0.0 stable release`
+carry no release link and are out of scope.
+
+The hero `figcaption` screenshot version is tracked separately. It lags until
+screenshots are re-taken, so it only has to stay consistent across the six
+languages, not to equal the release version.
+
+Missing files and missing version strings now fail. The earlier version of this
+script compared the languages only against each other and merely warned when a
+string was absent, so six equally-stale files passed: version-bump omissions went
+unnoticed through v2.25.0 and v2.26.0 (#167).
+
+When the check fails, update the lagging file — not the check.
 
 The privacy pages (`docs/privacy*.html`) ship in the same six languages and
 carry no version string, so they are outside this check.
+
+### Release notes
+
+```powershell
+pwsh scripts/verify-release-notes.ps1
+```
+
+Three assertions:
+
+- All six store locales have
+  `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt`.
+- Each stays within Play Console's 500-character-per-locale limit.
+  `:app:exportReleaseToBuildDrive` enforces the same limit, but it runs at
+  release time, after the release commit already exists — de-DE and fr-FR were
+  once written at 526 and 525 characters and were caught only by counting them
+  by hand (#167).
+- `CHANGELOG.md` and `CHANGELOG.ko.md` carry the same version sections in the
+  same order with the same dates, and both have a section for the current
+  `versionName`. Titles are translations, so they are not compared.
 
 ## Release Notes Source and Language
 

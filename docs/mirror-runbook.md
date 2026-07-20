@@ -30,9 +30,13 @@ markleaf-android 저장소의 재해 복구(이중 백업) 운영 문서.
 - **`main`의 정식 경로: GitHub에서 PR을 머지한 뒤 그 커밋을 GitLab으로 전달한다**
   (GitHub → GitLab). `main`이 보호되기 전에는 GitLab 먼저 push했으나, 이제 GitHub
   `main`은 PR로만 전진하므로 순서가 뒤집혔다. 태그는 여전히 GitLab 먼저다.
+  이 전달은 `mirror-push.yml`이 자동으로 한다 ("미러 push 자동화 설정" 절).
 - GitHub 또는 GitLab 웹 UI에서 직접 만든 커밋은 다른 제공자로 자동 복사되지 않는다.
-- 자동 양방향 mirror는 동시 편집 시 충돌·재전파 루프와 태그 릴리스 중복 실행 위험이
-  있으므로 사용하지 않는다.
+  단 GitHub `main`에 들어온 커밋은 `mirror-push.yml`이 GitLab으로 전달한다.
+- **자동 양방향 mirror는 여전히 쓰지 않는다.** 동시 편집 시 충돌·재전파 루프와 태그
+  릴리스 중복 실행 위험 때문이다. `mirror-push.yml`은 이 원칙과 충돌하지 않는다 —
+  GitHub → GitLab **단방향**이고, `main` 한 갈래만 다루며(태그 제외), fast-forward만
+  가능해 되돌아오는 전파나 릴리스 중복 발동을 만들지 않는다.
 - 웹 UI 직접 수정이 꼭 필요하면 먼저 해당 원격을 fetch해 로컬에서 이력을 합친 뒤,
   GitHub는 PR로 올리고 머지된 커밋을 GitLab으로 전달한다.
 - 미러 대상은 `refs/heads/main`과 릴리스 태그(`refs/tags/v*`)뿐이다. 기능 브랜치는
@@ -60,20 +64,51 @@ merge commit이다. 미러 정합성에는 어느 쪽도 영향이 없으므로 
 `--merge`를 예시로 쓴다. 방식을 통일하고 싶으면 저장소 설정에서 하나만 남기는 편이
 문서로 강제하는 것보다 확실하다.
 
-머지된 `main`을 GitLab으로 전달한다. 로컬 `main`을 checkout하지 않고 원격 추적
-ref를 그대로 밀면 다른 워크트리의 체크아웃을 건드리지 않는다:
+**머지된 `main`의 GitLab 전달은 자동이다.** `.github/workflows/mirror-push.yml`이
+`main`에 push가 들어올 때마다 그 커밋을 GitLab `main`으로 민다 (#167). 평상시에는
+머지 후 아무것도 하지 않아도 된다.
+
+수동 전달은 자동화가 실패했을 때의 폴백으로 남긴다. 로컬 `main`을 checkout하지 않고
+원격 추적 ref를 그대로 밀면 다른 워크트리의 체크아웃을 건드리지 않는다:
 
 ```
 git fetch github
 git push gitlab github/main:refs/heads/main
 ```
 
-릴리스 태그는 브랜치 보호와 무관하므로 종전대로 GitLab 먼저, GitHub 다음이다:
+릴리스 태그는 브랜치 보호와 무관하므로 종전대로 GitLab 먼저, GitHub 다음이다.
+**태그는 자동화 대상이 아니다** — 이 순서를 뒤집으면 양쪽 릴리스가 중복 발동한다:
 
 ```
 git push gitlab vX.Y.Z
 git push github vX.Y.Z
 ```
+
+## 미러 push 자동화 설정
+
+`.github/workflows/mirror-push.yml`은 GitLab에 쓸 수 있는 자격증명이 필요하다. 읽기
+전용인 미러 *검사*와 달리 push는 익명으로 할 수 없다. 아래는 **사람이 직접 해야 하는
+설정이다** — 토큰 값은 저장소에 커밋하지 않는다.
+
+1. **GitLab에서 Project Access Token 발급.** 프로젝트 → Settings → Access Tokens.
+   - Role: **Maintainer** (보호된 `main`에 push하려면 필요하다)
+   - Scope: **`write_repository`** 하나만
+   - Expiry: GitLab이 만료일을 강제한다(최대 1년). **날짜를 적어 둘 것** — 아래 갱신 항목 참조.
+2. **GitHub에 시크릿 등록.** 저장소 → Settings → Secrets and variables → Actions →
+   New repository secret. 이름은 정확히 **`GITLAB_TOKEN`**.
+3. **확인.** Actions 탭 → **Mirror push** → Run workflow. 또는 아무 PR이나 머지하면
+   자동으로 돈다. 성공하면 job summary에 `GitLab main ← <sha>`가 찍힌다.
+
+**만료 시 동작: 조용히 멈추지 않고 시끄럽게 실패한다.** 토큰이 만료되면 push가 인증
+오류로 실패하고 잡이 빨개진다. 미러가 뒤처지기 시작하면 매일 도는 `mirror-check`도
+함께 빨개진다. 두 신호가 같이 뜨면 토큰 만료를 먼저 의심할 것.
+
+**이 자동화가 할 수 없는 일.** `--force` 계열을 쓰지 않으므로 GitLab을 fast-forward로
+전진시키는 것만 가능하다. GitHub 쪽 이력이 재작성되면 push가 거부되고(GitLab
+`main`의 `allow_force_push=false`도 서버에서 같은 것을 막는다) 잡이 실패한다. 즉
+**재작성된 이력은 자동으로 전파되지 않는다** — 그때는 "이력이 갈라졌을 때 복구"를
+사람이 따라야 한다. 되감기 push가 거부되고 대상 ref가 그대로 유지되는 것은 실측으로
+확인했다.
 
 ## 백업 검증
 

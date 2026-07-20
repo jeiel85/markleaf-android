@@ -28,11 +28,29 @@ interface TagDao {
     @Delete
     suspend fun deleteTag(tag: TagEntity)
 
-    @Query("SELECT * FROM tags ORDER BY name ASC")
-    fun getAllTags(): Flow<List<TagEntity>>
-
-    @Query("SELECT * FROM tags ORDER BY name ASC")
-    fun observeAllTags(): Flow<List<TagEntity>>
+    /**
+     * Tags that at least one visible note still carries. Locked and trashed notes are
+     * excluded, so a tag used only by locked notes never reaches the search chips or
+     * the editor's `#` autocomplete (#169) — the same rule [observeTagsWithCounts]
+     * already applies to the tag overview (#156).
+     *
+     * Orphan rows are excluded by the same predicate: a tag whose notes have all been
+     * retagged away keeps its row in `tags`, and matching the overview's
+     * `HAVING COUNT(notes.id) > 0` means autocomplete stops suggesting names that
+     * lead nowhere.
+     */
+    @Query("""
+        SELECT * FROM tags
+        WHERE EXISTS (
+            SELECT 1 FROM note_tag_cross_ref
+            INNER JOIN notes ON notes.id = note_tag_cross_ref.noteId
+            WHERE note_tag_cross_ref.tagId = tags.id
+              AND notes.trashed = 0
+              AND notes.locked = 0
+        )
+        ORDER BY name ASC
+    """)
+    fun observeVisibleTags(): Flow<List<TagEntity>>
 
     /**
      * Locked notes are excluded from the count so a tag used only by locked notes
@@ -51,6 +69,11 @@ interface TagDao {
     """)
     fun observeTagsWithCounts(): Flow<List<TagWithCount>>
 
+    /**
+     * Unfiltered — includes tags carried only by locked or trashed notes. Used to
+     * assert seeded fixtures in tests; do not surface this to the UI without adding
+     * the [observeVisibleTags] predicate.
+     */
     @Query("SELECT * FROM tags")
     suspend fun getAllTagsList(): List<TagEntity>
 

@@ -136,6 +136,117 @@ class LocalTagRepositoryTest {
     }
 
     @Test
+    fun `observeVisibleTags excludes tags carried only by locked notes`() = runTest {
+        db.noteDao().insertNote(
+            NoteEntity(
+                id = "visible",
+                title = "Visible",
+                contentMarkdown = "Body #shared",
+                excerpt = "Body",
+                createdAt = 1L,
+                updatedAt = 1L
+            )
+        )
+        db.noteDao().insertNote(
+            NoteEntity(
+                id = "locked",
+                title = "Locked",
+                contentMarkdown = "Body #shared #secret",
+                excerpt = "Body",
+                createdAt = 2L,
+                updatedAt = 2L,
+                locked = true
+            )
+        )
+
+        repository.reindexTagsForNote("visible", "Body #shared")
+        repository.reindexTagsForNote("locked", "Body #shared #secret")
+
+        // The row really is in `tags` — the filter is what hides it, not an empty
+        // table. Without this the assertion below would pass for the wrong reason.
+        assertEquals(
+            setOf("secret", "shared"),
+            db.tagDao().getAllTagsList().map { it.name }.toSet()
+        )
+
+        // "secret" exists only on the locked note. Before #169 it still reached the
+        // search chips and the editor's `#` autocomplete, leaking the name of a tag
+        // the passcode is supposed to hide. "shared" stays because a visible note
+        // carries it too.
+        assertEquals(
+            listOf("shared"),
+            repository.observeVisibleTags().first().map { it.name }
+        )
+    }
+
+    @Test
+    fun `observeVisibleTags drops a tag when its last visible note becomes locked`() = runTest {
+        db.noteDao().insertNote(
+            NoteEntity(
+                id = "note-1",
+                title = "Note",
+                contentMarkdown = "Body #therapy",
+                excerpt = "Body",
+                createdAt = 1L,
+                updatedAt = 1L
+            )
+        )
+        repository.reindexTagsForNote("note-1", "Body #therapy")
+
+        assertEquals(
+            listOf("therapy"),
+            repository.observeVisibleTags().first().map { it.name }
+        )
+
+        // Locking is what the user does to hide the note; the tag index is not
+        // rewritten on that transition, so the filter is the only thing standing
+        // between a locked note and its tag name.
+        db.noteDao().setLocked("note-1", true)
+
+        assertEquals(
+            emptyList<String>(),
+            repository.observeVisibleTags().first().map { it.name }
+        )
+    }
+
+    @Test
+    fun `observeVisibleTags excludes trashed notes and orphan tag rows`() = runTest {
+        db.noteDao().insertNote(
+            NoteEntity(
+                id = "trashed",
+                title = "Trashed",
+                contentMarkdown = "Body #gone",
+                excerpt = "Body",
+                createdAt = 1L,
+                updatedAt = 1L,
+                trashed = true,
+                deletedAt = 2L
+            )
+        )
+        db.noteDao().insertNote(
+            NoteEntity(
+                id = "active",
+                title = "Active",
+                contentMarkdown = "Body #keep #drop",
+                excerpt = "Body",
+                createdAt = 3L,
+                updatedAt = 3L
+            )
+        )
+        repository.reindexTagsForNote("trashed", "Body #gone")
+        repository.reindexTagsForNote("active", "Body #keep #drop")
+
+        // Retagging leaves an orphan `drop` row behind, matching the overview's
+        // HAVING COUNT(...) > 0 rule so autocomplete stops offering dead names.
+        repository.reindexTagsForNote("active", "Body #keep")
+
+        assertEquals(
+            listOf("keep"),
+            repository.observeVisibleTags().first().map { it.name }
+        )
+    }
+
+    @Test
     fun `observeTagSummaries hides tags once their note count drops to zero`() = runTest {
         db.noteDao().insertNote(
             NoteEntity(

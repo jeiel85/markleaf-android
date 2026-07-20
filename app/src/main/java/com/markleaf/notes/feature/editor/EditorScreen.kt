@@ -179,7 +179,7 @@ fun EditorScreen(
     // surface existing tags. Mirrors the wikilink dropdown but keyed off `#`
     // with TagParser's rules (see detectTagQuery) so URL fragments and `##`
     // never trigger it.
-    val allTags by tagRepo.observeAllTags().collectAsState(initial = emptyList())
+    val allTags by tagRepo.observeVisibleTags().collectAsState(initial = emptyList())
     val tagQuery by remember {
         derivedStateOf { detectTagQuery(editorState) }
     }

@@ -54,14 +54,14 @@ class LocalTagRepository(
             .map { entities -> entities.map { it.toDomainModel() } }
     }
 
-    override suspend fun getAllTags(): List<Tag> {
-        return db.tagDao().getAllTags()
+    override suspend fun getVisibleTags(): List<Tag> {
+        return db.tagDao().observeVisibleTags()
             .map { entities -> entities.map { it.toDomainModel() } }
             .first()
     }
 
-    override fun observeAllTags(): Flow<List<Tag>> {
-        return db.tagDao().getAllTags()
+    override fun observeVisibleTags(): Flow<List<Tag>> {
+        return db.tagDao().observeVisibleTags()
             .map { entities -> entities.map { it.toDomainModel() } }
     }
 

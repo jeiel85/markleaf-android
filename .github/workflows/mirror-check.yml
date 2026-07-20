@@ -1,0 +1,58 @@
+# GitHub ↔ GitLab 미러 정합성 감시.
+#
+# 사람이 실행을 기억해야만 도는 게이트를 자동화한다 (#172). 판정 기준과 종료 코드는
+# docs/mirror-runbook.md "백업 검증" 절에 있다. 빌드와 무관하므로 android-build.yml과
+# 분리한다 — 같은 워크플로에 넣으면 required check("build") 구성이 얽힌다.
+
+name: Mirror check
+
+on:
+  schedule:
+    # 매일 03:17 UTC. 정시(:00)는 러너가 붐벼 지연되므로 피한다.
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mirror:
+    name: GitHub vs GitLab refs
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # 검증 스크립트만 있으면 된다. 기본 shallow 체크아웃으로 충분하다 —
+      # -MirrorOnly는 로컬 ref를 읽지 않는다. (로컬 비교를 켜면 러너에는 태그가
+      # 없어 미러가 멀쩡해도 항상 실패한다. #172 참조.)
+      - name: Check out verification script
+        uses: actions/checkout@v5
+
+      - name: Compare mirror refs
+        shell: pwsh
+        run: |
+          # 원격은 docs/mirror-runbook.md "원격 구성" 표와 같다. 두 저장소 모두
+          # 익명 HTTPS로 읽히므로 시크릿도, git remote 설정도 필요 없다.
+          $gitlab = "https://gitlab.com/jeiel85/markleaf-android.git"
+          $github = "https://github.com/jeiel85/markleaf-android.git"
+
+          ./scripts/verify-mirror.ps1 -MirrorOnly -GitLabRemote $gitlab -GitHubRemote $github
+          $code = $LASTEXITCODE
+
+          # ::error:: 주석(annotation)이 진단을 전달하는 통로다. 종료 코드가 아니다.
+          #
+          # Actions의 pwsh 셸은 스텝을 `pwsh -command ". '<file>'"` 로 실행하는데, 이
+          # 형태에서는 dot-source된 스크립트의 `exit 3`이 프로세스 종료 코드 1로 뭉개진다
+          # (실측: -command는 1, -File은 3). 따라서 잡의 성공/실패(0 vs 非0)는 정확하지만
+          # 3/4/1의 구분은 여기서 사라진다. 무엇이 잘못됐는지는 아래 주석만이 알려주므로
+          # 종료 코드로 충분하다고 보고 지우지 말 것.
+          #
+          # exit $code 자체는 그대로 둔다 — 0은 0으로, 실패는 전부 非0으로 보존된다.
+          switch ($code) {
+              0 { Write-Host "미러 일치 — GitHub와 GitLab의 main·릴리스 태그가 같다." }
+              3 { Write-Host "::error::GitHub와 GitLab의 미러 ref가 갈라졌다. docs/mirror-runbook.md의 '이력이 갈라졌을 때 복구' 절을 따를 것 (재작성이 아니라 전진 수정)." }
+              4 { Write-Host "::error::GitHub를 읽지 못해 미러를 판정하지 못했다. 검사를 수행하지 못한 것이므로 통과가 아니다." }
+              1 { Write-Host "::error::GitLab ref를 읽지 못했다. 원격 URL과 GitLab 접근성을 확인할 것." }
+              default { Write-Host "::error::verify-mirror.ps1이 예상치 못한 종료 코드 $code 로 끝났다. -MirrorOnly에서는 0/1/3/4만 나와야 한다." }
+          }
+
+          exit $code

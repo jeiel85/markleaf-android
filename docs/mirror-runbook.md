@@ -126,7 +126,23 @@ pwsh scripts/verify-mirror.ps1 -MirrorOnly `
   -GitHubRemote https://github.com/jeiel85/markleaf-android.git
 ```
 
-이 검사를 실제 CI 잡으로 거는 작업은 아직 미완이다 (#172).
+### 자동 감시 (`.github/workflows/mirror-check.yml`)
+
+같은 검사를 매일 03:17 UTC에 GitHub Actions가 돌린다. 수동 실행은 Actions 탭의
+**Mirror check → Run workflow**(`workflow_dispatch`)로 한다. 시크릿이 없으므로 fork나
+다른 체크아웃에서도 그대로 동작한다.
+
+잡이 실패하면 무엇이 잘못됐는지는 **`::error::` 주석**에 있다. Actions의 pwsh 셸은
+스텝을 `pwsh -command ". '<file>'"`로 실행하는데 이 형태에서는 `exit 3`이 프로세스
+종료 코드 1로 뭉개져서, 잡의 성공/실패는 정확해도 3·4·1의 구분은 종료 코드에 남지
+않는다. 실행 로그의 주석을 읽을 것.
+
+**한계: GitHub가 내려가면 이 감시도 함께 멈춘다.** 감시자를 감시 대상 위에 올린
+대가다. 2026-07-10 flagged 사례처럼 GitHub가 장기간 막히면 미러 상태를 알려줄 주체가
+없어진다 — 그 구간에는 로컬에서 `pwsh scripts/verify-mirror.ps1 -IncludeGitHub`를
+직접 돌린다. GitLab CI에 같은 잡을 두면 이 사각지대가 사라지지만(그쪽은 GitHub 장애
+중에도 돌아 `4`를 보고할 수 있다), 스케줄을 GitLab UI에서 따로 만들어야 해서 저장소에
+남지 않는다. 지금은 단순함을 택했다.
 
 ## 한쪽 원격 장애 시
 

@@ -28,8 +28,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -48,7 +50,9 @@ import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.domain.model.Tag
 import com.markleaf.notes.ui.component.EmptyState
 import com.markleaf.notes.ui.viewmodel.SearchViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,12 +78,25 @@ fun SearchScreen(
     // Quick Access folded into Search (#193): before any typing the screen
     // offers the most recently edited notes, and a persisted titles-only mode
     // narrows matching to note titles (the quick switcher's semantics).
+    // Computed off the main thread — at thousands of notes an in-place filter
+    // and sort per keystroke would jank the query field (#195). The effects
+    // restart when their inputs change, cancelling a stale computation.
     val titlesOnly = appSettings.searchTitlesOnly
-    val recentNotes = remember(searchQuery, allNotes) {
-        if (searchQuery.isBlank()) recentNotesForSearch(allNotes) else emptyList()
+    var recentNotes by remember { mutableStateOf(emptyList<Note>()) }
+    LaunchedEffect(searchQuery, allNotes) {
+        recentNotes = if (searchQuery.isBlank()) {
+            withContext(Dispatchers.Default) { recentNotesForSearch(allNotes) }
+        } else {
+            emptyList()
+        }
     }
-    val titleResults = remember(searchQuery, allNotes, titlesOnly) {
-        if (titlesOnly) filterNotesByTitle(allNotes, searchQuery) else emptyList()
+    var titleResults by remember { mutableStateOf(emptyList<Note>()) }
+    LaunchedEffect(searchQuery, allNotes, titlesOnly) {
+        titleResults = if (titlesOnly) {
+            withContext(Dispatchers.Default) { filterNotesByTitle(allNotes, searchQuery) }
+        } else {
+            emptyList()
+        }
     }
     val noteResults = if (titlesOnly) titleResults else searchResults
 

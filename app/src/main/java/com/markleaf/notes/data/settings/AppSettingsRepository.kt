@@ -1,6 +1,9 @@
 package com.markleaf.notes.data.settings
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.MutablePreferences
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -10,6 +13,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.markleaf.notes.core.security.PasscodeBackoff
 import com.markleaf.notes.core.security.PasscodeHasher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -28,10 +32,17 @@ sealed interface LockPasscodeAttempt {
     data class LockedOut(val retryAtMillis: Long) : LockPasscodeAttempt
 }
 
-class AppSettingsRepository(
-    private val context: Context
+class AppSettingsRepository internal constructor(
+    private val dataStore: DataStore<Preferences>
 ) {
-    val settings: Flow<AppSettings> = context.markleafSettingsDataStore.data.map { preferences ->
+    /** Production entry point — the process-wide DataStore singleton. The
+     *  internal constructor exists so tests can hand in their own instance,
+     *  which is what makes [attemptLockPasscode] testable at all: the
+     *  `preferencesDataStore` delegate caches one instance per JVM, so
+     *  Robolectric-per-method data dirs can never work with it (#158). */
+    constructor(context: Context) : this(context.markleafSettingsDataStore)
+
+    val settings: Flow<AppSettings> = dataStore.data.map { preferences ->
         AppSettings(
             markdownSyntaxVisibility = preferences[MARKDOWN_SYNTAX_VISIBILITY]
                 ?.let { value -> enumValueOrDefault(value, MarkdownSyntaxVisibility.SHOW) }
@@ -65,13 +76,13 @@ class AppSettingsRepository(
     }
 
     suspend fun setOnboardingCompleted(completed: Boolean) {
-        context.markleafSettingsDataStore.edit { preferences ->
+        persist { preferences ->
             preferences[ONBOARDING_COMPLETED] = completed
         }
     }
 
     suspend fun setBiometricLockEnabled(enabled: Boolean) {
-        context.markleafSettingsDataStore.edit { preferences ->
+        persist { preferences ->
             preferences[BIOMETRIC_LOCK_ENABLED] = enabled
         }
     }
@@ -84,7 +95,7 @@ class AppSettingsRepository(
     suspend fun setLockPasscode(passcode: String) {
         val salt = PasscodeHasher.newSaltBase64()
         val hash = withContext(Dispatchers.Default) { PasscodeHasher.hash(passcode, salt) }
-        context.markleafSettingsDataStore.edit { preferences ->
+        persist { preferences ->
             preferences[LOCK_PASSCODE_SALT] = salt
             preferences[LOCK_PASSCODE_HASH] = hash
             // A new passcode starts a clean streak; the owner just proved intent.
@@ -96,7 +107,7 @@ class AppSettingsRepository(
     /** Remove the Locked-notes passcode. Callers should also unlock any locked
      *  notes so they aren't stranded behind a gate with no key. */
     suspend fun clearLockPasscode() {
-        context.markleafSettingsDataStore.edit { preferences ->
+        persist { preferences ->
             preferences.remove(LOCK_PASSCODE_HASH)
             preferences.remove(LOCK_PASSCODE_SALT)
             preferences.remove(LOCK_FAILED_ATTEMPTS)
@@ -107,7 +118,7 @@ class AppSettingsRepository(
     /** True iff [passcode] matches the stored digest. False when no passcode is
      *  set. Hashing runs off the main thread. */
     suspend fun verifyLockPasscode(passcode: String): Boolean {
-        val preferences = context.markleafSettingsDataStore.data.first()
+        val preferences = dataStore.data.first()
         val salt = preferences[LOCK_PASSCODE_SALT] ?: return false
         val hash = preferences[LOCK_PASSCODE_HASH] ?: return false
         return withContext(Dispatchers.Default) {
@@ -121,7 +132,7 @@ class AppSettingsRepository(
      * app restart (#156).
      */
     suspend fun lockPasscodeRetryAtMillis(): Long =
-        context.markleafSettingsDataStore.data.first()[LOCK_RETRY_AT] ?: 0L
+        dataStore.data.first()[LOCK_RETRY_AT] ?: 0L
 
     /**
      * Verify [passcode], applying and maintaining the [PasscodeBackoff] policy.
@@ -132,7 +143,7 @@ class AppSettingsRepository(
         passcode: String,
         now: Long = System.currentTimeMillis()
     ): LockPasscodeAttempt {
-        val preferences = context.markleafSettingsDataStore.data.first()
+        val preferences = dataStore.data.first()
         val retryAt = preferences[LOCK_RETRY_AT] ?: 0L
         if (PasscodeBackoff.isLockedOut(retryAt, now)) return LockPasscodeAttempt.LockedOut(retryAt)
 
@@ -143,7 +154,7 @@ class AppSettingsRepository(
 
         val previousFailures = preferences[LOCK_FAILED_ATTEMPTS] ?: 0
         val nextRetryAt = PasscodeBackoff.retryAtAfterFailure(previousFailures, now)
-        context.markleafSettingsDataStore.edit { edited ->
+        persist { edited ->
             edited[LOCK_FAILED_ATTEMPTS] = previousFailures + 1
             if (nextRetryAt > 0L) edited[LOCK_RETRY_AT] = nextRetryAt else edited.remove(LOCK_RETRY_AT)
         }
@@ -152,44 +163,44 @@ class AppSettingsRepository(
 
     /** Clear the failure streak — on success, and whenever the passcode changes. */
     suspend fun resetLockPasscodeBackoff() {
-        context.markleafSettingsDataStore.edit { preferences ->
+        persist { preferences ->
             preferences.remove(LOCK_FAILED_ATTEMPTS)
             preferences.remove(LOCK_RETRY_AT)
         }
     }
 
     suspend fun setColorPalette(palette: ColorPalette) {
-        context.markleafSettingsDataStore.edit { preferences ->
+        persist { preferences ->
             preferences[COLOR_PALETTE] = palette.name
         }
     }
 
     suspend fun setMarkdownSyntaxVisibility(visibility: MarkdownSyntaxVisibility) {
-        context.markleafSettingsDataStore.edit { preferences ->
+        persist { preferences ->
             preferences[MARKDOWN_SYNTAX_VISIBILITY] = visibility.name
         }
     }
 
     suspend fun setLineWidth(lineWidth: EditorLineWidth) {
-        context.markleafSettingsDataStore.edit { preferences ->
+        persist { preferences ->
             preferences[LINE_WIDTH] = lineWidth.name
         }
     }
 
     suspend fun setEditorFont(font: EditorFont) {
-        context.markleafSettingsDataStore.edit { preferences ->
+        persist { preferences ->
             preferences[EDITOR_FONT] = font.name
         }
     }
 
     suspend fun setScreenshotProtection(enabled: Boolean) {
-        context.markleafSettingsDataStore.edit { preferences ->
+        persist { preferences ->
             preferences[SCREENSHOT_PROTECTION] = enabled
         }
     }
 
     suspend fun setSyncFolderUri(uri: String?) {
-        context.markleafSettingsDataStore.edit { preferences ->
+        persist { preferences ->
             if (uri.isNullOrBlank()) {
                 preferences.remove(SYNC_FOLDER_URI)
                 preferences.remove(SYNC_LAST_SYNCED_AT)
@@ -200,48 +211,61 @@ class AppSettingsRepository(
     }
 
     suspend fun setSyncLastSyncedAt(epochMillis: Long) {
-        context.markleafSettingsDataStore.edit { preferences ->
+        persist { preferences ->
             preferences[SYNC_LAST_SYNCED_AT] = epochMillis
         }
     }
 
     suspend fun setSyncFileExtension(extension: SyncFileExtension) {
-        context.markleafSettingsDataStore.edit { preferences ->
+        persist { preferences ->
             preferences[SYNC_FILE_EXTENSION] = extension.name
         }
     }
 
     suspend fun setNotesShowPreview(show: Boolean) {
-        context.markleafSettingsDataStore.edit { preferences ->
+        persist { preferences ->
             preferences[NOTES_SHOW_PREVIEW] = show
         }
     }
 
     suspend fun setReopenLastNote(enabled: Boolean) {
-        context.markleafSettingsDataStore.edit { preferences ->
+        persist { preferences ->
             preferences[REOPEN_LAST_NOTE] = enabled
         }
     }
 
     suspend fun setNotesSortMode(mode: NotesSortMode) {
-        context.markleafSettingsDataStore.edit { preferences ->
+        persist { preferences ->
             preferences[NOTES_SORT_MODE] = mode.name
         }
     }
 
     suspend fun setSearchTitlesOnly(titlesOnly: Boolean) {
-        context.markleafSettingsDataStore.edit { preferences ->
+        persist { preferences ->
             preferences[SEARCH_TITLES_ONLY] = titlesOnly
         }
     }
 
     suspend fun setLastOpenedNoteId(noteId: String?) {
-        context.markleafSettingsDataStore.edit { preferences ->
+        persist { preferences ->
             if (noteId.isNullOrBlank()) {
                 preferences.remove(LAST_OPENED_NOTE_ID)
             } else {
                 preferences[LAST_OPENED_NOTE_ID] = noteId
             }
+        }
+    }
+
+    /**
+     * Every write funnels through here inside [NonCancellable]. Settings writes
+     * are typically launched from a screen's `rememberCoroutineScope`, and a
+     * rotation cancelling that scope mid-write must not silently drop a toggle
+     * the user just flipped (#195). Ordering is preserved — this stays a
+     * suspend call on the caller's dispatcher, only shielded from cancellation.
+     */
+    private suspend fun persist(transform: suspend (MutablePreferences) -> Unit) {
+        withContext(NonCancellable) {
+            dataStore.edit(transform)
         }
     }
 

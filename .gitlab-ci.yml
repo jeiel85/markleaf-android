@@ -21,6 +21,23 @@ cache:
     - .gradle/caches/
     - .gradle/wrapper/
 
+# GitHub 의 build 워크플로와 같은 릴리스 문서 검사를 GitLab 쪽에도 둔다 (#184).
+# GitLab 은 독립적인 빌드·배포 경로(태그 파이프라인이 서명 APK/AAB 와 Release 를
+# 만든다)라서, 여기서 안 돌면 GitLab 단독 릴리스는 버전 표기·스토어 노트 검사를
+# 통째로 건너뛴다. android 이미지에는 pwsh 가 없으므로 전용 이미지의 별도 job 로 둔다.
+verify_release_docs:
+  stage: verify
+  image: mcr.microsoft.com/powershell:latest
+  before_script: []
+  cache: []
+  script:
+    - pwsh -File scripts/verify-landing-versions.ps1
+    - pwsh -File scripts/verify-release-notes.ps1
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH'
+    - if: '$CI_COMMIT_TAG'
+
 verify_android:
   stage: verify
   script:
@@ -42,6 +59,9 @@ package_signed_release:
   stage: package
   needs:
     - job: verify_android
+    # needs 는 stage 순서를 우회하는 DAG 를 만들므로, 여기 명시하지 않으면
+    # verify_release_docs 가 빨간 채로도 패키징이 진행된다 — 게이트로 묶는다 (#184).
+    - job: verify_release_docs
   before_script:
     - chmod +x gradlew
     - install -d -m 700 .secrets

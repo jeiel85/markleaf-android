@@ -302,13 +302,18 @@ fun EditorScreen(
         if (noteId == null) {
             isLoaded = true
         } else {
-            val content = repo.getNote(noteId)?.contentMarkdown.orEmpty()
+            val loadedNote = repo.getNote(noteId)
+            val content = loadedNote?.contentMarkdown.orEmpty()
             editorState = TextFieldValue(content)
             shouldRequestEditorFocus = content.isEmpty()
             isLoaded = true
             // Remember this note as the launch target for the opt-in
-            // "Reopen last note on launch" setting (#192).
-            settingsRepository.setLastOpenedNoteId(noteId)
+            // "Reopen last note on launch" setting (#192) — but only when the
+            // note actually exists. A stale deep link must not overwrite a
+            // valid last-note id with a dangling one (#195).
+            if (loadedNote != null) {
+                settingsRepository.setLastOpenedNoteId(noteId)
+            }
         }
     }
 

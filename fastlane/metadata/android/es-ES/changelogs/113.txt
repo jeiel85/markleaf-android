@@ -1,0 +1,1 @@
+Corrección de errores: los enlaces dentro de tablas Markdown ahora se pueden tocar en la vista de lectura, igual que los enlaces en el resto de una nota — antes se mostraban como texto plano y no hacían nada al tocarlos. El formato y los wikienlaces dentro de las celdas también funcionan. Sin cambios de funciones ni permisos.

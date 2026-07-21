@@ -259,9 +259,8 @@ internal object CommonMarkPreviewAdapter {
     }
 
     private fun renderTable(block: TableBlock): PreviewLine {
-        var headers = emptyList<String>()
-        var alignments = emptyList<TableAlignment>()
-        val rows = mutableListOf<List<String>>()
+        var headerCells = emptyList<CellOut>()
+        val bodyRows = mutableListOf<List<CellOut>>()
 
         var section: Node? = block.firstChild
         while (section != null) {
@@ -269,16 +268,14 @@ internal object CommonMarkPreviewAdapter {
                 is TableHead -> {
                     val headRow = section.firstChild as? TableRow
                     if (headRow != null) {
-                        val cells = collectCells(headRow)
-                        headers = cells.map { it.text }
-                        alignments = cells.map { it.alignment }
+                        headerCells = collectCells(headRow)
                     }
                 }
                 is TableBody -> {
                     var bodyRow: Node? = section.firstChild
                     while (bodyRow != null) {
                         if (bodyRow is TableRow) {
-                            rows += collectCells(bodyRow).map { it.text }
+                            bodyRows += collectCells(bodyRow)
                         }
                         bodyRow = bodyRow.next
                     }
@@ -288,22 +285,28 @@ internal object CommonMarkPreviewAdapter {
         }
         // Pad short body rows to header count so the renderer can use a fixed
         // column layout without per-row null checks.
-        val width = headers.size.coerceAtLeast(rows.maxOfOrNull { it.size } ?: 0)
-        val paddedRows = rows.map { row -> row + List(width - row.size) { "" } }
-        val paddedHeaders = headers + List(width - headers.size) { "" }
-        val paddedAlignments = alignments + List(width - alignments.size) { TableAlignment.LEFT }
+        val width = headerCells.size.coerceAtLeast(bodyRows.maxOfOrNull { it.size } ?: 0)
+        val emptyCell = CellOut(text = "", alignment = TableAlignment.LEFT, segments = emptyList())
+        val paddedHeaderCells = headerCells + List(width - headerCells.size) { emptyCell }
+        val paddedBodyRows = bodyRows.map { row -> row + List(width - row.size) { emptyCell } }
         return PreviewLine(
             text = "",
             type = PreviewLineType.TABLE,
             tableData = TableData(
-                headers = paddedHeaders,
-                rows = paddedRows,
-                alignments = paddedAlignments
+                headers = paddedHeaderCells.map { it.text },
+                rows = paddedBodyRows.map { row -> row.map { it.text } },
+                alignments = paddedHeaderCells.map { it.alignment },
+                headerSegments = paddedHeaderCells.map { it.segments },
+                rowSegments = paddedBodyRows.map { row -> row.map { it.segments } }
             )
         )
     }
 
-    private data class CellOut(val text: String, val alignment: TableAlignment)
+    private data class CellOut(
+        val text: String,
+        val alignment: TableAlignment,
+        val segments: List<PreviewInlineSegment>
+    )
 
     private fun collectCells(row: TableRow): List<CellOut> {
         val out = mutableListOf<CellOut>()
@@ -316,7 +319,11 @@ internal object CommonMarkPreviewAdapter {
                     TableCell.Alignment.RIGHT -> TableAlignment.RIGHT
                     else -> TableAlignment.LEFT
                 }
-                out += CellOut(collectText(cell), alignment)
+                out += CellOut(
+                    text = collectText(cell),
+                    alignment = alignment,
+                    segments = collectInlineSegments(cell)
+                )
             }
             cell = cell.next
         }

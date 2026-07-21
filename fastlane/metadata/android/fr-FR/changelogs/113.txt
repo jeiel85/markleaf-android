@@ -1,0 +1,1 @@
+Correction de bug : les liens dans les tableaux Markdown sont désormais cliquables dans la vue lecture, comme les liens ailleurs dans une note — auparavant ils s'affichaient en texte brut et ne faisaient rien au toucher. La mise en forme et les wiki-liens dans les cellules fonctionnent aussi. Aucun changement de fonctionnalité ni de permission.

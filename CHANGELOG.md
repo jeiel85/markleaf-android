@@ -2,6 +2,13 @@
 
 All notable changes to Markleaf are documented in this file. This English edition is the source for GitHub release notes; the Korean edition is kept at [CHANGELOG.ko.md](CHANGELOG.ko.md).
 
+## v2.27.2 - Tappable links in tables - 2026-07-21
+
+A bug-fix release for a reader report (#197). No feature, permission, or storage changes.
+
+### Fixed
+- **Links inside tables work in reading view (#197).** A link in a Markdown table cell is now tappable in the preview, exactly like a link in body text — before, it rendered as plain text and did nothing when tapped, because the table renderer dropped the link's destination at parse time and drew every cell as a non-clickable string. Inline styles (bold, italic, code, strikethrough) and `[[wiki-links]]` inside table cells now render and behave the same as elsewhere too. A parser unit test, a Compose click-interaction test, and a new visual golden cover the table-cell link path that previously had none.
+
 ## v2.27.1 - Hardening sweep - 2026-07-21
 
 A patch release that works through the open hardening-candidate backlog (#154, #158, #184, #195). No feature, permission, or storage changes.

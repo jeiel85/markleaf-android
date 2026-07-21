@@ -1,0 +1,1 @@
+Fehlerbehebung: Links in Markdown-Tabellen lassen sich in der Leseansicht jetzt antippen wie Links im übrigen Notiztext — zuvor wurden sie als reiner Text dargestellt und reagierten beim Antippen nicht. Auch Inline-Formatierung und Wiki-Links in Tabellenzellen funktionieren nun. Keine Funktions- oder Berechtigungsänderungen.

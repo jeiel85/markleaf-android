@@ -257,6 +257,23 @@ class MarkdownPreviewSnapshotTest {
         )
     }
 
+    /**
+     * Regression net for #197: links and inline styles must render *inside*
+     * table cells (link color + underline, bold, code), not fall through to
+     * plain text.
+     */
+    @Test
+    fun table_links_light() = snapshot("table_links_light", darkTheme = false) {
+        Renders(
+            """
+            | name | link | rating |
+            | --- | --- | --- |
+            | Restaurant 1 | [address](https://www.restaurant.com) | ***** |
+            | Cafe **Two** | [[Another Note]] | `ok` |
+            """.trimIndent()
+        )
+    }
+
     @Test
     fun mixed_document_dark() = snapshot("mixed_document_dark", darkTheme = true) {
         Renders(

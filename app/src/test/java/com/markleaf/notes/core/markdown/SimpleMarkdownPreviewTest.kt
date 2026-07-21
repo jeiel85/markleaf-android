@@ -326,4 +326,48 @@ class SimpleMarkdownPreviewTest {
         val ref = bodyLine?.segments?.firstOrNull { it.type == PreviewInlineType.FOOTNOTE_REF }
         assertEquals("1", ref?.text)
     }
+
+    @Test
+    fun parse_tableCellsCarryLinkSegmentsWithHref() {
+        // Repro from #197 — a link inside a table cell must keep its href so
+        // the preview can dispatch it on tap, not collapse to plain text.
+        val markdown = """
+            | name | link | rating |
+            | --- | --- | --- |
+            | Restaurant 1 | [address](https://www.restaurant.com) | ***** |
+        """.trimIndent()
+
+        val lines = SimpleMarkdownPreview.parse(markdown)
+
+        val table = lines.firstOrNull { it.type == PreviewLineType.TABLE }?.tableData
+        // Plain-string view stays as before (renderer fallback + old assertions).
+        assertEquals(listOf("name", "link", "rating"), table?.headers)
+        assertEquals(listOf("Restaurant 1", "address", "*****"), table?.rows?.get(0))
+        // Segment view mirrors headers/rows cell-for-cell.
+        assertEquals(3, table?.headerSegments?.size)
+        assertEquals(1, table?.rowSegments?.size)
+        assertEquals(3, table?.rowSegments?.get(0)?.size)
+        val linkCell = table?.rowSegments?.get(0)?.get(1)
+        val link = linkCell?.firstOrNull { it.type == PreviewInlineType.LINK }
+        assertEquals("address", link?.text)
+        assertEquals("https://www.restaurant.com", link?.href)
+    }
+
+    @Test
+    fun parse_tableCellsCarryInlineFormattingAndWikilinks() {
+        val markdown = """
+            | a | b |
+            | --- | --- |
+            | **bold** | [[Another Note]] |
+        """.trimIndent()
+
+        val lines = SimpleMarkdownPreview.parse(markdown)
+
+        val row = lines.firstOrNull { it.type == PreviewLineType.TABLE }
+            ?.tableData?.rowSegments?.get(0)
+        val bold = row?.get(0)?.firstOrNull { it.type == PreviewInlineType.BOLD }
+        assertEquals("bold", bold?.text)
+        val wikilink = row?.get(1)?.firstOrNull { it.type == PreviewInlineType.WIKILINK }
+        assertEquals("Another Note", wikilink?.text)
+    }
 }

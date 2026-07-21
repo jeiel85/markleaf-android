@@ -179,7 +179,13 @@ fun PreviewLineRenderer(
         PreviewLineType.FRONTMATTER -> FrontmatterBlock(line.text)
         PreviewLineType.FOOTNOTE_DEF -> FootnoteDefRow(line)
         PreviewLineType.IMAGE -> AttachmentImage(line, onLongPress = onImageLongPress)
-        PreviewLineType.TABLE -> line.tableData?.let { MarkdownTable(it) }
+        PreviewLineType.TABLE -> line.tableData?.let {
+            MarkdownTable(
+                data = it,
+                onWikilinkClick = onWikilinkClick,
+                onFootnoteRefClick = onFootnoteRefClick
+            )
+        }
         PreviewLineType.ORDERED_LIST -> InlineMarkdownText(
             line = line,
             leadingMarker = "${line.extra ?: "1"}. ",
@@ -208,17 +214,45 @@ internal fun InlineMarkdownText(
     leadingMarker: String = "",
     color: Color = MaterialTheme.colorScheme.onBackground
 ) {
+    // Some line types (and the legacy hand-rolled parser) can leave segments
+    // empty even when text is present — fall back to the raw text so we never
+    // silently drop content.
+    val segments = line.segments.ifEmpty {
+        listOf(PreviewInlineSegment(line.text, PreviewInlineType.TEXT))
+    }
+    val annotated = inlineAnnotatedString(
+        segments = segments,
+        leadingMarker = leadingMarker,
+        onWikilinkClick = onWikilinkClick,
+        onFootnoteRefClick = onFootnoteRefClick
+    )
+    // Links are now embedded as LinkAnnotations in `annotated`, so a plain Text
+    // handles styling, clicks, and accessibility — no offset-mapped onClick.
+    Text(
+        text = annotated,
+        style = MaterialTheme.typography.bodyLarge.copy(color = color),
+        modifier = Modifier.padding(vertical = 2.dp)
+    )
+}
+
+/**
+ * Builds the [AnnotatedString] for a list of [PreviewInlineSegment]s, embedding
+ * clickable [LinkAnnotation]s for links, wikilinks, and footnote refs. Shared by
+ * [InlineMarkdownText] and the table-cell renderer so links behave the same
+ * inside tables as anywhere else (#197).
+ */
+@Composable
+private fun inlineAnnotatedString(
+    segments: List<PreviewInlineSegment>,
+    leadingMarker: String = "",
+    onWikilinkClick: (String) -> Unit = {},
+    onFootnoteRefClick: (String) -> Unit = {}
+): AnnotatedString {
     // Captured by the LinkAnnotation click listeners built below, so it must be
     // resolved before buildAnnotatedString rather than at the Text call site.
     val context = LocalContext.current
-    val annotated = buildAnnotatedString {
+    return buildAnnotatedString {
         if (leadingMarker.isNotEmpty()) append(leadingMarker)
-        // Some line types (and the legacy hand-rolled parser) can leave segments
-        // empty even when text is present — fall back to the raw text so we never
-        // silently drop content.
-        val segments = line.segments.ifEmpty {
-            listOf(PreviewInlineSegment(line.text, PreviewInlineType.TEXT))
-        }
         segments.forEach { segment ->
             when (segment.type) {
                 PreviewInlineType.TEXT -> append(segment.text)
@@ -301,13 +335,6 @@ internal fun InlineMarkdownText(
             }
         }
     }
-    // Links are now embedded as LinkAnnotations in `annotated`, so a plain Text
-    // handles styling, clicks, and accessibility — no offset-mapped onClick.
-    Text(
-        text = annotated,
-        style = MaterialTheme.typography.bodyLarge.copy(color = color),
-        modifier = Modifier.padding(vertical = 2.dp)
-    )
 }
 
 private const val WIKILINK_TAG = "wikilink"
@@ -464,7 +491,11 @@ private data class CalloutVisuals(
 )
 
 @Composable
-private fun MarkdownTable(data: TableData) {
+private fun MarkdownTable(
+    data: TableData,
+    onWikilinkClick: (String) -> Unit = {},
+    onFootnoteRefClick: (String) -> Unit = {}
+) {
     val scheme = MaterialTheme.colorScheme
     Column(
         modifier = Modifier
@@ -476,10 +507,13 @@ private fun MarkdownTable(data: TableData) {
         // Header row
         TableRow(
             cells = data.headers,
+            cellSegments = data.headerSegments,
             alignments = data.alignments,
             background = scheme.surfaceVariant,
             textColor = scheme.onSurface,
-            bold = true
+            bold = true,
+            onWikilinkClick = onWikilinkClick,
+            onFootnoteRefClick = onFootnoteRefClick
         )
         // Body rows — divider between each, slight zebra-stripe via alpha
         data.rows.forEachIndexed { index, row ->
@@ -489,6 +523,7 @@ private fun MarkdownTable(data: TableData) {
             )
             TableRow(
                 cells = row,
+                cellSegments = data.rowSegments.getOrElse(index) { emptyList() },
                 alignments = data.alignments,
                 background = if (index % 2 == 0) {
                     androidx.compose.ui.graphics.Color.Transparent
@@ -496,7 +531,9 @@ private fun MarkdownTable(data: TableData) {
                     scheme.surfaceVariant.copy(alpha = 0.3f)
                 },
                 textColor = scheme.onBackground,
-                bold = false
+                bold = false,
+                onWikilinkClick = onWikilinkClick,
+                onFootnoteRefClick = onFootnoteRefClick
             )
         }
     }
@@ -505,10 +542,13 @@ private fun MarkdownTable(data: TableData) {
 @Composable
 private fun TableRow(
     cells: List<String>,
+    cellSegments: List<List<PreviewInlineSegment>>,
     alignments: List<TableAlignment>,
     background: androidx.compose.ui.graphics.Color,
     textColor: androidx.compose.ui.graphics.Color,
-    bold: Boolean
+    bold: Boolean,
+    onWikilinkClick: (String) -> Unit,
+    onFootnoteRefClick: (String) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -518,8 +558,22 @@ private fun TableRow(
     ) {
         cells.forEachIndexed { col, cell ->
             val alignment = alignments.getOrElse(col) { TableAlignment.LEFT }
+            // Cells with parsed segments go through the same LinkAnnotation
+            // machinery as body text so links stay tappable (#197); cells
+            // without segment data (hand-built TableData) render the plain
+            // string exactly as before.
+            val segments = cellSegments.getOrElse(col) { emptyList() }
+            val content = if (segments.isEmpty()) {
+                AnnotatedString(cell)
+            } else {
+                inlineAnnotatedString(
+                    segments = segments,
+                    onWikilinkClick = onWikilinkClick,
+                    onFootnoteRefClick = onFootnoteRefClick
+                )
+            }
             Text(
-                text = cell,
+                text = content,
                 style = MaterialTheme.typography.bodyMedium,
                 color = textColor,
                 fontWeight = if (bold) FontWeight.SemiBold else FontWeight.Normal,

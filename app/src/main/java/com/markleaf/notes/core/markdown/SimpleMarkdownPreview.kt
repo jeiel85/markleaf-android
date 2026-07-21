@@ -27,7 +27,15 @@ enum class TableAlignment { LEFT, CENTER, RIGHT }
 data class TableData(
     val headers: List<String>,
     val rows: List<List<String>>,
-    val alignments: List<TableAlignment>
+    val alignments: List<TableAlignment>,
+    /**
+     * Per-cell inline segments mirroring [headers] / [rows], so links and inline
+     * styles survive into table cells (#197). An empty list for a cell means
+     * "render the plain string" — kept as a fallback so hand-built instances
+     * (tests, legacy paths) keep working without segment data.
+     */
+    val headerSegments: List<List<PreviewInlineSegment>> = emptyList(),
+    val rowSegments: List<List<List<PreviewInlineSegment>>> = emptyList()
 )
 
 enum class PreviewInlineType {

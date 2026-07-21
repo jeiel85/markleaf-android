@@ -1,0 +1,1 @@
+A bug-fix release. Links inside Markdown tables are now tappable in reading view, just like links anywhere else in a note — before, a link in a table cell rendered as plain text and did nothing when tapped. Inline styles and wiki-links inside table cells work now too. No feature or permission changes.

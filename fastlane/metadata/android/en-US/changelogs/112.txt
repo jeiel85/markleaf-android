@@ -1,0 +1,1 @@
+A maintenance release: settings changes can no longer be lost if you rotate the screen at the wrong moment, search stays smooth even with very large note libraries, and the optional "reopen last note" now tidies up after deleted notes. Also adds deeper automated tests around the Locked-notes passcode lockout and more visual regression coverage. No feature or permission changes.

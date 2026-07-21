@@ -35,6 +35,11 @@ Set-StrictMode -Version Latest
 # app/build.gradle.kts 의 playLimit 과 같은 값이어야 한다.
 $PlayNoteLimit = 500
 
+# 상한의 90%부터는 경고를 낸다(통과는 시킨다). v2.26.2 가 494/492자로 통과한 뒤
+# 다음 릴리스의 한 단어 수정이 예고 없이 FAIL 로 뒤집힐 뻔했다(#184) — 여유가
+# 얼마 안 남았다는 신호를 상한에 닿기 전에 주기 위한 것이다.
+$PlayNoteWarnAt = [int][math]::Floor($PlayNoteLimit * 0.9)
+
 # app/build.gradle.kts 의 noteLocales 와 같은 목록이어야 한다.
 $StoreLocales = @("ko-KR", "en-US", "ja-JP", "de-DE", "fr-FR", "es-ES")
 
@@ -91,6 +96,8 @@ foreach ($locale in $StoreLocales) {
     $length = (Get-Content -Raw -Encoding utf8 -LiteralPath $path).Trim().Length
     if ($length -gt $PlayNoteLimit) {
         Add-Failure ("  FAIL  {0,-6} {1,4}자 — Play 상한 {2}자를 {3}자 초과" -f $locale, $length, $PlayNoteLimit, ($length - $PlayNoteLimit))
+    } elseif ($length -ge $PlayNoteWarnAt) {
+        Write-Host ("  WARN  {0,-6} {1,4}자 / {2} — 여유 {3}자뿐, 다음 수정에서 넘칠 수 있습니다" -f $locale, $length, $PlayNoteLimit, ($PlayNoteLimit - $length)) -ForegroundColor Yellow
     } else {
         Write-Host ("  OK    {0,-6} {1,4}자 / {2}" -f $locale, $length, $PlayNoteLimit) -ForegroundColor Green
     }

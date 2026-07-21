@@ -16,6 +16,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.foundation.background
 import android.net.Uri
+import android.util.Log
+import com.markleaf.notes.BuildConfig
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -151,6 +153,19 @@ fun MarkleafNavHost(
                     val note = noteRepository.getNote(lastId)
                     if (note != null && !note.trashed) {
                         navController.navigate(resolveOpenNoteRoute(lastId, noteRepository))
+                    } else {
+                        // The note is gone (deleted or trashed since). Clear the
+                        // dangling id so it isn't re-validated on every launch,
+                        // and leave a debug breadcrumb — "the app stopped
+                        // reopening my note" is undiagnosable without one (#195).
+                        if (BuildConfig.DEBUG) {
+                            Log.d(
+                                "MarkleafNavHost",
+                                "reopen-last-note skipped: note $lastId is " +
+                                    if (note == null) "deleted" else "in the trash"
+                            )
+                        }
+                        settingsRepository.setLastOpenedNoteId(null)
                     }
                 }
             }

@@ -2,6 +2,21 @@
 
 All notable changes to Markleaf are documented in this file. This English edition is the source for GitHub release notes; the Korean edition is kept at [CHANGELOG.ko.md](CHANGELOG.ko.md).
 
+## v2.27.1 - Hardening sweep - 2026-07-21
+
+A patch release that works through the open hardening-candidate backlog (#154, #158, #184, #195). No feature, permission, or storage changes.
+
+### Fixed
+- **Settings writes survive rotation.** Every settings write now runs shielded from coroutine cancellation, so rotating the screen at the wrong moment can no longer silently drop a toggle, sort order, or sync timestamp you just changed.
+- **Reopen-last-note tidies up after itself.** The remembered note id is only recorded when the note actually loads, and a stale id (note deleted or trashed since) is cleared at launch instead of being re-validated forever — with a debug-build breadcrumb, so a silently skipped reopen is diagnosable.
+- **Search stays smooth at large libraries.** The titles-only matching and the recent-notes list now compute off the main thread instead of per keystroke on it.
+
+### Added
+- **The Locked-notes lockout is finally under test.** The settings repository takes an injectable DataStore, and seven new cases pin the passcode backoff's persistence glue: the free-attempt window, refusal during a lockout, the streak reset on success, survival across a repository recreation, and set/clear removing the backoff. This was the one security control verified only by hand (#158).
+- **Visual goldens for surfaces that shipped without them (#154).** The shared empty-state layout (three variants) and the 640dp-centered tablet Settings and Tags screens are now under Roborazzi. The Settings golden captures the viewport only, so the version string at the bottom of the screen cannot break the image on every release.
+- **Store-note headroom warning (#184).** The release-notes check now warns from 90% of Play's 500-character limit while still failing only above it, so a near-limit note is flagged before the next edit pushes it over.
+- **GitLab runs the release-doc checks too (#184).** A `verify_release_docs` job runs the version-string and release-notes checks on GitLab, wired into the signed-package job's dependencies — a GitLab-driven release can no longer skip them.
+
 ## v2.27.0 - List and search options - 2026-07-21
 
 A feature release built from user requests (#188, #190–#193). Five quality-of-life options for the notes list and search — every one of them defaults to the previous behaviour, so nothing changes until you opt in. No permission or storage changes.

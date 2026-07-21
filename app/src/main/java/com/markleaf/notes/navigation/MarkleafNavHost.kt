@@ -78,6 +78,7 @@ import com.markleaf.notes.ui.viewmodel.NotesViewModel
 import com.markleaf.notes.ui.viewmodel.SearchViewModel
 import com.markleaf.notes.ui.viewmodel.TrashViewModel
 import com.markleaf.notes.ui.viewmodel.SyncCenterViewModel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 // Scopes for the list-card -> editor shared-element (container transform). They
@@ -135,6 +136,23 @@ fun MarkleafNavHost(
                 // external app can reach, and a locked id must land on the
                 // passcode gate instead of the editor (#158).
                 navController.navigate(resolveOpenNoteRoute(openNoteId, noteRepository))
+            }
+            else -> {
+                // Opt-in "Reopen last note on launch" (#192): a plain launch —
+                // no widget/share/open intent — lands straight in the note the
+                // user last edited. One-shot read rather than the collected
+                // state, which may still hold the initial defaults this early.
+                // A stale id (note since deleted or trashed) falls back to the
+                // list; a locked id goes through resolveOpenNoteRoute so it
+                // lands on the passcode gate, never straight in the editor.
+                val settings = settingsRepository.settings.first()
+                val lastId = settings.lastOpenedNoteId
+                if (settings.reopenLastNote && !lastId.isNullOrBlank()) {
+                    val note = noteRepository.getNote(lastId)
+                    if (note != null && !note.trashed) {
+                        navController.navigate(resolveOpenNoteRoute(lastId, noteRepository))
+                    }
+                }
             }
         }
     }

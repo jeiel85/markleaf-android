@@ -278,6 +278,32 @@ fun SettingsScreen(
                         )
                     }
 
+                    SettingsSection(title = stringResource(R.string.settings_notes_section)) {
+                        SettingsSwitchRow(
+                            title = stringResource(R.string.show_note_previews),
+                            description = stringResource(R.string.show_note_previews_description),
+                            checked = appSettings.notesShowPreview,
+                            onCheckedChange = { checked ->
+                                HapticFeedback.light(context)
+                                scope.launch {
+                                    settingsRepository.setNotesShowPreview(checked)
+                                }
+                            }
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        SettingsSwitchRow(
+                            title = stringResource(R.string.reopen_last_note),
+                            description = stringResource(R.string.reopen_last_note_description),
+                            checked = appSettings.reopenLastNote,
+                            onCheckedChange = { checked ->
+                                HapticFeedback.light(context)
+                                scope.launch {
+                                    settingsRepository.setReopenLastNote(checked)
+                                }
+                            }
+                        )
+                    }
+
                     SettingsSection(title = stringResource(R.string.settings_privacy)) {
                         SettingLine(stringResource(R.string.privacy_no_tracking))
                         SettingLine(stringResource(R.string.privacy_no_internet))

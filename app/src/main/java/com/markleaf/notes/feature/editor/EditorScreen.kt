@@ -306,6 +306,9 @@ fun EditorScreen(
             editorState = TextFieldValue(content)
             shouldRequestEditorFocus = content.isEmpty()
             isLoaded = true
+            // Remember this note as the launch target for the opt-in
+            // "Reopen last note on launch" setting (#192).
+            settingsRepository.setLastOpenedNoteId(noteId)
         }
     }
 

@@ -2,6 +2,22 @@
 
 All notable changes to Markleaf are documented in this file. This English edition is the source for GitHub release notes; the Korean edition is kept at [CHANGELOG.ko.md](CHANGELOG.ko.md).
 
+## v2.27.0 - List and search options - 2026-07-21
+
+A feature release built from user requests (#188, #190–#193). Five quality-of-life options for the notes list and search — every one of them defaults to the previous behaviour, so nothing changes until you opt in. No permission or storage changes.
+
+### Added
+- **Title-only list (#188).** A new "Show note previews" switch in Settings → Notes & search. Turning it off collapses every row in the notes list and in search results to just the title, so far more notes fit on one screen. On by default.
+- **Sort menu (#191).** A sort button in the notes list top bar offers newest edits first (the previous and default order), oldest edits first, and title A→Z / Z→A. The choice is remembered across restarts. Pinned notes stay on top in every order, and the Today/Yesterday date sections only appear in the default order, where they are truthful.
+- **Reopen last note on launch (#192).** An opt-in switch that starts the app inside the note you last edited instead of the notes list. A note that has since been deleted falls back to the list, and a locked note still lands on the passcode gate first.
+- **Quick Access inside Search (#193).** Opening Search now shows your most recently edited notes as a tap-to-open list before you type anything, and a "Titles only / Everything" switch flips between quick title matching and full-text search at any point. The mode you used last is remembered, so title-first searchers get title search by default. The Ctrl+K quick switcher is unchanged.
+
+### Fixed
+- **Search opens ready to type (#190).** The search screen now focuses its input field and raises the keyboard as soon as it opens — except when it was opened from a tag, where the results are the point.
+
+### Declined
+- **Mirroring to two folders at once (#189)** stays out by design: the sync mirror keeps a single source of truth. Pointing the sync folder at a folder replicated by Syncthing or a cloud client achieves the same result without split-brain conflicts.
+
 ## v2.26.2 - Terminology consistency - 2026-07-20
 
 A patch release that settles wording drift across the five translated languages, and adds release checks that run before a version can ship. No feature, permission, or storage changes.

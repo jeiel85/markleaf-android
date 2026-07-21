@@ -53,7 +53,14 @@ class AppSettingsRepository(
                 ?: ColorPalette.MARKLEAF_GREEN,
             onboardingCompleted = preferences[ONBOARDING_COMPLETED] ?: false,
             biometricLockEnabled = preferences[BIOMETRIC_LOCK_ENABLED] ?: false,
-            lockPasscodeSet = !preferences[LOCK_PASSCODE_HASH].isNullOrBlank()
+            lockPasscodeSet = !preferences[LOCK_PASSCODE_HASH].isNullOrBlank(),
+            notesShowPreview = preferences[NOTES_SHOW_PREVIEW] ?: true,
+            reopenLastNote = preferences[REOPEN_LAST_NOTE] ?: false,
+            notesSortMode = preferences[NOTES_SORT_MODE]
+                ?.let { value -> enumValueOrDefault(value, NotesSortMode.UPDATED_DESC) }
+                ?: NotesSortMode.UPDATED_DESC,
+            searchTitlesOnly = preferences[SEARCH_TITLES_ONLY] ?: false,
+            lastOpenedNoteId = preferences[LAST_OPENED_NOTE_ID]
         )
     }
 
@@ -204,6 +211,40 @@ class AppSettingsRepository(
         }
     }
 
+    suspend fun setNotesShowPreview(show: Boolean) {
+        context.markleafSettingsDataStore.edit { preferences ->
+            preferences[NOTES_SHOW_PREVIEW] = show
+        }
+    }
+
+    suspend fun setReopenLastNote(enabled: Boolean) {
+        context.markleafSettingsDataStore.edit { preferences ->
+            preferences[REOPEN_LAST_NOTE] = enabled
+        }
+    }
+
+    suspend fun setNotesSortMode(mode: NotesSortMode) {
+        context.markleafSettingsDataStore.edit { preferences ->
+            preferences[NOTES_SORT_MODE] = mode.name
+        }
+    }
+
+    suspend fun setSearchTitlesOnly(titlesOnly: Boolean) {
+        context.markleafSettingsDataStore.edit { preferences ->
+            preferences[SEARCH_TITLES_ONLY] = titlesOnly
+        }
+    }
+
+    suspend fun setLastOpenedNoteId(noteId: String?) {
+        context.markleafSettingsDataStore.edit { preferences ->
+            if (noteId.isNullOrBlank()) {
+                preferences.remove(LAST_OPENED_NOTE_ID)
+            } else {
+                preferences[LAST_OPENED_NOTE_ID] = noteId
+            }
+        }
+    }
+
     private fun <T : Enum<T>> enumValueOrDefault(value: String, default: T): T {
         return runCatching {
             java.lang.Enum.valueOf(default.declaringJavaClass, value)
@@ -225,5 +266,10 @@ class AppSettingsRepository(
         val LOCK_PASSCODE_SALT = stringPreferencesKey("lock_passcode_salt")
         val LOCK_FAILED_ATTEMPTS = intPreferencesKey("lock_failed_attempts")
         val LOCK_RETRY_AT = longPreferencesKey("lock_retry_at")
+        val NOTES_SHOW_PREVIEW = booleanPreferencesKey("notes_show_preview")
+        val REOPEN_LAST_NOTE = booleanPreferencesKey("reopen_last_note")
+        val NOTES_SORT_MODE = stringPreferencesKey("notes_sort_mode")
+        val SEARCH_TITLES_ONLY = booleanPreferencesKey("search_titles_only")
+        val LAST_OPENED_NOTE_ID = stringPreferencesKey("last_opened_note_id")
     }
 }

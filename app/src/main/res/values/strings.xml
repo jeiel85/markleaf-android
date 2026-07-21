@@ -135,6 +135,14 @@
     <string name="no_results_found">No results found</string>
     <string name="matching_notes">Notes</string>
     <string name="matching_tags">Tags</string>
+    <string name="search_recent_notes">Recent notes</string>
+    <string name="search_mode_all">Everything</string>
+    <string name="search_mode_titles">Titles only</string>
+    <string name="sort_notes">Sort notes</string>
+    <string name="sort_updated_newest">Newest edits first</string>
+    <string name="sort_updated_oldest">Oldest edits first</string>
+    <string name="sort_title_az">Title A to Z</string>
+    <string name="sort_title_za">Title Z to A</string>
     <string name="tag_result_format">#%1$s</string>
     <string name="no_tags_yet">No tags yet</string>
     <string name="tags_empty_hint">Type #tags in a note to organize it</string>
@@ -170,6 +178,11 @@
     <string name="line_width_narrow">Narrow</string>
     <string name="line_width_comfortable">Comfortable</string>
     <string name="line_width_wide">Wide</string>
+    <string name="settings_notes_section">Notes &amp; search</string>
+    <string name="show_note_previews">Show note previews</string>
+    <string name="show_note_previews_description">Show a snippet and edit time under each title. Turn off to fit more notes on screen.</string>
+    <string name="reopen_last_note">Reopen last note on launch</string>
+    <string name="reopen_last_note_description">Start in the note you last edited instead of the notes list.</string>
     <string name="settings_privacy">Privacy</string>
     <string name="privacy_no_tracking">No account, analytics, ads, remote config, or proprietary crash reporting SDK.</string>
     <string name="privacy_no_internet">No INTERNET permission is declared for the MVP.</string>

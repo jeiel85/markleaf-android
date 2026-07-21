@@ -1,0 +1,1 @@
+New options for the list and search, all opt-in: hide note previews to fit more notes on screen, sort by edit time or title from the top bar, and reopen your last note on launch. Search now opens with the keyboard ready and shows your recent notes before you type, with a titles-only mode one tap away. Nothing changes until you turn it on.

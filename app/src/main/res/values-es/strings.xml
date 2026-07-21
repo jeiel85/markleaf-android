@@ -131,6 +131,14 @@
     <string name="no_results_found">No se encontraron resultados</string>
     <string name="matching_notes">Notas</string>
     <string name="matching_tags">Etiquetas</string>
+    <string name="search_recent_notes">Notas recientes</string>
+    <string name="search_mode_all">Todo</string>
+    <string name="search_mode_titles">Solo títulos</string>
+    <string name="sort_notes">Ordenar notas</string>
+    <string name="sort_updated_newest">Ediciones más recientes primero</string>
+    <string name="sort_updated_oldest">Ediciones más antiguas primero</string>
+    <string name="sort_title_az">Título de A a Z</string>
+    <string name="sort_title_za">Título de Z a A</string>
     <string name="tag_result_format">#%1$s</string>
     <string name="no_tags_yet">Aún no hay etiquetas</string>
     <string name="tags_empty_hint">Escribe #etiquetas en una nota para organizarla</string>
@@ -166,6 +174,11 @@
     <string name="line_width_narrow">Estrecho</string>
     <string name="line_width_comfortable">Cómodo</string>
     <string name="line_width_wide">Ancho</string>
+    <string name="settings_notes_section">Notas y búsqueda</string>
+    <string name="show_note_previews">Mostrar vista previa de las notas</string>
+    <string name="show_note_previews_description">Muestra un fragmento y la hora de edición bajo cada título. Desactívalo para ver más notas en pantalla.</string>
+    <string name="reopen_last_note">Reabrir la última nota al iniciar</string>
+    <string name="reopen_last_note_description">Empieza en la nota que editaste por última vez en lugar de la lista de notas.</string>
     <string name="settings_privacy">Privacidad</string>
     <string name="privacy_no_tracking">Sin cuenta, analíticas, anuncios, configuración remota ni SDK propietario de fallos.</string>
     <string name="privacy_no_internet">El MVP no declara permiso INTERNET.</string>

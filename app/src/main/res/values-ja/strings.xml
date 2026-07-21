@@ -130,6 +130,14 @@
     <string name="no_results_found">結果が見つかりません</string>
     <string name="matching_notes">ノート</string>
     <string name="matching_tags">タグ</string>
+    <string name="search_recent_notes">最近のノート</string>
+    <string name="search_mode_all">すべて</string>
+    <string name="search_mode_titles">タイトルのみ</string>
+    <string name="sort_notes">ノートを並べ替え</string>
+    <string name="sort_updated_newest">新しい編集順</string>
+    <string name="sort_updated_oldest">古い編集順</string>
+    <string name="sort_title_az">タイトル昇順</string>
+    <string name="sort_title_za">タイトル降順</string>
     <string name="tag_result_format">#%1$s</string>
     <string name="no_tags_yet">タグがまだありません</string>
     <string name="tags_empty_hint">ノートに #タグ を入力して整理しましょう</string>
@@ -164,6 +172,11 @@
     <string name="line_width_narrow">狭め</string>
     <string name="line_width_comfortable">標準</string>
     <string name="line_width_wide">広め</string>
+    <string name="settings_notes_section">ノートと検索</string>
+    <string name="show_note_previews">ノートのプレビューを表示</string>
+    <string name="show_note_previews_description">タイトルの下に本文の一部と編集時刻を表示します。オフにすると画面により多くのノートが収まります。</string>
+    <string name="reopen_last_note">起動時に最後のノートを開く</string>
+    <string name="reopen_last_note_description">起動時にノート一覧ではなく、最後に編集したノートから始めます。</string>
     <string name="settings_privacy">プライバシー</string>
     <string name="privacy_no_tracking">アカウント・アナリティクス・広告・リモート設定・独自クラッシュ報告 SDK は一切ありません。</string>
     <string name="privacy_no_internet">MVP では INTERNET 権限を宣言していません。</string>

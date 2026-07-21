@@ -130,6 +130,14 @@
     <string name="no_results_found">검색 결과가 없습니다</string>
     <string name="matching_notes">노트</string>
     <string name="matching_tags">태그</string>
+    <string name="search_recent_notes">최근 노트</string>
+    <string name="search_mode_all">전체</string>
+    <string name="search_mode_titles">제목만</string>
+    <string name="sort_notes">노트 정렬</string>
+    <string name="sort_updated_newest">최근 수정순</string>
+    <string name="sort_updated_oldest">오래된 수정순</string>
+    <string name="sort_title_az">제목 오름차순</string>
+    <string name="sort_title_za">제목 내림차순</string>
     <string name="tag_result_format">#%1$s</string>
     <string name="no_tags_yet">아직 태그가 없습니다</string>
     <string name="tags_empty_hint">노트에 #태그를 입력해 정리해보세요</string>
@@ -164,6 +172,11 @@
     <string name="line_width_narrow">좁게</string>
     <string name="line_width_comfortable">편안하게</string>
     <string name="line_width_wide">넓게</string>
+    <string name="settings_notes_section">노트 및 검색</string>
+    <string name="show_note_previews">노트 미리보기 표시</string>
+    <string name="show_note_previews_description">제목 아래에 본문 일부와 수정 시각을 표시합니다. 끄면 화면에 더 많은 노트가 보입니다.</string>
+    <string name="reopen_last_note">시작 시 마지막 노트 열기</string>
+    <string name="reopen_last_note_description">앱을 열 때 노트 목록 대신 마지막으로 편집한 노트에서 시작합니다.</string>
     <string name="settings_privacy">개인정보</string>
     <string name="privacy_no_tracking">계정, 분석, 광고, 원격 설정, 독점 크래시 리포팅 SDK가 없습니다.</string>
     <string name="privacy_no_internet">이 앱은 INTERNET 권한을 사용하지 않습니다.</string>

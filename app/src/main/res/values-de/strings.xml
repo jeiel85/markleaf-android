@@ -131,6 +131,14 @@
     <string name="no_results_found">Keine Ergebnisse gefunden</string>
     <string name="matching_notes">Notizen</string>
     <string name="matching_tags">Tags</string>
+    <string name="search_recent_notes">Zuletzt bearbeitete Notizen</string>
+    <string name="search_mode_all">Alles</string>
+    <string name="search_mode_titles">Nur Titel</string>
+    <string name="sort_notes">Notizen sortieren</string>
+    <string name="sort_updated_newest">Neueste Bearbeitung zuerst</string>
+    <string name="sort_updated_oldest">Älteste Bearbeitung zuerst</string>
+    <string name="sort_title_az">Titel A bis Z</string>
+    <string name="sort_title_za">Titel Z bis A</string>
     <string name="tag_result_format">#%1$s</string>
     <string name="no_tags_yet">Noch keine Tags</string>
     <string name="tags_empty_hint">Tippe #Tags in eine Notiz, um sie zu organisieren</string>
@@ -166,6 +174,11 @@
     <string name="line_width_narrow">Schmal</string>
     <string name="line_width_comfortable">Komfortabel</string>
     <string name="line_width_wide">Breit</string>
+    <string name="settings_notes_section">Notizen &amp; Suche</string>
+    <string name="show_note_previews">Notizvorschau anzeigen</string>
+    <string name="show_note_previews_description">Zeigt unter jedem Titel einen Ausschnitt und die Bearbeitungszeit. Ausschalten, um mehr Notizen auf dem Bildschirm zu sehen.</string>
+    <string name="reopen_last_note">Letzte Notiz beim Start öffnen</string>
+    <string name="reopen_last_note_description">Beim Start direkt in der zuletzt bearbeiteten Notiz beginnen statt in der Notizenliste.</string>
     <string name="settings_privacy">Datenschutz</string>
     <string name="privacy_no_tracking">Kein Konto, keine Analytik, keine Werbung, keine Remote-Konfiguration und kein proprietäres Crash-Reporting-SDK.</string>
     <string name="privacy_no_internet">Für das MVP wird die INTERNET-Berechtigung nicht deklariert.</string>

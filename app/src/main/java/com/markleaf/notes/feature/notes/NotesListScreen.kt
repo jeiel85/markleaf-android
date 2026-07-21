@@ -18,8 +18,10 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.Label
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.KeyboardCommandKey
@@ -76,6 +78,7 @@ import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
+import com.markleaf.notes.data.settings.NotesSortMode
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.domain.model.Note
@@ -124,6 +127,7 @@ fun NotesListScreen(
     val notesState = remember { mutableStateOf<List<Note>>(emptyList()) }
     val displayedState = remember { mutableStateOf<List<Note>>(emptyList()) }
     var overflowExpanded by remember { mutableStateOf(false) }
+    var sortMenuExpanded by remember { mutableStateOf(false) }
     var showQuickSwitcher by remember { mutableStateOf(false) }
     // Shown when the user taps "Move to Locked" but hasn't set a passcode yet —
     // locking a note is only meaningful once there's a passcode to gate it (#155).
@@ -143,7 +147,8 @@ fun NotesListScreen(
     // list on phones, where there is no tag rail to set a filter).
     val notes = notesState.value
     val displayed = displayedState.value
-    val sections = remember(displayed) { groupNotes(displayed) }
+    val sortMode = appSettings.notesSortMode
+    val sections = remember(displayed, sortMode) { groupNotesForDisplay(displayed, sortMode) }
 
     if (showQuickSwitcher) {
         QuickSwitcherDialog(
@@ -220,6 +225,35 @@ fun NotesListScreen(
                     if (onCollapseClick != null) {
                         IconButton(onClick = onCollapseClick) {
                             Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(R.string.collapse_note_list))
+                        }
+                    }
+                    Box {
+                        IconButton(onClick = { sortMenuExpanded = true }) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.Sort,
+                                contentDescription = stringResource(R.string.sort_notes)
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = sortMenuExpanded,
+                            onDismissRequest = { sortMenuExpanded = false }
+                        ) {
+                            NotesSortMode.entries.forEach { mode ->
+                                DropdownMenuItem(
+                                    leadingIcon = {
+                                        if (mode == sortMode) {
+                                            Icon(Icons.Default.Check, contentDescription = null)
+                                        }
+                                    },
+                                    text = { Text(stringResource(mode.labelResId())) },
+                                    onClick = {
+                                        sortMenuExpanded = false
+                                        scope.launch {
+                                            settingsRepository.setNotesSortMode(mode)
+                                        }
+                                    }
+                                )
+                            }
                         }
                     }
                     IconButton(onClick = onSearchClick) {
@@ -381,16 +415,19 @@ fun NotesListScreen(
                     .padding(paddingValues)
             ) {
                 sections.forEach { section ->
-                    item(key = "header-${section.titleResId}") {
-                        SectionHeader(
-                            stringResource(section.titleResId),
-                            modifier = Modifier.animateItem()
-                        )
+                    if (section.titleResId != null) {
+                        item(key = "header-${section.titleResId}") {
+                            SectionHeader(
+                                stringResource(section.titleResId),
+                                modifier = Modifier.animateItem()
+                            )
+                        }
                     }
                     items(section.notes, key = { it.id }) { note ->
                         NoteRow(
                             note = note,
                             selected = note.id == selectedNoteId,
+                            showPreview = appSettings.notesShowPreview,
                             modifier = Modifier.animateItem(),
                             onClick = { onNoteClick(note.id) },
                             onTogglePin = {
@@ -456,6 +493,7 @@ private fun SectionHeader(text: String, modifier: Modifier = Modifier) {
 private fun NoteRow(
     note: Note,
     selected: Boolean,
+    showPreview: Boolean,
     onClick: (String) -> Unit,
     onTogglePin: () -> Unit,
     onArchive: () -> Unit,
@@ -530,22 +568,24 @@ private fun NoteRow(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            if (note.excerpt.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(4.dp))
+            if (showPreview) {
+                if (note.excerpt.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = note.excerpt,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = note.excerpt,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    text = formatUpdatedTime(LocalContext.current, note.updatedAt),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
             }
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = formatUpdatedTime(LocalContext.current, note.updatedAt),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-            )
         }
 
         DropdownMenu(
@@ -598,7 +638,34 @@ private fun NoteRow(
     }
 }
 
-private data class NoteSection(val titleResId: Int, val notes: List<Note>)
+private data class NoteSection(val titleResId: Int?, val notes: List<Note>)
+
+private fun NotesSortMode.labelResId(): Int = when (this) {
+    NotesSortMode.UPDATED_DESC -> R.string.sort_updated_newest
+    NotesSortMode.UPDATED_ASC -> R.string.sort_updated_oldest
+    NotesSortMode.TITLE_ASC -> R.string.sort_title_az
+    NotesSortMode.TITLE_DESC -> R.string.sort_title_za
+}
+
+/**
+ * Sections for the list under the active sort mode (#191). The default
+ * newest-first mode keeps the Today/Yesterday date buckets; every other mode
+ * renders a Pinned section (pinning outranks any sort) followed by one flat,
+ * header-less section in the chosen order — date buckets would be misleading
+ * when the list isn't date-ordered.
+ */
+private fun groupNotesForDisplay(notes: List<Note>, mode: NotesSortMode): List<NoteSection> {
+    if (mode == NotesSortMode.UPDATED_DESC) return groupNotes(notes)
+    if (notes.isEmpty()) return emptyList()
+
+    val sorted = sortNotesForDisplay(notes, mode)
+    val pinned = sorted.filter { it.pinned }
+    val rest = sorted.filter { !it.pinned }
+    val sections = mutableListOf<NoteSection>()
+    if (pinned.isNotEmpty()) sections += NoteSection(R.string.section_pinned, pinned)
+    if (rest.isNotEmpty()) sections += NoteSection(null, rest)
+    return sections
+}
 
 private fun groupNotes(notes: List<Note>): List<NoteSection> {
     if (notes.isEmpty()) return emptyList()

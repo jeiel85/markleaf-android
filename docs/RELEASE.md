@@ -1,18 +1,25 @@
 # Release Signing and Mirrored Releases
 
-> **GitLab CI is retired (GitLab shared-runner minutes ran out).** GitHub Actions
-> is now the sole CI and release path — it builds, verifies, and publishes the
-> signed GitHub Release on tag. GitLab is kept as a **passive git mirror only**:
-> `main` is mirrored by `.github/workflows/mirror-push.yml`, release tags are
-> pushed by hand, and `.github/workflows/mirror-check.yml` verifies the refs
-> match. GitLab runs no pipelines and creates no GitLab Releases. The
-> GitLab-CI / GitLab-Release sections below are historical — restore
-> `.gitlab-ci.yml` from git history to re-enable them.
+> **GitHub Actions is the primary CI and release path and never depends on
+> GitLab.** GitLab CI is kept but gated by a manual switch, because GitLab
+> shared-runner minutes are a monthly quota: set the project CI/CD variable
+> `SKIP_GITLAB_CI=true` when the minutes run out and the whole GitLab pipeline
+> skips cleanly (no blocked/stuck jobs, no minutes spent); unset it once the
+> minutes reset and the GitLab pipeline + GitLab Release resume automatically.
+> The GitLab-CI / GitLab-Release sections below apply whenever the pipeline is
+> not skipped. GitLab also stays a git mirror — `main` via
+> `.github/workflows/mirror-push.yml`, release tags pushed by hand, refs checked
+> by `.github/workflows/mirror-check.yml`.
+>
+> While `SKIP_GITLAB_CI` was on (v2.28.0 / v2.28.1), no GitLab Release was
+> created, so the READMEs currently link only to the GitHub Release. Re-add the
+> "GitLab release mirror" links at the next release cut once GitLab is producing
+> Releases again.
 
 Markleaf release builds are signed only when release signing values are supplied.
 The release keystore is a secret and must not be committed.
 
-The production release certificate is fixed. The GitHub tag release verifies the signed APK against this SHA-256 certificate digest before creating a release:
+The production release certificate is fixed. Both GitHub and GitLab tag releases verify the signed APK against this SHA-256 certificate digest before creating a release:
 
 ```text
 0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a
@@ -254,9 +261,9 @@ The local Play Console hand-off remains separate:
 It writes only the signed AAB, mapping, and six-locale notes to `D:\Build`.
 The GitLab APK does not change that local directory contract.
 
-Push the release tag to GitLab first — this only keeps the mirror's refs
-complete and no longer triggers a GitLab Release — then to GitHub, where the tag
-push runs the signed-release job that publishes the GitHub Release:
+Push the release tag to GitLab first, then GitHub (unless `SKIP_GITLAB_CI` is
+on, the GitLab tag push runs the GitLab pipeline and the GitHub tag push runs
+the GitHub release job):
 
 ```bash
 git tag v0.1.0

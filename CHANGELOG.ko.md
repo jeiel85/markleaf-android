@@ -2,6 +2,8 @@
 
 Markleaf의 주요 변경 사항을 기록합니다. 영어판이 기본이며 GitHub 릴리즈 노트의 원본입니다 — [CHANGELOG.md](CHANGELOG.md).
 
+> 💬 **질문이나 피드백이 있으신가요?** [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions)에서 이야기 나눠 주세요. 버그 제보는 [Issues](https://github.com/jeiel85/markleaf-android/issues)로 남겨 주세요.
+
 v2.15.3 이전 항목은 이 파일에만 한국어로 보존되어 있습니다.
 
 ## v2.28.1 - 잠금 해제 시 파일 확장자 유지 (Unlock keeps your file extension) - 2026-07-22

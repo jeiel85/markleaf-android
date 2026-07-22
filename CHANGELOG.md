@@ -2,6 +2,8 @@
 
 All notable changes to Markleaf are documented in this file. This English edition is the source for GitHub release notes; the Korean edition is kept at [CHANGELOG.ko.md](CHANGELOG.ko.md).
 
+> 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
+
 ## v2.28.1 - Unlock keeps your file extension - 2026-07-22
 
 A small bug-fix release. No feature, permission, or storage-format changes.

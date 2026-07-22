@@ -1,0 +1,1 @@
+Bug-fix release. Unlocking a note kept re-saving it as .md even when you chose .txt for your sync folder, because the re-write on unlock ignored your extension setting. It now uses the extension you selected, like every other save. No feature or permission changes.

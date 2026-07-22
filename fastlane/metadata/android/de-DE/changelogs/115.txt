@@ -1,0 +1,1 @@
+Fehlerbehebung. Beim Entsperren einer Notiz wurde sie erneut als .md gespeichert, auch wenn für den Sync-Ordner .txt gewählt war — das erneute Schreiben ignorierte die Einstellung. Jetzt wird die gewählte Endung verwendet, wie bei jedem anderen Speichern. Keine Funktions- oder Berechtigungsänderungen.

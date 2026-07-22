@@ -1,3 +1,12 @@
+## 2026-07-22 - Unlock keeps the chosen file extension, and v2.28.1 (#181)
+
+- Trigger: After sweeping the open-issue backlog, the user asked to fix #181 (a real bug) and then to ship it as a v2.28.1 patch.
+- Analysis: #181's report pinpointed it exactly — `LockedNotesScreen`'s unlock handler re-mirrors the note via `NoteFolderMirror.writeNote` without the extension argument, so it fell back to the `SyncFileExtension.MD` default; a note kept in a `.txt` sync folder came back as `.md` on every unlock. Confirmed against current code and against the three other `writeNote` call sites (editor save, Settings export-all, Sync Center), which all pass `appSettings.syncFileExtension`.
+- Contract/scope: pass `appSettings.syncFileExtension` as `writeNote`'s fourth argument in the unlock re-mirror. One line.
+- Implementation: single edit in `LockedNotesScreen` (PR #207), merged to main.
+- Audit: re-read the diff against the three canonical call sites; behaviour now matches. Not device-verified — the flow needs a real `.txt`-configured SAF sync folder, impractical to drive over adb — but it reuses the exact setting the other write paths already pass; `compileDebugKotlin` and the PR build gate are green.
+- Release: versionCode 114→115, versionName 2.28.0→2.28.1, CHANGELOG both editions, six store-locale `115.txt`, landing x6 + README x6. This tag also carries the docs-only #203 (a GitHub Discussions link added to the six READMEs) that another session merged to main between v2.28.0 and this tag; it has no app-facing change, so it is not in the changelog.
+
 ## 2026-07-22 - Open-notes-in-preview, RTL notes, and v2.28.0 (#200, #146)
 
 - Trigger: The user asked to handle a new issue (#200), then to revisit #146 after the reporter added a comment, sweep closed issues with dangling replies, register hardening candidates, reply to the issue as usual, and finish the v2.28.0 release.

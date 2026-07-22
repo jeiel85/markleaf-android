@@ -1,0 +1,50 @@
+# Landing-page layout gate (#187).
+#
+# verify-landing-versions.ps1 checks the version *strings* across the six
+# language landing pages; nothing checked that the rendered pages actually fit
+# their viewport, so a translation could overflow the layout and CI stayed
+# green (that is how the #186 overflows shipped). This renders each landing and
+# privacy page at a range of widths and fails on horizontal overflow.
+#
+# Kept out of android-build.yml so it does not tangle with the required "build"
+# check and only runs when the docs actually change.
+name: Landing check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**.html'
+      - 'scripts/check-landing-overflow.mjs'
+      - '.github/workflows/landing-check.yml'
+  pull_request:
+    paths:
+      - 'docs/**.html'
+      - 'scripts/check-landing-overflow.mjs'
+      - '.github/workflows/landing-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  overflow:
+    name: Landing layout overflow
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright + Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Check landing pages for horizontal overflow
+        run: node scripts/check-landing-overflow.mjs

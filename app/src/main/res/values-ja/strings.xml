@@ -177,6 +177,11 @@
     <string name="show_note_previews_description">タイトルの下に本文の一部と編集時刻を表示します。オフにすると画面により多くのノートが収まります。</string>
     <string name="reopen_last_note">起動時に最後のノートを開く</string>
     <string name="reopen_last_note_description">起動時にノート一覧ではなく、最後に編集したノートから始めます。</string>
+    <string name="open_notes_in_preview">ノートをプレビューで開く</string>
+    <string name="open_notes_in_preview_description">ノートを開いたときに編集画面ではなくプレビューを表示します。新しいノートは編集で開きます。ノート内でプレビュー/編集アイコンを長押しすると切り替えられます。</string>
+    <string name="view_mode_locked">ノートはプレビューで開きます</string>
+    <string name="view_mode_unlocked">ノートは編集で開きます</string>
+    <string name="lock_view_mode">表示モードをロック</string>
     <string name="settings_privacy">プライバシー</string>
     <string name="privacy_no_tracking">アカウント・アナリティクス・広告・リモート設定・独自クラッシュ報告 SDK は一切ありません。</string>
     <string name="privacy_no_internet">MVP では INTERNET 権限を宣言していません。</string>

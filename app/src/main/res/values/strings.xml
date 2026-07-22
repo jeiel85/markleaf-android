@@ -183,6 +183,11 @@
     <string name="show_note_previews_description">Show a snippet and edit time under each title. Turn off to fit more notes on screen.</string>
     <string name="reopen_last_note">Reopen last note on launch</string>
     <string name="reopen_last_note_description">Start in the note you last edited instead of the notes list.</string>
+    <string name="open_notes_in_preview">Open notes in preview</string>
+    <string name="open_notes_in_preview_description">Show a note\'s rendered preview when you open it instead of the edit view. New notes still open for editing. Tip: long-press the preview/edit icon in a note to toggle this.</string>
+    <string name="view_mode_locked">Notes now open in preview</string>
+    <string name="view_mode_unlocked">Notes now open in edit</string>
+    <string name="lock_view_mode">Lock view mode</string>
     <string name="settings_privacy">Privacy</string>
     <string name="privacy_no_tracking">No account, analytics, ads, remote config, or proprietary crash reporting SDK.</string>
     <string name="privacy_no_internet">No INTERNET permission is declared for the MVP.</string>

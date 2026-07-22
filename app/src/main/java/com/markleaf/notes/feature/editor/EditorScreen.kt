@@ -101,6 +101,7 @@ import com.markleaf.notes.util.HapticFeedback
 import com.markleaf.notes.util.ExportPdf
 import com.markleaf.notes.util.ShareNoteUtil
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -302,9 +303,15 @@ fun EditorScreen(
         if (noteId == null) {
             isLoaded = true
         } else {
+            // Read the persisted setting directly (not the collectAsState
+            // snapshot, which starts on the default before DataStore emits) so
+            // an existing note honours "open notes in preview" on its very first
+            // frame instead of flashing edit (#200). New notes stay in edit.
+            val openInPreview = settingsRepository.settings.first().openNotesInPreview
             val loadedNote = repo.getNote(noteId)
             val content = loadedNote?.contentMarkdown.orEmpty()
             editorState = TextFieldValue(content)
+            isPreviewMode = openInPreview
             shouldRequestEditorFocus = content.isEmpty()
             isLoaded = true
             // Remember this note as the launch target for the opt-in
@@ -413,6 +420,24 @@ fun EditorScreen(
                     val returningToEdit = isPreviewMode
                     isPreviewMode = !isPreviewMode
                     if (returningToEdit) shouldRequestEditorFocus = true
+                },
+                isViewModeLocked = appSettings.openNotesInPreview,
+                onToggleLock = {
+                    // Long-press flips the persistent lock and mirrors it onto
+                    // this note straight away: locking jumps to preview and makes
+                    // it stick across notes; unlocking drops back to edit (#200).
+                    val nowLocked = !appSettings.openNotesInPreview
+                    coroutineScope.launch {
+                        settingsRepository.setOpenNotesInPreview(nowLocked)
+                    }
+                    isPreviewMode = nowLocked
+                    if (!nowLocked) shouldRequestEditorFocus = true
+                    HapticFeedback.light(context)
+                    Toast.makeText(
+                        context,
+                        if (nowLocked) R.string.view_mode_locked else R.string.view_mode_unlocked,
+                        Toast.LENGTH_SHORT
+                    ).show()
                 },
                 onExitFocusMode = { isFocusMode = false },
                 onOpenInfo = {

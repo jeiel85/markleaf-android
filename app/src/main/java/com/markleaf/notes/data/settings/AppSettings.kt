@@ -32,7 +32,13 @@ data class AppSettings(
     /** Id of the note most recently opened in the editor. Only consulted when
      *  [reopenLastNote] is on; stale ids (deleted/trashed notes) are ignored at
      *  launch rather than eagerly cleared. */
-    val lastOpenedNoteId: String? = null
+    val lastOpenedNoteId: String? = null,
+    /** Open existing notes in preview mode instead of the edit surface, so
+     *  browsing note to note keeps showing the rendered view without toggling
+     *  the eye icon each time. Off by default (notes open in edit). Toggled from
+     *  Settings or by long-pressing the editor's view-toggle icon; a brand-new
+     *  note still opens in edit regardless (#200). */
+    val openNotesInPreview: Boolean = false
 )
 
 /** Notes-list sort orders offered by the top-bar sort menu (#191). */

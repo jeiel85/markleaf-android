@@ -179,6 +179,11 @@
     <string name="show_note_previews_description">Muestra un fragmento y la hora de edición bajo cada título. Desactívalo para ver más notas en pantalla.</string>
     <string name="reopen_last_note">Reabrir la última nota al iniciar</string>
     <string name="reopen_last_note_description">Empieza en la nota que editaste por última vez en lugar de la lista de notas.</string>
+    <string name="open_notes_in_preview">Abrir notas en vista previa</string>
+    <string name="open_notes_in_preview_description">Muestra la vista previa renderizada al abrir una nota en lugar de la vista de edición. Las notas nuevas se abren para editar. Consejo: mantén pulsado el icono de vista previa/editar en una nota para cambiarlo.</string>
+    <string name="view_mode_locked">Las notas ahora se abren en vista previa</string>
+    <string name="view_mode_unlocked">Las notas ahora se abren en edición</string>
+    <string name="lock_view_mode">Bloquear modo de vista</string>
     <string name="settings_privacy">Privacidad</string>
     <string name="privacy_no_tracking">Sin cuenta, analíticas, anuncios, configuración remota ni SDK propietario de fallos.</string>
     <string name="privacy_no_internet">El MVP no declara permiso INTERNET.</string>

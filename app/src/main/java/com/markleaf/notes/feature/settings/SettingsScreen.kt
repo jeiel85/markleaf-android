@@ -302,6 +302,18 @@ fun SettingsScreen(
                                 }
                             }
                         )
+                        Spacer(Modifier.height(12.dp))
+                        SettingsSwitchRow(
+                            title = stringResource(R.string.open_notes_in_preview),
+                            description = stringResource(R.string.open_notes_in_preview_description),
+                            checked = appSettings.openNotesInPreview,
+                            onCheckedChange = { checked ->
+                                HapticFeedback.light(context)
+                                scope.launch {
+                                    settingsRepository.setOpenNotesInPreview(checked)
+                                }
+                            }
+                        )
                     }
 
                     SettingsSection(title = stringResource(R.string.settings_privacy)) {

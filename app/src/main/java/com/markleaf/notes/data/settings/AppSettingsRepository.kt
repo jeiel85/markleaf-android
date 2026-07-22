@@ -71,7 +71,8 @@ class AppSettingsRepository internal constructor(
                 ?.let { value -> enumValueOrDefault(value, NotesSortMode.UPDATED_DESC) }
                 ?: NotesSortMode.UPDATED_DESC,
             searchTitlesOnly = preferences[SEARCH_TITLES_ONLY] ?: false,
-            lastOpenedNoteId = preferences[LAST_OPENED_NOTE_ID]
+            lastOpenedNoteId = preferences[LAST_OPENED_NOTE_ID],
+            openNotesInPreview = preferences[OPEN_NOTES_IN_PREVIEW] ?: false
         )
     }
 
@@ -256,6 +257,12 @@ class AppSettingsRepository internal constructor(
         }
     }
 
+    suspend fun setOpenNotesInPreview(enabled: Boolean) {
+        persist { preferences ->
+            preferences[OPEN_NOTES_IN_PREVIEW] = enabled
+        }
+    }
+
     /**
      * Every write funnels through here inside [NonCancellable]. Settings writes
      * are typically launched from a screen's `rememberCoroutineScope`, and a
@@ -295,5 +302,6 @@ class AppSettingsRepository internal constructor(
         val NOTES_SORT_MODE = stringPreferencesKey("notes_sort_mode")
         val SEARCH_TITLES_ONLY = booleanPreferencesKey("search_titles_only")
         val LAST_OPENED_NOTE_ID = stringPreferencesKey("last_opened_note_id")
+        val OPEN_NOTES_IN_PREVIEW = booleanPreferencesKey("open_notes_in_preview")
     }
 }

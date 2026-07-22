@@ -2,6 +2,16 @@
 
 All notable changes to Markleaf are documented in this file. This English edition is the source for GitHub release notes; the Korean edition is kept at [CHANGELOG.ko.md](CHANGELOG.ko.md).
 
+## v2.28.0 - Preview lock and right-to-left notes - 2026-07-22
+
+A small feature plus a fix for a reader report. The new setting defaults to the previous behaviour, so nothing changes until you opt in. No permission or storage changes.
+
+### Added
+- **Open notes in preview (#200).** A new opt-in switch in Settings → Notes & search. With it on, opening a note lands you in the rendered preview and keeps you there as you move from note to note, instead of starting in the edit view each time. A just-created note still opens in edit so you can start typing. You can also long-press the preview/edit icon in any note to toggle the lock in place — the icon turns amber while it is on.
+
+### Fixed
+- **Right-to-left note content lays out correctly (#146).** A note written in Arabic, Hebrew, or Persian now reads right-to-left in both the editor and the preview, with punctuation on the correct side. Before, the text inherited the app's left-to-right direction and was left-aligned; now each paragraph follows the direction of what you actually typed, while Latin text is unchanged.
+
 ## v2.27.2 - Tappable links in tables - 2026-07-21
 
 A bug-fix release for a reader report (#197). No feature, permission, or storage changes.

@@ -29,6 +29,7 @@
 
 <p align="center">
   <a href="https://github.com/jeiel85/markleaf-android">GitHub リポジトリ</a> ·
+  <a href="https://github.com/jeiel85/markleaf-android/discussions">Discussions（フィードバック）</a> ·
   <a href="https://gitlab.com/jeiel85/markleaf-android">GitLab 公開ミラー</a>
 </p>
 

@@ -29,6 +29,7 @@
 
 <p align="center">
   <a href="https://github.com/jeiel85/markleaf-android">GitHub-Repository</a> ·
+  <a href="https://github.com/jeiel85/markleaf-android/discussions">Discussions (Feedback)</a> ·
   <a href="https://gitlab.com/jeiel85/markleaf-android">Öffentlicher GitLab-Mirror</a>
 </p>
 

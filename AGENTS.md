@@ -223,3 +223,10 @@ Markleaf 사용자 대부분이 영어를 쓰므로 공개 문서의 기본 언�
 Play/F-Droid용 `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt`는 기존대로 **6개 스토어 로케일 전부** 작성한다. 이 지침은 [Release Artifact Export](#release-artifact-export)의 6개 로케일 요구사항을 대체하지 않는다.
 
 README와 GitHub Pages 랜딩도 영어가 기본이며 앱이 지원하는 6개 언어(en · ko · ja · de · es · fr)로 병기한다. 영어판이 canonical이고 `x-default`다. 공개 표면의 버전 표기를 갱신할 때는 6개 언어를 함께 갱신하고 `scripts/verify-landing-versions.ps1`로 검증한다.
+
+### GitHub 공개 표면 콘텐츠 — 영어 기본
+
+Markleaf는 글로벌 유저를 대상으로 하므로, 위 공개 문서와 같은 원칙으로 **GitHub에 공개로 남는 사용자·커뮤니티 대상 콘텐츠는 영어를 기본**으로 작성한다. 대상: Issue·PR 제목/본문, Discussions 글·댓글, 릴리즈 노트, 커밋 메시지. 한국어 등 다른 언어는 필요하면 영어 아래에 번역으로 병기한다.
+
+- **예외 — 외부 보고자 응대**: [GitHub 이슈 대응](#github-이슈-대응)의 감사·응대 댓글은 이 규칙보다 우선해 **보고자 언어**로 단다.
+- **대상 아님 — 내부/비공개**: 팀 내부 작업 문서(`HISTORY.md`, `.agent/*`, `AGENTS.md` 등)와 메인테이너와의 채팅 응답은 공개 표면이 아니므로 이 규칙의 대상이 아니다.

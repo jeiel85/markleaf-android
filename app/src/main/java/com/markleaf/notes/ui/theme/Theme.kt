@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 
@@ -132,6 +133,34 @@ val Typography = androidx.compose.material3.Typography(
         lineHeight = 16.sp,
         letterSpacing = 0.sp
     )
+).withContentTextDirection()
+
+/**
+ * Returns a copy of this type scale that lays each paragraph out based on its
+ * own content: a paragraph starting with a strong right-to-left character
+ * (Arabic, Hebrew, Persian, …) becomes right-to-left even while the app UI
+ * stays left-to-right, and Latin-first paragraphs are unchanged. Applied once
+ * to the whole scale so both the editor and the Markdown preview honour the
+ * direction of what you actually typed (#146). Left-to-right text renders
+ * identically, so existing snapshots are unaffected.
+ */
+private fun androidx.compose.material3.Typography.withContentTextDirection():
+    androidx.compose.material3.Typography = copy(
+    displayLarge = displayLarge.copy(textDirection = TextDirection.Content),
+    displayMedium = displayMedium.copy(textDirection = TextDirection.Content),
+    displaySmall = displaySmall.copy(textDirection = TextDirection.Content),
+    headlineLarge = headlineLarge.copy(textDirection = TextDirection.Content),
+    headlineMedium = headlineMedium.copy(textDirection = TextDirection.Content),
+    headlineSmall = headlineSmall.copy(textDirection = TextDirection.Content),
+    titleLarge = titleLarge.copy(textDirection = TextDirection.Content),
+    titleMedium = titleMedium.copy(textDirection = TextDirection.Content),
+    titleSmall = titleSmall.copy(textDirection = TextDirection.Content),
+    bodyLarge = bodyLarge.copy(textDirection = TextDirection.Content),
+    bodyMedium = bodyMedium.copy(textDirection = TextDirection.Content),
+    bodySmall = bodySmall.copy(textDirection = TextDirection.Content),
+    labelLarge = labelLarge.copy(textDirection = TextDirection.Content),
+    labelMedium = labelMedium.copy(textDirection = TextDirection.Content),
+    labelSmall = labelSmall.copy(textDirection = TextDirection.Content),
 )
 
 /**

@@ -311,7 +311,12 @@ fun EditorScreen(
             val loadedNote = repo.getNote(noteId)
             val content = loadedNote?.contentMarkdown.orEmpty()
             editorState = TextFieldValue(content)
-            isPreviewMode = openInPreview
+            // Only land in preview when there is something to preview. A
+            // brand-new note is created first and then opened with a real id
+            // (the FAB path in MarkleafNavHost), so `noteId != null` alone would
+            // drop an empty note into preview with no editor/IME — honour "new
+            // notes still open for editing" by gating on content (#200).
+            isPreviewMode = openInPreview && content.isNotEmpty()
             shouldRequestEditorFocus = content.isEmpty()
             isLoaded = true
             // Remember this note as the launch target for the opt-in

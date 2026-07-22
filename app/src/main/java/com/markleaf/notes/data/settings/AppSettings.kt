@@ -36,8 +36,9 @@ data class AppSettings(
     /** Open existing notes in preview mode instead of the edit surface, so
      *  browsing note to note keeps showing the rendered view without toggling
      *  the eye icon each time. Off by default (notes open in edit). Toggled from
-     *  Settings or by long-pressing the editor's view-toggle icon; a brand-new
-     *  note still opens in edit regardless (#200). */
+     *  Settings or by long-pressing the editor's view-toggle icon; a note with
+     *  no content yet (a just-created note) still opens in edit so you can start
+     *  typing (#200). */
     val openNotesInPreview: Boolean = false
 )
 

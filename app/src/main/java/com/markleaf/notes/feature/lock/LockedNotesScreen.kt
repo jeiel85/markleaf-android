@@ -350,10 +350,15 @@ private fun LockedNotesList(
                         appSettings.syncFolderUriOrNull()?.let { uri ->
                             scope.launch {
                                 withContext(Dispatchers.IO) {
+                                    // Re-mirror with the user's chosen extension, not
+                                    // writeNote's .md default — otherwise unlocking a
+                                    // note always rewrote it as .md even when .txt was
+                                    // selected (#181).
                                     NoteFolderMirror.writeNote(
                                         context,
                                         uri,
-                                        note.copy(locked = false)
+                                        note.copy(locked = false),
+                                        appSettings.syncFileExtension
                                     )
                                 }
                             }

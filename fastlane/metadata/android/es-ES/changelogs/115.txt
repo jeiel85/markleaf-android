@@ -1,0 +1,1 @@
+Corrección de errores. Al desbloquear una nota se volvía a guardar como .md aunque hubieras elegido .txt para la carpeta de sincronización, porque la reescritura al desbloquear ignoraba ese ajuste. Ahora usa la extensión que elegiste, como cualquier otro guardado. Sin cambios de funciones ni permisos.

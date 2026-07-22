@@ -1,0 +1,1 @@
+Correction de bug. Déverrouiller une note la réenregistrait en .md même si vous aviez choisi .txt pour le dossier de synchronisation — la réécriture au déverrouillage ignorait ce réglage. Elle utilise désormais l'extension choisie, comme tout autre enregistrement. Aucun changement de fonctionnalité ni de permission.

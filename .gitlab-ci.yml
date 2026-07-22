@@ -1,0 +1,139 @@
+image: ghcr.io/cirruslabs/android-sdk:35
+
+# GitLab shared-runner minutes are a monthly quota. GitLab cannot detect
+# "out of minutes" in rules (an exhausted pipeline just gets blocked), so this
+# is a manual switch: set the project CI/CD variable SKIP_GITLAB_CI=true when
+# the minutes run out and the whole pipeline is skipped cleanly — no blocked or
+# stuck jobs, no runner minutes spent. Unset it (or set it false) once the
+# monthly minutes reset and GitLab CI + the GitLab Release resume automatically.
+# GitHub Actions is the primary CI/release path and never depends on this.
+workflow:
+  rules:
+    - if: '$SKIP_GITLAB_CI == "true"'
+      when: never
+    - when: always
+
+stages:
+  - verify
+  - package
+  - release
+
+variables:
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
+  MARKLEAF_RELEASE_STORE_FILE: ".secrets/markleaf-release.p12"
+  MARKLEAF_RELEASE_CERT_SHA256: "0be97352a650c3d1a3d2332fd18afc44e0c95a4abca347e9250a2b8a7eecf91a"
+
+default:
+  interruptible: true
+  before_script:
+    - chmod +x gradlew
+
+cache:
+  key: "markleaf-gradle-$CI_PROJECT_ID"
+  paths:
+    - .gradle/caches/
+    - .gradle/wrapper/
+
+# GitHub 의 build 워크플로와 같은 릴리스 문서 검사를 GitLab 쪽에도 둔다 (#184).
+# GitLab 은 독립적인 빌드·배포 경로(태그 파이프라인이 서명 APK/AAB 와 Release 를
+# 만든다)라서, 여기서 안 돌면 GitLab 단독 릴리스는 버전 표기·스토어 노트 검사를
+# 통째로 건너뛴다. android 이미지에는 pwsh 가 없으므로 전용 이미지의 별도 job 로 둔다.
+verify_release_docs:
+  stage: verify
+  image: mcr.microsoft.com/powershell:latest
+  before_script: []
+  cache: []
+  script:
+    - pwsh -File scripts/verify-landing-versions.ps1
+    - pwsh -File scripts/verify-release-notes.ps1
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH'
+    - if: '$CI_COMMIT_TAG'
+
+verify_android:
+  stage: verify
+  script:
+    - ./gradlew :app:testDebugUnitTest
+    - ./gradlew :app:lintRelease
+    - ./gradlew :app:assembleDebug
+    - test -s app/build/outputs/apk/debug/app-debug.apk
+  artifacts:
+    name: "markleaf-debug-$CI_COMMIT_SHORT_SHA"
+    expire_in: 7 days
+    paths:
+      - app/build/outputs/apk/debug/app-debug.apk
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH'
+    - if: '$CI_COMMIT_TAG'
+
+package_signed_release:
+  stage: package
+  needs:
+    - job: verify_android
+    # needs 는 stage 순서를 우회하는 DAG 를 만들므로, 여기 명시하지 않으면
+    # verify_release_docs 가 빨간 채로도 패키징이 진행된다 — 게이트로 묶는다 (#184).
+    - job: verify_release_docs
+  before_script:
+    - chmod +x gradlew
+    - install -d -m 700 .secrets
+    - install -d "$GRADLE_USER_HOME"
+    - test -n "$MARKLEAF_RELEASE_KEYSTORE_BASE64"
+    - printf '%s' "$MARKLEAF_RELEASE_KEYSTORE_BASE64" | base64 --decode > "$MARKLEAF_RELEASE_STORE_FILE"
+    - test -s "$MARKLEAF_RELEASE_STORE_FILE"
+    - chmod 600 "$MARKLEAF_RELEASE_STORE_FILE"
+    - printf '%s\n' 'markleaf.requireReleaseSigning=true' "markleaf.releaseExportDir=$CI_PROJECT_DIR/dist" > "$GRADLE_USER_HOME/gradle.properties"
+  script:
+    - rm -rf dist
+    - ./gradlew :app:exportReleaseArtifacts
+    - test "$(find dist -maxdepth 1 -type f | wc -l)" -eq 4
+    - test -n "$(find dist -maxdepth 1 -name "markleaf-$CI_COMMIT_TAG-vc*.apk" -print -quit)"
+    - test -n "$(find dist -maxdepth 1 -name "markleaf-$CI_COMMIT_TAG-vc*.aab" -print -quit)"
+    - test -n "$(find dist -maxdepth 1 -name "markleaf-$CI_COMMIT_TAG-vc*.mapping.txt" -print -quit)"
+    - test -n "$(find dist -maxdepth 1 -name "markleaf-$CI_COMMIT_TAG-vc*-release-notes.txt" -print -quit)"
+    - APK="$(find dist -maxdepth 1 -name '*.apk' -print -quit)"
+    - APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
+    - test -x "$APKSIGNER"
+    - ACTUAL_CERT_SHA256="$("$APKSIGNER" verify --print-certs "$APK" | sed -n 's/^Signer .*certificate SHA-256 digest:[[:space:]]*//p' | tr '[:upper:]' '[:lower:]')"
+    - test "$ACTUAL_CERT_SHA256" = "$MARKLEAF_RELEASE_CERT_SHA256"
+    - NOTES="$(find dist -maxdepth 1 -name '*-release-notes.txt' -print -quit)"
+    - grep -q '^<ko-KR>$' "$NOTES"
+    - grep -q '^<en-US>$' "$NOTES"
+    - grep -q '^<ja-JP>$' "$NOTES"
+    - grep -q '^<de-DE>$' "$NOTES"
+    - grep -q '^<fr-FR>$' "$NOTES"
+    - grep -q '^<es-ES>$' "$NOTES"
+  after_script:
+    - rm -rf .secrets
+    - rm -f "$GRADLE_USER_HOME/gradle.properties"
+  artifacts:
+    name: "markleaf-$CI_COMMIT_TAG"
+    expire_in: 7 days
+    paths:
+      - dist/
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
+
+publish_gitlab_release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/cli:latest
+  needs:
+    - job: package_signed_release
+      artifacts: true
+  variables:
+    GLAB_ENABLE_CI_AUTOLOGIN: "true"
+  before_script: []
+  script:
+    - NOTES="$(find dist -maxdepth 1 -name '*-release-notes.txt' -print -quit)"
+    - test -s "$NOTES"
+    - >-
+      glab release create "$CI_COMMIT_TAG" dist/*
+      --repo "$CI_PROJECT_PATH"
+      --name "$CI_COMMIT_TAG"
+      --notes-file "$NOTES"
+      --package-name markleaf-android
+      --use-package-registry
+      --no-update
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'

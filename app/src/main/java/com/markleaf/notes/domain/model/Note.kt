@@ -21,6 +21,13 @@ data class Note(
      *  edited since the last sync and an incoming newer file is treated as a
      *  conflict (kept as a duplicate) rather than silently overwriting. */
     val lastImportedAt: Instant? = null,
+    /** The newest mirror-file timestamp the reconcile has already dealt with for
+     *  this note. Purely reconcile bookkeeping — it exists so settling a sync
+     *  conflict does not have to move [updatedAt], which is the user's "when did
+     *  I last change this" and drives the notes list order. Before it, the only
+     *  way to stop a conflict repeating every pass was to push [updatedAt] past
+     *  the file, which quietly reordered a note nobody had edited. */
+    val remoteSeenAt: Instant? = null,
     /** When true the note is in the passcode-gated "Locked notes" space: hidden
      *  from every normal list, search, tag view and sync/export path until the
      *  user unlocks that space. UI-visibility gate only — not encryption. */

@@ -33,7 +33,7 @@ class AppDatabaseMigrationTest {
             .build()
 
         db.openHelper.writableDatabase.query(
-            "SELECT id, title, sortOrder, lastImportedAt, locked, isConflictCopy FROM notes WHERE id = '42'"
+            "SELECT id, title, sortOrder, lastImportedAt, locked, isConflictCopy, remoteSeenAt FROM notes WHERE id = '42'"
         ).use { cursor ->
             assertTrue(cursor.moveToFirst())
             assertEquals("42", cursor.getString(0))
@@ -46,6 +46,11 @@ class AppDatabaseMigrationTest {
             // #217: v15→v16 adds `isConflictCopy`, defaulting to 0 — an ordinary
             // note must not be swept into the Sync Center's conflict list.
             assertEquals(0, cursor.getInt(5))
+            // #222: v16→v17 adds `remoteSeenAt`, deliberately NOT backfilled.
+            // Null reads as "no remote version resolved yet", which keeps the
+            // whole reconcile matrix answering exactly as it did before the
+            // column existed.
+            assertTrue(cursor.isNull(6))
         }
 
         // #217: conflict copies created under the old scheme were recognised

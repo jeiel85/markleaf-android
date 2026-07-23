@@ -200,6 +200,38 @@
                         <figcaption>UTF-8 · Plain Markdown · Opens in other tools</figcaption>
                     </figure>
                 </article>
+
+                <article class="story vault-story">
+                    <div class="story-copy">
+                        <p class="story-step">04 · Bring your own folder</p>
+                        <h3>Point it at the Markdown folder you already keep.</h3>
+                        <p>Markleaf has no vault format of its own. Files that Obsidian, Logseq, or a text editor already wrote are adopted as notes, and the frontmatter they carry comes back out untouched.</p>
+                        <ul class="feature-points">
+                            <li>Existing <code>.md</code> files adopted, not duplicated</li>
+                            <li>Frontmatter keys from other tools survive the round-trip</li>
+                            <li>One folder, not a folder tree — Markleaf sorts by tags</li>
+                        </ul>
+                        <a class="text-link" href="https://github.com/jeiel85/markleaf-android#-works-with-the-markdown-folder-you-already-have">What to know before pointing it at a real vault</a>
+                    </div>
+                    <figure class="ownership-demo">
+                        <div class="file-browser-bar">
+                            <span></span><span></span><span></span>
+                            <strong>Your folder</strong>
+                        </div>
+                        <pre aria-label="A file written by another tool, adopted by Markleaf with its own keys intact"><code>your-folder/
+├─ Reading log.md
+└─ Project plan.md
+
+---
+tags: [reading]
+aliases: [log]
+markleaf_id: 7f3c…
+---
+
+# Reading log</code></pre>
+                        <figcaption>Your keys stay · Markleaf adds one</figcaption>
+                    </figure>
+                </article>
             </div>
         </section>
 

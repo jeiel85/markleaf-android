@@ -88,6 +88,24 @@
 
 ---
 
+## 🔗 Works with the Markdown folder you already have
+
+Markleaf has no vault format of its own. Point it at a folder — including one that Obsidian, Logseq, or your text editor already opens — and it works on the files that are there.
+
+- **Plain files, already yours.** One note is one `.md` (or `.txt`) file. Drop existing files into the folder and Markleaf picks them up as notes the next time it comes to the foreground — no import step.
+- **Your frontmatter survives.** Markleaf adds a small YAML header (`markleaf_id`, timestamps, pinned/archived) so it can match a file to a note across devices. It is a strict subset of YAML that Obsidian, GitHub and VS Code all parse, and **any key Markleaf does not recognize is preserved untouched** on round-trip — your Obsidian properties come back out the way they went in.
+- **The same syntax you already write.** `[[Wikilinks]]` with a backlinks panel, inline `#tags`, GFM tables and checkboxes, `> [!NOTE]` callouts, and an Obsidian-style `Ctrl+K` quick switcher.
+- **Reconciles by itself, carefully.** Changes made elsewhere are pulled in when Markleaf returns to the foreground (throttled to once a minute). An edit from another editor is seen even if that editor never touches Markleaf's frontmatter — the reconcile compares the body, not just the timestamp. A file only wins when it is genuinely newer; if both sides moved, the remote arrives as a *separate* note rather than overwriting your edits, and nothing is ever deleted automatically.
+
+> [!IMPORTANT]
+> **Two things to know before you point Markleaf at a real vault.**
+> - **One folder, no subfolders.** Markleaf reads the files directly inside the folder you pick and does not descend into subdirectories. A vault organized into nested folders will only meet Markleaf at its top level — by design, Markleaf organizes by tags instead of folders.
+> - **Editing a note renames its file.** Mirror filenames track the note title, so a file whose name differs from its heading gets renamed the first time you save it in Markleaf. Where `[[links]]` in your vault point at the old filename, they will break.
+>
+> If your vault is deeply foldered or link-heavy, point Markleaf at a *separate* folder and treat it as a mobile inbox you merge from, rather than as a second editor on the vault itself.
+
+---
+
 ## 🛠 Tech Stack
 
 Markleaf follows current Android development standards with a modern, maintainable stack.

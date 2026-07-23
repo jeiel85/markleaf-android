@@ -88,6 +88,24 @@
 
 ---
 
+## 🔗 Funciona con la carpeta Markdown que ya tienes
+
+Markleaf no tiene un formato de bóveda propio. Apúntalo a una carpeta — incluso a una que Obsidian, Logseq o tu editor de texto ya abren — y trabajará con los archivos que haya allí.
+
+- **Archivos planos que ya son tuyos.** Una nota es un archivo `.md` (o `.txt`). Deja tus archivos existentes en la carpeta y Markleaf los recogerá como notas la próxima vez que pase a primer plano — sin paso de importación.
+- **Tu frontmatter sobrevive.** Markleaf añade una pequeña cabecera YAML (`markleaf_id`, marcas de tiempo, pinned/archived) para emparejar un archivo con una nota entre dispositivos. Es un subconjunto estricto de YAML que Obsidian, GitHub y VS Code interpretan sin problemas, y **cualquier clave que Markleaf no reconozca se conserva intacta** en la ida y vuelta: tus propiedades de Obsidian salen tal como entraron.
+- **La misma sintaxis que ya escribes.** `[[Wikienlaces]]` con panel de retroenlaces, `#etiquetas` en el propio texto, tablas y casillas GFM, llamadas `> [!NOTE]` y un conmutador rápido `Ctrl+K` al estilo de Obsidian.
+- **Se reconcilia solo, con cuidado.** Los cambios hechos en otro sitio se incorporan cuando Markleaf vuelve a primer plano (como mucho una vez por minuto). Una edición hecha desde otro editor se detecta aunque ese editor nunca toque el frontmatter de Markleaf: la reconciliación compara el cuerpo, no solo la marca de tiempo. Un archivo solo gana si es realmente más nuevo; si ambos lados cambiaron, la versión remota llega como una nota *aparte* en vez de sobrescribir tus ediciones, y nunca se borra nada automáticamente.
+
+> [!IMPORTANT]
+> **Dos cosas antes de apuntar Markleaf a una bóveda real.**
+> - **Una carpeta, sin subcarpetas.** Markleaf lee los archivos que están directamente dentro de la carpeta elegida y no baja a subdirectorios. Una bóveda organizada en carpetas anidadas solo se encontrará con Markleaf en su nivel superior — es deliberado: Markleaf organiza por etiquetas, no por carpetas.
+> - **Editar una nota renombra su archivo.** Los nombres de los archivos espejo siguen al título de la nota, así que un archivo cuyo nombre difiera de su encabezado se renombrará la primera vez que lo guardes en Markleaf. Si en tu bóveda hay `[[enlaces]]` que apuntan al nombre antiguo, se romperán.
+>
+> Si tu bóveda tiene muchos niveles o muchos enlaces, apunta Markleaf a una carpeta *aparte* y úsalo como bandeja de entrada móvil desde la que fusionar después, en lugar de como un segundo editor sobre la bóveda misma.
+
+---
+
 ## 🛠 Stack tecnológico
 
 Markleaf sigue los estándares actuales de desarrollo Android con un stack moderno y fácil de mantener.

@@ -47,7 +47,7 @@
 
 **Markleaf** は、余計なものをそぎ落とし「記録」と「整理」だけに集中できるよう設計された Android 向け Markdown メモアプリです。データは端末内にのみ保存され、標準 Markdown 形式によってデータの所有権と移植性が完全に保証されます。同期も *あなたが選んだフォルダ* を介してのみ行われ、Markleaf 自体はインターネットに接続しません。
 
-[**ブランディングページを見る**](https://jeiel85.github.io/markleaf-android/) · [現在のバージョン: v2.28.3](https://github.com/jeiel85/markleaf-android/releases/tag/v2.28.3) · [プライバシーポリシー](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**ブランディングページを見る**](https://jeiel85.github.io/markleaf-android/) · [現在のバージョン: v2.29.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.29.0) · [プライバシーポリシー](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -93,13 +93,12 @@
 Markleaf に独自のボルト形式はありません。フォルダを一つ指定すれば — Obsidian や Logseq、テキストエディタがすでに開いているフォルダでも — その中にあるファイルをそのまま扱います。
 
 - **もとからあなたのものだった、ただのファイル。** ノート 1 つが `.md`（または `.txt`）ファイル 1 つです。既存のファイルをフォルダに置いておけば、次に Markleaf が前面に来たときノートとして取り込まれます — 取り込み操作は要りません。
-- **あなたのフロントマターは 1 行単位で引き継がれます。** Markleaf は端末間でファイルとノートを対応づけるために小さな YAML ヘッダー（`markleaf_id`、タイムスタンプ、pinned/archived）を付け、自分が知らないキーも捨てずに書き戻します。このヘッダーは Obsidian・GitHub・VS Code のいずれもが解釈できる標準 YAML の厳密な部分集合です。ただしパーサーが行単位のため、`key: value` の項目や `tags: [reading]` のようなフロー形式は往復しても保たれますが、**複数行にまたがる値はまだ保持されません** — 下記を参照してください。
+- **あなたのフロントマターは残ります。** Markleaf は端末間でファイルとノートを対応づけるために小さな YAML ヘッダー（`markleaf_id`、タイムスタンプ、pinned/archived）を付け、**自分が知らないものはすべて原文のまま書き戻します** — Obsidian がタグを書くインデントされたブロックリスト、ネストしたマップ、コメントや引用符も含めてです。付けるヘッダーは Obsidian・GitHub・VS Code のいずれもが解釈できる標準 YAML の厳密な部分集合です。
 - **いつも書いている記法のまま。** バックリンクパネル付きの `[[ウィキリンク]]`、本文に直接書く `#タグ`、GFM の表とチェックボックス、`> [!NOTE]` コールアウト、そして Obsidian 風の `Ctrl+K` クイックスイッチャー。
 - **自動で、しかし慎重に突き合わせます。** 他所での変更は Markleaf が前面に戻ったとき（1 分に 1 回まで）取り込まれます。他のエディタが Markleaf のフロントマターに触れずに本文だけを直した場合でも気づきます — タイムスタンプだけでなく本文を比較しているからです。ファイルが実際に新しいときだけ反映され、両方が変わっていた場合は上書きせず *別のノート* として取り込み、自動で削除されるものはありません。
 
 > [!IMPORTANT]
-> **実際のボルトにつなぐ前に知っておくべき 3 点。**
-> - **複数行の属性はまだ保持されません（[#226](https://github.com/jeiel85/markleaf-android/issues/226)）。** Markleaf はフロントマターを行単位で読むため、インデントされたブロックリスト — Obsidian がタグを書くときの既定の形式 — は Markleaf が id を刻んだ時点で空のキーに潰れ、ネストしたマップは平坦化されます。ノートがその形式で属性を持っている場合は、修正されるまで Markleaf に渡すフォルダには入れないでください。
+> **実際のボルトにつなぐ前に知っておくべき 2 点。**
 > - **フォルダ 1 階層のみ、サブフォルダは見ません。** Markleaf は指定したフォルダの直下にあるファイルだけを読み、サブディレクトリには降りません。フォルダで整理されたボルトは最上位でしか噛み合いません — Markleaf は意図的にフォルダではなくタグで整理します。
 > - **ノートを編集するとファイル名が変わります。** ミラーのファイル名はノートのタイトルに追従するため、ファイル名が見出しと違う場合は Markleaf で最初に保存した時点で改名されます。ボルト内の `[[リンク]]` が旧ファイル名を指していれば、そのリンクは切れます。
 >
@@ -155,7 +154,7 @@ com.markleaf.notes
 > **現在、Google Play での更新は一時保留中です。** 個人開発者の韓国の事業者登録に関するポリシー要件が解決するまで、新しいバージョンは Play ストアに公開しません。その間は **最新版を F-Droid、GitHub Releases、または GitLab Releases から入手してください。**（すでに Play ストアからインストール済みの場合はそのまま使えます。）
 
 - **F-Droid** *(推奨)*: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — F-Droid クライアントで検索するか、上のリンクから直接インストールできます。同じ署名鍵（SHA-256 `0be97352…f91a`）を使用するため、GitHub/GitLab Releases の APK をサイドロードした場合でも途切れなく更新が続きます。
-- **APK の直接インストール**: [GitHub v2.28.3](https://github.com/jeiel85/markleaf-android/releases/tag/v2.28.3) リリースから APK をダウンロードし、Android 端末で実行してインストールします。
+- **APK の直接インストール**: [GitHub v2.29.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.29.0) リリースから APK をダウンロードし、Android 端末で実行してインストールします。
 - **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **更新は一時保留中**です（上の注記を参照）。すでにインストール済みなら引き続き使えますが、最新版は F-Droid・GitHub・GitLab から入手してください。
 
 ### 開発環境の構築

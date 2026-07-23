@@ -4,6 +4,21 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.29.0 - Check things off from reading view - 2026-07-23
+
+One feature and three fixes, two of them for text that could go missing. No permission or storage-format changes.
+
+### Added
+- **Tap a checkbox in reading view (#219).** A checklist shown in Preview drew a checkbox that did nothing — ticking an item meant going back to the editor and changing the `[ ]` by hand. The checkbox is now the control: tap it and the note changes underneath. Only the box responds, so pressing and holding the item text to select it still works. Paired with the "open notes in preview" setting from v2.28.0, this is the difference between a checklist you can use and one you can only read.
+
+### Fixed
+- **A note that opens with a horizontal rule keeps its text (#222).** `---` starts a Markdown rule as readily as it starts a metadata header. A note whose body began with a rule and carried a second one further down had everything between them read as a header and dropped on the next sync, with nothing to warn you. Markleaf now checks whether what sits between the two lines actually looks like metadata, and leaves it as text when it does not.
+- **Frontmatter written by other tools survives (#226).** Markleaf keeps metadata it does not recognize, so tags and aliases from Obsidian and similar apps come back out unchanged. That only held for entries that fit on one line: the indented list Obsidian writes tags in by default was read as an empty key, and its items were erased on the first save. Everything Markleaf does not recognize is now carried back out exactly as it was found — nested entries, comments and quoting included.
+- **Settling a sync conflict no longer moves a note you never edited (#222).** When a note and its file had both changed, Markleaf recorded the resolution by bumping the note's edit time, which pushed it to the top of the recently-updated list as though you had just worked on it. The resolution is now recorded separately, and the note keeps the time you last actually edited it.
+
+### Performance
+- **Saving no longer gets slower the more notes you keep (#222).** Every auto-save looked for the note's file by opening each file in the sync folder in turn to read its header. At a few hundred notes that search was most of what a save cost. Markleaf now remembers which file belongs to which note and goes straight to it.
+
 ## v2.28.3 - Long note headers are left alone - 2026-07-23
 
 A follow-up to v2.28.2, for a case that release made worse. No feature, permission, or storage-format changes.

@@ -3,6 +3,7 @@ package com.markleaf.notes.data.sync
 import android.content.Context
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
+import com.markleaf.notes.R
 import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.SyncFileExtension
@@ -21,10 +22,16 @@ import java.util.UUID
  * the notes follow.
  *
  * Filenames track the note **title** (#134): the canonical link is the
- * frontmatter `markleaf_id`, so a note's file is located by parsing that id, not
- * by anything in the filename. When a title changes the file is renamed in place
- * (never deleted + recreated), so a mid-flight sync client never sees a note
- * vanish.
+ * frontmatter `markleaf_id`, so a note's file is normally located by parsing
+ * that id rather than by anything in the filename. When a title changes the file
+ * is renamed in place (never deleted + recreated), so a mid-flight sync client
+ * never sees a note vanish.
+ *
+ * The filename is the *fallback* link, not a second source of truth: when no
+ * file carries the id, a same-named file that no other note claims is adopted
+ * rather than left alone. Without that, another app rewriting a file without
+ * preserving our block left the note permanently unlinked, and every auto-save
+ * forked another ` (2)` copy (#213).
  *
  * Safety posture:
  * - Auto-export on save *only writes* (we are the source of truth for our own
@@ -47,9 +54,9 @@ object NoteFolderMirror {
         val errors: Int,
         /**
          * Number of notes where both the local DB and the remote file moved
-         * since the last sync. The remote file was kept as a duplicate note
-         * (titled `<original> (다른 기기 사본 …)`) instead of overwriting
-         * the local edits.
+         * since the last sync. The remote side was kept as a separate note
+         * flagged [Note.isConflictCopy] — the Sync Center lists those — instead
+         * of overwriting the local edits.
          */
         val conflicts: Int = 0
     )
@@ -72,7 +79,8 @@ object NoteFolderMirror {
         if (!folder.canWrite()) return false
 
         val mirrorFiles = folder.listFiles().filter { it.isFile && isMirrorFile(it.name) }
-        val existing = findFileForNote(context, mirrorFiles, note.id)
+        val match = findMirrorFile(context, mirrorFiles, note)
+        val existing = match?.file
         val ext = existing?.mirrorExtension() ?: extension.value
         val desiredName = resolveName(note, ext, mirrorFiles, ownFile = existing)
 
@@ -85,7 +93,7 @@ object NoteFolderMirror {
         val wrote = runCatching {
             context.contentResolver.openOutputStream(target.uri, "wt")?.use { stream ->
                 BufferedWriter(OutputStreamWriter(stream, Charsets.UTF_8)).use { writer ->
-                    writer.write(SyncFrontmatter.encode(note))
+                    writer.write(SyncFrontmatter.encode(note, match?.extraKeys.orEmpty()))
                 }
             } ?: return@runCatching false
             true
@@ -96,6 +104,31 @@ object NoteFolderMirror {
             existing.renameTo(desiredName) // best-effort; old name is fine if it fails
         }
         return true
+    }
+
+    /**
+     * [writeNote] plus the `lastImportedAt` stamp that records "the folder now
+     * holds exactly this version of the note".
+     *
+     * Every mirror write needs that stamp. Only the editor's auto-save did it,
+     * so a note seeded to the folder from Settings, the Sync Center or an
+     * unlock kept `lastImportedAt == null` — which the reconcile reads as
+     * "edited locally since the last import" for ever, sending every genuinely
+     * newer file down the conflict path instead of overwriting cleanly (#217).
+     *
+     * [onStamped] receives the stamped note; callers pass their repository's
+     * update so this stays free of a data-layer dependency.
+     */
+    suspend fun writeNoteAndStamp(
+        context: Context,
+        folderUri: Uri,
+        note: Note,
+        extension: SyncFileExtension,
+        onStamped: suspend (Note) -> Unit
+    ): Boolean {
+        val wrote = writeNote(context, folderUri, note, extension)
+        if (wrote) onStamped(note.copy(lastImportedAt = note.updatedAt))
+        return wrote
     }
 
     /**
@@ -273,7 +306,11 @@ object NoteFolderMirror {
 
             val parsed = SyncFrontmatter.decode(raw)
             val existingNote = parsed.markleafId?.let(byId::get)
-            val fileTs = parsed.updatedAt ?: Instant.ofEpochMilli(file.lastModified())
+            val fileTs = effectiveFileTimestamp(
+                frontmatterUpdatedAt = parsed.updatedAt,
+                fileModifiedAt = Instant.ofEpochMilli(file.lastModified()),
+                bodyChanged = existingNote != null && parsed.body != existingNote.contentMarkdown
+            )
 
             try {
                 when (reconcileAction(existingNote, fileTs)) {
@@ -312,11 +349,10 @@ object NoteFolderMirror {
                     }
                     Reconcile.Conflict -> {
                         // Both sides moved since the last sync. Keep the local
-                        // note untouched and bring the remote in as a separate
-                        // "(다른 기기 사본 …)" note so the user can compare and
-                        // merge by hand.
+                        // note's content untouched and bring the remote in as a
+                        // separate note so the user can compare and merge by hand.
                         val baseTitle = TitleExtractor.extractTitle(parsed.body)
-                        val suffix = conflictSuffix(Instant.now())
+                        val suffix = conflictSuffix(context, Instant.now())
                         val duplicate = Note(
                             id = UUID.randomUUID().toString(),
                             title = "$baseTitle $suffix",
@@ -326,9 +362,25 @@ object NoteFolderMirror {
                             updatedAt = fileTs,
                             pinned = false,
                             archived = false,
-                            lastImportedAt = fileTs
+                            lastImportedAt = fileTs,
+                            isConflictCopy = true
                         )
                         applyCreate(duplicate)
+                        // Advance the local note past the file we just copied.
+                        // [reconcileAction] reads nothing but (updatedAt,
+                        // lastImportedAt, fileTs); taking the copy changed none
+                        // of them, so the next pass reached the same verdict and
+                        // made another copy — once a minute, without end (#217).
+                        // The body is untouched, so the local edit survives; the
+                        // bump only records "this file has been dealt with", and
+                        // leaves the pair resolving to Skip until one side moves
+                        // again.
+                        applyUpdate(
+                            existingNote!!.copy(
+                                updatedAt = fileTs.plusMillis(1),
+                                lastImportedAt = fileTs
+                            )
+                        )
                         conflicts++
                     }
                     Reconcile.Overwrite -> {
@@ -390,13 +442,45 @@ object NoteFolderMirror {
         return if (localEditedSinceImport) Reconcile.Conflict else Reconcile.Overwrite
     }
 
-    private fun conflictSuffix(now: Instant): String {
-        // Stable, locale-independent suffix the user can scan at a glance:
-        // "(다른 기기 사본 0509 12:34)"
+    /**
+     * The title suffix marking a conflict copy — "(copy from another device 0509
+     * 12:34)" in the user's language. The stamp inside it stays numeric and
+     * locale-independent so it is scannable at a glance and sorts sensibly.
+     *
+     * This used to be a hardcoded Korean literal, which every language saw and
+     * which the Sync Center's `title LIKE` query depended on. Detection now
+     * rides on [Note.isConflictCopy], which is what freed the label to be
+     * translated (#217).
+     */
+    private fun conflictSuffix(context: Context, now: Instant): String {
         val ldt = java.time.LocalDateTime.ofInstant(now, java.time.ZoneId.systemDefault())
-        val date = "%02d%02d".format(ldt.monthValue, ldt.dayOfMonth)
-        val time = "%02d:%02d".format(ldt.hour, ldt.minute)
-        return "(다른 기기 사본 $date $time)"
+        val stamp = "%02d%02d %02d:%02d".format(
+            ldt.monthValue, ldt.dayOfMonth, ldt.hour, ldt.minute
+        )
+        return context.getString(R.string.sync_conflict_copy_suffix, stamp)
+    }
+
+    /**
+     * The timestamp to compare a mirror file against its DB note.
+     *
+     * The frontmatter `updated_at` is authoritative when present, with one
+     * exception: an app that edits the body but leaves our block alone keeps the
+     * old value, so the edit never looks newer and is never imported. There —
+     * and only there — the filesystem mtime is the better signal.
+     *
+     * The mtime is deliberately *not* trusted when the body is unchanged. A sync
+     * client that re-downloads a file bumps its mtime without touching a byte of
+     * content; trusting it there would make every file look newer than its note
+     * on every pass, which is a conflict storm rather than a sync.
+     */
+    internal fun effectiveFileTimestamp(
+        frontmatterUpdatedAt: Instant?,
+        fileModifiedAt: Instant,
+        bodyChanged: Boolean
+    ): Instant {
+        if (frontmatterUpdatedAt == null) return fileModifiedAt
+        if (bodyChanged && fileModifiedAt.isAfter(frontmatterUpdatedAt)) return fileModifiedAt
+        return frontmatterUpdatedAt
     }
 
     /**
@@ -410,21 +494,69 @@ object NoteFolderMirror {
         context: Context,
         mirrorFiles: List<DocumentFile>,
         noteId: String
-    ): DocumentFile? = mirrorFiles.firstOrNull { frontmatterId(context, it) == noteId }
+    ): DocumentFile? =
+        mirrorFiles.firstOrNull { peekFrontmatter(context, it)?.markleafId == noteId }
 
-    private fun frontmatterId(context: Context, file: DocumentFile): String? = runCatching {
-        context.contentResolver.openInputStream(file.uri)?.use { stream ->
-            val buf = ByteArray(FRONTMATTER_PEEK_BYTES)
-            var read = 0
-            while (read < buf.size) {
-                val n = stream.read(buf, read, buf.size - read)
-                if (n < 0) break
-                read += n
+    /** A note's mirror file together with the frontmatter keys it already carries. */
+    private class MirrorMatch(val file: DocumentFile, val extraKeys: Map<String, String>)
+
+    /**
+     * The file [note] should be written to. The canonical link is the
+     * frontmatter `markleaf_id`; when no file carries it we fall back to
+     * *adopting* a file that already has this note's exact name and belongs to
+     * nobody — one with no `markleaf_id` of its own.
+     *
+     * Without that fallback a single lost id forks a new file on every
+     * auto-save (#213): the lookup fails, [writeNote] creates a file instead,
+     * and the collision guard names it `<title> (2).md`, then `(3)`, and so on
+     * for as long as the user keeps typing. Ids go missing whenever another app
+     * rewrites the file without preserving our block. Adoption is safe because
+     * a file carrying *someone else's* id is never taken — only unclaimed ones,
+     * and only under the undisambiguated name (`Notes.md`, never `Notes (2).md`).
+     *
+     * The file's own unknown frontmatter keys come back alongside it so the
+     * write can put them back rather than dropping tags another tool wrote.
+     */
+    private fun findMirrorFile(
+        context: Context,
+        mirrorFiles: List<DocumentFile>,
+        note: Note
+    ): MirrorMatch? {
+        val base = MirrorFileNames.sanitizeBase(note.title)
+        var unclaimed: MirrorMatch? = null
+        for (file in mirrorFiles) {
+            val parsed = peekFrontmatter(context, file) ?: continue
+            if (parsed.markleafId == note.id) return MirrorMatch(file, parsed.unknownKeys)
+            if (parsed.markleafId == null &&
+                unclaimed == null &&
+                MirrorFileNames.isPlainNameFor(file.name.orEmpty(), base)
+            ) {
+                unclaimed = MirrorMatch(file, parsed.unknownKeys)
             }
-            if (read <= 0) null
-            else SyncFrontmatter.decode(String(buf, 0, read, Charsets.UTF_8)).markleafId
         }
-    }.getOrNull()
+        return unclaimed
+    }
+
+    /**
+     * Parse the frontmatter at the head of [file]. Only the leading bytes are
+     * read — the block always sits at the very top — so this stays cheap even
+     * when it runs over every file in the folder. Returns null on any read
+     * failure, which the callers treat as "this file tells us nothing".
+     */
+    private fun peekFrontmatter(context: Context, file: DocumentFile): SyncFrontmatter.Parsed? =
+        runCatching {
+            context.contentResolver.openInputStream(file.uri)?.use { stream ->
+                val buf = ByteArray(FRONTMATTER_PEEK_BYTES)
+                var read = 0
+                while (read < buf.size) {
+                    val n = stream.read(buf, read, buf.size - read)
+                    if (n < 0) break
+                    read += n
+                }
+                if (read <= 0) null
+                else SyncFrontmatter.decode(String(buf, 0, read, Charsets.UTF_8))
+            }
+        }.getOrNull()
 
     /**
      * The title-derived filename to use for [note], disambiguated against the

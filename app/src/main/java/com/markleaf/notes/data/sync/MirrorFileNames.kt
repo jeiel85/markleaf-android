@@ -53,6 +53,19 @@ object MirrorFileNames {
     fun fileName(base: String, ext: String): String = "$base.$ext"
 
     /**
+     * True when [fileName] is the *undisambiguated* name for [base] —
+     * `Notes.md` matches base `Notes`, `Notes (2).md` does not.
+     *
+     * Used to recognise a note's own file when its frontmatter id has gone
+     * missing (#213), so the mirror rewrites it instead of forking a ` (2)`
+     * copy on every save. Case-insensitive, because a synced folder can land on
+     * a case-insensitive filesystem (exFAT SD card, Windows share) where
+     * `notes.md` and `Notes.md` are the same file.
+     */
+    fun isPlainNameFor(fileName: String, base: String): Boolean =
+        fileName.substringBeforeLast('.', fileName).equals(base, ignoreCase = true)
+
+    /**
      * The first `<base>.<ext>` / `<base> (2).<ext>` / … that [isTaken] reports
      * free. [isTaken] should return true for names already used by a *different*
      * note in the folder (the note's own existing file is not a collision).

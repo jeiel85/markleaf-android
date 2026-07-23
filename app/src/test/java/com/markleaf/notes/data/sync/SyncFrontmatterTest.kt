@@ -138,6 +138,41 @@ class SyncFrontmatterTest {
     }
 
     @Test
+    fun decode_ignoresLeadingByteOrderMark() {
+        // #213: a UTF-8 BOM in front of the opening `---` used to defeat the
+        // delimiter check (Kotlin's trim() leaves U+FEFF alone), so the file
+        // parsed as "no frontmatter", the note lost its markleaf_id, and the
+        // mirror forked a new file on every save.
+        val bom = Char(0xFEFF).toString()
+        val raw = bom + """
+            ---
+            markleaf_id: bom-id
+            updated_at: 2026-05-08T11:00:00Z
+            ---
+            body
+        """.trimIndent()
+
+        val parsed = SyncFrontmatter.decode(raw)
+
+        assertEquals("bom-id", parsed.markleafId)
+        assertNotNull(parsed.updatedAt)
+        assertEquals("body", parsed.body)
+    }
+
+    @Test
+    fun decode_stripsByteOrderMarkFromPlainBodyToo() {
+        // A BOM'd file with no frontmatter still round-trips cleanly: the mark
+        // must not survive into the note body, or it shows up as an invisible
+        // first character in the editor.
+        val bom = Char(0xFEFF).toString()
+
+        val parsed = SyncFrontmatter.decode(bom + "# Just a body")
+
+        assertNull(parsed.markleafId)
+        assertEquals("# Just a body", parsed.body)
+    }
+
+    @Test
     fun decode_pinnedFalseWhenAbsent() {
         val raw = """
             ---

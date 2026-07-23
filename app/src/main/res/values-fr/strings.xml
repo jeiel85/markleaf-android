@@ -220,6 +220,7 @@
     </plurals>
     <string name="sync_done_format">Synchronisé — %1$d mises à jour, %2$d nouvelles, %3$d inchangées.</string>
     <string name="sync_done_with_conflicts_format">Synchronisé — %1$d mises à jour, %2$d nouvelles, %3$d conservées en double (conflit), %4$d inchangées.</string>
+    <string name="sync_conflict_copy_suffix">(copie d\'un autre appareil %1$s)</string>
     <string name="sync_stopped">Synchronisation désactivée.</string>
     <string name="screenshot_protection">Bloquer les captures d\'écran et l\'aperçu des applications récentes</string>
     <string name="screenshot_protection_description">Masque le contenu des notes dans les captures d\'écran et l\'écran des applications récentes. Redémarrez l\'écran de l\'éditeur pour que le changement prenne effet.</string>

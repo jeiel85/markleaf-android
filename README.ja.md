@@ -145,6 +145,8 @@ cd markleaf-android
 ./gradlew installDebug
 ```
 
+Markleaf のバグ修正は、その多くが誰かの報告から始まります。書いてくださった方々を [THANKS.md](THANKS.md) に記録しています。
+
 ---
 
 ## 🔒 No-Cloud by design

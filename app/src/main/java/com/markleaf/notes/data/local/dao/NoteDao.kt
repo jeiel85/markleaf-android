@@ -122,6 +122,12 @@ interface NoteDao {
     @Query("SELECT MAX(sortOrder) FROM notes WHERE trashed = 0 AND archived = 0 AND locked = 0")
     suspend fun getMaxSortOrder(): Int?
 
-    @Query("SELECT * FROM notes WHERE trashed = 0 AND locked = 0 AND title LIKE '%(다른 기기 사본%' ORDER BY updatedAt DESC")
+    /**
+     * Conflict copies kept for manual merge, newest first. Matched on the
+     * `isConflictCopy` flag: this used to be `title LIKE '%(다른 기기 사본%'`,
+     * which meant the label could never be translated — the Korean literal *was*
+     * the detection mechanism, so every language saw a Korean title.
+     */
+    @Query("SELECT * FROM notes WHERE trashed = 0 AND locked = 0 AND isConflictCopy = 1 ORDER BY updatedAt DESC")
     fun observeConflictNotes(): Flow<List<NoteEntity>>
 }

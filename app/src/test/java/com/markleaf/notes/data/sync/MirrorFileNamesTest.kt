@@ -1,6 +1,7 @@
 package com.markleaf.notes.data.sync
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -11,6 +12,41 @@ import org.junit.Test
  * (no Unicode-property or locale-case divergence to worry about).
  */
 class MirrorFileNamesTest {
+
+    // --- #213: recognising a note's own file when its id has gone missing ----
+
+    @Test
+    fun `isPlainNameFor matches the undisambiguated name`() {
+        assertTrue(MirrorFileNames.isPlainNameFor("Notes.md", "Notes"))
+        assertTrue(MirrorFileNames.isPlainNameFor("Notes.txt", "Notes"))
+    }
+
+    @Test
+    fun `isPlainNameFor rejects a disambiguated copy`() {
+        // The whole point of the adoption fallback is to stop " (2)" files from
+        // breeding — taking one over would defeat it.
+        assertFalse(MirrorFileNames.isPlainNameFor("Notes (2).md", "Notes"))
+        assertFalse(MirrorFileNames.isPlainNameFor("Notes (10).md", "Notes"))
+    }
+
+    @Test
+    fun `isPlainNameFor ignores case`() {
+        // A synced folder can land on exFAT or a Windows share, where notes.md
+        // and Notes.md are the same file.
+        assertTrue(MirrorFileNames.isPlainNameFor("NOTES.md", "Notes"))
+    }
+
+    @Test
+    fun `isPlainNameFor keeps dots inside the title`() {
+        assertTrue(MirrorFileNames.isPlainNameFor("v1.2 plan.md", "v1.2 plan"))
+        assertFalse(MirrorFileNames.isPlainNameFor("v1.3 plan.md", "v1.2 plan"))
+    }
+
+    @Test
+    fun `isPlainNameFor rejects an unrelated name`() {
+        assertFalse(MirrorFileNames.isPlainNameFor("Other.md", "Notes"))
+        assertFalse(MirrorFileNames.isPlainNameFor("", "Notes"))
+    }
 
     @Test
     fun `plain title is kept as-is`() {

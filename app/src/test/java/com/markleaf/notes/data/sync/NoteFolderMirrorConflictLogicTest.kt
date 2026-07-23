@@ -119,6 +119,68 @@ class NoteFolderMirrorConflictLogicTest {
         )
     }
 
+    // --- #217: a conflict must settle instead of repeating ------------------
+
+    @Test
+    fun absorbedConflict_isSkippedOnTheNextPass() {
+        // The Conflict branch used to leave the local note and the file both
+        // untouched, so this same call returned Conflict again on the next
+        // reconcile — once a minute, without end. importChanges now advances the
+        // local note past the file it copied; that state must resolve to Skip.
+        val fileTsMs = 100_000L
+        val absorbed = note(updatedAtMs = fileTsMs + 1, lastImportMs = fileTsMs)
+
+        assertEquals(Reconcile.Skip, action(absorbed, fileTsMs))
+    }
+
+    @Test
+    fun absorbedConflict_stillSeesTheNextRemoteEdit() {
+        // Settling must not deafen the note to genuine later changes. Nothing
+        // was edited locally after the copy was taken, so the next newer file is
+        // a clean overwrite rather than another conflict.
+        val fileTsMs = 100_000L
+        val absorbed = note(updatedAtMs = fileTsMs + 1, lastImportMs = fileTsMs)
+
+        assertEquals(Reconcile.Overwrite, action(absorbed, fileTsMs = 200_000))
+    }
+
+    // --- #217: which timestamp represents the file --------------------------
+
+    private fun effectiveTs(frontmatterMs: Long?, mtimeMs: Long, bodyChanged: Boolean) =
+        NoteFolderMirror.effectiveFileTimestamp(
+            frontmatterUpdatedAt = frontmatterMs?.let { Instant.ofEpochMilli(it) },
+            fileModifiedAt = Instant.ofEpochMilli(mtimeMs),
+            bodyChanged = bodyChanged
+        ).toEpochMilli()
+
+    @Test
+    fun noFrontmatterTimestamp_fallsBackToFileMtime() {
+        // Hand-dropped file with no frontmatter: the mtime is all we have.
+        assertEquals(70_000L, effectiveTs(frontmatterMs = null, mtimeMs = 70_000, bodyChanged = true))
+    }
+
+    @Test
+    fun bodyChangedAndMtimeNewer_usesMtime() {
+        // Another app edited the body but left our frontmatter alone, so
+        // `updated_at` is stale. Trusting it would hide the edit for ever.
+        assertEquals(90_000L, effectiveTs(frontmatterMs = 10_000, mtimeMs = 90_000, bodyChanged = true))
+    }
+
+    @Test
+    fun bodyUnchanged_ignoresNewerMtime() {
+        // A sync client re-downloading a file bumps the mtime without changing a
+        // byte. Trusting it here would make every file look newer than its note
+        // on every pass — a conflict storm, not a sync.
+        assertEquals(10_000L, effectiveTs(frontmatterMs = 10_000, mtimeMs = 90_000, bodyChanged = false))
+    }
+
+    @Test
+    fun frontmatterNewerThanMtime_keepsFrontmatter() {
+        // Clock skew between devices, or a filesystem that doesn't preserve
+        // mtime across a copy: the frontmatter value is the one we wrote.
+        assertEquals(90_000L, effectiveTs(frontmatterMs = 90_000, mtimeMs = 10_000, bodyChanged = true))
+    }
+
     @Test
     fun base_noteCarriesLastImportedAtField() {
         // Smoke check that the field exists on the domain model and defaults to

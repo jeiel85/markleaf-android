@@ -145,6 +145,8 @@ cd markleaf-android
 ./gradlew installDebug
 ```
 
+Las correcciones de Markleaf casi siempre empiezan con el informe de otra persona. Quienes los escribieron están en [THANKS.md](THANKS.md).
+
 ---
 
 ## 🔒 No-Cloud by design

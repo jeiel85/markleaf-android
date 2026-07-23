@@ -121,7 +121,18 @@ fun SettingsScreen(
                 var written = 0
                 withContext(Dispatchers.IO) {
                     notes.forEach { note ->
-                        if (NoteFolderMirror.writeNote(context, folderUri, note, appSettings.syncFileExtension)) written++
+                        // writeNoteAndStamp, not writeNote: a seeded note whose
+                        // lastImportedAt stays null reads as "edited locally
+                        // since the last import" for ever, so the next genuinely
+                        // newer file becomes a conflict copy instead of a clean
+                        // overwrite (#217).
+                        val wrote = NoteFolderMirror.writeNoteAndStamp(
+                            context,
+                            folderUri,
+                            note,
+                            appSettings.syncFileExtension
+                        ) { stamped -> noteRepository.updateNote(stamped) }
+                        if (wrote) written++
                     }
                 }
                 settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())

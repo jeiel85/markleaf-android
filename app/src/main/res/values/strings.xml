@@ -224,6 +224,7 @@
     </plurals>
     <string name="sync_done_format">Synced — %1$d updated, %2$d new, %3$d unchanged.</string>
     <string name="sync_done_with_conflicts_format">Synced — %1$d updated, %2$d new, %3$d kept as duplicates (conflict), %4$d unchanged.</string>
+    <string name="sync_conflict_copy_suffix">(copy from another device %1$s)</string>
     <string name="sync_stopped">Sync turned off.</string>
     <string name="screenshot_protection">Block screenshots and Recents preview</string>
     <string name="screenshot_protection_description">Hides note content in screenshots and the recent apps screen. Restart the editor screen for the change to take effect.</string>

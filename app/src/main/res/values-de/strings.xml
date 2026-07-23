@@ -220,6 +220,7 @@
     </plurals>
     <string name="sync_done_format">Synchronisiert – %1$d aktualisiert, %2$d neu, %3$d unverändert.</string>
     <string name="sync_done_with_conflicts_format">Synchronisiert – %1$d aktualisiert, %2$d neu, %3$d als Duplikate behalten (Konflikt), %4$d unverändert.</string>
+    <string name="sync_conflict_copy_suffix">(Kopie von anderem Gerät %1$s)</string>
     <string name="sync_stopped">Synchronisierung deaktiviert.</string>
     <string name="screenshot_protection">Screenshots und Vorschau in „Zuletzt verwendet“ blockieren</string>
     <string name="screenshot_protection_description">Verbirgt Notizinhalte in Screenshots und auf dem „Zuletzt verwendet“-Bildschirm. Editor neu öffnen, damit die Änderung wirksam wird.</string>

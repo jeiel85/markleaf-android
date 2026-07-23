@@ -215,6 +215,7 @@
     </plurals>
     <string name="sync_done_format">同期完了 — %1$d 件更新、%2$d 件新規、%3$d 件変更なし。</string>
     <string name="sync_done_with_conflicts_format">同期完了 — %1$d 件更新、%2$d 件新規、%3$d 件は重複として保持 (競合)、%4$d 件変更なし。</string>
+    <string name="sync_conflict_copy_suffix">(別の端末のコピー %1$s)</string>
     <string name="sync_stopped">同期を停止しました。</string>
     <string name="screenshot_protection">スクリーンショットと最近使ったアプリのプレビューを禁止</string>
     <string name="screenshot_protection_description">スクリーンショットや最近使ったアプリ画面でノート内容を非表示にします。変更を反映するにはエディタを開き直してください。</string>

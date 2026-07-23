@@ -4,6 +4,15 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## Unreleased
+
+### Fixed
+- **Sync no longer forks a new file when a note's id goes missing (#213, #217).** Reported by [@Cwpute](https://github.com/Cwpute). A note's mirror file is found by the `markleaf_id` in its frontmatter; if another app rewrote the file without keeping that block — or simply wrote a byte-order mark in front of it — the link broke, and every auto-save from then on created another `<title> (2).md`, `(3).md`, and so on. Markleaf now reads past a byte-order mark, and when no file carries the id it adopts the existing file that already has the note's name instead of forking a copy. Frontmatter keys written by other tools survive the rewrite.
+- **A sync conflict is resolved once instead of every minute (#217).** When a note and its file had both changed, Markleaf kept the remote version as a separate note — but left both sides untouched, so the next reconcile reached the same verdict and made another copy, once a minute, indefinitely. The conflict is now recorded as handled, and the pair stays quiet until one side actually moves again.
+- **Conflict copies are labelled in your language (#217).** The "copy from another device" suffix was hardcoded Korean for every user, because the Sync Center detected those copies by matching that exact Korean text. Detection now uses a stored flag, so the label is translated like everything else. Copies created by older versions keep showing up in the Sync Center.
+- **Edits made in another app are picked up (#217).** Markleaf compared the file's frontmatter timestamp only, so an app that changed the body but left the frontmatter alone looked unchanged forever. The file's modification time is now used when the content genuinely differs — and deliberately ignored when it doesn't, so a sync client re-downloading a file can't trigger a storm of conflict copies.
+- **Seeding the sync folder no longer marks every note as locally edited (#217).** Mirroring notes from Settings, the Sync Center, or unlocking a note skipped a bookkeeping step that only the editor performed, which left those notes permanently looking edited-since-last-sync and turned the next incoming change into a conflict copy instead of a clean update.
+
 ## v2.28.1 - Unlock keeps your file extension - 2026-07-22
 
 A small bug-fix release. No feature, permission, or storage-format changes.

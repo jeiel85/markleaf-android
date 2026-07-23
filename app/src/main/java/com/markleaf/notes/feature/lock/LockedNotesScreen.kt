@@ -353,13 +353,16 @@ private fun LockedNotesList(
                                     // Re-mirror with the user's chosen extension, not
                                     // writeNote's .md default — otherwise unlocking a
                                     // note always rewrote it as .md even when .txt was
-                                    // selected (#181).
-                                    NoteFolderMirror.writeNote(
+                                    // selected (#181). writeNoteAndStamp so the note
+                                    // does not stay "locally edited since last import"
+                                    // and turn the next remote edit into a conflict
+                                    // copy (#217).
+                                    NoteFolderMirror.writeNoteAndStamp(
                                         context,
                                         uri,
                                         note.copy(locked = false),
                                         appSettings.syncFileExtension
-                                    )
+                                    ) { stamped -> viewModel.stampMirrored(stamped) }
                                 }
                             }
                         }

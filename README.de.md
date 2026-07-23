@@ -145,6 +145,8 @@ cd markleaf-android
 ./gradlew installDebug
 ```
 
+Markleafs Fehlerbehebungen beginnen meist als Bericht von jemand anderem. Die Menschen dahinter sind in [THANKS.md](THANKS.md) aufgeführt.
+
 ---
 
 ## 🔒 No-Cloud by design

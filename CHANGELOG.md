@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.28.3 - Long note headers are left alone - 2026-07-23
+
+A follow-up to v2.28.2, for a case that release made worse. No feature, permission, or storage-format changes.
+
+### Fixed
+- **A note file with a long metadata header is no longer overwritten (#222).** Markleaf reads the beginning of each file in your sync folder to work out which note it belongs to. A file whose metadata header ran past that point looked exactly like a file with no header at all — and the "adopt the file that already carries this note's name" behaviour added in v2.28.2 could then claim it and rewrite it, discarding a header Markleaf had never read. Markleaf now keeps reading while a header is still open, and if it still cannot find the end it leaves the file alone rather than claiming it — writing a separate file, as it did before v2.28.2. Headers of the size Markleaf writes were never affected; this only mattered for files carrying a large header from another tool.
+
 ## v2.28.2 - Sync stops duplicating your files - 2026-07-23
 
 A bug-fix release for a reader report (#213) and the four related sync defects it turned up (#217). No feature or permission changes. The notes database gains one internal column; your notes and files are untouched.

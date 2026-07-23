@@ -535,4 +535,35 @@ class MarkdownEditActionsTest {
         assertEquals(1, markdown.indices.count { markdown[it] != result[it] })
         assertTrue(result.contains("- [x] b  \r\n"))
     }
+
+    // --- #215: turning a line number into a caret, for the outline jump -----
+
+    @Test
+    fun offsetOfLine_findsTheStartOfEachLine() {
+        val markdown = "# Title\n\nbody\n## Section"
+
+        assertEquals(0, MarkdownEditActions.offsetOfLine(markdown, 0))
+        assertEquals(8, MarkdownEditActions.offsetOfLine(markdown, 1))
+        assertEquals(9, MarkdownEditActions.offsetOfLine(markdown, 2))
+        assertEquals(14, MarkdownEditActions.offsetOfLine(markdown, 3))
+    }
+
+    @Test
+    fun offsetOfLine_countsCarriageReturnsAsPartOfTheLine() {
+        // The caret belongs at the start of the *next* line, not between \r\n.
+        assertEquals(9, MarkdownEditActions.offsetOfLine("# Title\r\n## Next", 1))
+    }
+
+    @Test
+    fun offsetOfLine_returnsNullWhenTheLineIsOutOfRange() {
+        // An outline built from slightly older text can name a line the note no
+        // longer has; the jump is dropped rather than aimed at the end.
+        assertNull(MarkdownEditActions.offsetOfLine("one\ntwo", 2))
+        assertNull(MarkdownEditActions.offsetOfLine("one\ntwo", -1))
+    }
+
+    @Test
+    fun offsetOfLine_acceptsTheEmptyLineAfterATrailingNewline() {
+        assertEquals(4, MarkdownEditActions.offsetOfLine("one\n", 1))
+    }
 }

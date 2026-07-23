@@ -41,6 +41,7 @@ class EditorTopAppBarLockTest {
                     onBack = {},
                     onTogglePreview = { previewToggles++ },
                     onExitFocusMode = {},
+                    onOpenOutline = {},
                     onOpenInfo = {},
                     onOpenMore = {},
                     onDismissMore = {},

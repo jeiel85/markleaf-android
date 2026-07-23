@@ -146,7 +146,16 @@ internal object CommonMarkPreviewAdapter {
             else -> PreviewLineType.H3
         }
         val text = collectText(node)
-        return PreviewLine(text = text, type = type, segments = collectInlineSegments(node))
+        return PreviewLine(
+            text = text,
+            type = type,
+            segments = collectInlineSegments(node),
+            // The outline jumps the *editor* to a heading, so it needs the line
+            // the heading sits on in the source — the rendered list index only
+            // ever located it in the preview (#215). Same block spans the
+            // checkbox toggle already relies on.
+            sourceLine = sourceLineOf(node)
+        )
     }
 
     private fun renderParagraph(node: Paragraph): PreviewLine {

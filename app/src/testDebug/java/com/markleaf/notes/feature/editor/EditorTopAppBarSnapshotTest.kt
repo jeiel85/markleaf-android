@@ -49,6 +49,7 @@ class EditorTopAppBarSnapshotTest {
                         onBack = {},
                         onTogglePreview = {},
                         onExitFocusMode = {},
+                        onOpenOutline = {},
                         onOpenInfo = {},
                         onOpenMore = {},
                         onDismissMore = {},

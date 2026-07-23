@@ -83,6 +83,7 @@ import com.markleaf.notes.core.markdown.MarkdownSyntaxColors
 import com.markleaf.notes.core.markdown.MarkdownSyntaxVisualTransformation
 import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
 import com.markleaf.notes.core.markdown.preview.MarkdownPreviewList
+import com.markleaf.notes.core.markdown.preview.TocHeading
 import com.markleaf.notes.core.markdown.preview.extractHeadings
 import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.data.local.AppDatabase
@@ -136,8 +137,9 @@ fun EditorScreen(
 
     val previewListState = rememberLazyListState()
     var showInfo by remember(noteId) { mutableStateOf(false) }
+    var showOutline by remember(noteId) { mutableStateOf(false) }
     var pendingPreviewScrollIndex by remember(noteId) { mutableStateOf<Int?>(null) }
-    val shouldPreparePreview = isPreviewMode || showInfo
+    val shouldPreparePreview = isPreviewMode || showOutline
     val previewLines = remember(editorState.text, shouldPreparePreview) {
         if (shouldPreparePreview) SimpleMarkdownPreview.parse(editorState.text) else emptyList()
     }
@@ -393,6 +395,7 @@ fun EditorScreen(
             isFocusMode ||
             isPreviewMode ||
             showInfo ||
+            showOutline ||
             overflowExpanded ||
             showDeleteConfirm ||
             imageAltEditing != null ||
@@ -407,8 +410,38 @@ fun EditorScreen(
         shouldRequestEditorFocus = true
     }
 
+    // The outline is a screen, not a sheet: it takes over the bar and the body
+    // rather than floating above them, so a long one gets the full height (#215).
+    BackHandler(enabled = showOutline) { showOutline = false }
+
+    // Where a tapped outline entry lands. In preview the rendered index is what
+    // scrolls the list. While editing it has to move the caret instead —
+    // flipping the note into preview to answer "take me to this section" threw
+    // away the edit the user was in the middle of. Setting the selection is the
+    // whole mechanism; the text field brings the caret into view on its own,
+    // which is what the find bar already relies on.
+    //
+    // A heading the parser could not attribute to a line, or one whose line has
+    // since gone, falls back to the preview jump rather than putting the caret
+    // somewhere the user did not point at.
+    val jumpToHeading: (TocHeading) -> Unit = { heading ->
+        val offset = heading.sourceLine
+            ?.let { MarkdownEditActions.offsetOfLine(editorState.text, it) }
+        if (isPreviewMode || offset == null) {
+            pendingPreviewScrollIndex = heading.index
+            if (!isPreviewMode) isPreviewMode = true
+        } else {
+            editorState = editorState.copy(selection = TextRange(offset))
+            shouldRequestEditorFocus = true
+        }
+    }
+
     Scaffold(
-        topBar = {
+        topBar = topBar@{
+            if (showOutline) {
+                NoteOutlineTopBar(onClose = { showOutline = false })
+                return@topBar
+            }
             EditorTopAppBar(
                 title = when {
                     isFocusMode -> stringResource(R.string.focus_mode)
@@ -445,6 +478,10 @@ fun EditorScreen(
                     ).show()
                 },
                 onExitFocusMode = { isFocusMode = false },
+                onOpenOutline = {
+                    overflowExpanded = false
+                    showOutline = true
+                },
                 onOpenInfo = {
                     overflowExpanded = false
                     showInfo = true
@@ -537,6 +574,19 @@ fun EditorScreen(
             )
         }
     ) { paddingValues ->
+        if (showOutline) {
+            NoteOutlineContent(
+                headings = tocHeadings,
+                onHeadingClick = { heading ->
+                    showOutline = false
+                    jumpToHeading(heading)
+                },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            )
+            return@Scaffold
+        }
         Crossfade(
             targetState = isPreviewMode,
             label = "Editor preview mode"
@@ -931,14 +981,8 @@ fun EditorScreen(
         EditorInfoSheet(
             state = EditorInfoUiState(
                 statsText = editorStatsText,
-                headings = tocHeadings,
                 backlinks = backlinks
             ),
-            onHeadingClick = { index ->
-                showInfo = false
-                pendingPreviewScrollIndex = index
-                if (!isPreviewMode) isPreviewMode = true
-            },
             onBacklinkClick = { id ->
                 showInfo = false
                 onNavigateToNote(id)

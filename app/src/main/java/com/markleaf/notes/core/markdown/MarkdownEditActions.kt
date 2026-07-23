@@ -36,6 +36,32 @@ object MarkdownEditActions {
         return value.copy(text = updated, selection = value.selection)
     }
 
+    /**
+     * Flip the task marker on [lineIndex] (0-based) of [markdown] and return the
+     * new text, or null when that line is not a checklist item (#219).
+     *
+     * Used by the preview, where the tap carries a line number rather than a
+     * caret. Returning null instead of guessing matters: a preview built from
+     * slightly older text could point at a line that has since become something
+     * else, and silently rewriting it would corrupt the note. Exactly one
+     * character changes, so line endings, indentation and everything else in the
+     * document are left byte-for-byte alone.
+     */
+    fun toggleTaskAtLine(markdown: String, lineIndex: Int): String? {
+        if (lineIndex < 0) return null
+        var start = 0
+        repeat(lineIndex) {
+            val newline = markdown.indexOf('\n', start)
+            if (newline < 0) return null
+            start = newline + 1
+        }
+        val end = markdown.indexOf('\n', start).takeIf { it >= 0 } ?: markdown.length
+        val match = checkboxPattern.find(markdown.substring(start, end)) ?: return null
+        val box = start + match.value.indexOf('[') + 1
+        val flipped = if (markdown[box] == ' ') 'x' else ' '
+        return markdown.substring(0, box) + flipped + markdown.substring(box + 1)
+    }
+
     fun markdownLink(value: TextFieldValue): TextFieldValue {
         val selected = selectedText(value)
         return if (selected.isBlank()) {

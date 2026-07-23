@@ -47,7 +47,7 @@
 
 **Markleaf** ist eine Android-Markdown-Notiz-App, die bewusst auf Ballast verzichtet, damit du dich auf zwei Dinge konzentrieren kannst: festhalten und ordnen. Deine Daten liegen ausschließlich auf deinem Gerät, und das standardisierte Markdown-Format garantiert volle Eigentümerschaft und Portabilität. Auch die Synchronisierung läuft nur über *einen von dir gewählten Ordner* – Markleaf selbst geht nie online.
 
-[**Branding-Seite ansehen**](https://jeiel85.github.io/markleaf-android/) · [Aktuelle Version: v2.28.3](https://github.com/jeiel85/markleaf-android/releases/tag/v2.28.3) · [Datenschutzerklärung](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**Branding-Seite ansehen**](https://jeiel85.github.io/markleaf-android/) · [Aktuelle Version: v2.29.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.29.0) · [Datenschutzerklärung](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -93,13 +93,12 @@
 Markleaf hat kein eigenes Vault-Format. Zeig ihm einen Ordner — auch einen, den Obsidian, Logseq oder dein Texteditor bereits öffnet — und es arbeitet mit den Dateien, die dort liegen.
 
 - **Einfache Dateien, die dir schon gehören.** Eine Notiz ist eine `.md`- (oder `.txt`-)Datei. Leg vorhandene Dateien in den Ordner, und Markleaf übernimmt sie als Notizen, sobald es das nächste Mal in den Vordergrund kommt — ohne Importschritt.
-- **Dein Frontmatter wird übernommen — Zeile für Zeile.** Markleaf ergänzt einen kleinen YAML-Header (`markleaf_id`, Zeitstempel, pinned/archived), um eine Datei geräteübergreifend einer Notiz zuzuordnen, und schreibt Schlüssel, die es nicht kennt, wieder mit hinaus, statt sie zu verwerfen. Der Header ist eine strikte Teilmenge von YAML, die Obsidian, GitHub und VS Code alle parsen. Der Parser arbeitet aber zeilenweise: `key: value`-Einträge und Flow-Listen wie `tags: [reading]` überstehen den Umlauf unverändert — **mehrzeilige Werte bisher nicht**, siehe unten.
+- **Dein Frontmatter bleibt erhalten.** Markleaf ergänzt einen kleinen YAML-Header (`markleaf_id`, Zeitstempel, pinned/archived), um eine Datei geräteübergreifend einer Notiz zuzuordnen, und **alles, was es nicht kennt, kommt unverändert wieder heraus** — die eingerückten Blocklisten, in denen Obsidian Tags schreibt, verschachtelte Maps, Kommentare und Quoting eingeschlossen. Der Header, den es ergänzt, ist eine strikte Teilmenge von YAML, die Obsidian, GitHub und VS Code alle parsen.
 - **Dieselbe Syntax, die du ohnehin schreibst.** `[[Wikilinks]]` mit Backlink-Panel, `#Tags` direkt im Text, GFM-Tabellen und -Checkboxen, `> [!NOTE]`-Callouts und ein `Ctrl+K`-Quick-Switcher im Obsidian-Stil.
 - **Gleicht selbstständig ab, aber vorsichtig.** Änderungen von anderswo werden übernommen, sobald Markleaf wieder in den Vordergrund kommt (höchstens einmal pro Minute). Eine Änderung aus einem anderen Editor wird auch dann bemerkt, wenn dieser Markleafs Frontmatter nie anfasst — der Abgleich vergleicht den Text, nicht nur den Zeitstempel. Eine Datei gewinnt nur, wenn sie tatsächlich neuer ist; haben sich beide Seiten bewegt, landet die entfernte Fassung als *eigene* Notiz, statt deine Änderungen zu überschreiben, und automatisch gelöscht wird nie etwas.
 
 > [!IMPORTANT]
-> **Drei Dinge, bevor du Markleaf auf ein echtes Vault richtest.**
-> - **Mehrzeilige Properties bleiben bisher nicht erhalten ([#226](https://github.com/jeiel85/markleaf-android/issues/226)).** Markleaf liest Frontmatter zeilenweise, deshalb fällt eine eingerückte Blockliste — die Form, in der Obsidian Tags standardmäßig schreibt — auf einen leeren Schlüssel zusammen, sobald Markleaf seine id einträgt, und eine verschachtelte Map wird flachgeklopft. Tragen deine Notizen Properties in dieser Form, halte sie aus dem Ordner heraus, den du Markleaf gibst, bis das behoben ist.
+> **Zwei Dinge, bevor du Markleaf auf ein echtes Vault richtest.**
 > - **Ein Ordner, keine Unterordner.** Markleaf liest die Dateien direkt in dem gewählten Ordner und steigt nicht in Unterverzeichnisse hinab. Ein in Ordner gegliedertes Vault trifft Markleaf nur auf oberster Ebene — bewusst, denn Markleaf ordnet über Tags statt über Ordner.
 > - **Eine Notiz zu bearbeiten benennt ihre Datei um.** Die Dateinamen der Spiegelung folgen dem Notiztitel; weicht der Dateiname von der Überschrift ab, wird sie beim ersten Speichern in Markleaf umbenannt. Zeigen `[[Links]]` in deinem Vault auf den alten Dateinamen, brechen sie.
 >
@@ -155,7 +154,7 @@ com.markleaf.notes
 > **Google-Play-Updates sind derzeit ausgesetzt.** Bis eine koreanische Gewerbeanmeldungs-Anforderung für den Einzelentwickler geklärt ist, werden keine neuen Versionen in den Play Store geladen. Hol dir in der Zwischenzeit **die neueste Version über F-Droid, GitHub Releases oder GitLab Releases.** (Wenn du sie bereits aus dem Play Store installiert hast, funktioniert sie weiterhin.)
 
 - **F-Droid** *(empfohlen)*: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) – im F-Droid-Client suchen oder über den Link oben installieren. Es wird derselbe Signaturschlüssel (SHA-256 `0be97352…f91a`) verwendet, sodass Updates auch dann nahtlos weiterlaufen, wenn du ein APK aus den GitHub- oder GitLab-Releases per Sideload installiert hast.
-- **Direkte APK-Installation**: lade das APK aus dem [GitHub-v2.28.3-Release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.28.3) herunter und führe es auf deinem Android-Gerät aus.
+- **Direkte APK-Installation**: lade das APK aus dem [GitHub-v2.29.0-Release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.29.0) herunter und führe es auf deinem Android-Gerät aus.
 - **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) – **Updates sind ausgesetzt** (siehe Hinweis oben). Wenn du die App bereits hast, funktioniert sie weiter, aber die neueste Version gibt es über F-Droid, GitHub oder GitLab.
 
 ### Aus dem Quellcode bauen

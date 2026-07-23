@@ -47,7 +47,7 @@
 
 **Markleaf** is an Android Markdown note app designed to strip away the clutter so you can focus on just two things: capturing and organizing. Your data is stored only on your device, and standard Markdown guarantees full ownership and portability. Even sync happens only through *a folder you choose* — Markleaf itself never goes online.
 
-[**View the branding page**](https://jeiel85.github.io/markleaf-android/) · [Current version: v2.28.3](https://github.com/jeiel85/markleaf-android/releases/tag/v2.28.3) · [Privacy Policy](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**View the branding page**](https://jeiel85.github.io/markleaf-android/) · [Current version: v2.29.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.29.0) · [Privacy Policy](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -93,13 +93,12 @@
 Markleaf has no vault format of its own. Point it at a folder — including one that Obsidian, Logseq, or your text editor already opens — and it works on the files that are there.
 
 - **Plain files, already yours.** One note is one `.md` (or `.txt`) file. Drop existing files into the folder and Markleaf picks them up as notes the next time it comes to the foreground — no import step.
-- **Your frontmatter is carried across, one line at a time.** Markleaf adds a small YAML header (`markleaf_id`, timestamps, pinned/archived) so it can match a file to a note across devices, and it re-emits the keys it does not recognize rather than dropping them. The header is a strict subset of YAML that Obsidian, GitHub and VS Code all parse. The parser is line-based, so `key: value` entries and flow lists like `tags: [reading]` round-trip intact — **multi-line values do not yet**, see below.
+- **Your frontmatter survives.** Markleaf adds a small YAML header (`markleaf_id`, timestamps, pinned/archived) so it can match a file to a note across devices, and **everything it does not recognize is carried back out byte-for-byte** — the indented block lists Obsidian writes tags in, nested maps, comments and quoting all included. The header it adds is a strict subset of YAML that Obsidian, GitHub and VS Code all parse.
 - **The same syntax you already write.** `[[Wikilinks]]` with a backlinks panel, inline `#tags`, GFM tables and checkboxes, `> [!NOTE]` callouts, and an Obsidian-style `Ctrl+K` quick switcher.
 - **Reconciles by itself, carefully.** Changes made elsewhere are pulled in when Markleaf returns to the foreground (throttled to once a minute). An edit from another editor is seen even if that editor never touches Markleaf's frontmatter — the reconcile compares the body, not just the timestamp. A file only wins when it is genuinely newer; if both sides moved, the remote arrives as a *separate* note rather than overwriting your edits, and nothing is ever deleted automatically.
 
 > [!IMPORTANT]
-> **Three things to know before you point Markleaf at a real vault.**
-> - **Multi-line properties are not preserved yet ([#226](https://github.com/jeiel85/markleaf-android/issues/226)).** Markleaf reads frontmatter line by line, so an indented block list — the form Obsidian writes tags in by default — collapses to an empty key when Markleaf stamps its id, and a nested map is flattened. If your notes carry properties that way, keep them out of the folder you give Markleaf until this is fixed.
+> **Two things to know before you point Markleaf at a real vault.**
 > - **One folder, no subfolders.** Markleaf reads the files directly inside the folder you pick and does not descend into subdirectories. A vault organized into nested folders will only meet Markleaf at its top level — by design, Markleaf organizes by tags instead of folders.
 > - **Editing a note renames its file.** Mirror filenames track the note title, so a file whose name differs from its heading gets renamed the first time you save it in Markleaf. Where `[[links]]` in your vault point at the old filename, they will break.
 >
@@ -155,7 +154,7 @@ com.markleaf.notes
 > **Google Play updates are currently on hold.** New versions won't be pushed to the Play Store until a Korean business-registration policy requirement for the solo developer is resolved. In the meantime, **get the latest version from F-Droid, GitHub Releases, or GitLab Releases.** (If you already installed it from the Play Store, it keeps working.)
 
 - **F-Droid** *(recommended)*: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — search in the F-Droid client or install via the link above. It uses the same signing key (SHA-256 `0be97352…f91a`), so updates continue seamlessly even if you sideloaded an APK from GitHub or GitLab Releases.
-- **Direct APK install**: download the APK from the [GitHub v2.28.3 release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.28.3), then run it on your Android device.
+- **Direct APK install**: download the APK from the [GitHub v2.29.0 release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.29.0), then run it on your Android device.
 - **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **updates are paused** (see the note above). If you already have it, it keeps working, but get the latest version from F-Droid, GitHub, or GitLab.
 
 ### Building from source

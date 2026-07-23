@@ -3,6 +3,8 @@ package com.markleaf.notes.core.markdown
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class MarkdownEditActionsTest {
@@ -450,5 +452,87 @@ class MarkdownEditActionsTest {
         )
         assertEquals("hello **bold**", result.text)
         assertEquals(TextRange(8), result.selection)
+    }
+
+    // --- #219: toggling a task from the preview, by line number ------------
+
+    @Test
+    fun toggleTaskAtLine_flipsTodoToDone() {
+        val markdown = """
+            # Plan
+
+            - [ ] Tag the release
+            - [ ] Write store note
+        """.trimIndent()
+
+        val result = MarkdownEditActions.toggleTaskAtLine(markdown, 2)
+
+        assertEquals(
+            """
+                # Plan
+
+                - [x] Tag the release
+                - [ ] Write store note
+            """.trimIndent(),
+            result
+        )
+    }
+
+    @Test
+    fun toggleTaskAtLine_flipsDoneBackToTodo() {
+        assertEquals("- [ ] done", MarkdownEditActions.toggleTaskAtLine("- [x] done", 0))
+    }
+
+    @Test
+    fun toggleTaskAtLine_treatsUppercaseXAsDone() {
+        assertEquals("- [ ] done", MarkdownEditActions.toggleTaskAtLine("- [X] done", 0))
+    }
+
+    @Test
+    fun toggleTaskAtLine_handlesIndentedItems() {
+        val markdown = """
+            - outer
+              - [ ] nested
+        """.trimIndent()
+
+        assertEquals(
+            """
+                - outer
+                  - [x] nested
+            """.trimIndent(),
+            MarkdownEditActions.toggleTaskAtLine(markdown, 1)
+        )
+    }
+
+    @Test
+    fun toggleTaskAtLine_returnsNullWhenTheLineIsNotATask() {
+        // A preview built from slightly older text can point at a line that has
+        // since become prose; rewriting it anyway would corrupt the note.
+        val markdown = """
+            just text
+            - [ ] task
+        """.trimIndent()
+
+        assertNull(MarkdownEditActions.toggleTaskAtLine(markdown, 0))
+    }
+
+    @Test
+    fun toggleTaskAtLine_returnsNullWhenTheLineDoesNotExist() {
+        assertNull(MarkdownEditActions.toggleTaskAtLine("- [ ] task", 5))
+        assertNull(MarkdownEditActions.toggleTaskAtLine("- [ ] task", -1))
+    }
+
+    @Test
+    fun toggleTaskAtLine_changesExactlyOneCharacter() {
+        // Windows line endings and trailing spaces have to survive: the note is
+        // mirrored to a file, and reflowing it would surface as a whole-file
+        // diff in whatever syncs that folder.
+        val markdown = "- [ ] a\r\n- [ ] b  \r\n"
+
+        val result = MarkdownEditActions.toggleTaskAtLine(markdown, 1)!!
+
+        assertEquals(markdown.length, result.length)
+        assertEquals(1, markdown.indices.count { markdown[it] != result[it] })
+        assertTrue(result.contains("- [x] b  \r\n"))
     }
 }

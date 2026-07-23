@@ -552,6 +552,18 @@ fun EditorScreen(
                         modifier = Modifier.weight(1f, fill = false),
                         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
                         listState = previewListState,
+                        // Tapping a checkbox in the preview flips it in the
+                        // source (#219). The preview is rebuilt from the text,
+                        // so the row redraws on its own; a null result means the
+                        // line stopped being a task item since this preview was
+                        // built, and the tap is dropped rather than guessed at.
+                        onToggleTask = { sourceLine ->
+                            MarkdownEditActions.toggleTaskAtLine(editorState.text, sourceLine)
+                                ?.let { updated ->
+                                    editorState = editorState.copy(text = updated)
+                                    if (isLoaded) saveTrigger++
+                                }
+                        },
                         onWikilinkClick = { title ->
                             coroutineScope.launch {
                                 val existing = db.noteDao().getNoteByTitle(title)

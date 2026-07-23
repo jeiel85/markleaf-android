@@ -36,6 +36,7 @@ import org.commonmark.node.SoftLineBreak
 import org.commonmark.node.StrongEmphasis
 import org.commonmark.node.Text
 import org.commonmark.node.ThematicBreak
+import org.commonmark.parser.IncludeSourceSpans
 import org.commonmark.parser.Parser
 import com.markleaf.notes.util.WikilinkExtractor
 
@@ -57,6 +58,11 @@ import com.markleaf.notes.util.WikilinkExtractor
 internal object CommonMarkPreviewAdapter {
 
     private val parser: Parser = Parser.builder()
+        // Block spans give each ListItem the line it started on, which is what
+        // lets a preview checkbox tap flip the right `[ ]` in the source (#219).
+        // Block-level is enough — we never need to locate an inline node — and
+        // it keeps the extra bookkeeping off every piece of text.
+        .includeSourceSpans(IncludeSourceSpans.BLOCKS)
         .extensions(
             listOf(
                 YamlFrontMatterExtension.create(),
@@ -172,7 +178,13 @@ internal object CommonMarkPreviewAdapter {
                     TaskState.TODO -> PreviewLineType.CHECKBOX_TODO
                     TaskState.NONE -> PreviewLineType.BULLET
                 }
-                out += PreviewLine(text = text, type = type, segments = segments)
+                out += PreviewLine(
+                    text = text,
+                    type = type,
+                    segments = segments,
+                    // Only task items need it, and only they can be tapped.
+                    sourceLine = if (marker == TaskState.NONE) null else sourceLineOf(item)
+                )
             }
             item = item.next
         }
@@ -345,6 +357,14 @@ internal object CommonMarkPreviewAdapter {
         val segments = collectInlineSegments(node)
         return text to segments
     }
+
+    /**
+     * The 0-based source line a block started on, or null when spans are absent
+     * (a hand-built node in a test, say). Never guessed — a wrong line here
+     * would toggle somebody else's checkbox.
+     */
+    private fun sourceLineOf(node: Node): Int? =
+        node.sourceSpans.firstOrNull()?.lineIndex
 
     private fun detectTaskMarker(item: ListItem): TaskState {
         // commonmark-ext-task-list-items inserts a TaskListItemMarker as the

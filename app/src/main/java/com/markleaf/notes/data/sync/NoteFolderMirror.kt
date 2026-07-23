@@ -76,6 +76,24 @@ object NoteFolderMirror {
         extension: SyncFileExtension = SyncFileExtension.MD
     ): Boolean {
         val folder = DocumentFile.fromTreeUri(context, folderUri) ?: return false
+        return writeNoteInto(context, folder, note, extension)
+    }
+
+    /**
+     * [writeNote] once the folder has been resolved.
+     *
+     * Split out because resolving a user-granted tree Uri and operating on a
+     * folder are separate concerns — and because the second one is where all the
+     * behaviour lives. A test can hand this a [DocumentFile] over a temp
+     * directory and exercise the real matching, adoption and rename paths
+     * instead of leaving them to manual device smoke (#222).
+     */
+    internal fun writeNoteInto(
+        context: Context,
+        folder: DocumentFile,
+        note: Note,
+        extension: SyncFileExtension
+    ): Boolean {
         if (!folder.canWrite()) return false
 
         val mirrorFiles = folder.listFiles().filter { it.isFile && isMirrorFile(it.name) }
@@ -283,6 +301,20 @@ object NoteFolderMirror {
     ): ImportResult {
         val folder = DocumentFile.fromTreeUri(context, folderUri)
             ?: return ImportResult(0, 0, 0, 1)
+        return importChangesFrom(context, folder, existing, applyUpdate, applyCreate)
+    }
+
+    /**
+     * [importChanges] once the folder has been resolved — see [writeNoteInto]
+     * for why the resolution is a separate step.
+     */
+    internal suspend fun importChangesFrom(
+        context: Context,
+        folder: DocumentFile,
+        existing: List<Note>,
+        applyUpdate: suspend (Note) -> Unit,
+        applyCreate: suspend (Note) -> Unit
+    ): ImportResult {
         if (!folder.canRead()) return ImportResult(0, 0, 0, 1)
 
         var updated = 0

@@ -173,6 +173,75 @@ class NoteFolderMirrorFolderTest {
         assertEquals(2, files().size)
     }
 
+    // --- #222: the remembered-document fast path ----------------------------
+    //
+    // Saving twice in a row is the ordinary case, and the second save takes the
+    // cached route. These cover what the cache can get wrong; it is verified by
+    // re-reading the file's id, so every case below has to end up correct
+    // whichever route it took.
+
+    @Test
+    fun repeatedSavesKeepLandingInTheSameFile() {
+        seed("My Note.md", "---\nmarkleaf_id: note-1\n---\n\nfirst")
+
+        assertTrue(write(note(body = "second")))
+        assertTrue(write(note(body = "third")))
+        assertTrue(write(note(body = "fourth")))
+
+        assertEquals(listOf("My Note.md"), files())
+        assertTrue(File(dir, "My Note.md").readText().contains("fourth"))
+    }
+
+    @Test
+    fun saveAfterTheFileIsRenamedBehindOurBack() {
+        seed("My Note.md", "---\nmarkleaf_id: note-1\n---\n\nfirst")
+        assertTrue(write(note(body = "second")))
+
+        // Another app renames it. The remembered name is now wrong, but the
+        // file is still ours — the id read is what settles it.
+        File(dir, "My Note.md").renameTo(File(dir, "Renamed By Someone.md"))
+
+        assertTrue(write(note(body = "third")))
+
+        // Whichever route it took, the content must be in the file that carries
+        // our id — never in a fresh duplicate.
+        val ours = dir.listFiles()!!.filter { it.readText().contains("markleaf_id: note-1") }
+        assertEquals(1, ours.size)
+        assertTrue(ours[0].readText().contains("third"))
+    }
+
+    @Test
+    fun saveAfterTheFileIsDeletedBehindOurBack() {
+        seed("My Note.md", "---\nmarkleaf_id: note-1\n---\n\nfirst")
+        assertTrue(write(note(body = "second")))
+
+        File(dir, "My Note.md").delete()
+
+        // The remembered document is gone; the write must not fail or throw.
+        assertTrue(write(note(body = "third")))
+        val ours = dir.listFiles()!!.filter { it.readText().contains("markleaf_id: note-1") }
+        assertEquals(1, ours.size)
+        assertTrue(ours[0].readText().contains("third"))
+    }
+
+    @Test
+    fun saveAfterAnotherNoteTakesOverTheRememberedName() {
+        // The nastiest shape: our file is replaced by a *different* note's file
+        // under the same name. A cache that trusted its entry would overwrite
+        // someone else's note.
+        seed("My Note.md", "---\nmarkleaf_id: note-1\n---\n\nfirst")
+        assertTrue(write(note(body = "second")))
+
+        File(dir, "My Note.md").writeText("---\nmarkleaf_id: someone-else\n---\n\ntheirs")
+
+        assertTrue(write(note(body = "third")))
+
+        assertTrue(
+            "the other note's file is untouched",
+            File(dir, "My Note.md").readText().contains("theirs")
+        )
+    }
+
     // --- import ------------------------------------------------------------
 
     @Test

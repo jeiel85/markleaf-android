@@ -33,6 +33,14 @@
   <a href="https://gitlab.com/jeiel85/markleaf-android">GitLab 公開ミラー</a>
 </p>
 
+<p align="center">
+  <img src="docs/assets/markleaf-demo.gif" width="300" alt="Markleaf のエディタで / を入力するとクイック挿入パレットが開き、チェックリストを選ぶと標準 Markdown が挿入され、プレビューに描画されます" />
+</p>
+
+<p align="center">
+  <sub><code>/</code> クイック挿入 → 標準 Markdown → ライブプレビュー</sub>
+</p>
+
 ---
 
 ## 🍃 Markleaf とは?

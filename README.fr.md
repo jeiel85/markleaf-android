@@ -33,6 +33,14 @@
   <a href="https://gitlab.com/jeiel85/markleaf-android">Miroir public GitLab</a>
 </p>
 
+<p align="center">
+  <img src="docs/assets/markleaf-demo.gif" width="300" alt="Taper / dans l'éditeur Markleaf ouvre la palette d'insertion rapide ; choisir Liste de tâches insère du Markdown standard que l'aperçu affiche" />
+</p>
+
+<p align="center">
+  <sub>Insertion rapide avec <code>/</code> → Markdown standard → aperçu en direct</sub>
+</p>
+
 ---
 
 ## 🍃 Qu'est-ce que Markleaf ?

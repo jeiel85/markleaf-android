@@ -114,6 +114,76 @@ mapping and six-locale notes, and verifies the APK certificate before
 publishing. GitHub remains the canonical Roborazzi and emulator-smoke runner;
 GitLab is an independent build and binary-distribution path.
 
+## Instrumented Tests — Local Gate, Not CI
+
+**CI does not run `connectedDebugAndroidTest`.** Nothing in
+`app/src/androidTest/` is executed by any pipeline. Run it by hand before
+cutting a release:
+
+```powershell
+pwsh scripts/run-instrumented-tests.ps1
+```
+
+The script picks the first connected device, checks it reports an API level,
+and runs the suite with `com.markleaf.notes.ui` excluded. Add `-Serial` when
+more than one device is attached.
+
+### What it covers
+
+The two places where a mistake costs a user their notes, and which no unit test
+can reach:
+
+- **Room migrations** — `AppDatabaseMigrationTest` walks v4 → current on a real
+  Android runtime. A JVM test cannot; SQLite behaviour and Room's schema
+  validation are the point.
+- **The folder mirror's SAF IO** — `NoteFolderMirrorFolderTest`, twelve cases
+  over a live `DocumentFile` tree: rewrite-in-place by id, rename on title
+  change, adoption of an unclaimed file, never touching a file another note
+  claims, preserving another tool's frontmatter, and the read-cap guard.
+- **Navigation after a suspend point** — `NavigateAfterSuspendTest`, the #235
+  regression.
+
+`com.markleaf.notes.ui` is excluded because those classes drifted against the
+UI they assert on while a crash made the suite unrunnable; 24 of them fail
+(#239). The exclusion is by package, not an allow-list, so a test added
+anywhere else runs by default rather than being silently skipped.
+
+### Why it is not in CI
+
+It was tried, four times, in #238. The configuration works — the job builds,
+filters, and reaches `connectedDebugAndroidTest`. The GitHub-hosted emulator
+does not:
+
+```text
+[EmulatorConsole]: Failed to start Emulator console for 5554
+[PropertyFetcher]: ShellCommandUnresponsiveException
+Skipping device 'emulator-5554': Unknown API Level
+Found 1 connected device(s), 0 of which were compatible.
+```
+
+Raw `adb` answers on that same device — a wait loop added before Gradle
+reported `device settled at API 30` and ddmlib still timed out seconds later.
+That is why `launch-smoke` passes while this fails: `launch-smoke` only uses
+raw adb. It also means no adb-based waiting can fix it; the timeout is inside
+ddmlib. Tracked in #235, where Gradle Managed Devices is the next thing to try.
+
+The honest trade: this is a **manual** gate, so it is only as reliable as the
+person cutting the release. That is worse than automation and better than the
+previous state, where these tests were run when someone happened to remember.
+
+### If a test fails, re-run on a fresh emulator before believing it
+
+The UI-driving tests are sensitive to emulator health. On an emulator that has
+been up for hours through repeated install cycles, they intermittently fail
+with `No compose hierarchies found in the app` or a lone assertion failure that
+does not reproduce. Cold-boot and re-run before investigating:
+
+```powershell
+emulator -avd markleaf-tablet-api36 -no-boot-anim -no-snapshot-load
+```
+
+A failure that survives a cold boot is real. One that does not is the emulator.
+
 ## Release Version and Notes Checks
 
 Two PowerShell checks guard the parts of a release that are maintained by hand.
@@ -260,6 +330,13 @@ The local Play Console hand-off remains separate:
 
 It writes only the signed AAB, mapping, and six-locale notes to `D:\Build`.
 The GitLab APK does not change that local directory contract.
+
+Before tagging, run the one gate CI does not cover — see
+[Instrumented Tests](#instrumented-tests--local-gate-not-ci):
+
+```powershell
+pwsh scripts/run-instrumented-tests.ps1
+```
 
 Push the release tag to GitLab first, then GitHub (unless `SKIP_GITLAB_CI` is
 on, the GitLab tag push runs the GitLab pipeline and the GitHub tag push runs

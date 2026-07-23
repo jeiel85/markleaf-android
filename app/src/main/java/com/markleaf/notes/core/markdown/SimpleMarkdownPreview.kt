@@ -82,7 +82,15 @@ data class PreviewLine(
     val extra: String? = null,
     val segments: List<PreviewInlineSegment> = emptyList(),
     /** Only set when [type] is [PreviewLineType.TABLE]. */
-    val tableData: TableData? = null
+    val tableData: TableData? = null,
+    /**
+     * 0-based index of the source line this row came from, when we can say for
+     * certain. Only the checklist rows set it today: tapping a checkbox in the
+     * preview has to flip the `[ ]` on exactly one line of the note, and
+     * counting checkboxes would drift the moment a `- [ ]` appeared inside a
+     * fenced code block (#219). Null means "don't offer to edit this row".
+     */
+    val sourceLine: Int? = null
 )
 
 object SimpleMarkdownPreview {

@@ -76,7 +76,8 @@ fun MarkdownPreviewList(
     contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
     listState: LazyListState = rememberLazyListState(),
     onWikilinkClick: (String) -> Unit = {},
-    onImageLongPress: (path: String, currentAlt: String) -> Unit = { _, _ -> }
+    onImageLongPress: (path: String, currentAlt: String) -> Unit = { _, _ -> },
+    onToggleTask: ((sourceLine: Int) -> Unit)? = null
 ) {
     val scope = rememberCoroutineScope()
     // Footnote ref → def: clicking a superscript `[^N]` scrolls the matching
@@ -100,7 +101,8 @@ fun MarkdownPreviewList(
                 line = line,
                 onWikilinkClick = onWikilinkClick,
                 onImageLongPress = onImageLongPress,
-                onFootnoteRefClick = onFootnoteRefClick
+                onFootnoteRefClick = onFootnoteRefClick,
+                onToggleTask = onToggleTask
             )
         }
     }
@@ -111,8 +113,14 @@ fun PreviewLineRenderer(
     line: PreviewLine,
     onWikilinkClick: (String) -> Unit = {},
     onImageLongPress: (path: String, currentAlt: String) -> Unit = { _, _ -> },
-    onFootnoteRefClick: (String) -> Unit = {}
+    onFootnoteRefClick: (String) -> Unit = {},
+    onToggleTask: ((sourceLine: Int) -> Unit)? = null
 ) {
+    // Only a row that knows its own source line can be toggled; see
+    // PreviewLine.sourceLine for why we refuse to guess (#219).
+    val toggle: (() -> Unit)? = line.sourceLine?.let { source ->
+        onToggleTask?.let { handler -> { handler(source) } }
+    }
     when (line.type) {
         PreviewLineType.H1 -> Text(
             text = line.text,
@@ -143,13 +151,15 @@ fun PreviewLineRenderer(
             leadingMarker = "☑ ",
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             onWikilinkClick = onWikilinkClick,
-            onFootnoteRefClick = onFootnoteRefClick
+            onFootnoteRefClick = onFootnoteRefClick,
+            onMarkerClick = toggle
         )
         PreviewLineType.CHECKBOX_TODO -> InlineMarkdownText(
             line = line,
             leadingMarker = "☐ ",
             onWikilinkClick = onWikilinkClick,
-            onFootnoteRefClick = onFootnoteRefClick
+            onFootnoteRefClick = onFootnoteRefClick,
+            onMarkerClick = toggle
         )
         PreviewLineType.CODE_BLOCK -> MarkdownCodeBlock(line.text, line.extra)
         PreviewLineType.BODY -> InlineMarkdownText(
@@ -212,7 +222,14 @@ internal fun InlineMarkdownText(
      * separate Text) so wrapping and click offsets stay aligned.
      */
     leadingMarker: String = "",
-    color: Color = MaterialTheme.colorScheme.onBackground
+    color: Color = MaterialTheme.colorScheme.onBackground,
+    /**
+     * When set, [leadingMarker] becomes a clickable region. Carried inside the
+     * same AnnotatedString as the text rather than split into its own composable
+     * so the row lays out exactly as before — the checklist goldens must not
+     * move for a change that only adds an interaction (#219).
+     */
+    onMarkerClick: (() -> Unit)? = null
 ) {
     // Some line types (and the legacy hand-rolled parser) can leave segments
     // empty even when text is present — fall back to the raw text so we never
@@ -224,7 +241,8 @@ internal fun InlineMarkdownText(
         segments = segments,
         leadingMarker = leadingMarker,
         onWikilinkClick = onWikilinkClick,
-        onFootnoteRefClick = onFootnoteRefClick
+        onFootnoteRefClick = onFootnoteRefClick,
+        onMarkerClick = onMarkerClick
     )
     // Links are now embedded as LinkAnnotations in `annotated`, so a plain Text
     // handles styling, clicks, and accessibility — no offset-mapped onClick.
@@ -246,13 +264,30 @@ private fun inlineAnnotatedString(
     segments: List<PreviewInlineSegment>,
     leadingMarker: String = "",
     onWikilinkClick: (String) -> Unit = {},
-    onFootnoteRefClick: (String) -> Unit = {}
+    onFootnoteRefClick: (String) -> Unit = {},
+    onMarkerClick: (() -> Unit)? = null
 ): AnnotatedString {
     // Captured by the LinkAnnotation click listeners built below, so it must be
     // resolved before buildAnnotatedString rather than at the Text call site.
     val context = LocalContext.current
     return buildAnnotatedString {
-        if (leadingMarker.isNotEmpty()) append(leadingMarker)
+        if (leadingMarker.isNotEmpty()) {
+            if (onMarkerClick == null) {
+                append(leadingMarker)
+            } else {
+                // No styles: the checkbox already looks like a control, and
+                // link colouring here would read as a hyperlink and change
+                // every checklist golden.
+                withLink(
+                    LinkAnnotation.Clickable(
+                        tag = TASK_MARKER_TAG,
+                        linkInteractionListener = { onMarkerClick() }
+                    )
+                ) {
+                    append(leadingMarker)
+                }
+            }
+        }
         segments.forEach { segment ->
             when (segment.type) {
                 PreviewInlineType.TEXT -> append(segment.text)
@@ -340,6 +375,7 @@ private fun inlineAnnotatedString(
 private const val WIKILINK_TAG = "wikilink"
 private const val LINK_TAG = "link"
 private const val FOOTNOTE_REF_TAG = "footnote_ref"
+private const val TASK_MARKER_TAG = "task_marker"
 
 /**
  * Returns the index of the first `FOOTNOTE_DEF` line whose label matches [label],

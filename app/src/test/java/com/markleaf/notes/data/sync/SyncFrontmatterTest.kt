@@ -172,6 +172,76 @@ class SyncFrontmatterTest {
         assertEquals("# Just a body", parsed.body)
     }
 
+    // --- #222: a horizontal rule is not frontmatter -------------------------
+
+    @Test
+    fun decode_keepsBodyTextBetweenTwoHorizontalRules() {
+        // The reported loss: `---` opens a Markdown rule as readily as it opens
+        // frontmatter. Everything between the two rules used to be swallowed as
+        // "frontmatter we could not parse" and dropped on import.
+        val raw = "---\nSome text\n---\nMore body"
+
+        val parsed = SyncFrontmatter.decode(raw)
+
+        assertNull(parsed.markleafId)
+        assertFalse(parsed.hasFrontmatter)
+        assertEquals(raw, parsed.body)
+    }
+
+    @Test
+    fun decode_keepsAnEmptyRulePair() {
+        val raw = "---\n---\nBody"
+
+        val parsed = SyncFrontmatter.decode(raw)
+
+        assertFalse(parsed.hasFrontmatter)
+        assertEquals(raw, parsed.body)
+    }
+
+    @Test
+    fun decode_stillAcceptsYamlWhoseValueSpansLines() {
+        // The guard must not be stricter than YAML. An Obsidian block with a
+        // list value has lines that look nothing like `key: value`; rejecting it
+        // would trade one silent loss for a worse one.
+        val raw = """
+            ---
+            tags:
+              - review
+              - draft
+            markleaf_id: x
+            ---
+            body
+        """.trimIndent()
+
+        val parsed = SyncFrontmatter.decode(raw)
+
+        assertTrue(parsed.hasFrontmatter)
+        assertEquals("x", parsed.markleafId)
+        assertEquals("body", parsed.body)
+    }
+
+    @Test
+    fun decode_blockClosedIsTrueEvenWhenTheBlockIsNotMetadata() {
+        // Lets the mirror's head reader stop instead of chasing a closed rule
+        // pair to its read cap on every save.
+        val rules = SyncFrontmatter.decode("---\nSome text\n---\nMore")
+        assertTrue(rules.blockClosed)
+        assertFalse(rules.hasFrontmatter)
+
+        val unterminated = SyncFrontmatter.decode("---\nmarkleaf_id: x\nstill open")
+        assertFalse(unterminated.blockClosed)
+    }
+
+    @Test
+    fun decode_ourOwnOutputIsAlwaysRecognised() {
+        // encode() always emits markleaf_id first, so the guard can never reject
+        // a file Markleaf itself wrote.
+        val parsed = SyncFrontmatter.decode(SyncFrontmatter.encode(sampleNote()))
+
+        assertTrue(parsed.hasFrontmatter)
+        assertEquals(sampleNote().id, parsed.markleafId)
+    }
+
     // --- #222: telling "no metadata" from "not read far enough" -------------
 
     @Test

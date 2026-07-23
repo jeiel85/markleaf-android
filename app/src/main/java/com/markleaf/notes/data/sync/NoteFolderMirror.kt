@@ -568,16 +568,19 @@ object NoteFolderMirror {
     internal fun headScanVerdict(
         hasFrontmatter: Boolean,
         opensFrontmatter: Boolean,
+        blockClosed: Boolean,
         atEof: Boolean,
         limit: Int
     ): HeadScan = when {
-        // The block closed — everything we need is in hand.
+        // Metadata parsed — everything we need is in hand.
         hasFrontmatter -> HeadScan.Done
         // No opening delimiter: this file has no block, and never will.
         !opensFrontmatter -> HeadScan.Done
-        // Whole file read and the block still hasn't closed, so it is not
-        // frontmatter at all — a `---` rule at the top of the body. decode()
-        // already treats it that way.
+        // The block opened and closed but held body text, not metadata — a pair
+        // of horizontal rules. Reading further cannot change that verdict.
+        blockClosed -> HeadScan.Done
+        // Whole file read and the block never closed, so the opening `---` was
+        // a rule too. decode() already treats it as body.
         atEof -> HeadScan.Done
         limit >= FRONTMATTER_MAX_BYTES -> HeadScan.Undetermined
         else -> HeadScan.NeedMore
@@ -618,6 +621,7 @@ object NoteFolderMirror {
                     val verdict = headScanVerdict(
                         hasFrontmatter = parsed.hasFrontmatter,
                         opensFrontmatter = SyncFrontmatter.opensFrontmatter(text),
+                        blockClosed = parsed.blockClosed,
                         atEof = eof,
                         limit = limit
                     )

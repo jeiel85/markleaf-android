@@ -125,8 +125,27 @@ class NoteFolderMirrorConflictLogicTest {
         hasFrontmatter: Boolean,
         opensFrontmatter: Boolean,
         atEof: Boolean,
-        limit: Int = 4096
-    ) = NoteFolderMirror.headScanVerdict(hasFrontmatter, opensFrontmatter, atEof, limit)
+        limit: Int = 4096,
+        blockClosed: Boolean = hasFrontmatter
+    ) = NoteFolderMirror.headScanVerdict(
+        hasFrontmatter, opensFrontmatter, blockClosed, atEof, limit
+    )
+
+    @Test
+    fun closedBlockThatIsNotMetadata_stopsTheRead() {
+        // Two horizontal rules with body text between them. The block has
+        // closed, so reading further cannot turn it into metadata — chasing it
+        // to the 256 KB cap would be wasted IO on every save (#222).
+        assertEquals(
+            NoteFolderMirror.HeadScan.Done,
+            scan(
+                hasFrontmatter = false,
+                opensFrontmatter = true,
+                blockClosed = true,
+                atEof = false
+            )
+        )
+    }
 
     @Test
     fun closedBlock_needsNoFurtherReading() {

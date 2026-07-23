@@ -33,6 +33,14 @@
   <a href="https://gitlab.com/jeiel85/markleaf-android">Öffentlicher GitLab-Mirror</a>
 </p>
 
+<p align="center">
+  <img src="docs/assets/markleaf-demo.gif" width="300" alt="Ein / im Markleaf-Editor öffnet die Schnelleinfügen-Palette; die Auswahl Checkliste fügt reines Markdown ein, das die Vorschau rendert" />
+</p>
+
+<p align="center">
+  <sub><code>/</code> Schnelleinfügen → reines Markdown → Live-Vorschau</sub>
+</p>
+
 ---
 
 ## 🍃 Was ist Markleaf?

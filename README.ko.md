@@ -33,6 +33,14 @@
   <a href="https://gitlab.com/jeiel85/markleaf-android">GitLab 공개 미러</a>
 </p>
 
+<p align="center">
+  <img src="docs/assets/markleaf-demo.gif" width="300" alt="Markleaf 편집기에서 /를 입력하면 빠른 삽입 팔레트가 열리고, 체크리스트를 고르면 표준 Markdown이 삽입되어 미리보기에 렌더링됩니다" />
+</p>
+
+<p align="center">
+  <sub><code>/</code> 빠른 삽입 → 표준 Markdown → 실시간 미리보기</sub>
+</p>
+
 ---
 
 ## 🍃 Markleaf란?

@@ -33,6 +33,14 @@
   <a href="https://gitlab.com/jeiel85/markleaf-android">GitLab public mirror</a>
 </p>
 
+<p align="center">
+  <img src="docs/assets/markleaf-demo.gif" width="300" alt="Typing / in the Markleaf editor opens the quick-insert palette; choosing Checklist inserts plain Markdown, and the preview renders it" />
+</p>
+
+<p align="center">
+  <sub><code>/</code> quick insert → plain Markdown → live preview</sub>
+</p>
+
 ---
 
 ## 🍃 What is Markleaf?

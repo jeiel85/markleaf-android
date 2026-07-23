@@ -13,6 +13,7 @@ import java.io.File
 import java.io.OutputStreamWriter
 import java.time.Instant
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Read/write notes to a user-chosen SAF folder as `.md` / `.txt` files with our
@@ -96,6 +97,14 @@ object NoteFolderMirror {
     ): Boolean {
         if (!folder.canWrite()) return false
 
+        // Fast path: we remember which document holds this note, its name
+        // already matches the title, and it still carries the note's id. One
+        // read instead of listing the folder and reading the head of every file
+        // in it (#222).
+        MirrorFileCache.hit(context, folder.uri, note)?.let { cached ->
+            return writeContents(context, cached.uri, note, cached.extraEntries)
+        }
+
         val mirrorFiles = folder.listFiles().filter { it.isFile && isMirrorFile(it.name) }
         val match = findMirrorFile(context, mirrorFiles, note)
         val existing = match?.file
@@ -108,21 +117,31 @@ object NoteFolderMirror {
 
         // Write content first, then rename. If the rename fails the bytes are
         // already safely persisted under the old name — no data loss.
-        val wrote = runCatching {
-            context.contentResolver.openOutputStream(target.uri, "wt")?.use { stream ->
-                BufferedWriter(OutputStreamWriter(stream, Charsets.UTF_8)).use { writer ->
-                    writer.write(SyncFrontmatter.encode(note, match?.extraEntries.orEmpty()))
-                }
-            } ?: return@runCatching false
-            true
-        }.getOrDefault(false)
-        if (!wrote) return false
+        if (!writeContents(context, target.uri, note, match?.extraEntries.orEmpty())) return false
 
         if (existing != null && existing.name != desiredName) {
             existing.renameTo(desiredName) // best-effort; old name is fine if it fails
         }
+        // Remember it under whatever name it ended up with — renameTo updates
+        // the DocumentFile's uri in place, so this is the post-rename identity.
+        target.name?.let { MirrorFileCache.remember(folder.uri, note.id, target.uri, it) }
         return true
     }
+
+    /** Write [note] (plus any [extraEntries] the file carried) over [target]. */
+    private fun writeContents(
+        context: Context,
+        target: Uri,
+        note: Note,
+        extraEntries: List<String>
+    ): Boolean = runCatching {
+        context.contentResolver.openOutputStream(target, "wt")?.use { stream ->
+            BufferedWriter(OutputStreamWriter(stream, Charsets.UTF_8)).use { writer ->
+                writer.write(SyncFrontmatter.encode(note, extraEntries))
+            }
+        } ?: return@runCatching false
+        true
+    }.getOrDefault(false)
 
     /**
      * [writeNote] plus the `lastImportedAt` stamp that records "the folder now
@@ -204,6 +223,9 @@ object NoteFolderMirror {
         val folder = DocumentFile.fromTreeUri(context, folderUri) ?: return false
         if (!folder.canWrite()) return false
 
+        // Drop the remembered document up front: whether or not the delete
+        // succeeds, the entry has stopped being trustworthy.
+        MirrorFileCache.forget(noteId)
         var changed = false
         val mirrorFiles = folder.listFiles().filter { it.isFile && isMirrorFile(it.name) }
         findFileForNote(context, mirrorFiles, noteId)?.let { file ->
@@ -529,10 +551,79 @@ object NoteFolderMirror {
         mirrorFiles: List<DocumentFile>,
         noteId: String
     ): DocumentFile? =
-        mirrorFiles.firstOrNull { peekFrontmatter(context, it)?.markleafId == noteId }
+        mirrorFiles.firstOrNull { peekFrontmatter(context, it.uri)?.markleafId == noteId }
 
     /** A note's mirror file together with the frontmatter keys it already carries. */
     private class MirrorMatch(val file: DocumentFile, val extraEntries: List<String>)
+
+    /** A cached document that has been re-verified as this note's. */
+    private class CachedTarget(val uri: Uri, val extraEntries: List<String>)
+
+    /**
+     * Remembers which document holds each note, so an ordinary save doesn't have
+     * to list the folder and read the head of every file in it to find one.
+     *
+     * That scan is O(files) SAF opens per save, on the path that holds up the
+     * mirror write; at a few hundred notes it is the dominant cost of saving one
+     * (#222). A remembered entry turns it into a single read.
+     *
+     * It caches a Uri and a name, never a `DocumentFile` — those hold a Context,
+     * and a static cache holding an Activity's Context is a leak. The name is
+     * what we last wrote the file as, which is enough to decide whether a rename
+     * is due without touching the folder.
+     *
+     * Every hit is re-verified by reading the file's `markleaf_id`, so nothing
+     * here is trusted:
+     * - file gone, or the Uri now resolves elsewhere → the read fails or returns
+     *   another id → forget it and take the slow path
+     * - file renamed behind our back but still ours → the id matches, so its
+     *   contents are still correct to write; the name is fixed on the next pass
+     *   that goes the slow way
+     *
+     * Switching sync folders drops everything, since a Uri from one folder means
+     * nothing in another.
+     */
+    private object MirrorFileCache {
+        private class Entry(val uri: Uri, val name: String)
+
+        private val entries = ConcurrentHashMap<String, Entry>()
+
+        @Volatile
+        private var folder: Uri? = null
+
+        /**
+         * The document for [note] if it is remembered, its name still matches
+         * the note's title, and it still carries the note's id — otherwise null,
+         * and the caller falls back to scanning the folder.
+         */
+        fun hit(context: Context, folderUri: Uri, note: Note): CachedTarget? {
+            if (folder != folderUri) return null
+            val entry = entries[note.id] ?: return null
+            // A drifted title needs the folder listing anyway, to disambiguate
+            // the new name against every other file. Let the slow path have it.
+            if (!MirrorFileNames.isPlainNameFor(entry.name, MirrorFileNames.sanitizeBase(note.title))) {
+                return null
+            }
+            val head = peekFrontmatter(context, entry.uri)
+            if (head?.markleafId != note.id) {
+                entries.remove(note.id)
+                return null
+            }
+            return CachedTarget(entry.uri, head.extraEntries)
+        }
+
+        fun remember(folderUri: Uri, noteId: String, document: Uri, name: String) {
+            if (folder != folderUri) {
+                entries.clear()
+                folder = folderUri
+            }
+            entries[noteId] = Entry(document, name)
+        }
+
+        fun forget(noteId: String) {
+            entries.remove(noteId)
+        }
+    }
 
     /**
      * The file [note] should be written to. The canonical link is the
@@ -563,7 +654,7 @@ object NoteFolderMirror {
         val base = MirrorFileNames.sanitizeBase(note.title)
         var unclaimed: MirrorMatch? = null
         for (file in mirrorFiles) {
-            val head = peekFrontmatter(context, file) ?: continue
+            val head = peekFrontmatter(context, file.uri) ?: continue
             if (head.markleafId == note.id) return MirrorMatch(file, head.extraEntries)
             if (head.markleafId == null &&
                 unclaimed == null &&
@@ -621,7 +712,8 @@ object NoteFolderMirror {
     }
 
     /**
-     * Read [file]'s head far enough to learn which note owns it.
+     * Read the head of the document at [documentUri] far enough to learn which
+     * note owns it.
      *
      * Starts at [FRONTMATTER_PEEK_BYTES] — enough for any block we write, and
      * cheap enough to run over every file in the folder on each save — and only
@@ -636,9 +728,9 @@ object NoteFolderMirror {
      * Deliberately does not return the parsed body: at these read sizes the
      * body is usually truncated, and the type shouldn't offer it.
      */
-    private fun peekFrontmatter(context: Context, file: DocumentFile): HeadInfo? =
+    private fun peekFrontmatter(context: Context, documentUri: Uri): HeadInfo? =
         runCatching {
-            context.contentResolver.openInputStream(file.uri)?.use { stream ->
+            context.contentResolver.openInputStream(documentUri)?.use { stream ->
                 var limit = FRONTMATTER_PEEK_BYTES
                 var buf = ByteArray(limit)
                 var read = 0

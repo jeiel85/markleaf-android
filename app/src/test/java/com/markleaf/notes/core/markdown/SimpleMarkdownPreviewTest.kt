@@ -370,4 +370,53 @@ class SimpleMarkdownPreviewTest {
         val wikilink = row?.get(1)?.firstOrNull { it.type == PreviewInlineType.WIKILINK }
         assertEquals("Another Note", wikilink?.text)
     }
+
+    // --- #219: checklist rows carry the source line they came from ---------
+
+    @Test
+    fun parse_tagsChecklistRowsWithTheirSourceLine() {
+        val markdown = """
+            # Plan
+
+            - [ ] first
+            - [x] second
+        """.trimIndent()
+
+        val lines = SimpleMarkdownPreview.parse(markdown)
+        val checks = lines.filter {
+            it.type == PreviewLineType.CHECKBOX_TODO || it.type == PreviewLineType.CHECKBOX_DONE
+        }
+
+        assertEquals(listOf(2, 3), checks.map { it.sourceLine })
+    }
+
+    @Test
+    fun parse_leavesPlainBulletsWithoutASourceLine() {
+        // Only rows we offer to edit carry one, so a tap can never land on a
+        // bullet that has no `[ ]` to flip.
+        val lines = SimpleMarkdownPreview.parse("- plain bullet")
+
+        assertEquals(PreviewLineType.BULLET, lines.first().type)
+        assertEquals(null, lines.first().sourceLine)
+    }
+
+    @Test
+    fun parse_sourceLineSurvivesACheckboxInsideAFencedCodeBlock() {
+        // The reason we ask the parser instead of counting checkboxes: a
+        // `- [ ]` in a code block is not a task, so an index-based mapping
+        // would slide by one from here on.
+        val markdown = """
+            ```
+            - [ ] not a task
+            ```
+
+            - [ ] real task
+        """.trimIndent()
+
+        val lines = SimpleMarkdownPreview.parse(markdown)
+        val check = lines.single { it.type == PreviewLineType.CHECKBOX_TODO }
+
+        assertEquals("real task", check.text)
+        assertEquals(4, check.sourceLine)
+    }
 }

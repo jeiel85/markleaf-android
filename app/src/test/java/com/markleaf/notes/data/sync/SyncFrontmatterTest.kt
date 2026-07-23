@@ -172,6 +172,35 @@ class SyncFrontmatterTest {
         assertEquals("# Just a body", parsed.body)
     }
 
+    // --- #222: telling "no metadata" from "not read far enough" -------------
+
+    @Test
+    fun hasFrontmatter_trueOnlyForAClosedBlock() {
+        assertTrue(SyncFrontmatter.decode(SyncFrontmatter.encode(sampleNote())).hasFrontmatter)
+        assertFalse(SyncFrontmatter.decode("# Plain body").hasFrontmatter)
+        assertFalse(SyncFrontmatter.decode("---\nmarkleaf_id: x\nstill open").hasFrontmatter)
+    }
+
+    @Test
+    fun opensFrontmatter_separatesAnOpenBlockFromNoBlock() {
+        // A truncated read of a file whose block runs long yields
+        // hasFrontmatter == false, exactly like a file with no block. Only
+        // opensFrontmatter tells the two apart — and mistaking the first for
+        // the second is what let the mirror overwrite metadata it never read.
+        val truncated = "---\nmarkleaf_id: x\nalias: something-very-"
+
+        assertFalse(SyncFrontmatter.decode(truncated).hasFrontmatter)
+        assertTrue(SyncFrontmatter.opensFrontmatter(truncated))
+        assertFalse(SyncFrontmatter.opensFrontmatter("# Plain body"))
+    }
+
+    @Test
+    fun opensFrontmatter_looksPastAByteOrderMark() {
+        val bom = Char(0xFEFF).toString()
+
+        assertTrue(SyncFrontmatter.opensFrontmatter(bom + "---\nmarkleaf_id: x\n"))
+    }
+
     @Test
     fun decode_pinnedFalseWhenAbsent() {
         val raw = """

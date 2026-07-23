@@ -119,6 +119,69 @@ class NoteFolderMirrorConflictLogicTest {
         )
     }
 
+    // --- #222: how far to read a file's head --------------------------------
+
+    private fun scan(
+        hasFrontmatter: Boolean,
+        opensFrontmatter: Boolean,
+        atEof: Boolean,
+        limit: Int = 4096
+    ) = NoteFolderMirror.headScanVerdict(hasFrontmatter, opensFrontmatter, atEof, limit)
+
+    @Test
+    fun closedBlock_needsNoFurtherReading() {
+        assertEquals(
+            NoteFolderMirror.HeadScan.Done,
+            scan(hasFrontmatter = true, opensFrontmatter = true, atEof = false)
+        )
+    }
+
+    @Test
+    fun fileWithNoOpeningDelimiter_isSettledImmediately() {
+        // Plain Markdown. It has no block and never will, so it is genuinely
+        // unclaimed and safe to adopt.
+        assertEquals(
+            NoteFolderMirror.HeadScan.Done,
+            scan(hasFrontmatter = false, opensFrontmatter = false, atEof = false)
+        )
+    }
+
+    @Test
+    fun openBlockNotYetClosed_asksForMore() {
+        // The dangerous case before #222: this looked identical to "no
+        // frontmatter", so the file was treated as unclaimed and overwritten.
+        assertEquals(
+            NoteFolderMirror.HeadScan.NeedMore,
+            scan(hasFrontmatter = false, opensFrontmatter = true, atEof = false)
+        )
+    }
+
+    @Test
+    fun openBlockAtEndOfFile_isSettled() {
+        // The whole file has been read and the block never closed, so it isn't
+        // frontmatter at all — a `---` rule at the top of the body.
+        assertEquals(
+            NoteFolderMirror.HeadScan.Done,
+            scan(hasFrontmatter = false, opensFrontmatter = true, atEof = true)
+        )
+    }
+
+    @Test
+    fun openBlockAtTheReadCap_isUndetermined() {
+        // Stop chasing, and report that we cannot say. The caller skips the
+        // file rather than adopting it — a duplicate file beats overwriting
+        // metadata we never read.
+        assertEquals(
+            NoteFolderMirror.HeadScan.Undetermined,
+            scan(
+                hasFrontmatter = false,
+                opensFrontmatter = true,
+                atEof = false,
+                limit = NoteFolderMirror.FRONTMATTER_MAX_BYTES
+            )
+        )
+    }
+
     // --- #217: a conflict must settle instead of repeating ------------------
 
     @Test

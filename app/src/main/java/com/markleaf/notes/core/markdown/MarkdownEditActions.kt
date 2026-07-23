@@ -48,6 +48,26 @@ object MarkdownEditActions {
      * document are left byte-for-byte alone.
      */
     fun toggleTaskAtLine(markdown: String, lineIndex: Int): String? {
+        val start = offsetOfLine(markdown, lineIndex) ?: return null
+        val end = markdown.indexOf('\n', start).takeIf { it >= 0 } ?: markdown.length
+        val match = checkboxPattern.find(markdown.substring(start, end)) ?: return null
+        val box = start + match.value.indexOf('[') + 1
+        val flipped = if (markdown[box] == ' ') 'x' else ' '
+        return markdown.substring(0, box) + flipped + markdown.substring(box + 1)
+    }
+
+    /**
+     * Character offset where 0-based [lineIndex] begins in [markdown], or null
+     * when the text has no such line.
+     *
+     * The bridge from a preview row back to the source: both the checkbox
+     * toggle (#219) and the outline's jump-to-heading (#215) arrive holding a
+     * line number and need a caret position. Returning null rather than
+     * clamping to the end matters — a preview built from slightly older text
+     * can name a line that no longer exists, and dropping the tap is better
+     * than moving the caret somewhere the user did not point at.
+     */
+    fun offsetOfLine(markdown: String, lineIndex: Int): Int? {
         if (lineIndex < 0) return null
         var start = 0
         repeat(lineIndex) {
@@ -55,11 +75,7 @@ object MarkdownEditActions {
             if (newline < 0) return null
             start = newline + 1
         }
-        val end = markdown.indexOf('\n', start).takeIf { it >= 0 } ?: markdown.length
-        val match = checkboxPattern.find(markdown.substring(start, end)) ?: return null
-        val box = start + match.value.indexOf('[') + 1
-        val flipped = if (markdown[box] == ' ') 'x' else ' '
-        return markdown.substring(0, box) + flipped + markdown.substring(box + 1)
+        return start
     }
 
     fun markdownLink(value: TextFieldValue): TextFieldValue {

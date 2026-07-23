@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.captureRoboImage
-import com.markleaf.notes.core.markdown.preview.TocHeading
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.ui.theme.MarkleafTheme
 import java.time.Instant
@@ -42,7 +41,6 @@ class EditorInfoSheetSnapshotTest {
         "editor_info_empty_phone",
         EditorInfoUiState(
             statsText = "0 words · 0 chars · 0 min",
-            headings = emptyList(),
             backlinks = emptyList()
         )
     )
@@ -100,7 +98,6 @@ class EditorInfoSheetSnapshotTest {
                             ) {
                                 EditorInfoSheetContent(
                                     state = state,
-                                    onHeadingClick = {},
                                     onBacklinkClick = {}
                                 )
                             }
@@ -116,11 +113,6 @@ class EditorInfoSheetSnapshotTest {
 
     private fun populatedState(statsText: String = "12 words · 86 chars · 1 min") = EditorInfoUiState(
         statsText = statsText,
-        headings = listOf(
-            TocHeading(index = 0, text = "Project brief", level = 1),
-            TocHeading(index = 3, text = "Next steps", level = 2),
-            TocHeading(index = 7, text = "References", level = 3)
-        ),
         backlinks = listOf(
             note("source-1", "Daily writing ritual"),
             note("source-2", "Markdown field notes")

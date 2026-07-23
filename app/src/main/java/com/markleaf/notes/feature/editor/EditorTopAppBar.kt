@@ -6,6 +6,7 @@ import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Toc
 import androidx.compose.material.icons.filled.CenterFocusWeak
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
@@ -50,6 +51,7 @@ internal fun EditorTopAppBar(
     onBack: () -> Unit,
     onTogglePreview: () -> Unit,
     onExitFocusMode: () -> Unit,
+    onOpenOutline: () -> Unit,
     onOpenInfo: () -> Unit,
     onOpenMore: () -> Unit,
     onDismissMore: () -> Unit,
@@ -127,6 +129,15 @@ internal fun EditorTopAppBar(
                         } else {
                             MaterialTheme.colorScheme.primary
                         }
+                    )
+                }
+                // The outline gets a control of its own rather than living
+                // inside the information sheet: a reader looking for "jump to a
+                // section" was never going to look under "information" (#215).
+                IconButton(onClick = onOpenOutline) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.Toc,
+                        contentDescription = stringResource(R.string.table_of_contents)
                     )
                 }
                 IconButton(onClick = onOpenInfo) {

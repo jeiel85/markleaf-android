@@ -390,8 +390,19 @@ internal fun findFootnoteDefIndex(lines: List<PreviewLine>, label: String): Int 
  * A heading entry for the table of contents: its [index] into the rendered
  * [PreviewLine] list (so the same `animateScrollToItem` used for footnote jumps
  * lands on the heading), the display [text], and the [level] (1..3).
+ *
+ * [sourceLine] is the 0-based line the heading occupies in the note's own text.
+ * The rendered index can only ever scroll the preview; jumping while the user
+ * is *editing* needs a caret position, which is what this resolves to (#215).
+ * Null when the parser could not attribute a line — the jump is then dropped
+ * rather than aimed at a guess.
  */
-data class TocHeading(val index: Int, val text: String, val level: Int)
+data class TocHeading(
+    val index: Int,
+    val text: String,
+    val level: Int,
+    val sourceLine: Int? = null
+)
 
 /**
  * Extracts the H1/H2/H3 outline from rendered [lines] for the table of contents.
@@ -406,7 +417,14 @@ internal fun extractHeadings(lines: List<PreviewLine>): List<TocHeading> =
             PreviewLineType.H3 -> 3
             else -> null
         }
-        level?.let { TocHeading(index = index, text = line.text, level = it) }
+        level?.let {
+            TocHeading(
+                index = index,
+                text = line.text,
+                level = it,
+                sourceLine = line.sourceLine
+            )
+        }
     }
 
 /**

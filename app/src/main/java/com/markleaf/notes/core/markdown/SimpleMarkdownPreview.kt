@@ -85,10 +85,12 @@ data class PreviewLine(
     val tableData: TableData? = null,
     /**
      * 0-based index of the source line this row came from, when we can say for
-     * certain. Only the checklist rows set it today: tapping a checkbox in the
-     * preview has to flip the `[ ]` on exactly one line of the note, and
-     * counting checkboxes would drift the moment a `- [ ]` appeared inside a
-     * fenced code block (#219). Null means "don't offer to edit this row".
+     * certain. Set by the rows that have to point back at the note's text:
+     * checklist items, because tapping a checkbox has to flip the `[ ]` on
+     * exactly one line and counting checkboxes would drift the moment a
+     * `- [ ]` appeared inside a fenced code block (#219); and headings, because
+     * the outline scrolls the editor to one and a rendered-list index cannot
+     * locate a caret (#215). Null means "this row cannot point back".
      */
     val sourceLine: Int? = null
 )

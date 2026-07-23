@@ -73,4 +73,37 @@ class TocHeadingsTest {
         assertTrue(headings.all { it.level in 1..3 })
         assertTrue(headings.any { it.text == "Top" })
     }
+
+    /**
+     * The rendered index only ever locates a heading in the preview. Jumping to
+     * one while editing needs the line it occupies in the note's own text, so
+     * every heading has to carry it — blank lines and non-heading blocks in
+     * between included (#215).
+     */
+    @Test
+    fun `each heading carries the source line it sits on`() {
+        val md = """
+            # Title
+
+            intro paragraph
+
+            ## Section A
+
+            body
+
+            ### Sub A1
+        """.trimIndent()
+        val headings = extractHeadings(SimpleMarkdownPreview.parse(md))
+        assertEquals(listOf("Title", "Section A", "Sub A1"), headings.map { it.text })
+        assertEquals(listOf(0, 4, 8), headings.map { it.sourceLine })
+    }
+
+    @Test
+    fun `a setext heading reports the line its text is on`() {
+        // No `#` to count, so the line can only come from the parser's spans.
+        val md = "Title\n=====\n\n## Later\n"
+        val headings = extractHeadings(SimpleMarkdownPreview.parse(md))
+        assertEquals(listOf("Title", "Later"), headings.map { it.text })
+        assertEquals(listOf(0, 3), headings.map { it.sourceLine })
+    }
 }

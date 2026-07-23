@@ -21,12 +21,15 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
-import com.markleaf.notes.core.markdown.preview.TocHeading
 import com.markleaf.notes.domain.model.Note
 
+/**
+ * What the "Note information" sheet shows. The heading outline used to be a
+ * third section here; it moved to a screen of its own, where a long one is not
+ * competing with the statistics and the backlinks for the same scroll (#215).
+ */
 internal data class EditorInfoUiState(
     val statsText: String,
-    val headings: List<TocHeading>,
     val backlinks: List<Note>
 )
 
@@ -34,7 +37,6 @@ internal data class EditorInfoUiState(
 @Composable
 internal fun EditorInfoSheet(
     state: EditorInfoUiState,
-    onHeadingClick: (Int) -> Unit,
     onBacklinkClick: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -44,7 +46,6 @@ internal fun EditorInfoSheet(
     ) {
         EditorInfoSheetContent(
             state = state,
-            onHeadingClick = onHeadingClick,
             onBacklinkClick = onBacklinkClick
         )
     }
@@ -53,14 +54,12 @@ internal fun EditorInfoSheet(
 @Composable
 internal fun EditorInfoSheetContent(
     state: EditorInfoUiState,
-    onHeadingClick: (Int) -> Unit,
     onBacklinkClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     // Resolved here (a @Composable context) rather than inside the LazyListScope
-    // lambda below, which is not composable. Used as the TalkBack action labels
-    // for the clickable outline/backlink rows (#152).
-    val headingActionLabel = stringResource(R.string.note_information_heading_action)
+    // lambda below, which is not composable. Used as the TalkBack action label
+    // for the clickable backlink rows (#152).
     val backlinkActionLabel = stringResource(R.string.note_information_backlink_action)
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
@@ -89,48 +88,6 @@ internal fun EditorInfoSheetContent(
                 )
             }
             item(key = "statistics-divider") { InfoDivider() }
-
-            item(key = "outline-heading") {
-                InfoSectionHeading(stringResource(R.string.table_of_contents))
-            }
-            if (state.headings.isEmpty()) {
-                item(key = "outline-empty") {
-                    InfoEmptyText(stringResource(R.string.note_information_no_headings))
-                }
-            } else {
-                items(
-                    items = state.headings,
-                    key = { heading -> "${heading.index}:${heading.level}:${heading.text}" }
-                ) { heading ->
-                    Text(
-                        text = heading.text,
-                        style = when (heading.level) {
-                            1 -> MaterialTheme.typography.titleMedium
-                            2 -> MaterialTheme.typography.bodyLarge
-                            else -> MaterialTheme.typography.bodyMedium
-                        },
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 2,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .defaultMinSize(minHeight = 48.dp)
-                            // Announce as a button with an explicit action so
-                            // TalkBack offers "double-tap to jump to section"
-                            // instead of reading the heading text as static (#152).
-                            .clickable(
-                                onClickLabel = headingActionLabel,
-                                role = Role.Button
-                            ) { onHeadingClick(heading.index) }
-                            .padding(
-                                start = (20 + (heading.level - 1) * 16).dp,
-                                end = 20.dp,
-                                top = 12.dp,
-                                bottom = 12.dp
-                            )
-                    )
-                }
-            }
-            item(key = "outline-divider") { InfoDivider() }
 
             item(key = "backlinks-heading") {
                 InfoSectionHeading(stringResource(R.string.backlinks_section_title))

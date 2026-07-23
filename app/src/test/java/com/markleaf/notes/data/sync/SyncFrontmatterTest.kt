@@ -41,13 +41,12 @@ class SyncFrontmatterTest {
         // keys the file already carried — e.g. an Obsidian tag — must survive
         // the round-trip rather than being silently dropped.
         val note = sampleNote()
-        val extras = mapOf("obsidian_tag" to "review", "custom_color" to "blue")
+        val extras = listOf("obsidian_tag: review", "custom_color: blue")
 
         val parsed = SyncFrontmatter.decode(SyncFrontmatter.encode(note, extras))
 
         assertEquals(note.id, parsed.markleafId)
-        assertEquals("review", parsed.unknownKeys["obsidian_tag"])
-        assertEquals("blue", parsed.unknownKeys["custom_color"])
+        assertEquals(extras, parsed.unknownEntries)
         assertEquals(note.contentMarkdown, parsed.body)
     }
 
@@ -57,7 +56,7 @@ class SyncFrontmatterTest {
         // must emit our canonical markleaf_id once and never echo the stray one.
         val note = sampleNote()
 
-        val encoded = SyncFrontmatter.encode(note, mapOf("markleaf_id" to "STRAY"))
+        val encoded = SyncFrontmatter.encode(note, listOf("markleaf_id: STRAY"))
 
         assertEquals(1, encoded.split("markleaf_id:").size - 1)
         assertTrue(encoded.contains("markleaf_id: ${note.id}"))
@@ -117,8 +116,7 @@ class SyncFrontmatterTest {
         val parsed = SyncFrontmatter.decode(raw)
 
         assertEquals("x", parsed.markleafId)
-        assertEquals("review", parsed.unknownKeys["obsidian_tag"])
-        assertEquals("blue", parsed.unknownKeys["custom_color"])
+        assertEquals(listOf("obsidian_tag: review", "custom_color: blue"), parsed.unknownEntries)
     }
 
     @Test
@@ -301,5 +299,157 @@ class SyncFrontmatterTest {
 
         assertEquals(false, parsed.pinned)
         assertFalse(parsed.pinned ?: true)
+    }
+
+    // --- #226: entries we don't model are opaque, not `key: value` ------------
+    //
+    // Reading them line by line dropped every continuation line, so the block
+    // sequence Obsidian writes tags in by default came back as a bare `tags:`
+    // with the items gone. These pin the forms that used to be destroyed.
+
+    @Test
+    fun decode_keepsIndentedBlockSequenceWholeAndInOrder() {
+        val raw = """
+            ---
+            markleaf_id: x
+            tags:
+              - reading
+              - notes
+            ---
+            body
+        """.trimIndent()
+
+        val parsed = SyncFrontmatter.decode(raw)
+
+        assertEquals("x", parsed.markleafId)
+        assertEquals(listOf("tags:\n  - reading\n  - notes"), parsed.unknownEntries)
+    }
+
+    @Test
+    fun decode_keepsZeroIndentBlockSequenceWhole() {
+        // `tags:` followed by unindented `- reading` is legal YAML and common in
+        // the wild, so a leading `-` has to read as a continuation line.
+        val raw = """
+            ---
+            markleaf_id: x
+            tags:
+            - reading
+            - notes
+            ---
+            body
+        """.trimIndent()
+
+        val parsed = SyncFrontmatter.decode(raw)
+
+        assertEquals(listOf("tags:\n- reading\n- notes"), parsed.unknownEntries)
+    }
+
+    @Test
+    fun decode_keepsNestedMapWithoutInventingTopLevelKeys() {
+        // The indented child used to be captured as its own top-level key, so a
+        // round-trip both emptied the parent and grew a key nobody wrote.
+        val raw = """
+            ---
+            markleaf_id: x
+            cssclasses:
+              wide: true
+              theme: dark
+            ---
+            body
+        """.trimIndent()
+
+        val parsed = SyncFrontmatter.decode(raw)
+
+        assertEquals(1, parsed.unknownEntries.size)
+        assertEquals("cssclasses:\n  wide: true\n  theme: dark", parsed.unknownEntries.single())
+    }
+
+    @Test
+    fun decode_doesNotReadOurOwnKeysOutOfSomebodyElsesNesting() {
+        // `pinned` indented under another key belongs to that key, not to us.
+        val raw = """
+            ---
+            markleaf_id: x
+            obsidian_ui:
+              pinned: true
+            ---
+            body
+        """.trimIndent()
+
+        val parsed = SyncFrontmatter.decode(raw)
+
+        assertNull("nested pinned must not reach our field", parsed.pinned)
+        assertEquals(listOf("obsidian_ui:\n  pinned: true"), parsed.unknownEntries)
+    }
+
+    @Test
+    fun decode_keepsCommentsAndQuotingInForeignEntries() {
+        val raw = """
+            ---
+            markleaf_id: x
+            # personal notes
+            title: "Meeting: Q3"
+            ---
+            body
+        """.trimIndent()
+
+        val parsed = SyncFrontmatter.decode(raw)
+
+        // The comment used to be dropped and the quotes stripped, which left
+        // `title: Meeting: Q3` — no longer valid YAML.
+        assertEquals(listOf("# personal notes", "title: \"Meeting: Q3\""), parsed.unknownEntries)
+    }
+
+    @Test
+    fun encode_writesForeignEntriesBackByteForByte() {
+        val note = sampleNote()
+        val entries = listOf(
+            "tags:\n  - reading\n  - notes",
+            "aliases:\n  - log",
+            "# hand-written note"
+        )
+
+        val encoded = SyncFrontmatter.encode(note, entries)
+
+        assertTrue("block sequence verbatim", encoded.contains("tags:\n  - reading\n  - notes\n"))
+        assertTrue("second block verbatim", encoded.contains("aliases:\n  - log\n"))
+        assertTrue("comment kept", encoded.contains("# hand-written note\n"))
+    }
+
+    @Test
+    fun decode_encode_decode_isStableForARealisticObsidianFile() {
+        val original = """
+            ---
+            tags:
+              - reading
+              - notes
+            aliases:
+              - log
+            cssclasses:
+              wide: true
+            # written by hand
+            title: "Meeting: Q3"
+            ---
+
+            # Reading log
+        """.trimIndent()
+
+        val first = SyncFrontmatter.decode(original)
+        val note = sampleNote().copy(contentMarkdown = first.body)
+        val second = SyncFrontmatter.decode(SyncFrontmatter.encode(note, first.unknownEntries))
+
+        assertEquals("entries survive a full round-trip", first.unknownEntries, second.unknownEntries)
+        assertEquals("body survives", first.body, second.body)
+        assertEquals(note.id, second.markleafId)
+        assertEquals(
+            listOf(
+                "tags:\n  - reading\n  - notes",
+                "aliases:\n  - log",
+                "cssclasses:\n  wide: true",
+                "# written by hand",
+                "title: \"Meeting: Q3\""
+            ),
+            first.unknownEntries
+        )
     }
 }

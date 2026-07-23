@@ -102,7 +102,7 @@ object NoteFolderMirror {
         // read instead of listing the folder and reading the head of every file
         // in it (#222).
         MirrorFileCache.hit(context, folder.uri, note)?.let { cached ->
-            return writeContents(context, cached.uri, note, cached.extraKeys)
+            return writeContents(context, cached.uri, note, cached.extraEntries)
         }
 
         val mirrorFiles = folder.listFiles().filter { it.isFile && isMirrorFile(it.name) }
@@ -117,7 +117,7 @@ object NoteFolderMirror {
 
         // Write content first, then rename. If the rename fails the bytes are
         // already safely persisted under the old name — no data loss.
-        if (!writeContents(context, target.uri, note, match?.extraKeys.orEmpty())) return false
+        if (!writeContents(context, target.uri, note, match?.extraEntries.orEmpty())) return false
 
         if (existing != null && existing.name != desiredName) {
             existing.renameTo(desiredName) // best-effort; old name is fine if it fails
@@ -128,16 +128,16 @@ object NoteFolderMirror {
         return true
     }
 
-    /** Write [note] (plus any [extraKeys] the file carried) over [target]. */
+    /** Write [note] (plus any [extraEntries] the file carried) over [target]. */
     private fun writeContents(
         context: Context,
         target: Uri,
         note: Note,
-        extraKeys: Map<String, String>
+        extraEntries: List<String>
     ): Boolean = runCatching {
         context.contentResolver.openOutputStream(target, "wt")?.use { stream ->
             BufferedWriter(OutputStreamWriter(stream, Charsets.UTF_8)).use { writer ->
-                writer.write(SyncFrontmatter.encode(note, extraKeys))
+                writer.write(SyncFrontmatter.encode(note, extraEntries))
             }
         } ?: return@runCatching false
         true
@@ -186,7 +186,7 @@ object NoteFolderMirror {
 
     /**
      * Rewrite [file] in place with [note]'s frontmatter (incl. `markleaf_id`)
-     * prepended, preserving any [extraKeys] the file already carried. Used when
+     * prepended, preserving any [extraEntries] the file already carried. Used when
      * importing a file that had no `markleaf_id` so the next reconcile can match
      * it by id rather than re-creating a duplicate note (#140). Best-effort —
      * returns false on any IO failure without throwing, so a write-back hiccup
@@ -196,13 +196,13 @@ object NoteFolderMirror {
         context: Context,
         file: DocumentFile,
         note: Note,
-        extraKeys: Map<String, String>
+        extraEntries: List<String>
     ): Boolean {
         if (!file.canWrite()) return false
         return runCatching {
             context.contentResolver.openOutputStream(file.uri, "wt")?.use { stream ->
                 BufferedWriter(OutputStreamWriter(stream, Charsets.UTF_8)).use { writer ->
-                    writer.write(SyncFrontmatter.encode(note, extraKeys))
+                    writer.write(SyncFrontmatter.encode(note, extraEntries))
                 }
             } ?: return@runCatching false
             true
@@ -399,7 +399,7 @@ object NoteFolderMirror {
                         // frontmatter keys are preserved. Best-effort: a failed
                         // write just defers de-duplication to a later sync.
                         if (parsed.markleafId == null) {
-                            stampFrontmatter(context, file, newNote, parsed.unknownKeys)
+                            stampFrontmatter(context, file, newNote, parsed.unknownEntries)
                         }
                     }
                     Reconcile.Conflict -> {
@@ -554,10 +554,10 @@ object NoteFolderMirror {
         mirrorFiles.firstOrNull { peekFrontmatter(context, it.uri)?.markleafId == noteId }
 
     /** A note's mirror file together with the frontmatter keys it already carries. */
-    private class MirrorMatch(val file: DocumentFile, val extraKeys: Map<String, String>)
+    private class MirrorMatch(val file: DocumentFile, val extraEntries: List<String>)
 
     /** A cached document that has been re-verified as this note's. */
-    private class CachedTarget(val uri: Uri, val extraKeys: Map<String, String>)
+    private class CachedTarget(val uri: Uri, val extraEntries: List<String>)
 
     /**
      * Remembers which document holds each note, so an ordinary save doesn't have
@@ -609,7 +609,7 @@ object NoteFolderMirror {
                 entries.remove(note.id)
                 return null
             }
-            return CachedTarget(entry.uri, head.extraKeys)
+            return CachedTarget(entry.uri, head.extraEntries)
         }
 
         fun remember(folderUri: Uri, noteId: String, document: Uri, name: String) {
@@ -655,19 +655,19 @@ object NoteFolderMirror {
         var unclaimed: MirrorMatch? = null
         for (file in mirrorFiles) {
             val head = peekFrontmatter(context, file.uri) ?: continue
-            if (head.markleafId == note.id) return MirrorMatch(file, head.extraKeys)
+            if (head.markleafId == note.id) return MirrorMatch(file, head.extraEntries)
             if (head.markleafId == null &&
                 unclaimed == null &&
                 MirrorFileNames.isPlainNameFor(file.name.orEmpty(), base)
             ) {
-                unclaimed = MirrorMatch(file, head.extraKeys)
+                unclaimed = MirrorMatch(file, head.extraEntries)
             }
         }
         return unclaimed
     }
 
     /** What a file's head says about which note owns it. */
-    private class HeadInfo(val markleafId: String?, val extraKeys: Map<String, String>)
+    private class HeadInfo(val markleafId: String?, val extraEntries: List<String>)
 
     /** Whether a head read has seen enough to answer that question. */
     internal enum class HeadScan {
@@ -752,7 +752,7 @@ object NoteFolderMirror {
                         limit = limit
                     )
                     when (verdict) {
-                        HeadScan.Done -> return@use HeadInfo(parsed.markleafId, parsed.unknownKeys)
+                        HeadScan.Done -> return@use HeadInfo(parsed.markleafId, parsed.unknownEntries)
                         HeadScan.Undetermined -> return@use null
                         HeadScan.NeedMore -> {
                             limit = (limit * 4).coerceAtMost(FRONTMATTER_MAX_BYTES)

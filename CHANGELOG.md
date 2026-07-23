@@ -4,7 +4,9 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
-## Unreleased
+## v2.28.2 - Sync stops duplicating your files - 2026-07-23
+
+A bug-fix release for a reader report (#213) and the four related sync defects it turned up (#217). No feature or permission changes. The notes database gains one internal column; your notes and files are untouched.
 
 ### Fixed
 - **Sync no longer forks a new file when a note's id goes missing (#213, #217).** Reported by [@Cwpute](https://github.com/Cwpute). A note's mirror file is found by the `markleaf_id` in its frontmatter; if another app rewrote the file without keeping that block — or simply wrote a byte-order mark in front of it — the link broke, and every auto-save from then on created another `<title> (2).md`, `(3).md`, and so on. Markleaf now reads past a byte-order mark, and when no file carries the id it adopts the existing file that already has the note's name instead of forking a copy. Frontmatter keys written by other tools survive the rewrite.

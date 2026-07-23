@@ -452,4 +452,51 @@ class SyncFrontmatterTest {
             first.unknownEntries
         )
     }
+
+    @Test
+    fun decode_doesNotCloseOnAnIndentedRuleInsideABlockScalar() {
+        // #234: the closing delimiter was located with `trim()`, so a `---`
+        // indented inside a `|` block scalar ended the frontmatter. `tags` never
+        // reached the frontmatter at all — it was pasted into the body along
+        // with a stray `---`, and the next mirror write persisted that.
+        val raw = """
+            ---
+            description: |
+              ---
+              a rule inside the block scalar
+            tags:
+              - reading
+            ---
+
+            # Reading log
+        """.trimIndent()
+
+        val parsed = SyncFrontmatter.decode(raw)
+
+        assertTrue("the block is read as frontmatter", parsed.hasFrontmatter)
+        assertTrue("and it is closed", parsed.blockClosed)
+        assertEquals("nothing spills into the body", "# Reading log", parsed.body)
+        assertEquals(
+            listOf(
+                "description: |\n  ---\n  a rule inside the block scalar",
+                "tags:\n  - reading"
+            ),
+            parsed.unknownEntries
+        )
+    }
+
+    @Test
+    fun decode_stillClosesOnADelimiterWithTrailingWhitespace() {
+        // The tolerance the old `trim()` existed for: an editor that leaves
+        // `--- ` must still close the block. `trimEnd()` keeps exactly that,
+        // and nothing more.
+        val raw = "---\nmarkleaf_id: abc-123-def\n--- \n\n# Body"
+
+        val parsed = SyncFrontmatter.decode(raw)
+
+        assertTrue("a trailing space still closes the block", parsed.blockClosed)
+        assertTrue(parsed.hasFrontmatter)
+        assertEquals("abc-123-def", parsed.markleafId)
+        assertEquals("# Body", parsed.body)
+    }
 }

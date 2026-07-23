@@ -146,7 +146,14 @@ object SyncFrontmatter {
                 blockClosed = false
             )
         }
-        val closeOffset = lines.subList(1, lines.size).indexOfFirst { it.trim() == DELIMITER }
+        // `trimEnd`, not `trim`: trailing tolerance is wanted — an editor that
+        // leaves `--- ` should still close the block — but leading tolerance is
+        // not. A top-level delimiter belongs at column 0, so an indented `---`
+        // is by definition inside something else, and the one place it turns up
+        // is a `|` or `>` block scalar. Accepting it ended the frontmatter early:
+        // every entry after it was pasted into the note body along with a stray
+        // `---`, and the next mirror write persisted that arrangement (#234).
+        val closeOffset = lines.subList(1, lines.size).indexOfFirst { it.trimEnd() == DELIMITER }
         if (closeOffset < 0) {
             return Parsed(
                 null, null, null, null, null, text, emptyList(),

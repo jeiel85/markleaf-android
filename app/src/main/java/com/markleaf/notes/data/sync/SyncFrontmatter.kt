@@ -53,14 +53,21 @@ object SyncFrontmatter {
         val body: String,
         val unknownKeys: Map<String, String>,
         /**
-         * True only when a complete `---` … `---` block was found. False both
-         * for a file with no block at all *and* for one whose block never
-         * closes — including the case where the caller simply hasn't read far
-         * enough yet. Pair it with [opensFrontmatter] to tell those apart: a
-         * reader that only peeked at the head must not mistake "not read far
-         * enough" for "this file has no metadata" (#222).
+         * True only when a complete `---` … `---` block was found *and* its
+         * contents read as metadata. False for a file with no block, for one
+         * whose block never closes — including when the caller simply hasn't
+         * read far enough yet — and for a pair of horizontal rules with body
+         * text between them. Pair it with [opensFrontmatter] and [blockClosed]
+         * to tell those apart: a reader that only peeked at the head must not
+         * mistake "not read far enough" for "no metadata here" (#222).
          */
-        val hasFrontmatter: Boolean
+        val hasFrontmatter: Boolean,
+        /**
+         * True when an opening delimiter was followed by a closing one, whether
+         * or not what sat between them was metadata. Lets a reader stop: once
+         * the block has closed, reading further cannot change the verdict.
+         */
+        val blockClosed: Boolean
     )
 
     /**
@@ -116,14 +123,28 @@ object SyncFrontmatter {
                 archived = null,
                 body = text,
                 unknownKeys = emptyMap(),
-                hasFrontmatter = false
+                hasFrontmatter = false,
+                blockClosed = false
             )
         }
         val closeOffset = lines.subList(1, lines.size).indexOfFirst { it.trim() == DELIMITER }
         if (closeOffset < 0) {
-            return Parsed(null, null, null, null, null, text, emptyMap(), hasFrontmatter = false)
+            return Parsed(
+                null, null, null, null, null, text, emptyMap(),
+                hasFrontmatter = false, blockClosed = false
+            )
         }
         val frontmatterLines = lines.subList(1, 1 + closeOffset)
+        // `---` is also a Markdown horizontal rule, so an opening delimiter on
+        // its own proves nothing. A note whose body starts with a rule and
+        // carries another one later used to have everything between them
+        // swallowed as unparseable frontmatter and dropped on import (#222).
+        if (!looksLikeMetadata(frontmatterLines)) {
+            return Parsed(
+                null, null, null, null, null, text, emptyMap(),
+                hasFrontmatter = false, blockClosed = true
+            )
+        }
         var bodyStart = 1 + closeOffset + 1
         // Skip a single leading blank line after the closing delimiter for cleanliness.
         if (bodyStart < lines.size && lines[bodyStart].isEmpty()) bodyStart++
@@ -154,8 +175,32 @@ object SyncFrontmatter {
 
         return Parsed(
             markleafId, createdAt, updatedAt, pinned, archived, body, unknownKeys,
-            hasFrontmatter = true
+            hasFrontmatter = true, blockClosed = true
         )
+    }
+
+    /**
+     * Whether the lines inside a closed `---` … `---` block are metadata rather
+     * than body text that happens to sit between two horizontal rules.
+     *
+     * The test is the **first non-blank line**: real frontmatter opens with a
+     * key. Later lines are deliberately not checked, because a YAML value
+     * legitimately continues across lines — `tags:` followed by `  - a` is an
+     * ordinary Obsidian block, and demanding that every line look like a key
+     * would throw those away, trading one silent loss for a worse one.
+     *
+     * Requiring the key to carry no whitespace also pins it to column 0, which
+     * is where a top-level YAML key belongs, and narrows the ambiguity to prose
+     * whose first line is a single word followed by a colon. That case is still
+     * read as frontmatter; going further needs a real YAML parser. When in
+     * doubt this errs toward *not* frontmatter, because the cost of being wrong
+     * that way is a duplicate file, while the other way is deleted text.
+     */
+    private fun looksLikeMetadata(blockLines: List<String>): Boolean {
+        val first = blockLines.firstOrNull { it.isNotBlank() } ?: return false
+        val colon = first.indexOf(':')
+        if (colon <= 0) return false
+        return first.substring(0, colon).none { it.isWhitespace() }
     }
 
     private fun parseInstantOrNull(value: String): Instant? = runCatching {

@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.29.1 - A rule inside a metadata header stays put - 2026-07-23
+
+One sync fix. No feature, permission, or storage-format changes.
+
+### Fixed
+- **A metadata header holding an indented `---` no longer spills into the note (#234).** Markleaf ended the header at the first line reading `---`, even one indented inside a multi-line value — the shape Obsidian and similar tools use for a long description. Everything below it, up to and including the real closing line, was read as note text: entries that came after, such as `tags`, never registered as metadata at all, and a stray `---` was pasted into the note. The next sync wrote that arrangement to the file and the pass after read the mangled result back, so it worsened with every save. Markleaf now ends the header only on a line that starts at the left margin, and a header written with a trailing space still closes as before.
+
 ## v2.29.0 - Check things off from reading view - 2026-07-23
 
 One feature and three fixes, two of them for text that could go missing. No permission or storage-format changes.

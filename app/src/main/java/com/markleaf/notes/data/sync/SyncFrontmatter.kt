@@ -51,8 +51,29 @@ object SyncFrontmatter {
         val pinned: Boolean?,
         val archived: Boolean?,
         val body: String,
-        val unknownKeys: Map<String, String>
+        val unknownKeys: Map<String, String>,
+        /**
+         * True only when a complete `---` … `---` block was found. False both
+         * for a file with no block at all *and* for one whose block never
+         * closes — including the case where the caller simply hasn't read far
+         * enough yet. Pair it with [opensFrontmatter] to tell those apart: a
+         * reader that only peeked at the head must not mistake "not read far
+         * enough" for "this file has no metadata" (#222).
+         */
+        val hasFrontmatter: Boolean
     )
+
+    /**
+     * True when [fileContents] *opens* a frontmatter block — the first line is
+     * the delimiter — whether or not the block is closed within this string.
+     *
+     * The distinction matters to anyone parsing a truncated prefix of a file:
+     * `hasFrontmatter == false` alone cannot tell "no metadata here" from "the
+     * block runs past what I read", and treating the second as the first
+     * discards metadata the file really has.
+     */
+    fun opensFrontmatter(fileContents: String): Boolean =
+        fileContents.removePrefix(BOM).lineSequence().firstOrNull()?.trim() == DELIMITER
 
     /**
      * @param extraKeys frontmatter keys written by other tools (Obsidian
@@ -94,12 +115,13 @@ object SyncFrontmatter {
                 pinned = null,
                 archived = null,
                 body = text,
-                unknownKeys = emptyMap()
+                unknownKeys = emptyMap(),
+                hasFrontmatter = false
             )
         }
         val closeOffset = lines.subList(1, lines.size).indexOfFirst { it.trim() == DELIMITER }
         if (closeOffset < 0) {
-            return Parsed(null, null, null, null, null, text, emptyMap())
+            return Parsed(null, null, null, null, null, text, emptyMap(), hasFrontmatter = false)
         }
         val frontmatterLines = lines.subList(1, 1 + closeOffset)
         var bodyStart = 1 + closeOffset + 1
@@ -130,7 +152,10 @@ object SyncFrontmatter {
             }
         }
 
-        return Parsed(markleafId, createdAt, updatedAt, pinned, archived, body, unknownKeys)
+        return Parsed(
+            markleafId, createdAt, updatedAt, pinned, archived, body, unknownKeys,
+            hasFrontmatter = true
+        )
     }
 
     private fun parseInstantOrNull(value: String): Instant? = runCatching {

@@ -513,6 +513,10 @@ object NoteFolderMirror {
      * rewrites the file without preserving our block. Adoption is safe because
      * a file carrying *someone else's* id is never taken — only unclaimed ones,
      * and only under the undisambiguated name (`Notes.md`, never `Notes (2).md`).
+     * "Unclaimed" means [peekFrontmatter] read the file's whole block and found
+     * no id; a file it could not read to the end of is skipped rather than
+     * adopted, so a header longer than the read cap is never overwritten
+     * unseen (#222).
      *
      * The file's own unknown frontmatter keys come back alongside it so the
      * write can put them back rather than dropping tags another tool wrote.
@@ -525,36 +529,109 @@ object NoteFolderMirror {
         val base = MirrorFileNames.sanitizeBase(note.title)
         var unclaimed: MirrorMatch? = null
         for (file in mirrorFiles) {
-            val parsed = peekFrontmatter(context, file) ?: continue
-            if (parsed.markleafId == note.id) return MirrorMatch(file, parsed.unknownKeys)
-            if (parsed.markleafId == null &&
+            val head = peekFrontmatter(context, file) ?: continue
+            if (head.markleafId == note.id) return MirrorMatch(file, head.extraKeys)
+            if (head.markleafId == null &&
                 unclaimed == null &&
                 MirrorFileNames.isPlainNameFor(file.name.orEmpty(), base)
             ) {
-                unclaimed = MirrorMatch(file, parsed.unknownKeys)
+                unclaimed = MirrorMatch(file, head.extraKeys)
             }
         }
         return unclaimed
     }
 
+    /** What a file's head says about which note owns it. */
+    private class HeadInfo(val markleafId: String?, val extraKeys: Map<String, String>)
+
+    /** Whether a head read has seen enough to answer that question. */
+    internal enum class HeadScan {
+        /** The block was read in full, or the file provably has none. */
+        Done,
+
+        /** A block is open and its end lies past what has been read. */
+        NeedMore,
+
+        /** The block never closed within the read cap — we cannot say. */
+        Undetermined
+    }
+
     /**
-     * Parse the frontmatter at the head of [file]. Only the leading bytes are
-     * read — the block always sits at the very top — so this stays cheap even
-     * when it runs over every file in the folder. Returns null on any read
-     * failure, which the callers treat as "this file tells us nothing".
+     * Whether a head read of [limit] bytes settled the question.
+     *
+     * Pulled out of the IO loop because the dangerous case is the quiet one:
+     * a truncated read of a file whose frontmatter runs long looks exactly like
+     * a file with no frontmatter at all. Treating the two alike let
+     * [findMirrorFile] class such a file as *unclaimed*, adopt it, and rewrite
+     * it — dropping metadata the file really had (#222).
      */
-    private fun peekFrontmatter(context: Context, file: DocumentFile): SyncFrontmatter.Parsed? =
+    internal fun headScanVerdict(
+        hasFrontmatter: Boolean,
+        opensFrontmatter: Boolean,
+        atEof: Boolean,
+        limit: Int
+    ): HeadScan = when {
+        // The block closed — everything we need is in hand.
+        hasFrontmatter -> HeadScan.Done
+        // No opening delimiter: this file has no block, and never will.
+        !opensFrontmatter -> HeadScan.Done
+        // Whole file read and the block still hasn't closed, so it is not
+        // frontmatter at all — a `---` rule at the top of the body. decode()
+        // already treats it that way.
+        atEof -> HeadScan.Done
+        limit >= FRONTMATTER_MAX_BYTES -> HeadScan.Undetermined
+        else -> HeadScan.NeedMore
+    }
+
+    /**
+     * Read [file]'s head far enough to learn which note owns it.
+     *
+     * Starts at [FRONTMATTER_PEEK_BYTES] — enough for any block we write, and
+     * cheap enough to run over every file in the folder on each save — and only
+     * reads further when the file opens a block that hasn't closed yet, up to
+     * [FRONTMATTER_MAX_BYTES].
+     *
+     * Returns null when the file can't be read, and when a block is still open
+     * at the cap. Both mean "this file tells us nothing", which the callers
+     * treat as *skip*: better to leave an unreadable file alone — and write a
+     * duplicate — than to adopt it and overwrite metadata we never saw.
+     *
+     * Deliberately does not return the parsed body: at these read sizes the
+     * body is usually truncated, and the type shouldn't offer it.
+     */
+    private fun peekFrontmatter(context: Context, file: DocumentFile): HeadInfo? =
         runCatching {
             context.contentResolver.openInputStream(file.uri)?.use { stream ->
-                val buf = ByteArray(FRONTMATTER_PEEK_BYTES)
+                var limit = FRONTMATTER_PEEK_BYTES
+                var buf = ByteArray(limit)
                 var read = 0
-                while (read < buf.size) {
-                    val n = stream.read(buf, read, buf.size - read)
-                    if (n < 0) break
-                    read += n
+                while (true) {
+                    var eof = false
+                    while (read < limit) {
+                        val n = stream.read(buf, read, limit - read)
+                        if (n < 0) { eof = true; break }
+                        read += n
+                    }
+                    if (read <= 0) return@use null
+                    val text = String(buf, 0, read, Charsets.UTF_8)
+                    val parsed = SyncFrontmatter.decode(text)
+                    val verdict = headScanVerdict(
+                        hasFrontmatter = parsed.hasFrontmatter,
+                        opensFrontmatter = SyncFrontmatter.opensFrontmatter(text),
+                        atEof = eof,
+                        limit = limit
+                    )
+                    when (verdict) {
+                        HeadScan.Done -> return@use HeadInfo(parsed.markleafId, parsed.unknownKeys)
+                        HeadScan.Undetermined -> return@use null
+                        HeadScan.NeedMore -> {
+                            limit = (limit * 4).coerceAtMost(FRONTMATTER_MAX_BYTES)
+                            buf = buf.copyOf(limit)
+                        }
+                    }
                 }
-                if (read <= 0) null
-                else SyncFrontmatter.decode(String(buf, 0, read, Charsets.UTF_8))
+                // Unreachable: every branch above returns.
+                @Suppress("UNREACHABLE_CODE") null
             }
         }.getOrNull()
 
@@ -590,6 +667,15 @@ object NoteFolderMirror {
     private const val SLACK_MILLIS = 2_000L
     private const val ATTACHMENTS_DIR = "attachments"
     private const val FRONTMATTER_PEEK_BYTES = 4096
+
+    /**
+     * Ceiling on how far [peekFrontmatter] will chase an unclosed frontmatter
+     * block. A block we write is a few hundred bytes; one that has not ended
+     * after 256 KB is not a header we should be reasoning about, and reading
+     * further would put an unbounded cost on a path that runs over every file
+     * in the folder each time a note is saved.
+     */
+    internal const val FRONTMATTER_MAX_BYTES = 256 * 1024
 }
 
 /**

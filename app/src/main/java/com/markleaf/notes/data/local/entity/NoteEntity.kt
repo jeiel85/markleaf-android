@@ -29,6 +29,10 @@ data class NoteEntity(
     val deletedAt: Long? = null,
     val sortOrder: Int = 0,
     val lastImportedAt: Long? = null,
+    /** Newest mirror-file timestamp the reconcile has resolved for this note.
+     *  Keeps conflict-settling bookkeeping out of `updatedAt`, which is the
+     *  user's own edit time and orders the notes list. */
+    val remoteSeenAt: Long? = null,
     /** When true the note lives in the passcode-gated "Locked notes" space and is
      *  hidden from every normal list, search, tag and export path. This is a
      *  UI-visibility gate — the body still sits in the same Room DB in plain
@@ -55,6 +59,7 @@ fun NoteEntity.toDomain(): Note {
         tags = emptyList(),
         sortOrder = sortOrder,
         lastImportedAt = lastImportedAt?.let { Instant.ofEpochMilli(it) },
+        remoteSeenAt = remoteSeenAt?.let { Instant.ofEpochMilli(it) },
         locked = locked,
         isConflictCopy = isConflictCopy
     )
@@ -74,6 +79,7 @@ fun Note.toEntity(): NoteEntity {
         deletedAt = deletedAt?.toEpochMilli(),
         sortOrder = sortOrder,
         lastImportedAt = lastImportedAt?.toEpochMilli(),
+        remoteSeenAt = remoteSeenAt?.toEpochMilli(),
         locked = locked,
         isConflictCopy = isConflictCopy
     )

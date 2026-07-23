@@ -26,7 +26,7 @@ import com.markleaf.notes.data.local.entity.TagEntity
         NoteLinkEntity::class,
         AttachmentEntity::class
     ],
-    version = 16,
+    version = 17,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -280,6 +280,19 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // v16 → v17 (#222): track how far the folder reconcile has read a note's
+        // mirror file, separately from `updatedAt`. Settling a sync conflict
+        // used to work by pushing `updatedAt` past the file's timestamp — the
+        // only field the decision looked at — which reordered a note in the
+        // "recently updated" list that the user had not touched. Nullable with
+        // no backfill: a null reads as "no remote version resolved yet", which
+        // is exactly right for every note that predates this column.
+        private val MIGRATION_16_17 = object : Migration(16, 17) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `notes` ADD COLUMN `remoteSeenAt` INTEGER")
+            }
+        }
+
         internal val ALL_MIGRATIONS = arrayOf(
             MIGRATION_4_5,
             MIGRATION_5_6,
@@ -293,7 +306,8 @@ abstract class AppDatabase : RoomDatabase() {
             MIGRATION_12_14,
             MIGRATION_13_14,
             MIGRATION_14_15,
-            MIGRATION_15_16
+            MIGRATION_15_16,
+            MIGRATION_16_17
         )
     }
 }

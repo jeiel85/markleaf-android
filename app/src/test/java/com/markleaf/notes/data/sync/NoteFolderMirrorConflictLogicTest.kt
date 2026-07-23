@@ -19,7 +19,8 @@ class NoteFolderMirrorConflictLogicTest {
         updatedAtMs: Long,
         lastImportMs: Long? = null,
         trashed: Boolean = false,
-        archived: Boolean = false
+        archived: Boolean = false,
+        remoteSeenMs: Long? = null
     ) = Note(
         id = "n1",
         title = "T",
@@ -29,7 +30,8 @@ class NoteFolderMirrorConflictLogicTest {
         updatedAt = Instant.ofEpochMilli(updatedAtMs),
         trashed = trashed,
         archived = archived,
-        lastImportedAt = lastImportMs?.let { Instant.ofEpochMilli(it) }
+        lastImportedAt = lastImportMs?.let { Instant.ofEpochMilli(it) },
+        remoteSeenAt = remoteSeenMs?.let { Instant.ofEpochMilli(it) }
     )
 
     private fun action(existing: Note?, fileTsMs: Long) =
@@ -188,23 +190,63 @@ class NoteFolderMirrorConflictLogicTest {
     fun absorbedConflict_isSkippedOnTheNextPass() {
         // The Conflict branch used to leave the local note and the file both
         // untouched, so this same call returned Conflict again on the next
-        // reconcile — once a minute, without end. importChanges now advances the
-        // local note past the file it copied; that state must resolve to Skip.
+        // reconcile — once a minute, without end. importChanges now records the
+        // remote version it copied; that state must resolve to Skip.
         val fileTsMs = 100_000L
-        val absorbed = note(updatedAtMs = fileTsMs + 1, lastImportMs = fileTsMs)
+        val absorbed = note(updatedAtMs = 20_000, lastImportMs = 10_000, remoteSeenMs = fileTsMs)
 
         assertEquals(Reconcile.Skip, action(absorbed, fileTsMs))
     }
 
     @Test
-    fun absorbedConflict_stillSeesTheNextRemoteEdit() {
-        // Settling must not deafen the note to genuine later changes. Nothing
-        // was edited locally after the copy was taken, so the next newer file is
-        // a clean overwrite rather than another conflict.
+    fun absorbedConflict_leavesTheUsersEditTimeAlone() {
+        // Settling used to work by pushing `updatedAt` past the file, which
+        // reordered a note in the list that the user had not touched (#222).
+        // The local edit time must be exactly what it was, and the pair must
+        // still be quiet.
         val fileTsMs = 100_000L
-        val absorbed = note(updatedAtMs = fileTsMs + 1, lastImportMs = fileTsMs)
+        val absorbed = note(updatedAtMs = 20_000, lastImportMs = 10_000, remoteSeenMs = fileTsMs)
 
-        assertEquals(Reconcile.Overwrite, action(absorbed, fileTsMs = 200_000))
+        assertEquals(Instant.ofEpochMilli(20_000), absorbed.updatedAt)
+        assertEquals(Reconcile.Skip, action(absorbed, fileTsMs))
+    }
+
+    @Test
+    fun absorbedConflict_stillSeesTheNextRemoteEdit() {
+        // Settling must not deafen the note to genuine later changes. The local
+        // side is still ahead of its last import, so a newer file is another
+        // conflict rather than a silent overwrite of the user's edit.
+        val absorbed = note(updatedAtMs = 20_000, lastImportMs = 10_000, remoteSeenMs = 100_000)
+
+        assertEquals(Reconcile.Conflict, action(absorbed, fileTsMs = 200_000))
+    }
+
+    @Test
+    fun remoteSeenAt_doesNotSuppressAnUnresolvedNewerFile() {
+        // The guard only silences versions already dealt with. A file newer than
+        // the one we resolved must still come through.
+        val note = note(updatedAtMs = 10_000, lastImportMs = 10_000, remoteSeenMs = 50_000)
+
+        assertEquals(Reconcile.Overwrite, action(note, fileTsMs = 100_000))
+    }
+
+    @Test
+    fun noRemoteSeenAt_behavesExactlyAsBefore() {
+        // Every note predating the column has a null here, and the migration
+        // deliberately does not backfill — so the whole existing matrix has to
+        // keep its answers.
+        assertEquals(
+            Reconcile.Overwrite,
+            action(note(updatedAtMs = 10_000, lastImportMs = 10_000), fileTsMs = 100_000)
+        )
+        assertEquals(
+            Reconcile.Conflict,
+            action(note(updatedAtMs = 20_000, lastImportMs = 10_000), fileTsMs = 100_000)
+        )
+        assertEquals(
+            Reconcile.Skip,
+            action(note(updatedAtMs = 5_000, lastImportMs = 0), fileTsMs = 1_000)
+        )
     }
 
     // --- #217: which timestamp represents the file --------------------------

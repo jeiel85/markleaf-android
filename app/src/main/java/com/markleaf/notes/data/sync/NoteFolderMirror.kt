@@ -331,7 +331,8 @@ object NoteFolderMirror {
                             updatedAt = parsed.updatedAt ?: now,
                             pinned = parsed.pinned ?: false,
                             archived = parsed.archived ?: false,
-                            lastImportedAt = parsed.updatedAt ?: now
+                            lastImportedAt = parsed.updatedAt ?: now,
+                            remoteSeenAt = parsed.updatedAt ?: now
                         )
                         applyCreate(newNote)
                         created++
@@ -363,24 +364,17 @@ object NoteFolderMirror {
                             pinned = false,
                             archived = false,
                             lastImportedAt = fileTs,
+                            remoteSeenAt = fileTs,
                             isConflictCopy = true
                         )
                         applyCreate(duplicate)
-                        // Advance the local note past the file we just copied.
-                        // [reconcileAction] reads nothing but (updatedAt,
-                        // lastImportedAt, fileTs); taking the copy changed none
-                        // of them, so the next pass reached the same verdict and
-                        // made another copy — once a minute, without end (#217).
-                        // The body is untouched, so the local edit survives; the
-                        // bump only records "this file has been dealt with", and
-                        // leaves the pair resolving to Skip until one side moves
-                        // again.
-                        applyUpdate(
-                            existingNote!!.copy(
-                                updatedAt = fileTs.plusMillis(1),
-                                lastImportedAt = fileTs
-                            )
-                        )
+                        // Record that this remote version has been dealt with,
+                        // so the next pass resolves to Skip instead of taking
+                        // the copy again — once a minute, without end (#217).
+                        // Nothing the *user* owns is touched: `updatedAt` stays
+                        // put, so a note they never edited keeps its place in
+                        // the list (#222). Only `remoteSeenAt` moves.
+                        applyUpdate(existingNote!!.copy(remoteSeenAt = fileTs))
                         conflicts++
                     }
                     Reconcile.Overwrite -> {
@@ -392,7 +386,8 @@ object NoteFolderMirror {
                             updatedAt = fileTs,
                             pinned = parsed.pinned ?: note.pinned,
                             archived = parsed.archived ?: note.archived,
-                            lastImportedAt = fileTs
+                            lastImportedAt = fileTs,
+                            remoteSeenAt = fileTs
                         )
                         applyUpdate(merged)
                         updated++
@@ -433,6 +428,13 @@ object NoteFolderMirror {
         // user deleted (#148). Archived notes are *not* skipped: they stay hidden
         // but still take edits from the folder.
         if (existingNote.trashed) return Reconcile.SkipTrashed
+        // A remote version we have already resolved is not news, whatever it
+        // looks like next to `updatedAt`. This is what lets a conflict settle:
+        // the copy is taken once, and this pair goes quiet until one side
+        // actually moves again. Before it, the only lever was pushing
+        // `updatedAt` past the file — reordering a note nobody had edited (#222).
+        val remoteSeen = existingNote.remoteSeenAt?.toEpochMilli()
+        if (remoteSeen != null && fileTs.toEpochMilli() <= remoteSeen) return Reconcile.Skip
         val fileNewer =
             fileTs.toEpochMilli() > existingNote.updatedAt.toEpochMilli() + SLACK_MILLIS
         if (!fileNewer) return Reconcile.Skip

@@ -101,6 +101,30 @@ class AppDatabaseMigrationTest {
             assertNotNull(cursor)
         }
 
+        // #214: v17→v18 adds `note_view_state`. A legacy note has no row, which
+        // reads as "never left anywhere" — i.e. opens at the top, exactly as it
+        // did before the setting existed.
+        db.openHelper.writableDatabase.query(
+            "SELECT COUNT(*) FROM note_view_state WHERE noteId = '42'"
+        ).use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(0, cursor.getInt(0))
+        }
+
+        // The position is owned by its note: deleting the note takes the row
+        // with it, so nothing has to remember to clean up after a delete.
+        db.openHelper.writableDatabase.run {
+            execSQL("PRAGMA foreign_keys = ON")
+            execSQL(
+                "INSERT INTO note_view_state (noteId, caretOffset, previewIndex) VALUES ('42', 120, 4)"
+            )
+            execSQL("DELETE FROM notes WHERE id = '42'")
+            query("SELECT COUNT(*) FROM note_view_state WHERE noteId = '42'").use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertEquals(0, cursor.getInt(0))
+            }
+        }
+
         db.close()
     }
 

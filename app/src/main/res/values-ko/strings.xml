@@ -179,6 +179,13 @@
     <string name="reopen_last_note_description">앱을 열 때 노트 목록 대신 마지막으로 편집한 노트에서 시작합니다.</string>
     <string name="open_notes_in_preview">노트를 미리보기로 열기</string>
     <string name="open_notes_in_preview_description">노트를 열 때 편집 화면 대신 미리보기를 표시합니다. 새 노트는 편집으로 열립니다. 노트에서 미리보기/편집 아이콘을 길게 누르면 이 설정을 바꿀 수 있습니다.</string>
+    <string name="open_notes_at">노트를 열 위치</string>
+    <string name="open_notes_at_top">맨 위</string>
+    <string name="open_notes_at_bottom">맨 아래</string>
+    <string name="open_notes_at_last_position">마지막 위치</string>
+    <string name="open_notes_at_description">노트를 열었을 때 표시할 위치입니다. \'맨 아래\'는 계속 이어 쓰는 노트에 적합합니다. \'마지막 위치\'는 노트별 위치를 앱 안에만 기억하며 파일에는 아무것도 쓰지 않습니다.</string>
+    <string name="jump_to_end">맨 아래로 이동</string>
+    <string name="jump_to_start">맨 위로 이동</string>
     <string name="view_mode_locked">이제 노트가 미리보기로 열립니다</string>
     <string name="view_mode_unlocked">이제 노트가 편집으로 열립니다</string>
     <string name="lock_view_mode">보기 모드 잠금</string>

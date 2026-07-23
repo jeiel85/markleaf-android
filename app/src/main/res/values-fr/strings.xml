@@ -181,6 +181,13 @@
     <string name="reopen_last_note_description">Démarre dans la dernière note modifiée plutôt que dans la liste des notes.</string>
     <string name="open_notes_in_preview">Ouvrir les notes en aperçu</string>
     <string name="open_notes_in_preview_description">Afficher l\'aperçu rendu à l\'ouverture d\'une note au lieu de la vue d\'édition. Les nouvelles notes s\'ouvrent toujours en édition. Astuce : appui long sur l\'icône aperçu/modifier dans une note pour basculer.</string>
+    <string name="open_notes_at">Ouvrir les notes à</string>
+    <string name="open_notes_at_top">Début</string>
+    <string name="open_notes_at_bottom">Fin</string>
+    <string name="open_notes_at_last_position">Là où je me suis arrêté</string>
+    <string name="open_notes_at_description">L\'endroit où une note s\'ouvre. « Fin » convient aux notes que vous ne faites que compléter. « Là où je me suis arrêté » retient la position de chaque note dans l\'application uniquement : rien n\'est écrit dans vos fichiers.</string>
+    <string name="jump_to_end">Aller à la fin</string>
+    <string name="jump_to_start">Aller au début</string>
     <string name="view_mode_locked">Les notes s\'ouvrent désormais en aperçu</string>
     <string name="view_mode_unlocked">Les notes s\'ouvrent désormais en édition</string>
     <string name="lock_view_mode">Verrouiller le mode d\'affichage</string>

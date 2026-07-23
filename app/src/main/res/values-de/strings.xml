@@ -181,6 +181,13 @@
     <string name="reopen_last_note_description">Beim Start direkt in der zuletzt bearbeiteten Notiz beginnen statt in der Notizenliste.</string>
     <string name="open_notes_in_preview">Notizen in der Vorschau öffnen</string>
     <string name="open_notes_in_preview_description">Beim Öffnen einer Notiz die gerenderte Vorschau statt der Bearbeitungsansicht anzeigen. Neue Notizen öffnen weiterhin zum Bearbeiten. Tipp: Vorschau-/Bearbeiten-Symbol in einer Notiz lange drücken, um dies umzuschalten.</string>
+    <string name="open_notes_at">Notizen öffnen bei</string>
+    <string name="open_notes_at_top">Anfang</string>
+    <string name="open_notes_at_bottom">Ende</string>
+    <string name="open_notes_at_last_position">Letzter Stand</string>
+    <string name="open_notes_at_description">Wo eine Notiz beim Öffnen landet. „Ende“ passt zu Notizen, an die du nur anfügst. „Letzter Stand“ merkt sich die Position jeder Notiz nur in der App — in deine Dateien wird nichts geschrieben.</string>
+    <string name="jump_to_end">Ans Ende springen</string>
+    <string name="jump_to_start">An den Anfang springen</string>
     <string name="view_mode_locked">Notizen öffnen jetzt in der Vorschau</string>
     <string name="view_mode_unlocked">Notizen öffnen jetzt zum Bearbeiten</string>
     <string name="lock_view_mode">Ansichtsmodus sperren</string>

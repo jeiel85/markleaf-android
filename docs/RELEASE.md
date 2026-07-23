@@ -230,6 +230,38 @@ emulator -avd markleaf-tablet-api36 -no-boot-anim -no-snapshot-load
 
 A failure that survives a cold boot is real. One that does not is the emulator.
 
+## Release Export — Local Gate, Not CI
+
+**CI cannot check this.** `D:\Build` is a local path on the maintainer's
+machine, so no pipeline can confirm the export ran. Run it, then verify it,
+before pushing a tag:
+
+```powershell
+.\gradlew.bat :app:exportReleaseToBuildDrive
+pwsh scripts/verify-release-export.ps1
+```
+
+The check asserts that three files exist and are non-empty for the current
+`versionName`/`versionCode`, under the `markleaf-v<semver>-vc<code>` stem —
+`.aab`, `.mapping.txt`, and `-release-notes.txt` — and that the notes file
+carries a block for all six store locales. `D:\Build` is shared with other
+projects, so only files matching that stem are considered.
+
+This gate exists because the export is a manual step that silently went missing
+for six consecutive releases. v2.27.2, v2.28.0, v2.28.1, v2.28.2, v2.28.3, and
+v2.29.0 have no AAB and no mapping in `D:\Build`; the gap only surfaced while
+removing the mapping from the GitHub Release assets (#244), and the mappings had
+to be recovered from those assets before they were deleted.
+
+It also checks the mapping specifically, which the export itself does not
+guarantee: `writeReleaseArtifacts` throws when the AAB is missing but only logs
+a warning and continues when the mapping is absent. A successful export is not
+evidence that a mapping was written.
+
+Since D064 the mapping is no longer a GitHub Release asset — it survives on
+GitHub only as a 30-day workflow artifact. A release that skips this export and
+is noticed more than 30 days later cannot be deobfuscated at all.
+
 ## Release Version and Notes Checks
 
 Two PowerShell checks guard the parts of a release that are maintained by hand.
@@ -376,13 +408,18 @@ The local Play Console hand-off remains separate:
 ```
 
 It writes only the signed AAB, mapping, and six-locale notes to `D:\Build`.
-The GitLab APK does not change that local directory contract.
+The GitLab APK does not change that local directory contract. This step is
+mandatory before a tag, and verified — see
+[Release Export](#release-export--local-gate-not-ci).
 
-Before tagging, run the one gate CI does not cover — see
-[Instrumented Tests](#instrumented-tests--local-gate-not-ci):
+Before tagging, run the two gates CI does not cover — see
+[Instrumented Tests](#instrumented-tests--local-gate-not-ci) and
+[Release Export](#release-export--local-gate-not-ci):
 
 ```powershell
 pwsh scripts/run-instrumented-tests.ps1
+.\gradlew.bat :app:exportReleaseToBuildDrive
+pwsh scripts/verify-release-export.ps1
 ```
 
 Push the release tag to GitLab first, then GitHub (unless `SKIP_GITLAB_CI` is

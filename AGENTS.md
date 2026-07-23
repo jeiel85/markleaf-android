@@ -96,7 +96,7 @@ Android 프로젝트가 아직 초기화되지 않았다면 먼저 표준 Kotlin
 이 task는 `bundleRelease`에 의존하므로 **서명 AAB**도 함께 빌드된다(서명: repo 루트 `release-signing.properties` + `.secrets/markleaf-release.p12` 키스토어; cert는 Play 업로드 키와 동일). 산출물은 모두 `D:\Build\` 평면 배치, 공통 stem `markleaf-v<semver>-vc<versionCode>`:
 
 - `markleaf-v<semver>-vc<versionCode>.aab` — `app/build/outputs/bundle/release/app-release.aab`(서명) 복사본
-- `markleaf-v<semver>-vc<versionCode>.mapping.txt` — R8 mapping(Play 크래시 deobfuscation; 있으면 복사)
+- `markleaf-v<semver>-vc<versionCode>.mapping.txt` — R8 mapping(Play 크래시 deobfuscation; 있으면 복사). AAB가 없으면 task가 예외를 던지지만 mapping은 warn만 남기고 넘어가므로, AAB가 나왔다고 mapping도 나왔다고 볼 수 없다 — `scripts/verify-release-export.ps1`이 이것까지 확인한다
 - `markleaf-v<semver>-vc<versionCode>-release-notes.txt` — **모든 스토어 로케일**(ko-KR / en-US / ja-JP / de-DE / fr-FR / es-ES)의 `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt`를 읽어 하나의 파일에 로케일 태그 블록을 연달아 묶음
 
 TXT 파일은 바로 복사/붙여넣기 가능해야 하며, 각 로케일 릴리즈 노트만 아래 태그로 감싼다. 태그 밖에는 어떤 설명이나 문구도 넣지 않는다 (Gradle task가 이 형식을 보장한다).
@@ -145,7 +145,11 @@ GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
    workflow_dispatch — 로컬 재기록은 폰트 힌팅 차이로 CI verify와 어긋난다).
 3. **F-Droid — 태그 푸시로 자동 배포.** versionCode/versionName bump + `CHANGELOG.md`(영어,
    릴리즈 노트 원본) + `CHANGELOG.ko.md`(한국어판) + fastlane changelog 작성 후 main에
-   푸시하고 `vX.Y.Z` 태그를 GitLab 먼저, GitHub 다음으로 푸시한다. 같은 태그가 양쪽에서
+   푸시한다. **태그를 밀기 전에** `:app:exportReleaseToBuildDrive`로 `D:\Build` 산출물을
+   남기고 `pwsh scripts/verify-release-export.ps1`로 확인한다 — `D:\Build`는 CI가 볼 수 없는
+   로컬 경로라 이 단계가 빠져도 아무것도 실패하지 않으며, 실제로 v2.27.2부터 v2.29.0까지
+   여섯 릴리스가 AAB·mapping 없이 지나갔다(#247). 그다음 `vX.Y.Z` 태그를 GitLab 먼저,
+   GitHub 다음으로 푸시한다. 같은 태그가 양쪽에서
    독립적으로 서명 빌드를 돌리지만 **릴리스에 붙는 자산은 다르다** — GitHub Release는 APK
    하나만, GitLab Release는 Generic Package Registry를 통해 AAB와 mapping까지 포함한다
    (AAB를 GitHub에 올리지 않는 이유는 D062, mapping을 빼고 30일 아티팩트로만 두는 이유는

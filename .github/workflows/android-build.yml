@@ -191,9 +191,9 @@ jobs:
           api-level: 30
           arch: x86_64
           profile: pixel_4
-          script: >
-            ./gradlew :app:connectedDebugAndroidTest
-            -Pandroid.testInstrumentationRunnerArguments.notPackage=com.markleaf.notes.ui
+          script: |
+            chmod +x .github/scripts/instrumented-tests.sh
+            ./.github/scripts/instrumented-tests.sh
 
       - name: Upload instrumented test report
         if: failure()

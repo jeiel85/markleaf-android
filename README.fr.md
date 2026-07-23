@@ -47,7 +47,7 @@
 
 **Markleaf** est une application Android de prise de notes Markdown conçue pour éliminer le superflu afin que vous puissiez vous concentrer sur seulement deux choses : capturer et organiser. Vos données sont stockées uniquement sur votre appareil, et le format Markdown standard garantit une propriété et une portabilité complètes. Même la synchronisation ne passe que par *un dossier que vous choisissez* — Markleaf lui-même ne se connecte jamais à internet.
 
-[**Voir la page de branding**](https://jeiel85.github.io/markleaf-android/) · [Version actuelle : v2.28.3](https://github.com/jeiel85/markleaf-android/releases/tag/v2.28.3) · [Politique de confidentialité](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**Voir la page de branding**](https://jeiel85.github.io/markleaf-android/) · [Version actuelle : v2.29.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.29.0) · [Politique de confidentialité](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -93,13 +93,12 @@
 Markleaf n'a pas de format de coffre qui lui soit propre. Pointez-le vers un dossier — y compris un dossier qu'Obsidian, Logseq ou votre éditeur de texte ouvrent déjà — et il travaille sur les fichiers qui s'y trouvent.
 
 - **Des fichiers simples, déjà les vôtres.** Une note est un fichier `.md` (ou `.txt`). Déposez vos fichiers existants dans le dossier : Markleaf les reprend comme notes dès son prochain passage au premier plan — sans étape d'import.
-- **Votre frontmatter est repris, ligne par ligne.** Markleaf ajoute un petit en-tête YAML (`markleaf_id`, horodatages, pinned/archived) pour associer un fichier à une note d'un appareil à l'autre, et réécrit les clés qu'il ne connaît pas au lieu de les jeter. Cet en-tête est un sous-ensemble strict de YAML qu'Obsidian, GitHub et VS Code analysent tous. Mais l'analyseur procède ligne par ligne : les entrées `key: value` et les listes en flux comme `tags: [reading]` survivent intactes à l'aller-retour — **les valeurs sur plusieurs lignes pas encore**, voir ci-dessous.
+- **Votre frontmatter est préservé.** Markleaf ajoute un petit en-tête YAML (`markleaf_id`, horodatages, pinned/archived) pour associer un fichier à une note d'un appareil à l'autre, et **tout ce qu'il ne connaît pas ressort tel quel** — y compris les listes en bloc indentées dans lesquelles Obsidian écrit les tags, les tables imbriquées, les commentaires et les guillemets. L'en-tête qu'il ajoute est un sous-ensemble strict de YAML qu'Obsidian, GitHub et VS Code analysent tous.
 - **La syntaxe que vous écrivez déjà.** `[[Wikiliens]]` avec panneau de rétroliens, `#tags` directement dans le texte, tableaux et cases à cocher GFM, encarts `> [!NOTE]`, et un sélecteur rapide `Ctrl+K` façon Obsidian.
 - **Se réconcilie tout seul, avec prudence.** Les changements faits ailleurs sont repris quand Markleaf revient au premier plan (au plus une fois par minute). Une modification faite depuis un autre éditeur est détectée même si celui-ci ne touche jamais au frontmatter de Markleaf : la réconciliation compare le corps du texte, pas seulement l'horodatage. Un fichier ne l'emporte que s'il est réellement plus récent ; si les deux côtés ont bougé, la version distante arrive comme une note *distincte* au lieu d'écraser vos modifications, et rien n'est jamais supprimé automatiquement.
 
 > [!IMPORTANT]
-> **Trois points à connaître avant de pointer Markleaf vers un vrai coffre.**
-> - **Les propriétés sur plusieurs lignes ne sont pas encore préservées ([#226](https://github.com/jeiel85/markleaf-android/issues/226)).** Markleaf lit le frontmatter ligne par ligne : une liste en bloc indentée — la forme sous laquelle Obsidian écrit les tags par défaut — se réduit à une clé vide dès que Markleaf y inscrit son id, et une table imbriquée est aplatie. Si vos notes portent des propriétés sous cette forme, gardez-les hors du dossier que vous confiez à Markleaf jusqu'à ce que ce soit corrigé.
+> **Deux points à connaître avant de pointer Markleaf vers un vrai coffre.**
 > - **Un dossier, pas de sous-dossiers.** Markleaf lit les fichiers situés directement dans le dossier choisi et ne descend pas dans les sous-répertoires. Un coffre organisé en dossiers imbriqués ne rencontrera Markleaf qu'à son niveau supérieur — c'est délibéré : Markleaf classe par tags plutôt que par dossiers.
 > - **Modifier une note renomme son fichier.** Les noms des fichiers miroirs suivent le titre de la note ; un fichier dont le nom diffère de son titre sera donc renommé au premier enregistrement dans Markleaf. Si des `[[liens]]` de votre coffre pointent vers l'ancien nom, ils casseront.
 >
@@ -155,7 +154,7 @@ com.markleaf.notes
 > **Les mises à jour sur Google Play sont actuellement en pause.** Aucune nouvelle version ne sera publiée sur le Play Store tant qu'une exigence de politique d'enregistrement d'entreprise en Corée pour le développeur indépendant ne sera pas résolue. En attendant, **obtenez la dernière version via F-Droid, GitHub Releases ou GitLab Releases.** (Si vous l'avez déjà installée depuis le Play Store, elle continue de fonctionner.)
 
 - **F-Droid** *(recommandé)* : [Markleaf sur F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — recherchez-le dans le client F-Droid ou installez-le via le lien ci-dessus. Il utilise la même clé de signature (SHA-256 `0be97352…f91a`), donc les mises à jour continuent sans interruption même si vous avez installé un APK via sideload depuis GitHub ou GitLab Releases.
-- **Installation directe de l'APK** : téléchargez l'APK depuis la [release GitHub v2.28.3](https://github.com/jeiel85/markleaf-android/releases/tag/v2.28.3), puis exécutez-le sur votre appareil Android.
+- **Installation directe de l'APK** : téléchargez l'APK depuis la [release GitHub v2.29.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.29.0), puis exécutez-le sur votre appareil Android.
 - **Google Play** : [Markleaf sur Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **les mises à jour sont en pause** (voir la note ci-dessus). Si vous l'avez déjà, elle continue de fonctionner, mais obtenez la dernière version via F-Droid, GitHub ou GitLab.
 
 ### Compilation depuis les sources

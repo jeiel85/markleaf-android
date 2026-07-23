@@ -47,7 +47,7 @@
 
 **Markleaf** es una app de notas Markdown para Android diseñada para eliminar lo superfluo y dejarte concentrar en solo dos cosas: capturar y organizar. Tus datos se guardan únicamente en tu dispositivo, y el formato Markdown estándar garantiza la propiedad total y la portabilidad de tus datos. Incluso la sincronización ocurre solo a través de *una carpeta que tú eliges* — Markleaf en sí nunca se conecta a internet.
 
-[**Ver la página de branding**](https://jeiel85.github.io/markleaf-android/) · [Versión actual: v2.28.3](https://github.com/jeiel85/markleaf-android/releases/tag/v2.28.3) · [Política de privacidad](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**Ver la página de branding**](https://jeiel85.github.io/markleaf-android/) · [Versión actual: v2.29.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.29.0) · [Política de privacidad](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -93,13 +93,12 @@
 Markleaf no tiene un formato de bóveda propio. Apúntalo a una carpeta — incluso a una que Obsidian, Logseq o tu editor de texto ya abren — y trabajará con los archivos que haya allí.
 
 - **Archivos planos que ya son tuyos.** Una nota es un archivo `.md` (o `.txt`). Deja tus archivos existentes en la carpeta y Markleaf los recogerá como notas la próxima vez que pase a primer plano — sin paso de importación.
-- **Tu frontmatter se traslada, línea a línea.** Markleaf añade una pequeña cabecera YAML (`markleaf_id`, marcas de tiempo, pinned/archived) para emparejar un archivo con una nota entre dispositivos, y vuelve a escribir las claves que no reconoce en lugar de descartarlas. La cabecera es un subconjunto estricto de YAML que Obsidian, GitHub y VS Code interpretan sin problemas. Pero el analizador va por líneas: las entradas `key: value` y las listas en flujo como `tags: [reading]` sobreviven intactas a la ida y vuelta — **los valores multilínea todavía no**, ver abajo.
+- **Tu frontmatter sobrevive.** Markleaf añade una pequeña cabecera YAML (`markleaf_id`, marcas de tiempo, pinned/archived) para emparejar un archivo con una nota entre dispositivos, y **todo lo que no reconoce sale de nuevo tal cual** — incluidas las listas en bloque indentadas con las que Obsidian escribe las etiquetas, los mapas anidados, los comentarios y el entrecomillado. La cabecera que añade es un subconjunto estricto de YAML que Obsidian, GitHub y VS Code interpretan sin problemas.
 - **La misma sintaxis que ya escribes.** `[[Wikienlaces]]` con panel de retroenlaces, `#etiquetas` en el propio texto, tablas y casillas GFM, llamadas `> [!NOTE]` y un conmutador rápido `Ctrl+K` al estilo de Obsidian.
 - **Se reconcilia solo, con cuidado.** Los cambios hechos en otro sitio se incorporan cuando Markleaf vuelve a primer plano (como mucho una vez por minuto). Una edición hecha desde otro editor se detecta aunque ese editor nunca toque el frontmatter de Markleaf: la reconciliación compara el cuerpo, no solo la marca de tiempo. Un archivo solo gana si es realmente más nuevo; si ambos lados cambiaron, la versión remota llega como una nota *aparte* en vez de sobrescribir tus ediciones, y nunca se borra nada automáticamente.
 
 > [!IMPORTANT]
-> **Tres cosas antes de apuntar Markleaf a una bóveda real.**
-> - **Las propiedades multilínea todavía no se conservan ([#226](https://github.com/jeiel85/markleaf-android/issues/226)).** Markleaf lee el frontmatter línea a línea, así que una lista en bloque indentada — la forma en que Obsidian escribe las etiquetas por defecto — se reduce a una clave vacía en cuanto Markleaf estampa su id, y un mapa anidado se aplana. Si tus notas llevan propiedades de esa forma, mantenlas fuera de la carpeta que le des a Markleaf hasta que esto se corrija.
+> **Dos cosas antes de apuntar Markleaf a una bóveda real.**
 > - **Una carpeta, sin subcarpetas.** Markleaf lee los archivos que están directamente dentro de la carpeta elegida y no baja a subdirectorios. Una bóveda organizada en carpetas anidadas solo se encontrará con Markleaf en su nivel superior — es deliberado: Markleaf organiza por etiquetas, no por carpetas.
 > - **Editar una nota renombra su archivo.** Los nombres de los archivos espejo siguen al título de la nota, así que un archivo cuyo nombre difiera de su encabezado se renombrará la primera vez que lo guardes en Markleaf. Si en tu bóveda hay `[[enlaces]]` que apuntan al nombre antiguo, se romperán.
 >
@@ -155,7 +154,7 @@ com.markleaf.notes
 > **Las actualizaciones en Google Play están en pausa por ahora.** No se publicarán nuevas versiones en la Play Store hasta que se resuelva un requisito de política de registro de negocio en Corea para el desarrollador individual. Mientras tanto, **obtén la última versión desde F-Droid, GitHub Releases o GitLab Releases.** (Si ya la instalaste desde la Play Store, seguirá funcionando.)
 
 - **F-Droid** *(recomendado)*: [Markleaf en F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — búscalo en el cliente de F-Droid o instálalo con el enlace de arriba. Usa la misma clave de firma (SHA-256 `0be97352…f91a`), así que las actualizaciones continúan sin problemas incluso si instalaste un APK de GitHub o GitLab Releases mediante sideload.
-- **Instalación directa del APK**: descarga el APK desde el [release v2.28.3 de GitHub](https://github.com/jeiel85/markleaf-android/releases/tag/v2.28.3), y ejecútalo en tu dispositivo Android.
+- **Instalación directa del APK**: descarga el APK desde el [release v2.29.0 de GitHub](https://github.com/jeiel85/markleaf-android/releases/tag/v2.29.0), y ejecútalo en tu dispositivo Android.
 - **Google Play**: [Markleaf en Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **las actualizaciones están en pausa** (ver la nota de arriba). Si ya la tienes instalada, seguirá funcionando, pero obtén la última versión desde F-Droid, GitHub o GitLab.
 
 ### Compilar desde el código fuente

@@ -19,9 +19,16 @@ import java.time.format.DateTimeFormatter
  * # Body...
  * ```
  *
- * We don't ship a YAML parser — everything is `key: value` line-by-line.
- * Unrecognized keys are preserved opaquely so external tools can add their
- * own without us stomping on them on round-trip.
+ * We don't ship a YAML parser. Our own five keys are read as `key: value` on a
+ * single line, which is all we ever write. Everything else is treated as opaque
+ * text: an entry is a top-level line plus every continuation line under it, and
+ * it is carried back out byte-for-byte so external tools can keep their own
+ * frontmatter through a Markleaf round-trip.
+ *
+ * That opacity is the point. Reading unknown entries as `key: value` used to
+ * drop every continuation line, so the block sequence Obsidian writes tags in
+ * by default came back as a bare `tags:` with the items gone, and a nested map
+ * was flattened into bogus top-level keys (#226).
  */
 object SyncFrontmatter {
     private const val DELIMITER = "---"
@@ -37,7 +44,7 @@ object SyncFrontmatter {
      */
     private val BOM: String = Char(0xFEFF).toString()
 
-    /** Keys we own and emit explicitly — never echoed back from [Parsed.unknownKeys]. */
+    /** Keys we own and emit explicitly — never echoed back from [Parsed.unknownEntries]. */
     private val RESERVED_KEYS = setOf(
         "markleaf_id", "created_at", "updated_at", "pinned", "archived"
     )
@@ -51,7 +58,13 @@ object SyncFrontmatter {
         val pinned: Boolean?,
         val archived: Boolean?,
         val body: String,
-        val unknownKeys: Map<String, String>,
+        /**
+         * Frontmatter entries we don't model, each holding its top-level line and
+         * any continuation lines below it, exactly as they were read. Multi-line
+         * entries keep their newlines, so a block sequence or a nested map is one
+         * element here rather than several lossy ones (#226).
+         */
+        val unknownEntries: List<String>,
         /**
          * True only when a complete `---` … `---` block was found *and* its
          * contents read as metadata. False for a file with no block, for one
@@ -83,13 +96,16 @@ object SyncFrontmatter {
         fileContents.removePrefix(BOM).lineSequence().firstOrNull()?.trim() == DELIMITER
 
     /**
-     * @param extraKeys frontmatter keys written by other tools (Obsidian
-     *   aliases, tags, custom colors, …) that we don't model. Pass
-     *   [Parsed.unknownKeys] here when re-stamping a file we imported so a
-     *   round-trip through Markleaf doesn't strip them. Reserved keys are
-     *   ignored — we always emit our own canonical versions.
+     * @param extraEntries frontmatter entries written by other tools (Obsidian
+     *   aliases, tags, cssclasses, comments, …) that we don't model, each as the
+     *   verbatim text of one top-level entry. Pass [Parsed.unknownEntries] here
+     *   when re-stamping a file we imported so a round-trip through Markleaf
+     *   doesn't strip or reshape them. Entries are written out unchanged —
+     *   indentation, quoting and blank lines included — because we cannot know
+     *   what the owning tool needs. Reserved keys are ignored; we always emit
+     *   our own canonical versions.
      */
-    fun encode(note: Note, extraKeys: Map<String, String> = emptyMap()): String {
+    fun encode(note: Note, extraEntries: List<String> = emptyList()): String {
         val sb = StringBuilder()
         sb.append(DELIMITER).append('\n')
         sb.append("markleaf_id: ").append(note.id).append('\n')
@@ -97,9 +113,12 @@ object SyncFrontmatter {
         sb.append("updated_at: ").append(isoFormatter.format(note.updatedAt)).append('\n')
         sb.append("pinned: ").append(note.pinned).append('\n')
         sb.append("archived: ").append(note.archived).append('\n')
-        extraKeys.forEach { (key, value) ->
-            if (key !in RESERVED_KEYS) {
-                sb.append(key).append(": ").append(value).append('\n')
+        extraEntries.forEach { entry ->
+            val key = topLevelKeyOf(entry.lineSequence().firstOrNull().orEmpty())
+            // A null key is a comment or a line we can't read as `key: value`;
+            // we keep those too rather than deciding they don't matter.
+            if (key == null || key !in RESERVED_KEYS) {
+                sb.append(entry).append('\n')
             }
         }
         sb.append(DELIMITER).append('\n')
@@ -122,7 +141,7 @@ object SyncFrontmatter {
                 pinned = null,
                 archived = null,
                 body = text,
-                unknownKeys = emptyMap(),
+                unknownEntries = emptyList(),
                 hasFrontmatter = false,
                 blockClosed = false
             )
@@ -130,7 +149,7 @@ object SyncFrontmatter {
         val closeOffset = lines.subList(1, lines.size).indexOfFirst { it.trim() == DELIMITER }
         if (closeOffset < 0) {
             return Parsed(
-                null, null, null, null, null, text, emptyMap(),
+                null, null, null, null, null, text, emptyList(),
                 hasFrontmatter = false, blockClosed = false
             )
         }
@@ -141,7 +160,7 @@ object SyncFrontmatter {
         // swallowed as unparseable frontmatter and dropped on import (#222).
         if (!looksLikeMetadata(frontmatterLines)) {
             return Parsed(
-                null, null, null, null, null, text, emptyMap(),
+                null, null, null, null, null, text, emptyList(),
                 hasFrontmatter = false, blockClosed = true
             )
         }
@@ -156,27 +175,69 @@ object SyncFrontmatter {
         var updatedAt: Instant? = null
         var pinned: Boolean? = null
         var archived: Boolean? = null
-        val unknownKeys = mutableMapOf<String, String>()
+        val unknownEntries = mutableListOf<String>()
 
-        frontmatterLines.forEach { line ->
-            val colon = line.indexOf(':')
-            if (colon <= 0) return@forEach
-            val key = line.substring(0, colon).trim()
-            val value = line.substring(colon + 1).trim().trim('"').trim('\'')
+        groupEntries(frontmatterLines).forEach { entry ->
+            val key = topLevelKeyOf(entry.first())
+            if (key == null || key !in RESERVED_KEYS) {
+                unknownEntries += entry.joinToString("\n")
+                return@forEach
+            }
+            // Our own keys are single-line by construction, so the value comes
+            // from the opening line; nothing else can be hiding under them.
+            val value = valueOf(entry.first())
             when (key) {
                 "markleaf_id" -> markleafId = value.takeIf { it.isNotEmpty() }
                 "created_at" -> createdAt = parseInstantOrNull(value)
                 "updated_at" -> updatedAt = parseInstantOrNull(value)
                 "pinned" -> pinned = value.equals("true", ignoreCase = true)
                 "archived" -> archived = value.equals("true", ignoreCase = true)
-                else -> unknownKeys[key] = value
             }
         }
 
         return Parsed(
-            markleafId, createdAt, updatedAt, pinned, archived, body, unknownKeys,
+            markleafId, createdAt, updatedAt, pinned, archived, body, unknownEntries,
             hasFrontmatter = true, blockClosed = true
         )
+    }
+
+    /**
+     * Splits frontmatter into top-level entries. A line starting at column 0
+     * that isn't a sequence item opens a new entry; indented lines, `-` items
+     * and blank lines belong to the entry above them. Zero-indent sequences
+     * (`tags:` followed by unindented `- reading`) are legal YAML and common in
+     * the wild, which is why a leading `-` counts as a continuation rather than
+     * a new entry — the closing `---` never reaches here, it is stripped as the
+     * delimiter before this runs.
+     *
+     * This is not YAML parsing. It is only enough structure to know where one
+     * entry ends and the next begins, so we can hand the whole thing back.
+     */
+    private fun groupEntries(lines: List<String>): List<List<String>> {
+        val entries = mutableListOf<MutableList<String>>()
+        lines.forEach { line ->
+            if (entries.isEmpty() || !isContinuation(line)) {
+                entries += mutableListOf(line)
+            } else {
+                entries.last() += line
+            }
+        }
+        return entries
+    }
+
+    private fun isContinuation(line: String): Boolean =
+        line.isBlank() || line[0] == ' ' || line[0] == '\t' || line[0] == '-'
+
+    /** The key of a top-level entry, or null if the line isn't `key: …`. */
+    private fun topLevelKeyOf(line: String): String? {
+        val colon = line.indexOf(':')
+        return if (colon > 0) line.substring(0, colon).trim() else null
+    }
+
+    private fun valueOf(line: String): String {
+        val colon = line.indexOf(':')
+        if (colon < 0) return ""
+        return line.substring(colon + 1).trim().trim('"').trim('\'')
     }
 
     /**

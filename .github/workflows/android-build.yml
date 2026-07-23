@@ -109,6 +109,9 @@ jobs:
           name: markleaf-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+          # 검증용 임시 산출물이라 기본 90일까지 둘 이유가 없다. 릴리스 산출물
+          # (aab / mapping) 과 달리 사후 추적에도 쓰이지 않으므로 7일로 줄인다.
+          retention-days: 7
 
   launch-smoke:
     runs-on: ubuntu-latest

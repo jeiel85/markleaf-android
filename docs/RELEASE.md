@@ -78,9 +78,12 @@ crash reports:
 app/build/outputs/mapping/release/mapping.txt
 ```
 
-Keep the mapping that corresponds to each released APK. GitHub Actions and
-GitLab CI attach a versioned mapping file to every tag release so historical
-versions can still be deobfuscated.
+Keep the mapping that corresponds to each released APK. The permanent copies
+live in `D:\Build` through the local `exportReleaseToBuildDrive` hand-off and
+in the GitLab package registry. GitHub keeps it only as the 30-day
+`markleaf-release-mapping` workflow artifact — it is no longer attached to the
+GitHub Release, so pull it from one of the permanent copies when an older
+version needs deobfuscating.
 
 If R8 strips something at runtime (NoClassDefFoundError, missing reflection
 target, lost Compose Composer slot), the fix is to add a precise `-keep`
@@ -289,17 +292,18 @@ tag pipelines can read the signing variables. Never expose these variables to
 branch or merge-request jobs.
 
 On tag pushes matching `v*`, GitHub Actions runs tests, builds the signed
-release APK and AAB, and creates a GitHub Release with **two** assets attached:
+release APK and AAB, and creates a GitHub Release with **one** asset attached:
 
 - `markleaf-vX.Y.Z.apk` — signed, R8-shrunk APK for sideload installs and the Releases mirror
-- `markleaf-vX.Y.Z.mapping.txt` — R8 mapping for deobfuscating crash stack traces
 
-The signed AAB is built and verified in the same job but is **not** attached to
-the GitHub Release. It is uploaded as the `markleaf-release-aab` workflow
-artifact, and it reaches Play Console through the local
-`exportReleaseToBuildDrive` hand-off (see [Release Artifact Export](../AGENTS.md#release-artifact-export))
-rather than from GitHub. GitLab publishes the AAB to its package registry as
-well, so a permanent download link for it exists there — see
+The signed AAB and the R8 mapping are built and verified in the same job but are
+**not** attached to the GitHub Release. Both are uploaded as workflow artifacts
+instead — `markleaf-release-aab` (14-day retention) and
+`markleaf-release-mapping` (30-day retention) — and both reach their permanent
+home through the local `exportReleaseToBuildDrive` hand-off
+(see [Release Artifact Export](../AGENTS.md#release-artifact-export)) rather
+than from GitHub. GitLab publishes both to its package registry as well, so
+permanent download links exist there — see
 [GitLab Release Assets](#gitlab-release-assets).
 
 The release job fails before publishing if the keystore secret is missing, if

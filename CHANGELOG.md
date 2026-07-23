@@ -4,6 +4,15 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.30.0 - Finding your place in a long note - 2026-07-23
+
+Three additions, all from one conversation about notes that have grown long. No permission or storage-format changes.
+
+### Added
+- **The heading outline has a screen of its own (#215).** The list of a note's headings was a section inside the "Note information" sheet, sharing one scroll with the statistics and the backlinks — so on the long notes that actually need an outline, it got whatever height was left. It is now a full screen, reached from its own button in the editor's top bar rather than from under "information". Every entry is drawn at the same size, with indentation as the only thing showing the level: the old list varied both, which made it read as noise rather than structure. Tapping a heading while you are editing now moves the cursor to it and leaves you in the editor — it used to flip the note into reading view to scroll there, discarding whatever you were in the middle of.
+- **Choose where a note opens (#214).** **Settings → Notes & search → Open notes at** offers *Top*, *Bottom*, or *Where I left off*. Top stays the default, so nothing changes unless you ask it to. Bottom suits a note you only ever add to. *Where I left off* remembers each note's position separately — in the app's own database, never written into your files, and only recorded while that option is selected.
+- **A jump to the other end of a long note (#214).** On notes past about forty lines, a small button appears at the bottom right that takes you to whichever end you are further from, in both the editor and reading view. It is not tied to the setting above.
+
 ## v2.29.1 - A rule inside a metadata header stays put - 2026-07-23
 
 One sync fix. No feature, permission, or storage-format changes.

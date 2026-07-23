@@ -24,5 +24,11 @@ data class Note(
     /** When true the note is in the passcode-gated "Locked notes" space: hidden
      *  from every normal list, search, tag view and sync/export path until the
      *  user unlocks that space. UI-visibility gate only — not encryption. */
-    val locked: Boolean = false
+    val locked: Boolean = false,
+    /** When true this note is the remote side of a sync conflict, kept alongside
+     *  the local note so the user can merge by hand. The Sync Center lists these.
+     *  A flag rather than a title suffix: detection used to be a `LIKE` match on
+     *  a hardcoded Korean string, which meant every language saw a Korean title
+     *  and the title could never be translated without breaking detection. */
+    val isConflictCopy: Boolean = false
 )

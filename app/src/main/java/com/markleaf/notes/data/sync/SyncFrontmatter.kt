@@ -26,6 +26,17 @@ import java.time.format.DateTimeFormatter
 object SyncFrontmatter {
     private const val DELIMITER = "---"
 
+    /**
+     * UTF-8 byte-order mark. Editors on Windows (and a few Android apps) write
+     * one in front of the first `---`, and Kotlin's `trim()` does not remove it
+     * — `Char.isWhitespace()` is false for U+FEFF, which is a format character,
+     * not a space. Left in place it made [decode] read the whole file as body,
+     * so the `markleaf_id` went missing and the mirror forked a new file on
+     * every save (#213). Built from its code point rather than written as a
+     * literal so the character can't go invisible in this source file.
+     */
+    private val BOM: String = Char(0xFEFF).toString()
+
     /** Keys we own and emit explicitly — never echoed back from [Parsed.unknownKeys]. */
     private val RESERVED_KEYS = setOf(
         "markleaf_id", "created_at", "updated_at", "pinned", "archived"
@@ -70,7 +81,11 @@ object SyncFrontmatter {
     }
 
     fun decode(fileContents: String): Parsed {
-        val lines = fileContents.lines()
+        // A leading BOM is dropped before anything else: it would otherwise make
+        // the opening delimiter check below fail and silently turn a perfectly
+        // good mirror file into "a file with no frontmatter" (#213).
+        val text = fileContents.removePrefix(BOM)
+        val lines = text.lines()
         if (lines.firstOrNull()?.trim() != DELIMITER) {
             return Parsed(
                 markleafId = null,
@@ -78,13 +93,13 @@ object SyncFrontmatter {
                 updatedAt = null,
                 pinned = null,
                 archived = null,
-                body = fileContents,
+                body = text,
                 unknownKeys = emptyMap()
             )
         }
         val closeOffset = lines.subList(1, lines.size).indexOfFirst { it.trim() == DELIMITER }
         if (closeOffset < 0) {
-            return Parsed(null, null, null, null, null, fileContents, emptyMap())
+            return Parsed(null, null, null, null, null, text, emptyMap())
         }
         val frontmatterLines = lines.subList(1, 1 + closeOffset)
         var bodyStart = 1 + closeOffset + 1

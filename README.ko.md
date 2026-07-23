@@ -153,6 +153,8 @@ cd markleaf-android
 ./gradlew installDebug
 ```
 
+Markleaf의 버그 수정은 대부분 누군가의 제보에서 시작합니다. 그 사람들을 [THANKS.md](THANKS.md)에 기록해 두었습니다.
+
 ---
 
 ## 🔒 No-Cloud by design

@@ -26,7 +26,7 @@ import com.markleaf.notes.data.local.entity.TagEntity
         NoteLinkEntity::class,
         AttachmentEntity::class
     ],
-    version = 15,
+    version = 16,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -263,6 +263,23 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // v15 → v16 (#217): flag sync conflict copies instead of recognising them
+        // by a title substring. The Sync Center used to find them with
+        // `title LIKE '%(다른 기기 사본%'`, so the Korean literal *was* the
+        // detection mechanism and the label could not be translated — every
+        // language got a Korean title. Same shape as the sortOrder/locked adds:
+        // NOT NULL with a DEFAULT so existing rows fill in 0. The backfill marks
+        // copies already on disk from the old scheme so they don't disappear
+        // from the Sync Center on upgrade; it matches the exact literal the old
+        // code wrote, and a note the user happened to title that way is a
+        // conflict copy for all practical purposes.
+        private val MIGRATION_15_16 = object : Migration(15, 16) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `notes` ADD COLUMN `isConflictCopy` INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("UPDATE `notes` SET `isConflictCopy` = 1 WHERE `title` LIKE '%(다른 기기 사본%'")
+            }
+        }
+
         internal val ALL_MIGRATIONS = arrayOf(
             MIGRATION_4_5,
             MIGRATION_5_6,
@@ -275,7 +292,8 @@ abstract class AppDatabase : RoomDatabase() {
             MIGRATION_12_13,
             MIGRATION_12_14,
             MIGRATION_13_14,
-            MIGRATION_14_15
+            MIGRATION_14_15,
+            MIGRATION_15_16
         )
     }
 }

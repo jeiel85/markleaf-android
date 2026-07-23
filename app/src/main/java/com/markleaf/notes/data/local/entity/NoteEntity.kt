@@ -33,7 +33,11 @@ data class NoteEntity(
      *  hidden from every normal list, search, tag and export path. This is a
      *  UI-visibility gate — the body still sits in the same Room DB in plain
      *  text, not encrypted at rest. See [com.markleaf.notes.feature.lock]. */
-    val locked: Boolean = false
+    val locked: Boolean = false,
+    /** When true this note is the remote side of a sync conflict, kept next to
+     *  the local note for manual merge. Replaces the old detection-by-title-
+     *  substring, which pinned the label to one hardcoded language. */
+    val isConflictCopy: Boolean = false
 )
 
 fun NoteEntity.toDomain(): Note {
@@ -51,7 +55,8 @@ fun NoteEntity.toDomain(): Note {
         tags = emptyList(),
         sortOrder = sortOrder,
         lastImportedAt = lastImportedAt?.let { Instant.ofEpochMilli(it) },
-        locked = locked
+        locked = locked,
+        isConflictCopy = isConflictCopy
     )
 }
 
@@ -69,6 +74,7 @@ fun Note.toEntity(): NoteEntity {
         deletedAt = deletedAt?.toEpochMilli(),
         sortOrder = sortOrder,
         lastImportedAt = lastImportedAt?.toEpochMilli(),
-        locked = locked
+        locked = locked,
+        isConflictCopy = isConflictCopy
     )
 }

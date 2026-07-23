@@ -33,7 +33,7 @@ class AppDatabaseMigrationTest {
             .build()
 
         db.openHelper.writableDatabase.query(
-            "SELECT id, title, sortOrder, lastImportedAt, locked FROM notes"
+            "SELECT id, title, sortOrder, lastImportedAt, locked, isConflictCopy FROM notes WHERE id = '42'"
         ).use { cursor ->
             assertTrue(cursor.moveToFirst())
             assertEquals("42", cursor.getString(0))
@@ -43,6 +43,19 @@ class AppDatabaseMigrationTest {
             // #155: the v14→v15 migration adds `locked`, defaulting existing rows
             // to 0 (not locked) so a legacy note stays visible after upgrading.
             assertEquals(0, cursor.getInt(4))
+            // #217: v15→v16 adds `isConflictCopy`, defaulting to 0 — an ordinary
+            // note must not be swept into the Sync Center's conflict list.
+            assertEquals(0, cursor.getInt(5))
+        }
+
+        // #217: conflict copies created under the old scheme were recognised
+        // only by their hardcoded Korean title suffix. The migration backfills
+        // the flag so they don't vanish from the Sync Center on upgrade.
+        db.openHelper.writableDatabase.query(
+            "SELECT isConflictCopy FROM notes WHERE id = '43'"
+        ).use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(1, cursor.getInt(0))
         }
 
         db.openHelper.writableDatabase.query("SELECT noteId, tagId FROM note_tag_cross_ref").use { cursor ->
@@ -150,6 +163,16 @@ class AppDatabaseMigrationTest {
                     (`id`, `title`, `contentMarkdown`, `excerpt`, `createdAt`, `updatedAt`, `pinned`, `archived`, `trashed`, `deletedAt`)
                 VALUES
                     ('42', 'Legacy Note', 'Legacy body #tag', 'Legacy body', 1000, 2000, 1, 0, 0, NULL)
+                """.trimIndent()
+            )
+            // A conflict copy written by the pre-#217 code, which marked them
+            // with a hardcoded Korean title suffix and nothing else.
+            db.execSQL(
+                """
+                INSERT INTO `notes`
+                    (`id`, `title`, `contentMarkdown`, `excerpt`, `createdAt`, `updatedAt`, `pinned`, `archived`, `trashed`, `deletedAt`)
+                VALUES
+                    ('43', 'Shopping (다른 기기 사본 0722 14:49)', 'Remote body', 'Remote body', 1000, 2000, 0, 0, 0, NULL)
                 """.trimIndent()
             )
             db.execSQL("INSERT INTO `tags` (`id`, `name`, `createdAt`) VALUES (1, 'tag', 1000)")

@@ -41,4 +41,19 @@ class LockedNotesViewModel(
             noteRepository.moveToTrash(noteId)
         }
     }
+
+    /**
+     * Persist a note the sync mirror has just written, so its `lastImportedAt`
+     * stamp lands. Without the stamp the note reads as "edited locally since the
+     * last import" for ever and the next newer file from another device becomes
+     * a conflict copy instead of a clean overwrite (#217).
+     *
+     * Safe to interleave with [removeLock]: that one updates the `locked` column
+     * on its own, so neither write can clobber the other's field.
+     */
+    fun stampMirrored(note: Note) {
+        viewModelScope.launch {
+            noteRepository.updateNote(note)
+        }
+    }
 }

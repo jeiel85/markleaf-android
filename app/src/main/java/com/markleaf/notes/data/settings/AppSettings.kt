@@ -39,8 +39,34 @@ data class AppSettings(
      *  Settings or by long-pressing the editor's view-toggle icon; a note with
      *  no content yet (a just-created note) still opens in edit so you can start
      *  typing (#200). */
-    val openNotesInPreview: Boolean = false
+    val openNotesInPreview: Boolean = false,
+    /** Where a note is positioned when it opens. Defaults to [OpenNotesAt.TOP],
+     *  which is how Markleaf has always behaved (#214). */
+    val openNotesAt: OpenNotesAt = OpenNotesAt.TOP
 )
+
+/**
+ * Where the editor and preview land when a note opens (#214).
+ *
+ * Requested by someone keeping long append-style notes, for whom the top is the
+ * one part of the note they never want to see. [LAST_POSITION] is the third
+ * value they asked to try: append-style notes want the bottom, but reading-style
+ * ones usually want wherever you stopped.
+ */
+enum class OpenNotesAt {
+    /** The start of the note — the original behaviour, and the default. */
+    TOP,
+
+    /** The end of the note, for notes you only ever add to. */
+    BOTTOM,
+
+    /**
+     * Wherever this note was left last time. The position lives in the app's
+     * own database, never in the note's file, and is only recorded while this
+     * value is selected — turning the setting off stops Markleaf remembering.
+     */
+    LAST_POSITION
+}
 
 /** Notes-list sort orders offered by the top-bar sort menu (#191). */
 enum class NotesSortMode {

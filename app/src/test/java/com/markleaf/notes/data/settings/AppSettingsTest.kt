@@ -28,4 +28,15 @@ class AppSettingsTest {
         assertFalse(settings.searchTitlesOnly)
         assertNull(settings.lastOpenedNoteId)
     }
+
+    /**
+     * "Open notes at" was asked for by someone who wanted the bottom (#214) —
+     * but it was added as an option precisely so nobody else's habits change.
+     * A default of anything but [OpenNotesAt.TOP] would move every existing
+     * user's notes under them on update.
+     */
+    @Test
+    fun notesStillOpenAtTheTopByDefault() {
+        assertEquals(OpenNotesAt.TOP, AppSettings().openNotesAt)
+    }
 }

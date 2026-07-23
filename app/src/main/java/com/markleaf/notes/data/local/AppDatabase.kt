@@ -9,12 +9,14 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.markleaf.notes.data.local.dao.AttachmentDao
 import com.markleaf.notes.data.local.dao.NoteDao
 import com.markleaf.notes.data.local.dao.NoteLinkDao
+import com.markleaf.notes.data.local.dao.NoteViewStateDao
 import com.markleaf.notes.data.local.dao.TagDao
 import com.markleaf.notes.data.local.entity.AttachmentEntity
 import com.markleaf.notes.data.local.entity.NoteEntity
 import com.markleaf.notes.data.local.entity.NoteFtsEntity
 import com.markleaf.notes.data.local.entity.NoteLinkEntity
 import com.markleaf.notes.data.local.entity.NoteTagCrossRef
+import com.markleaf.notes.data.local.entity.NoteViewStateEntity
 import com.markleaf.notes.data.local.entity.TagEntity
 
 @Database(
@@ -24,9 +26,10 @@ import com.markleaf.notes.data.local.entity.TagEntity
         NoteTagCrossRef::class,
         NoteFtsEntity::class,
         NoteLinkEntity::class,
-        AttachmentEntity::class
+        AttachmentEntity::class,
+        NoteViewStateEntity::class
     ],
-    version = 17,
+    version = 18,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -34,6 +37,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun tagDao(): TagDao
     abstract fun noteLinkDao(): NoteLinkDao
     abstract fun attachmentDao(): AttachmentDao
+    abstract fun noteViewStateDao(): NoteViewStateDao
 
     companion object {
         @Volatile
@@ -293,6 +297,28 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // v17 → v18 (#214): remember where each note was left, for the
+        // "Open notes at: where I left off" setting. Its own table rather than
+        // columns on `notes` — see NoteViewStateEntity for why reopening a note
+        // must not be able to touch the note row. Nothing to backfill: a note
+        // with no row has never been left anywhere, which reads as "top".
+        private val MIGRATION_17_18 = object : Migration(17, 18) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `note_view_state` (
+                        `noteId` TEXT NOT NULL,
+                        `caretOffset` INTEGER NOT NULL,
+                        `previewIndex` INTEGER NOT NULL,
+                        PRIMARY KEY(`noteId`),
+                        FOREIGN KEY(`noteId`) REFERENCES `notes`(`id`)
+                            ON UPDATE NO ACTION ON DELETE CASCADE
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
+
         internal val ALL_MIGRATIONS = arrayOf(
             MIGRATION_4_5,
             MIGRATION_5_6,
@@ -307,7 +333,8 @@ abstract class AppDatabase : RoomDatabase() {
             MIGRATION_13_14,
             MIGRATION_14_15,
             MIGRATION_15_16,
-            MIGRATION_16_17
+            MIGRATION_16_17,
+            MIGRATION_17_18
         )
     }
 }

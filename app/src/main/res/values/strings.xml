@@ -185,6 +185,13 @@
     <string name="reopen_last_note_description">Start in the note you last edited instead of the notes list.</string>
     <string name="open_notes_in_preview">Open notes in preview</string>
     <string name="open_notes_in_preview_description">Show a note\'s rendered preview when you open it instead of the edit view. New notes still open for editing. Tip: long-press the preview/edit icon in a note to toggle this.</string>
+    <string name="open_notes_at">Open notes at</string>
+    <string name="open_notes_at_top">Top</string>
+    <string name="open_notes_at_bottom">Bottom</string>
+    <string name="open_notes_at_last_position">Where I left off</string>
+    <string name="open_notes_at_description">Where a note lands when you open it. Bottom suits notes you only add to. "Where I left off" remembers each note\'s position in the app only — nothing is written into your files.</string>
+    <string name="jump_to_end">Jump to the end</string>
+    <string name="jump_to_start">Jump to the start</string>
     <string name="view_mode_locked">Notes now open in preview</string>
     <string name="view_mode_unlocked">Notes now open in edit</string>
     <string name="lock_view_mode">Lock view mode</string>

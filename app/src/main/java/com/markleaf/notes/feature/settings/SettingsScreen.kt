@@ -63,6 +63,7 @@ import com.markleaf.notes.data.settings.ColorPalette
 import com.markleaf.notes.data.settings.EditorFont
 import com.markleaf.notes.data.settings.EditorLineWidth
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
+import com.markleaf.notes.data.settings.OpenNotesAt
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.NoteImporter
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
@@ -324,6 +325,40 @@ fun SettingsScreen(
                                     settingsRepository.setOpenNotesInPreview(checked)
                                 }
                             }
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        Text(
+                            text = stringResource(R.string.open_notes_at),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OpenNotesAt.entries.forEach { where ->
+                                val selected = appSettings.openNotesAt == where
+                                if (selected) {
+                                    Button(onClick = {}) {
+                                        Text(where.localizedLabel())
+                                    }
+                                } else {
+                                    OutlinedButton(
+                                        onClick = {
+                                            scope.launch {
+                                                settingsRepository.setOpenNotesAt(where)
+                                            }
+                                        }
+                                    ) {
+                                        Text(where.localizedLabel())
+                                    }
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        Text(
+                            text = stringResource(R.string.open_notes_at_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
@@ -869,6 +904,15 @@ private fun EditorLineWidth.localizedLabel(): String {
         EditorLineWidth.NARROW -> stringResource(R.string.line_width_narrow)
         EditorLineWidth.COMFORTABLE -> stringResource(R.string.line_width_comfortable)
         EditorLineWidth.WIDE -> stringResource(R.string.line_width_wide)
+    }
+}
+
+@Composable
+private fun OpenNotesAt.localizedLabel(): String {
+    return when (this) {
+        OpenNotesAt.TOP -> stringResource(R.string.open_notes_at_top)
+        OpenNotesAt.BOTTOM -> stringResource(R.string.open_notes_at_bottom)
+        OpenNotesAt.LAST_POSITION -> stringResource(R.string.open_notes_at_last_position)
     }
 }
 

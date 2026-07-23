@@ -179,6 +179,13 @@
     <string name="reopen_last_note_description">起動時にノート一覧ではなく、最後に編集したノートから始めます。</string>
     <string name="open_notes_in_preview">ノートをプレビューで開く</string>
     <string name="open_notes_in_preview_description">ノートを開いたときに編集画面ではなくプレビューを表示します。新しいノートは編集で開きます。ノート内でプレビュー/編集アイコンを長押しすると切り替えられます。</string>
+    <string name="open_notes_at">ノートを開く位置</string>
+    <string name="open_notes_at_top">先頭</string>
+    <string name="open_notes_at_bottom">末尾</string>
+    <string name="open_notes_at_last_position">前回の位置</string>
+    <string name="open_notes_at_description">ノートを開いたときに表示する位置です。「末尾」は書き足していくノートに向いています。「前回の位置」はノートごとの位置をアプリ内にのみ記憶し、ファイルには何も書き込みません。</string>
+    <string name="jump_to_end">末尾へ移動</string>
+    <string name="jump_to_start">先頭へ移動</string>
     <string name="view_mode_locked">ノートはプレビューで開きます</string>
     <string name="view_mode_unlocked">ノートは編集で開きます</string>
     <string name="lock_view_mode">表示モードをロック</string>

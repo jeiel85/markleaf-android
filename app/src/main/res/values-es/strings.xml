@@ -181,6 +181,13 @@
     <string name="reopen_last_note_description">Empieza en la nota que editaste por última vez en lugar de la lista de notas.</string>
     <string name="open_notes_in_preview">Abrir notas en vista previa</string>
     <string name="open_notes_in_preview_description">Muestra la vista previa renderizada al abrir una nota en lugar de la vista de edición. Las notas nuevas se abren para editar. Consejo: mantén pulsado el icono de vista previa/editar en una nota para cambiarlo.</string>
+    <string name="open_notes_at">Abrir notas en</string>
+    <string name="open_notes_at_top">Principio</string>
+    <string name="open_notes_at_bottom">Final</string>
+    <string name="open_notes_at_last_position">Donde lo dejé</string>
+    <string name="open_notes_at_description">Dónde queda una nota al abrirla. «Final» va bien con notas a las que solo añades. «Donde lo dejé» recuerda la posición de cada nota solo en la app: no se escribe nada en tus archivos.</string>
+    <string name="jump_to_end">Ir al final</string>
+    <string name="jump_to_start">Ir al principio</string>
     <string name="view_mode_locked">Las notas ahora se abren en vista previa</string>
     <string name="view_mode_unlocked">Las notas ahora se abren en edición</string>
     <string name="lock_view_mode">Bloquear modo de vista</string>

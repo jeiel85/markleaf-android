@@ -53,6 +53,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -87,12 +88,14 @@ import com.markleaf.notes.core.markdown.preview.TocHeading
 import com.markleaf.notes.core.markdown.preview.extractHeadings
 import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.data.local.AppDatabase
+import com.markleaf.notes.data.local.entity.NoteViewStateEntity
 import com.markleaf.notes.data.repository.LocalNoteLinkRepository
 import com.markleaf.notes.data.repository.LocalNoteRepository
 import com.markleaf.notes.data.repository.LocalTagRepository
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
+import com.markleaf.notes.data.settings.OpenNotesAt
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.domain.model.Note
@@ -102,6 +105,8 @@ import com.markleaf.notes.util.HapticFeedback
 import com.markleaf.notes.util.ExportPdf
 import com.markleaf.notes.util.ShareNoteUtil
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.delay
@@ -118,6 +123,7 @@ fun EditorScreen(
 ) {
     val context = LocalContext.current
     val db = remember { AppDatabase.getInstance(context) }
+    val viewStateDao = remember { db.noteViewStateDao() }
     val repo = remember { LocalNoteRepository(db) }
     val tagRepo = remember { LocalTagRepository(db) }
     val linkRepo = remember { LocalNoteLinkRepository(db) }
@@ -138,7 +144,7 @@ fun EditorScreen(
     val previewListState = rememberLazyListState()
     var showInfo by remember(noteId) { mutableStateOf(false) }
     var showOutline by remember(noteId) { mutableStateOf(false) }
-    var pendingPreviewScrollIndex by remember(noteId) { mutableStateOf<Int?>(null) }
+    var pendingPreviewScroll by remember(noteId) { mutableStateOf<PreviewScrollRequest?>(null) }
     val shouldPreparePreview = isPreviewMode || showOutline
     val previewLines = remember(editorState.text, shouldPreparePreview) {
         if (shouldPreparePreview) SimpleMarkdownPreview.parse(editorState.text) else emptyList()
@@ -309,10 +315,36 @@ fun EditorScreen(
             // snapshot, which starts on the default before DataStore emits) so
             // an existing note honours "open notes in preview" on its very first
             // frame instead of flashing edit (#200). New notes stay in edit.
-            val openInPreview = settingsRepository.settings.first().openNotesInPreview
+            val persistedSettings = settingsRepository.settings.first()
+            val openInPreview = persistedSettings.openNotesInPreview
             val loadedNote = repo.getNote(noteId)
             val content = loadedNote?.contentMarkdown.orEmpty()
-            editorState = TextFieldValue(content)
+            // Where the note opens (#214). Read from the same persisted
+            // snapshot as the preview setting above, for the same reason: the
+            // collected state starts on the default, so using it here would
+            // land at the top and then jump.
+            val lastPosition = if (persistedSettings.openNotesAt == OpenNotesAt.LAST_POSITION) {
+                viewStateDao.getForNote(noteId)
+            } else {
+                null
+            }
+            val caret = when (persistedSettings.openNotesAt) {
+                OpenNotesAt.TOP -> 0
+                OpenNotesAt.BOTTOM -> content.length
+                OpenNotesAt.LAST_POSITION -> lastPosition?.caretOffset ?: 0
+            }
+            // Clamped, never trusted: the note can be shorter than when the
+            // position was recorded — edited in another app, or a smaller
+            // version brought in by sync.
+            editorState = TextFieldValue(content, TextRange(caret.coerceIn(0, content.length)))
+            pendingPreviewScroll = when (persistedSettings.openNotesAt) {
+                OpenNotesAt.TOP -> null
+                // Clamped against the rendered list when the scroll runs, so
+                // "as far as it goes" is all this has to say.
+                OpenNotesAt.BOTTOM -> PreviewScrollRequest(Int.MAX_VALUE, animate = false)
+                OpenNotesAt.LAST_POSITION ->
+                    lastPosition?.let { PreviewScrollRequest(it.previewIndex, animate = false) }
+            }
             // Only land in preview when there is something to preview. A
             // brand-new note is created first and then opened with a real id
             // (the FAB path in MarkleafNavHost), so `noteId != null` alone would
@@ -381,13 +413,60 @@ fun EditorScreen(
         }
     }
 
-    LaunchedEffect(isPreviewMode, pendingPreviewScrollIndex) {
-        val index = pendingPreviewScrollIndex ?: return@LaunchedEffect
-        if (isPreviewMode) {
-            withFrameNanos { }
-            previewListState.animateScrollToItem(index)
-            pendingPreviewScrollIndex = null
+    // Preview scrolls that have to wait for the preview to exist: the outline's
+    // jump-to-heading, and restoring where the note was left (#214). Held until
+    // the list actually has rows, and clamped against them — the request can name
+    // a block that a shorter note no longer has. Restores are instant; a jump the
+    // user asked for animates, so it reads as movement rather than a cut.
+    LaunchedEffect(isPreviewMode, previewLines.size, pendingPreviewScroll) {
+        val request = pendingPreviewScroll ?: return@LaunchedEffect
+        if (!isPreviewMode || previewLines.isEmpty()) return@LaunchedEffect
+        withFrameNanos { }
+        val target = request.index.coerceIn(0, previewLines.lastIndex)
+        if (request.animate) {
+            previewListState.animateScrollToItem(target)
+        } else {
+            previewListState.scrollToItem(target)
         }
+        pendingPreviewScroll = null
+    }
+
+    // Record where the note was left, for "Open notes at: where I left off".
+    // Only while that value is selected — with the setting off, Markleaf keeps
+    // no record of where anyone was. Debounced, so typing a paragraph is one
+    // write at the end of it rather than one per keystroke, and written while
+    // the screen is still composed so it survives the process being killed
+    // rather than depending on a tidy exit.
+    LaunchedEffect(noteId, isLoaded, appSettings.openNotesAt) {
+        if (noteId == null || !isLoaded) return@LaunchedEffect
+        if (appSettings.openNotesAt != OpenNotesAt.LAST_POSITION) return@LaunchedEffect
+        snapshotFlow {
+            Triple(
+                isPreviewMode,
+                editorState.selection.start,
+                previewListState.firstVisibleItemIndex
+            )
+        }
+            .distinctUntilChanged()
+            // collectLatest + delay rather than debounce(): the operator is
+            // still a preview API, and this is the same behaviour — a new
+            // position cancels the pending write and restarts the wait.
+            .collectLatest { (inPreview, caretOffset, previewIndex) ->
+                delay(POSITION_WRITE_DEBOUNCE_MS)
+                // Only the surface on screen knows anything. While you are
+                // editing, the preview list is not composed and reports 0;
+                // while you are reading, the caret has not moved since you
+                // left the editor. Writing both would have each surface blank
+                // the other's position every time you switched.
+                val stored = viewStateDao.getForNote(noteId)
+                viewStateDao.upsert(
+                    NoteViewStateEntity(
+                        noteId = noteId,
+                        caretOffset = if (inPreview) stored?.caretOffset ?: caretOffset else caretOffset,
+                        previewIndex = if (inPreview) previewIndex else stored?.previewIndex ?: previewIndex
+                    )
+                )
+            }
     }
 
     val isFormattingPreempted =
@@ -428,7 +507,7 @@ fun EditorScreen(
         val offset = heading.sourceLine
             ?.let { MarkdownEditActions.offsetOfLine(editorState.text, it) }
         if (isPreviewMode || offset == null) {
-            pendingPreviewScrollIndex = heading.index
+            pendingPreviewScroll = PreviewScrollRequest(heading.index, animate = true)
             if (!isPreviewMode) isPreviewMode = true
         } else {
             editorState = editorState.copy(selection = TextRange(offset))
@@ -592,14 +671,14 @@ fun EditorScreen(
             label = "Editor preview mode"
         ) { previewMode ->
             if (previewMode) {
-                Column(
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
                 ) {
                     MarkdownPreviewList(
                         lines = previewLines,
-                        modifier = Modifier.weight(1f, fill = false),
+                        modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
                         listState = previewListState,
                         // Tapping a checkbox in the preview flips it in the
@@ -650,6 +729,27 @@ fun EditorScreen(
                             imageAltEditing = path to currentAlt
                         }
                     )
+
+                    // The same jump control as the editor (#214). Here the
+                    // scroll position is known outright, so the direction is
+                    // the honest one rather than inferred from a caret.
+                    if (isLongEnoughToJump(editorState.text) && previewLines.isNotEmpty()) {
+                        val toBottom =
+                            previewListState.firstVisibleItemIndex < previewLines.size / 2
+                        JumpToEndButton(
+                            jumpsToBottom = toBottom,
+                            onClick = {
+                                coroutineScope.launch {
+                                    previewListState.animateScrollToItem(
+                                        if (toBottom) previewLines.lastIndex else 0
+                                    )
+                                }
+                            },
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(end = 20.dp, bottom = 20.dp)
+                        )
+                    }
                 }
             } else {
                 // imePadding() shrinks the editor body when the soft keyboard is up so
@@ -866,6 +966,30 @@ fun EditorScreen(
                                 }
                             }
                         )
+
+                        // Jump to the far end of a long note (#214). Which end
+                        // that is follows the caret: after a jump the caret is
+                        // at the other end, so the button flips and the same
+                        // spot takes you back. Hidden in focus mode, which
+                        // exists to remove exactly this kind of furniture.
+                        if (!isFocusMode && isLongEnoughToJump(editorState.text)) {
+                            val toBottom =
+                                editorState.selection.start < editorState.text.length / 2
+                            JumpToEndButton(
+                                jumpsToBottom = toBottom,
+                                onClick = {
+                                    editorState = editorState.copy(
+                                        selection = TextRange(
+                                            if (toBottom) editorState.text.length else 0
+                                        )
+                                    )
+                                    shouldRequestEditorFocus = true
+                                },
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(bottom = 8.dp)
+                            )
+                        }
                     }
 
                     if (quickInsertQuery != null && quickInsertItems.isNotEmpty() && !isFocusMode) {
@@ -993,6 +1117,20 @@ fun EditorScreen(
 }
 private const val MAX_WIKILINK_SUGGESTIONS = 8
 private const val MAX_TAG_SUGGESTIONS = 8
+
+/**
+ * How long the note has to sit still before its position is written (#214).
+ * Long enough that typing a paragraph costs one write rather than dozens,
+ * short enough that putting the phone down mid-note records where you were.
+ */
+private const val POSITION_WRITE_DEBOUNCE_MS = 1_000L
+
+/**
+ * A preview scroll waiting for the preview to be built. [animate] separates the
+ * two callers: restoring where a note was left should already be there when the
+ * note appears, while a jump the user asked for reads better as movement.
+ */
+private data class PreviewScrollRequest(val index: Int, val animate: Boolean)
 
 /**
  * If the cursor sits inside an *unclosed* `[[…` wikilink (no `]]` between

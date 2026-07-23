@@ -80,8 +80,10 @@ import com.markleaf.notes.ui.viewmodel.NotesViewModel
 import com.markleaf.notes.ui.viewmodel.SearchViewModel
 import com.markleaf.notes.ui.viewmodel.TrashViewModel
 import com.markleaf.notes.ui.viewmodel.SyncCenterViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 // Scopes for the list-card -> editor shared-element (container transform). They
 // are only non-null on the phone navigation path (provided around the NavHost
@@ -127,17 +129,17 @@ fun MarkleafNavHost(
         when {
             shouldCreateNote -> {
                 val newNote = intentEntryViewModel.createNote()
-                navController.navigate(NavRoutes.editorRoute(newNote.id))
+                navController.navigateOnMain(NavRoutes.editorRoute(newNote.id))
             }
             !sharedText.isNullOrBlank() -> {
                 val newNote = intentEntryViewModel.createNote(sharedText)
-                navController.navigate(NavRoutes.editorRoute(newNote.id))
+                navController.navigateOnMain(NavRoutes.editorRoute(newNote.id))
             }
             !openNoteId.isNullOrBlank() -> {
                 // Not editorRoute directly: this is the one entry point an
                 // external app can reach, and a locked id must land on the
                 // passcode gate instead of the editor (#158).
-                navController.navigate(resolveOpenNoteRoute(openNoteId, noteRepository))
+                navController.navigateOnMain(resolveOpenNoteRoute(openNoteId, noteRepository))
             }
             else -> {
                 // Opt-in "Reopen last note on launch" (#192): a plain launch —
@@ -152,7 +154,7 @@ fun MarkleafNavHost(
                 if (settings.reopenLastNote && !lastId.isNullOrBlank()) {
                     val note = noteRepository.getNote(lastId)
                     if (note != null && !note.trashed) {
-                        navController.navigate(resolveOpenNoteRoute(lastId, noteRepository))
+                        navController.navigateOnMain(resolveOpenNoteRoute(lastId, noteRepository))
                     } else {
                         // The note is gone (deleted or trashed since). Clear the
                         // dangling id so it isn't re-validated on every launch,
@@ -366,7 +368,7 @@ fun MarkleafNavHost(
                     onFabClick = {
                         coroutineScope.launch {
                             val newNote = viewModel.createNote()
-                            navController.navigate(NavRoutes.editorRoute(newNote.id))
+                            navController.navigateOnMain(NavRoutes.editorRoute(newNote.id))
                         }
                     },
                     onSearchClick = { navController.navigate(NavRoutes.SEARCH) },
@@ -480,6 +482,31 @@ fun MarkleafNavHost(
     }
     } // CompositionLocalProvider(LocalSharedTransitionScope)
     } // SharedTransitionLayout
+}
+
+/**
+ * Navigate from a coroutine that has been through a suspend point.
+ *
+ * `NavController` must be driven from the main thread, and every call site that
+ * uses this first suspends into Room — creating the note, or resolving where an
+ * incoming id should land. Room resumes its continuations on its own executor,
+ * so what puts us back on the main thread is the dispatcher that intercepted the
+ * continuation, not anything the code says.
+ *
+ * In the app that dispatcher is the composition's, and it does hop back, which
+ * is why this has never misbehaved in production. Under Compose's *test*
+ * dispatcher it does not: `navigate()` then runs on a Room thread, throws
+ * `IllegalStateException`, and leaves the new back-stack entry stuck in
+ * `INITIALIZED` — so the next activity destroy dies with "State must be at least
+ * CREATED to move to DESTROYED" and takes the rest of the instrumentation run
+ * with it (#235).
+ *
+ * Stating the requirement is cheap and removes the dependency on who intercepted
+ * the continuation. `Main.immediate` so a call that is already on the main
+ * thread stays in the same frame rather than waiting for the next one.
+ */
+private suspend fun NavHostController.navigateOnMain(route: String) {
+    withContext(Dispatchers.Main.immediate) { navigate(route) }
 }
 
 @Composable

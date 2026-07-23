@@ -7,6 +7,42 @@
 
 ## Confirmed Decisions
 
+### D064 - The R8 Mapping Is Not A GitHub Release Asset Either
+
+The GitHub Release carries exactly one asset, the signed APK. The R8 mapping is
+still built, verified, and kept — as a 30-day workflow artifact — but it is no
+longer attached to the Release. This narrows the asset list D062 defined.
+
+Why:
+- Nobody was taking it. The mapping is ~41 MB on every tag and the download
+  count is 0 — checked on both v2.29.0 and v2.28.1, whose APKs pulled 6 and 43
+  downloads over the same window. It is the AAB problem from D062 in a second
+  form: a large file nobody installs, sitting next to a 2.7 MB APK that is the
+  only thing a Releases visitor actually wants.
+- Permanent copies already exist, which is what made the AAB omission safe and
+  makes this one safe too. `:app:exportReleaseToBuildDrive` writes the mapping
+  to `D:\Build` next to the AAB, and GitLab publishes it to the Generic Package
+  Registry (D057).
+- Play Console holds its own deobfuscation copy for anything installed from
+  Play, so the GitHub asset only ever mattered for sideloaded crash reports —
+  and those are handled from `D:\Build` by the same maintainer who has the file.
+
+Decision:
+- `gh release create` attaches `markleaf-vX.Y.Z.apk` only.
+- Retention is set per artifact and reflects how long each one can still be
+  useful: `markleaf-r8-mapping` 7 days (regenerated on every PR and push, no
+  post-hoc value), `markleaf-release-aab` 14 days (dead once uploaded to Play),
+  `markleaf-release-mapping` 30 days (the only GitHub-side copy of a released
+  version's mapping).
+- CI verification is unchanged. The release job still fails if the APK, AAB, or
+  mapping is missing from the build outputs — `Verify R8 mapping exists` kept
+  the check when the release-asset copy step was removed.
+- `D:\Build` is now the primary permanent copy, not a redundant one. GitLab is
+  a real mirror but not a guaranteed one: its CI minutes have run out mid-month
+  before (v2.28.0/v2.28.1 shipped without GitLab Releases) and `SKIP_GITLAB_CI`
+  can disable it outright. If the local export is ever dropped, this entry has
+  to be revisited before it is.
+
 ### D063 - Passcode Backoff Uses Wall-Clock And Does Not Resist Clock Tampering
 
 `PasscodeBackoff`'s retry deadline is an absolute `System.currentTimeMillis`
@@ -41,6 +77,9 @@ Decision:
   per-note encryption lands and makes the passcode the actual boundary.
 
 ### D062 - The AAB Is Not A GitHub Release Asset
+
+> Narrowed by D064: the Release now carries one asset, not two — the mapping was
+> dropped from the list as well. Everything below about the AAB still holds.
 
 The GitHub Release carries exactly two assets — the signed APK and the R8
 mapping. The signed AAB is built and verified in the same tag job, but it is

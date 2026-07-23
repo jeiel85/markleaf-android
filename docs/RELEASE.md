@@ -64,6 +64,49 @@ The signed APK is written to:
 app/build/outputs/apk/release/app-release.apk
 ```
 
+## The Gradle Wrapper
+
+`gradle/wrapper/gradle-wrapper.jar` is a binary in the build path, and F-Droid
+builds with it. It should always be the jar Gradle publishes for the version in
+`gradle-wrapper.properties`, and that is checkable:
+
+```powershell
+(Get-FileHash gradle/wrapper/gradle-wrapper.jar -Algorithm SHA256).Hash.ToLower()
+```
+
+against `https://downloads.gradle.org/distributions/gradle-<version>-wrapper.jar.sha256`.
+For 8.9 that is
+`498495120a03b9a6ab5d155f5de3c8f0d986a449153702fb80fc80e134484f17`.
+
+It was not always so. Until #241 the committed jar was 48462 bytes against
+Gradle's 43504, and `gradlew` was a malformed pre-8.x script — the `save ()`
+helper that makes that script shape correct was missing entirely, so
+`eval set -- "… GradleWrapperMain \"$@\""` collapsed every command-line argument
+into one. `./gradlew :app:foo -Pbar=baz` reached Gradle as the single task name
+`:app:foo -Pbar=baz`. Every CI call happens to pass exactly one argument, so
+nothing tripped over it for the project's whole life.
+
+**Never hand-edit these four files.** Regenerate them together so the scripts,
+the jar and the properties stay a matched set from one distribution:
+
+```powershell
+.\gradlew.bat wrapper --gradle-version <version>
+```
+
+Use `gradlew.bat`, not the POSIX script, and expect `cmd` to complain at the end
+of the run — it re-reads the batch file it is executing while the task rewrites
+it. The task itself completes; check `git status` rather than the exit code.
+
+Afterwards, verify:
+
+- the jar's SHA-256 matches Gradle's published checksum,
+- `gradlew` is committed with LF and `gradlew.bat` with CRLF,
+- a genuinely multi-argument call works from a POSIX shell —
+  `./gradlew :app:tasks -PsomeProperty=value`.
+
+`distributionSha256Sum` is still unset, so the *distribution* download is
+unpinned even though the wrapper jar is now verifiable. Worth adding.
+
 ## R8 (Minification + Resource Shrinking)
 
 Release builds run R8 with resource shrinking enabled. ProGuard rules live in

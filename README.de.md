@@ -88,6 +88,24 @@
 
 ---
 
+## 🔗 Arbeitet mit dem Markdown-Ordner, den du schon hast
+
+Markleaf hat kein eigenes Vault-Format. Zeig ihm einen Ordner — auch einen, den Obsidian, Logseq oder dein Texteditor bereits öffnet — und es arbeitet mit den Dateien, die dort liegen.
+
+- **Einfache Dateien, die dir schon gehören.** Eine Notiz ist eine `.md`- (oder `.txt`-)Datei. Leg vorhandene Dateien in den Ordner, und Markleaf übernimmt sie als Notizen, sobald es das nächste Mal in den Vordergrund kommt — ohne Importschritt.
+- **Dein Frontmatter bleibt erhalten.** Markleaf ergänzt einen kleinen YAML-Header (`markleaf_id`, Zeitstempel, pinned/archived), um eine Datei geräteübergreifend einer Notiz zuzuordnen. Es ist eine strikte Teilmenge von YAML, die Obsidian, GitHub und VS Code alle parsen, und **jeder Schlüssel, den Markleaf nicht kennt, bleibt beim Hin und Her unangetastet** — deine Obsidian-Properties kommen so heraus, wie sie hineingegangen sind.
+- **Dieselbe Syntax, die du ohnehin schreibst.** `[[Wikilinks]]` mit Backlink-Panel, `#Tags` direkt im Text, GFM-Tabellen und -Checkboxen, `> [!NOTE]`-Callouts und ein `Ctrl+K`-Quick-Switcher im Obsidian-Stil.
+- **Gleicht selbstständig ab, aber vorsichtig.** Änderungen von anderswo werden übernommen, sobald Markleaf wieder in den Vordergrund kommt (höchstens einmal pro Minute). Eine Änderung aus einem anderen Editor wird auch dann bemerkt, wenn dieser Markleafs Frontmatter nie anfasst — der Abgleich vergleicht den Text, nicht nur den Zeitstempel. Eine Datei gewinnt nur, wenn sie tatsächlich neuer ist; haben sich beide Seiten bewegt, landet die entfernte Fassung als *eigene* Notiz, statt deine Änderungen zu überschreiben, und automatisch gelöscht wird nie etwas.
+
+> [!IMPORTANT]
+> **Zwei Dinge, bevor du Markleaf auf ein echtes Vault richtest.**
+> - **Ein Ordner, keine Unterordner.** Markleaf liest die Dateien direkt in dem gewählten Ordner und steigt nicht in Unterverzeichnisse hinab. Ein in Ordner gegliedertes Vault trifft Markleaf nur auf oberster Ebene — bewusst, denn Markleaf ordnet über Tags statt über Ordner.
+> - **Eine Notiz zu bearbeiten benennt ihre Datei um.** Die Dateinamen der Spiegelung folgen dem Notiztitel; weicht der Dateiname von der Überschrift ab, wird sie beim ersten Speichern in Markleaf umbenannt. Zeigen `[[Links]]` in deinem Vault auf den alten Dateinamen, brechen sie.
+>
+> Wenn dein Vault tief verschachtelt oder linklastig ist, richte Markleaf auf einen *separaten* Ordner und nutze es als mobilen Eingang, aus dem du später zusammenführst, statt als zweiten Editor auf dem Vault selbst.
+
+---
+
 ## 🛠 Technologie-Stack
 
 Markleaf folgt aktuellen Android-Entwicklungsstandards mit einem modernen, wartbaren Stack.

@@ -88,6 +88,24 @@
 
 ---
 
+## 🔗 Fonctionne avec le dossier Markdown que vous avez déjà
+
+Markleaf n'a pas de format de coffre qui lui soit propre. Pointez-le vers un dossier — y compris un dossier qu'Obsidian, Logseq ou votre éditeur de texte ouvrent déjà — et il travaille sur les fichiers qui s'y trouvent.
+
+- **Des fichiers simples, déjà les vôtres.** Une note est un fichier `.md` (ou `.txt`). Déposez vos fichiers existants dans le dossier : Markleaf les reprend comme notes dès son prochain passage au premier plan — sans étape d'import.
+- **Votre frontmatter est préservé.** Markleaf ajoute un petit en-tête YAML (`markleaf_id`, horodatages, pinned/archived) pour associer un fichier à une note d'un appareil à l'autre. C'est un sous-ensemble strict de YAML qu'Obsidian, GitHub et VS Code analysent tous, et **toute clé que Markleaf ne connaît pas est conservée telle quelle** lors de l'aller-retour — vos propriétés Obsidian ressortent comme elles sont entrées.
+- **La syntaxe que vous écrivez déjà.** `[[Wikiliens]]` avec panneau de rétroliens, `#tags` directement dans le texte, tableaux et cases à cocher GFM, encarts `> [!NOTE]`, et un sélecteur rapide `Ctrl+K` façon Obsidian.
+- **Se réconcilie tout seul, avec prudence.** Les changements faits ailleurs sont repris quand Markleaf revient au premier plan (au plus une fois par minute). Une modification faite depuis un autre éditeur est détectée même si celui-ci ne touche jamais au frontmatter de Markleaf : la réconciliation compare le corps du texte, pas seulement l'horodatage. Un fichier ne l'emporte que s'il est réellement plus récent ; si les deux côtés ont bougé, la version distante arrive comme une note *distincte* au lieu d'écraser vos modifications, et rien n'est jamais supprimé automatiquement.
+
+> [!IMPORTANT]
+> **Deux points à connaître avant de pointer Markleaf vers un vrai coffre.**
+> - **Un dossier, pas de sous-dossiers.** Markleaf lit les fichiers situés directement dans le dossier choisi et ne descend pas dans les sous-répertoires. Un coffre organisé en dossiers imbriqués ne rencontrera Markleaf qu'à son niveau supérieur — c'est délibéré : Markleaf classe par tags plutôt que par dossiers.
+> - **Modifier une note renomme son fichier.** Les noms des fichiers miroirs suivent le titre de la note ; un fichier dont le nom diffère de son titre sera donc renommé au premier enregistrement dans Markleaf. Si des `[[liens]]` de votre coffre pointent vers l'ancien nom, ils casseront.
+>
+> Si votre coffre est très arborescent ou riche en liens, pointez Markleaf vers un dossier *séparé* et utilisez-le comme boîte de réception mobile à fusionner ensuite, plutôt que comme second éditeur sur le coffre lui-même.
+
+---
+
 ## 🛠 Stack technique
 
 Markleaf suit les standards actuels du développement Android avec un stack moderne et facile à maintenir.

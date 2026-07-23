@@ -93,12 +93,13 @@
 Markleaf has no vault format of its own. Point it at a folder — including one that Obsidian, Logseq, or your text editor already opens — and it works on the files that are there.
 
 - **Plain files, already yours.** One note is one `.md` (or `.txt`) file. Drop existing files into the folder and Markleaf picks them up as notes the next time it comes to the foreground — no import step.
-- **Your frontmatter survives.** Markleaf adds a small YAML header (`markleaf_id`, timestamps, pinned/archived) so it can match a file to a note across devices. It is a strict subset of YAML that Obsidian, GitHub and VS Code all parse, and **any key Markleaf does not recognize is preserved untouched** on round-trip — your Obsidian properties come back out the way they went in.
+- **Your frontmatter is carried across, one line at a time.** Markleaf adds a small YAML header (`markleaf_id`, timestamps, pinned/archived) so it can match a file to a note across devices, and it re-emits the keys it does not recognize rather than dropping them. The header is a strict subset of YAML that Obsidian, GitHub and VS Code all parse. The parser is line-based, so `key: value` entries and flow lists like `tags: [reading]` round-trip intact — **multi-line values do not yet**, see below.
 - **The same syntax you already write.** `[[Wikilinks]]` with a backlinks panel, inline `#tags`, GFM tables and checkboxes, `> [!NOTE]` callouts, and an Obsidian-style `Ctrl+K` quick switcher.
 - **Reconciles by itself, carefully.** Changes made elsewhere are pulled in when Markleaf returns to the foreground (throttled to once a minute). An edit from another editor is seen even if that editor never touches Markleaf's frontmatter — the reconcile compares the body, not just the timestamp. A file only wins when it is genuinely newer; if both sides moved, the remote arrives as a *separate* note rather than overwriting your edits, and nothing is ever deleted automatically.
 
 > [!IMPORTANT]
-> **Two things to know before you point Markleaf at a real vault.**
+> **Three things to know before you point Markleaf at a real vault.**
+> - **Multi-line properties are not preserved yet ([#226](https://github.com/jeiel85/markleaf-android/issues/226)).** Markleaf reads frontmatter line by line, so an indented block list — the form Obsidian writes tags in by default — collapses to an empty key when Markleaf stamps its id, and a nested map is flattened. If your notes carry properties that way, keep them out of the folder you give Markleaf until this is fixed.
 > - **One folder, no subfolders.** Markleaf reads the files directly inside the folder you pick and does not descend into subdirectories. A vault organized into nested folders will only meet Markleaf at its top level — by design, Markleaf organizes by tags instead of folders.
 > - **Editing a note renames its file.** Mirror filenames track the note title, so a file whose name differs from its heading gets renamed the first time you save it in Markleaf. Where `[[links]]` in your vault point at the old filename, they will break.
 >

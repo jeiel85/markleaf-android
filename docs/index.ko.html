@@ -200,6 +200,38 @@
                         <figcaption>UTF-8 · Plain Markdown · 다른 도구에서도 열림</figcaption>
                     </figure>
                 </article>
+
+                <article class="story vault-story">
+                    <div class="story-copy">
+                        <p class="story-step">04 · 쓰던 폴더 그대로</p>
+                        <h3>이미 쓰고 있는 Markdown 폴더를 그대로 가리키세요.</h3>
+                        <p>Markleaf에는 자체 볼트 형식이 없습니다. Obsidian이나 Logseq, 텍스트 에디터가 만들어 둔 파일을 그대로 노트로 받아들이고, 한 줄짜리 <code>key: value</code> 프론트매터는 그대로 돌려줍니다.</p>
+                        <ul class="feature-points">
+                            <li>기존 <code>.md</code> 파일을 복제하지 않고 그대로 인수</li>
+                            <li>한 줄짜리 프론트매터 키는 왕복해도 보존</li>
+                            <li>아직 안 되는 것: 하위 폴더, Obsidian 태그 목록 같은 여러 줄 속성</li>
+                        </ul>
+                        <a class="text-link" href="https://github.com/jeiel85/markleaf-android/blob/main/README.ko.md#-이미-가지고-있는-markdown-폴더에서-그대로">실제 볼트에 연결하기 전에 알아둘 것</a>
+                    </div>
+                    <figure class="ownership-demo">
+                        <div class="file-browser-bar">
+                            <span></span><span></span><span></span>
+                            <strong>내 폴더</strong>
+                        </div>
+                        <pre aria-label="다른 도구가 만든 파일을 Markleaf가 키를 보존한 채 인수한 예시"><code>내-폴더/
+├─ 독서 기록.md
+└─ 프로젝트 계획.md
+
+---
+tags: [reading]
+aliases: [log]
+markleaf_id: 7f3c…
+---
+
+# 독서 기록</code></pre>
+                        <figcaption>당신의 키는 그대로 · Markleaf는 하나만 추가</figcaption>
+                    </figure>
+                </article>
             </div>
         </section>
 

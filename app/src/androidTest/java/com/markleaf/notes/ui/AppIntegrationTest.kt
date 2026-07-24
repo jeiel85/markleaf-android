@@ -53,6 +53,22 @@ class AppIntegrationTest {
         }
     }
 
+    // 화면 전환은 노트를 만드는 suspend 호출 뒤에 일어난다. waitForIdle 은 그
+    // 코루틴이 끝나기 전에도 idle 이라고 답할 수 있어서, 느린 기기에서는 다음
+    // 화면이 아직 없는 상태로 단언에 들어간다 — CI 의 ATD 이미지에서 실제로
+    // 그랬다. 전환 지점마다 대상이 나타날 때까지 기다린다.
+    private fun awaitContentDescription(label: String) {
+        composeTestRule.waitUntil(timeoutMillis = 15_000L) {
+            composeTestRule.onAllNodesWithContentDescription(label).fetchSemanticsNodes().isNotEmpty()
+        }
+    }
+
+    private fun awaitText(text: String) {
+        composeTestRule.waitUntil(timeoutMillis = 15_000L) {
+            composeTestRule.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty()
+        }
+    }
+
     @Test
     fun testCreateAndSaveNoteFlow() {
         // 1. 앱 실행 후 'Add Note' 버튼(FAB) 클릭
@@ -62,6 +78,7 @@ class AppIntegrationTest {
         // 2. 에디터에서 텍스트 입력
         val testContent = "# Integration Test\nThis is a test note."
         val noteContentLabel = context.getString(R.string.note_content)
+        awaitContentDescription(noteContentLabel)
         composeTestRule.onNodeWithContentDescription(noteContentLabel).performTextReplacement(testContent)
 
         // 3. 자동 저장을 기다린 후 뒤로가기.
@@ -76,10 +93,12 @@ class AppIntegrationTest {
         composeTestRule.onNodeWithContentDescription(backLabel).performClick()
 
         // 4. 목록 화면에서 작성한 노트 제목이 표시되는지 확인
+        awaitText("Integration Test")
         composeTestRule.onNodeWithText("Integration Test").assertIsDisplayed()
 
         // 5. 생성된 노트 클릭하여 내용 확인
         composeTestRule.onNodeWithText("Integration Test").performClick()
+        awaitText(testContent)
         composeTestRule.onNodeWithText(testContent).assertIsDisplayed()
     }
 
@@ -91,6 +110,7 @@ class AppIntegrationTest {
 
         // 2. 검색 화면으로 이동했는지 확인 (Placeholder 텍스트로 확인)
         val searchHint = context.getString(R.string.search_notes_hint)
+        awaitText(searchHint)
         composeTestRule.onNodeWithText(searchHint).assertIsDisplayed()
     }
 }

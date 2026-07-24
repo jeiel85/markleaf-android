@@ -312,6 +312,26 @@
   - The tag workflow's release job passed, while its parallel build job exposed three Quick Insert snapshots pointing at an uncommitted report directory. Commit `7181b96` moved them to the canonical snapshot directory and `1a86e4f` added Linux-recorded goldens; the follow-up main build passed tests, visual regression, release lint, and R8 artifact gates.
   - F-Droid uses the GitHub repository with tag-based update checks. The v2.22.0 handoff is complete; the official catalog and upstream metadata still showed 2.21.1 (103) when checked on 2026-07-13, so catalog publication remains asynchronous.
 
+## 2026-07-10 - Folder sync stops resurrecting deleted notes, and v2.21.1 (#148)
+
+- Trigger: #148 — notes deleted while folder sync was on came back after an app restart.
+- Analysis: deleting a note moves it to the trash and deliberately leaves its mirrored `.md` file in the folder, so a trashed note can still be restored and Markleaf never deletes a file it did not just write. Reconciliation, though, only looked at active notes. The leftover file matched nothing, so it read as a note that had appeared in the folder and was created again. The same blind spot pulled archived notes back into the active list.
+- Contract/scope: reconcile against all notes — active, archived and trashed — and skip a file whose note is in the trash. Permanent deletion, which does remove the file, is unchanged. Propagating a deletion to *other* devices sharing the folder stays out of scope and was split out as #149, still open: auto-deleting a file a sync client may be mid-write is a data-loss risk.
+- Implementation: `f1c8686`, which extracted the decision into a pure `reconcileAction` function so it could be tested without SAF. The same tag range also carries the GitHub→GitLab mirror runbook and its verify script (`f294732`) and the removal of debug APKs that had been committed under `.ci-artifacts/` and `.release-assets/` (`dfe47f8`, `9231ff0`, merged as `429725e`).
+- Verification: `./gradlew testDebugUnitTest`, with new unit tests for skipping trashed notes, reconciling archived notes correctly, re-syncing after a restore, and `getAllNotes`.
+- Release: versionCode 102→103, versionName 2.21.0→2.21.1 (`58f9d43`), CHANGELOG both editions, six store-locale `103.txt`.
+- Record: reconstructed from the tag range and CHANGELOG under #268; it was not logged at release time.
+
+## 2026-06-25 - Interactive motion, foldable tablet sidebar, and v2.21.0 (#145)
+
+- Trigger: a pass at making the app feel distinctly Android rather than a cross-platform shell. #145 — the toolbar checkbox always inserting a new item instead of toggling the one under the caret — rode along.
+- Analysis: every motion feature on the list (predictive back, item reflow, a card that expands into the editor) needs Compose 1.7 or newer, so the toolchain had to move before any of them could be written. That made a dependency bump the first commit of the release rather than an afterthought.
+- Contract/scope: shared-axis-X screen transitions with predictive back; `Modifier.animateItem` reflow when notes are pinned, added or deleted; a card→editor container transform on phones; a cross-fade on the tablet editor pane when a different note is selected; a tag rail that collapses to widen the writing space. (#145) the checkbox button toggles `- [ ]`↔`- [x]` on a line that is already a checklist item and still creates one on a line that is not. compileSdk and targetSdk stay at 35.
+- Implementation: toolchain first (`b9f42cf`) — Kotlin 1.9.22→2.0.21 onto the Compose compiler Gradle plugin, Compose BOM 2024.02.02→2024.12.01 (Compose 1.7.6), AGP 8.3.0→8.7.3, Gradle 8.5→8.9, Navigation 2.8 / Activity 1.9 / Lifecycle 2.8, Robolectric 4.14.1, Roborazzi 1.29.0. Then predictive back (`e74f171`), list reflow (`04dcab1`), the shared-element container transform (`81c0143`), preview links moved off the now-deprecated `ClickableText` onto `LinkAnnotation` (`a6bda14`), the tablet cross-fade (`3bcccd3`), the collapsible rail (`95c1fef`), memoized editor highlighting so a long note no longer re-scans itself on every keystroke (`6570e5d`), and #145 (`8c753fc`).
+- Verification: `./gradlew test lintRelease`, plus checkbox-toggle unit tests covering TODO↔DONE, indentation and caret preservation.
+- Release: versionCode 101→102, versionName 2.20.0→2.21.0 (`f794189`), CHANGELOG both editions, six store-locale `102.txt`.
+- Record: reconstructed from the tag range and CHANGELOG under #268; it was not logged at release time. This is where the Gradle wrapper moved to 8.9 — the version #241 later regenerated and #246 pinned by checksum.
+
 ## 2026-06-23 - v2.20.0 Editor writing upgrades & tablet 3-column layout
 
 - Trigger: After mapping the Bear-parity gap, the user approved shipping the "now tier" of editor improvements, then the tablet 3-column layout, and asked to cut a release once it was releasable.
@@ -396,6 +416,36 @@
   - `.\gradlew.bat testDebugUnitTest --no-daemon --stacktrace` -> BUILD SUCCESSFUL after stopping a stale Gradle daemon that had locked `test-results/.../output.bin`.
   - `.\gradlew.bat assembleDebug --no-daemon --stacktrace` -> BUILD SUCCESSFUL.
   - `rg "android.permission.INTERNET" -n app/src` -> no matches.
+
+## 2026-06-18 - The open-file reopen loop, and v2.18.1 (#142)
+
+- Trigger: #142 — after opening or sharing a `.md` or `.txt` file into Markleaf, pressing back reopened the editor endlessly, saving another copy of the same note each time, with no way out of the app.
+- Analysis: the one-shot external open/share import added in #139 (v2.17.0) lived in a `LaunchedEffect` inside `MarkleafNavHost`'s NOTES destination. Entering the editor and coming back restarted that destination's composition, which re-ran the effect; nothing had consumed the intent, so every pass called `createNote(sharedText)` with a fresh UUID and reopened the editor. Back navigation and app exit were both inside the loop it created.
+- Contract/scope: lift the import to a single host-scoped `LaunchedEffect(Unit)` that lives as long as the activity instance, so internal navigation cannot re-fire it and only a genuinely new intent (`onNewIntent` → `recreate`) imports again. The widget's new-note and recent-note paths run through the same code and are fixed by the same change.
+- Implementation: `6b6fafe`, which carried the fix, the version bump and the store notes together. It also added a Robolectric Compose regression test; `568f321` tried to stabilise it and `4426c22` removed it. Global idle-state pollution between Compose tests in the unit suite produced `AppNotIdleException` failures that depended on execution order, so the test would have been an unreliable gate. It was dropped rather than left flaky, with an instrumented test named as the right home for this lifecycle case.
+- Verification: manual — reverting to the pre-fix code reproduces the duplicate notes and the reopen loop, and after the fix the import happens exactly once. No automated coverage of the regression shipped, by the decision above.
+- Release: versionCode 97→98, versionName 2.18.0→2.18.1 (`6b6fafe`), CHANGELOG both editions, six store-locale `98.txt`.
+- Record: reconstructed from the tag range and CHANGELOG under #268; it was not logged at release time.
+
+## 2026-06-16 - Sync files named after note titles, and v2.18.0 (#134)
+
+- Trigger: #134 — folder sync wrote files as `slug-idabcdef12.md`, an internal name sitting in a folder the user opens in other tools.
+- Analysis: that name existed because a note was matched to its file *by filename*. Moving the link to the frontmatter `markleaf_id` frees the filename entirely and, more to the point, makes the match survive a rename — by the user, by Markleaf, or by another app.
+- Contract/scope: files are written as `Title.md`; renaming a note renames the file in place; a duplicate title takes a ` (2)` suffix and characters a filesystem will not accept are cleaned up. The sync center gains a `.md`/`.txt` choice — new files follow it, existing files keep their extension, import reads both — plus a "Rename files to note titles" button that converts a folder created under the old scheme in one pass. A rename always writes content first and renames second, so an interrupted rename cannot lose the note.
+- Implementation: `9249b57`. The rest of the tag range is release tooling and store work rather than product code: the release export gained `-vc` naming and the R8 mapping (`1a6ab22`) and all-locale release notes in one tag-separated file (`93a1bb8`); store descriptions were refreshed and Spanish added for locale parity (`64a44a5`, `46affd7`); English, Japanese and German READMEs landed (`5f1abc6`); the READMEs and landing page caught up with the public Play launch (`ddfd0cf`); and the GitHub issue-response workflow was written into `AGENTS.md` (`e0536d6`).
+- Verification: unit tests for filename sanitisation and collision handling (`MirrorFileNames`).
+- Release: versionCode 96→97, versionName 2.17.1→2.18.0 (`7a6ebc0`), CHANGELOG both editions, and the first six-locale store changelog set — `97.txt` in ko-KR, en-US, ja-JP, de-DE, fr-FR and es-ES, where every version up to and including 96 had ko-KR and en-US only.
+- Record: reconstructed from the tag range and CHANGELOG under #268; it was not logged at release time.
+
+## 2026-06-16 - Inline formatting inside list items, and v2.17.1 (#141)
+
+- Trigger: #141 — `- **bold**`, `- [[note]]` and inline code written inside a list showed their raw markers in preview.
+- Analysis: list rows were rendered by a different path from body paragraphs, and that path discarded the inline spans the parser had already produced. Bold, italic, inline code, links and wikilinks were all affected, in bullet, numbered and checkbox items alike.
+- Contract/scope: render inline formatting inside list items exactly as in body text, and make a `[[wikilink]]` inside a list tappable like any other.
+- Implementation: `b4d7c07`, with a new `list_inline_formatting` snapshot and the existing goldens that contain lists re-recorded (`50321fe`). `9a19242`, which brought the README and landing page up to v2.17.0, also sits in this range.
+- Verification: the `list_inline_formatting` snapshot plus the re-recorded goldens.
+- Release: versionCode 95→96, versionName 2.17.0→2.17.1 (`13f9ab2`), CHANGELOG both editions, and fastlane `96.txt` in ko-KR and en-US — the six-locale store-note requirement arrived one release later, with v2.18.0.
+- Record: reconstructed from the tag range and CHANGELOG under #268; it was not logged at release time.
 
 ## 2026-06-15 - v2.17.0 File import & folder-sync fixes (#139, #140, #138)
 
@@ -753,6 +803,189 @@
   - GitHub 오픈 이슈 12건: #27(완료), #37(미구현), #38(미구현), #39(미구현), #51(보류), #52(미구현), #53(보류), #54(보류), #55(미구현), #57(미구현), #65(완료), #76(완료)
   - 완료 3건(#27, #65, #76)은 GH close 필요, 보류 3건은 외부 조건, 미구현 6건은 backlog
 
+## 2026-05-11 - v2.13.0 노트 안에서 바꾸기 (Find & Replace)
+
+- Work: 에디터 Find 바를 두 줄로 넓혀 아래 줄에 바꾸기 입력칸과 "바꾸기" / "모두 바꾸기"를 붙였다. "바꾸기"는 지금 하이라이트된 매치 하나만 치환하고 다음으로 넘어가지 않는다(그건 ▼ 버튼의 역할이다). "모두 바꾸기"는 전체를 단일 패스로 치환해 치환 길이가 달라져도 인덱스가 밀리지 않게 하고, 끝나면 몇 개를 바꿨는지 Toast로 알린다.
+- Context:
+  - §2.5의 chrome 누적 회피를 지켜 상단바 아이콘을 새로 만들지 않았다. 검색이 켜져 있을 때만 하나의 Find/Replace 바가 두 줄로 펼쳐지고, 검색을 끄면 같이 사라진다.
+  - 매칭은 기존 `findAllRanges`의 대소문자 무시 substring 정책을 그대로 쓴다. 정규식과 case-sensitive 토글은 UI 복잡도와 안전한 동작을 우선해 일부러 넣지 않았다.
+  - 바꾸기 텍스트를 비운 채 "모두 바꾸기"를 누르면 지우기로 동작한다 — 의도된 동작이다.
+- Verification: `ReplaceRangesTest`가 `replaceRange`/`replaceAllRanges`를 단일 치환, 빈 치환(삭제), 다중 치환, 빈 매치 목록, 더 긴 치환에서의 인덱스 안전성, 대소문자 무시까지 잠근다.
+- Record: 커밋 `c4d5afd`과 CHANGELOG로 #268에서 재구성 — 릴리스 당시 기록되지 않음.
+
+## 2026-05-11 - v2.12.0 빠른 이동 (Quick switcher)
+
+- Work: Obsidian식 빠른 노트 점프를 추가했다. 노트 목록 ⋮ 오버플로의 첫 항목이나 하드웨어 키보드의 Ctrl+K(Cmd+K)로 열리고, 제목 substring 매칭 결과를 최대 20개까지 띄워 탭하면 그 노트로 간다. 쿼리가 비어 있으면 최근 수정 순으로 정렬해 마지막에 만지던 노트로 바로 돌아갈 수 있게 했다.
+- Context:
+  - 기존 전체 검색(Search 화면, FTS로 본문까지)은 그대로 두었다. 빠른 이동은 제목만 보는 점프이고 둘은 일부러 다른 도구다.
+  - §2.5 chrome 누적 회피에 따라 상단바 아이콘을 늘리지 않고 기존 ⋮ 메뉴 첫 항목과 단축키만으로 진입점을 만들었다. `onPreviewKeyEvent`는 키보드 입력이 없으면 no-op이라 터치 사용자에게 영향이 없다.
+- Record: 커밋 `d4c24e6`과 CHANGELOG로 #268에서 재구성 — 릴리스 당시 기록되지 않음.
+
+## 2026-05-11 - v2.11.0 GFM 테이블 부활
+
+- Work: `| 열 | 열 |`과 `| :--- | ---: |` 정렬 행이 미리보기에서 진짜 표로 그려지도록 되살렸다. 헤더 행은 굵게 + 약간 어두운 배경, 본문은 alternate row 줄무늬, 행 사이 1dp divider이고 `:---` / `---:` / `:---:` 정렬을 그대로 반영한다.
+- Context:
+  - v1.2.0에서 MVP simplicity를 이유로 제거했던 표·수식 렌더링 중 표만 부활시킨 것이다. 사용자 합의 후 post-MVP에서 확장으로 분류했고, 수식은 §2.7 가치관 마찰 검토 뒤로 미뤘다.
+  - 데이터 모델은 `PreviewLineType.TABLE`과 `TableData(headers, rows, alignments)` / `TableAlignment`를 추가하고 기존 `PreviewLine`에 nullable `tableData`를 붙이는 방식이다. 의존성은 이미 쓰던 commonmark BSD-2 모듈군과 같은 `commonmark-ext-gfm-tables:0.24.0`.
+  - 셀 안의 인라인 마크다운(굵게·기울임·링크)은 이 시점에 plain text로 표시된다 — 백로그로 남겼다.
+- Verification: 단위 테스트 `parse_parsesGfmTable`(헤더·본문·정렬 추출)과 Roborazzi 골든 `table_light`(헤더 굵기, zebra row, 정렬, divider).
+- Record: 커밋 `de02a32`과 CHANGELOG로 #268에서 재구성 — 릴리스 당시 기록되지 않음.
+
+## 2026-05-11 - v2.10.0 코드 블록 syntax highlighting
+
+- Work: 펜스 코드 블록에 언어 힌트가 있으면(` ```kotlin `) 미리보기에서 키워드·문자열·숫자·주석·함수명을 각각 다른 색으로 표시한다. 지원 언어는 Kotlin, Java, Python, JavaScript, TypeScript, Bash/Shell, JSON, YAML, XML/HTML, SQL 열 개이고, 그 밖의 언어나 힌트 없는 블록은 기존 모노스페이스 단색 폴백 그대로다.
+- Context:
+  - Prism4j 같은 Apache 2 후보를 검토했지만 §2.7 lightweight bias와 APK 크기를 이유로 자체 regex 토크나이저를 직접 구현했다. 10개 언어 룰셋이 약 350 LOC이고 의존성 추가는 없다.
+  - 색은 Material 3 컬러스킴을 재활용해 라이트/다크/Material You에서 자동으로 톤이 맞는다. 별도 코드 테마 설정은 두지 않았다.
+  - 토큰 충돌은 주석과 문자열이 키워드보다 우선하도록 풀었다 — `"fun day"` 안의 `fun`은 Kotlin 키워드로 색칠되지 않는다.
+- Verification: 단위 테스트 12개(텍스트 round-trip, 키워드·문자열·주석·숫자 인식, 문자열 안 키워드 무시, decorator/annotation, YAML key, XML tag/attr 등)와 Roborazzi 골든 2개(Kotlin: 함수 + 문자열 + 주석 / Python: decorator + 함수).
+- Record: 커밋 `c9aff4e`과 CHANGELOG로 #268에서 재구성 — 릴리스 당시 기록되지 않음.
+
+## 2026-05-11 - v2.9.2 표준 마크다운 링크 클릭 동작
+
+- Work: `[라벨](URL)` 형식의 표준 마크다운 링크가 미리보기에서 클릭되지 않던 누락을 고쳤다. 이제 primary 색 + 밑줄로 렌더되고, 탭하면 `Intent.ACTION_VIEW`로 시스템 브라우저·메일·전화 앱이 URL을 받아 처리한다.
+- Context:
+  - 온보딩 노트가 "링크 버튼은 `[라벨](대상)` 템플릿을 넣어줍니다"라고 안내하는데 정작 링크가 동작하지 않는다는 보고에서 출발했다. 원인은 `CommonMarkPreviewAdapter`의 `is Link` 분기가 URL을 버리고 텍스트만 inline으로 내보내던 것이고, `URL ignored in preview` 코멘트가 그대로 남아 있었다.
+  - `PreviewInlineSegment`에 `href: String?`과 `PreviewInlineType.LINK`를 추가하면서, 인접한 두 LINK 세그먼트가 서로 다른 URL일 때 잘못 합쳐지지 않도록 `coalesce()`가 href까지 비교하게 했다.
+  - URL을 다른 앱에 넘길 뿐이라 Markleaf 자체에는 여전히 INTERNET 권한이 없고 §2.2 로컬 우선이 유지된다.
+  - 날짜 주의: `CHANGELOG`는 v2.9.2부터 v2.12.0까지를 2026-05-09로 적었지만 해당 커밋과 태그는 모두 2026-05-11이다. 이 기록은 커밋 날짜를 따랐다.
+- Verification: 단위 테스트 `parse_emitsLinkSegmentWithHref`(라벨과 href 추출)와 신규 Roborazzi 골든 `markdown_link_light`.
+- Record: 커밋 `b1f0875`과 CHANGELOG로 #268에서 재구성 — 릴리스 당시 기록되지 않음.
+
+## 2026-05-09 - v2.9.1 Roborazzi 임계치 정밀화
+
+- Work: v2.1.1에서 깔아 둔 `workflow_dispatch` 훅을 처음 실제로 돌려(run 25600591611) CI Linux 러너에서 골든 18장을 재기록하고, 내려받아 `app/src/test/snapshots/roborazzi/`에 커밋했다. 그 위에서 `changeThreshold`를 0.05f → 0.005f로 10배 조였다.
+- Context:
+  - 임계치가 느슨했던 이유는 Windows에서 record하고 Linux에서 verify하는 조합의 폰트 힌팅 차이를 흡수해야 했기 때문이다. record와 verify가 같은 OS가 되자 그 여유분이 필요 없어졌고, 그때부터 임계치는 진짜 시각 회귀만 잡는다.
+  - 결과적으로 라이브 프리뷰와 에디터 미리보기 18개 시나리오의 1픽셀 회귀가 PR 빌드에서 바로 빨간불이 된다. 사용자 화면 변화는 없다.
+- Record: 커밋 `bb02e38`과 CHANGELOG로 #268에서 재구성 — 릴리스 당시 기록되지 않음.
+
+## 2026-05-09 - v2.9.0 동기화 충돌 시 사본 보존
+
+- Work: 양쪽 기기에서 동시에 고친 노트가 silent overwrite되지 않게 했다. reconcile 중 파일이 newer이면서 로컬도 마지막 sync 이후 수정됐으면, 기존 로컬 노트를 그대로 두고 파일 본문을 별도 사본 노트로 들여온다(제목에 `(다른 기기 사본 0509 12:34)` 형태의 suffix). sync 결과 toast도 "업데이트 N, 신규 N, 충돌 사본 N, 변화 없음 N"으로 무엇이 어떻게 처리됐는지 드러내도록 바꿨다.
+- Context:
+  - DB v11 → v12: `notes`에 nullable `lastImportedAt` 컬럼 추가. 에디터가 미러 폴더에 write한 직후 `lastImportedAt = updatedAt`으로 stamp하므로, 다음 reconcile이 방금 우리가 쓴 remote echo와 다른 기기에서 온 foreign edit을 구분할 수 있다.
+  - v2.6 이전 노트는 `lastImportedAt`이 null로 시작한다. 첫 reconcile에서 파일이 newer이고 값이 null이면 충돌로 분류 — 안전한 쪽으로 실패하도록 한 선택이다.
+  - 여전히 남긴 것: 파일 → DB 삭제 sync(silent data loss 회피), 그리고 인앱 머지 UI. 사본 두 개를 보여주고 사용자가 직접 정리하는 것이 이 릴리스의 범위였다.
+- Record: 커밋 `5250f63`과 CHANGELOG로 #268에서 재구성 — 릴리스 당시 기록되지 않음.
+
+## 2026-05-09 - v2.8.1 한국어 어법 다듬기
+
+- Work: 사용자가 "볼 노트를 선택하세요" 같은 영어 직역체를 지적해 한국어 strings 14개 항목을 자연스러운 표현으로 고쳤다. 영어와 스페인어는 손대지 않았다.
+- Context:
+  - 고친 축은 세 가지다 — 어순을 한국어답게(`%1$d개 노트` → `노트 %1$d개`), 번역투 용어를 실제로 쓰는 말로(`화면 낭독기` → `스크린 리더`, `시스템 월페이퍼` → `시스템 배경화면`), 그리고 MVP 시절 문구에 남아 있던 내부 용어를 사용자 문장으로(`MVP에서는 INTERNET 권한을 선언하지 않습니다` → `이 앱은 INTERNET 권한을 사용하지 않습니다`).
+  - 문자열만 바뀐 릴리스이지만 별도 태그를 판 이유는 스토어 노출 문구가 포함돼 있었기 때문이다.
+- Record: 커밋 `8da3ad3`과 CHANGELOG로 #268에서 재구성 — 릴리스 당시 기록되지 않음.
+
+## 2026-05-09 - v2.8.0 이미지 alt 편집 다이얼로그
+
+- Work: 미리보기에서 이미지를 길게 누르면 alt 편집 다이얼로그가 열리고, 저장하면 본문의 `![oldAlt](path)`가 `![newAlt](path)`로 치환된다. 경로는 건드리지 않으므로 첨부 파일 reference는 그대로다. 다이얼로그에는 alt가 무엇에 쓰이는지(스크린 리더, 이미지가 보이지 않을 때 표시) 한 줄 설명을 넣었다.
+- Context:
+  - 같은 경로가 본문에 여러 번 나오면 첫 번째만 치환한다. 첨부 파일명이 UUID라 실제로 충돌할 일이 거의 없다는 판단이다.
+  - 이 시점에 의도적으로 멈춘 항목들이 함께 기록돼 있다 — 충돌 시 양 버전 보존 UI(제품 결정이 필요: 폴더에 두 벌 vs 인앱 머지 화면), 문단 안 인라인 이미지(파서 리팩터가 필요한데 가치가 낮음), CI Linux 골든 재기록(사용자가 `workflow_dispatch`를 한 번 눌러야 함), 노트 50개 이상 시드된 빌드에서의 ScrollBenchmark 재실행. 앞의 둘은 제품 결정, 뒤의 둘은 외부 트리거 대기였다.
+- Record: 커밋 `25fcc8e`과 CHANGELOG로 #268에서 재구성 — 릴리스 당시 기록되지 않음.
+
+## 2026-05-09 - v2.7.0 위키링크 자동완성
+
+- Work: 본문에 `[[`를 치는 순간(또는 `[[hel`처럼 부분 입력 후) 에디터 하단 toolbar 위에 매칭되는 노트 제목을 최대 8개까지 띄우고, 탭하면 `[[Title]]`로 완성하며 커서를 닫는 `]]` 뒤로 옮긴다.
+- Context:
+  - 후보는 활성 노트(휴지통·보관함 제외) 중 제목이 쿼리를 포함하는 것(대소문자 무시)이고, `[[` 직후처럼 쿼리가 비어 있으면 모든 후보를 알파벳 순으로 보여준다.
+  - 사용자가 `]]`를 입력하거나 줄바꿈하면 드롭다운이 자동으로 닫힌다.
+- Verification: `detectWikilinkQuery` 단위 테스트 4개(열림 후 부분 입력 / 빈 쿼리 / 닫힌 후 / 줄바꿈 후)와 `completeWikilink` 1개(치환 + 커서 위치).
+- Record: 커밋 `6bec4d4`과 CHANGELOG로 #268에서 재구성 — 릴리스 당시 기록되지 않음.
+
+## 2026-05-09 - v2.6.0 동기화 완성 (삭제 전파 + 첨부 미러)
+
+- Work: v2.1~v2.5에서 남겨 둔 sync 구멍 세 개를 한 번에 메움. (1) 휴지통에서 영구 삭제하면 DB뿐 아니라 폴더의 `.md`와 `attachments/<noteId>/` 디렉터리도 지운다. (2) 노트 자동 저장 때 `<filesDir>/attachments/<noteId>/*`를 폴더의 `attachments/<noteId>/`로 복사해, 그동안 다른 기기에서 깨진 이미지로 보이던 첨부를 함께 동기화한다(UUID 파일명 기반 dedup으로 재복사 회피). (3) Room CASCADE가 `attachments` row만 지우고 실제 파일은 남기던 누수를 `AttachmentManager.deleteAllForNote`로 막았다.
+- Context:
+  - 파일 → DB 방향의 삭제 sync는 여전히 미구현으로 남겼다. 외부 sync 클라이언트가 mid-flight일 때 silent data loss가 날 수 있어서이고, 자동으로 도는 것은 DB → 파일 방향뿐이다. (이 결정은 뒤에 #148/#149로 다시 올라온다.)
+  - 다른 기기가 그사이 파일을 다시 편집했다면 v2.1.0의 "파일이 strictly newer일 때만 update" 규칙이 계속 보호한다.
+  - DB 스키마 변경 없음.
+- Record: 커밋 `1dbbfa0`과 CHANGELOG로 #268에서 재구성 — 릴리스 당시 기록되지 않음.
+
+## 2026-05-09 - v2.5.3 문서 정리 (코드 변경 없음)
+
+- Work: `docs/AGENT_SPEC.md`에 §15 *Post-MVP 방향*을 추가해 v2.x 합의(다중 기기 sync / Bear급 라이브 프리뷰 / 위키링크·이미지 부활)를 명시하고, §1–§14를 MVP era 한정으로 라벨링해 새 컨트리뷰터가 spec만 보고 v2.x 작업과 혼동하지 않게 했다. 함께 `.agent/tasks.md`의 Phase 10(Lenovo TB320FC Compose UI test 호스트 이슈)을 Roborazzi가 대체했다는 이유로 정식 close하고, Phase 8 백로그의 WebDAV/Drive sync 항목도 v2.1 SAF 폴더 미러가 우리 백엔드 없이 둘 다 흡수했다는 이유로 close했다.
+- Context: 앱 코드 변경이 없는 문서 전용 릴리스다. 태그를 판 이유는 spec의 라벨링이 그 시점 이후의 모든 작업 판단 기준이 되기 때문.
+- Record: 커밋 `27fc261`과 CHANGELOG로 #268에서 재구성 — 릴리스 당시 기록되지 않음.
+
+## 2026-05-09 - v2.5.2 태블릿 UX 다듬기
+
+- Work: 태블릿에서 드러난 시스템 바 관련 결함 두 건과 내비게이션 누락 한 건을 묶어 수정. (1) 펼친 노트 리스트가 status bar 영역까지 surfaceVariant 색을 침범하던 문제를 `Modifier.systemBarsPadding() + consumeWindowInsets(WindowInsets.systemBars)`로 v1.4.2 collapsed-rail 패턴과 맞췄다. (2) 검색·태그·휴지통·보관함으로 들어가면 status bar가 흰색으로 뚫리며 흰 아이콘이 보이지 않던 문제. (3) 그 네 화면에 뒤로가기 버튼이 없던 것을 `Scaffold + TopAppBar + 뒤로 화살표`로 채우고 NavHost에 `popBackStack`을 연결했다.
+- Context:
+  - status bar 문제는 원인이 두 갈래였다 — `Theme.Markleaf`가 `Light.NoActionBar`만 정의해 다크 모드에서도 액티비티 윈도우 배경이 흰색이었던 것(`values-night/styles.xml`에 다크 부모 추가)과, `enableEdgeToEdge()`가 액티비티 시작 시점에만 아이콘 색을 정하던 것(`MarkleafTheme` 안에서 `WindowCompat.isAppearanceLightStatusBars`를 매 컴포지션마다 동기화). 한쪽만 고쳤으면 재발했을 조합이다.
+  - 같은 태그에 벤치마크 툴체인 정상화가 딸려 있다 — profileinstaller 1.3.1 → 1.4.0, benchmark-macro-junit4 1.2.4 → 1.3.0(API 35 지원), benchmark build type을 non-debuggable + `<profileable shell="true" />`로 교정, `/benchmark/build`를 `.gitignore`에 추가. 실제 측정치(TB320FC cold 326ms / warm 113ms / hot 57ms)는 바로 아래 v2.5.1 항목에 이미 기록돼 있어 여기서는 되풀이하지 않는다.
+- Record: 커밋 `f9d8deb`, `c04c6f4`, `53fe5f8`, `9bfd0b7`, `7e1f4dd`과 CHANGELOG로 #268에서 재구성 — 릴리스 당시 기록되지 않음.
+
+## 2026-05-08 (밤) - v2.5.1 + tablet bench
+- Work: 사용자가 v1.5에서 Material You 기본화 이후 leaf-style 그린이 사라진 것을 지적 → 테마 선택 설정 추가, 그린 기본 복귀. 동시에 Lenovo TB320FC (API 35) 태블릿에서 Macrobenchmark 첫 실측.
+- Theme picker:
+  - `AppSettings.colorPalette: ColorPalette { MARKLEAF_GREEN, MATERIAL_YOU }` (DataStore key `color_palette`)
+  - `MarkleafTheme.dynamicColor` 기본값 `true → false` (정적 그린 기본)
+  - `MainActivity` 가 settings flow를 collect 해 ColorPalette → dynamicColor 변환, 변경 즉시 리컴포즈
+  - Settings → 새 "테마" 섹션: 두 옵션 OutlinedButton/Button 토글 패턴
+  - strings × 3 lang
+- Macrobenchmark on TB320FC (API 35):
+  - profileinstaller 1.3.1 → 1.4.0 (API 35 지원), benchmark-macro-junit4 1.2.4 → 1.3.0
+  - benchmark build type: `isDebuggable = true → false` (Macrobenchmark는 debuggable 거부)
+  - `app/src/benchmark/AndroidManifest.xml` (NEW) — `<profileable shell="true" />` 만 추가, 다른 build variant에 영향 없음
+  - benchmark/AndroidManifest.xml — WRITE_EXTERNAL_STORAGE 제거 (API 30+에서 GrantPermissionRule 실패 원인)
+  - 결과:
+    - **Cold start: median 326ms** (min 317 / max 360) — §2.1 *빠름 우선* 기준 즉각
+    - **Warm start: median 113ms** — 거의 무즉각
+    - **Hot start: median 57ms** — 사용자 인지 한계 이하
+    - ScrollBenchmark는 fresh install이라 노트 4개뿐, fling 시 frame 데이터 부족으로 실패 — 데이터 시드된 빌드에서 재실행 필요 (v2.5.x 백로그)
+- Verification:
+  - `./gradlew assembleDebug + test + verifyRoborazziDebug` 통과
+  - 태블릿에 v2.5.1 debug APK 설치 완료 (사용자 스모크 테스트용)
+
+## 2026-05-08 (밤) - v2.5.0 이미지 첨부 부활
+
+- Work: v1.2.0에서 의식적으로 제거했던 이미지 첨부를 post-MVP 판단으로 되살림. 에디터 툴바의 이미지 버튼 → SAF 파일 피커 → 앱 private 디렉터리(`<filesDir>/attachments/<noteId>/<id>.<ext>`)로 복사 → 본문에 표준 `![](attachments/...)` 삽입. 미리보기에서 Coil로 inline 렌더.
+- Context:
+  - 권한 0 유지 — SAF가 파일 접근을 책임지므로 `READ_MEDIA_IMAGES` 같은 미디어 권한을 추가하지 않았고 INTERNET도 그대로 없다.
+  - 본문에 표준 마크다운만 들어가므로 다른 도구에서도 읽히고 v2.1 폴더 sync의 `.md`에도 그대로 실린다. 다만 첨부 파일 자체는 별도 폴더에 있어 sync 대상 밖 — v2.5.x로 미룸.
+  - DB v10 → v11: `attachments` 테이블 재도입(`id` PK, `noteId` FK CASCADE, `fileName`, `mimeType`, `addedAt`). 메타데이터 전용이고 실제 파일은 디스크에 남으므로, 노트 영구 삭제 시 row는 cascade로 지워지지만 파일 cleanup은 과제로 남았다.
+  - 새 의존성 `io.coil-kt:coil-compose:2.6.0` (Apache 2, F-Droid 친화, 네트워크 요청 없음).
+  - v2.5.x로 미룬 것: 첨부 파일의 폴더 sync, 삭제 시 디스크 cleanup, 문단 안 인라인 이미지 렌더, 크기·캡션·alt 편집 UI.
+- Record: 커밋 `5905c24`과 CHANGELOG로 #268에서 재구성 — 릴리스 당시 기록되지 않음.
+
+## 2026-05-08 (밤) - v2.4.0 위키링크 부활
+
+- Work: `[[Title]]` 위키링크를 되살려 미리보기에서 클릭 가능한 링크(primary 색 + 밑줄)로 렌더하고, 없는 제목이면 새 노트를 만들어 이동한다(Bear/Obsidian과 같은 관례). 미리보기 하단에 이 노트를 참조한 노트를 모으는 backlinks 섹션을 추가하고, 1초 디바운스 자동 저장 안에서 링크를 추출해 태그 인덱싱과 같은 패턴으로 그래프를 갱신.
+- Context:
+  - DB v9 → v10: `note_links` 테이블 재도입(`sourceNoteId`, `targetTitle`, `normalizedTitle`, `position` PK + `notes` cascade). v1.x의 같은 이름 테이블이 v9 마이그레이션에서 drop됐으므로 새로 생성했고, 기존 노트는 다음 자동 저장 때 인덱싱된다.
+  - v1.2.0에서 명시적으로 제거했던 기능의 의식적 reversal. 당시 제거 사유였던 "두 번째 두뇌 스타일은 가치관에 어긋남"은 MVP 시기에 한정된 판단이었다는 것을 기록으로 남겼다.
+- Record: 커밋 `0c263d5`과 CHANGELOG로 #268에서 재구성 — 릴리스 당시 기록되지 않음.
+
+## 2026-05-08 (밤) - v2.3.0 CommonMark 파서 교체
+
+- Work: 미리보기의 손파서를 `commonmark-java 0.24.0`으로 교체. v2.0에서 보류했던 Phase B이고, 이후 위키링크·이미지 같은 실제 확장(v2.4+)의 기반이 된다. `CommonMarkPreviewAdapter`가 AST를 기존 `PreviewLine`/`PreviewInlineSegment` 모델로 변환하므로 렌더러(`MarkdownPreviewList`)는 손대지 않았다.
+- Context:
+  - 확장 4종 도입: yaml-front-matter, footnotes, gfm-strikethrough, task-list-items. 모두 BSD-2-clause로 F-Droid 친화.
+  - `> [!NOTE]` GitHub callout은 CommonMark 표준이 아니라 BlockQuote 본문 prefix 매칭으로 직접 인식한다.
+  - 스펙 정합성 때문에 생긴 미세 동작 변화 3건: `Body\n---`가 이제 H2 setext 헤딩으로 처리되고(가로선을 원하면 `---` 앞뒤에 빈 줄), 각주 참조는 정의가 같은 문서에 있을 때만 인식되며, 블록 사이 빈 줄이 `EMPTY` PreviewLine으로 표면화되지 않고 렌더러 padding으로 처리되어 미리보기가 v2.2 이전보다 약간 빽빽해졌다.
+- Verification: 단위 테스트 기댓값 7개를 CommonMark 실제 출력에 맞춰 갱신(테스트 의도는 유지). Roborazzi 골든 14 + 4개(preview + editor live)를 전부 재기록.
+- Record: 커밋 `583f57c`과 CHANGELOG로 #268에서 재구성 — 릴리스 당시 기록되지 않음.
+
+## 2026-05-08 (밤) - v2.2.0 Macrobenchmark 성능 측정 인프라
+
+- Work: Macrobenchmark 1.2.4 기반의 `:benchmark` 모듈 신설. 콜드/웜/핫 시작 시간을 5회 반복 측정하는 `StartupBenchmark`, 노트 목록 fling 스크롤의 90th-percentile 프레임 duration을 보는 `ScrollBenchmark`, 그리고 release를 흉내내되 debuggable인 `benchmark` build type을 함께 추가.
+- Context:
+  - APK 영향 0 — 벤치마크 의존성은 별도 모듈에 있고 app 모듈에는 `androidx.profileinstaller:1.3.1`만 추가된다.
+  - `:benchmark:connectedBenchmarkAndroidTest`는 실제 기기나 에뮬레이터가 있어야 돌아간다(Robolectric 위에서는 동작하지 않음 — 의도된 한계). 매 PR마다 돌리기에는 비싸서 CI 자동 실행은 일부러 넣지 않고, 필요하면 나중에 `workflow_dispatch`로 붙이기로 했다.
+  - 베이스라인 프로파일 자동 생성은 v2.2.x로 미룸.
+  - 이 커밋에 `:benchmark` 빌드 산출물 495개가 잘못 딸려 들어갔다. v2.3.0에서 `.gitignore`에 `/benchmark/build`를 추가하고 캐시를 untrack해 정리했고, v2.2.0 태그 자체는 immutable이라 그대로 두었다.
+- Record: 커밋 `82465c4`과 CHANGELOG로 #268에서 재구성 — 릴리스 당시 기록되지 않음.
+
+## 2026-05-08 (밤) - v2.1.1 동기화 자동 reconcile + CI 골든 재기록
+
+- Work: 동기화 폴더가 설정돼 있으면 앱이 RESUMED로 돌아올 때 폴더의 `.md` 변경분을 자동으로 가져오게 함(60초 throttle로 폴더 IO 폭주 방지). 충돌 규칙은 v2.1.0 그대로 — 파일이 strictly newer일 때만 DB를 갱신하므로 silent overwrite 위험은 없다. 함께 GitHub Actions에 `workflow_dispatch` 트리거와 `record_roborazzi` 입력을 추가해, Linux 러너에서 `recordRoborazziDebug`를 돌리고 새 골든을 artifact로 올리게 했다.
+- Context:
+  - 골든을 Linux 러너에서 기록하면 Windows record와 Linux verify 사이의 폰트 힌팅 차이가 사라지므로 `changeThreshold`를 0.05f → 0.005f로 조일 수 있다. 이후 프로젝트의 표준 절차가 되는 그 워크플로가 여기서 처음 생겼다.
+  - v2.1.0과 같은 의도적 안전 마진 유지: 노트 삭제 동기화 미구현, 충돌 시 양쪽 보존 UI 미구현(현재는 최근 것이 이김).
+- Record: 커밋 `ee03b49`과 CHANGELOG로 #268에서 재구성 — 릴리스 당시 기록되지 않음.
+
 ## 2026-05-08 (밤) - v2.1.0
 - Work: 가치관 점검에서 사용자가 "결국 다중 기기 지원은 맞고 가치관 뒤집기보다 확장에 가까움"이라 말한 직후 합의된 v1.9 → v2.0 → v2.1 3단계의 마지막. CloudKit식 vendor lock 대신 SAF 폴더 미러 모델(Option D).
 - Changed files:
@@ -777,28 +1010,6 @@
   - `./gradlew test` 통과 — SyncFrontmatterTest 8개 그린, ResourceParityTest 그린, 기존 단위 테스트 모두 그린
   - `./gradlew assembleDebugAndroidTest` 통과
   - `./gradlew verifyRoborazziDebug` 통과 (UI 변경이 settings에 국한되어 기존 14+4 골든 영향 없음)
-
-## 2026-05-08 (밤) - v2.5.1 + tablet bench
-- Work: 사용자가 v1.5에서 Material You 기본화 이후 leaf-style 그린이 사라진 것을 지적 → 테마 선택 설정 추가, 그린 기본 복귀. 동시에 Lenovo TB320FC (API 35) 태블릿에서 Macrobenchmark 첫 실측.
-- Theme picker:
-  - `AppSettings.colorPalette: ColorPalette { MARKLEAF_GREEN, MATERIAL_YOU }` (DataStore key `color_palette`)
-  - `MarkleafTheme.dynamicColor` 기본값 `true → false` (정적 그린 기본)
-  - `MainActivity` 가 settings flow를 collect 해 ColorPalette → dynamicColor 변환, 변경 즉시 리컴포즈
-  - Settings → 새 "테마" 섹션: 두 옵션 OutlinedButton/Button 토글 패턴
-  - strings × 3 lang
-- Macrobenchmark on TB320FC (API 35):
-  - profileinstaller 1.3.1 → 1.4.0 (API 35 지원), benchmark-macro-junit4 1.2.4 → 1.3.0
-  - benchmark build type: `isDebuggable = true → false` (Macrobenchmark는 debuggable 거부)
-  - `app/src/benchmark/AndroidManifest.xml` (NEW) — `<profileable shell="true" />` 만 추가, 다른 build variant에 영향 없음
-  - benchmark/AndroidManifest.xml — WRITE_EXTERNAL_STORAGE 제거 (API 30+에서 GrantPermissionRule 실패 원인)
-  - 결과:
-    - **Cold start: median 326ms** (min 317 / max 360) — §2.1 *빠름 우선* 기준 즉각
-    - **Warm start: median 113ms** — 거의 무즉각
-    - **Hot start: median 57ms** — 사용자 인지 한계 이하
-    - ScrollBenchmark는 fresh install이라 노트 4개뿐, fling 시 frame 데이터 부족으로 실패 — 데이터 시드된 빌드에서 재실행 필요 (v2.5.x 백로그)
-- Verification:
-  - `./gradlew assembleDebug + test + verifyRoborazziDebug` 통과
-  - 태블릿에 v2.5.1 debug APK 설치 완료 (사용자 스모크 테스트용)
 
 ## 2026-05-08 (밤) - v2.0.0
 - Work: Bear-급 인라인 rich rendering. 사용자가 "Bear의 핵심 체감 차이는 라이브 프리뷰" 라고 명시한 갈증을 직접 응답. 라이브러리 교체는 §2.9 정신에 맞춰 보류.

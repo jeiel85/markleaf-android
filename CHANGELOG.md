@@ -4,6 +4,16 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.31.0 - Your notes, without Markleaf's bookkeeping in them - 2026-07-24
+
+One opt-in change to how sync stores its bookkeeping, and one fix for text that was Korean in every language. No permission changes, and the storage format is unchanged unless you turn the new option on.
+
+### Added
+- **Keep note metadata beside your files instead of inside them (#216).** Markleaf writes a small `---` header at the top of each synced file, holding the id that links the file to its note. **Settings → Multi-device sync → Note metadata** now offers to keep that in a hidden index file instead, so your `.md` files contain only what you wrote. Switching converts the whole folder in one go, and switching back restores every header exactly as it was — your note text is never altered either way. Two things to weigh before turning it on: renaming a file outside Markleaf can break its link to the note, and a folder copied without its index loses each note's created date and pinned state. The header remains the default.
+
+### Fixed
+- **The sync "last synced" time is no longer Korean for everyone (#255).** Settings and the Sync Center both built that label out of hardcoded Korean, so a German, English, Spanish, French or Japanese device read "Last synced: 3시간 전". The Conflict Center's "Updated:" prefix had the same problem in English. All of it now comes from the translations, and Korean output is unchanged.
+
 ## v2.30.0 - Finding your place in a long note - 2026-07-23
 
 Three additions, all from one conversation about notes that have grown long. No permission or storage-format changes.

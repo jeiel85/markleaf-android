@@ -149,6 +149,57 @@ foreach ($file in $readmeFiles) {
     }
 }
 
+# ---- 언어별 데모 GIF: 각 페이지가 자기 언어 클립을 가리키는지 ----
+#
+# README.ko.md 가 markleaf-tablet-en.gif 를 가리켜도 렌더링은 멀쩡하므로 조용히
+# 나간다 — 버전 표기에서 이 검사가 막아 주는 것과 같은 종류의 구멍이다 (#258).
+# 언어 코드는 파일명 규칙에서 끌어온다: index.html/README.md 는 en, 나머지는 접미사.
+$assetPairs = @(
+    @{ File = "docs/index.html";  Lang = "en" }
+    @{ File = "docs/index.ko.html"; Lang = "ko" }
+    @{ File = "docs/index.ja.html"; Lang = "ja" }
+    @{ File = "docs/index.de.html"; Lang = "de" }
+    @{ File = "docs/index.es.html"; Lang = "es" }
+    @{ File = "docs/index.fr.html"; Lang = "fr" }
+    @{ File = "README.md";    Lang = "en" }
+    @{ File = "README.ko.md"; Lang = "ko" }
+    @{ File = "README.ja.md"; Lang = "ja" }
+    @{ File = "README.de.md"; Lang = "de" }
+    @{ File = "README.es.md"; Lang = "es" }
+    @{ File = "README.fr.md"; Lang = "fr" }
+)
+
+Write-Host "`n데모 GIF ($($assetPairs.Count)개 표면)"
+foreach ($pair in $assetPairs) {
+    $path = Resolve-UnderRoot $pair.File
+    if (-not (Test-Path -LiteralPath $path)) {
+        Add-Failure ("  FAIL  {0,-20} 파일이 없습니다." -f $pair.File)
+        continue
+    }
+    $text = Get-Content -Raw -Encoding utf8 -LiteralPath $path
+    $expected = "markleaf-tablet-$($pair.Lang).gif"
+
+    # 이 표면이 참조하는 태블릿 GIF 를 전부 모아, 자기 언어 것만 있는지 본다.
+    $referenced = @(
+        [regex]::Matches($text, 'markleaf-tablet-([a-z]{2})\.gif') |
+            ForEach-Object { $_.Value } | Sort-Object -Unique
+    )
+
+    if ($referenced.Count -eq 0) {
+        Add-Failure ("  FAIL  {0,-20} 태블릿 데모 GIF 참조가 없습니다 (기대 {1})." -f $pair.File, $expected)
+    } elseif ($referenced -contains $expected -and $referenced.Count -eq 1) {
+        # 에셋 자체가 있어야 참조가 의미를 갖는다.
+        $assetPath = Join-Path $docsPath "assets/$expected"
+        if (Test-Path -LiteralPath $assetPath) {
+            Write-Host ("  OK    {0,-20} {1}" -f $pair.File, $expected) -ForegroundColor Green
+        } else {
+            Add-Failure ("  FAIL  {0,-20} {1} 을 가리키는데 docs/assets 에 그 파일이 없습니다." -f $pair.File, $expected)
+        }
+    } else {
+        Add-Failure ("  FAIL  {0,-20} 기대 {1}, 실제 -> {2}" -f $pair.File, $expected, ($referenced -join ', '))
+    }
+}
+
 # ---- 스크린샷(figcaption): 릴리스 버전과 별개, 언어 간 일치만 확인 ----
 $screenshotUnique = @($screenshotVersions | Sort-Object -Unique)
 if ($screenshotUnique.Count -le 1) {

@@ -74,6 +74,10 @@ jobs:
             app/build/outputs/roborazzi/
             app/build/reports/roborazzi/
           if-no-files-found: ignore
+          # Only uploaded when the visual check fails, and only useful while
+          # someone is looking at that failure. A week outlives any run worth
+          # re-opening; the goldens themselves live in the repository (#247).
+          retention-days: 7
 
       - name: Run release lint (hard gate)
         run: ./gradlew :app:lintRelease
@@ -85,6 +89,9 @@ jobs:
           name: lint-report-release
           path: app/build/reports/lint-results-release.html
           if-no-files-found: ignore
+          # Same reasoning as the Roborazzi diffs: a failure-only report that is
+          # read while the failure is fresh, or not at all (#247).
+          retention-days: 7
 
       - name: Build release APK with R8 (hard gate, unsigned ok)
         run: ./gradlew :app:assembleRelease
@@ -245,6 +252,11 @@ jobs:
           name: roborazzi-goldens-linux
           path: app/src/test/snapshots/roborazzi/
           if-no-files-found: error
+          # Longer than the failure-only artifacts: this one is downloaded and
+          # committed by hand, so it has to survive the gap between dispatching
+          # the run and getting round to the commit. Still not 90 days — once
+          # committed the goldens are in the repository (#247).
+          retention-days: 30
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')

@@ -26,5 +26,28 @@ for attempt in 1 2 3; do
   sleep 5
 done
 
+# `adb install` returns when the install session commits, which is before the
+# package manager has the app indexed. Starting the activity in that window
+# fails with "Error type 3 / Activity class does not exist" -- the app is on
+# disk, the launcher just cannot see it yet. That failure looks identical to a
+# genuinely broken build, and it is what the job's reputation as a flake was
+# partly built on (#247, #252, #262).
+#
+# Wait for the package manager to answer instead of sleeping a fixed amount:
+# a slow CI emulator can take several seconds, a fast one none at all.
+echo "Waiting for the package manager to see the app"
+for _ in $(seq 1 30); do
+  if adb shell pm path com.markleaf.notes 2>/dev/null | tr -d '\r' | grep -q '^package:'; then
+    echo "Package indexed."
+    break
+  fi
+  sleep 2
+done
+
+if ! adb shell pm path com.markleaf.notes 2>/dev/null | tr -d '\r' | grep -q '^package:'; then
+  echo "Package manager never listed com.markleaf.notes after a successful install"
+  exit 1
+fi
+
 adb shell am start -W -n com.markleaf.notes/.MainActivity
 adb shell pidof com.markleaf.notes

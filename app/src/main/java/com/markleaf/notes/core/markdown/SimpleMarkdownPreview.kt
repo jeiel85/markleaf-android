@@ -4,6 +4,13 @@ enum class PreviewLineType {
     H1,
     H2,
     H3,
+    // H4–H6 used to collapse into H3, which was invisible while the preview was
+    // the only consumer — three sizes read as "a heading" either way. The
+    // outline screen made it visible: indentation is its only level cue, so a
+    // note nesting past three levels rendered as a flat list (#255).
+    H4,
+    H5,
+    H6,
     BULLET,
     CHECKBOX_DONE,
     CHECKBOX_TODO,
@@ -266,6 +273,15 @@ object SimpleMarkdownPreview {
     private fun parseLine(line: String): PreviewLine {
         return when {
             line.isBlank() -> PreviewLine("", PreviewLineType.EMPTY)
+            // Longest marker first. `startsWith("### ")` is already false for
+            // `#### ` — the fourth character is `#`, not a space — but ordering
+            // by length keeps that from being something a reader has to work out.
+            line.startsWith("###### ") ->
+                PreviewLine(line.removePrefix("###### ").trim(), PreviewLineType.H6)
+            line.startsWith("##### ") ->
+                PreviewLine(line.removePrefix("##### ").trim(), PreviewLineType.H5)
+            line.startsWith("#### ") ->
+                PreviewLine(line.removePrefix("#### ").trim(), PreviewLineType.H4)
             line.startsWith("### ") -> PreviewLine(line.removePrefix("### ").trim(), PreviewLineType.H3)
             line.startsWith("## ") -> PreviewLine(line.removePrefix("## ").trim(), PreviewLineType.H2)
             line.startsWith("# ") -> PreviewLine(line.removePrefix("# ").trim(), PreviewLineType.H1)

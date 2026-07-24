@@ -623,8 +623,17 @@ fun SettingsScreen(
     }
 }
 
+/**
+ * The multi-device sync block.
+ *
+ * `internal` rather than private so a snapshot test can render it on its own:
+ * it is the one settings section whose appearance depends on state the screen
+ * cannot be put into from the outside (a chosen folder, a metadata mode), and
+ * the full-screen golden cannot reach it — that capture stops at one viewport
+ * so `BuildConfig.VERSION_NAME` never lands in an image (#255).
+ */
 @Composable
-private fun SyncSection(
+internal fun SyncSection(
     folderUri: String?,
     lastSyncedAt: Long?,
     metadataMode: SyncMetadataMode,

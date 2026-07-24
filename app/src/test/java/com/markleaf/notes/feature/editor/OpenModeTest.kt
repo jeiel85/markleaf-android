@@ -1,5 +1,6 @@
 package com.markleaf.notes.feature.editor
 
+import com.markleaf.notes.data.settings.OpenNotesAt
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -45,5 +46,27 @@ class OpenModeTest {
     fun `whitespace counts as content`() {
         assertTrue(opensInPreview(openNotesInPreview = true, content = "\n"))
         assertTrue(opensInPreview(openNotesInPreview = true, content = " "))
+    }
+
+    // ---- position recording ----
+
+    @Test
+    fun `position is recorded only when the setting selects it`() {
+        assertTrue(recordsPosition(OpenNotesAt.LAST_POSITION, openedOnFallbackSettings = false))
+        assertFalse(recordsPosition(OpenNotesAt.TOP, openedOnFallbackSettings = false))
+        assertFalse(recordsPosition(OpenNotesAt.BOTTOM, openedOnFallbackSettings = false))
+    }
+
+    /**
+     * The trap the timeout introduced. A note that opened on fallback settings
+     * sits at caret 0; if DataStore then emits the real settings and flips
+     * `openNotesAt` to LAST_POSITION, the recorder would start from that
+     * fallback state and its first debounced write would store 0 over the
+     * position the user actually left — without them touching anything.
+     */
+    @Test
+    fun `a note opened on fallback settings never records its position`() {
+        assertFalse(recordsPosition(OpenNotesAt.LAST_POSITION, openedOnFallbackSettings = true))
+        assertFalse(recordsPosition(OpenNotesAt.TOP, openedOnFallbackSettings = true))
     }
 }

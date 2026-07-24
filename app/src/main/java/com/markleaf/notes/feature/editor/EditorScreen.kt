@@ -139,6 +139,9 @@ fun EditorScreen(
     var shouldRequestEditorFocus by remember(noteId) { mutableStateOf(noteId == null) }
     val editorFocusRequester = remember(noteId) { FocusRequester() }
     var isPreviewMode by remember(noteId) { mutableStateOf(false) }
+    // True when the settings read timed out and the note opened on defaults.
+    // The position recorder consults it — see [recordsPosition] (#204).
+    var openedOnFallbackSettings by remember(noteId) { mutableStateOf(false) }
     var isFocusMode by remember(noteId) { mutableStateOf(false) }
     var isFormattingExpanded by remember(noteId) { mutableStateOf(false) }
     var showDeleteConfirm by remember(noteId) { mutableStateOf(false) }
@@ -324,9 +327,10 @@ fun EditorScreen(
             // which mode the note opens in (#204). Falling back to the defaults
             // opens in edit at the top, which is the safe answer — it shows the
             // note and puts the caret somewhere harmless.
-            val persistedSettings =
+            val readSettings =
                 withTimeoutOrNull(SETTINGS_READ_TIMEOUT_MS) { settingsRepository.settings.first() }
-                    ?: AppSettings()
+            openedOnFallbackSettings = readSettings == null
+            val persistedSettings = readSettings ?: AppSettings()
             val openInPreview = persistedSettings.openNotesInPreview
             val loadedNote = repo.getNote(noteId)
             val content = loadedNote?.contentMarkdown.orEmpty()
@@ -449,9 +453,9 @@ fun EditorScreen(
     // write at the end of it rather than one per keystroke, and written while
     // the screen is still composed so it survives the process being killed
     // rather than depending on a tidy exit.
-    LaunchedEffect(noteId, isLoaded, appSettings.openNotesAt) {
+    LaunchedEffect(noteId, isLoaded, appSettings.openNotesAt, openedOnFallbackSettings) {
         if (noteId == null || !isLoaded) return@LaunchedEffect
-        if (appSettings.openNotesAt != OpenNotesAt.LAST_POSITION) return@LaunchedEffect
+        if (!recordsPosition(appSettings.openNotesAt, openedOnFallbackSettings)) return@LaunchedEffect
         snapshotFlow {
             Triple(
                 isPreviewMode,
@@ -1162,6 +1166,26 @@ private const val SETTINGS_READ_TIMEOUT_MS = 2_000L
  */
 internal fun opensInPreview(openNotesInPreview: Boolean, content: String): Boolean =
     openNotesInPreview && content.isNotEmpty()
+
+/**
+ * Whether this screen may record where the note was left.
+ *
+ * The setting has to be on, and — the part that is easy to miss — the note must
+ * not have opened on fallback settings. When the settings read times out the
+ * note opens at the top on defaults; DataStore may then emit the real settings
+ * a moment later, flipping `openNotesAt` to `LAST_POSITION` and starting the
+ * recorder from that fallback state. Its first debounced write would store
+ * caret 0 and overwrite the position the user actually left, without them
+ * having touched anything (#204).
+ *
+ * Skipping the write is the conservative answer: we could not read what the
+ * user asked for, so we do not overwrite what we already knew. Reopening the
+ * note takes the normal path.
+ */
+internal fun recordsPosition(
+    openNotesAt: OpenNotesAt,
+    openedOnFallbackSettings: Boolean
+): Boolean = openNotesAt == OpenNotesAt.LAST_POSITION && !openedOnFallbackSettings
 
 /**
  * A preview scroll waiting for the preview to be built. [animate] separates the

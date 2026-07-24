@@ -385,12 +385,51 @@ jobs:
           ' CHANGELOG.md > release-notes.md
           test -s release-notes.md
 
+      # Idempotent so the job can be re-run. The GitLab publish below can fail
+      # for reasons that are fixed outside this workflow — a token scope, a tag
+      # not yet on GitLab — and the fix is "re-run the job". `gh release create`
+      # fails on an existing release, so without this the re-run would die here
+      # and never reach the step that actually needed retrying.
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "GitHub release $GITHUB_REF_NAME already exists; leaving it untouched."
+            exit 0
+          fi
           gh release create "$GITHUB_REF_NAME" \
             "markleaf-${GITHUB_REF_NAME}.apk" \
             --repo "$GITHUB_REPOSITORY" \
             --title "$(cat release-title.txt)" \
             --notes-file release-notes.md
+
+      # The four versioned files the GitLab Release carries. Built here rather
+      # than on GitLab because GitLab's tag pipeline has not run since its
+      # monthly CI minutes ran out (#252) — the APIs below do not consume them,
+      # only the pipeline did.
+      #
+      # assembleRelease and bundleRelease already ran above; this re-runs them
+      # as dependencies, finds them up to date, and copies the outputs out under
+      # their versioned names alongside the six-locale notes.
+      - name: Export versioned release artifacts
+        env:
+          MARKLEAF_RELEASE_STORE_FILE: release/markleaf-release.p12
+          MARKLEAF_RELEASE_STORE_PASSWORD: ${{ secrets.MARKLEAF_RELEASE_STORE_PASSWORD }}
+          MARKLEAF_RELEASE_KEY_ALIAS: ${{ secrets.MARKLEAF_RELEASE_KEY_ALIAS }}
+          MARKLEAF_RELEASE_KEY_PASSWORD: ${{ secrets.MARKLEAF_RELEASE_KEY_PASSWORD }}
+          ORG_GRADLE_PROJECT_markleaf.requireReleaseSigning: "true"
+        run: |
+          rm -rf dist
+          ./gradlew :app:exportReleaseArtifacts -Pmarkleaf.releaseExportDir=dist
+          ls -lh dist
+
+      # After the GitHub release, deliberately: GitHub is the primary path and
+      # must not be blocked by the mirror. A failure here still reddens the job
+      # — a mirror that quietly does nothing is what #247 was about.
+      - name: Publish the GitLab release
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+        run: |
+          chmod +x .github/scripts/mirror-release-to-gitlab.sh
+          ./.github/scripts/mirror-release-to-gitlab.sh

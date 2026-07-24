@@ -2,16 +2,18 @@
 .SYNOPSIS
   연결된 기기/에뮬레이터에서 계측 테스트를 실행한다.
 .DESCRIPTION
-  CI 는 계측 테스트를 돌리지 않는다(#235). GitHub 호스티드 러너의 에뮬레이터가
-  ddmlib 의 property fetch 에 응답하지 못해 네 번 연속 실패했고, 그 타임아웃은
-  adb 쪽에서 기다려서 해결되는 종류가 아니다. 그래서 이 검증은 **로컬 수동 게이트**로
-  옮겼다. 릴리스 전에 반드시 한 번 돌린다 — docs/RELEASE.md 의 "Instrumented tests"
-  절을 볼 것.
+  CI 도 이제 계측 테스트를 돌린다 — `instrumented-tests` job 이 AGP 관리형 기기
+  (`:app:ciAtdApi30DebugAndroidTest`)로 실행한다(#235). `connectedDebugAndroidTest`
+  가 GitHub 러너에서 실패했던 것은 ddmlib 의 property fetch 타임아웃 때문인데,
+  관리형 기기는 그 탐색 경로를 지나가지 않는다.
 
-  `com.markleaf.notes.ui` 는 제외한다. 그 클래스들은 크래시(#235)로 오래 실행되지
-  못하는 동안 검증 대상 UI 가 바뀌어 24 건이 실패한다(#239). 허용 목록이 아니라
-  제외로 거는 이유는, 다른 패키지에 테스트를 추가했을 때 필터를 넓혀줄 때까지
-  조용히 건너뛰지 않게 하기 위해서다.
+  이 스크립트는 그 자동 게이트를 대체하지 않고, 손에 있는 실기기나 AVD 에서
+  같은 스위트를 돌려 보기 위한 것이다. 릴리스 전 확인용으로도 계속 쓴다 —
+  docs/RELEASE.md 의 "Instrumented tests" 절을 볼 것.
+
+  제외 패키지는 기본값이 없다. `com.markleaf.notes.ui` 를 빼고 돌리던 시절은
+  ComprehensiveFeatureTest 가 현재 UI 와 어긋나 24 건 실패하던 때의 이야기이고,
+  그 클래스는 #239 에서 삭제됐다. 필요하면 -ExcludePackage 로 직접 건다.
 
   gradlew.bat 을 쓴다. POSIX `gradlew` 는 인자를 하나로 합쳐버린다(#241).
 .EXAMPLE
@@ -23,7 +25,7 @@
 param(
     [string]$RepoRoot = (Split-Path -Parent $PSScriptRoot),
     [string]$Serial = "",
-    [string]$ExcludePackage = "com.markleaf.notes.ui"
+    [string]$ExcludePackage = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -62,16 +64,22 @@ if (-not $sdk) {
 
 Write-Host ""
 Write-Host "기기: $Serial (API $sdk)" -ForegroundColor Cyan
-Write-Host "제외: $ExcludePackage  (#239)" -ForegroundColor DarkGray
+if ($ExcludePackage) {
+    Write-Host "제외: $ExcludePackage" -ForegroundColor DarkGray
+} else {
+    Write-Host "제외 없음 — 계측 스위트 전체" -ForegroundColor DarkGray
+}
 Write-Host ""
 
 Push-Location $RepoRoot
 try {
     $env:ANDROID_SERIAL = $Serial
-    & (Join-Path $RepoRoot "gradlew.bat") `
-        ":app:connectedDebugAndroidTest" `
-        "-Pandroid.testInstrumentationRunnerArguments.notPackage=$ExcludePackage" `
-        "--console=plain"
+    $gradleArgs = @(":app:connectedDebugAndroidTest")
+    if ($ExcludePackage) {
+        $gradleArgs += "-Pandroid.testInstrumentationRunnerArguments.notPackage=$ExcludePackage"
+    }
+    $gradleArgs += "--console=plain"
+    & (Join-Path $RepoRoot "gradlew.bat") @gradleArgs
     $code = $LASTEXITCODE
 }
 finally {

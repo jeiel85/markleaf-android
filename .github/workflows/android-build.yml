@@ -152,6 +152,58 @@ jobs:
             chmod +x .github/scripts/launch-smoke.sh
             ./.github/scripts/launch-smoke.sh
 
+  # 계측 테스트. `connectedDebugAndroidTest` 는 GitHub 호스티드 에뮬레이터에서
+  # 동작하지 않는다 — ddmlib 의 PropertyFetcher 가 API 레벨을 못 받아와서 Gradle 이
+  # "0 of which were compatible" 로 끝난다(#235, 네 번 재현). 관리형 기기(AGP
+  # managed device)는 그 탐색 경로를 아예 지나가지 않고 AGP 가 직접 에뮬레이터를
+  # 띄우고 붙이고 내린다.
+  #
+  # launch-smoke 와 같은 이유로 아직 continue-on-error 다. 몇 번 연속 초록을
+  # 확인한 뒤에 필수 체크로 승격하는 것이 순서다 — 검증되지 않은 게이트를
+  # 보호된 main 에 먼저 걸지 않는다.
+  instrumented-tests:
+    runs-on: ubuntu-latest
+    needs: build
+    continue-on-error: true
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # 러너에 /dev/kvm 은 있지만 기본 권한이 막혀 있다. 열어 주지 않으면
+      # 에뮬레이터가 소프트웨어 렌더링으로 떨어져 사실상 쓸 수 없다.
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run instrumented tests on a managed device
+        run: ./gradlew :app:ciAtdApi30DebugAndroidTest
+
+      - name: Upload instrumented test report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: instrumented-test-report
+          path: app/build/reports/androidTests/
+          if-no-files-found: warn
+          retention-days: 7
+
   record-roborazzi:
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.record_roborazzi == 'true'
     runs-on: ubuntu-latest

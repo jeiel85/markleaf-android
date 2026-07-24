@@ -41,6 +41,14 @@
   <sub>Inserción rápida con <code>/</code> → Markdown estándar → vista previa en vivo</sub>
 </p>
 
+<p align="center">
+  <img src="docs/assets/markleaf-tablet-es.gif" width="760" alt="Markleaf en una tablet: la barra de etiquetas, la lista de notas y el editor comparten pantalla mientras se escribe una tabla, una lista de tareas y un aviso, y la vista previa los renderiza" />
+</p>
+
+<p align="center">
+  <sub>Tablet en 3 paneles — barra de etiquetas · lista de notas · editor en una pantalla</sub>
+</p>
+
 ---
 
 ## 🍃 ¿Qué es Markleaf?

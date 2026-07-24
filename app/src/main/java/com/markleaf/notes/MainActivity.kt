@@ -28,6 +28,7 @@ import com.markleaf.notes.data.settings.EditorFont
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.NoteImporter
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
+import com.markleaf.notes.data.sync.mirrorMetadata
 import com.markleaf.notes.feature.lock.BiometricLockGate
 import com.markleaf.notes.feature.onboarding.WelcomeOnboardingSheet
 import com.markleaf.notes.navigation.MarkleafNavHost
@@ -87,7 +88,8 @@ class MainActivity : FragmentActivity() {
                         folderUri = uri,
                         existing = notes,
                         applyUpdate = { updated -> importer.update(updated) },
-                        applyCreate = { created -> importer.create(created) }
+                        applyCreate = { created -> importer.create(created) },
+                        metadata = settings.mirrorMetadata()
                     )
                 }
                 settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())

@@ -210,6 +210,12 @@
     <string name="sync_status_folder_format">Ordner: %1$s</string>
     <string name="sync_status_last_synced_format">Zuletzt synchronisiert: %1$s</string>
     <string name="sync_status_last_synced_never">Zuletzt synchronisiert: nie</string>
+    <string name="sync_metadata_mode">Notiz-Metadaten</string>
+    <string name="sync_metadata_mode_frontmatter">In der Datei</string>
+    <string name="sync_metadata_mode_sidecar">Neben den Dateien</string>
+    <string name="sync_metadata_mode_description">Markleaf muss wissen, welche Datei zu welcher Notiz gehört. Standardmäßig schreibt es dafür einen kleinen `---`-Kopf an den Anfang jeder Datei. „Neben den Dateien“ legt das stattdessen in einem versteckten Index ab, sodass Ihre Notizen nur enthalten, was Sie geschrieben haben.</string>
+    <string name="sync_metadata_sidecar_costs">Kompromisse: Wird eine Datei außerhalb von Markleaf umbenannt, kann die Verbindung zur Notiz verloren gehen; ein ohne Index kopierter Ordner verliert Erstelldatum und Anheftung jeder Notiz.</string>
+    <string name="sync_metadata_switched_format">%1$d Dateien umgestellt.</string>
     <string name="sync_behavior_summary">· Speichert ca. 1 Sekunde nach jeder Bearbeitung in den Ordner.\n· „Jetzt synchronisieren“ holt Änderungen von anderen Geräten.\n· Konflikte: Die zuletzt geänderte Version gewinnt.\n· Löschungen werden nicht synchronisiert – verwalte den Papierkorb auf jedem Gerät.</string>
     <string name="sync_pick_folder">Sync-Ordner wählen</string>
     <string name="sync_change_folder">Ordner ändern</string>

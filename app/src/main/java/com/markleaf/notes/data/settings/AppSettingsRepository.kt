@@ -12,6 +12,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.markleaf.notes.core.security.PasscodeBackoff
 import com.markleaf.notes.core.security.PasscodeHasher
+import java.util.UUID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
@@ -75,7 +76,11 @@ class AppSettingsRepository internal constructor(
             openNotesInPreview = preferences[OPEN_NOTES_IN_PREVIEW] ?: false,
             openNotesAt = preferences[OPEN_NOTES_AT]
                 ?.let { value -> enumValueOrDefault(value, OpenNotesAt.TOP) }
-                ?: OpenNotesAt.TOP
+                ?: OpenNotesAt.TOP,
+            syncMetadataMode = preferences[SYNC_METADATA_MODE]
+                ?.let { value -> enumValueOrDefault(value, SyncMetadataMode.FRONTMATTER) }
+                ?: SyncMetadataMode.FRONTMATTER,
+            syncDeviceId = preferences[SYNC_DEVICE_ID]
         )
     }
 
@@ -272,6 +277,34 @@ class AppSettingsRepository internal constructor(
         }
     }
 
+    suspend fun setSyncMetadataMode(mode: SyncMetadataMode) {
+        persist { preferences ->
+            preferences[SYNC_METADATA_MODE] = mode.name
+        }
+    }
+
+    /**
+     * This install's device id, generating and persisting one on first call.
+     *
+     * Only ever used to name the sidecar index file this device owns (#216), so
+     * that two devices syncing one folder never write the same file. A random
+     * UUID's first segment is short enough to keep the filename readable and
+     * far more than enough to keep a handful of devices apart.
+     */
+    suspend fun getOrCreateSyncDeviceId(): String {
+        val existing = settings.first().syncDeviceId
+        if (!existing.isNullOrBlank()) return existing
+        val generated = UUID.randomUUID().toString().substringBefore('-')
+        persist { preferences ->
+            // Re-check inside the edit: two callers racing must agree on one id,
+            // or the folder collects an orphan index per loser.
+            if (preferences[SYNC_DEVICE_ID].isNullOrBlank()) {
+                preferences[SYNC_DEVICE_ID] = generated
+            }
+        }
+        return settings.first().syncDeviceId ?: generated
+    }
+
     /**
      * Every write funnels through here inside [NonCancellable]. Settings writes
      * are typically launched from a screen's `rememberCoroutineScope`, and a
@@ -313,5 +346,7 @@ class AppSettingsRepository internal constructor(
         val LAST_OPENED_NOTE_ID = stringPreferencesKey("last_opened_note_id")
         val OPEN_NOTES_IN_PREVIEW = booleanPreferencesKey("open_notes_in_preview")
         val OPEN_NOTES_AT = stringPreferencesKey("open_notes_at")
+        val SYNC_METADATA_MODE = stringPreferencesKey("sync_metadata_mode")
+        val SYNC_DEVICE_ID = stringPreferencesKey("sync_device_id")
     }
 }

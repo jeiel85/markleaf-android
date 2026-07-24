@@ -42,8 +42,40 @@ data class AppSettings(
     val openNotesInPreview: Boolean = false,
     /** Where a note is positioned when it opens. Defaults to [OpenNotesAt.TOP],
      *  which is how Markleaf has always behaved (#214). */
-    val openNotesAt: OpenNotesAt = OpenNotesAt.TOP
+    val openNotesAt: OpenNotesAt = OpenNotesAt.TOP,
+    /** Where the note↔file mapping is kept. Defaults to
+     *  [SyncMetadataMode.FRONTMATTER], the original behaviour (#216). */
+    val syncMetadataMode: SyncMetadataMode = SyncMetadataMode.FRONTMATTER,
+    /**
+     * This install's id, used to name the sidecar index it owns so two devices
+     * writing the same folder never write the same file. Generated on first use
+     * and never sent anywhere — it exists only to keep filenames apart.
+     */
+    val syncDeviceId: String? = null
 )
+
+/**
+ * Where Markleaf keeps the link between a note and its mirror file (#216).
+ *
+ * Requested by someone whose notes are edited in another app and synced by
+ * Nextcloud, for whom the `---` block at the top of every file is text they did
+ * not write sitting in their notes.
+ */
+enum class SyncMetadataMode {
+    /**
+     * A `---` header at the top of each file. The original behaviour and the
+     * default: the id survives a rename by any tool, and a folder of these
+     * files can be reconstructed anywhere without help.
+     */
+    FRONTMATTER,
+
+    /**
+     * A hidden per-device index beside the notes; the `.md` files hold only
+     * what was typed. Costs the rename resilience and leaves the folder unable
+     * to describe itself without the index — see [SidecarIndex].
+     */
+    SIDECAR
+}
 
 /**
  * Where the editor and preview land when a note opens (#214).

@@ -207,6 +207,12 @@
     <string name="sync_status_folder_format">현재 폴더: %1$s</string>
     <string name="sync_status_last_synced_format">마지막 동기화: %1$s</string>
     <string name="sync_status_last_synced_never">마지막 동기화: 아직 없음</string>
+    <string name="sync_metadata_mode">노트 메타데이터</string>
+    <string name="sync_metadata_mode_frontmatter">파일 안에</string>
+    <string name="sync_metadata_mode_sidecar">파일 옆에</string>
+    <string name="sync_metadata_mode_description">Markleaf는 어떤 파일이 어떤 노트인지 알아야 합니다. 기본값은 각 파일 맨 위에 작은 `---` 헤더를 쓰는 것입니다. ‘파일 옆에’를 고르면 그 정보를 숨김 색인에 두므로 노트에는 직접 쓴 내용만 남습니다.</string>
+    <string name="sync_metadata_sidecar_costs">감수할 점: Markleaf 밖에서 파일 이름을 바꾸면 노트와의 연결이 끓길 수 있고, 색인 없이 폴더만 복사하면 노트별 생성 날짜와 고정 상태가 사라집니다.</string>
+    <string name="sync_metadata_switched_format">파일 %1$d개를 변환했습니다.</string>
     <string name="sync_behavior_summary">· 편집하고 약 1초 뒤 폴더에 자동으로 저장됩니다.\n· \"지금 동기화\"를 누르면 다른 기기의 변경 내용을 가져옵니다.\n· 같은 노트가 양쪽에서 바뀌면 더 최근에 수정한 쪽이 남습니다.\n· 삭제는 동기화되지 않습니다 — 각 기기에서 따로 정리해 주세요.</string>
     <string name="sync_pick_folder">동기화 폴더 선택</string>
     <string name="sync_change_folder">폴더 변경</string>

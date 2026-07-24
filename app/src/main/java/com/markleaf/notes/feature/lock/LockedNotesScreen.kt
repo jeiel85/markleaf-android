@@ -65,6 +65,7 @@ import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.LockPasscodeAttempt
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
+import com.markleaf.notes.data.sync.mirrorMetadata
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.ui.component.EmptyState
 import com.markleaf.notes.ui.viewmodel.LockedNotesViewModel
@@ -361,7 +362,8 @@ private fun LockedNotesList(
                                         context,
                                         uri,
                                         note.copy(locked = false),
-                                        appSettings.syncFileExtension
+                                        appSettings.syncFileExtension,
+                                        appSettings.mirrorMetadata()
                                     ) { stamped -> viewModel.stampMirrored(stamped) }
                                 }
                             }

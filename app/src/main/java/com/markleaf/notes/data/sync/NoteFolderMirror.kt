@@ -7,6 +7,7 @@ import com.markleaf.notes.R
 import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.SyncFileExtension
+import com.markleaf.notes.data.settings.SyncMetadataMode
 import com.markleaf.notes.domain.model.Note
 import java.io.BufferedWriter
 import java.io.File
@@ -14,6 +15,20 @@ import java.io.OutputStreamWriter
 import java.time.Instant
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+
+/**
+ * Where a mirror pass keeps the note↔file link (#216).
+ *
+ * A sealed pair rather than a mode flag plus a nullable device id, so "sidecar
+ * mode with no device id" — an index file nobody owns — cannot be expressed.
+ */
+sealed interface MirrorMetadata {
+    /** A `---` header in each file. The default, and what every folder written before #216 holds. */
+    data object Frontmatter : MirrorMetadata
+
+    /** A hidden index owned by [deviceId]; the note files carry only their text. */
+    data class Sidecar(val deviceId: String) : MirrorMetadata
+}
 
 /**
  * Read/write notes to a user-chosen SAF folder as `.md` / `.txt` files with our
@@ -44,6 +59,9 @@ import java.util.concurrent.ConcurrentHashMap
  *   safely persisted under the old name.
  * - Filename collisions (two notes with the same title) get a " (2)" suffix,
  *   never overwriting an unrelated file.
+ *
+ * An opt-in alternative keeps that bookkeeping in a hidden index beside the
+ * notes instead of inside them — see [MirrorMetadata] and [SidecarIndex] (#216).
  */
 object NoteFolderMirror {
 
@@ -74,10 +92,11 @@ object NoteFolderMirror {
         context: Context,
         folderUri: Uri,
         note: Note,
-        extension: SyncFileExtension = SyncFileExtension.MD
+        extension: SyncFileExtension = SyncFileExtension.MD,
+        metadata: MirrorMetadata = MirrorMetadata.Frontmatter
     ): Boolean {
         val folder = DocumentFile.fromTreeUri(context, folderUri) ?: return false
-        return writeNoteInto(context, folder, note, extension)
+        return writeNoteInto(context, folder, note, extension, metadata)
     }
 
     /**
@@ -93,9 +112,13 @@ object NoteFolderMirror {
         context: Context,
         folder: DocumentFile,
         note: Note,
-        extension: SyncFileExtension
+        extension: SyncFileExtension,
+        metadata: MirrorMetadata = MirrorMetadata.Frontmatter
     ): Boolean {
         if (!folder.canWrite()) return false
+        if (metadata is MirrorMetadata.Sidecar) {
+            return writeNoteSidecar(context, folder, note, extension, metadata.deviceId)
+        }
 
         // Fast path: we remember which document holds this note, its name
         // already matches the title, and it still carries the note's id. One
@@ -127,6 +150,89 @@ object NoteFolderMirror {
         target.name?.let { MirrorFileCache.remember(folder.uri, note.id, target.uri, it) }
         return true
     }
+
+    /**
+     * [writeNoteInto] in sidecar mode: the file gets the note's text and nothing
+     * else, and the bookkeeping goes into this device's index (#216).
+     *
+     * The file is located by the filename the index records, falling back to
+     * adopting an unclaimed file that already carries the note's name — the
+     * same fallback the frontmatter path grew after a lost id forked a copy on
+     * every save (#213). Recording the entry after the write is not optional:
+     * it is what stops the next import seeing an unknown file and importing it
+     * as a second copy of the same note (#140).
+     */
+    private fun writeNoteSidecar(
+        context: Context,
+        folder: DocumentFile,
+        note: Note,
+        extension: SyncFileExtension,
+        deviceId: String
+    ): Boolean {
+        val merged = SidecarStore.load(context, folder, deviceId)
+        val ownEntries = SidecarStore.ownEntries(context, folder, deviceId)
+        val mirrorFiles = folder.listFiles().filter { it.isFile && isMirrorFile(it.name) }
+
+        val recordedName = merged[note.id]?.fileName
+        val existing = recordedName
+            ?.let { name -> mirrorFiles.firstOrNull { it.name.equals(name, ignoreCase = true) } }
+            ?: adoptUnclaimedFile(mirrorFiles, note, merged)
+
+        val ext = existing?.mirrorExtension() ?: extension.value
+        val desiredName = resolveName(note, ext, mirrorFiles, ownFile = existing)
+        val target = existing
+            ?: folder.createFile(mimeTypeFor(ext), desiredName)
+            ?: return false
+
+        // Body first, rename second — a failed rename leaves the bytes safe
+        // under the old name, exactly as in the frontmatter path.
+        val body = note.contentMarkdown
+        if (!writeRawContents(context, target.uri, body)) return false
+        if (existing != null && existing.name != desiredName) {
+            existing.renameTo(desiredName)
+        }
+
+        ownEntries[note.id] = SidecarEntry(
+            noteId = note.id,
+            fileName = target.name ?: desiredName,
+            contentHash = SidecarIndex.hashOf(body),
+            createdAtMillis = note.createdAt.toEpochMilli(),
+            pinned = note.pinned,
+            archived = note.archived
+        )
+        SidecarStore.write(context, folder, deviceId, ownEntries.values)
+        return true
+    }
+
+    /**
+     * A file carrying [note]'s title that no index entry claims — the sidecar
+     * equivalent of the frontmatter path's adoption rule.
+     *
+     * "Unclaimed" is checked against every device's entries, not just ours: a
+     * file another device owns has a note behind it, and taking it would give
+     * two notes one file.
+     */
+    private fun adoptUnclaimedFile(
+        mirrorFiles: List<DocumentFile>,
+        note: Note,
+        merged: Map<String, SidecarEntry>
+    ): DocumentFile? {
+        val base = MirrorFileNames.sanitizeBase(note.title)
+        val claimed = merged.values.mapTo(HashSet()) { it.fileName.lowercase() }
+        return mirrorFiles.firstOrNull { file ->
+            val name = file.name.orEmpty()
+            name.lowercase() !in claimed && MirrorFileNames.isPlainNameFor(name, base)
+        }
+    }
+
+    /** Write [content] verbatim — no header, no trailing additions. */
+    private fun writeRawContents(context: Context, target: Uri, content: String): Boolean =
+        runCatching {
+            context.contentResolver.openOutputStream(target, "wt")?.use { stream ->
+                BufferedWriter(OutputStreamWriter(stream, Charsets.UTF_8)).use { it.write(content) }
+            } ?: return@runCatching false
+            true
+        }.getOrDefault(false)
 
     /** Write [note] (plus any [extraEntries] the file carried) over [target]. */
     private fun writeContents(
@@ -161,9 +267,10 @@ object NoteFolderMirror {
         folderUri: Uri,
         note: Note,
         extension: SyncFileExtension,
+        metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
         onStamped: suspend (Note) -> Unit
     ): Boolean {
-        val wrote = writeNote(context, folderUri, note, extension)
+        val wrote = writeNote(context, folderUri, note, extension, metadata)
         if (wrote) onStamped(note.copy(lastImportedAt = note.updatedAt))
         return wrote
     }
@@ -219,7 +326,12 @@ object NoteFolderMirror {
      * the DB note) is intentionally not implemented to avoid silent data loss
      * when a sync client is mid-flight.
      */
-    fun deleteNote(context: Context, folderUri: Uri, noteId: String): Boolean {
+    fun deleteNote(
+        context: Context,
+        folderUri: Uri,
+        noteId: String,
+        metadata: MirrorMetadata = MirrorMetadata.Frontmatter
+    ): Boolean {
         val folder = DocumentFile.fromTreeUri(context, folderUri) ?: return false
         if (!folder.canWrite()) return false
 
@@ -228,7 +340,21 @@ object NoteFolderMirror {
         MirrorFileCache.forget(noteId)
         var changed = false
         val mirrorFiles = folder.listFiles().filter { it.isFile && isMirrorFile(it.name) }
-        findFileForNote(context, mirrorFiles, noteId)?.let { file ->
+        // In sidecar mode the file carries no id to find it by, so the index is
+        // the only link — and the entry has to go with the file, or the next
+        // pass sees an entry for a note that no longer exists.
+        val target = when (metadata) {
+            is MirrorMetadata.Sidecar -> {
+                val entries = SidecarStore.ownEntries(context, folder, metadata.deviceId)
+                val name = SidecarStore.load(context, folder, metadata.deviceId)[noteId]?.fileName
+                if (entries.remove(noteId) != null) {
+                    SidecarStore.write(context, folder, metadata.deviceId, entries.values)
+                }
+                name?.let { n -> mirrorFiles.firstOrNull { it.name.equals(n, ignoreCase = true) } }
+            }
+            MirrorMetadata.Frontmatter -> findFileForNote(context, mirrorFiles, noteId)
+        }
+        target?.let { file ->
             if (file.delete()) changed = true
         }
         // Also clear the per-note attachments subfolder.
@@ -319,11 +445,12 @@ object NoteFolderMirror {
         folderUri: Uri,
         existing: List<Note>,
         applyUpdate: suspend (Note) -> Unit,
-        applyCreate: suspend (Note) -> Unit
+        applyCreate: suspend (Note) -> Unit,
+        metadata: MirrorMetadata = MirrorMetadata.Frontmatter
     ): ImportResult {
         val folder = DocumentFile.fromTreeUri(context, folderUri)
             ?: return ImportResult(0, 0, 0, 1)
-        return importChangesFrom(context, folder, existing, applyUpdate, applyCreate)
+        return importChangesFrom(context, folder, existing, applyUpdate, applyCreate, metadata)
     }
 
     /**
@@ -335,9 +462,15 @@ object NoteFolderMirror {
         folder: DocumentFile,
         existing: List<Note>,
         applyUpdate: suspend (Note) -> Unit,
-        applyCreate: suspend (Note) -> Unit
+        applyCreate: suspend (Note) -> Unit,
+        metadata: MirrorMetadata = MirrorMetadata.Frontmatter
     ): ImportResult {
         if (!folder.canRead()) return ImportResult(0, 0, 0, 1)
+        if (metadata is MirrorMetadata.Sidecar) {
+            return importChangesSidecar(
+                context, folder, existing, applyUpdate, applyCreate, metadata.deviceId
+            )
+        }
 
         var updated = 0
         var created = 0
@@ -461,8 +594,214 @@ object NoteFolderMirror {
         )
     }
 
+    /**
+     * [importChangesFrom] in sidecar mode (#216).
+     *
+     * Structurally the same pass as the frontmatter one — same Trash rule, same
+     * conflict-copy behaviour — but every decision comes from the index rather
+     * than the file's head, and "has this changed" is a hash comparison rather
+     * than a timestamp one. See [sidecarReconcileAction].
+     *
+     * The index is rewritten once at the end rather than per file: an import
+     * that touches fifty notes should cost the folder one index write, not
+     * fifty, and a sync client watching the folder should see one change.
+     */
+    private suspend fun importChangesSidecar(
+        context: Context,
+        folder: DocumentFile,
+        existing: List<Note>,
+        applyUpdate: suspend (Note) -> Unit,
+        applyCreate: suspend (Note) -> Unit,
+        deviceId: String
+    ): ImportResult {
+        var updated = 0
+        var created = 0
+        var skipped = 0
+        var errors = 0
+        var conflicts = 0
+
+        val byId = existing.associateBy { it.id }
+        val merged = SidecarStore.load(context, folder, deviceId)
+        val byFileName = SidecarIndex.byFileName(merged)
+        val ownEntries = SidecarStore.ownEntries(context, folder, deviceId)
+        val files = folder.listFiles().filter { it.isFile && isMirrorFile(it.name) }
+
+        for (file in files) {
+            val body = runCatching {
+                context.contentResolver.openInputStream(file.uri)?.use { it.readBytes() }
+                    ?.toString(Charsets.UTF_8)
+            }.getOrNull()
+            if (body == null) {
+                errors++
+                continue
+            }
+
+            val fileName = file.name.orEmpty()
+            // A file may still carry a header — written before the mode was
+            // switched, or arriving from a device still in frontmatter mode. Its
+            // block is metadata, not text, and reading it as text would paste it
+            // into the note. Strip it, and use its id when the index has nothing
+            // for this file: an id is a better link than a filename.
+            val parsed = SyncFrontmatter.decode(body)
+            val text = parsed.body
+            val entry = byFileName[fileName.lowercase()]
+            val existingNote = (entry?.noteId ?: parsed.markleafId)?.let(byId::get)
+            val hash = SidecarIndex.hashOf(text)
+            val matchesLastWrite = entry != null && entry.contentHash == hash
+
+            try {
+                when (sidecarReconcileAction(existingNote, matchesLastWrite)) {
+                    Reconcile.SkipTrashed -> skipped++
+                    Reconcile.Skip -> skipped++
+                    Reconcile.Create -> {
+                        val now = Instant.now()
+                        // An entry with no note behind it means the note was
+                        // deleted elsewhere while the file stayed; reusing its
+                        // id keeps the file attached to one note rather than
+                        // spawning a fresh one on every pass.
+                        val createdAt = entry?.createdAtMillis
+                            ?.takeIf { it > 0L }
+                            ?.let(Instant::ofEpochMilli)
+                            ?: parsed.createdAt
+                            ?: now
+                        val newNote = Note(
+                            id = entry?.noteId
+                                // A leftover header still identifies its note —
+                                // a file written before the switch, or by a
+                                // device still in frontmatter mode. Minting a
+                                // fresh id here would give that note two
+                                // identities across devices.
+                                ?: parsed.markleafId
+                                ?: UUID.randomUUID().toString(),
+                            title = TitleExtractor.extractTitle(text),
+                            contentMarkdown = text,
+                            excerpt = TitleExtractor.generateExcerpt(text),
+                            createdAt = createdAt,
+                            updatedAt = now,
+                            pinned = entry?.pinned ?: parsed.pinned ?: false,
+                            archived = entry?.archived ?: parsed.archived ?: false,
+                            lastImportedAt = now,
+                            remoteSeenAt = now
+                        )
+                        applyCreate(newNote)
+                        created++
+                        // The write-back that the frontmatter path performs by
+                        // stamping an id into the file. Without it the next pass
+                        // sees an unclaimed file and imports it again — #140.
+                        ownEntries[newNote.id] = SidecarEntry(
+                            noteId = newNote.id,
+                            fileName = fileName,
+                            contentHash = hash,
+                            createdAtMillis = createdAt.toEpochMilli(),
+                            pinned = newNote.pinned,
+                            archived = newNote.archived
+                        )
+                    }
+                    Reconcile.Conflict -> {
+                        val note = existingNote!!
+                        val baseTitle = TitleExtractor.extractTitle(text)
+                        val duplicate = Note(
+                            id = UUID.randomUUID().toString(),
+                            title = "$baseTitle ${conflictSuffix(context, Instant.now())}",
+                            contentMarkdown = text,
+                            excerpt = TitleExtractor.generateExcerpt(text),
+                            createdAt = Instant.now(),
+                            updatedAt = Instant.now(),
+                            lastImportedAt = Instant.now(),
+                            remoteSeenAt = Instant.now(),
+                            isConflictCopy = true
+                        )
+                        applyCreate(duplicate)
+                        // Record the version we just took a copy of. This is
+                        // what `remoteSeenAt` does on the frontmatter path: it
+                        // stops the next pass copying the same remote version
+                        // again, once a minute, for ever (#217). Nothing the
+                        // user owns moves — the local note is untouched.
+                        ownEntries[note.id] = SidecarEntry(
+                            noteId = note.id,
+                            fileName = fileName,
+                            contentHash = hash,
+                            createdAtMillis = note.createdAt.toEpochMilli(),
+                            pinned = note.pinned,
+                            archived = note.archived
+                        )
+                        conflicts++
+                    }
+                    Reconcile.Overwrite -> {
+                        val note = existingNote!!
+                        val now = Instant.now()
+                        applyUpdate(
+                            note.copy(
+                                title = TitleExtractor.extractTitle(text),
+                                contentMarkdown = text,
+                                excerpt = TitleExtractor.generateExcerpt(text),
+                                updatedAt = now,
+                                lastImportedAt = now,
+                                remoteSeenAt = now
+                            )
+                        )
+                        updated++
+                        ownEntries[note.id] = SidecarEntry(
+                            noteId = note.id,
+                            fileName = fileName,
+                            contentHash = hash,
+                            createdAtMillis = note.createdAt.toEpochMilli(),
+                            pinned = note.pinned,
+                            archived = note.archived
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                errors++
+            }
+        }
+
+        SidecarStore.write(context, folder, deviceId, ownEntries.values)
+
+        return ImportResult(
+            updated = updated,
+            created = created,
+            skipped = skipped,
+            errors = errors,
+            conflicts = conflicts
+        )
+    }
+
     /** The action the reconcile takes for one mirror file. */
     internal enum class Reconcile { Create, SkipTrashed, Skip, Overwrite, Conflict }
+
+    /**
+     * [reconcileAction]'s counterpart for sidecar mode (#216), deciding from
+     * *content* rather than time.
+     *
+     * With no frontmatter there is no `updated_at`, and the filesystem mtime is
+     * not a usable substitute — a sync client that re-downloads a file bumps it
+     * without changing a byte, so every file would look newer than its note on
+     * every pass. [effectiveFileTimestamp] documents that trap for the case
+     * where it is unavoidable; here it is avoidable, so this asks a question
+     * that needs no clock: does the file still hold what Markleaf last wrote or
+     * accepted there?
+     *
+     * @param existingNote the DB note the index maps this file to, or null when
+     *   no index entry claims it (a hand-dropped file, or one whose index is
+     *   missing).
+     * @param fileMatchesLastWrite whether the file's hash equals the one
+     *   recorded for it. False means somebody else has been in the file.
+     */
+    internal fun sidecarReconcileAction(
+        existingNote: Note?,
+        fileMatchesLastWrite: Boolean
+    ): Reconcile {
+        if (existingNote == null) return Reconcile.Create
+        // Same rule as the frontmatter path: a note in Trash is never
+        // re-imported, or a deletion the user performed comes back (#148).
+        if (existingNote.trashed) return Reconcile.SkipTrashed
+        if (fileMatchesLastWrite) return Reconcile.Skip
+        val lastImport = existingNote.lastImportedAt?.toEpochMilli() ?: 0L
+        val localEditedSinceImport =
+            existingNote.updatedAt.toEpochMilli() > lastImport + SLACK_MILLIS
+        return if (localEditedSinceImport) Reconcile.Conflict else Reconcile.Overwrite
+    }
 
     /**
      * Decide what [importChanges] should do with a single mirror file, purely
@@ -820,3 +1159,20 @@ object NoteFolderMirror {
  */
 fun AppSettings.syncFolderUriOrNull(): Uri? =
     syncFolderUri?.let { raw -> runCatching { Uri.parse(raw) }.getOrNull() }
+
+/**
+ * Where this pass should keep the note↔file link, from settings (#216).
+ *
+ * Sidecar mode needs a device id to name the index it owns. The id is created
+ * when the mode is switched on, so a missing one here means something went
+ * wrong upstream — and the honest response is the default behaviour, not an
+ * index file with no owner that a second device could never tell apart.
+ */
+fun AppSettings.mirrorMetadata(): MirrorMetadata {
+    val deviceId = syncDeviceId
+    return if (syncMetadataMode == SyncMetadataMode.SIDECAR && !deviceId.isNullOrBlank()) {
+        MirrorMetadata.Sidecar(deviceId)
+    } else {
+        MirrorMetadata.Frontmatter
+    }
+}

@@ -175,15 +175,22 @@ object SidecarIndex {
     }
 
     /**
-     * The merged view keyed by filename, for walking the folder — where a
+     * The merged view addressable by filename, for walking the folder — where a
      * filename is what we hold and the note id is what we need.
      *
      * Two notes cannot share a name in one folder (the mirror's collision guard
      * sees to that), but two *devices* can disagree about one note's name after
      * a rename. Later wins, and [merge] has already put our own entries last.
      */
-    fun byFileName(merged: Map<String, SidecarEntry>): Map<String, SidecarEntry> =
-        merged.values.associateBy { it.fileName.lowercase() }
+    fun byFileName(merged: Map<String, SidecarEntry>): FileNameIndex {
+        val exact = LinkedHashMap<String, SidecarEntry>(merged.size)
+        val folded = LinkedHashMap<String, SidecarEntry>(merged.size)
+        for (entry in merged.values) {
+            exact[entry.fileName] = entry
+            folded[entry.fileName.lowercase()] = entry
+        }
+        return FileNameIndex(exact, folded)
+    }
 
     private const val KEY_VERSION = "version"
     private const val KEY_DEVICE = "device"
@@ -194,6 +201,27 @@ object SidecarIndex {
     private const val KEY_CREATED = "created"
     private const val KEY_PINNED = "pinned"
     private const val KEY_ARCHIVED = "archived"
+}
+
+/**
+ * Entries addressable by the filename they name, exactly first and only then
+ * ignoring case.
+ *
+ * The case-insensitive pass is what makes the mode work on the filesystems it
+ * is aimed at — exFAT and a Windows share treat `Notes.md` and `notes.md` as
+ * one file, and something outside Markleaf changing a name's case must not
+ * orphan the note. The exact pass in front of it is what stops that fallback
+ * answering for the wrong note on ext4, where the two names are two files
+ * belonging to two notes (#262).
+ *
+ * Look up by the filename as the folder spells it, not a folded copy of it.
+ */
+class FileNameIndex internal constructor(
+    private val exact: Map<String, SidecarEntry>,
+    private val folded: Map<String, SidecarEntry>
+) {
+    operator fun get(fileName: String): SidecarEntry? =
+        exact[fileName] ?: folded[fileName.lowercase()]
 }
 
 /**

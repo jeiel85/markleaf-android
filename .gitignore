@@ -28,6 +28,11 @@
 # CI produces these on tag pushes; the local copies here are just for manual upload.
 /dist/
 
+# Kotlin 2.x build-session scratch. Written by the compiler daemon on every
+# build and never useful to anyone else; caught only when a `git add -A`
+# swept one into a commit.
+/.kotlin/
+
 # Nightly issue-bot: local secrets (SMTP app password) and runtime scratch.
 /scripts/nightly/config.local.psd1
 /scripts/nightly/.runtime/

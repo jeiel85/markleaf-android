@@ -96,6 +96,11 @@ class HardcodedStringTest {
      *
      * Comment lines are skipped: the codebase explains several Korean-facing
      * behaviours in Korean prose, and those explanations are not shipped text.
+     *
+     * A literal that starts its own line is matched against the previous line as
+     * well: `Text(` and the text it renders are line-broken all over this
+     * codebase, and a sink that only ever looked at one line would miss every
+     * one of them.
      */
     private fun scan(predicate: (sink: String?, literal: String) -> Boolean): List<Finding> {
         val root = File("src/main/java")
@@ -107,6 +112,9 @@ class HardcodedStringTest {
         val findings = mutableListOf<Finding>()
         root.walkTopDown().filter { it.isFile && it.extension == "kt" }.forEach { file ->
             val relative = file.relativeTo(root).invariantSeparatorsPath
+            // The last line that could have left a call open. Comment lines never
+            // replace it, so a comment between the call and its text is harmless.
+            var previous = ""
             file.readLines().forEachIndexed { index, line ->
                 val trimmed = line.trimStart()
                 if (COMMENT_STARTS.any { trimmed.startsWith(it) }) return@forEachIndexed
@@ -114,12 +122,17 @@ class HardcodedStringTest {
                     val literal = match.groupValues[1]
                     // Up to, not including, the opening quote — the sink
                     // patterns anchor on the end of what precedes the literal.
+                    // Nothing but indentation there means the call, if any, is
+                    // still open from the line above.
                     val beforeLiteral = line.take(match.range.first)
-                    val sink = UI_SINKS.firstOrNull { it.toRegex().containsMatchIn(beforeLiteral) }
+                    val context =
+                        if (beforeLiteral.isBlank()) previous + beforeLiteral else beforeLiteral
+                    val sink = UI_SINKS.firstOrNull { it.toRegex().containsMatchIn(context) }
                     if (predicate(sink, literal)) {
                         findings += Finding(relative, index + 1, literal)
                     }
                 }
+                if (trimmed.isNotEmpty()) previous = line
             }
         }
         return findings.sortedBy { it.toString() }

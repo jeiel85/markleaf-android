@@ -64,6 +64,26 @@ The signed APK is written to:
 app/build/outputs/apk/release/app-release.apk
 ```
 
+### Building from a worktree
+
+Both signing inputs are gitignored at the repository root — `/.secrets/` and
+`/release-signing.properties` in `.gitignore` — so they exist only in the
+checkout where they were created. A `git worktree` is a separate checkout, and
+concurrent sessions now make that the normal place to work, so a release built
+there fails at signing until both are copied across:
+
+```powershell
+Copy-Item <main-checkout>\release-signing.properties .
+New-Item -ItemType Directory -Force .secrets | Out-Null
+Copy-Item <main-checkout>\.secrets\markleaf-release.p12 .secrets\
+```
+
+The failure without them is not obviously about a missing file — the build
+reports unsigned output, or `-Pmarkleaf.requireReleaseSigning=true` fails
+without naming the worktree as the reason. Copy, never move: the main checkout
+has to keep its own copy. Nothing prunes these from a worktree, so delete the
+worktree rather than leaving a keystore behind in it (#252).
+
 ## The Gradle Wrapper
 
 `gradle/wrapper/gradle-wrapper.jar` is a binary in the build path, and F-Droid
@@ -369,6 +389,30 @@ Three assertions:
   release time, after the release commit already exists — de-DE and fr-FR were
   once written at 526 and 525 characters and were caught only by counting them
   by hand (#167).
+
+#### Aim the English draft at ~380 characters
+
+Both checks above run *after* the six files are written, so an overrun means
+rewriting all of them. That has happened at four cuts now (#167, then de/es/fr
+at v2.30.0, then en-US at v2.31.0), and always the same way: the English note
+fit, so it looked done.
+
+It is not evidence the set fits. German compounds and the Romance languages run
+consistently longer than the English source — v2.29.1's first draft came in at
+545 for fr-FR and 517 for es-ES against an English note that was comfortably
+inside the limit. Roughly 380 characters of English is what v2.29.1 settled at
+and what leaves the translations room; at 450 the English passes and at least
+one translation will not.
+
+Count before translating, not after:
+
+```powershell
+(Get-Content -Raw fastlane/metadata/android/en-US/changelogs/<versionCode>.txt).Trim().Length
+```
+
+`verify-release-notes.ps1` warns from 450 (90% of the limit) so a note that
+squeaks in still says so — but the warning has no teeth, and four of six
+locales sat in that band at v2.31.0 (#252, #255, #262).
 - `CHANGELOG.md` and `CHANGELOG.ko.md` carry the same version sections in the
   same order with the same dates, and both have a section for the current
   `versionName`. Titles are translations, so they are not compared.
@@ -439,7 +483,7 @@ outputs.
 
 ## GitLab Release Assets
 
-GitLab tag pipelines call `:app:exportReleaseArtifacts` with an explicit
+The GitHub tag job calls `:app:exportReleaseArtifacts` with an explicit
 `markleaf.releaseExportDir`. The task exports four flat, versioned files:
 
 - `markleaf-vX.Y.Z-vcN.apk`
@@ -447,10 +491,42 @@ GitLab tag pipelines call `:app:exportReleaseArtifacts` with an explicit
 - `markleaf-vX.Y.Z-vcN.mapping.txt`
 - `markleaf-vX.Y.Z-vcN-release-notes.txt`
 
-The release job uploads them to the GitLab Generic Package Registry through
-`glab release create --use-package-registry`. Release links therefore point to
-persistent package files rather than expiring CI job artifacts. Job artifacts
-are retained only long enough to transfer the files between CI stages.
+`.github/scripts/mirror-release-to-gitlab.sh` uploads them to the GitLab
+Generic Package Registry and creates the Release with links to them. Release
+links therefore point to persistent package files rather than expiring CI job
+artifacts.
+
+### Why the GitHub runner publishes the GitLab release
+
+This used to be `publish_gitlab_release` in `.gitlab-ci.yml`, and it stopped
+working. GitLab's free shared-runner minutes are a monthly quota; the quota ran
+out and every pipeline since has failed with `ci_quota_exceeded` before
+reaching the release stage. Eight releases shipped that way — v2.28.0 through
+v2.31.0 — while GitLab's newest Release stayed at v2.27.2 and D064 went on
+describing GitLab as the off-machine permanent copy of the AAB and mapping
+(#252).
+
+The Packages and Releases **APIs do not consume CI minutes**; only the pipeline
+did. Publishing from the GitHub runner, which is free for public repositories,
+restores the mirror without touching the quota. The package coordinates are the
+ones `glab` used, so links on v2.27.2 and links on later releases address the
+same registry path.
+
+Two things this depends on:
+
+- **`GITLAB_TOKEN` needs the `api` scope.** The mirror-push token only needs
+  `write_repository`, which cannot write packages or releases. The script
+  probes the Packages API before uploading anything and fails with that
+  message rather than part-publishing.
+- **The tag must already be on GitLab.** Release order is GitLab first, GitHub
+  second, so it is by the time the GitHub job runs. The script refuses rather
+  than creating the tag itself, which would invert that order.
+
+The GitLab-side path is kept but switched off: `package_signed_release` and
+`publish_gitlab_release` now also require the project variable
+`GITLAB_RELEASE_FROM_CI=true`. That is for the case it was built for — GitHub
+unavailable and GitLab releasing on its own. With the variable unset the two
+paths cannot both publish one tag.
 
 The local Play Console hand-off remains separate:
 

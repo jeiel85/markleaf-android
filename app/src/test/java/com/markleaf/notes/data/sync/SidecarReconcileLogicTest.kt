@@ -4,6 +4,7 @@ import com.markleaf.notes.data.sync.NoteFolderMirror.Reconcile
 import com.markleaf.notes.domain.model.Note
 import java.time.Instant
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 /**
@@ -114,5 +115,98 @@ class SidecarReconcileLogicTest {
             Reconcile.Conflict,
             action(note(updatedAtMs = 8_000, lastImportMs = 5_000), matches = false)
         )
+    }
+
+    // ---- index pruning (#262) ----
+
+    private fun sidecarEntry(noteId: String, fileName: String) = SidecarEntry(
+        noteId = noteId,
+        fileName = fileName,
+        contentHash = "h",
+        createdAtMillis = 0L,
+        pinned = false,
+        archived = false
+    )
+
+    private fun stale(
+        entries: List<SidecarEntry>,
+        liveNoteIds: Set<String>,
+        fileNames: List<String>
+    ) = NoteFolderMirror.staleEntryIds(entries, liveNoteIds, fileNames)
+
+    /** The shape the item describes: another device deleted note and file both. */
+    @Test
+    fun `an entry with neither note nor file is prunable`() {
+        assertEquals(
+            setOf("gone"),
+            stale(
+                entries = listOf(sidecarEntry("gone", "Gone.md"), sidecarEntry("kept", "Kept.md")),
+                liveNoteIds = setOf("kept"),
+                fileNames = listOf("Kept.md")
+            )
+        )
+    }
+
+    /**
+     * The half that keeps #140 shut. A file we still hold has to keep its
+     * mapping, or the next pass reads it as an unknown file and imports it as a
+     * second copy of the note.
+     */
+    @Test
+    fun `an entry whose file is still there is kept even with no note`() {
+        assertEquals(
+            emptySet<String>(),
+            stale(
+                entries = listOf(sidecarEntry("n", "Notes.md")),
+                liveNoteIds = emptySet(),
+                fileNames = listOf("Notes.md")
+            )
+        )
+    }
+
+    /** A folder that failed to list, or a sync client mid-download. */
+    @Test
+    fun `an entry whose note is still there is kept even with no file`() {
+        assertEquals(
+            emptySet<String>(),
+            stale(
+                entries = listOf(sidecarEntry("n", "Notes.md")),
+                liveNoteIds = setOf("n"),
+                fileNames = emptyList()
+            )
+        )
+    }
+
+    /**
+     * Folding too much here only keeps an entry alive, so the prune folds where
+     * [NoteFolderMirror.matchByName] deliberately does not.
+     */
+    @Test
+    fun `a file differing only in case still protects its entry`() {
+        assertEquals(
+            emptySet<String>(),
+            stale(
+                entries = listOf(sidecarEntry("n", "Notes.md")),
+                liveNoteIds = emptySet(),
+                fileNames = listOf("notes.md")
+            )
+        )
+    }
+
+    // ---- filename matching (#262) ----
+
+    private fun match(names: List<String>, wanted: String) =
+        NoteFolderMirror.matchByName(names, wanted) { it }
+
+    @Test
+    fun `an exact name wins over one differing only in case`() {
+        assertEquals("notes.md", match(listOf("Notes.md", "notes.md"), "notes.md"))
+        assertEquals("Notes.md", match(listOf("Notes.md", "notes.md"), "Notes.md"))
+    }
+
+    @Test
+    fun `a name nothing bears exactly falls back to ignoring case`() {
+        assertEquals("Notes.md", match(listOf("Notes.md"), "notes.md"))
+        assertNull(match(listOf("Notes.md"), "Other.md"))
     }
 }

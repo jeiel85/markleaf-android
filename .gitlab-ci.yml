@@ -113,7 +113,9 @@ package_signed_release:
     paths:
       - dist/
   rules:
-    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
+    # See publish_gitlab_release: this job exists only to feed it, so the two
+    # share one switch.
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/ && $GITLAB_RELEASE_FROM_CI == "true"'
 
 publish_gitlab_release:
   stage: release
@@ -136,4 +138,16 @@ publish_gitlab_release:
       --use-package-registry
       --no-update
   rules:
-    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
+    # Off by default since #252. GitHub Actions publishes the GitLab Release
+    # now (.github/scripts/mirror-release-to-gitlab.sh) because the Packages
+    # and Releases APIs cost no CI minutes, while this pipeline needs them —
+    # and the quota running out is what left eight releases unmirrored.
+    #
+    # The path is kept, not deleted, for the case it was built for: GitHub
+    # unavailable, GitLab releasing on its own (that has happened once, when
+    # GitHub flagged the account in July). Set the project variable
+    # GITLAB_RELEASE_FROM_CI=true then, and unset it afterwards.
+    #
+    # Exclusive by construction: with the variable unset this job never runs,
+    # so the two paths cannot both publish one tag and race to a 409.
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/ && $GITLAB_RELEASE_FROM_CI == "true"'

@@ -58,20 +58,41 @@ class TocHeadingsTest {
     }
 
     @Test
-    fun `outline only ever contains heading levels one through three`() {
-        // The preview model only has H1/H2/H3, so however the parser buckets a
-        // deeper heading, extractHeadings must never emit a level outside 1..3.
+    fun `a heading deeper than three keeps its own level`() {
+        // This asserted `level in 1..3` until #255: the preview model stopped at
+        // H3 and bucketed everything deeper into it. Invisible while the preview
+        // was the only consumer, and wrong once the outline screen shipped —
+        // indentation is its only level cue, so a deeply nested note read flat.
         val md = """
             # Top
 
             ## Mid
 
             #### Deeper
+
+            ###### Deepest
         """.trimIndent()
         val headings = extractHeadings(SimpleMarkdownPreview.parse(md))
-        assertTrue(headings.isNotEmpty())
-        assertTrue(headings.all { it.level in 1..3 })
-        assertTrue(headings.any { it.text == "Top" })
+        assertEquals(listOf("Top", "Mid", "Deeper", "Deepest"), headings.map { it.text })
+        assertEquals(listOf(1, 2, 4, 6), headings.map { it.level })
+        // Six is the deepest ATX heading commonmark recognises, so nothing
+        // should ever land outside this range.
+        assertTrue(headings.all { it.level in 1..6 })
+    }
+
+    /**
+     * A run of `#` with no space is not a heading, and a seventh level does not
+     * exist — both stay body text rather than clamping to H6.
+     */
+    @Test
+    fun `hashes that do not form a heading stay out of the outline`() {
+        val md = """
+            ####### Seven hashes
+
+            #NoSpace
+        """.trimIndent()
+
+        assertEquals(emptyList<TocHeading>(), extractHeadings(SimpleMarkdownPreview.parse(md)))
     }
 
     /**

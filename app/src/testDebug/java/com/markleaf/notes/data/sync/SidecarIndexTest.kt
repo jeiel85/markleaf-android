@@ -112,6 +112,38 @@ class SidecarIndexTest {
         assertEquals("n", SidecarIndex.byFileName(merged)["notes.md"]?.noteId)
     }
 
+    /**
+     * The ext4 case (#262): both names exist as separate files behind separate
+     * notes, so a fold picks one of two notes at random. The exact name has to
+     * win before the fold is consulted at all.
+     */
+    @Test
+    fun `filename lookup prefers the exact name over a case-folded one`() {
+        val merged = SidecarIndex.merge(
+            "me",
+            listOf(
+                ParsedIndex(
+                    "me",
+                    listOf(entry("upper", "Notes.md", "h1"), entry("lower", "notes.md", "h2"))
+                )
+            )
+        )
+
+        val byName = SidecarIndex.byFileName(merged)
+
+        assertEquals("upper", byName["Notes.md"]?.noteId)
+        assertEquals("lower", byName["notes.md"]?.noteId)
+    }
+
+    /** A name nothing bears exactly still falls back, which is the exFAT case. */
+    @Test
+    fun `filename lookup falls back to case-folding when no name matches exactly`() {
+        val merged = SidecarIndex.merge("me", listOf(ParsedIndex("me", listOf(entry("n", "Notes.md", "h")))))
+
+        assertEquals("n", SidecarIndex.byFileName(merged)["NOTES.MD"]?.noteId)
+        assertNull(SidecarIndex.byFileName(merged)["Other.md"])
+    }
+
     @Test
     fun `index files are recognised by name and yield their device`() {
         val name = SidecarIndex.fileNameFor("abc123")

@@ -92,8 +92,18 @@ git push github vX.Y.Z
 
 1. **GitLab에서 Project Access Token 발급.** 프로젝트 → Settings → Access Tokens.
    - Role: **Maintainer** (보호된 `main`에 push하려면 필요하다)
-   - Scope: **`write_repository`** 하나만
+   - Scope: **`write_repository`** + **`api`**
    - Expiry: GitLab이 만료일을 강제한다(최대 1년). **날짜를 적어 둘 것** — 아래 갱신 항목 참조.
+
+   `api`는 #252에서 추가로 필요해졌다. 같은 토큰을 릴리스 태그 잡도
+   쓰는데(`.github/scripts/mirror-release-to-gitlab.sh`), Package Registry 업로드와
+   Release 생성은 `write_repository`로는 안 된다. 이미 `write_repository`만으로
+   발급된 토큰이 있다면 **재발급이 필요하다** — GitLab은 기존 토큰의 스코프를
+   나중에 넓혀 주지 않는다. 재발급 후 같은 이름(`GITLAB_TOKEN`)으로 GitHub 시크릿을
+   덮어쓰면 mirror-push는 그대로 동작한다.
+
+   스코프가 모자란 채로 태그를 밀면 릴리스 잡이 업로드 전에 멈추고
+   `The token needs the 'api' scope` 를 남긴다. 절반만 올라간 상태로 끝나지 않는다.
 2. **GitHub에 시크릿 등록.** 저장소 → Settings → Secrets and variables → Actions →
    New repository secret. 이름은 정확히 **`GITLAB_TOKEN`**.
 3. **확인.** Actions 탭 → **Mirror push** → Run workflow. 또는 아무 PR이나 머지하면

@@ -140,6 +140,28 @@ fun PreviewLineRenderer(
             color = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.padding(top = 6.dp, bottom = 4.dp)
         )
+        // H4–H6 continue down the same type scale rather than getting a
+        // treatment of their own. The last two also drop to the muted colour:
+        // by that depth the heading is closer to a label than a section title,
+        // and six visually distinct heading styles in one note is noise.
+        PreviewLineType.H4 -> Text(
+            text = line.text,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.secondary,
+            modifier = Modifier.padding(top = 6.dp, bottom = 4.dp)
+        )
+        PreviewLineType.H5 -> Text(
+            text = line.text,
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp, bottom = 2.dp)
+        )
+        PreviewLineType.H6 -> Text(
+            text = line.text,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp, bottom = 2.dp)
+        )
         PreviewLineType.BULLET -> InlineMarkdownText(
             line = line,
             leadingMarker = "• ",
@@ -389,7 +411,7 @@ internal fun findFootnoteDefIndex(lines: List<PreviewLine>, label: String): Int 
 /**
  * A heading entry for the table of contents: its [index] into the rendered
  * [PreviewLine] list (so the same `animateScrollToItem` used for footnote jumps
- * lands on the heading), the display [text], and the [level] (1..3).
+ * lands on the heading), the display [text], and the [level] (1..6).
  *
  * [sourceLine] is the 0-based line the heading occupies in the note's own text.
  * The rendered index can only ever scroll the preview; jumping while the user
@@ -405,7 +427,7 @@ data class TocHeading(
 )
 
 /**
- * Extracts the H1/H2/H3 outline from rendered [lines] for the table of contents.
+ * Extracts the H1–H6 outline from rendered [lines] for the table of contents.
  * The index matches the LazyColumn item index, so tapping an entry can scroll the
  * preview to that heading. Lifted out of the UI so it can be unit-tested.
  */
@@ -415,6 +437,9 @@ internal fun extractHeadings(lines: List<PreviewLine>): List<TocHeading> =
             PreviewLineType.H1 -> 1
             PreviewLineType.H2 -> 2
             PreviewLineType.H3 -> 3
+            PreviewLineType.H4 -> 4
+            PreviewLineType.H5 -> 5
+            PreviewLineType.H6 -> 6
             else -> null
         }
         level?.let {

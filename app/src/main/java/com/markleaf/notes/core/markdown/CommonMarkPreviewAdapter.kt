@@ -143,7 +143,12 @@ internal object CommonMarkPreviewAdapter {
         val type = when (node.level) {
             1 -> PreviewLineType.H1
             2 -> PreviewLineType.H2
-            else -> PreviewLineType.H3
+            3 -> PreviewLineType.H3
+            4 -> PreviewLineType.H4
+            5 -> PreviewLineType.H5
+            // commonmark caps ATX headings at 6, so `else` is 6 rather than a
+            // fallback for anything deeper.
+            else -> PreviewLineType.H6
         }
         val text = collectText(node)
         return PreviewLine(

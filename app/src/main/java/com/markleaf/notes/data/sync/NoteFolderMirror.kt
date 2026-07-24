@@ -169,14 +169,21 @@ object NoteFolderMirror {
         extension: SyncFileExtension,
         deviceId: String
     ): Boolean {
-        val merged = SidecarStore.load(context, folder, deviceId)
         val ownEntries = SidecarStore.ownEntries(context, folder, deviceId)
         val mirrorFiles = folder.listFiles().filter { it.isFile && isMirrorFile(it.name) }
 
-        val recordedName = merged[note.id]?.fileName
-        val existing = recordedName
+        // Our own index answers this for every note we have already written, so
+        // the common save never reads another device's file. Falling back to the
+        // merged view costs a folder listing plus a parse of every index, and it
+        // is only needed for a note this device has not seen before (#262).
+        val existing = ownEntries[note.id]?.fileName
             ?.let { name -> mirrorFiles.firstOrNull { it.name.equals(name, ignoreCase = true) } }
-            ?: adoptUnclaimedFile(mirrorFiles, note, merged)
+            ?: run {
+                val merged = SidecarStore.load(context, folder, deviceId)
+                merged[note.id]?.fileName
+                    ?.let { name -> mirrorFiles.firstOrNull { it.name.equals(name, ignoreCase = true) } }
+                    ?: adoptUnclaimedFile(mirrorFiles, note, merged)
+            }
 
         val ext = existing?.mirrorExtension() ?: extension.value
         val desiredName = resolveName(note, ext, mirrorFiles, ownFile = existing)
@@ -346,7 +353,11 @@ object NoteFolderMirror {
         val target = when (metadata) {
             is MirrorMetadata.Sidecar -> {
                 val entries = SidecarStore.ownEntries(context, folder, metadata.deviceId)
-                val name = SidecarStore.load(context, folder, metadata.deviceId)[noteId]?.fileName
+                // Our own entry names the file for anything this device wrote.
+                // Only a note we have never written needs the merged view, and
+                // paying for it on every delete is what #262 was about.
+                val name = entries[noteId]?.fileName
+                    ?: SidecarStore.load(context, folder, metadata.deviceId)[noteId]?.fileName
                 if (entries.remove(noteId) != null) {
                     SidecarStore.write(context, folder, metadata.deviceId, entries.values)
                 }

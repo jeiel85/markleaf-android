@@ -71,6 +71,7 @@ import com.markleaf.notes.data.sync.SidecarMigration
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.data.sync.mirrorMetadata
 import com.markleaf.notes.feature.lock.canUseBiometric
+import com.markleaf.notes.ui.component.elapsedTimeLabel
 import com.markleaf.notes.util.ExportAllNotes
 import com.markleaf.notes.util.HapticFeedback
 import kotlinx.coroutines.Dispatchers
@@ -673,7 +674,7 @@ private fun SyncSection(
             )
             Text(
                 text = if (lastSyncedAt != null) {
-                    stringResource(R.string.sync_status_last_synced_format, formatRelative(lastSyncedAt))
+                    stringResource(R.string.sync_status_last_synced_format, elapsedTimeLabel(lastSyncedAt))
                 } else {
                     stringResource(R.string.sync_status_last_synced_never)
                 },
@@ -777,16 +778,6 @@ private fun humanReadableTreePath(uriString: String): String {
     val afterTree = decoded.substringAfterLast("/tree/", decoded)
     val afterColon = afterTree.substringAfter(":", afterTree)
     return afterColon.ifBlank { afterTree }
-}
-
-private fun formatRelative(epochMillis: Long): String {
-    val deltaMs = System.currentTimeMillis() - epochMillis
-    return when {
-        deltaMs < 60_000 -> "방금 전"
-        deltaMs < 3_600_000 -> "${deltaMs / 60_000}분 전"
-        deltaMs < 86_400_000 -> "${deltaMs / 3_600_000}시간 전"
-        else -> "${deltaMs / 86_400_000}일 전"
-    }
 }
 
 /**

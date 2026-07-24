@@ -130,6 +130,22 @@
     <string name="relative_yesterday">Yesterday %1$s</string>
     <string name="relative_days_ago">%1$d days ago</string>
 
+    <!-- Elapsed time since a timestamp, for the sync status rows. Distinct from
+         the relative_* strings above, which name a calendar day. -->
+    <string name="elapsed_just_now">just now</string>
+    <plurals name="elapsed_minutes_ago">
+        <item quantity="one">%1$d minute ago</item>
+        <item quantity="other">%1$d minutes ago</item>
+    </plurals>
+    <plurals name="elapsed_hours_ago">
+        <item quantity="one">%1$d hour ago</item>
+        <item quantity="other">%1$d hours ago</item>
+    </plurals>
+    <plurals name="elapsed_days_ago">
+        <item quantity="one">%1$d day ago</item>
+        <item quantity="other">%1$d days ago</item>
+    </plurals>
+
     <string name="search_notes_hint">Search notes...</string>
     <string name="type_to_search_notes">Type to search notes</string>
     <string name="no_results_found">No results found</string>
@@ -356,5 +372,6 @@
     <string name="conflict_center_empty_desc">All mirrored notes are perfectly in sync.</string>
     <string name="conflict_delete_confirm_title">Delete conflict copy?</string>
     <string name="conflict_delete_confirm_desc">This conflict copy will be permanently deleted.</string>
+    <string name="conflict_note_updated_format">Updated: %1$s</string>
 
 </resources>

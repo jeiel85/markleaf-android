@@ -125,6 +125,17 @@
     <string name="relative_yesterday">昨日 %1$s</string>
     <string name="relative_days_ago">%1$d日前</string>
 
+    <string name="elapsed_just_now">たった今</string>
+    <plurals name="elapsed_minutes_ago">
+        <item quantity="other">%1$d分前</item>
+    </plurals>
+    <plurals name="elapsed_hours_ago">
+        <item quantity="other">%1$d時間前</item>
+    </plurals>
+    <plurals name="elapsed_days_ago">
+        <item quantity="other">%1$d日前</item>
+    </plurals>
+
     <string name="search_notes_hint">ノートを検索...</string>
     <string name="type_to_search_notes">入力してノートを検索</string>
     <string name="no_results_found">結果が見つかりません</string>
@@ -347,4 +358,5 @@
     <string name="conflict_center_empty_desc">ミラーリングされたすべてのノートが完全に同期されています。</string>
     <string name="conflict_delete_confirm_title">競合コピーを削除しますか？</string>
     <string name="conflict_delete_confirm_desc">この競合コピーは完全に削除されます。</string>
+    <string name="conflict_note_updated_format">更新: %1$s</string>
 </resources>

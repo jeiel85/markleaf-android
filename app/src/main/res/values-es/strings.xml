@@ -126,6 +126,20 @@
     <string name="relative_yesterday">Ayer %1$s</string>
     <string name="relative_days_ago">hace %1$d días</string>
 
+    <string name="elapsed_just_now">ahora mismo</string>
+    <plurals name="elapsed_minutes_ago">
+        <item quantity="one">hace %1$d minuto</item>
+        <item quantity="other">hace %1$d minutos</item>
+    </plurals>
+    <plurals name="elapsed_hours_ago">
+        <item quantity="one">hace %1$d hora</item>
+        <item quantity="other">hace %1$d horas</item>
+    </plurals>
+    <plurals name="elapsed_days_ago">
+        <item quantity="one">hace %1$d día</item>
+        <item quantity="other">hace %1$d días</item>
+    </plurals>
+
     <string name="search_notes_hint">Buscar notas...</string>
     <string name="type_to_search_notes">Escribe para buscar notas</string>
     <string name="no_results_found">No se encontraron resultados</string>
@@ -352,4 +366,5 @@
     <string name="conflict_center_empty_desc">Todas las notas reflejadas están perfectamente sincronizadas.</string>
     <string name="conflict_delete_confirm_title">¿Eliminar copia en conflicto?</string>
     <string name="conflict_delete_confirm_desc">Esta copia en conflicto será eliminada permanentemente.</string>
+    <string name="conflict_note_updated_format">Actualizado: %1$s</string>
 </resources>

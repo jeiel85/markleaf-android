@@ -126,6 +126,20 @@
     <string name="relative_yesterday">Gestern %1$s</string>
     <string name="relative_days_ago">Vor %1$d Tagen</string>
 
+    <string name="elapsed_just_now">gerade eben</string>
+    <plurals name="elapsed_minutes_ago">
+        <item quantity="one">vor %1$d Minute</item>
+        <item quantity="other">vor %1$d Minuten</item>
+    </plurals>
+    <plurals name="elapsed_hours_ago">
+        <item quantity="one">vor %1$d Stunde</item>
+        <item quantity="other">vor %1$d Stunden</item>
+    </plurals>
+    <plurals name="elapsed_days_ago">
+        <item quantity="one">vor %1$d Tag</item>
+        <item quantity="other">vor %1$d Tagen</item>
+    </plurals>
+
     <string name="search_notes_hint">Notizen durchsuchen…</string>
     <string name="type_to_search_notes">Tippen, um Notizen zu durchsuchen</string>
     <string name="no_results_found">Keine Ergebnisse gefunden</string>
@@ -352,4 +366,5 @@
     <string name="conflict_center_empty_desc">Alle gespiegelten Notizen sind perfekt synchronisiert.</string>
     <string name="conflict_delete_confirm_title">Konfliktkopie löschen?</string>
     <string name="conflict_delete_confirm_desc">Diese Konfliktkopie wird dauerhaft gelöscht.</string>
+    <string name="conflict_note_updated_format">Aktualisiert: %1$s</string>
 </resources>

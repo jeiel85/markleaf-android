@@ -125,6 +125,17 @@
     <string name="relative_yesterday">어제 %1$s</string>
     <string name="relative_days_ago">%1$d일 전</string>
 
+    <string name="elapsed_just_now">방금 전</string>
+    <plurals name="elapsed_minutes_ago">
+        <item quantity="other">%1$d분 전</item>
+    </plurals>
+    <plurals name="elapsed_hours_ago">
+        <item quantity="other">%1$d시간 전</item>
+    </plurals>
+    <plurals name="elapsed_days_ago">
+        <item quantity="other">%1$d일 전</item>
+    </plurals>
+
     <string name="search_notes_hint">노트 검색...</string>
     <string name="type_to_search_notes">검색어를 입력하세요</string>
     <string name="no_results_found">검색 결과가 없습니다</string>
@@ -347,5 +358,6 @@
     <string name="conflict_center_empty_desc">모든 미러링 노트가 완벽히 동기화되어 있습니다.</string>
     <string name="conflict_delete_confirm_title">충돌 사본을 삭제할까요?</string>
     <string name="conflict_delete_confirm_desc">이 충돌 사본은 영구히 삭제되며 복구할 수 없습니다.</string>
+    <string name="conflict_note_updated_format">수정: %1$s</string>
 
 </resources>

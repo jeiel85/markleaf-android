@@ -36,6 +36,7 @@ import com.markleaf.notes.data.sync.NoteImporter
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.data.sync.mirrorMetadata
 import com.markleaf.notes.domain.model.Note
+import com.markleaf.notes.ui.component.elapsedTimeLabel
 import com.markleaf.notes.ui.viewmodel.SyncCenterViewModel
 import com.markleaf.notes.util.HapticFeedback
 import kotlinx.coroutines.Dispatchers
@@ -198,7 +199,7 @@ fun SyncCenterScreen(
                                 )
                                 Text(
                                     text = if (appSettings.syncLastSyncedAt != null) {
-                                        stringResource(R.string.sync_status_last_synced_format, formatRelative(appSettings.syncLastSyncedAt!!))
+                                        stringResource(R.string.sync_status_last_synced_format, elapsedTimeLabel(appSettings.syncLastSyncedAt!!))
                                     } else {
                                         stringResource(R.string.sync_status_last_synced_never)
                                     },
@@ -448,7 +449,10 @@ fun SyncCenterScreen(
                                 }
                                 
                                 Text(
-                                    text = "Updated: ${formatRelative(note.updatedAt.toEpochMilli())}",
+                                    text = stringResource(
+                                        R.string.conflict_note_updated_format,
+                                        elapsedTimeLabel(note.updatedAt.toEpochMilli())
+                                    ),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                                 )
@@ -509,14 +513,4 @@ private fun humanReadableTreePath(uriString: String): String {
     val afterTree = decoded.substringAfterLast("/tree/", decoded)
     val afterColon = afterTree.substringAfter(":", afterTree)
     return afterColon.ifBlank { afterTree }
-}
-
-private fun formatRelative(epochMillis: Long): String {
-    val deltaMs = System.currentTimeMillis() - epochMillis
-    return when {
-        deltaMs < 60_000 -> "방금 전"
-        deltaMs < 3_600_000 -> "${deltaMs / 60_000}분 전"
-        deltaMs < 86_400_000 -> "${deltaMs / 3_600_000}시간 전"
-        else -> "${deltaMs / 86_400_000}일 전"
-    }
 }

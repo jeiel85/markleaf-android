@@ -177,11 +177,11 @@ object NoteFolderMirror {
         // merged view costs a folder listing plus a parse of every index, and it
         // is only needed for a note this device has not seen before (#262).
         val existing = ownEntries[note.id]?.fileName
-            ?.let { name -> mirrorFiles.firstOrNull { it.name.equals(name, ignoreCase = true) } }
+            ?.let { name -> matchByName(mirrorFiles, name) { it.name } }
             ?: run {
                 val merged = SidecarStore.load(context, folder, deviceId)
                 merged[note.id]?.fileName
-                    ?.let { name -> mirrorFiles.firstOrNull { it.name.equals(name, ignoreCase = true) } }
+                    ?.let { name -> matchByName(mirrorFiles, name) { it.name } }
                     ?: adoptUnclaimedFile(mirrorFiles, note, merged)
             }
 
@@ -210,6 +210,23 @@ object NoteFolderMirror {
         SidecarStore.write(context, folder, deviceId, ownEntries.values)
         return true
     }
+
+    /**
+     * The item in [items] whose name is [name] — matched exactly if one is, and
+     * only then ignoring case.
+     *
+     * The case-insensitive fallback is what a folder on exFAT or a Windows
+     * share needs: those cannot hold `Notes.md` and `notes.md` at once, so a
+     * name whose case changed outside Markleaf is still the same file and
+     * refusing it would orphan the note. ext4 can hold both, and there the same
+     * fallback picks one of two files belonging to two notes — which, on the
+     * write path, overwrites a note the user never touched. Trying the exact
+     * name first costs one pass and removes that coin flip; the fallback is
+     * then only reached when no file bears the recorded name at all (#262).
+     */
+    internal fun <T> matchByName(items: List<T>, name: String, nameOf: (T) -> String?): T? =
+        items.firstOrNull { nameOf(it) == name }
+            ?: items.firstOrNull { nameOf(it).equals(name, ignoreCase = true) }
 
     /**
      * A file carrying [note]'s title that no index entry claims — the sidecar
@@ -361,7 +378,7 @@ object NoteFolderMirror {
                 if (entries.remove(noteId) != null) {
                     SidecarStore.write(context, folder, metadata.deviceId, entries.values)
                 }
-                name?.let { n -> mirrorFiles.firstOrNull { it.name.equals(n, ignoreCase = true) } }
+                name?.let { n -> matchByName(mirrorFiles, n) { it.name } }
             }
             MirrorMetadata.Frontmatter -> findFileForNote(context, mirrorFiles, noteId)
         }
@@ -637,6 +654,15 @@ object NoteFolderMirror {
         val ownEntries = SidecarStore.ownEntries(context, folder, deviceId)
         val files = folder.listFiles().filter { it.isFile && isMirrorFile(it.name) }
 
+        // Rows describing neither a note nor a file. A note deleted on another
+        // device takes its file with it and cannot touch our index, so without
+        // this our copy carries that row for the folder's lifetime — and the
+        // same in reverse, leaving both devices holding the other's dead rows
+        // (#262).
+        for (id in staleEntryIds(ownEntries.values, byId.keys, files.map { it.name.orEmpty() })) {
+            ownEntries.remove(id)
+        }
+
         for (file in files) {
             val body = runCatching {
                 context.contentResolver.openInputStream(file.uri)?.use { it.readBytes() }
@@ -655,7 +681,7 @@ object NoteFolderMirror {
             // for this file: an id is a better link than a filename.
             val parsed = SyncFrontmatter.decode(body)
             val text = parsed.body
-            val entry = byFileName[fileName.lowercase()]
+            val entry = byFileName[fileName]
             val existingNote = (entry?.noteId ?: parsed.markleafId)?.let(byId::get)
             val hash = SidecarIndex.hashOf(text)
             val matchesLastWrite = entry != null && entry.contentHash == hash
@@ -780,6 +806,37 @@ object NoteFolderMirror {
 
     /** The action the reconcile takes for one mirror file. */
     internal enum class Reconcile { Create, SkipTrashed, Skip, Overwrite, Conflict }
+
+    /**
+     * The ids in [entries] that describe neither a live note nor a file that is
+     * still in the folder — the rows an index can drop.
+     *
+     * **Both conditions are required, and the second one is the careful half.**
+     * A missing file on its own means nothing: a sync client that has not
+     * delivered it yet, or a listing that came back short, would have us drop a
+     * mapping the next pass needs — and an entry dropped while its file is
+     * still there is precisely how that file imports as a second copy of a note
+     * (#140). Once the note is gone from the database as well, there is nothing
+     * left for the entry to point at in either direction.
+     *
+     * [liveNoteIds] must therefore come from the complete note set — active,
+     * archived *and* trashed, the same set [importChangesFrom] requires. A
+     * trashed note still owns its entry; it is a note the user can restore.
+     *
+     * Filenames are compared case-insensitively on purpose, the opposite choice
+     * to [matchByName]: here a fold that matches too much only keeps an entry
+     * alive, which is the harmless direction.
+     */
+    internal fun staleEntryIds(
+        entries: Collection<SidecarEntry>,
+        liveNoteIds: Set<String>,
+        fileNames: Collection<String>
+    ): Set<String> {
+        val present = fileNames.mapTo(HashSet(fileNames.size)) { it.lowercase() }
+        return entries
+            .filterNot { it.noteId in liveNoteIds || it.fileName.lowercase() in present }
+            .mapTo(HashSet()) { it.noteId }
+    }
 
     /**
      * [reconcileAction]'s counterpart for sidecar mode (#216), deciding from

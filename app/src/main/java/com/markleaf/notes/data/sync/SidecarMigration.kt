@@ -112,7 +112,7 @@ object SidecarMigration {
         for (file in folder.listFiles()) {
             if (!file.isFile || !isMirrorFileName(file.name)) continue
             val name = file.name.orEmpty()
-            val note = byName[name.lowercase()]?.noteId?.let(byId::get)
+            val note = byName[name]?.noteId?.let(byId::get)
             if (note == null) {
                 skipped++
                 continue

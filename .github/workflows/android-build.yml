@@ -192,6 +192,16 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      # 관리형 기기는 실행 시점에 시스템 이미지를 직접 설치한다. 러너 이미지에
+      # 그 라이선스는 수락돼 있지 않아서, 없으면 `ciAtdApi30Setup` 이
+      # LicenceNotAcceptedException 으로 죽는다
+      # (system-images;android-30;aosp_atd;x86).
+      - name: Accept Android SDK licences
+        run: |
+          sdkmanager="$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | head -1)"
+          test -n "$sdkmanager" || { echo "sdkmanager not found under $ANDROID_HOME/cmdline-tools"; exit 1; }
+          yes | "$sdkmanager" --licenses > /dev/null
+
       - name: Run instrumented tests on a managed device
         run: ./gradlew :app:ciAtdApi30DebugAndroidTest
 

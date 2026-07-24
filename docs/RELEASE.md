@@ -87,11 +87,18 @@ into one. `./gradlew :app:foo -Pbar=baz` reached Gradle as the single task name
 nothing tripped over it for the project's whole life.
 
 **Never hand-edit these four files.** Regenerate them together so the scripts,
-the jar and the properties stay a matched set from one distribution:
+the jar and the properties stay a matched set from one distribution — and pass
+the distribution checksum in the same command:
 
 ```powershell
-.\gradlew.bat wrapper --gradle-version <version>
+.\gradlew.bat wrapper --gradle-version <version> --gradle-distribution-sha256-sum <sum>
 ```
+
+**`distributionUrl` and `distributionSha256Sum` move together or not at all.**
+Bumping the version without the matching sum leaves the old checksum in place
+and every wrapper-driven build fails — CI, local, release. `<sum>` is Gradle's
+published checksum for the distribution, from
+`https://downloads.gradle.org/distributions/gradle-<version>-bin.zip.sha256`.
 
 Use `gradlew.bat`, not the POSIX script, and expect `cmd` to complain at the end
 of the run — it re-reads the batch file it is executing while the task rewrites
@@ -102,10 +109,23 @@ Afterwards, verify:
 - the jar's SHA-256 matches Gradle's published checksum,
 - `gradlew` is committed with LF and `gradlew.bat` with CRLF,
 - a genuinely multi-argument call works from a POSIX shell —
-  `./gradlew :app:tasks -PsomeProperty=value`.
+  `./gradlew :app:tasks -PsomeProperty=value`,
+- the distribution checksum is enforced, on a **clean** `GRADLE_USER_HOME`. A
+  machine that already has that distribution unpacked never re-verifies it, so
+  a wrong sum looks fine locally and breaks everywhere else:
 
-`distributionSha256Sum` is still unset, so the *distribution* download is
-unpinned even though the wrapper jar is now verifiable. Worth adding.
+```powershell
+$env:GRADLE_USER_HOME = "$env:TEMP\gradle-home-check"; .\gradlew.bat --version
+```
+
+For 8.9 the distribution sum is
+`d725d707bfabd4dfdc958c624003b3c80accc03f7037b5122c4b1d0ef15cecab` (#246).
+
+F-Droid does not use any of this. `fdroidserver` deletes `gradlew`,
+`gradlew.bat` and `gradle-wrapper.jar` from the checkout and builds with
+`gradlew-fdroid`, which reads `gradle-wrapper.properties` only to pull the
+version out of `distributionUrl` and then verifies its own download against the
+F-Droid gradle-transparency-log. Pinning covers every other build path.
 
 ## R8 (Minification + Resource Shrinking)
 

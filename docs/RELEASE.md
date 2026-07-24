@@ -168,10 +168,16 @@ The two script checks run ahead of Gradle. They finish in seconds and cover what
 a release-preparation commit most often forgets, so failing on them first costs
 nothing. See [Release Version and Notes Checks](#release-version-and-notes-checks).
 
-The `launch-smoke` job (emulator-based) currently runs on a debug APK and is
-marked `continue-on-error: true` because of historical emulator flakiness on
-GitHub-hosted runners. A release-APK runtime smoke (R8-shrunk, debug-signed)
-is a planned follow-up.
+Two emulator jobs run alongside the `build` job, both `continue-on-error: true`
+and therefore not gating a merge:
+
+- `launch-smoke` — installs the debug APK and starts the app. Excused because
+  of historical emulator flakiness on GitHub-hosted runners. A release-APK
+  runtime smoke (R8-shrunk, debug-signed) is a planned follow-up.
+- `instrumented-tests` — the `app/src/androidTest/` suite on an AGP managed
+  device. New in #235; excused until it has proven itself over a few runs, at
+  which point it should become a required check. See
+  [Instrumented Tests](#instrumented-tests).
 
 GitLab CI independently runs `testDebugUnitTest`, `lintRelease`, and
 `assembleDebug` for branches and merge requests. A semantic version tag
@@ -180,24 +186,28 @@ mapping and six-locale notes, and verifies the APK certificate before
 publishing. GitHub remains the canonical Roborazzi and emulator-smoke runner;
 GitLab is an independent build and binary-distribution path.
 
-## Instrumented Tests — Local Gate, Not CI
+## Instrumented Tests
 
-**CI does not run `connectedDebugAndroidTest`.** Nothing in
-`app/src/androidTest/` is executed by any pipeline. Run it by hand before
-cutting a release:
+**CI runs them on an AGP managed device.** The `instrumented-tests` job calls
+`:app:ciAtdApi30DebugAndroidTest`, which starts, targets and tears down its own
+API 30 `aosp-atd` emulator. It is `continue-on-error: true` for now, like
+`launch-smoke`: promote it to a required check once it has been green for a few
+runs, not before — an unproven gate on a protected branch is worse than none.
+
+To run the same suite against a device or AVD you already have:
 
 ```powershell
 pwsh scripts/run-instrumented-tests.ps1
 ```
 
 The script picks the first connected device, checks it reports an API level,
-and runs the suite with `com.markleaf.notes.ui` excluded. Add `-Serial` when
-more than one device is attached.
+and runs the whole suite — nothing is excluded any more. Add `-Serial` when
+more than one device is attached, `-ExcludePackage` to skip one deliberately.
 
 ### What it covers
 
-The two places where a mistake costs a user their notes, and which no unit test
-can reach:
+The places where a mistake costs a user their notes, and which no unit test can
+reach:
 
 - **Room migrations** — `AppDatabaseMigrationTest` walks v4 → current on a real
   Android runtime. A JVM test cannot; SQLite behaviour and Room's schema
@@ -209,12 +219,27 @@ can reach:
 - **Navigation after a suspend point** — `NavigateAfterSuspendTest`, the #235
   regression.
 
-`com.markleaf.notes.ui` is excluded because those classes drifted against the
-UI they assert on while a crash made the suite unrunnable; 24 of them fail
-(#239). The exclusion is by package, not an allow-list, so a test added
-anywhere else runs by default rather than being silently skipped.
+- **The editor surface** — `EditorScreenTest`, ten cases over the real editor:
+  the preview toggle, quick insert and its URL guard, the formatting panel, the
+  information sheet, the outline screen leaving you in the editor when you jump
+  to a heading (#215), and initial focus on a persisted empty note.
+- **One end-to-end note flow** — `AppIntegrationTest`, create → type →
+  auto-save → back → reopen, plus search navigation. It runs against the app's
+  real database rather than an in-memory one, because `EditorScreen` builds its
+  repository from `AppDatabase.getInstance` and an injected in-memory database
+  would leave the editor and the list looking at different data. It deletes the
+  notes it created afterwards and leaves any others alone.
 
-### Why it is not in CI
+`com.markleaf.notes.ui` used to be excluded: `ComprehensiveFeatureTest` asserted
+against a UI that had moved on while a crash kept the suite from running, and 24
+cases failed (#239). That class is gone. What it claimed to cover is covered
+more cheaply elsewhere — preview and settings rendering by the Roborazzi
+goldens, editor interaction by the Robolectric Compose tests in `src/testDebug`,
+and note/tag/trash logic by the unit tests — and it was looking for controls
+such as a "Preview" **text** button that had not existed for several versions.
+Nothing is excluded now.
+
+### Why `connectedDebugAndroidTest` is not what CI runs
 
 It was tried, four times, in #238. The configuration works — the job builds,
 filters, and reaches `connectedDebugAndroidTest`. The GitHub-hosted emulator
@@ -231,11 +256,17 @@ Raw `adb` answers on that same device — a wait loop added before Gradle
 reported `device settled at API 30` and ddmlib still timed out seconds later.
 That is why `launch-smoke` passes while this fails: `launch-smoke` only uses
 raw adb. It also means no adb-based waiting can fix it; the timeout is inside
-ddmlib. Tracked in #235, where Gradle Managed Devices is the next thing to try.
+ddmlib.
 
-The honest trade: this is a **manual** gate, so it is only as reliable as the
-person cutting the release. That is worse than automation and better than the
-previous state, where these tests were run when someone happened to remember.
+A managed device is the way around it, and is what the `instrumented-tests` job
+uses. AGP starts and targets the emulator itself instead of discovering it
+through ddmlib, so the property fetch that times out never happens. The device
+is declared in `app/build.gradle.kts` under `testOptions.managedDevices`; the
+CI job's only extra requirement is opening `/dev/kvm` permissions on the runner,
+which the job does before calling Gradle.
+
+Do not "fix" this by going back to `connectedDebugAndroidTest` plus a longer
+adb wait. That was tried and the wait is not where the timeout lives.
 
 ### If a test fails, re-run on a fresh emulator before believing it
 

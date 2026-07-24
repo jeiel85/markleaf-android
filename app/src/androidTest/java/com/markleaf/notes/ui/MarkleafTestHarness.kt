@@ -14,6 +14,9 @@ import com.markleaf.notes.navigation.MarkleafNavHost
 import com.markleaf.notes.ui.theme.MarkleafTheme
 import com.markleaf.notes.ui.viewmodel.MarkleafViewModelFactory
 
+// 화면을 통째로 띄우지 않는 테스트용. 목록과 에디터를 함께 지나가는 흐름에는
+// 쓰면 안 된다 — `EditorScreen` 은 `AppDatabase.getInstance` 에서 자기
+// repository 를 만들기 때문에 여기서 주입한 DB 를 보지 않는다(AppIntegrationTest).
 fun createInMemoryMarkleafDatabase(): AppDatabase =
     Room.inMemoryDatabaseBuilder(
         ApplicationProvider.getApplicationContext(),

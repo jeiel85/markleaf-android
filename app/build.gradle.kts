@@ -149,6 +149,26 @@ android {
         // unit-test variants never compile them, so no per-class exclusion list
         // has to be maintained by hand as tests are added (#152).
         // `ComposeTestSourceSetTest` fails the build if one lands in `src/test`.
+
+        // Instrumented tests in CI. `connectedDebugAndroidTest` against a
+        // GitHub-hosted emulator does not work: ddmlib's PropertyFetcher times
+        // out asking that device for its API level, so Gradle reports "0 of
+        // which were compatible" while raw adb answers on the same device
+        // (#235). A managed device sidesteps the discovery path entirely —
+        // AGP starts, targets and tears down the emulator itself.
+        //
+        // `aosp-atd` is the automated-test-device image: no Play services, no
+        // GApps, smaller and faster to boot than `google_apis`, and the suite
+        // needs neither. API 30 matches what `launch-smoke` already runs on.
+        managedDevices {
+            localDevices {
+                create("ciAtdApi30") {
+                    device = "Pixel 2"
+                    apiLevel = 30
+                    systemImageSource = "aosp-atd"
+                }
+            }
+        }
     }
 
     sourceSets {

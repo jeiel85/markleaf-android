@@ -100,8 +100,11 @@ class EditorScreenTest {
         composeTestRule.onNodeWithContentDescription(editLabel).assertIsDisplayed()
     }
 
+    // v2.30.0(#215)에서 아웃라인은 "노트 정보" 시트를 떠나 자기 화면으로 갔다.
+    // 그래서 시트와 아웃라인을 각각 확인한다 — 하나였던 이 테스트는 그때
+    // 깨졌고, `com.markleaf.notes.ui` 가 통째로 제외돼 있어서 아무도 못 봤다(#239).
     @Test
-    fun editorScreen_noteInformationNavigatesOutlineFromEditMode() {
+    fun editorScreen_noteInformationShowsStatisticsAndBacklinks() {
         launchEditor()
         val editor = composeTestRule.onNodeWithContentDescription(context.getString(R.string.note_content))
 
@@ -109,11 +112,27 @@ class EditorScreenTest {
         composeTestRule.onNodeWithContentDescription(context.getString(R.string.note_information)).performClick()
 
         composeTestRule.onNodeWithText(context.getString(R.string.note_statistics)).assertIsDisplayed()
-        composeTestRule.onNodeWithText(context.getString(R.string.table_of_contents)).assertIsDisplayed()
         composeTestRule.onNodeWithText(context.getString(R.string.backlinks_section_title)).assertIsDisplayed()
+    }
+
+    @Test
+    fun editorScreen_outlineHeadingKeepsYouInTheEditor() {
+        launchEditor()
+        val editor = composeTestRule.onNodeWithContentDescription(context.getString(R.string.note_content))
+
+        editor.performTextInput("# Overview\n\nBody")
+        composeTestRule.onNodeWithContentDescription(context.getString(R.string.table_of_contents)).performClick()
+
+        composeTestRule.onNodeWithText(context.getString(R.string.table_of_contents)).assertIsDisplayed()
         composeTestRule.onNodeWithText("Overview").performClick()
 
-        composeTestRule.onNodeWithContentDescription(context.getString(R.string.edit)).assertIsDisplayed()
+        // #215 의 계약: 편집 중 헤딩을 누르면 작성 중인 것을 버리고 읽기 모드로
+        // 넘어가는 대신 에디터에 남는다. 그래서 토글은 여전히 "미리보기"를
+        // 가리킨다 — "편집"을 가리키면 프리뷰로 넘어갔다는 뜻이고, 그게 #215
+        // 이전의 동작이다.
+        composeTestRule.onNodeWithText(context.getString(R.string.table_of_contents)).assertDoesNotExist()
+        composeTestRule.onNodeWithContentDescription(context.getString(R.string.note_content)).assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription(context.getString(R.string.preview)).assertIsDisplayed()
     }
 
     @Test

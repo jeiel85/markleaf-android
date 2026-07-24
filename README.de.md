@@ -41,6 +41,14 @@
   <sub><code>/</code> Schnelleinfügen → reines Markdown → Live-Vorschau</sub>
 </p>
 
+<p align="center">
+  <img src="docs/assets/markleaf-tablet-de.gif" width="760" alt="Markleaf auf einem Tablet: Tag-Leiste, Notizliste und Editor teilen sich einen Bildschirm, während eine Tabelle, eine Checkliste und ein Hinweis getippt werden und die Vorschau sie rendert" />
+</p>
+
+<p align="center">
+  <sub>Tablet mit 3 Spalten — Tag-Leiste · Notizliste · Editor auf einem Bildschirm</sub>
+</p>
+
 ---
 
 ## 🍃 Was ist Markleaf?

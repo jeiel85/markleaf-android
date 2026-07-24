@@ -41,6 +41,14 @@
   <sub><code>/</code> クイック挿入 → 標準 Markdown → ライブプレビュー</sub>
 </p>
 
+<p align="center">
+  <img src="docs/assets/markleaf-tablet-ja.gif" width="760" alt="タブレットの Markleaf: タグレール・ノート一覧・エディタが一画面に並び、表やチェックリスト、コールアウトを入力するとプレビューがそのまま描画します" />
+</p>
+
+<p align="center">
+  <sub>タブレット3ペイン — タグレール · ノート一覧 · エディタが一画面に</sub>
+</p>
+
 ---
 
 ## 🍃 Markleaf とは?

@@ -41,6 +41,14 @@
   <sub><code>/</code> quick insert → plain Markdown → live preview</sub>
 </p>
 
+<p align="center">
+  <img src="docs/assets/markleaf-tablet-en.gif" width="760" alt="Markleaf on a tablet: the tag rail, note list and editor share one screen while a Markdown table, checklist and callout are typed, and the preview renders them" />
+</p>
+
+<p align="center">
+  <sub>Tablet 3-pane — tag rail · note list · editor on one screen</sub>
+</p>
+
 ---
 
 ## 🍃 What is Markleaf?

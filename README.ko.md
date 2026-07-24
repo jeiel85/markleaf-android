@@ -41,6 +41,14 @@
   <sub><code>/</code> 빠른 삽입 → 표준 Markdown → 실시간 미리보기</sub>
 </p>
 
+<p align="center">
+  <img src="docs/assets/markleaf-tablet-ko.gif" width="760" alt="태블릿의 Markleaf: 태그 레일·노트 목록·편집기가 한 화면에 놓인 채 표와 체크리스트, 콜아웃을 입력하면 미리보기가 그대로 렌더링합니다" />
+</p>
+
+<p align="center">
+  <sub>태블릿 3분할 — 태그 레일 · 노트 목록 · 편집기가 한 화면에</sub>
+</p>
+
 ---
 
 ## 🍃 Markleaf란?

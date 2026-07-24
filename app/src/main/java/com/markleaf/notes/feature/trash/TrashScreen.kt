@@ -47,6 +47,7 @@ import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
+import com.markleaf.notes.data.sync.mirrorMetadata
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.ui.viewmodel.TrashViewModel
 import com.markleaf.notes.util.AttachmentManager
@@ -176,7 +177,9 @@ fun TrashScreen(
                         appSettings.syncFolderUriOrNull()?.let { uri ->
                             scope.launch {
                                 withContext(Dispatchers.IO) {
-                                    NoteFolderMirror.deleteNote(context, uri, note.id)
+                                    NoteFolderMirror.deleteNote(
+                                        context, uri, note.id, appSettings.mirrorMetadata()
+                                    )
                                 }
                             }
                         }

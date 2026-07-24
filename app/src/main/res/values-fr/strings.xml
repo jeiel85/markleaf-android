@@ -210,6 +210,12 @@
     <string name="sync_status_folder_format">Dossier : %1$s</string>
     <string name="sync_status_last_synced_format">Dernière synchronisation : %1$s</string>
     <string name="sync_status_last_synced_never">Dernière synchronisation : jamais</string>
+    <string name="sync_metadata_mode">Métadonnées des notes</string>
+    <string name="sync_metadata_mode_frontmatter">Dans le fichier</string>
+    <string name="sync_metadata_mode_sidecar">À côté des fichiers</string>
+    <string name="sync_metadata_mode_description">Markleaf doit savoir quel fichier correspond à quelle note. Par défaut, il écrit un petit en-tête `---` en haut de chaque fichier. « À côté des fichiers » place cette information dans un index masqué, pour que vos notes ne contiennent que ce que vous avez écrit.</string>
+    <string name="sync_metadata_sidecar_costs">Contreparties : renommer un fichier hors de Markleaf peut rompre son lien avec la note, et un dossier copié sans son index perd la date de création et l’épinglage de chaque note.</string>
+    <string name="sync_metadata_switched_format">%1$d fichiers convertis.</string>
     <string name="sync_behavior_summary">· Sauvegarde dans le dossier ~1 seconde après chaque modification.\n· \"Synchroniser maintenant\" récupère les modifications des autres appareils.\n· Conflits : la modification la plus récente l\'emporte.\n· Les suppressions ne sont pas synchronisées — gérez la corbeille sur chaque appareil.</string>
     <string name="sync_pick_folder">Choisir le dossier de synchronisation</string>
     <string name="sync_change_folder">Changer de dossier</string>

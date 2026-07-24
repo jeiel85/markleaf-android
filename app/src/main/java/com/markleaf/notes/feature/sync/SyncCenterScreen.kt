@@ -34,6 +34,7 @@ import com.markleaf.notes.data.settings.SyncFileExtension
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.NoteImporter
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
+import com.markleaf.notes.data.sync.mirrorMetadata
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.ui.viewmodel.SyncCenterViewModel
 import com.markleaf.notes.util.HapticFeedback
@@ -88,7 +89,8 @@ fun SyncCenterScreen(
                             context,
                             folderUri,
                             note,
-                            appSettings.syncFileExtension
+                            appSettings.syncFileExtension,
+                            appSettings.mirrorMetadata()
                         ) { stamped -> noteRepository.updateNote(stamped) }
                         if (wrote) written++
                     }
@@ -226,7 +228,8 @@ fun SyncCenterScreen(
                                                     },
                                                     applyCreate = { created ->
                                                         noteImporter.create(created)
-                                                    }
+                                                    },
+                                                    metadata = appSettings.mirrorMetadata()
                                                 )
                                             }
                                             settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())
@@ -475,7 +478,9 @@ fun SyncCenterScreen(
                             appSettings.syncFolderUriOrNull()?.let { uri ->
                                 scope.launch {
                                     withContext(Dispatchers.IO) {
-                                        NoteFolderMirror.deleteNote(context, uri, note.id)
+                                        NoteFolderMirror.deleteNote(
+                                            context, uri, note.id, appSettings.mirrorMetadata()
+                                        )
                                     }
                                 }
                             }

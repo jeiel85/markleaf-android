@@ -64,9 +64,12 @@ import com.markleaf.notes.data.settings.EditorFont
 import com.markleaf.notes.data.settings.EditorLineWidth
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import com.markleaf.notes.data.settings.OpenNotesAt
+import com.markleaf.notes.data.settings.SyncMetadataMode
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.NoteImporter
+import com.markleaf.notes.data.sync.SidecarMigration
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
+import com.markleaf.notes.data.sync.mirrorMetadata
 import com.markleaf.notes.feature.lock.canUseBiometric
 import com.markleaf.notes.util.ExportAllNotes
 import com.markleaf.notes.util.HapticFeedback
@@ -88,6 +91,10 @@ fun SettingsScreen(
     val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
     val noteRepository = remember { LocalNoteRepository(AppDatabase.getInstance(context.applicationContext)) }
     val noteImporter = remember { NoteImporter(AppDatabase.getInstance(context.applicationContext)) }
+    // Switching metadata mode rewrites every file in the folder. Disabling the
+    // control while it runs stops a second switch starting on top of the first,
+    // which would have two passes rewriting the same files.
+    var metadataSwitchBusy by remember { mutableStateOf(false) }
     val exportAllLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocumentTree()
     ) { folderUri ->
@@ -131,7 +138,8 @@ fun SettingsScreen(
                             context,
                             folderUri,
                             note,
-                            appSettings.syncFileExtension
+                            appSettings.syncFileExtension,
+                            appSettings.mirrorMetadata()
                         ) { stamped -> noteRepository.updateNote(stamped) }
                         if (wrote) written++
                     }
@@ -448,6 +456,45 @@ fun SettingsScreen(
                     SyncSection(
                         folderUri = appSettings.syncFolderUri,
                         lastSyncedAt = appSettings.syncLastSyncedAt,
+                        metadataMode = appSettings.syncMetadataMode,
+                        metadataBusy = metadataSwitchBusy,
+                        onMetadataModeChange = { mode ->
+                            val uri = appSettings.syncFolderUriOrNull()
+                                ?: return@SyncSection
+                            if (mode == appSettings.syncMetadataMode) return@SyncSection
+                            scope.launch {
+                                metadataSwitchBusy = true
+                                // Convert the folder before flipping the setting.
+                                // The other order would leave a window where the
+                                // mode says "no headers" while every file still
+                                // has one — and an import landing in that window
+                                // would read each header as note text.
+                                val result = withContext(Dispatchers.IO) {
+                                    val deviceId = settingsRepository.getOrCreateSyncDeviceId()
+                                    when (mode) {
+                                        SyncMetadataMode.SIDECAR ->
+                                            SidecarMigration.toSidecar(context, uri, deviceId)
+                                        SyncMetadataMode.FRONTMATTER ->
+                                            SidecarMigration.toFrontmatter(
+                                                context,
+                                                uri,
+                                                deviceId,
+                                                noteRepository.getAllNotes()
+                                            )
+                                    }
+                                }
+                                settingsRepository.setSyncMetadataMode(mode)
+                                metadataSwitchBusy = false
+                                Toast.makeText(
+                                    context,
+                                    context.getString(
+                                        R.string.sync_metadata_switched_format,
+                                        result.converted
+                                    ),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        },
                         onPickFolder = { syncFolderLauncher.launch(null) },
                         onSyncNow = {
                             val uri = appSettings.syncFolderUriOrNull() ?: return@SyncSection
@@ -467,7 +514,8 @@ fun SettingsScreen(
                                         },
                                         applyCreate = { created ->
                                             noteImporter.create(created)
-                                        }
+                                        },
+                                        metadata = appSettings.mirrorMetadata()
                                     )
                                 }
                                 settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())
@@ -579,6 +627,9 @@ fun SettingsScreen(
 private fun SyncSection(
     folderUri: String?,
     lastSyncedAt: Long?,
+    metadataMode: SyncMetadataMode,
+    metadataBusy: Boolean,
+    onMetadataModeChange: (SyncMetadataMode) -> Unit,
     onPickFolder: () -> Unit,
     onSyncNow: () -> Unit,
     onStopSync: () -> Unit,
@@ -658,6 +709,47 @@ private fun SyncSection(
                 }
             }
         }
+        if (!folderUri.isNullOrBlank()) {
+            Spacer(Modifier.height(16.dp))
+            Text(
+                text = stringResource(R.string.sync_metadata_mode),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Spacer(Modifier.height(8.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                SyncMetadataMode.entries.forEach { mode ->
+                    val selected = metadataMode == mode
+                    if (selected) {
+                        Button(onClick = {}, enabled = !metadataBusy) {
+                            Text(mode.localizedLabel())
+                        }
+                    } else {
+                        OutlinedButton(
+                            onClick = { onMetadataModeChange(mode) },
+                            enabled = !metadataBusy
+                        ) {
+                            Text(mode.localizedLabel())
+                        }
+                    }
+                }
+            }
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = stringResource(R.string.sync_metadata_mode_description),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            if (metadataMode == SyncMetadataMode.SIDECAR) {
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    text = stringResource(R.string.sync_metadata_sidecar_costs),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
         Spacer(Modifier.height(12.dp))
         Button(
             onClick = onSyncCenterClick,
@@ -665,6 +757,14 @@ private fun SyncSection(
         ) {
             Text(stringResource(R.string.sync_center_title))
         }
+    }
+}
+
+@Composable
+private fun SyncMetadataMode.localizedLabel(): String {
+    return when (this) {
+        SyncMetadataMode.FRONTMATTER -> stringResource(R.string.sync_metadata_mode_frontmatter)
+        SyncMetadataMode.SIDECAR -> stringResource(R.string.sync_metadata_mode_sidecar)
     }
 }
 

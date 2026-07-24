@@ -210,6 +210,12 @@
     <string name="sync_status_folder_format">Carpeta: %1$s</string>
     <string name="sync_status_last_synced_format">Última sincronización: %1$s</string>
     <string name="sync_status_last_synced_never">Última sincronización: nunca</string>
+    <string name="sync_metadata_mode">Metadatos de las notas</string>
+    <string name="sync_metadata_mode_frontmatter">En el archivo</string>
+    <string name="sync_metadata_mode_sidecar">Junto a los archivos</string>
+    <string name="sync_metadata_mode_description">Markleaf necesita saber qué archivo corresponde a cada nota. De forma predeterminada escribe una pequeña cabecera `---` al principio de cada archivo. «Junto a los archivos» guarda esa información en un índice oculto, para que tus notas contengan solo lo que escribiste.</string>
+    <string name="sync_metadata_sidecar_costs">Contrapartidas: renombrar un archivo fuera de Markleaf puede romper su vínculo con la nota, y una carpeta copiada sin su índice pierde la fecha de creación y el anclaje de cada nota.</string>
+    <string name="sync_metadata_switched_format">%1$d archivos convertidos.</string>
     <string name="sync_behavior_summary">· Guarda en la carpeta ~1 segundo después de cada edición.\n· \"Sincronizar ahora\" trae los cambios de otros dispositivos.\n· Conflictos: gana la edición más reciente.\n· Los borrados no se sincronizan — gestiona la papelera en cada dispositivo.</string>
     <string name="sync_pick_folder">Elegir carpeta de sincronización</string>
     <string name="sync_change_folder">Cambiar carpeta</string>

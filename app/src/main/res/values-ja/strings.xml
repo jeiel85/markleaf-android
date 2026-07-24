@@ -207,6 +207,12 @@
     <string name="sync_status_folder_format">フォルダ: %1$s</string>
     <string name="sync_status_last_synced_format">最終同期: %1$s</string>
     <string name="sync_status_last_synced_never">最終同期: なし</string>
+    <string name="sync_metadata_mode">ノートのメタデータ</string>
+    <string name="sync_metadata_mode_frontmatter">ファイル内</string>
+    <string name="sync_metadata_mode_sidecar">ファイルの隣</string>
+    <string name="sync_metadata_mode_description">Markleaf はどのファイルがどのノートかを知る必要があります。既定では各ファイルの先頭に小さな `---` ヘッダーを書きます。「ファイルの隣」を選ぶとその情報を隠し索引に置くので、ノートには書いた内容だけが残ります。</string>
+    <string name="sync_metadata_sidecar_costs">注意点: Markleaf の外でファイル名を変更するとノートとの対応が切れることがあり、索引なしでフォルダーだけを複製すると各ノートの作成日とピン留め状態が失われます。</string>
+    <string name="sync_metadata_switched_format">%1$d 件のファイルを変換しました。</string>
     <string name="sync_behavior_summary">· 編集の約 1 秒後にフォルダへ保存します。\n· 「今すぐ同期」で他端末の変更を取り込みます。\n· 競合: 最新の編集を優先します。\n· 削除は同期されません — ゴミ箱は各端末で個別に管理してください。</string>
     <string name="sync_pick_folder">同期フォルダを選択</string>
     <string name="sync_change_folder">フォルダを変更</string>

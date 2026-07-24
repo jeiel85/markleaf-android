@@ -98,6 +98,7 @@ import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import com.markleaf.notes.data.settings.OpenNotesAt
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
+import com.markleaf.notes.data.sync.mirrorMetadata
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.util.AttachmentManager
 import com.markleaf.notes.util.ExportUtil
@@ -384,7 +385,13 @@ fun EditorScreen(
                     // text (#155). Removing the lock re-includes it on the next save.
                     if (!updatedNote.locked) {
                         val ok = withContext(Dispatchers.IO) {
-                            val wrote = NoteFolderMirror.writeNote(context, uri, updatedNote, appSettings.syncFileExtension)
+                            val wrote = NoteFolderMirror.writeNote(
+                                context,
+                                uri,
+                                updatedNote,
+                                appSettings.syncFileExtension,
+                                appSettings.mirrorMetadata()
+                            )
                             if (wrote) {
                                 val attachments = AttachmentManager.filesForNote(context, noteId)
                                 if (attachments.isNotEmpty()) {

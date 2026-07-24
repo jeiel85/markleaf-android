@@ -385,10 +385,19 @@ jobs:
           ' CHANGELOG.md > release-notes.md
           test -s release-notes.md
 
+      # Idempotent so the job can be re-run. The GitLab publish below can fail
+      # for reasons that are fixed outside this workflow — a token scope, a tag
+      # not yet on GitLab — and the fix is "re-run the job". `gh release create`
+      # fails on an existing release, so without this the re-run would die here
+      # and never reach the step that actually needed retrying.
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "GitHub release $GITHUB_REF_NAME already exists; leaving it untouched."
+            exit 0
+          fi
           gh release create "$GITHUB_REF_NAME" \
             "markleaf-${GITHUB_REF_NAME}.apk" \
             --repo "$GITHUB_REPOSITORY" \

@@ -110,6 +110,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.ceil
@@ -316,7 +317,16 @@ fun EditorScreen(
             // snapshot, which starts on the default before DataStore emits) so
             // an existing note honours "open notes in preview" on its very first
             // frame instead of flashing edit (#200). New notes stay in edit.
-            val persistedSettings = settingsRepository.settings.first()
+            //
+            // Bounded, because this suspends before the note is shown at all: a
+            // DataStore read that never returns would hang note-open with no
+            // way out, and the whole point of reading it here is a detail of
+            // which mode the note opens in (#204). Falling back to the defaults
+            // opens in edit at the top, which is the safe answer — it shows the
+            // note and puts the caret somewhere harmless.
+            val persistedSettings =
+                withTimeoutOrNull(SETTINGS_READ_TIMEOUT_MS) { settingsRepository.settings.first() }
+                    ?: AppSettings()
             val openInPreview = persistedSettings.openNotesInPreview
             val loadedNote = repo.getNote(noteId)
             val content = loadedNote?.contentMarkdown.orEmpty()
@@ -346,12 +356,7 @@ fun EditorScreen(
                 OpenNotesAt.LAST_POSITION ->
                     lastPosition?.let { PreviewScrollRequest(it.previewIndex, animate = false) }
             }
-            // Only land in preview when there is something to preview. A
-            // brand-new note is created first and then opened with a real id
-            // (the FAB path in MarkleafNavHost), so `noteId != null` alone would
-            // drop an empty note into preview with no editor/IME — honour "new
-            // notes still open for editing" by gating on content (#200).
-            isPreviewMode = openInPreview && content.isNotEmpty()
+            isPreviewMode = opensInPreview(openInPreview, content)
             shouldRequestEditorFocus = content.isEmpty()
             isLoaded = true
             // Remember this note as the launch target for the opt-in
@@ -1131,6 +1136,32 @@ private const val MAX_TAG_SUGGESTIONS = 8
  * short enough that putting the phone down mid-note records where you were.
  */
 private const val POSITION_WRITE_DEBOUNCE_MS = 1_000L
+
+/**
+ * How long the note-open path waits for DataStore before opening on defaults.
+ *
+ * Generous rather than tight: the read normally completes in milliseconds, and
+ * a device slow enough to need a second is a device where opening on the wrong
+ * mode is worse than waiting. This is a stuck-forever guard, not a latency
+ * budget (#204).
+ */
+private const val SETTINGS_READ_TIMEOUT_MS = 2_000L
+
+/**
+ * Whether a note opens in preview: only when the setting is on *and* the note
+ * has something to preview.
+ *
+ * The content check is not a nicety. A brand-new note is created first and then
+ * opened with a real id (the FAB path in `MarkleafNavHost`), so the id alone
+ * cannot tell a new note from an existing one — without this an empty note
+ * would land in preview with no editor and no keyboard, and "new notes still
+ * open for editing" would be broken (#200).
+ *
+ * Extracted so that rule has a test rather than living only in a load effect
+ * that needs a device to exercise (#204).
+ */
+internal fun opensInPreview(openNotesInPreview: Boolean, content: String): Boolean =
+    openNotesInPreview && content.isNotEmpty()
 
 /**
  * A preview scroll waiting for the preview to be built. [animate] separates the

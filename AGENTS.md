@@ -149,12 +149,14 @@ GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
    남기고 `pwsh scripts/verify-release-export.ps1`로 확인한다 — `D:\Build`는 CI가 볼 수 없는
    로컬 경로라 이 단계가 빠져도 아무것도 실패하지 않으며, 실제로 v2.27.2부터 v2.29.0까지
    여섯 릴리스가 AAB·mapping 없이 지나갔다(#247). 그다음 `vX.Y.Z` 태그를 GitLab 먼저,
-   GitHub 다음으로 푸시한다. 같은 태그가 양쪽에서
-   독립적으로 서명 빌드를 돌리지만 **릴리스에 붙는 자산은 다르다** — GitHub Release는 APK
-   하나만, GitLab Release는 Generic Package Registry를 통해 AAB와 mapping까지 포함한다
+   GitHub 다음으로 푸시한다. **릴리스에 붙는 자산은 양쪽이 다르다** — GitHub Release는
+   APK 하나만, GitLab Release는 Generic Package Registry를 통해 AAB와 mapping까지 포함한다
    (AAB를 GitHub에 올리지 않는 이유는 D062, mapping을 빼고 30일 아티팩트로만 두는 이유는
-   D064). GitHub 태그는 F-Droid 자동 픽업도 발동하므로
-   별도 F-Droid 제출 단계는 없다.
+   D064). 단 **GitLab Release를 만드는 주체는 이제 GitHub 태그 잡이다**(#252) —
+   GitLab CI 무료 분이 소진돼 태그 파이프라인이 `ci_quota_exceeded`로 죽으면서 여덟
+   릴리스가 미러되지 않았고, Packages·Releases API는 CI 분을 쓰지 않으므로 GitHub
+   러너에서 올린다. GitLab 태그를 먼저 미는 순서는 그대로다(잡이 태그 존재를 확인한다).
+   GitHub 태그는 F-Droid 자동 픽업도 발동하므로 별도 F-Droid 제출 단계는 없다.
    릴리스 커밋은 `git add -A`로 만들지 않는다 — 변경 파일을 명시적으로 stage하거나 커밋 전
    working tree가 릴리스 대상만 담고 있는지 확인한다(무관한 작업이 태그에 섞여 나가는 것을
    막기 위함, v2.24.0에서 landing-i18n 유입 사고 → #154).

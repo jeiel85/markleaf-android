@@ -1,3 +1,58 @@
+## 2026-07-24 - Sidecar metadata index, localised sync labels, and v2.31.0 (#216, #255)
+
+- Trigger: #216 asked why Markleaf writes its own bookkeeping into the note file itself. #255, the hardening list filed alongside v2.30.0, carried a settings-snapshot coverage item, and covering it is what surfaced the hardcoded Korean relative-time labels.
+- Analysis: the `markleaf_id` header is what links a file to its note, so removing it from the file needs somewhere else to hold the link — and that somewhere has to survive a folder copied by hand. On the i18n side, Settings and the Sync Center both built the "last synced" label out of Korean literals, so every non-Korean device read `Last synced: 3시간 전`; the Conflict Center's `Updated:` prefix was the same defect in English.
+- Contract/scope: (#216) an opt-in **Settings → Multi-device sync → Note metadata** choice between the existing `---` header and a hidden index file, converting the whole folder in either direction without altering note text, with the header remaining the default. (#255) the relative-time labels and the `Updated:` prefix move into the translations with Korean output unchanged, plus Roborazzi coverage for the settings rows that sit below the fold.
+- Implementation: sidecar index in PR #256; below-the-fold settings coverage in PR #259, goldens recorded on the Linux runner rather than locally; relative-time localisation in PR #260. PR #257 — per-language tablet demo GIFs on README and the six landing pages — is docs-only and rides this tag without a changelog line.
+- Verification: each merged through the required `build` gate on protected `main`. The two trade-offs of the sidecar option are documented rather than fixed: a file renamed outside Markleaf can lose its link to the note, and a folder copied without its index loses each note's created date and pinned state. The header stays the default because of them.
+- Release: versionCode 120→121, versionName 2.30.0→2.31.0 (PR #261), CHANGELOG both editions, six store-locale `121.txt`, landing x6 + README x6. Hardening candidates filed as #262.
+- Record: reconstructed from the tag range, its PRs and CHANGELOG under #264; it was not logged at release time.
+
+## 2026-07-23 - Note outline screen, open-notes-at, and v2.30.0 (#214, #215)
+
+- Trigger: one conversation about notes that have grown long produced both issues — #215 wanted a heading outline worth browsing, #214 wanted a note to open somewhere other than the top.
+- Analysis: the outline already existed, but as a section inside the "Note information" sheet sharing one scroll with the statistics and the backlinks — so on exactly the long notes that need an outline it got whatever height was left. It also varied both size and indentation per level, which read as noise rather than structure, and tapping a heading while editing flipped the note into reading view to scroll there, discarding whatever was in progress.
+- Contract/scope: (#215) the outline becomes a full screen reached from its own editor top-bar button rather than from under "information"; every entry drawn at one size with indentation as the only level cue; tapping a heading while editing moves the cursor and leaves you in the editor. (#214) **Settings → Notes & search → Open notes at** offering Top (default), Bottom, or Where I left off — the remembered position living in the app's own database, never written into the user's files, and recorded only while that option is selected; plus a jump-to-the-other-end button on notes past about forty lines, in both editor and reading view, independent of the setting.
+- Implementation: outline screen in PR #251, with its Roborazzi goldens recorded on the Linux runner; open-notes-at in PR #253.
+- Release: versionCode 119→120, versionName 2.29.1→2.30.0 (PR #254), CHANGELOG both editions, six store-locale `120.txt`, landing x6 + README x6. Hardening candidates filed as #255.
+- Record: reconstructed from the tag range, its PRs and CHANGELOG under #264; it was not logged at release time.
+
+## 2026-07-23 - Indented frontmatter rule, CI hardening, and v2.29.1 (#234, #235, #241)
+
+- Trigger: #234 reported a metadata header holding an indented `---`. Alongside it, the hardening backlog carried the instrumented suite (#235), the Gradle wrapper (#241) and CI artifact retention.
+- Analysis: Markleaf ended a header at the first line reading `---`, including one indented inside a multi-line value — the shape Obsidian and similar tools use for a long description. Everything below it up to the real closing line was read as note text, so entries that came after (such as `tags`) never registered as metadata and a stray `---` was pasted into the note. The next sync wrote that arrangement to the file and the pass after read the mangled result back, so it worsened with every save.
+- Contract/scope: end the header only on a line that starts at the left margin, with a header written with a trailing space still closing as before (PR #249). Separately: navigate on the main thread after a suspend point and make the instrumented tests a written local gate rather than a hope (#235); regenerate the Gradle wrapper at 8.9 and document how to verify it (#241); cap debug APK artifact retention at 7 days (PR #243); drop the R8 mapping from the Release and cap retention there too (PR #244); make the local export a required, verified pre-tag step (PR #248).
+- Implementation: the instrumented-test CI work went through several shapes before landing — the job was split out of its original PR, the emulator made to answer before Gradle is handed control, the test filter passed through `gradle.properties`, and the run moved out of a folded YAML scalar into a script.
+- Release: versionCode 118→119, versionName 2.29.0→2.29.1 (PR #250), CHANGELOG both editions, six store-locale `119.txt`, landing x6 + README x6. Hardening candidates filed as #252.
+- Record: reconstructed from the tag range, its PRs and CHANGELOG under #264; it was not logged at release time.
+
+## 2026-07-23 - Tappable preview checkboxes, the frontmatter round-trip, and v2.29.0 (#219, #222, #226)
+
+- Trigger: #219 asked for a checkbox in reading view that actually toggles. #222, the hardening list from v2.28.2, drove three sync corrections. #226 reported multi-line frontmatter from other tools being lost on a mirror round-trip.
+- Analysis: `---` opens a Markdown horizontal rule as readily as it opens a metadata header, so a note whose body began with a rule and carried a second one further down had everything between them read as a header and dropped on the next sync, with nothing to warn the user. Frontmatter preservation only held for entries that fit on one line, so the indented list Obsidian writes tags in by default was read as an empty key and its items erased on the first save. Conflict resolution was recorded by bumping the note's `updatedAt`, which pushed an untouched note to the top of the recently-updated list. And every auto-save located the note's file by opening each file in the sync folder in turn to read its header — at a few hundred notes, most of what a save cost.
+- Contract/scope: the checkbox becomes the control in preview, with only the box responding so press-and-hold text selection still works (PR #236); check whether what sits between two `---` lines actually looks like metadata before treating it as one (PR #228); carry unrecognised frontmatter back out exactly as found, nested entries, comments and quoting included (PR #231); settle conflicts with `remoteSeenAt` instead of moving `updatedAt` (PR #229); remember which document holds each note so a save goes straight to it (PR #232).
+- Implementation: the #226 frontmatter fix was merged into the mirror-cache work rather than shipped on its own, and the mirror's real folder IO gained an instrumented test covering it (PR #230). PR #225 added a "bring your own folder" story to all six landing pages and narrowed the frontmatter-preservation claim to what the parser can actually do.
+- Release: versionCode 117→118, versionName 2.28.3→2.29.0 (PR #237), CHANGELOG both editions, six store-locale `118.txt`, landing x6 + README x6. Hardening candidates filed as #240.
+- Record: reconstructed from the tag range, its PRs and CHANGELOG under #264; it was not logged at release time.
+
+## 2026-07-23 - The long-header adoption regression, and v2.28.3 (#222)
+
+- Trigger: a follow-up to v2.28.2, for a case that release made worse.
+- Analysis: Markleaf reads the beginning of each file in the sync folder to work out which note it belongs to. A file whose metadata header ran past that read cap looked exactly like a file with no header at all — and the "adopt the file that already carries this note's name" behaviour added in v2.28.2 could then claim it and rewrite it, discarding a header Markleaf had never read. Headers of the size Markleaf itself writes were never affected; this only reached files carrying a large header from another tool.
+- Contract/scope: keep reading while a header is still open, and if the end still cannot be found, leave the file alone rather than claiming it — falling back to writing a separate file, as it did before v2.28.2 (PR #224).
+- Implementation: PR #224. PR #223, which documents in the READMEs what the folder mirror does with an existing Markdown vault, is docs-only and rides the same tag.
+- Release: versionCode 116→117, versionName 2.28.2→2.28.3 (PR #227), CHANGELOG both editions, six store-locale `117.txt`, landing x6 + README x6.
+- Record: reconstructed from the tag range, its PRs and CHANGELOG under #264; it was not logged at release time.
+
+## 2026-07-23 - Sync stops forking files, and v2.28.2 (#213, #217)
+
+- Trigger: #213, reported by [@Cwpute](https://github.com/Cwpute) — notes getting saved several times — and the four related sync defects the investigation turned up, tracked as #217.
+- Analysis: a note's mirror file is found by the `markleaf_id` in its frontmatter. If another app rewrote the file without keeping that block, or simply wrote a byte-order mark in front of it, the link broke and every auto-save from then on created another `<title> (2).md`, `(3).md`, and so on. The same investigation found four more: a conflict re-resolved once a minute indefinitely because neither side was marked handled; conflict copies labelled in hardcoded Korean because the Sync Center detected them by matching that exact Korean text; edits made in another app invisible because only the frontmatter timestamp was compared; and seeding the sync folder skipping a bookkeeping step only the editor performed, which left those notes permanently looking edited-since-last-sync.
+- Contract/scope: read past a byte-order mark; adopt the existing file that already carries the note's name instead of forking a copy; record the conflict as handled; detect conflict copies with a stored flag so the label can be translated, while copies from older versions still show up; use the file's modification time when the content genuinely differs and deliberately ignore it when it does not, so a sync client re-downloading a file cannot trigger a storm; and perform the editor's bookkeeping step on every seeding path. The notes database gains one internal column.
+- Implementation: the sync fix landed via PR #220 (`45688de`). Also carried by this tag: the landing-overflow gate and the GitLab CI decision — PR #211 retired `.gitlab-ci.yml`, PR #212 restored it behind a `SKIP_GITLAB_CI` switch — quick-insert demo GIFs on all six READMEs (PR #218), and a CHANGELOG pointer to GitHub Discussions (PR #210).
+- Release: versionCode 115→116, versionName 2.28.1→2.28.2 (PR #221), CHANGELOG both editions, six store-locale `116.txt`, landing x6 + README x6. Hardening candidates filed as #222.
+- Record: reconstructed from the tag range, its PRs and CHANGELOG under #264; it was not logged at release time.
+
 ## 2026-07-22 - Unlock keeps the chosen file extension, and v2.28.1 (#181)
 
 - Trigger: After sweeping the open-issue backlog, the user asked to fix #181 (a real bug) and then to ship it as a v2.28.1 patch.
@@ -18,6 +73,16 @@
 - Issues: swept closed issues with a non-maintainer last comment — #138 (tag filter over-match) confirmed already fixed by v2.27.0's `searchNotesByTag` membership join and answered; #134 (title-from-first-line) answered; #155/#139 acknowledged; #146 reopened with an apology and the fix; #200 answered in the accept-and-explain pattern. Hardening candidates filed as #204.
 - Release: versionCode 113→114, versionName 2.27.2→2.28.0, CHANGELOG both editions, six store-locale `114.txt` (all <500 chars; en/de trimmed below the 450 warning), landing x6 + README x6.
 
+## 2026-07-21 - Tappable links in table cells, and v2.27.2 (#197)
+
+- Trigger: #197, a reader report that a link inside a Markdown table cell did nothing when tapped.
+- Analysis: the table renderer dropped the link's destination at parse time and drew every cell as a non-clickable string, so a link in a cell rendered as plain text. The table-cell path had no test coverage of its own.
+- Contract/scope: a link in a table cell is tappable in the preview exactly like a link in body text, and inline styles (bold, italic, code, strikethrough) and `[[wiki-links]]` inside cells render and behave the same as elsewhere.
+- Implementation: PR #198 — the parse and render path across `CommonMarkPreviewAdapter`, `SimpleMarkdownPreview` and `MarkdownPreviewList`.
+- Verification: a parser unit test, a Compose click-interaction test, and a new visual golden covering the table-cell link path that previously had none; the golden was recorded on the Linux runner (`dc30c22`) rather than locally.
+- Release: versionCode 112→113, versionName 2.27.1→2.27.2, CHANGELOG both editions, six store-locale `113.txt`, landing x6 + README x6 — bundled into the same commit as the fix (`06ba57c`) rather than a separate release commit.
+- Record: reconstructed from the tag range, its PR and CHANGELOG under #264; it was not logged at release time.
+
 ## 2026-07-21 - Hardening Backlog Sweep and v2.27.1 (#154, #158, #167, #184, #195)
 
 - Trigger: The user asked to work through the unchecked items across the six open hardening-candidate issues.
@@ -37,6 +102,26 @@
 - Verification: `testDebugUnitTest` and `lintRelease` BUILD SUCCESSFUL (new tests: 6 sort cases, 5 search quick-access cases, settings defaults). Roborazzi re-record not needed — no preview/typography rendering changed.
 - Device verification (markleaf-tablet-api36 AVD; no physical device connected): sort menu shows check on active mode, Title A-Z flattens sections with Pinned kept on top; title-only rows in list and search; search opens focused (typed straight into the field), recent notes before typing, Everything vs Titles-only verified with "mirror" (3 notes + tag vs 1 note + tag); reopen-last-note proved with `am force-stop` + relaunch landing in the last note's editor. Debug APK uninstalled after.
 - Release: versionCode 110→111, versionName 2.26.2→2.27.0, CHANGELOG both editions, six store-locale `111.txt` (all <500 chars), landing x6 and README x6 version strings.
+
+## 2026-07-20 - Terminology consistency and release-verification guards, and v2.26.2
+
+- Trigger: wording had drifted across the five translated languages, and two consecutive releases had shipped with stale public version strings — the existing check only compared the languages to each other, so six equally-outdated numbers passed.
+- Analysis: twenty-four strings named one concept two ways inside a single screen or broke a convention the rest of the file kept (Korean calling the Conflict Center an "archive", German "unpin" sharing no stem with "pin", Japanese mixing half- and full-width question marks). The version-string hole was structural, not a slip: parity between locales cannot catch a value that is wrong in all of them.
+- Contract/scope: settle the twenty-four strings in ko/fr/de/ja/es; add a CI check comparing the six landing pages and six READMEs against the app's own `versionName` (not just against each other); add a check that all six store changelogs exist for the build, fit the 500-character store limit, and agree across the English and Korean editions on version, order and date. Plus: document what the Locked space protects and does not (bodies are not encrypted; the retry delay is cleared by moving the device clock), with the leave-it-as-is reasoning recorded as a decision; and consolidate nine copies of the "is sync configured and does the stored URI still parse" check into one helper.
+- Implementation: terminology in PR #182; the two release guards in PR #178; the sync-folder URI helper in PR #179 (which surfaced the one call site carrying an extra condition — the editor refuses to mirror a locked note); the Locked threat model in PR #180. This tag also carries the mirror infrastructure — automatic main→GitLab mirror-push (PR #177), a daily mirror check (PR #175), `verify-mirror` gating on real divergence with a `-MirrorOnly` mode for CI (PRs #171, #173) — and the locked-notes fixes for a tag leak into search (PR #174) and a deep link bypassing the passcode gate (PR #176), plus corrections to the documented Release asset list (PRs #168, #170).
+- Verification: the two guards this release added are the version-string and release-notes gates that every later release has run against; that they are in force from here is visible in `verify-landing-versions.ps1` and `verify-release-notes.ps1`. Merged through the required `build` gate on protected `main`.
+- Release: versionCode 109→110, versionName 2.26.1→2.26.2 (PR #183), CHANGELOG both editions, six store-locale changelogs, landing x6 + README x6.
+- Record: reconstructed from the tag range, its PRs and CHANGELOG under #264; it was not logged at release time.
+
+## 2026-07-19 - Localization accuracy and the untranslated-string guard, and v2.26.1
+
+- Trigger: several shipped strings still held their English source text, Spanish had lost its accents across ~60 strings, and a few translations had drifted from what the app does — including a privacy claim.
+- Analysis: `MissingTranslation` lint only fires when a string is *absent*, not when a present one was never translated, so `sync_title`, `sync_recommended_locations` and `application_id_format` rendered in English on fr/ja/ko with nothing to flag it. The drifted claims were the dangerous ones: the French privacy line claimed no data *download* where the English claims none is *sent*, and the Korean editor hint had dropped that autosave writes to the device.
+- Contract/scope: repair the untranslated and mistranslated strings across the six languages (Spanish diacritics; the ja/ko "remove from lock" reading as "unlock"; the Korean trash-confirmation object particle; quotes the resource compiler stripped; the archive noun-vs-verb collision; the three drifted de/fr/ko claims); and add a build-time guard that compares every locale value against the English source and fails when they match, with an allowlist for legitimately-identical values and a second test that fails once an allowlist entry stops being needed.
+- Implementation: the untranslated-string guard in PR #164, the three restored claims in PR #165, the remaining i18n repairs across the commits merged ahead of the release. This tag also carries the English-first docs decision (PR #157) — `CHANGELOG.md` becomes the English source the release job extracts notes from, `CHANGELOG.ko.md` the Korean edition, with releases from v2.16.0 retranslated — and Spanish and French joining the README and landing pages, plus mirror-runbook corrections for protected main (PRs #160, #162, #163).
+- Verification: the guard added here — `UntranslatedStringTest` with its allowlist and its still-needed companion — is the pattern later extended by `ResourceParityTest` and, in #262/#263, by `HardcodedStringTest` for text that never became a resource at all. Merged through the required `build` gate on protected `main`.
+- Release: versionCode 108→109, versionName 2.26.0→2.26.1 (PR #166), CHANGELOG both editions, six store-locale changelogs, landing x6 + README x6.
+- Record: reconstructed from the tag range, its PRs and CHANGELOG under #264; it was not logged at release time.
 
 ## 2026-07-18 - Hardening Sweep and v2.26.0 (#150, #152, #154, #156)
 

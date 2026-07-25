@@ -1,5 +1,7 @@
 package com.markleaf.notes.data.settings
 
+import com.markleaf.notes.core.text.NoteTitleSource
+
 data class AppSettings(
     val markdownSyntaxVisibility: MarkdownSyntaxVisibility = MarkdownSyntaxVisibility.SHOW,
     val lineWidth: EditorLineWidth = EditorLineWidth.COMFORTABLE,
@@ -25,6 +27,12 @@ data class AppSettings(
     val reopenLastNote: Boolean = false,
     /** Sort order of the notes list, driven by the top-bar sort menu (#191). */
     val notesSortMode: NotesSortMode = NotesSortMode.UPDATED_DESC,
+    /** How the notes list arranges its rows. Defaults to [NotesLayout.LIST],
+     *  the one-column list Markleaf has always shown (#279). */
+    val notesLayout: NotesLayout = NotesLayout.LIST,
+    /** Which line of a note becomes its title. Defaults to
+     *  [NoteTitleSource.FIRST_HEADING], the original rule (#280). */
+    val noteTitleSource: NoteTitleSource = NoteTitleSource.FIRST_HEADING,
     /** When true the Search screen matches note titles only (the Quick Access
      *  behaviour); full-text search is one toggle away (#193). Persisted so
      *  whichever mode was used last becomes that user's default. */
@@ -98,6 +106,21 @@ enum class OpenNotesAt {
      * value is selected — turning the setting off stops Markleaf remembering.
      */
     LAST_POSITION
+}
+
+/**
+ * How the notes list arranges its rows (#279).
+ *
+ * Requested by someone who wanted to see more notes at once, so it is a choice
+ * rather than a replacement: [LIST] is what everyone already has, and the
+ * "Show note previews" setting keeps applying to both.
+ */
+enum class NotesLayout {
+    /** One note per row, full width — the original behaviour and the default. */
+    LIST,
+
+    /** Cards in as many columns as the screen width allows. */
+    GRID
 }
 
 /** Notes-list sort orders offered by the top-bar sort menu (#191). */

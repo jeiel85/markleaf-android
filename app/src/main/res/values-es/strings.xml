@@ -200,6 +200,18 @@
     <string name="open_notes_at_bottom">Final</string>
     <string name="open_notes_at_last_position">Donde lo dejé</string>
     <string name="open_notes_at_description">Dónde queda una nota al abrirla. «Final» va bien con notas a las que solo añades. «Donde lo dejé» recuerda la posición de cada nota solo en la app: no se escribe nada en tus archivos.</string>
+    <string name="notes_layout">Diseño de la lista de notas</string>
+    <string name="notes_layout_list">Lista</string>
+    <string name="notes_layout_grid">Cuadrícula</string>
+    <string name="notes_layout_description">La cuadrícula muestra las notas como tarjetas, en tantas columnas como quepan en la pantalla. «Mostrar vista previa de las notas» se aplica a ambos diseños.</string>
+    <string name="note_title_source">Título de la nota</string>
+    <string name="note_title_source_first_heading">Primer encabezado</string>
+    <string name="note_title_source_first_line">Primera línea</string>
+    <string name="note_title_source_description">De qué línea sale el título que ves en la lista. «Primer encabezado» toma el primer encabezado Markdown esté donde esté en la nota; «Primera línea» toma siempre la primera línea que escribiste. Al cambiarlo se retitulan tus notas actuales; los nombres de archivo de la carpeta sincronizada se ajustan con «Renombrar archivos según el título» en el Centro de sincronización.</string>
+    <plurals name="note_title_retitled_format">
+        <item quantity="one">%1$d nota retitulada.</item>
+        <item quantity="other">%1$d notas retituladas.</item>
+    </plurals>
     <string name="jump_to_end">Ir al final</string>
     <string name="jump_to_start">Ir al principio</string>
     <string name="view_mode_locked">Las notas ahora se abren en vista previa</string>

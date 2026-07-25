@@ -12,6 +12,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.markleaf.notes.core.security.PasscodeBackoff
 import com.markleaf.notes.core.security.PasscodeHasher
+import com.markleaf.notes.core.text.NoteTitleSource
 import java.util.UUID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
@@ -71,6 +72,12 @@ class AppSettingsRepository internal constructor(
             notesSortMode = preferences[NOTES_SORT_MODE]
                 ?.let { value -> enumValueOrDefault(value, NotesSortMode.UPDATED_DESC) }
                 ?: NotesSortMode.UPDATED_DESC,
+            notesLayout = preferences[NOTES_LAYOUT]
+                ?.let { value -> enumValueOrDefault(value, NotesLayout.LIST) }
+                ?: NotesLayout.LIST,
+            noteTitleSource = preferences[NOTE_TITLE_SOURCE]
+                ?.let { value -> enumValueOrDefault(value, NoteTitleSource.FIRST_HEADING) }
+                ?: NoteTitleSource.FIRST_HEADING,
             searchTitlesOnly = preferences[SEARCH_TITLES_ONLY] ?: false,
             lastOpenedNoteId = preferences[LAST_OPENED_NOTE_ID],
             openNotesInPreview = preferences[OPEN_NOTES_IN_PREVIEW] ?: false,
@@ -249,6 +256,23 @@ class AppSettingsRepository internal constructor(
         }
     }
 
+    suspend fun setNotesLayout(layout: NotesLayout) {
+        persist { preferences ->
+            preferences[NOTES_LAYOUT] = layout.name
+        }
+    }
+
+    /**
+     * Change which line becomes a note's title (#280). Only the preference is
+     * written here — stored titles are recomputed by the caller, because the
+     * notes database is not this repository's to touch.
+     */
+    suspend fun setNoteTitleSource(source: NoteTitleSource) {
+        persist { preferences ->
+            preferences[NOTE_TITLE_SOURCE] = source.name
+        }
+    }
+
     suspend fun setSearchTitlesOnly(titlesOnly: Boolean) {
         persist { preferences ->
             preferences[SEARCH_TITLES_ONLY] = titlesOnly
@@ -342,6 +366,8 @@ class AppSettingsRepository internal constructor(
         val NOTES_SHOW_PREVIEW = booleanPreferencesKey("notes_show_preview")
         val REOPEN_LAST_NOTE = booleanPreferencesKey("reopen_last_note")
         val NOTES_SORT_MODE = stringPreferencesKey("notes_sort_mode")
+        val NOTES_LAYOUT = stringPreferencesKey("notes_layout")
+        val NOTE_TITLE_SOURCE = stringPreferencesKey("note_title_source")
         val SEARCH_TITLES_ONLY = booleanPreferencesKey("search_titles_only")
         val LAST_OPENED_NOTE_ID = stringPreferencesKey("last_opened_note_id")
         val OPEN_NOTES_IN_PREVIEW = booleanPreferencesKey("open_notes_in_preview")

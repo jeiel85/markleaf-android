@@ -195,6 +195,17 @@
     <string name="open_notes_at_bottom">맨 아래</string>
     <string name="open_notes_at_last_position">마지막 위치</string>
     <string name="open_notes_at_description">노트를 열었을 때 표시할 위치입니다. \'맨 아래\'는 계속 이어 쓰는 노트에 적합합니다. \'마지막 위치\'는 노트별 위치를 앱 안에만 기억하며 파일에는 아무것도 쓰지 않습니다.</string>
+    <string name="notes_layout">노트 목록 배치</string>
+    <string name="notes_layout_list">목록</string>
+    <string name="notes_layout_grid">바둑판</string>
+    <string name="notes_layout_description">바둑판은 노트를 카드로 보여 주며, 화면 너비가 허용하는 만큼 열이 늘어납니다. \'노트 미리보기 표시\'는 두 배치에 모두 적용됩니다.</string>
+    <string name="note_title_source">노트 제목</string>
+    <string name="note_title_source_first_heading">첫 제목 줄</string>
+    <string name="note_title_source_first_line">첫 줄</string>
+    <string name="note_title_source_description">목록에 보이는 노트 제목을 어느 줄에서 가져올지 정합니다. \'첫 제목 줄\'은 노트 어디에 있든 첫 Markdown 제목을 쓰고, \'첫 줄\'은 언제나 맨 처음 쓴 줄을 씁니다. 바꾸면 기존 노트의 제목이 다시 계산되며, 동기화 폴더의 파일명은 동기화 센터의 \'파일명을 노트 제목으로 정리\'로 맞출 수 있습니다.</string>
+    <plurals name="note_title_retitled_format">
+        <item quantity="other">노트 %1$d개의 제목을 다시 정했습니다.</item>
+    </plurals>
     <string name="jump_to_end">맨 아래로 이동</string>
     <string name="jump_to_start">맨 위로 이동</string>
     <string name="view_mode_locked">이제 노트가 미리보기로 열립니다</string>

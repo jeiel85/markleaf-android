@@ -89,7 +89,8 @@ class MainActivity : FragmentActivity() {
                         existing = notes,
                         applyUpdate = { updated -> importer.update(updated) },
                         applyCreate = { created -> importer.create(created) },
-                        metadata = settings.mirrorMetadata()
+                        metadata = settings.mirrorMetadata(),
+                        titleSource = settings.noteTitleSource
                     )
                 }
                 settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())

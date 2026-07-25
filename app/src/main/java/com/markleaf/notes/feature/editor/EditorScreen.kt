@@ -155,8 +155,11 @@ fun EditorScreen(
         if (shouldPreparePreview) SimpleMarkdownPreview.parse(editorState.text) else emptyList()
     }
     val tocHeadings = remember(previewLines) { extractHeadings(previewLines) }
-    val currentTitle = remember(editorState.text, noteId) {
-        if (noteId == null) "" else TitleExtractor.extractTitle(editorState.text)
+    // Which line becomes the title is a user setting (#280); it keys every
+    // derivation below so flipping it re-titles the open note straight away.
+    val titleSource = appSettings.noteTitleSource
+    val currentTitle = remember(editorState.text, noteId, titleSource) {
+        if (noteId == null) "" else TitleExtractor.extractTitle(editorState.text, titleSource)
     }
     val backlinksFlow = remember(currentTitle, noteId) {
         linkRepo.observeBacklinks(currentTitle, noteId.orEmpty())
@@ -380,9 +383,9 @@ fun EditorScreen(
             if (currentNote != null) {
                 val content = editorState.text
                 val updatedNote = currentNote.copy(
-                    title = TitleExtractor.extractTitle(content),
+                    title = TitleExtractor.extractTitle(content, titleSource),
                     contentMarkdown = content,
-                    excerpt = TitleExtractor.generateExcerpt(content),
+                    excerpt = TitleExtractor.generateExcerpt(content, titleSource),
                     updatedAt = java.time.Instant.now()
                 )
                 repo.updateNote(updatedNote)
@@ -617,9 +620,9 @@ fun EditorScreen(
                                 coroutineScope.launch {
                                     val current = repo.getNote(noteId) ?: return@launch
                                     val live = current.copy(
-                                        title = TitleExtractor.extractTitle(editorState.text),
+                                        title = TitleExtractor.extractTitle(editorState.text, titleSource),
                                         contentMarkdown = editorState.text,
-                                        excerpt = TitleExtractor.generateExcerpt(editorState.text)
+                                        excerpt = TitleExtractor.generateExcerpt(editorState.text, titleSource)
                                     )
                                     ShareNoteUtil.shareNote(context, live)
                                 }
@@ -632,9 +635,9 @@ fun EditorScreen(
                                 coroutineScope.launch {
                                     val current = repo.getNote(noteId) ?: return@launch
                                     val live = current.copy(
-                                        title = TitleExtractor.extractTitle(editorState.text),
+                                        title = TitleExtractor.extractTitle(editorState.text, titleSource),
                                         contentMarkdown = editorState.text,
-                                        excerpt = TitleExtractor.generateExcerpt(editorState.text)
+                                        excerpt = TitleExtractor.generateExcerpt(editorState.text, titleSource)
                                     )
                                     pendingExport = live
                                     exportSingleLauncher.launch(ExportUtil.generateFileName(live))
@@ -648,9 +651,9 @@ fun EditorScreen(
                                 coroutineScope.launch {
                                     val current = repo.getNote(noteId) ?: return@launch
                                     val live = current.copy(
-                                        title = TitleExtractor.extractTitle(editorState.text),
+                                        title = TitleExtractor.extractTitle(editorState.text, titleSource),
                                         contentMarkdown = editorState.text,
-                                        excerpt = TitleExtractor.generateExcerpt(editorState.text)
+                                        excerpt = TitleExtractor.generateExcerpt(editorState.text, titleSource)
                                     )
                                     ExportPdf.export(context, live)
                                 }

@@ -46,9 +46,16 @@ class SettingsScreenSnapshotTest {
     @Test
     fun centeredColumnTablet() = capture("settings_centered_tablet")
 
+    /**
+     * Anchored on the section's current last control — "First line", from the
+     * title rule added in #280. It was "Where I left off" until the layout and
+     * title options landed below it, at which point the golden kept passing
+     * while showing none of them: the same blind spot this class was written
+     * for, one section deeper.
+     */
     @Test
     fun notesAndSearchSection() =
-        capture("settings_notes_search_tablet", scrollTo = "Where I left off")
+        capture("settings_notes_search_tablet", scrollTo = "First line")
 
     @Test
     fun privacySection() = capture("settings_privacy_tablet", scrollTo = "View Privacy Dashboard")

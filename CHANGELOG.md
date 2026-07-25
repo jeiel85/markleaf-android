@@ -4,6 +4,14 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.32.0 - Two ways to arrange your notes - 2026-07-25
+
+Both additions came from the same reporter, and both are choices rather than replacements: your list keeps its shape and your notes keep their titles until you say otherwise. No permission or storage-format changes.
+
+### Added
+- **See your notes as a grid (#279).** **Settings → Notes & search → Notes list layout** now offers *Grid* alongside the one-column *List*, which stays the default. Grid lays the same notes out as cards, in as many columns as the screen fits — two on a phone, more on a tablet, and it narrows correctly in the tablet's list pane beside the editor. Everything else about the list is unchanged: the Today / Yesterday / Pinned sections still group your notes, long-pressing a card still opens pin / archive / lock / trash, and *Show note previews* still governs whether the excerpt and edit time appear.
+- **Choose which line becomes a note's title (#280).** Markleaf took the title from the first Markdown heading *anywhere* in a note, so a note that opened with a paragraph and had a heading further down was titled by that heading — the same note, retitled by an edit ten lines below the top. **Settings → Notes & search → Note title** now offers *First line*, which always uses the first non-empty line and strips the `#` markers if that line happens to be a heading. *First heading* remains the default, so nothing is renamed unless you switch. Switching retitles the notes you already have — leaving their edit times, and therefore their order, untouched — and *Sync Center → Rename files to note titles* brings a sync folder's filenames along.
+
 ## v2.31.0 - Your notes, without Markleaf's bookkeeping in them - 2026-07-24
 
 One opt-in change to how sync stores its bookkeeping, and one fix for text that was Korean in every language. No permission changes, and the storage format is unchanged unless you turn the new option on.

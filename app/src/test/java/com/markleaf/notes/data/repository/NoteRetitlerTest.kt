@@ -111,6 +111,32 @@ class NoteRetitlerTest {
         )
     }
 
+    /**
+     * The pass reads every note, computes, and writes. Writing the whole row
+     * back would restore the body it read at the start — undoing an edit or an
+     * import that landed while it ran — so only the derived columns move.
+     */
+    @Test
+    fun `retitling rewrites the derived columns and nothing else`() = runTest {
+        repository.createNote(
+            note("1", "Details", "Some plain text\n## Details", excerpt = "old excerpt")
+        )
+        val before = repository.getNote("1")!!
+
+        // What the pass does to one note, with the row edited underneath it in
+        // between — the concurrent-edit window.
+        repository.updateNote(before.copy(contentMarkdown = "edited elsewhere", pinned = true))
+        repository.updateDerivedTitle("1", "Some plain text", "Details")
+
+        val after = repository.getNote("1")!!
+        assertEquals("Some plain text", after.title)
+        assertEquals("Details", after.excerpt)
+        assertEquals("edited elsewhere", after.contentMarkdown)
+        assertEquals(true, after.pinned)
+        assertEquals(before.updatedAt, after.updatedAt)
+        assertEquals(before.createdAt, after.createdAt)
+    }
+
     @Test
     fun `a second pass under the same rule changes nothing`() = runTest {
         repository.createNote(note("1", "Details", "Some plain text\n## Details"))

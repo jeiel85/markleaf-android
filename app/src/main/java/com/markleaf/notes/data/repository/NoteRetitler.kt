@@ -12,8 +12,12 @@ import com.markleaf.notes.domain.repository.NoteRepository
  * note had been edited again — the setting would read as broken.
  *
  * What it deliberately does *not* touch:
- *  - `updatedAt`, so no note jumps to the top of the list and the sync layer
- *    does not read a renamed note as an edited one.
+ *  - Any column but `title` and `excerpt`. The pass reads every note, computes,
+ *    and writes — and writing the whole row back would restore the body it read
+ *    at the start of the pass, undoing an edit or an import that landed while it
+ *    ran. `updateDerivedTitle` rewrites the two derived columns and nothing
+ *    else, so `updatedAt` also stays put: no note jumps to the top of the list,
+ *    and the sync layer does not read a renamed note as an edited one.
  *  - Notes with no content, whose stored title is the empty string that the
  *    list renders as "Untitled". Deriving would write the literal word instead.
  *  - Conflict copies, whose title carries the "conflict copy" suffix that makes
@@ -33,7 +37,7 @@ object NoteRetitler {
             val title = TitleExtractor.extractTitle(note.contentMarkdown, source)
             val excerpt = TitleExtractor.generateExcerpt(note.contentMarkdown, source)
             if (title == note.title && excerpt == note.excerpt) continue
-            repository.updateNote(note.copy(title = title, excerpt = excerpt))
+            repository.updateDerivedTitle(note.id, title, excerpt)
             changed++
         }
         return changed

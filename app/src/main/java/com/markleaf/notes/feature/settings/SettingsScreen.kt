@@ -56,13 +56,16 @@ import androidx.compose.ui.unit.dp
 import com.markleaf.notes.BuildConfig
 import com.markleaf.notes.R
 import com.markleaf.notes.data.local.AppDatabase
+import com.markleaf.notes.core.text.NoteTitleSource
 import com.markleaf.notes.data.repository.LocalNoteRepository
+import com.markleaf.notes.data.repository.NoteRetitler
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.ColorPalette
 import com.markleaf.notes.data.settings.EditorFont
 import com.markleaf.notes.data.settings.EditorLineWidth
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
+import com.markleaf.notes.data.settings.NotesLayout
 import com.markleaf.notes.data.settings.OpenNotesAt
 import com.markleaf.notes.data.settings.SyncMetadataMode
 import com.markleaf.notes.data.sync.NoteFolderMirror
@@ -75,6 +78,7 @@ import com.markleaf.notes.ui.component.elapsedTimeLabel
 import com.markleaf.notes.util.ExportAllNotes
 import com.markleaf.notes.util.HapticFeedback
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -96,6 +100,9 @@ fun SettingsScreen(
     // control while it runs stops a second switch starting on top of the first,
     // which would have two passes rewriting the same files.
     var metadataSwitchBusy by remember { mutableStateOf(false) }
+    // Same reason for the title rule (#280): two retitle passes running over the
+    // same rows would leave titles from both rules behind.
+    var retitleBusy by remember { mutableStateOf(false) }
     val exportAllLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocumentTree()
     ) { folderUri ->
@@ -369,6 +376,97 @@ fun SettingsScreen(
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                        Spacer(Modifier.height(12.dp))
+                        Text(
+                            text = stringResource(R.string.notes_layout),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            NotesLayout.entries.forEach { layout ->
+                                val selected = appSettings.notesLayout == layout
+                                if (selected) {
+                                    Button(onClick = {}) {
+                                        Text(layout.localizedLabel())
+                                    }
+                                } else {
+                                    OutlinedButton(
+                                        onClick = {
+                                            scope.launch {
+                                                settingsRepository.setNotesLayout(layout)
+                                            }
+                                        }
+                                    ) {
+                                        Text(layout.localizedLabel())
+                                    }
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        Text(
+                            text = stringResource(R.string.notes_layout_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        Text(
+                            text = stringResource(R.string.note_title_source),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            NoteTitleSource.entries.forEach { source ->
+                                val selected = appSettings.noteTitleSource == source
+                                if (selected) {
+                                    Button(onClick = {}, enabled = !retitleBusy) {
+                                        Text(source.localizedLabel())
+                                    }
+                                } else {
+                                    OutlinedButton(
+                                        enabled = !retitleBusy,
+                                        onClick = {
+                                            retitleBusy = true
+                                            scope.launch {
+                                                settingsRepository.setNoteTitleSource(source)
+                                                // Stored titles are derived once, at save
+                                                // time, so without this pass the setting
+                                                // would appear to do nothing (#280).
+                                                // NonCancellable: leaving the screen
+                                                // mid-pass would otherwise strand half the
+                                                // notes under the old rule.
+                                                val changed = withContext(
+                                                    Dispatchers.IO + NonCancellable
+                                                ) {
+                                                    NoteRetitler.retitleAll(noteRepository, source)
+                                                }
+                                                retitleBusy = false
+                                                Toast.makeText(
+                                                    context,
+                                                    context.resources.getQuantityString(
+                                                        R.plurals.note_title_retitled_format,
+                                                        changed,
+                                                        changed
+                                                    ),
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
+                                        }
+                                    ) {
+                                        Text(source.localizedLabel())
+                                    }
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        Text(
+                            text = stringResource(R.string.note_title_source_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
 
                     SettingsSection(title = stringResource(R.string.settings_privacy)) {
@@ -516,7 +614,8 @@ fun SettingsScreen(
                                         applyCreate = { created ->
                                             noteImporter.create(created)
                                         },
-                                        metadata = appSettings.mirrorMetadata()
+                                        metadata = appSettings.mirrorMetadata(),
+                                        titleSource = appSettings.noteTitleSource
                                     )
                                 }
                                 settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())
@@ -1013,6 +1112,22 @@ private fun OpenNotesAt.localizedLabel(): String {
         OpenNotesAt.TOP -> stringResource(R.string.open_notes_at_top)
         OpenNotesAt.BOTTOM -> stringResource(R.string.open_notes_at_bottom)
         OpenNotesAt.LAST_POSITION -> stringResource(R.string.open_notes_at_last_position)
+    }
+}
+
+@Composable
+private fun NotesLayout.localizedLabel(): String {
+    return when (this) {
+        NotesLayout.LIST -> stringResource(R.string.notes_layout_list)
+        NotesLayout.GRID -> stringResource(R.string.notes_layout_grid)
+    }
+}
+
+@Composable
+private fun NoteTitleSource.localizedLabel(): String {
+    return when (this) {
+        NoteTitleSource.FIRST_HEADING -> stringResource(R.string.note_title_source_first_heading)
+        NoteTitleSource.FIRST_LINE -> stringResource(R.string.note_title_source_first_line)
     }
 }
 

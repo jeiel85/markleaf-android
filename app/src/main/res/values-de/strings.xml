@@ -200,6 +200,18 @@
     <string name="open_notes_at_bottom">Ende</string>
     <string name="open_notes_at_last_position">Letzter Stand</string>
     <string name="open_notes_at_description">Wo eine Notiz beim Öffnen landet. „Ende“ passt zu Notizen, an die du nur anfügst. „Letzter Stand“ merkt sich die Position jeder Notiz nur in der App — in deine Dateien wird nichts geschrieben.</string>
+    <string name="notes_layout">Layout der Notizliste</string>
+    <string name="notes_layout_list">Liste</string>
+    <string name="notes_layout_grid">Raster</string>
+    <string name="notes_layout_description">Das Raster zeigt Notizen als Karten, in so vielen Spalten wie auf den Bildschirm passen. „Notizvorschau anzeigen“ gilt für beide Layouts.</string>
+    <string name="note_title_source">Notiztitel</string>
+    <string name="note_title_source_first_heading">Erste Überschrift</string>
+    <string name="note_title_source_first_line">Erste Zeile</string>
+    <string name="note_title_source_description">Aus welcher Zeile der Titel in der Liste stammt. „Erste Überschrift“ nimmt die erste Markdown-Überschrift irgendwo in der Notiz, „Erste Zeile“ immer die zuerst geschriebene Zeile. Eine Änderung betitelt vorhandene Notizen neu; die Dateinamen im Sync-Ordner ziehen über „Dateien nach Notiztitel benennen“ im Synchronisationscenter nach.</string>
+    <plurals name="note_title_retitled_format">
+        <item quantity="one">%1$d Notiz neu betitelt.</item>
+        <item quantity="other">%1$d Notizen neu betitelt.</item>
+    </plurals>
     <string name="jump_to_end">Ans Ende springen</string>
     <string name="jump_to_start">An den Anfang springen</string>
     <string name="view_mode_locked">Notizen öffnen jetzt in der Vorschau</string>

@@ -70,6 +70,11 @@ class MarkleafViewModelFactoryTest {
         override suspend fun getAllNotes(): List<Note> = emptyList()
         override suspend fun createNote(note: Note) = Unit
         override suspend fun updateNote(note: Note) = Unit
+        override suspend fun updateDerivedTitle(
+            noteId: String,
+            title: String,
+            excerpt: String
+        ) = Unit
         override suspend fun moveToTrash(noteId: String) = Unit
         override suspend fun setPinned(noteId: String, pinned: Boolean) = Unit
         override suspend fun setArchived(noteId: String, archived: Boolean) = Unit

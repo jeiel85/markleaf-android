@@ -2,6 +2,7 @@ package com.markleaf.notes.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.markleaf.notes.core.text.NoteTitleSource
 import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.domain.repository.NoteRepository
@@ -53,12 +54,29 @@ class NotesViewModel(
         }
     }
 
-    suspend fun createNote(initialContent: String = ""): Note {
+    /**
+     * Create a note, optionally seeded with [initialContent] (shared text, a
+     * widget quick note). [titleSource] is the user's title rule (#280) — the
+     * default matters only for a caller with no settings to hand, since an
+     * empty note has no title to derive either way.
+     */
+    suspend fun createNote(
+        initialContent: String = "",
+        titleSource: NoteTitleSource = NoteTitleSource.FIRST_HEADING
+    ): Note {
         val newNote = Note(
             id = UUID.randomUUID().toString(),
-            title = if (initialContent.isBlank()) "" else TitleExtractor.extractTitle(initialContent),
+            title = if (initialContent.isBlank()) {
+                ""
+            } else {
+                TitleExtractor.extractTitle(initialContent, titleSource)
+            },
             contentMarkdown = initialContent,
-            excerpt = if (initialContent.isBlank()) "" else TitleExtractor.generateExcerpt(initialContent),
+            excerpt = if (initialContent.isBlank()) {
+                ""
+            } else {
+                TitleExtractor.generateExcerpt(initialContent, titleSource)
+            },
             createdAt = Instant.now(),
             updatedAt = Instant.now()
         )

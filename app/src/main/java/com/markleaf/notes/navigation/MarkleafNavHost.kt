@@ -132,7 +132,11 @@ fun MarkleafNavHost(
                 navController.navigateOnMain(NavRoutes.editorRoute(newNote.id))
             }
             !sharedText.isNullOrBlank() -> {
-                val newNote = intentEntryViewModel.createNote(sharedText)
+                // Read the title rule from the store rather than the collected
+                // state: this effect runs on the first composition, where
+                // `appSettings` is still the initial default (#280).
+                val titleSource = settingsRepository.settings.first().noteTitleSource
+                val newNote = intentEntryViewModel.createNote(sharedText, titleSource)
                 navController.navigateOnMain(NavRoutes.editorRoute(newNote.id))
             }
             !openNoteId.isNullOrBlank() -> {

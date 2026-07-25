@@ -230,7 +230,8 @@ fun SyncCenterScreen(
                                                     applyCreate = { created ->
                                                         noteImporter.create(created)
                                                     },
-                                                    metadata = appSettings.mirrorMetadata()
+                                                    metadata = appSettings.mirrorMetadata(),
+                                                    titleSource = appSettings.noteTitleSource
                                                 )
                                             }
                                             settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())

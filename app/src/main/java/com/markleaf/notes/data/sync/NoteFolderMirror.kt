@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import com.markleaf.notes.R
+import com.markleaf.notes.core.text.NoteTitleSource
 import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.SyncFileExtension
@@ -474,11 +475,14 @@ object NoteFolderMirror {
         existing: List<Note>,
         applyUpdate: suspend (Note) -> Unit,
         applyCreate: suspend (Note) -> Unit,
-        metadata: MirrorMetadata = MirrorMetadata.Frontmatter
+        metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
+        titleSource: NoteTitleSource = NoteTitleSource.FIRST_HEADING
     ): ImportResult {
         val folder = DocumentFile.fromTreeUri(context, folderUri)
             ?: return ImportResult(0, 0, 0, 1)
-        return importChangesFrom(context, folder, existing, applyUpdate, applyCreate, metadata)
+        return importChangesFrom(
+            context, folder, existing, applyUpdate, applyCreate, metadata, titleSource
+        )
     }
 
     /**
@@ -491,12 +495,13 @@ object NoteFolderMirror {
         existing: List<Note>,
         applyUpdate: suspend (Note) -> Unit,
         applyCreate: suspend (Note) -> Unit,
-        metadata: MirrorMetadata = MirrorMetadata.Frontmatter
+        metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
+        titleSource: NoteTitleSource = NoteTitleSource.FIRST_HEADING
     ): ImportResult {
         if (!folder.canRead()) return ImportResult(0, 0, 0, 1)
         if (metadata is MirrorMetadata.Sidecar) {
             return importChangesSidecar(
-                context, folder, existing, applyUpdate, applyCreate, metadata.deviceId
+                context, folder, existing, applyUpdate, applyCreate, metadata.deviceId, titleSource
             )
         }
 
@@ -539,9 +544,9 @@ object NoteFolderMirror {
                         val now = Instant.now()
                         val newNote = Note(
                             id = parsed.markleafId ?: UUID.randomUUID().toString(),
-                            title = TitleExtractor.extractTitle(parsed.body),
+                            title = TitleExtractor.extractTitle(parsed.body, titleSource),
                             contentMarkdown = parsed.body,
-                            excerpt = TitleExtractor.generateExcerpt(parsed.body),
+                            excerpt = TitleExtractor.generateExcerpt(parsed.body, titleSource),
                             createdAt = parsed.createdAt ?: now,
                             updatedAt = parsed.updatedAt ?: now,
                             pinned = parsed.pinned ?: false,
@@ -567,13 +572,13 @@ object NoteFolderMirror {
                         // Both sides moved since the last sync. Keep the local
                         // note's content untouched and bring the remote in as a
                         // separate note so the user can compare and merge by hand.
-                        val baseTitle = TitleExtractor.extractTitle(parsed.body)
+                        val baseTitle = TitleExtractor.extractTitle(parsed.body, titleSource)
                         val suffix = conflictSuffix(context, Instant.now())
                         val duplicate = Note(
                             id = UUID.randomUUID().toString(),
                             title = "$baseTitle $suffix",
                             contentMarkdown = parsed.body,
-                            excerpt = TitleExtractor.generateExcerpt(parsed.body),
+                            excerpt = TitleExtractor.generateExcerpt(parsed.body, titleSource),
                             createdAt = parsed.createdAt ?: fileTs,
                             updatedAt = fileTs,
                             pinned = false,
@@ -595,9 +600,9 @@ object NoteFolderMirror {
                     Reconcile.Overwrite -> {
                         val note = existingNote!!
                         val merged = note.copy(
-                            title = TitleExtractor.extractTitle(parsed.body),
+                            title = TitleExtractor.extractTitle(parsed.body, titleSource),
                             contentMarkdown = parsed.body,
-                            excerpt = TitleExtractor.generateExcerpt(parsed.body),
+                            excerpt = TitleExtractor.generateExcerpt(parsed.body, titleSource),
                             updatedAt = fileTs,
                             pinned = parsed.pinned ?: note.pinned,
                             archived = parsed.archived ?: note.archived,
@@ -640,7 +645,8 @@ object NoteFolderMirror {
         existing: List<Note>,
         applyUpdate: suspend (Note) -> Unit,
         applyCreate: suspend (Note) -> Unit,
-        deviceId: String
+        deviceId: String,
+        titleSource: NoteTitleSource
     ): ImportResult {
         var updated = 0
         var created = 0
@@ -710,9 +716,9 @@ object NoteFolderMirror {
                                 // identities across devices.
                                 ?: parsed.markleafId
                                 ?: UUID.randomUUID().toString(),
-                            title = TitleExtractor.extractTitle(text),
+                            title = TitleExtractor.extractTitle(text, titleSource),
                             contentMarkdown = text,
-                            excerpt = TitleExtractor.generateExcerpt(text),
+                            excerpt = TitleExtractor.generateExcerpt(text, titleSource),
                             createdAt = createdAt,
                             updatedAt = now,
                             pinned = entry?.pinned ?: parsed.pinned ?: false,
@@ -736,12 +742,12 @@ object NoteFolderMirror {
                     }
                     Reconcile.Conflict -> {
                         val note = existingNote!!
-                        val baseTitle = TitleExtractor.extractTitle(text)
+                        val baseTitle = TitleExtractor.extractTitle(text, titleSource)
                         val duplicate = Note(
                             id = UUID.randomUUID().toString(),
                             title = "$baseTitle ${conflictSuffix(context, Instant.now())}",
                             contentMarkdown = text,
-                            excerpt = TitleExtractor.generateExcerpt(text),
+                            excerpt = TitleExtractor.generateExcerpt(text, titleSource),
                             createdAt = Instant.now(),
                             updatedAt = Instant.now(),
                             lastImportedAt = Instant.now(),
@@ -769,9 +775,9 @@ object NoteFolderMirror {
                         val now = Instant.now()
                         applyUpdate(
                             note.copy(
-                                title = TitleExtractor.extractTitle(text),
+                                title = TitleExtractor.extractTitle(text, titleSource),
                                 contentMarkdown = text,
-                                excerpt = TitleExtractor.generateExcerpt(text),
+                                excerpt = TitleExtractor.generateExcerpt(text, titleSource),
                                 updatedAt = now,
                                 lastImportedAt = now,
                                 remoteSeenAt = now

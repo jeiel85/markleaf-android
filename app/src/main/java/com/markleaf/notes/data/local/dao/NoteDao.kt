@@ -57,6 +57,18 @@ interface NoteDao {
     @Update
     suspend fun updateNote(note: NoteEntity)
 
+    /**
+     * Rewrite only the two columns derived from the note body, used by the
+     * retitle pass behind the "Note title" setting (#280).
+     *
+     * Deliberately not `updateNote`: that pass reads every note, computes, and
+     * writes back — and a whole-row write would restore the body it read at the
+     * start of the pass, silently undoing an edit or an import that landed in
+     * between. Room's FTS content triggers fire on this UPDATE the same way.
+     */
+    @Query("UPDATE notes SET title = :title, excerpt = :excerpt WHERE id = :noteId")
+    suspend fun updateDerivedTitle(noteId: String, title: String, excerpt: String)
+
     // Trashing also clears `locked`: a deleted note leaves the Locked space so it
     // shows normally in Trash (no leak of a still-locked title) and can never
     // become an unreachable locked+trashed orphan (#155).

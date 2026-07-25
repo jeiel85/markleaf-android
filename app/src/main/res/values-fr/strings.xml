@@ -200,6 +200,18 @@
     <string name="open_notes_at_bottom">Fin</string>
     <string name="open_notes_at_last_position">Là où je me suis arrêté</string>
     <string name="open_notes_at_description">L\'endroit où une note s\'ouvre. « Fin » convient aux notes que vous ne faites que compléter. « Là où je me suis arrêté » retient la position de chaque note dans l\'application uniquement : rien n\'est écrit dans vos fichiers.</string>
+    <string name="notes_layout">Disposition de la liste de notes</string>
+    <string name="notes_layout_list">Liste</string>
+    <string name="notes_layout_grid">Grille</string>
+    <string name="notes_layout_description">La grille affiche les notes sous forme de cartes, sur autant de colonnes que l\'écran le permet. « Afficher l\'aperçu des notes » s\'applique aux deux dispositions.</string>
+    <string name="note_title_source">Titre de la note</string>
+    <string name="note_title_source_first_heading">Premier titre</string>
+    <string name="note_title_source_first_line">Première ligne</string>
+    <string name="note_title_source_description">La ligne dont provient le titre affiché dans la liste. « Premier titre » prend le premier titre Markdown où qu\'il soit dans la note ; « Première ligne » prend toujours la première ligne que vous avez écrite. Ce changement retitre vos notes existantes ; les noms de fichiers du dossier synchronisé suivent via « Renommer les fichiers selon le titre » dans le Centre de synchronisation.</string>
+    <plurals name="note_title_retitled_format">
+        <item quantity="one">%1$d note retitrée.</item>
+        <item quantity="other">%1$d notes retitrées.</item>
+    </plurals>
     <string name="jump_to_end">Aller à la fin</string>
     <string name="jump_to_start">Aller au début</string>
     <string name="view_mode_locked">Les notes s\'ouvrent désormais en aperçu</string>

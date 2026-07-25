@@ -11,6 +11,11 @@ interface NoteRepository {
     suspend fun getAllNotes(): List<Note>
     suspend fun createNote(note: Note)
     suspend fun updateNote(note: Note)
+
+    /** Rewrite only the title and excerpt of one note — see
+     *  [com.markleaf.notes.data.repository.NoteRetitler] for why the retitle
+     *  pass must not write the whole row back (#280). */
+    suspend fun updateDerivedTitle(noteId: String, title: String, excerpt: String)
     suspend fun moveToTrash(noteId: String)
     suspend fun setPinned(noteId: String, pinned: Boolean)
     suspend fun setArchived(noteId: String, archived: Boolean)

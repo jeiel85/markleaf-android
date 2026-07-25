@@ -35,6 +35,10 @@ class LocalNoteRepository(
         database.noteDao().updateNote(note.toEntity())
     }
 
+    override suspend fun updateDerivedTitle(noteId: String, title: String, excerpt: String) {
+        database.noteDao().updateDerivedTitle(noteId, title, excerpt)
+    }
+
     override suspend fun moveToTrash(noteId: String) {
         database.noteDao().moveToTrash(noteId, System.currentTimeMillis())
     }

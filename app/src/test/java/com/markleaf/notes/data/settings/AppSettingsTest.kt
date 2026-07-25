@@ -1,5 +1,6 @@
 package com.markleaf.notes.data.settings
 
+import com.markleaf.notes.core.text.NoteTitleSource
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -27,6 +28,19 @@ class AppSettingsTest {
         assertEquals(NotesSortMode.UPDATED_DESC, settings.notesSortMode)
         assertFalse(settings.searchTitlesOnly)
         assertNull(settings.lastOpenedNoteId)
+    }
+
+    /**
+     * The grid (#279) and the title rule (#280) are both choices laid over
+     * behaviour people already have. A default of anything else would rearrange
+     * one user's list and rename another user's notes on update.
+     */
+    @Test
+    fun notesStillRenderAsAListTitledByTheFirstHeading() {
+        val settings = AppSettings()
+
+        assertEquals(NotesLayout.LIST, settings.notesLayout)
+        assertEquals(NoteTitleSource.FIRST_HEADING, settings.noteTitleSource)
     }
 
     /**

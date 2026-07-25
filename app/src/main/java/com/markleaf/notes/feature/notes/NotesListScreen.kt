@@ -3,14 +3,20 @@ package com.markleaf.notes.feature.notes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -74,10 +80,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
+import com.markleaf.notes.data.settings.NotesLayout
 import com.markleaf.notes.data.settings.NotesSortMode
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
@@ -410,68 +418,123 @@ fun NotesListScreen(
                 )
             }
         } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                sections.forEach { section ->
-                    if (section.titleResId != null) {
-                        item(key = "header-${section.titleResId}") {
-                            SectionHeader(
-                                stringResource(section.titleResId),
-                                modifier = Modifier.animateItem()
+            // Both layouts drive the same actions (#279). Defined once here so
+            // the list and the grid cannot drift apart — in particular the lock
+            // action, which has to clean up the mirror file as well.
+            val togglePin: (Note) -> Unit = { note ->
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                viewModel.setPinned(note.id, !note.pinned)
+            }
+            val archive: (Note) -> Unit = { note ->
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                viewModel.setArchived(note.id, true)
+            }
+            val lock: (Note) -> Unit = { note ->
+                if (lockPasscodeSet) {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                    viewModel.setLocked(note.id, true)
+                    // The export guard only stops *future* saves, so a note
+                    // mirrored before it was locked would leave a readable
+                    // plaintext copy in the sync folder. Remove it now, or
+                    // the Locked space's privacy promise is only skin deep.
+                    // LockedNotesScreen re-mirrors on unlock (#156).
+                    appSettings.syncFolderUriOrNull()?.let { uri ->
+                        scope.launch {
+                            withContext(Dispatchers.IO) {
+                                NoteFolderMirror.deleteNote(
+                                    context,
+                                    uri,
+                                    note.id,
+                                    appSettings.mirrorMetadata()
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    showSetPasscodePrompt = true
+                }
+            }
+            val moveToTrash: (Note) -> Unit = { note ->
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                viewModel.moveToTrash(note.id)
+            }
+            val longPress: () -> Unit = {
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+            }
+
+            when (appSettings.notesLayout) {
+                NotesLayout.LIST -> LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    sections.forEach { section ->
+                        if (section.titleResId != null) {
+                            item(key = "header-${section.titleResId}") {
+                                SectionHeader(
+                                    stringResource(section.titleResId),
+                                    modifier = Modifier.animateItem()
+                                )
+                            }
+                        }
+                        items(section.notes, key = { it.id }) { note ->
+                            NoteRow(
+                                note = note,
+                                selected = note.id == selectedNoteId,
+                                showPreview = appSettings.notesShowPreview,
+                                modifier = Modifier.animateItem(),
+                                onClick = { onNoteClick(note.id) },
+                                onTogglePin = { togglePin(note) },
+                                onArchive = { archive(note) },
+                                onLock = { lock(note) },
+                                onMoveToTrash = { moveToTrash(note) },
+                                onLongPress = longPress
                             )
                         }
                     }
-                    items(section.notes, key = { it.id }) { note ->
-                        NoteRow(
-                            note = note,
-                            selected = note.id == selectedNoteId,
-                            showPreview = appSettings.notesShowPreview,
-                            modifier = Modifier.animateItem(),
-                            onClick = { onNoteClick(note.id) },
-                            onTogglePin = {
-                                hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                viewModel.setPinned(note.id, !note.pinned)
-                            },
-                            onArchive = {
-                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                                viewModel.setArchived(note.id, true)
-                            },
-                            onLock = {
-                                if (lockPasscodeSet) {
-                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    viewModel.setLocked(note.id, true)
-                                    // The export guard only stops *future* saves, so a note
-                                    // mirrored before it was locked would leave a readable
-                                    // plaintext copy in the sync folder. Remove it now, or
-                                    // the Locked space's privacy promise is only skin deep.
-                                    // LockedNotesScreen re-mirrors on unlock (#156).
-                                    appSettings.syncFolderUriOrNull()?.let { uri ->
-                                        scope.launch {
-                                            withContext(Dispatchers.IO) {
-                                                NoteFolderMirror.deleteNote(
-                                                    context,
-                                                    uri,
-                                                    note.id,
-                                                    appSettings.mirrorMetadata()
-                                                )
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    showSetPasscodePrompt = true
-                                }
-                            },
-                            onMoveToTrash = {
-                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                                viewModel.moveToTrash(note.id)
-                            },
-                            onLongPress = {
-                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                }
+
+                NotesLayout.GRID -> LazyVerticalGrid(
+                    // Adaptive, not a fixed column count: this screen is also the
+                    // tablet's narrow list pane beside the editor, where a fixed
+                    // two columns would leave nothing readable in either.
+                    columns = GridCells.Adaptive(minSize = 180.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    sections.forEach { section ->
+                        if (section.titleResId != null) {
+                            item(
+                                key = "header-${section.titleResId}",
+                                span = { GridItemSpan(maxLineSpan) }
+                            ) {
+                                SectionHeader(
+                                    stringResource(section.titleResId),
+                                    modifier = Modifier.animateItem(),
+                                    // The grid already pads its content by 12dp;
+                                    // the list's 24 would double up here.
+                                    horizontalPadding = 12.dp
+                                )
                             }
-                        )
+                        }
+                        items(section.notes, key = { it.id }) { note ->
+                            NoteCard(
+                                note = note,
+                                selected = note.id == selectedNoteId,
+                                showPreview = appSettings.notesShowPreview,
+                                modifier = Modifier.animateItem(),
+                                onClick = { onNoteClick(note.id) },
+                                onTogglePin = { togglePin(note) },
+                                onArchive = { archive(note) },
+                                onLock = { lock(note) },
+                                onMoveToTrash = { moveToTrash(note) },
+                                onLongPress = longPress
+                            )
+                        }
                     }
                 }
             }
@@ -480,7 +543,11 @@ fun NotesListScreen(
 }
 
 @Composable
-private fun SectionHeader(text: String, modifier: Modifier = Modifier) {
+private fun SectionHeader(
+    text: String,
+    modifier: Modifier = Modifier,
+    horizontalPadding: Dp = 24.dp
+) {
     Text(
         text = text,
         style = MaterialTheme.typography.labelMedium.copy(
@@ -489,9 +556,31 @@ private fun SectionHeader(text: String, modifier: Modifier = Modifier) {
         ),
         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
         modifier = modifier
-            .padding(start = 24.dp, top = 20.dp, end = 24.dp, bottom = 6.dp)
+            .padding(start = horizontalPadding, top = 20.dp, end = horizontalPadding, bottom = 6.dp)
             .semantics { heading() }
     )
+}
+
+/**
+ * Source half of the card→editor container transform. Only active on the phone
+ * nav path, where both scopes are published; the tablet in-pane editor provides
+ * neither, so the item just renders normally.
+ */
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+private fun Modifier.noteSharedBounds(noteId: String): Modifier {
+    val sharedScope = LocalSharedTransitionScope.current
+    val avScope = LocalNavAnimatedVisibilityScope.current
+    return if (sharedScope != null && avScope != null) {
+        with(sharedScope) {
+            this@noteSharedBounds.sharedBounds(
+                rememberSharedContentState(key = "note-$noteId"),
+                animatedVisibilityScope = avScope
+            )
+        }
+    } else {
+        this
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalSharedTransitionApi::class)
@@ -515,23 +604,7 @@ private fun NoteRow(
         Color.Transparent
     }
 
-    // Source half of the card->editor container transform. Only active on the
-    // phone nav path, where both scopes are published; the tablet in-pane editor
-    // provides neither, so the row just renders normally.
-    val sharedScope = LocalSharedTransitionScope.current
-    val avScope = LocalNavAnimatedVisibilityScope.current
-    val rowModifier = if (sharedScope != null && avScope != null) {
-        with(sharedScope) {
-            modifier.sharedBounds(
-                rememberSharedContentState(key = "note-${note.id}"),
-                animatedVisibilityScope = avScope
-            )
-        }
-    } else {
-        modifier
-    }
-
-    Box(rowModifier) {
+    Box(modifier.noteSharedBounds(note.id)) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -594,53 +667,179 @@ private fun NoteRow(
             }
         }
 
-        DropdownMenu(
+        NoteContextMenu(
+            note = note,
             expanded = menuExpanded,
-            onDismissRequest = { menuExpanded = false }
+            onDismiss = { menuExpanded = false },
+            onTogglePin = onTogglePin,
+            onArchive = onArchive,
+            onLock = onLock,
+            onMoveToTrash = onMoveToTrash
+        )
+    }
+}
+
+/**
+ * A note as a grid tile (#279) — the same content and the same long-press menu
+ * as [NoteRow], laid out for a column narrower than the screen: the title gets
+ * two lines instead of one and the excerpt four instead of two, because a tile
+ * has height to spare and width it does not.
+ */
+@OptIn(ExperimentalFoundationApi::class, ExperimentalSharedTransitionApi::class)
+@Composable
+private fun NoteCard(
+    note: Note,
+    selected: Boolean,
+    showPreview: Boolean,
+    onClick: (String) -> Unit,
+    onTogglePin: () -> Unit,
+    onArchive: () -> Unit,
+    onLock: () -> Unit,
+    onMoveToTrash: () -> Unit,
+    onLongPress: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var menuExpanded by remember { mutableStateOf(false) }
+    val itemBackground = if (selected) {
+        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.36f)
+    } else {
+        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+    }
+
+    Box(modifier.noteSharedBounds(note.id)) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                // A title-only tile is otherwise a thin sliver next to a tile
+                // with an excerpt; the minimum keeps a row of them even.
+                .heightIn(min = if (showPreview) 120.dp else 64.dp)
+                .clip(MaterialTheme.shapes.medium)
+                .background(itemBackground)
+                .combinedClickable(
+                    onClick = { onClick(note.id) },
+                    onLongClick = {
+                        onLongPress()
+                        menuExpanded = true
+                    }
+                )
+                .padding(12.dp)
+                .semantics(mergeDescendants = true) {}
         ) {
-            DropdownMenuItem(
-                leadingIcon = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top
+            ) {
+                if (note.pinned) {
                     Icon(
-                        imageVector = if (note.pinned) Icons.Outlined.PushPin else Icons.Filled.PushPin,
-                        contentDescription = null
+                        imageVector = Icons.Filled.PushPin,
+                        contentDescription = stringResource(R.string.pinned),
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .padding(end = 6.dp, top = 2.dp)
+                            .height(14.dp)
                     )
-                },
-                text = {
+                }
+                Text(
+                    text = note.title.ifEmpty { stringResource(R.string.untitled) },
+                    style = MaterialTheme.typography.titleSmall,
+                    color = if (selected) {
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    },
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            if (showPreview) {
+                if (note.excerpt.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        if (note.pinned) stringResource(R.string.unpin)
-                        else stringResource(R.string.pin)
+                        text = note.excerpt,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                        maxLines = 4,
+                        overflow = TextOverflow.Ellipsis
                     )
-                },
-                onClick = {
-                    menuExpanded = false
-                    onTogglePin()
                 }
-            )
-            DropdownMenuItem(
-                leadingIcon = { Icon(Icons.Default.Archive, contentDescription = null) },
-                text = { Text(stringResource(R.string.archive_action)) },
-                onClick = {
-                    menuExpanded = false
-                    onArchive()
-                }
-            )
-            DropdownMenuItem(
-                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
-                text = { Text(stringResource(R.string.move_to_locked)) },
-                onClick = {
-                    menuExpanded = false
-                    onLock()
-                }
-            )
-            DropdownMenuItem(
-                leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null) },
-                text = { Text(stringResource(R.string.move_to_trash)) },
-                onClick = {
-                    menuExpanded = false
-                    onMoveToTrash()
-                }
-            )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = formatUpdatedTime(LocalContext.current, note.updatedAt),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                )
+            }
         }
+
+        NoteContextMenu(
+            note = note,
+            expanded = menuExpanded,
+            onDismiss = { menuExpanded = false },
+            onTogglePin = onTogglePin,
+            onArchive = onArchive,
+            onLock = onLock,
+            onMoveToTrash = onMoveToTrash
+        )
+    }
+}
+
+/** The long-press menu shared by [NoteRow] and [NoteCard]. */
+@Composable
+private fun NoteContextMenu(
+    note: Note,
+    expanded: Boolean,
+    onDismiss: () -> Unit,
+    onTogglePin: () -> Unit,
+    onArchive: () -> Unit,
+    onLock: () -> Unit,
+    onMoveToTrash: () -> Unit
+) {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismiss
+    ) {
+        DropdownMenuItem(
+            leadingIcon = {
+                Icon(
+                    imageVector = if (note.pinned) Icons.Outlined.PushPin else Icons.Filled.PushPin,
+                    contentDescription = null
+                )
+            },
+            text = {
+                Text(
+                    if (note.pinned) stringResource(R.string.unpin)
+                    else stringResource(R.string.pin)
+                )
+            },
+            onClick = {
+                onDismiss()
+                onTogglePin()
+            }
+        )
+        DropdownMenuItem(
+            leadingIcon = { Icon(Icons.Default.Archive, contentDescription = null) },
+            text = { Text(stringResource(R.string.archive_action)) },
+            onClick = {
+                onDismiss()
+                onArchive()
+            }
+        )
+        DropdownMenuItem(
+            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+            text = { Text(stringResource(R.string.move_to_locked)) },
+            onClick = {
+                onDismiss()
+                onLock()
+            }
+        )
+        DropdownMenuItem(
+            leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null) },
+            text = { Text(stringResource(R.string.move_to_trash)) },
+            onClick = {
+                onDismiss()
+                onMoveToTrash()
+            }
+        )
     }
 }
 

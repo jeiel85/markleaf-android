@@ -72,4 +72,65 @@ class TitleExtractorTest {
     fun `generateExcerpt is empty when the note is only a title`() {
         assertEquals("", TitleExtractor.generateExcerpt("# Only title"))
     }
+
+    /**
+     * The behaviour #280 reported: with the default rule, a heading anywhere in
+     * the note outranks the line the note actually starts with.
+     */
+    @Test
+    fun `first heading wins over an earlier plain line by default`() {
+        val content = "Some plain text\n## Details\nmore"
+        assertEquals("Details", TitleExtractor.extractTitle(content))
+        assertEquals(
+            "Details",
+            TitleExtractor.extractTitle(content, NoteTitleSource.FIRST_HEADING)
+        )
+    }
+
+    @Test
+    fun `first line mode ignores a heading further down`() {
+        val content = "Some plain text\n## Details\nmore"
+        assertEquals(
+            "Some plain text",
+            TitleExtractor.extractTitle(content, NoteTitleSource.FIRST_LINE)
+        )
+    }
+
+    @Test
+    fun `first line mode still strips markers when the first line is a heading`() {
+        val content = "## My Note\nbody"
+        assertEquals(
+            "My Note",
+            TitleExtractor.extractTitle(content, NoteTitleSource.FIRST_LINE)
+        )
+    }
+
+    @Test
+    fun `first line mode skips leading blank lines`() {
+        val content = "\n\n  Started here\n# Later heading"
+        assertEquals(
+            "Started here",
+            TitleExtractor.extractTitle(content, NoteTitleSource.FIRST_LINE)
+        )
+    }
+
+    @Test
+    fun `first line mode is Untitled for blank content`() {
+        assertEquals("Untitled", TitleExtractor.extractTitle("", NoteTitleSource.FIRST_LINE))
+        assertEquals("Untitled", TitleExtractor.extractTitle("\n \n", NoteTitleSource.FIRST_LINE))
+    }
+
+    /** The excerpt drops whichever line became the title, under either rule. */
+    @Test
+    fun `excerpt skips the line the title came from in first line mode`() {
+        val content = "Some plain text\n## Details\nmore"
+        assertEquals(
+            "Details\nmore",
+            TitleExtractor.generateExcerpt(content, NoteTitleSource.FIRST_LINE)
+        )
+        assertEquals(
+            "Some plain text\nmore",
+            TitleExtractor.generateExcerpt(content, NoteTitleSource.FIRST_HEADING)
+        )
+    }
 }

@@ -206,6 +206,18 @@
     <string name="open_notes_at_bottom">Bottom</string>
     <string name="open_notes_at_last_position">Where I left off</string>
     <string name="open_notes_at_description">Where a note lands when you open it. Bottom suits notes you only add to. "Where I left off" remembers each note\'s position in the app only — nothing is written into your files.</string>
+    <string name="notes_layout">Notes list layout</string>
+    <string name="notes_layout_list">List</string>
+    <string name="notes_layout_grid">Grid</string>
+    <string name="notes_layout_description">Grid shows notes as cards, in as many columns as the screen fits. "Show note previews" applies to both.</string>
+    <string name="note_title_source">Note title</string>
+    <string name="note_title_source_first_heading">First heading</string>
+    <string name="note_title_source_first_line">First line</string>
+    <string name="note_title_source_description">Which line of a note becomes its title in the list. "First heading" takes the first Markdown heading anywhere in the note; "First line" always takes the first line you wrote. Changing this retitles your existing notes — in Sync Center, "Rename files to note titles" brings your synced filenames along.</string>
+    <plurals name="note_title_retitled_format">
+        <item quantity="one">Retitled %1$d note.</item>
+        <item quantity="other">Retitled %1$d notes.</item>
+    </plurals>
     <string name="jump_to_end">Jump to the end</string>
     <string name="jump_to_start">Jump to the start</string>
     <string name="view_mode_locked">Notes now open in preview</string>

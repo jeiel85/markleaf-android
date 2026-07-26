@@ -141,6 +141,29 @@ li {
     word-break: keep-all;
 }
 
+/* Right-to-left pages. The layout itself mirrors on its own — every offset in
+   this file is a logical property — but typography does not follow from
+   direction. Arabic-script text needs a face the Latin/CJK stack above does not
+   carry; no webfont is fetched, so this is a system stack. Groundwork from
+   #146, where a Persian reader ran into the app's own right-to-left handling. */
+[dir="rtl"] {
+    --font-display: Vazirmatn, "Noto Naskh Arabic", "Noto Sans Arabic", "Segoe UI", Tahoma, system-ui, sans-serif;
+    --font-body: Vazirmatn, "Noto Naskh Arabic", "Noto Sans Arabic", "Segoe UI", Tahoma, system-ui, sans-serif;
+}
+
+/* Tight negative tracking is a Latin display trick; in a joined script it pulls
+   letters into each other. */
+[dir="rtl"] :is(h1, h2, h3) {
+    letter-spacing: normal;
+}
+
+/* Mono + wide tracking + uppercase reads as a Latin small-label device, and
+   Arabic script has no equivalent — keep the scale, drop the Latin styling. */
+[dir="rtl"] :is(.kicker, .story-step, .channel-status, .release-line) {
+    font-family: var(--font-body);
+    letter-spacing: normal;
+}
+
 :focus-visible {
     outline: 0.1875rem solid var(--color-focus);
     outline-offset: var(--space-1);
@@ -157,7 +180,7 @@ li {
     background: var(--color-primary-ink);
     color: var(--color-surface);
     font-weight: 700;
-    left: var(--space-4);
+    inset-inline-start: var(--space-4);
     padding: var(--space-3) var(--space-4);
     position: fixed;
     text-decoration: none;
@@ -417,12 +440,12 @@ li {
 
 .file-receipt {
     background: var(--color-surface);
-    border-left: var(--space-1) solid var(--color-primary);
+    border-inline-start: var(--space-1) solid var(--color-primary);
     bottom: 0;
     box-shadow: 0 var(--space-2) var(--space-6) var(--color-shadow-soft);
     display: grid;
     gap: var(--space-1);
-    left: calc(-1 * var(--space-6));
+    inset-inline-start: calc(-1 * var(--space-6));
     max-width: 18rem;
     padding: var(--space-4) var(--space-6);
     position: absolute;
@@ -448,7 +471,7 @@ li {
 }
 
 .hero-product > figcaption {
-    padding-left: var(--space-4);
+    padding-inline-start: var(--space-4);
 }
 
 .trust-ledger {
@@ -466,7 +489,7 @@ li {
 }
 
 .proof-item + .proof-item {
-    border-left: 0.0625rem solid var(--color-white-line);
+    border-inline-start: 0.0625rem solid var(--color-white-line);
 }
 
 .proof-item p {
@@ -546,7 +569,7 @@ li {
 
 .feature-points li {
     color: var(--color-ink);
-    padding-left: var(--space-6);
+    padding-inline-start: var(--space-6);
     position: relative;
 }
 
@@ -554,7 +577,7 @@ li {
     color: var(--color-primary);
     content: "—";
     font-weight: 800;
-    left: 0;
+    inset-inline-start: 0;
     position: absolute;
 }
 
@@ -606,7 +629,7 @@ li {
 
 .file-browser-bar strong {
     font-size: var(--text-caption);
-    margin-left: var(--space-2);
+    margin-inline-start: var(--space-2);
 }
 
 .ownership-demo pre {
@@ -808,6 +831,16 @@ li {
     transform: translateX(0);
 }
 
+/* The nudge should follow the reading direction; translateX has no logical
+   form, so right-to-left gets its own pair (order matters — :active resets). */
+[dir="rtl"] .channel-row:hover {
+    transform: translateX(calc(-1 * var(--space-1)));
+}
+
+[dir="rtl"] .channel-row:active {
+    transform: translateX(0);
+}
+
 .channel-row strong,
 .channel-row small {
     display: block;
@@ -828,7 +861,7 @@ li {
     font-size: var(--text-caption);
     font-style: normal;
     font-weight: 750;
-    text-align: right;
+    text-align: end;
 }
 
 .channel-paused em {
@@ -943,7 +976,7 @@ li {
     }
 
     .file-receipt {
-        left: var(--space-4);
+        inset-inline-start: var(--space-4);
     }
 
     .trust-grid {
@@ -955,7 +988,7 @@ li {
     }
 
     .proof-item + .proof-item {
-        border-left: 0;
+        border-inline-start: 0;
         border-top: 0.0625rem solid var(--color-white-line);
     }
 
@@ -1028,7 +1061,7 @@ li {
 
     .file-receipt {
         bottom: var(--space-2);
-        left: var(--space-3);
+        inset-inline-start: var(--space-3);
         max-width: calc(100% - var(--space-6));
         padding: var(--space-3) var(--space-4);
     }
@@ -1054,7 +1087,7 @@ li {
     }
 
     .channel-row em {
-        text-align: left;
+        text-align: start;
     }
 }
 

@@ -27,6 +27,12 @@ body {
     line-height: 1.65;
 }
 
+/* Arabic-script text has no face in the stack above; a right-to-left page needs
+   one. No webfont is fetched — see the same note in landing.css. */
+[dir="rtl"] body {
+    font-family: Vazirmatn, "Noto Naskh Arabic", "Noto Sans Arabic", "Segoe UI", Tahoma, system-ui, sans-serif;
+}
+
 a {
     color: inherit;
 }
@@ -336,7 +342,7 @@ footer a {
 }
 
 .content ul {
-    padding-left: 1.3rem;
+    padding-inline-start: 1.3rem;
 }
 
 .content pre {

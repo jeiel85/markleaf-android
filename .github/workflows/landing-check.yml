@@ -7,7 +7,9 @@
 # privacy page at a range of widths and fails on horizontal overflow.
 #
 # Kept out of android-build.yml so it does not tangle with the required "build"
-# check and only runs when the docs actually change.
+# check and only runs when the docs actually change. The stylesheets are in that
+# set too: layout lives in the CSS, so a markup-only filter would let exactly the
+# change most able to overflow a page through untested.
 name: Landing check
 
 on:
@@ -15,11 +17,13 @@ on:
     branches: [main]
     paths:
       - 'docs/**.html'
+      - 'docs/**.css'
       - 'scripts/check-landing-overflow.mjs'
       - '.github/workflows/landing-check.yml'
   pull_request:
     paths:
       - 'docs/**.html'
+      - 'docs/**.css'
       - 'scripts/check-landing-overflow.mjs'
       - '.github/workflows/landing-check.yml'
   workflow_dispatch:

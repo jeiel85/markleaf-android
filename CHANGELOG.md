@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.32.1 - A caret you can see in the dark - 2026-07-27
+
+One editor fix, reported against an F-Droid install. No feature, permission, or storage-format changes.
+
+### Fixed
+- **The text cursor follows your theme instead of staying black (#283).** The note editor is the one field in Markleaf that draws its own caret, and it never named a colour, so it kept the framework default: opaque black. On a dark background that put a black bar on a near-black page — hard to find in both *Markleaf Green* and *Material You*, and at odds with the drag handle right beside it, which was themed all along. The caret now takes the theme's accent colour, the same one the search field and the dialogs use: the light green under dark *Markleaf Green*, and your wallpaper's tone under *Material You*. Light themes keep a dark caret, and nothing else about the editor changed.
+
 ## v2.32.0 - Two ways to arrange your notes - 2026-07-25
 
 Both additions came from the same reporter, and both are choices rather than replacements: your list keeps its shape and your notes keep their titles until you say otherwise. No permission or storage-format changes.

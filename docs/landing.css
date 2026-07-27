@@ -415,6 +415,11 @@ li {
     margin-top: var(--space-4);
 }
 
+.hero-award {
+    display: inline-block;
+    margin-top: var(--space-6);
+}
+
 .hero-product {
     margin: var(--space-8) 0;
     padding-bottom: var(--space-8);

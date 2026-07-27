@@ -50,3 +50,27 @@ URLs regardless.
 | `markleaf-feature-graphic-1024x500.png` | Play Console feature graphic |
 | `markleaf-playstore-icon-512.png` | Play Console app icon |
 | `logo.svg` | Landing header |
+
+## Badges
+
+| File | Use |
+|---|---|
+| `trendshift-daily-kotlin.svg` | Landing hero award badge, all six languages |
+
+### Why a local copy and not Trendshift's live badge URL
+
+Trendshift serves this badge from `trendshift.io/api/badge/…`, and that is what
+the six READMEs embed: GitHub proxies README images through camo, so a reader
+never contacts Trendshift. GitHub Pages proxies nothing. Embedding the live URL
+here would have every visitor's browser hit a third party, on the page whose
+whole argument is that Markleaf does not phone home — so the landing pages serve
+this checked-in copy instead.
+
+The cost is that the file no longer follows the live badge. That is acceptable
+because it records a dated achievement — #1 Kotlin repository of the day, first
+reached 23 Jul 2026 — and not a current standing. Re-download it only if the
+award itself changes:
+
+```
+curl -L "https://trendshift.io/api/badge/trendshift/repositories/58116/daily?language=Kotlin" -o docs/assets/trendshift-daily-kotlin.svg
+```

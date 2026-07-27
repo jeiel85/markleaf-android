@@ -59,6 +59,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isShiftPressed
@@ -950,6 +951,14 @@ fun EditorScreen(
                                 color = MaterialTheme.colorScheme.onBackground
                             ),
                             visualTransformation = markdownVisualTransformation,
+                            // `BasicTextField` defaults its caret to opaque black, and
+                            // this is the only field in the app that draws its own —
+                            // every Material text field takes the colour from the theme.
+                            // On a dark background the default was all but invisible
+                            // while the drag handle beside it was themed, in both
+                            // Markleaf Green and Material You (#283). `primary` is what
+                            // the Material fields use, so the caret now matches them.
+                            cursorBrush = SolidColor(colorScheme.primary),
                             decorationBox = { innerTextField ->
                                 Box(modifier = Modifier.fillMaxSize()) {
                                     innerTextField()

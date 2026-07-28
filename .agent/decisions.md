@@ -7,6 +7,26 @@
 
 ## Confirmed Decisions
 
+### D065 - Distribution Guidance Separates Current Release From Update Channels
+
+GitHub Releases is the public source of the current signed APK. F-Droid remains the
+recommended route for automatic updates once its catalog has published that version.
+GitLab remains a source mirror, but its release assets are not an installation promise.
+
+Why:
+- Google Play updates are currently paused, so the public documentation must name one
+  unambiguous current-release source.
+- F-Droid publication is valuable for trusted updates but can lag a GitHub release.
+- The GitLab release publication step has had quota and availability failures; presenting
+  it as interchangeable with GitHub can direct a user to an older or missing asset.
+
+Decision:
+- All six READMEs describe the same channel hierarchy.
+- `docs/ROADMAP.md` treats distribution reliability and real-user evidence as the next
+  gate, ahead of new broad features.
+- This changes documentation and operations only; it does not add network access,
+  analytics, accounts, or any new runtime dependency.
+
 ### D064 - The R8 Mapping Is Not A GitHub Release Asset Either
 
 The GitHub Release carries exactly one asset, the signed APK. The R8 mapping is

@@ -34,7 +34,7 @@
 <p align="center">
   <a href="https://github.com/jeiel85/markleaf-android">GitHub 저장소</a> ·
   <a href="https://github.com/jeiel85/markleaf-android/discussions">Discussions (피드백)</a> ·
-  <a href="https://gitlab.com/jeiel85/markleaf-android">GitLab 공개 미러</a>
+  <a href="https://gitlab.com/jeiel85/markleaf-android">GitLab 소스 미러</a>
 </p>
 
 <p align="center">
@@ -163,11 +163,11 @@ com.markleaf.notes
 ### 설치 방법
 
 > [!NOTE]
-> **Google Play 업데이트는 현재 잠정 보류 중입니다.** 1인 개발자의 한국 사업자 등록 요건 관련 정책 이슈가 정리될 때까지 새 버전을 Play Store에 올리지 않습니다. 그동안 **최신 버전은 F-Droid, GitHub Releases 또는 GitLab Releases에서 받아 주세요.** (Play Store에 이미 설치돼 있다면 그대로 사용할 수 있습니다.)
+> **Google Play 업데이트는 현재 잠정 보류 중입니다.** 1인 개발자의 한국 사업자 등록 요건 관련 정책 이슈가 정리될 때까지 새 버전을 Play Store에 올리지 않습니다. 최신 버전은 **GitHub Releases**에서 받으세요. F-Droid 빌드가 따라온 뒤에는 F-Droid가 권장 업데이트 경로입니다. (Play Store에 이미 설치돼 있다면 그대로 사용할 수 있습니다.)
 
-- **F-Droid** *(권장)*: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — F-Droid 클라이언트에서 검색하거나 위 링크로 바로 설치할 수 있습니다. 동일 서명 키(SHA-256 `0be97352…f91a`)를 사용하므로 GitHub/GitLab Releases APK로 사이드로드한 경우에도 끊김 없이 업데이트가 이어집니다.
+- **F-Droid** *(자동 업데이트용 권장)*: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — F-Droid 클라이언트에서 검색하거나 위 링크로 바로 설치할 수 있습니다. 카탈로그 반영은 GitHub보다 늦을 수 있으므로, 아직 최신 버전이 보이지 않으면 아래 GitHub Releases를 사용하세요. 동일 서명 키(SHA-256 `0be97352…f91a`)를 사용하므로 처음 GitHub APK를 사이드로드했어도 업데이트가 이어집니다.
 - **APK 직접 설치**: [GitHub v2.32.1](https://github.com/jeiel85/markleaf-android/releases/tag/v2.32.1) 릴리스에서 APK를 다운로드한 뒤 Android 기기에서 실행해 설치합니다.
-- **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **업데이트 잠정 보류 중**입니다(위 안내 참고). 이미 설치돼 있으면 계속 쓸 수 있지만, 최신 버전은 F-Droid·GitHub·GitLab에서 받으세요.
+- **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **업데이트 잠정 보류 중**입니다(위 안내 참고). 이미 설치돼 있으면 계속 쓸 수 있으며, 최신 버전은 GitHub Releases 또는 반영이 끝난 F-Droid에서 받으세요.
 
 ### 개발 환경 구축
 직접 빌드하거나 기여하고 싶다면 다음 과정을 따르세요.

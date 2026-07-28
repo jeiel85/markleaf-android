@@ -34,7 +34,7 @@
 <p align="center">
   <a href="https://github.com/jeiel85/markleaf-android">Repositorio de GitHub</a> ·
   <a href="https://github.com/jeiel85/markleaf-android/discussions">Discussions (sugerencias)</a> ·
-  <a href="https://gitlab.com/jeiel85/markleaf-android">Espejo público de GitLab</a>
+  <a href="https://gitlab.com/jeiel85/markleaf-android">Espejo de código fuente en GitLab</a>
 </p>
 
 <p align="center">
@@ -163,11 +163,11 @@ com.markleaf.notes
 ### Instalación
 
 > [!NOTE]
-> **Las actualizaciones en Google Play están en pausa por ahora.** No se publicarán nuevas versiones en la Play Store hasta que se resuelva un requisito de política de registro de negocio en Corea para el desarrollador individual. Mientras tanto, **obtén la última versión desde F-Droid, GitHub Releases o GitLab Releases.** (Si ya la instalaste desde la Play Store, seguirá funcionando.)
+> **Las actualizaciones en Google Play están en pausa por ahora.** No se publicarán nuevas versiones en la Play Store hasta que se resuelva un requisito de política de registro de negocio en Corea para el desarrollador individual. Para obtener la versión actual, usa **GitHub Releases**. Cuando la compilación de F-Droid se haya puesto al día, F-Droid será la ruta de actualización recomendada. (Si ya la instalaste desde la Play Store, seguirá funcionando.)
 
-- **F-Droid** *(recomendado)*: [Markleaf en F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — búscalo en el cliente de F-Droid o instálalo con el enlace de arriba. Usa la misma clave de firma (SHA-256 `0be97352…f91a`), así que las actualizaciones continúan sin problemas incluso si instalaste un APK de GitHub o GitLab Releases mediante sideload.
+- **F-Droid** *(recomendado para actualizaciones automáticas)*: [Markleaf en F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — búscalo en el cliente de F-Droid o instálalo con el enlace de arriba. El catálogo puede publicarse después de GitHub; si aún no muestra la versión actual, usa GitHub Releases a continuación. Usa la misma clave de firma (SHA-256 `0be97352…f91a`), así que las actualizaciones continúan sin problemas aunque primero instales por sideload un APK de GitHub.
 - **Instalación directa del APK**: descarga el APK desde el [release v2.32.1 de GitHub](https://github.com/jeiel85/markleaf-android/releases/tag/v2.32.1), y ejecútalo en tu dispositivo Android.
-- **Google Play**: [Markleaf en Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **las actualizaciones están en pausa** (ver la nota de arriba). Si ya la tienes instalada, seguirá funcionando, pero obtén la última versión desde F-Droid, GitHub o GitLab.
+- **Google Play**: [Markleaf en Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **las actualizaciones están en pausa** (ver la nota de arriba). Si ya la tienes instalada, seguirá funcionando; obtén la versión actual desde GitHub Releases o desde F-Droid cuando esté disponible allí.
 
 ### Compilar desde el código fuente
 Si quieres compilar el proyecto o contribuir, sigue estos pasos.

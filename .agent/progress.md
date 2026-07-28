@@ -1,3 +1,17 @@
+## 2026-07-28 - Project direction and distribution documentation refreshed
+
+Selected task:
+- Align public installation guidance and the active roadmap with the observed release channels and current product stage.
+
+What changed:
+- Updated all six READMEs: GitHub Releases is the current signed-APK source, F-Droid is the automatic-update path after catalog publication, and GitLab is a source mirror rather than an installation promise.
+- Added a 2026-07–10 stabilization, distribution, and user-evidence gate to `docs/ROADMAP.md`; moved the older feature phases to an explicitly deferred backlog.
+- Marked the commercial-readiness document as historical-complete and linked it to the active operating plan.
+
+Verification:
+- `pwsh scripts/verify-landing-versions.ps1`
+- Manual parity review of all six installation sections and their current v2.32.1 release links.
+
 ---
 
 ## 2026-07-16 - main 브랜치 통합과 GitLab v2.24 정렬

@@ -1,3 +1,18 @@
+## 2026-07-28 - Project direction and distribution guidance aligned
+
+- Trigger: a repository review found a mature local-first app with an outdated feature
+  roadmap, a paused Google Play channel, an F-Droid catalog that can trail GitHub, and
+  GitLab release-asset publication that is not reliable enough to advertise as an equal
+  installation path.
+- Contract/scope: no application code, permissions, telemetry, account, dependency, or
+  release version changed. The six README installation sections now distinguish GitHub
+  Releases (current signed APK), F-Droid (automatic updates after catalog publication),
+  and GitLab (source mirror). `docs/ROADMAP.md` gains a July–October stabilization,
+  distribution, and user-evidence gate; the older feature phases remain deferred ideas.
+- Verification: `pwsh scripts/verify-landing-versions.ps1` and a line-by-line parity
+  review of all six README installation sections. `./gradlew test` had already passed on
+  the unchanged v2.32.1 source tree during the repository assessment.
+
 ## 2026-07-27 - The Trendshift daily-Kotlin award on the README and landing hero
 
 - Trigger: Trendshift ranked the repository #1 Kotlin repository of the day on 23 Jul 2026, and the maintainer asked whether the badge it hands out belonged on the README. It did, and the landing pages were added in the same pass.

@@ -3,12 +3,16 @@
 markleaf-android 저장소의 재해 복구(이중 백업) 운영 문서.
 설계 원본: `github-gitlab-mirror-final-v4` (v4.0.0)를 이 저장소의 실제 구성에 맞춰 반영.
 
-## 현재 상태 (2026-07-18)
+## 현재 상태 (2026-08-03)
 
 - GitHub와 GitLab 모두 활성 원격이며 같은 `main`과 릴리스 태그를 유지한다.
-- GitLab은 공개 소스 미러이자 독립 서명 릴리스 채널이다.
-- GitHub 태그는 GitHub Release와 F-Droid 자동 픽업의 기준이고, GitLab 태그는
-  GitLab CI의 독립 빌드와 Generic Package Registry 기반 Release를 발동한다.
+- **GitLab이 실제로 미러하는 것은 refs뿐이다(D066).** GitLab의 최신 Release는
+  `v2.27.2 (2026-07-21)`이고 v2.28.0~v2.32.1 열 릴리스는 Release 객체가 없다.
+  릴리스 자산의 영구 사본은 `D:\Build` 하나다.
+- GitHub 태그는 GitHub Release와 F-Droid 자동 픽업의 기준이다. GitLab Release
+  발행은 GitHub 태그 잡의 두 스텝(`Export versioned release artifacts`,
+  `Publish the GitLab release`)이 맡되, 저장소 변수 `GITLAB_RELEASE_MIRROR=true`
+  일 때만 돈다 — 지금은 미설정이라 skip된다. 켜는 조건은 아래 토큰 항목 참조.
 - 제공자 간 자동 양방향 mirror는 설정하지 않는다.
 - **`main`은 양쪽 모두 보호되어 있다.** GitHub `main`은 2026-07-18부터 PR 필수 ·
   `build` 체크 통과 필수 · admin 예외 없음(`enforce_admins`)이고, GitLab `main`은
@@ -104,6 +108,11 @@ git push github vX.Y.Z
 
    스코프가 모자란 채로 태그를 밀면 릴리스 잡이 업로드 전에 멈추고
    `The token needs the 'api' scope` 를 남긴다. 절반만 올라간 상태로 끝나지 않는다.
+
+   **재발급 후에는 저장소 변수 `GITLAB_RELEASE_MIRROR`를 `true`로 설정해야 한다.**
+   v2.32.0·v2.32.1 두 태그가 이 메시지로 빨갛게 끝난 뒤(GitHub Release는 이미 발행된
+   상태로) 두 스텝을 변수 뒤로 옮겼다 — 매번 실패하는 체크는 읽히지 않기 때문이다(D066).
+   변수를 켜지 않으면 토큰만 고쳐도 미러는 그대로 skip된다.
 2. **GitHub에 시크릿 등록.** 저장소 → Settings → Secrets and variables → Actions →
    New repository secret. 이름은 정확히 **`GITLAB_TOKEN`**.
 3. **확인.** Actions 탭 → **Mirror push** → Run workflow. 또는 아무 PR이나 머지하면
@@ -267,8 +276,9 @@ fast-forward로 받을 수 있는 새 커밋을 만드는 방법이 보호 설�
       다시 적용하고, `gh api repos/jeiel85/markleaf-android/branches/main --jq .protected`
       가 `true`인지 확인한다.
    4. 태그도 재작성해야 하면 보호된 `v*` 태그를 지우고 다시 만들어야 하며,
-      GitHub Release·F-Droid 픽업·GitLab Release가 모두 재실행된다. 이미 배포된
-      버전 번호는 재사용하지 말고 새 patch 버전으로 올리는 쪽을 우선한다.
+      GitHub Release와 F-Droid 픽업이 재실행된다(GitLab Release 스텝은 미러가 켜져
+      있을 때만). 이미 배포된 버전 번호는 재사용하지 말고 새 patch 버전으로 올리는
+      쪽을 우선한다.
 5. 어느 경로든 마지막에 3자 일치를 확인한다.
    ```
    pwsh scripts/verify-mirror.ps1 -IncludeGitHub
@@ -323,5 +333,6 @@ pre-receive 훅까지 가지 않아 거부돼야 할 push도 성공으로 보고
 - GitHub Actions: 빌드/릴리스/F-Droid 태그 인계용으로 활성.
 - GitLab CI: 브랜치·MR 검증과 보호된 `vX.Y.Z` 태그의 독립 서명 릴리스용으로 활성.
 - 두 채널 모두 production 인증서 SHA-256(`0be97352…f91a`)을 검증한다.
-- GitLab Release 파일은 만료되는 job artifact가 아니라 Generic Package Registry에 보존한다.
+- GitLab Release 파일은 만료되는 job artifact가 아니라 Generic Package Registry에 보존한다
+  (미러가 켜져 있을 때. 현재는 꺼져 있고 영구 사본은 `D:\Build`다 — D066).
 - 워크플로는 저장소로 산출물을 되커밋하지 않는다.

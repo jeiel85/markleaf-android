@@ -79,9 +79,15 @@ com.markleaf.notes
 CI 또는 릴리즈 검증 시에는 APK 산출물 확인을 반드시 포함한다.
 
 - `app/build/outputs/apk/debug/app-debug.apk` 파일 존재 여부 확인
-- GitHub Actions/Release와 GitLab Release에서 APK 다운로드 가능 여부 확인
-- 두 배포 채널에서 다운로드한 APK 파일 크기가 0보다 큰지 확인
-- GitLab Release 자산이 만료되는 job artifact가 아니라 Generic Package Registry 영구 링크인지 확인
+- GitHub Release에서 APK 다운로드 가능 여부와 크기가 0보다 큰지 확인
+- 태그 전에 `pwsh scripts/verify-release-export.ps1` — `D:\Build`의 AAB·mapping·6개
+  로케일 노트가 현재 versionName/versionCode로 존재하고 비어 있지 않은지 확인한다.
+  **이것이 릴리스 자산의 유일한 영구 사본 검증이다**(D066).
+- GitLab 쪽 검증은 `GITLAB_RELEASE_MIRROR=true`일 때만 적용된다 — 켜져 있으면 GitLab
+  Release에서 APK를 받아 크기를 확인하고, 자산이 만료되는 job artifact가 아니라 Generic
+  Package Registry 영구 링크인지 본다. 꺼져 있으면(현재 상태) GitLab에는 Release가 생기지
+  않으므로 이 항목은 해당 없음이다. refs 미러 자체는 `scripts/verify-mirror.ps1`과 매일
+  도는 `mirror-check`가 확인한다.
 
 Android 프로젝트가 아직 초기화되지 않았다면 먼저 표준 Kotlin + Jetpack Compose Android 프로젝트를 생성한다.
 
@@ -149,13 +155,14 @@ GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
    남기고 `pwsh scripts/verify-release-export.ps1`로 확인한다 — `D:\Build`는 CI가 볼 수 없는
    로컬 경로라 이 단계가 빠져도 아무것도 실패하지 않으며, 실제로 v2.27.2부터 v2.29.0까지
    여섯 릴리스가 AAB·mapping 없이 지나갔다(#247). 그다음 `vX.Y.Z` 태그를 GitLab 먼저,
-   GitHub 다음으로 푸시한다. **릴리스에 붙는 자산은 양쪽이 다르다** — GitHub Release는
-   APK 하나만, GitLab Release는 Generic Package Registry를 통해 AAB와 mapping까지 포함한다
-   (AAB를 GitHub에 올리지 않는 이유는 D062, mapping을 빼고 30일 아티팩트로만 두는 이유는
-   D064). 단 **GitLab Release를 만드는 주체는 이제 GitHub 태그 잡이다**(#252) —
-   GitLab CI 무료 분이 소진돼 태그 파이프라인이 `ci_quota_exceeded`로 죽으면서 여덟
-   릴리스가 미러되지 않았고, Packages·Releases API는 CI 분을 쓰지 않으므로 GitHub
-   러너에서 올린다. GitLab 태그를 먼저 미는 순서는 그대로다(잡이 태그 존재를 확인한다).
+   GitHub 다음으로 푸시한다. **릴리스 자산이 붙는 곳은 GitHub 하나뿐이다** — GitHub
+   Release는 APK 하나만 담고(AAB 제외는 D062, mapping을 30일 아티팩트로만 두는 이유는
+   D064), **GitLab은 refs만 미러한다**(D066). GitLab Release 발행 스텝은
+   `GITLAB_RELEASE_MIRROR` 저장소 변수가 `true`일 때만 돌고 지금은 꺼져 있다 —
+   `GITLAB_TOKEN`이 `api` 스코프가 아니라 v2.28.0~v2.32.1 열 릴리스가 미러되지 않았고,
+   매 태그마다 실패하는 스텝은 신호가 되지 못하기 때문이다(#247, #252). 따라서 released
+   AAB·mapping의 영구 사본은 `D:\Build` 하나이며, 위의 `exportReleaseToBuildDrive`
+   단계를 건너뛰면 대체 사본이 없다. GitLab 태그를 먼저 미는 순서는 그대로다.
    GitHub 태그는 F-Droid 자동 픽업도 발동하므로 별도 F-Droid 제출 단계는 없다.
    릴리스 커밋은 `git add -A`로 만들지 않는다 — 변경 파일을 명시적으로 stage하거나 커밋 전
    working tree가 릴리스 대상만 담고 있는지 확인한다(무관한 작업이 태그에 섞여 나가는 것을
@@ -177,9 +184,17 @@ GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
 
 이 플로에서는 **새 하드닝 후보 이슈를 만들지 않는다.** 남은 이슈를 소진하려는 작업이 매번 새
 이슈를 낳으면 백로그가 줄지 않고 끝나지 않는 굴레가 된다. 대응 중 드러난 개선점은 지금 다루는
-이슈의 남은 체크리스트에 덧붙이거나 관련된 기존 `Hardening candidates: ...` 이슈에 코멘트로
+이슈의 남은 체크리스트에 덧붙이거나 상시 하드닝 트래커에 코멘트로
 남기고, 새 이슈는 메인테이너가 명시적으로 요청할 때만 연다. 데이터 손실·보안·크래시처럼
 사용자에게 실제 영향이 가는 결함은 예외로 버그 이슈를 바로 연다.
+
+### 하드닝 트래커는 하나로 유지한다
+
+릴리스마다 `Hardening candidates: vX.Y.Z` 이슈를 새로 열지 않는다. 그렇게 일곱 건이 쌓였고,
+같은 항목이 셋(스토어 노트 길이, 에뮬레이터 잡)까지 중복되면서 어느 이슈를 봐야 하는지가
+사라졌다. 릴리스에서 드러난 하드닝 후보는 **상시 트래커 #262에 `## vX.Y.Z` 섹션을 덧붙이는
+방식**으로 기록하고, 릴리스는 그대로 진행한다 — 후보 선정이나 진행 여부를 확인받기 위해 멈추지
+않는다는 원칙은 그대로다. 완료된 항목은 체크하고 근거(PR·커밋·측정값)를 한 줄로 남긴다.
 
 ## Stop Conditions
 

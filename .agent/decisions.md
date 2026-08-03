@@ -7,6 +7,48 @@
 
 ## Confirmed Decisions
 
+### D066 - GitLab Mirrors Refs, Not Release Artifacts
+
+GitLab carries `main` and every `v*` tag. It does not carry Release objects or
+the AAB/mapping attached to them, and the documentation no longer claims it
+does. The permanent copy of a released version's AAB, mapping, and six-locale
+notes is `D:\Build`, written by `:app:exportReleaseToBuildDrive` and gated
+before the tag by `scripts/verify-release-export.ps1`. This narrows D064, whose
+"GitLab publishes it to the Generic Package Registry" bullet described an
+intent, and D057, which set that up.
+
+Why:
+- Measured, not assumed. GitLab's newest Release is `v2.27.2 (2026-07-21)`. Ten
+  releases shipped without one — v2.28.0 through v2.32.1 — first because the
+  free CI minutes ran out mid-month, then because the token could not publish.
+  Refs were never affected: `mirror-push` carried every tag and the daily
+  `mirror-check` has been green throughout (#247, #252).
+- The remaining blocker is one credential, not a design problem. #275 moved
+  publication onto the GitHub runner, where the Packages and Releases APIs cost
+  no CI minutes, and it fails with the exact cause: `GITLAB_TOKEN` carries
+  `write_repository`, which cannot write packages or releases. Re-issuing it
+  with the `api` scope is a maintainer action that has been deferred twice.
+- A step that fails on every tag by design stops being a signal. Both v2.32.0
+  and v2.32.1 ended red on it after the GitHub Release had already published
+  its APK. That is the "red check that carries no information" #262 filed
+  against `launch-smoke`, one job over.
+- Nothing is lost while it is off. The GitHub Release still carries the APK
+  (D062, D064); `D:\Build` still carries AAB and mapping under a pre-tag gate;
+  the git history still has an off-machine copy on GitLab.
+
+Decision:
+- The tag job's `Export versioned release artifacts` and `Publish the GitLab
+  release` steps run only when the repository variable
+  `GITLAB_RELEASE_MIRROR` is `true`. It is unset, so both skip.
+- Turning it back on is one variable, once `GITLAB_TOKEN` is re-issued with the
+  `api` scope. `.github/scripts/mirror-release-to-gitlab.sh` and the GitLab-side
+  `GITLAB_RELEASE_FROM_CI` path are kept unchanged for that day.
+- Documentation states the narrower claim: README/landing already call GitLab a
+  source mirror (D065); `docs/RELEASE.md` and `AGENTS.md` now say the same about
+  release assets.
+- If `D:\Build` is ever dropped, this entry and D064 both have to be revisited
+  first — it is now the only permanent copy, not one of two.
+
 ### D065 - Distribution Guidance Separates Current Release From Update Channels
 
 GitHub Releases is the public source of the current signed APK. F-Droid remains the
@@ -28,6 +70,10 @@ Decision:
   analytics, accounts, or any new runtime dependency.
 
 ### D064 - The R8 Mapping Is Not A GitHub Release Asset Either
+
+> Narrowed by D066: GitLab does not publish the mapping or the AAB, and has not
+> since v2.27.2. `D:\Build` is the only permanent copy, not one of two. The
+> asset list below is unchanged.
 
 The GitHub Release carries exactly one asset, the signed APK. The R8 mapping is
 still built, verified, and kept — as a 30-day workflow artifact — but it is no
@@ -99,7 +145,9 @@ Decision:
 ### D062 - The AAB Is Not A GitHub Release Asset
 
 > Narrowed by D064: the Release now carries one asset, not two — the mapping was
-> dropped from the list as well. Everything below about the AAB still holds.
+> dropped from the list as well. Everything below about the AAB still holds,
+> except the GitLab bullet: D066 records that the registry copy stopped at
+> v2.27.2, so `D:\Build` is what makes the omission safe.
 
 The GitHub Release carries exactly two assets — the signed APK and the R8
 mapping. The signed AAB is built and verified in the same tag job, but it is
@@ -269,6 +317,11 @@ Decision:
   `docs/BEAR_BENCHMARK_GAP.md` as a historical MVP-era assessment.
 
 ### D057 - GitLab Is A Public, Independently Built Release Mirror
+
+> Superseded in part by D066: the binary half has not run since v2.27.2 and is
+> switched off. GitLab is currently a source mirror — refs only. The pipeline
+> and the registry coordinates below are kept for the day the token is
+> re-issued.
 
 GitLab is a public source and binary mirror with its own signed tag pipeline,
 not merely a private Git ref backup or a link back to GitHub artifacts.

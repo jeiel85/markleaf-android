@@ -79,9 +79,15 @@ com.markleaf.notes
 CI 또는 릴리즈 검증 시에는 APK 산출물 확인을 반드시 포함한다.
 
 - `app/build/outputs/apk/debug/app-debug.apk` 파일 존재 여부 확인
-- GitHub Actions/Release와 GitLab Release에서 APK 다운로드 가능 여부 확인
-- 두 배포 채널에서 다운로드한 APK 파일 크기가 0보다 큰지 확인
-- GitLab Release 자산이 만료되는 job artifact가 아니라 Generic Package Registry 영구 링크인지 확인
+- GitHub Release에서 APK 다운로드 가능 여부와 크기가 0보다 큰지 확인
+- 태그 전에 `pwsh scripts/verify-release-export.ps1` — `D:\Build`의 AAB·mapping·6개
+  로케일 노트가 현재 versionName/versionCode로 존재하고 비어 있지 않은지 확인한다.
+  **이것이 릴리스 자산의 유일한 영구 사본 검증이다**(D066).
+- GitLab 쪽 검증은 `GITLAB_RELEASE_MIRROR=true`일 때만 적용된다 — 켜져 있으면 GitLab
+  Release에서 APK를 받아 크기를 확인하고, 자산이 만료되는 job artifact가 아니라 Generic
+  Package Registry 영구 링크인지 본다. 꺼져 있으면(현재 상태) GitLab에는 Release가 생기지
+  않으므로 이 항목은 해당 없음이다. refs 미러 자체는 `scripts/verify-mirror.ps1`과 매일
+  도는 `mirror-check`가 확인한다.
 
 Android 프로젝트가 아직 초기화되지 않았다면 먼저 표준 Kotlin + Jetpack Compose Android 프로젝트를 생성한다.
 

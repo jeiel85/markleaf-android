@@ -39,8 +39,13 @@ $WorkflowPath = Join-Path $RepoRoot ".github/workflows/android-build.yml"
 # 마커를 두어야 하는 문서. 새 문서가 목록을 다시 적기 시작하면 여기에 추가한다.
 $DocPaths = @("docs/RELEASE.md", "AGENTS.md")
 # `gh release create` 에서 값을 하나 먹는 플래그. 그 값은 파일 인자가 아니다.
-$ValueFlags = @("--repo", "--title", "--notes", "--notes-file", "--target",
-                "--discussion-category", "--notes-start-tag", "--verify-tag")
+# 불리언 플래그(`--draft`, `--prerelease`, `--verify-tag`, `--latest`, `--generate-notes`)는
+# 여기 넣으면 안 된다 — 뒤따르는 파일 인자를 값으로 오인해 건너뛰고, 실제로는 업로드되는
+# 파일을 "문서에 없음"으로 잡는 거짓 실패가 된다. 목록에 없는 플래그는 값을 먹지 않는
+# 것으로 취급하므로, 불리언은 그냥 빼 두면 된다.
+$ValueFlags = @("--repo", "-R", "--title", "-t", "--notes", "-n",
+                "--notes-file", "-F", "--target", "--discussion-category",
+                "--notes-start-tag")
 # 태그 이름은 실행 시점에 정해지므로 문서와 비교하려면 자리표시자로 정규화한다.
 $TagPlaceholder = "vX.Y.Z"
 

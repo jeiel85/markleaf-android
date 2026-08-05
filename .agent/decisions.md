@@ -39,10 +39,23 @@ Why:
 Decision:
 - The tag job's `Export versioned release artifacts` and `Publish the GitLab
   release` steps run only when the repository variable
-  `GITLAB_RELEASE_MIRROR` is `true`. It is unset, so both skip.
+  `GITLAB_RELEASE_MIRROR` is `true`.
 - Turning it back on is one variable, once `GITLAB_TOKEN` is re-issued with the
   `api` scope. `.github/scripts/mirror-release-to-gitlab.sh` and the GitLab-side
   `GITLAB_RELEASE_FROM_CI` path are kept unchanged for that day.
+
+Amended 2026-08-05 (v2.32.2): the variable is now `true` while the token is
+still `write_repository`-scoped — the maintainer's call, taken to see the
+failure first-hand rather than infer it. It reproduced exactly as this entry
+predicted: `Publish the GitLab release` returned HTTP 403 with the script's own
+message naming the missing `api` scope, and it did so *after* `Create GitHub
+release` had published `markleaf-v2.32.2.apk`. So the accepted state is now the
+one this entry argued against — a step that fails on every tag — held
+deliberately rather than by oversight, and the "nothing is lost" reasoning above
+is unchanged: it is the job's colour that is wrong, not the release. The two
+exits stay as written: re-issue the token, or unset the variable. Whoever acts
+on this should update this amendment rather than leave the repository and its
+decision record disagreeing again.
 - Documentation states the narrower claim: README/landing already call GitLab a
   source mirror (D065); `docs/RELEASE.md` and `AGENTS.md` now say the same about
   release assets.
@@ -318,10 +331,11 @@ Decision:
 
 ### D057 - GitLab Is A Public, Independently Built Release Mirror
 
-> Superseded in part by D066: the binary half has not run since v2.27.2 and is
-> switched off. GitLab is currently a source mirror — refs only. The pipeline
-> and the registry coordinates below are kept for the day the token is
-> re-issued.
+> Superseded in part by D066: the binary half has published nothing since
+> v2.27.2. As of 2026-08-05 the tag steps are switched back on but fail on every
+> tag, because `GITLAB_TOKEN` still lacks the `api` scope — so GitLab remains a
+> source mirror in practice, refs only. The pipeline and the registry
+> coordinates below are kept for the day the token is re-issued.
 
 GitLab is a public source and binary mirror with its own signed tag pipeline,
 not merely a private Git ref backup or a link back to GitHub artifacts.

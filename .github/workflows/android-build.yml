@@ -421,14 +421,22 @@ jobs:
       # monthly CI minutes ran out (#252) — the APIs below do not consume them,
       # only the pipeline did.
       #
-      # Both steps are off unless the repository variable GITLAB_RELEASE_MIRROR
-      # is 'true'. The token this needs (`api` scope) has not been issued, so
-      # leaving them on made every tag run end red on a step that was never
-      # going to pass — the "red check that carries no information" defect
-      # #262 filed against launch-smoke, in the release job. Artifacts have a
+      # Both steps run only when the repository variable GITLAB_RELEASE_MIRROR
+      # is 'true'. It IS set as of 2026-08-05 (v2.32.2) — turned on deliberately
+      # while GITLAB_TOKEN still carries only `write_repository`, so the publish
+      # step below fails on every tag with HTTP 403 and reddens this job.
+      #
+      # That is a known, accepted state, not a defect to re-diagnose: v2.32.2
+      # confirmed the cause empirically, and the failure lands after step
+      # `Create GitHub release`, so the APK is already published when it hits.
+      # Nothing about the GitHub release path depends on it. Artifacts have a
       # permanent home in D:\Build, gated before the tag by
       # verify-release-export.ps1; GitLab mirrors refs, not artifacts (D066).
-      # Set the variable to 'true' once GITLAB_TOKEN carries the `api` scope.
+      #
+      # To make the job green again, do one of two things — do not just re-read
+      # this comment and assume it is stale:
+      #   * re-issue GITLAB_TOKEN with the `api` scope (then this works), or
+      #   * unset GITLAB_RELEASE_MIRROR (then both steps skip, as before).
       #
       # assembleRelease and bundleRelease already ran above; this re-runs them
       # as dependencies, finds them up to date, and copies the outputs out under
@@ -447,10 +455,11 @@ jobs:
           ls -lh dist
 
       # After the GitHub release, deliberately: GitHub is the primary path and
-      # must not be blocked by the mirror. When the mirror is on, a failure here
-      # still reddens the job — a mirror that quietly does nothing is what #247
-      # was about. When it is off the step is skipped, which is visible in the
-      # run and recorded in D066, not silence.
+      # must not be blocked by the mirror. A failure here still reddens the job
+      # — a mirror that quietly does nothing is what #247 was about — which is
+      # why the ordering above matters: the release is out before this runs.
+      # With the current token this step is expected to fail; see the comment
+      # on the gate above for the two ways to change that.
       - name: Publish the GitLab release
         if: vars.GITLAB_RELEASE_MIRROR == 'true'
         env:

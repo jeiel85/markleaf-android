@@ -473,8 +473,9 @@ instead — `markleaf-release-aab` (14-day retention) and
 home through the local `exportReleaseToBuildDrive` hand-off
 (see [Release Artifact Export](../AGENTS.md#release-artifact-export)) rather
 than from GitHub. That hand-off is the **only** permanent copy: GitLab's
-package registry stopped receiving them at v2.27.2 and the mirror step is
-switched off — see [GitLab Release Assets](#gitlab-release-assets) and D066.
+package registry stopped receiving them at v2.27.2 and the mirror step, though
+it now runs, fails on every tag — see
+[GitLab Release Assets](#gitlab-release-assets) and D066.
 
 The release job fails before publishing if the keystore secret is missing, if
 the APK certificate SHA-256 digest differs from the fixed production
@@ -483,29 +484,41 @@ outputs.
 
 ## GitLab Release Assets
 
-**Currently off. GitLab mirrors refs, not release artifacts (D066).** The two
-tag-job steps below run only when the repository variable
-`GITLAB_RELEASE_MIRROR` is `true`, and it is unset, so both skip. `mirror-push`
-still carries `main` and every `v*` tag, and the daily `mirror-check` still
-verifies them; what is absent is the Release object and the files attached to
-it. The permanent copy of a released AAB and mapping is `D:\Build` — see
-[Release Export](#release-export--local-gate-not-ci), which is a required
-pre-tag step for exactly this reason.
+**Attempted on every tag, and failing. GitLab mirrors refs, not release
+artifacts (D066).** The two tag-job steps below run only when the repository
+variable `GITLAB_RELEASE_MIRROR` is `true`, and since 2026-08-05 it is —
+switched on while `GITLAB_TOKEN` still carries only `write_repository`. So
+`Publish the GitLab release` returns HTTP 403 on every tag and the `release`
+job ends red.
 
-GitLab's newest Release is `v2.27.2 (2026-07-21)`. Ten releases — v2.28.0
-through v2.32.1 — have none.
+**A red `release` job does not mean the release failed.** The step runs after
+`Create GitHub release`, so the APK is already published and downloadable when
+it hits. v2.32.2 is the worked example: release published at 05:31Z with
+`markleaf-v2.32.2.apk`, job red, nothing else wrong. Check the step list before
+treating a red tag run as a broken release — if step 18 is the only failure,
+this is what you are looking at.
 
-### Turning it back on
+`mirror-push` still carries `main` and every `v*` tag, and the daily
+`mirror-check` still verifies them; what is absent is the Release object and the
+files attached to it. The permanent copy of a released AAB and mapping is
+`D:\Build` — see [Release Export](#release-export--local-gate-not-ci), which is
+a required pre-tag step for exactly this reason.
 
-One repository variable, once the credential exists:
+GitLab's newest Release is `v2.27.2 (2026-07-21)`. Eleven releases — v2.28.0
+through v2.32.2 — have none.
 
-1. Issue a GitLab Project Access Token with the **`api`** scope (the mirror-push
-   token carries `write_repository`, which cannot write packages or releases)
-   and replace the `GITLAB_TOKEN` repository secret.
-2. Set the repository variable `GITLAB_RELEASE_MIRROR` to `true`.
+### Making it green again
 
-The next tag then exports the four versioned files and publishes them. Nothing
-else has to change — the machinery below is intact.
+Two ways, and the repository is in neither state until someone picks one:
+
+1. **Finish it.** Issue a GitLab Project Access Token with the **`api`** scope
+   (the mirror-push token carries `write_repository`, which cannot write
+   packages or releases) and replace the `GITLAB_TOKEN` repository secret. The
+   next tag then exports the four versioned files and publishes them; nothing
+   else has to change, the machinery below is intact.
+2. **Back out.** Unset the repository variable `GITLAB_RELEASE_MIRROR`. Both
+   steps skip, the tag job goes green, and GitLab keeps mirroring refs only —
+   the state D066 originally settled on.
 
 ### What the machinery does when it is on
 
@@ -522,7 +535,7 @@ Generic Package Registry and creates the Release with links to them. Release
 links therefore point to persistent package files rather than expiring CI job
 artifacts.
 
-### Why the GitHub runner publishes it, and why it is switched off
+### Why the GitHub runner publishes it, and why it still fails
 
 This used to be `publish_gitlab_release` in `.gitlab-ci.yml`, and it stopped
 working. GitLab's free shared-runner minutes are a monthly quota; the quota ran
@@ -548,12 +561,16 @@ Two things it depends on:
   second, so it is by the time the GitHub job runs. The script refuses rather
   than creating the tag itself, which would invert that order.
 
-The token has not been re-issued, so v2.32.0 and v2.32.1 both ended their tag
-run red on a step that could not pass — after the GitHub Release had already
-published its APK. A check that fails every time it runs stops being read, so
-the steps are gated instead (D066) and the skip is visible in the run.
+The token has still not been re-issued, so v2.32.0, v2.32.1 and v2.32.2 all
+ended their tag run red on a step that could not pass — after the GitHub
+Release had already published its APK. D066 gated the steps behind
+`GITLAB_RELEASE_MIRROR` for exactly that reason, but the variable was set on
+2026-08-05 without the token, so they run and fail again rather than skip. The
+token is the only thing left to fix; see
+[Making it green again](#making-it-green-again).
 
-The GitLab-side path is kept but switched off too: `package_signed_release` and
+The GitLab-side path is a separate switch and is genuinely off:
+`package_signed_release` and
 `publish_gitlab_release` require the project variable
 `GITLAB_RELEASE_FROM_CI=true`. That is for the case it was built for — GitHub
 unavailable and GitLab releasing on its own. With the variable unset the two

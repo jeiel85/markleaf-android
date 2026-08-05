@@ -12,7 +12,9 @@ markleaf-android 저장소의 재해 복구(이중 백업) 운영 문서.
 - GitHub 태그는 GitHub Release와 F-Droid 자동 픽업의 기준이다. GitLab Release
   발행은 GitHub 태그 잡의 두 스텝(`Export versioned release artifacts`,
   `Publish the GitLab release`)이 맡되, 저장소 변수 `GITLAB_RELEASE_MIRROR=true`
-  일 때만 돈다 — 지금은 미설정이라 skip된다. 켜는 조건은 아래 토큰 항목 참조.
+  일 때만 돈다 — 2026-08-05부터 켜져 있고, `GITLAB_TOKEN` 스코프가 모자라 매 태그마다
+  403으로 실패한다. GitHub Release 발행 뒤에 도는 스텝이라 릴리스 자체에는 영향이
+  없다. 해소 방법은 아래 토큰 항목 참조.
 - 제공자 간 자동 양방향 mirror는 설정하지 않는다.
 - **`main`은 양쪽 모두 보호되어 있다.** GitHub `main`은 2026-07-18부터 PR 필수 ·
   `build` 체크 통과 필수 · admin 예외 없음(`enforce_admins`)이고, GitLab `main`은
@@ -109,10 +111,11 @@ git push github vX.Y.Z
    스코프가 모자란 채로 태그를 밀면 릴리스 잡이 업로드 전에 멈추고
    `The token needs the 'api' scope` 를 남긴다. 절반만 올라간 상태로 끝나지 않는다.
 
-   **재발급 후에는 저장소 변수 `GITLAB_RELEASE_MIRROR`를 `true`로 설정해야 한다.**
-   v2.32.0·v2.32.1 두 태그가 이 메시지로 빨갛게 끝난 뒤(GitHub Release는 이미 발행된
-   상태로) 두 스텝을 변수 뒤로 옮겼다 — 매번 실패하는 체크는 읽히지 않기 때문이다(D066).
-   변수를 켜지 않으면 토큰만 고쳐도 미러는 그대로 skip된다.
+   **저장소 변수 `GITLAB_RELEASE_MIRROR`는 이미 `true`다(2026-08-05, v2.32.2부터).**
+   원래는 토큰 재발급 뒤에 켜기로 했으나(D066), 실패를 직접 확인하려고 먼저 켰다.
+   따라서 지금은 **토큰만 재발급하면 바로 미러가 동작한다** — 변수는 건드릴 필요가 없다.
+   v2.32.0·v2.32.1·v2.32.2 세 태그가 이 메시지로 빨갛게 끝났고(GitHub Release는 매번
+   이미 발행된 상태로), 되돌리려면 변수를 지우면 두 스텝이 다시 skip된다.
 2. **GitHub에 시크릿 등록.** 저장소 → Settings → Secrets and variables → Actions →
    New repository secret. 이름은 정확히 **`GITLAB_TOKEN`**.
 3. **확인.** Actions 탭 → **Mirror push** → Run workflow. 또는 아무 PR이나 머지하면
@@ -334,5 +337,6 @@ pre-receive 훅까지 가지 않아 거부돼야 할 push도 성공으로 보고
 - GitLab CI: 브랜치·MR 검증과 보호된 `vX.Y.Z` 태그의 독립 서명 릴리스용으로 활성.
 - 두 채널 모두 production 인증서 SHA-256(`0be97352…f91a`)을 검증한다.
 - GitLab Release 파일은 만료되는 job artifact가 아니라 Generic Package Registry에 보존한다
-  (미러가 켜져 있을 때. 현재는 꺼져 있고 영구 사본은 `D:\Build`다 — D066).
+  (미러가 동작할 때. 지금은 변수는 켜져 있으나 토큰 스코프가 모자라 매 태그마다 실패하므로
+  실제로 보존되는 것이 없고, 영구 사본은 `D:\Build` 하나다 — D066).
 - 워크플로는 저장소로 산출물을 되커밋하지 않는다.

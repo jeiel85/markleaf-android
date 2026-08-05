@@ -149,27 +149,70 @@ foreach ($file in $readmeFiles) {
     }
 }
 
-# ---- 언어별 데모 GIF: 각 페이지가 자기 언어 클립을 가리키는지 ----
+# ---- trust-ledger 의 릴리스 날짜: CHANGELOG 와 일치하는지 ----
+#
+# 이 자리에는 원래 "Includes Quiet Formatting" 같은 기능 이름이 있었다. 버전 표기
+# 세 곳은 검사를 받는데 그 옆의 <span> 은 아무도 보지 않아서, 두 릴리스 지난 기능을
+# 여섯 페이지에서 계속 광고하고 있었다(#262). 기능 이름은 릴리스마다 낡는 데다
+# 여섯 언어로 번역돼 있어 기계가 대조하기 어렵다 — 날짜는 낡지 않고, 값이 여섯
+# 언어에서 동일하며, CHANGELOG 에 원본이 있다.
+Write-Host "`n릴리스 날짜 (trust-ledger <span> vs CHANGELOG)"
+$changelogPath = Resolve-UnderRoot "CHANGELOG.md"
+$expectedDate = ""
+if (-not (Test-Path -LiteralPath $changelogPath)) {
+    Add-Failure "  FAIL  CHANGELOG.md 를 찾지 못했습니다."
+} else {
+    $headingPattern = '(?m)^## v' + [regex]::Escape($ExpectedVersion) + '\b.*?-\s*(\d{4}-\d{2}-\d{2})\s*$'
+    $headingMatch = [regex]::Match((Get-Content -Raw -Encoding utf8 -LiteralPath $changelogPath), $headingPattern)
+    if (-not $headingMatch.Success) {
+        Add-Failure "  FAIL  CHANGELOG.md 에 v$ExpectedVersion 섹션의 날짜가 없습니다."
+    } else {
+        $expectedDate = $headingMatch.Groups[1].Value
+        Write-Host "  기대 날짜: $expectedDate (CHANGELOG.md)"
+    }
+}
+if ($expectedDate) {
+    foreach ($file in $landingFiles) {
+        $path = Join-Path $docsPath $file
+        if (-not (Test-Path -LiteralPath $path)) { continue }  # 위에서 이미 실패로 잡았다
+        $text = Get-Content -Raw -Encoding utf8 -LiteralPath $path
+        # trust-ledger 블록: <strong>vX.Y.Z</strong> 바로 뒤의 <span>.
+        $spanMatch = [regex]::Match($text, '<strong>v[0-9]+\.[0-9]+\.[0-9]+</strong>\s*(?:\r?\n\s*)?<span>(?<span>[^<]*)</span>')
+        if (-not $spanMatch.Success) {
+            Add-Failure ("  FAIL  {0,-16} 릴리스 <strong> 뒤의 <span> 을 찾지 못했습니다." -f $file)
+        } elseif ($spanMatch.Groups['span'].Value -notmatch [regex]::Escape($expectedDate)) {
+            Add-Failure ("  FAIL  {0,-16} '{1}' 에 릴리스 날짜 {2} 가 없습니다." -f $file, $spanMatch.Groups['span'].Value.Trim(), $expectedDate)
+        } else {
+            Write-Host ("  OK    {0,-16} {1}" -f $file, $spanMatch.Groups['span'].Value.Trim()) -ForegroundColor Green
+        }
+    }
+}
+
+# ---- 언어별 데모 클립: 각 표면이 자기 언어 자산을 가리키는지 ----
 #
 # README.ko.md 가 markleaf-tablet-en.gif 를 가리켜도 렌더링은 멀쩡하므로 조용히
 # 나간다 — 버전 표기에서 이 검사가 막아 주는 것과 같은 종류의 구멍이다 (#258).
 # 언어 코드는 파일명 규칙에서 끌어온다: index.html/README.md 는 en, 나머지는 접미사.
+# 두 표면이 서로 다른 자산을 쓴다. 랜딩은 클릭-투-플레이 `<video>`(mp4 + poster
+# webp)로 바뀌었고 — 자동재생 GIF 는 `prefers-reduced-motion` 을 존중할 방법이
+# 없고 방문당 ~930KB 였다 — README 는 GitHub 가 마크다운을 그대로 렌더하므로
+# `<video>` 를 쓸 수 없어 GIF 그대로다. 그래서 기대 확장자가 표면마다 다르다.
 $assetPairs = @(
-    @{ File = "docs/index.html";  Lang = "en" }
-    @{ File = "docs/index.ko.html"; Lang = "ko" }
-    @{ File = "docs/index.ja.html"; Lang = "ja" }
-    @{ File = "docs/index.de.html"; Lang = "de" }
-    @{ File = "docs/index.es.html"; Lang = "es" }
-    @{ File = "docs/index.fr.html"; Lang = "fr" }
-    @{ File = "README.md";    Lang = "en" }
-    @{ File = "README.ko.md"; Lang = "ko" }
-    @{ File = "README.ja.md"; Lang = "ja" }
-    @{ File = "README.de.md"; Lang = "de" }
-    @{ File = "README.es.md"; Lang = "es" }
-    @{ File = "README.fr.md"; Lang = "fr" }
+    @{ File = "docs/index.html";    Lang = "en"; Kind = "video" }
+    @{ File = "docs/index.ko.html"; Lang = "ko"; Kind = "video" }
+    @{ File = "docs/index.ja.html"; Lang = "ja"; Kind = "video" }
+    @{ File = "docs/index.de.html"; Lang = "de"; Kind = "video" }
+    @{ File = "docs/index.es.html"; Lang = "es"; Kind = "video" }
+    @{ File = "docs/index.fr.html"; Lang = "fr"; Kind = "video" }
+    @{ File = "README.md";    Lang = "en"; Kind = "gif" }
+    @{ File = "README.ko.md"; Lang = "ko"; Kind = "gif" }
+    @{ File = "README.ja.md"; Lang = "ja"; Kind = "gif" }
+    @{ File = "README.de.md"; Lang = "de"; Kind = "gif" }
+    @{ File = "README.es.md"; Lang = "es"; Kind = "gif" }
+    @{ File = "README.fr.md"; Lang = "fr"; Kind = "gif" }
 )
 
-Write-Host "`n데모 GIF ($($assetPairs.Count)개 표면)"
+Write-Host "`n데모 클립 ($($assetPairs.Count)개 표면)"
 foreach ($pair in $assetPairs) {
     $path = Resolve-UnderRoot $pair.File
     if (-not (Test-Path -LiteralPath $path)) {
@@ -177,26 +220,32 @@ foreach ($pair in $assetPairs) {
         continue
     }
     $text = Get-Content -Raw -Encoding utf8 -LiteralPath $path
-    $expected = "markleaf-tablet-$($pair.Lang).gif"
+    $expected = if ($pair.Kind -eq "video") {
+        @("markleaf-tablet-$($pair.Lang).mp4", "markleaf-tablet-$($pair.Lang)-still.webp")
+    } else {
+        @("markleaf-tablet-$($pair.Lang).gif")
+    }
 
-    # 이 표면이 참조하는 태블릿 GIF 를 전부 모아, 자기 언어 것만 있는지 본다.
+    # 이 표면이 참조하는 태블릿 자산을 전부 모아, 자기 언어 것만 있는지 본다.
     $referenced = @(
-        [regex]::Matches($text, 'markleaf-tablet-([a-z]{2})\.gif') |
+        [regex]::Matches($text, 'markleaf-tablet-[a-z]{2}(?:-still)?\.(?:gif|mp4|webp)') |
             ForEach-Object { $_.Value } | Sort-Object -Unique
     )
 
-    if ($referenced.Count -eq 0) {
-        Add-Failure ("  FAIL  {0,-20} 태블릿 데모 GIF 참조가 없습니다 (기대 {1})." -f $pair.File, $expected)
-    } elseif ($referenced -contains $expected -and $referenced.Count -eq 1) {
+    $missing = @($expected | Where-Object { $referenced -notcontains $_ })
+    $unexpected = @($referenced | Where-Object { $expected -notcontains $_ })
+    $absent = @($expected | Where-Object { -not (Test-Path -LiteralPath (Join-Path $docsPath "assets/$_")) })
+
+    if ($missing.Count -or $unexpected.Count) {
+        $detail = @()
+        if ($missing.Count) { $detail += "빠짐: $($missing -join ', ')" }
+        if ($unexpected.Count) { $detail += "다른 언어/형식: $($unexpected -join ', ')" }
+        Add-Failure ("  FAIL  {0,-20} {1}" -f $pair.File, ($detail -join ' / '))
+    } elseif ($absent.Count) {
         # 에셋 자체가 있어야 참조가 의미를 갖는다.
-        $assetPath = Join-Path $docsPath "assets/$expected"
-        if (Test-Path -LiteralPath $assetPath) {
-            Write-Host ("  OK    {0,-20} {1}" -f $pair.File, $expected) -ForegroundColor Green
-        } else {
-            Add-Failure ("  FAIL  {0,-20} {1} 을 가리키는데 docs/assets 에 그 파일이 없습니다." -f $pair.File, $expected)
-        }
+        Add-Failure ("  FAIL  {0,-20} 참조하는데 docs/assets 에 없는 파일: {1}" -f $pair.File, ($absent -join ', '))
     } else {
-        Add-Failure ("  FAIL  {0,-20} 기대 {1}, 실제 -> {2}" -f $pair.File, $expected, ($referenced -join ', '))
+        Write-Host ("  OK    {0,-20} {1}" -f $pair.File, ($expected -join ' + ')) -ForegroundColor Green
     }
 }
 

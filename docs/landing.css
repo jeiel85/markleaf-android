@@ -592,7 +592,13 @@ li {
     padding: var(--space-4);
 }
 
-.story-visual img {
+/* The story-01 demo is a click-to-play <video>; the rest are still <img>.
+   Both take the same frame so the swap changes nothing about the layout.
+   Nothing here needs a prefers-reduced-motion rule: the clip does not
+   autoplay, so no motion happens until a visitor asks for it — which CSS
+   could not have delivered anyway, since it cannot cancel `autoplay`. */
+.story-visual img,
+.story-visual video {
     aspect-ratio: 16 / 10;
     border: 0.0625rem solid var(--color-line);
     border-radius: var(--radius-medium);

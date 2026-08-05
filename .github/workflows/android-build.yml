@@ -123,6 +123,17 @@ jobs:
           # (aab / mapping) 과 달리 사후 추적에도 쓰이지 않으므로 7일로 줄인다.
           retention-days: 7
 
+  # 앱이 실제로 뜨는지만 본다. **의도적으로 비필수(continue-on-error)로 남긴다.**
+  # #277 이 `adb install`/`pm path` 경합을 고쳐 한동안 안정적이었으나, 2026-08-05
+  # 하루에 여덟 런 중 두 런이 실패했다 — 앱 코드가 동일하거나 문서만 바뀐 변경에서,
+  # 매번 시스템 서비스가 끊기는 시그니처였다(`Can't find service: package`,
+  # `Failure calling service activity: Broken pipe (32)`, 에뮬레이터 부팅에 각각
+  # 355 초·382 초). 앱이 실행되다 죽은 게 아니라 러너의 system_server 가 죽은 것이라,
+  # 이 잡을 필수로 걸면 러너 상태가 머지를 막게 된다.
+  #
+  # 같은 날 같은 런의 instrumented-tests 는 8/8 통과했다. 그래서 승격 대상은
+  # 그쪽이고(아래), 이 잡은 자문으로 남는다. 여기가 빨간데 instrumented-tests 가
+  # 초록이면 러너를 먼저 의심할 것 — 재실행 한 번이면 대개 갈린다.
   launch-smoke:
     runs-on: ubuntu-latest
     needs: build
@@ -165,13 +176,21 @@ jobs:
   # managed device)는 그 탐색 경로를 아예 지나가지 않고 AGP 가 직접 에뮬레이터를
   # 띄우고 붙이고 내린다.
   #
-  # launch-smoke 와 같은 이유로 아직 continue-on-error 다. 몇 번 연속 초록을
-  # 확인한 뒤에 필수 체크로 승격하는 것이 순서다 — 검증되지 않은 게이트를
-  # 보호된 main 에 먼저 걸지 않는다.
+  # **필수 체크다.** 2026-08-05 에 승격했다 — "몇 번 연속 초록을 확인한 뒤에"라는
+  # 조건을 채웠기 때문이다: 2026-08-03 이전 여섯 런 연속 통과에 더해, 2026-08-05
+  # 하루 여덟 런을 8/8 통과했다. 같은 날 launch-smoke 가 두 번 실패한 것과 대비되는데,
+  # 두 잡은 에뮬레이터를 띄우는 경로가 다르다 — 이쪽은 AGP managed device 라 AGP 가
+  # 직접 띄우고 붙이고 내리고, 저쪽은 reactivecircus 액션이다.
+  #
+  # 승격하는 이유는 안정성만이 아니라 **무엇을 단언하느냐**다. 이 잡은 #235 의 Room
+  # 마이그레이션 어서션을 돌리므로, 깨진 마이그레이션은 사용자 데이터 손실이고
+  # 비필수로 두면 그것이 머지를 막지 못한다. launch-smoke 는 "앱이 뜬다"만 본다.
+  #
+  # 여기가 러너 문제로 빨개져 머지가 막히면, 원인을 확인한 뒤 재실행할 것.
+  # continue-on-error 를 되돌리는 것은 게이트를 없애는 것이므로 마지막 수단이다.
   instrumented-tests:
     runs-on: ubuntu-latest
     needs: build
-    continue-on-error: true
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 

@@ -188,16 +188,28 @@ The two script checks run ahead of Gradle. They finish in seconds and cover what
 a release-preparation commit most often forgets, so failing on them first costs
 nothing. See [Release Version and Notes Checks](#release-version-and-notes-checks).
 
-Two emulator jobs run alongside the `build` job, both `continue-on-error: true`
-and therefore not gating a merge:
+Two emulator jobs run alongside the `build` job, and since 2026-08-05 they are
+treated differently:
 
-- `launch-smoke` — installs the debug APK and starts the app. Excused because
-  of historical emulator flakiness on GitHub-hosted runners. A release-APK
-  runtime smoke (R8-shrunk, debug-signed) is a planned follow-up.
 - `instrumented-tests` — the `app/src/androidTest/` suite on an AGP managed
-  device. New in #235; excused until it has proven itself over a few runs, at
-  which point it should become a required check. See
+  device. **A required check.** It runs #235's Room migration assertions, so a
+  broken migration is user data loss, and leaving it advisory meant nothing
+  stopped one merging. Promoted after six consecutive green runs before
+  2026-08-03 plus 8/8 on 2026-08-05. See
   [Instrumented Tests](#instrumented-tests).
+- `launch-smoke` — installs the debug APK and starts the app. **Still
+  `continue-on-error: true`, deliberately.** On 2026-08-05 it failed two of
+  eight runs on code that was identical or documentation-only, each time with
+  the runner's system_server dropping mid-call (`Can't find service: package`,
+  `Failure calling service activity: Broken pipe (32)`, emulator boots of 355
+  and 382 seconds). That is the runner failing, not the app, and a required
+  check on it would let runner weather block merges. A release-APK runtime
+  smoke (R8-shrunk, debug-signed) is a planned follow-up.
+
+The two use different emulator paths — managed device versus the
+`reactivecircus` action — which is why one can be flaky while the other is not.
+**If `launch-smoke` is red and `instrumented-tests` is green, suspect the
+runner first;** one re-run usually settles it.
 
 GitLab CI independently runs `testDebugUnitTest`, `lintRelease`, and
 `assembleDebug` for branches and merge requests. A semantic version tag
@@ -208,11 +220,15 @@ GitLab is an independent build and binary-distribution path.
 
 ## Instrumented Tests
 
-**CI runs them on an AGP managed device.** The `instrumented-tests` job calls
-`:app:ciAtdApi30DebugAndroidTest`, which starts, targets and tears down its own
-API 30 `aosp-atd` emulator. It is `continue-on-error: true` for now, like
-`launch-smoke`: promote it to a required check once it has been green for a few
-runs, not before — an unproven gate on a protected branch is worse than none.
+**CI runs them on an AGP managed device, and they gate the merge.** The
+`instrumented-tests` job calls `:app:ciAtdApi30DebugAndroidTest`, which starts,
+targets and tears down its own API 30 `aosp-atd` emulator. Since 2026-08-05 it
+is a required check — the "green for a few runs, not before" bar #235 set was
+met (six consecutive before 2026-08-03, then 8/8 on 2026-08-05).
+
+If it goes red on what looks like runner trouble rather than a real failure,
+read the log and re-run it. Restoring `continue-on-error` would remove the gate
+protecting the migration assertions, so that is a last resort, not a shortcut.
 
 To run the same suite against a device or AVD you already have:
 

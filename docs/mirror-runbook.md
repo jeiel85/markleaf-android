@@ -300,7 +300,7 @@ fast-forward로 받을 수 있는 새 커밋을 만드는 방법이 보호 설�
 | 설정 | 값 | 이유 |
 |---|---|---|
 | PR 필수 | 예 (승인 0건) | 1인 저장소라 승인자를 요구하면 스스로 막힌다 |
-| required check | `build` | 하드 게이트. `launch-smoke`는 에뮬레이터 flake 때문에 제외 |
+| required check | `build`, `instrumented-tests` | 하드 게이트. `instrumented-tests`는 2026-08-05 승격(#235 마이그레이션 어서션을 실제로 게이트하기 위해). `launch-smoke`는 에뮬레이터 flake 때문에 계속 제외 |
 | `strict`(최신화 강제) | 아니오 | 병렬 세션에서 매번 재실행되는 것을 피한다 |
 | `enforce_admins` | **예** | 모든 세션이 admin 계정으로 돌기 때문에, 끄면 보호가 무의미하다 |
 | force push · 삭제 | 금지 | GitLab `allow_force_push=false`와 대칭 |
@@ -310,7 +310,7 @@ fast-forward로 받을 수 있는 새 커밋을 만드는 방법이 보호 설�
 ```
 gh api -X PUT repos/jeiel85/markleaf-android/branches/main/protection --input - <<'JSON'
 {
-  "required_status_checks": { "strict": false, "contexts": ["build"] },
+  "required_status_checks": { "strict": false, "contexts": ["build", "instrumented-tests"] },
   "enforce_admins": true,
   "required_pull_request_reviews": {
     "dismiss_stale_reviews": false,

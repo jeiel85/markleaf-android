@@ -483,29 +483,41 @@ outputs.
 
 ## GitLab Release Assets
 
-**Currently off. GitLab mirrors refs, not release artifacts (D066).** The two
-tag-job steps below run only when the repository variable
-`GITLAB_RELEASE_MIRROR` is `true`, and it is unset, so both skip. `mirror-push`
-still carries `main` and every `v*` tag, and the daily `mirror-check` still
-verifies them; what is absent is the Release object and the files attached to
-it. The permanent copy of a released AAB and mapping is `D:\Build` — see
-[Release Export](#release-export--local-gate-not-ci), which is a required
-pre-tag step for exactly this reason.
+**Attempted on every tag, and failing. GitLab mirrors refs, not release
+artifacts (D066).** The two tag-job steps below run only when the repository
+variable `GITLAB_RELEASE_MIRROR` is `true`, and since 2026-08-05 it is —
+switched on while `GITLAB_TOKEN` still carries only `write_repository`. So
+`Publish the GitLab release` returns HTTP 403 on every tag and the `release`
+job ends red.
 
-GitLab's newest Release is `v2.27.2 (2026-07-21)`. Ten releases — v2.28.0
-through v2.32.1 — have none.
+**A red `release` job does not mean the release failed.** The step runs after
+`Create GitHub release`, so the APK is already published and downloadable when
+it hits. v2.32.2 is the worked example: release published at 05:31Z with
+`markleaf-v2.32.2.apk`, job red, nothing else wrong. Check the step list before
+treating a red tag run as a broken release — if step 18 is the only failure,
+this is what you are looking at.
 
-### Turning it back on
+`mirror-push` still carries `main` and every `v*` tag, and the daily
+`mirror-check` still verifies them; what is absent is the Release object and the
+files attached to it. The permanent copy of a released AAB and mapping is
+`D:\Build` — see [Release Export](#release-export--local-gate-not-ci), which is
+a required pre-tag step for exactly this reason.
 
-One repository variable, once the credential exists:
+GitLab's newest Release is `v2.27.2 (2026-07-21)`. Eleven releases — v2.28.0
+through v2.32.2 — have none.
 
-1. Issue a GitLab Project Access Token with the **`api`** scope (the mirror-push
-   token carries `write_repository`, which cannot write packages or releases)
-   and replace the `GITLAB_TOKEN` repository secret.
-2. Set the repository variable `GITLAB_RELEASE_MIRROR` to `true`.
+### Making it green again
 
-The next tag then exports the four versioned files and publishes them. Nothing
-else has to change — the machinery below is intact.
+Two ways, and the repository is in neither state until someone picks one:
+
+1. **Finish it.** Issue a GitLab Project Access Token with the **`api`** scope
+   (the mirror-push token carries `write_repository`, which cannot write
+   packages or releases) and replace the `GITLAB_TOKEN` repository secret. The
+   next tag then exports the four versioned files and publishes them; nothing
+   else has to change, the machinery below is intact.
+2. **Back out.** Unset the repository variable `GITLAB_RELEASE_MIRROR`. Both
+   steps skip, the tag job goes green, and GitLab keeps mirroring refs only —
+   the state D066 originally settled on.
 
 ### What the machinery does when it is on
 

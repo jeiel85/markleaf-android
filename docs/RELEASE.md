@@ -473,8 +473,9 @@ instead — `markleaf-release-aab` (14-day retention) and
 home through the local `exportReleaseToBuildDrive` hand-off
 (see [Release Artifact Export](../AGENTS.md#release-artifact-export)) rather
 than from GitHub. That hand-off is the **only** permanent copy: GitLab's
-package registry stopped receiving them at v2.27.2 and the mirror step is
-switched off — see [GitLab Release Assets](#gitlab-release-assets) and D066.
+package registry stopped receiving them at v2.27.2 and the mirror step, though
+it now runs, fails on every tag — see
+[GitLab Release Assets](#gitlab-release-assets) and D066.
 
 The release job fails before publishing if the keystore secret is missing, if
 the APK certificate SHA-256 digest differs from the fixed production
@@ -534,7 +535,7 @@ Generic Package Registry and creates the Release with links to them. Release
 links therefore point to persistent package files rather than expiring CI job
 artifacts.
 
-### Why the GitHub runner publishes it, and why it is switched off
+### Why the GitHub runner publishes it, and why it still fails
 
 This used to be `publish_gitlab_release` in `.gitlab-ci.yml`, and it stopped
 working. GitLab's free shared-runner minutes are a monthly quota; the quota ran
@@ -560,12 +561,16 @@ Two things it depends on:
   second, so it is by the time the GitHub job runs. The script refuses rather
   than creating the tag itself, which would invert that order.
 
-The token has not been re-issued, so v2.32.0 and v2.32.1 both ended their tag
-run red on a step that could not pass — after the GitHub Release had already
-published its APK. A check that fails every time it runs stops being read, so
-the steps are gated instead (D066) and the skip is visible in the run.
+The token has still not been re-issued, so v2.32.0, v2.32.1 and v2.32.2 all
+ended their tag run red on a step that could not pass — after the GitHub
+Release had already published its APK. D066 gated the steps behind
+`GITLAB_RELEASE_MIRROR` for exactly that reason, but the variable was set on
+2026-08-05 without the token, so they run and fail again rather than skip. The
+token is the only thing left to fix; see
+[Making it green again](#making-it-green-again).
 
-The GitLab-side path is kept but switched off too: `package_signed_release` and
+The GitLab-side path is a separate switch and is genuinely off:
+`package_signed_release` and
 `publish_gitlab_release` require the project variable
 `GITLAB_RELEASE_FROM_CI=true`. That is for the case it was built for — GitHub
 unavailable and GitLab releasing on its own. With the variable unset the two

@@ -331,10 +331,11 @@ Decision:
 
 ### D057 - GitLab Is A Public, Independently Built Release Mirror
 
-> Superseded in part by D066: the binary half has not run since v2.27.2 and is
-> switched off. GitLab is currently a source mirror — refs only. The pipeline
-> and the registry coordinates below are kept for the day the token is
-> re-issued.
+> Superseded in part by D066: the binary half has published nothing since
+> v2.27.2. As of 2026-08-05 the tag steps are switched back on but fail on every
+> tag, because `GITLAB_TOKEN` still lacks the `api` scope — so GitLab remains a
+> source mirror in practice, refs only. The pipeline and the registry
+> coordinates below are kept for the day the token is re-issued.
 
 GitLab is a public source and binary mirror with its own signed tag pipeline,
 not merely a private Git ref backup or a link back to GitHub artifacts.

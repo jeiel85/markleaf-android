@@ -310,7 +310,7 @@ fast-forward로 받을 수 있는 새 커밋을 만드는 방법이 보호 설�
 ```
 gh api -X PUT repos/jeiel85/markleaf-android/branches/main/protection --input - <<'JSON'
 {
-  "required_status_checks": { "strict": false, "contexts": ["build"] },
+  "required_status_checks": { "strict": false, "contexts": ["build", "instrumented-tests"] },
   "enforce_admins": true,
   "required_pull_request_reviews": {
     "dismiss_stale_reviews": false,

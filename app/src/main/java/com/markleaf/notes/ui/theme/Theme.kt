@@ -20,7 +20,9 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 
-private val LightColorScheme = lightColorScheme(
+/** Internal rather than private so `EditorColorContrastTest` can assert the
+ *  editor's colours against the backgrounds they are actually drawn on. */
+internal val LightColorScheme = lightColorScheme(
     primary = Color(0xFF2E7D32),
     onPrimary = Color.White,
     primaryContainer = Color(0xFFC8E6C9),
@@ -43,7 +45,7 @@ private val LightColorScheme = lightColorScheme(
     outlineVariant = Color(0xFFC2C9BD),
 )
 
-private val DarkColorScheme = darkColorScheme(
+internal val DarkColorScheme = darkColorScheme(
     primary = Color(0xFF81C784),
     onPrimary = Color(0xFF00390A),
     primaryContainer = Color(0xFF1B5E20),

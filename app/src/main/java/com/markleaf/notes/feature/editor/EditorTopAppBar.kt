@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationException
 import androidx.compose.ui.input.pointer.pointerInput
@@ -35,10 +36,21 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.markleaf.notes.R
 
 /** Tint applied to the view-toggle icon while "open notes in preview" is locked
- *  on, signalling the sticky mode. A fixed amber that stays legible on both the
- *  light and dark top-bar backgrounds — it's a status colour, not a theme
- *  role, so it deliberately sits outside the colour scheme (#200). */
-private val ViewModeLockedTint = Color(0xFFF57C00)
+ *  on, signalling the sticky mode. A status colour rather than a theme role, so
+ *  it deliberately sits outside the colour scheme (#200) — but one fixed amber
+ *  could not carry both backgrounds, which is what "stays legible on both" had
+ *  assumed without measuring: Orange 700 is 2.60:1 against the light top bar,
+ *  under WCAG 1.4.11's 3:1 for an icon that means something, while clearing
+ *  6.36:1 against the dark one. Two ambers keep the signal amber and readable,
+ *  and picking by the bar's own luminance rather than a theme flag holds under
+ *  Material You, where the background is whatever the wallpaper produced. */
+private val ViewModeLockedTintOnLight = Color(0xFFE65100) // 3.65:1 on #F9FBF9
+private val ViewModeLockedTintOnDark = Color(0xFFF57C00) // 6.36:1 on #191C19
+
+/** The locked-state amber that stays legible on [background] — the top bar's
+ *  own container colour. Pinned by `EditorColorContrastTest`. */
+internal fun viewModeLockedTint(background: Color): Color =
+    if (background.luminance() < 0.5f) ViewModeLockedTintOnDark else ViewModeLockedTintOnLight
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -125,7 +137,7 @@ internal fun EditorTopAppBar(
                             if (isPreviewMode) R.string.edit else R.string.preview
                         ),
                         tint = if (isViewModeLocked) {
-                            ViewModeLockedTint
+                            viewModeLockedTint(MaterialTheme.colorScheme.background)
                         } else {
                             MaterialTheme.colorScheme.primary
                         }

@@ -81,9 +81,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
 import com.markleaf.notes.core.markdown.MarkdownEditActions
-import com.markleaf.notes.core.markdown.MarkdownSyntaxColors
 import com.markleaf.notes.core.markdown.MarkdownSyntaxVisualTransformation
 import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
+import com.markleaf.notes.core.markdown.markdownSyntaxColors
 import com.markleaf.notes.core.markdown.preview.MarkdownPreviewList
 import com.markleaf.notes.core.markdown.preview.TocHeading
 import com.markleaf.notes.core.markdown.preview.extractHeadings
@@ -845,16 +845,7 @@ fun EditorScreen(
                     // Re-key only when the colours or visibility actually change.
                     val markdownVisualTransformation = remember(colorScheme, markdownSyntaxVisible) {
                         if (markdownSyntaxVisible) {
-                            MarkdownSyntaxVisualTransformation(
-                                MarkdownSyntaxColors(
-                                    heading = colorScheme.primary,
-                                    emphasis = colorScheme.tertiary,
-                                    link = colorScheme.primary,
-                                    syntax = colorScheme.onSurfaceVariant,
-                                    checkbox = colorScheme.secondary,
-                                    code = colorScheme.tertiary
-                                )
-                            )
+                            MarkdownSyntaxVisualTransformation(markdownSyntaxColors(colorScheme))
                         } else {
                             VisualTransformation.None
                         }

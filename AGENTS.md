@@ -162,7 +162,12 @@ GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
    여섯 릴리스가 AAB·mapping 없이 지나갔다(#247). 그다음 `vX.Y.Z` 태그를 GitLab 먼저,
    GitHub 다음으로 푸시한다. **릴리스 자산이 붙는 곳은 GitHub 하나뿐이다** — GitHub
    Release는 APK 하나만 담고(AAB 제외는 D062, mapping을 30일 아티팩트로만 두는 이유는
-   D064), **GitLab은 refs만 미러한다**(D066). GitLab Release 발행 스텝은
+   D064), **GitLab은 refs만 미러한다**(D066).
+   <!-- release-assets: markleaf-vX.Y.Z.apk -->
+   위 마커는 `scripts/verify-release-assets.ps1`이 읽어 워크플로의 실제
+   `gh release create` 인자와 대조한다. 목록을 바꾸려면 세 복사본(워크플로,
+   스테이징 스텝, 이 마커)을 함께 고쳐야 하며 그렇지 않으면 PR CI가 실패한다.
+   GitLab Release 발행 스텝은
    `GITLAB_RELEASE_MIRROR` 저장소 변수가 `true`일 때만 돌고, 2026-08-05부터 켜져 있다 —
    다만 `GITLAB_TOKEN`이 아직 `api` 스코프가 아니라 v2.28.0~v2.32.2 열한 릴리스가
    미러되지 않았고, 그 스텝은 매 태그마다 403으로 실패한다(#247, #252). 따라서 released

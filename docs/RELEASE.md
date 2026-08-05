@@ -480,7 +480,17 @@ branch or merge-request jobs.
 On tag pushes matching `v*`, GitHub Actions runs tests, builds the signed
 release APK and AAB, and creates a GitHub Release with **one** asset attached:
 
+<!-- release-assets: markleaf-vX.Y.Z.apk -->
+
 - `markleaf-vX.Y.Z.apk` — signed, R8-shrunk APK for sideload installs and the Releases mirror
+
+The comment above is not decoration. `scripts/verify-release-assets.ps1` reads
+it and fails the `build` job if it disagrees with the arguments the workflow
+actually passes to `gh release create` — this list drifted twice while D062 and
+D064 shrank it, and nothing failed either time. Change the list and you change
+all three copies together, or CI says so.
+
+<!-- release-assets: markleaf-vX.Y.Z.apk -->
 
 The signed AAB and the R8 mapping are built and verified in the same job but are
 **not** attached to the GitHub Release. Both are uploaded as workflow artifacts

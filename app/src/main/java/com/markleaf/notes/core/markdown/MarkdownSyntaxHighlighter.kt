@@ -1,5 +1,6 @@
 package com.markleaf.notes.core.markdown
 
+import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -10,17 +11,52 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 
+/**
+ * The colours the live editor paints markdown with.
+ *
+ * Every field is required on purpose. Five of them used to default to
+ * [Color.Gray], and the editor — the only construction site — named six of the
+ * ten, so blockquote text and `---` rules drew the same fixed grey in both
+ * themes: 3.41:1 against the light background, under the 4.5:1 WCAG threshold
+ * for text. A default cannot know the theme, so there are none; a caller that
+ * forgets a role now fails to compile instead of silently rendering grey.
+ *
+ * Build it with [markdownSyntaxColors] rather than by hand — that is where the
+ * roles are chosen and where the contrast is pinned by `EditorColorContrastTest`.
+ */
 data class MarkdownSyntaxColors(
     val heading: Color,
     val emphasis: Color,
     val link: Color,
     val syntax: Color,
     val checkbox: Color,
-    val code: Color = Color.Gray,
-    val codeBlock: Color = Color.Gray,
-    val table: Color = Color.Gray,
-    val blockquote: Color = Color.Gray,
-    val horizontalRule: Color = Color.Gray
+    val code: Color,
+    val codeBlock: Color,
+    val blockquote: Color,
+    val horizontalRule: Color
+)
+
+/**
+ * Derives the editor palette from the active [ColorScheme], so it follows the
+ * app theme and Material You alike. The editor and the live-rendering golden
+ * test both build it here, so the snapshot pins what the app actually draws.
+ */
+fun markdownSyntaxColors(scheme: ColorScheme): MarkdownSyntaxColors = MarkdownSyntaxColors(
+    heading = scheme.primary,
+    emphasis = scheme.tertiary,
+    link = scheme.primary,
+    syntax = scheme.onSurfaceVariant,
+    checkbox = scheme.secondary,
+    code = scheme.tertiary,
+    // Read only as `codeBlock.copy(alpha = 0.1f)` — a wash behind a fenced
+    // block, not text. onSurfaceVariant is the role that darkens a light
+    // surface and lightens a dark one, so the wash stays visible either way.
+    codeBlock = scheme.onSurfaceVariant,
+    // Quoted text and rules are structure, not body copy: Material's
+    // medium-emphasis role recedes the way the fixed grey was trying to,
+    // and clears 4.5:1 in both themes (8.94:1 light, 10.14:1 dark).
+    blockquote = scheme.onSurfaceVariant,
+    horizontalRule = scheme.onSurfaceVariant
 )
 
 /**

@@ -23,8 +23,8 @@ import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
 import com.github.takahirom.roborazzi.RoborazziOptions
 import com.github.takahirom.roborazzi.RoborazziRule
 import com.github.takahirom.roborazzi.captureRoboImage
-import com.markleaf.notes.core.markdown.MarkdownSyntaxColors
 import com.markleaf.notes.core.markdown.MarkdownSyntaxVisualTransformation
+import com.markleaf.notes.core.markdown.markdownSyntaxColors
 import com.markleaf.notes.ui.theme.MarkleafTheme
 import org.junit.Rule
 import org.junit.Test
@@ -92,17 +92,18 @@ class EditorLiveSnapshotTest {
 
     @Test
     fun editor_live_mixed_light() = snapshot("editor_live_mixed_light", darkTheme = false) {
-        LiveEditorRender(
-            """
-            # Title
+        LiveEditorRender(MIXED_SAMPLE)
+    }
 
-            A paragraph with **bold word** and an *emphasis*.
-
-            > a blockquote line
-            - [ ] todo
-            - [x] done
-            """.trimIndent()
-        )
+    /**
+     * The dark counterpart of the mixed sample. Added with the palette fix that
+     * removed the [com.markleaf.notes.core.markdown.MarkdownSyntaxColors]
+     * `Color.Gray` defaults: blockquotes and rules follow the theme now, and
+     * "follows the theme" is only pinned if both themes are captured.
+     */
+    @Test
+    fun editor_live_mixed_dark() = snapshot("editor_live_mixed_dark", darkTheme = true) {
+        LiveEditorRender(MIXED_SAMPLE)
     }
 
     private fun snapshot(name: String, darkTheme: Boolean, content: @Composable () -> Unit) {
@@ -131,16 +132,7 @@ class EditorLiveSnapshotTest {
         // clearly yields a MarkdownSyntaxVisualTransformation instance.
         @Suppress("RememberReturnType")
         val transformation = remember(scheme) {
-            MarkdownSyntaxVisualTransformation(
-                MarkdownSyntaxColors(
-                    heading = scheme.primary,
-                    emphasis = scheme.tertiary,
-                    link = scheme.primary,
-                    syntax = scheme.onSurfaceVariant,
-                    checkbox = scheme.secondary,
-                    code = scheme.tertiary
-                )
-            )
+            MarkdownSyntaxVisualTransformation(markdownSyntaxColors(scheme))
         }
         BasicTextField(
             value = value,
@@ -152,5 +144,23 @@ class EditorLiveSnapshotTest {
             ),
             visualTransformation = transformation
         )
+    }
+
+    private companion object {
+        /** Carries one of every role whose colour is theme-derived — heading,
+         *  emphasis, checkbox, blockquote and a `---` rule — so a palette change
+         *  cannot move any of them unnoticed. */
+        val MIXED_SAMPLE = """
+            # Title
+
+            A paragraph with **bold word** and an *emphasis*.
+
+            > a blockquote line
+
+            ---
+
+            - [ ] todo
+            - [x] done
+        """.trimIndent()
     }
 }

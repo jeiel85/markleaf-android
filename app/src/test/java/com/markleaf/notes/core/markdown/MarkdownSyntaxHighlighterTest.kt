@@ -17,7 +17,6 @@ class MarkdownSyntaxHighlighterTest {
         checkbox = Color.Magenta,
         code = Color.Cyan,
         codeBlock = Color.Yellow,
-        table = Color.DarkGray,
         blockquote = Color.LightGray,
         horizontalRule = Color.Black
     )

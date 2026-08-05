@@ -33,9 +33,36 @@ class EditorTopAppBarSnapshotTest {
         fontScale = 1.5f
     )
 
-    private fun snapshot(name: String, title: String, fontScale: Float = 1f) {
+    /**
+     * The locked view-toggle, in both themes. Locking recolours the icon amber
+     * to signal the sticky mode (#200), and the amber is now chosen per
+     * background — a single one measured 2.60:1 on the light bar. Only the
+     * unlocked bar used to be snapshotted, so the indicator could break unseen.
+     */
+    @Test
+    fun lockedPhone() = snapshot(
+        name = "editor_top_appbar_locked_phone",
+        title = "New Note",
+        isViewModeLocked = true
+    )
+
+    @Test
+    fun lockedDarkPhone() = snapshot(
+        name = "editor_top_appbar_locked_dark_phone",
+        title = "New Note",
+        darkTheme = true,
+        isViewModeLocked = true
+    )
+
+    private fun snapshot(
+        name: String,
+        title: String,
+        fontScale: Float = 1f,
+        darkTheme: Boolean = false,
+        isViewModeLocked: Boolean = false
+    ) {
         composeRule.setContent {
-            MarkleafTheme(dynamicColor = false) {
+            MarkleafTheme(darkTheme = darkTheme, dynamicColor = false) {
                 val currentDensity = LocalDensity.current
                 CompositionLocalProvider(
                     LocalDensity provides Density(currentDensity.density, fontScale)
@@ -54,7 +81,8 @@ class EditorTopAppBarSnapshotTest {
                         onOpenMore = {},
                         onDismissMore = {},
                         moreMenuContent = {},
-                        modifier = Modifier.testTag("editorTopAppBar")
+                        modifier = Modifier.testTag("editorTopAppBar"),
+                        isViewModeLocked = isViewModeLocked
                     )
                 }
             }

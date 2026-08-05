@@ -4,6 +4,14 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.32.2 - Quoted lines and rules you can actually read - 2026-08-05
+
+Two editor colour fixes, both found by measuring rather than by report. No feature, permission, or storage-format changes.
+
+### Fixed
+- **Blockquotes and horizontal rules follow your theme (#262).** Both were drawn in a fixed grey that could not know which theme was on. Against the light page that measured 3.4:1, under the 4.5:1 contrast text needs to stay comfortably readable — a quoted line or a `---` rule faded into the paper instead of receding from it. They now take the same muted tone the editor already gives its other structural marks: 8.9:1 on light, 10.1:1 on dark. A quoted paragraph still sits back from body text; it just no longer disappears.
+- **The locked view-mode badge reads on a light top bar (#262).** Long-pressing the view toggle locks a note into preview and turns that icon amber. The amber measured 2.6:1 against the light top bar, under the 3:1 an icon needs to register as a signal. Light backgrounds now get a deeper amber and dark ones are unchanged, and the choice is made from the bar's own brightness rather than a theme setting — so it also holds under *Material You*, where the background comes from your wallpaper.
+
 ## v2.32.1 - A caret you can see in the dark - 2026-07-27
 
 One editor fix, reported against an F-Droid install. No feature, permission, or storage-format changes.

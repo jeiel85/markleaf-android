@@ -39,6 +39,14 @@ jobs:
       - name: Verify release notes (fastlane changelogs + CHANGELOG parity)
         run: pwsh -File scripts/verify-release-notes.ps1
 
+      # 이 검사가 build job 에 있는 것이 요점이다. `gh release create` 의 파일
+      # 인자는 release job 에만 있고 release job 은 PR 에서 skip 되므로, 인자와
+      # 실제 산출물이 어긋나도 태그를 밀기 전에는 아무것도 실패하지 않는다 —
+      # #244 에서 mapping 생성 스텝을 지우면서 인자를 남겼다면 태그가 공개된
+      # 뒤에 깨졌을 것이다. 여기서 돌리면 그 실패가 PR 로 앞당겨진다.
+      - name: Verify release asset list (workflow vs staging vs docs)
+        run: pwsh -File scripts/verify-release-assets.ps1
+
       - name: Set up JDK 17
         uses: actions/setup-java@v5
         with:

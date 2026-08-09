@@ -27,7 +27,7 @@ Diseño y accesibilidad:
 
 * Widget de pantalla de inicio, bloqueo biométrico, opción de bloqueo de capturas de pantalla
 * Claro / oscuro / Material You, diseño de dos paneles para tablets
-* Interfaz en 6 idiomas (coreano, inglés, español, japonés, francés, alemán)
+* Interfaz en 7 idiomas (coreano, inglés, español, japonés, francés, alemán, chino simplificado)
 
 Privacidad y distribución:
 

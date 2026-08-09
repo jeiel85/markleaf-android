@@ -27,7 +27,7 @@ Design et accessibilité :
 
 * Widget d'écran d'accueil, verrouillage biométrique, option de blocage des captures d'écran
 * Clair / sombre / Material You, disposition à deux volets pour tablettes
-* Interface en 6 langues (coréen, anglais, espagnol, japonais, français, allemand)
+* Interface en 7 langues (coréen, anglais, espagnol, japonais, français, allemand, chinois simplifié)
 
 Confidentialité et distribution :
 

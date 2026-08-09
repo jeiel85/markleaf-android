@@ -240,7 +240,7 @@ val writeReleaseArtifacts: (File, Boolean) -> Unit = { exportDir, includeApk ->
     // Every locale must have a changelog for this versionCode; fail fast so
     // a cut never ships notes that silently drop a locale.
     val fastlaneRoot = rootProject.file("fastlane/metadata/android")
-    val noteLocales = listOf("ko-KR", "en-US", "ja-JP", "de-DE", "fr-FR", "es-ES")
+    val noteLocales = listOf("ko-KR", "en-US", "ja-JP", "zh-CN", "de-DE", "fr-FR", "es-ES")
     val sources = noteLocales.associateWith { File(fastlaneRoot, "$it/changelogs/$versionCode.txt") }
 
     val missing = noteLocales.filter { !sources.getValue(it).isFile }

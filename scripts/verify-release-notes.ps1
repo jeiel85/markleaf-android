@@ -41,7 +41,7 @@ $PlayNoteLimit = 500
 $PlayNoteWarnAt = [int][math]::Floor($PlayNoteLimit * 0.9)
 
 # app/build.gradle.kts 의 noteLocales 와 같은 목록이어야 한다.
-$StoreLocales = @("ko-KR", "en-US", "ja-JP", "de-DE", "fr-FR", "es-ES")
+$StoreLocales = @("ko-KR", "en-US", "ja-JP", "zh-CN", "de-DE", "fr-FR", "es-ES")
 
 function Resolve-UnderRoot([string]$Path) {
     if ([System.IO.Path]::IsPathRooted($Path)) { return $Path }

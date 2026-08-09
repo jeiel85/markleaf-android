@@ -27,7 +27,7 @@ Design und Barrierefreiheit:
 
 * Homescreen-Widget, biometrische Sperre, Option zum Blockieren von Screenshots
 * Hell / dunkel / Material You, Tablet-Layout mit zwei Spalten
-* Oberfläche in 6 Sprachen (Koreanisch, Englisch, Spanisch, Japanisch, Französisch, Deutsch)
+* Oberfläche in 7 Sprachen (Koreanisch, Englisch, Spanisch, Japanisch, Französisch, Deutsch, Vereinfachtes Chinesisch)
 
 Datenschutz und Verteilung:
 

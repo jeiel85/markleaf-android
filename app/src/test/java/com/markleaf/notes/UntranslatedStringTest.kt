@@ -115,7 +115,7 @@ class UntranslatedStringTest {
     }
 
     private companion object {
-        val LOCALES = listOf("fr", "es", "de", "ja", "ko")
+        val LOCALES = listOf("fr", "es", "de", "ja", "ko", "zh")
 
         /**
          * Identical in every language because they are not prose: the app name,
@@ -179,7 +179,8 @@ class UntranslatedStringTest {
                 "version_format"
             ),
             "ja" to emptySet(),
-            "ko" to emptySet()
+            "ko" to emptySet(),
+            "zh" to emptySet()
         )
     }
 }

@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Markleaf</string>
+    <string name="notes_title">笔记</string>
+    <string name="collapse_note_list">收起笔记列表</string>
+    <string name="expand_note_list">展开笔记列表</string>
+    <string name="hide_tags">隐藏标签</string>
+    <string name="show_tags">显示标签</string>
+    <string name="search">搜索</string>
+    <string name="tags">标签</string>
+    <string name="trash">回收站</string>
+    <!-- "archive" names the destination: the Archive screen title, and the overflow
+         item that navigates there. "archive_action" is the verb on a note's own menu.
+         English spells both the same, but most locales need a noun and a verb, and
+         archive_empty_hint tells the user which menu entry to look for. -->
+    <string name="archive">归档</string>
+    <string name="archive_action">归档</string>
+    <string name="unarchive">取消归档</string>
+    <string name="archive_empty">暂无已归档笔记</string>
+    <string name="archive_empty_hint">长按主列表中的笔记，然后选择“归档”即可将其移至此处。</string>
+    <string name="settings">设置</string>
+    <string name="more_options">更多选项</string>
+    <string name="quick_switcher_title">快速切换</string>
+    <string name="quick_switcher_hint">跳转到笔记…</string>
+    <string name="quick_switcher_no_results">没有匹配的笔记。</string>
+    <string name="backlinks_section_title">链接来源</string>
+    <string name="wikilink_suggestions_title">链接到…</string>
+    <string name="tag_suggestions_title">标签</string>
+    <string name="table_of_contents">目录</string>
+    <string name="note_information">笔记信息</string>
+    <string name="note_statistics">统计</string>
+    <string name="note_information_no_headings">暂无标题。</string>
+    <string name="note_information_no_backlinks">暂无笔记链接到此处。</string>
+    <string name="font_label">字体</string>
+    <string name="font_sans">无衬线体</string>
+    <string name="font_serif">衬线体</string>
+    <string name="font_description">衬线体让笔记呈现经典的书籍风格。代码始终使用等宽字体。</string>
+    <string name="all_notes">全部笔记</string>
+    <string name="no_notes_for_tag">没有使用此标签的笔记</string>
+    <string name="image_alt_dialog_title">编辑图片描述</string>
+    <string name="image_alt_dialog_description">替代文本可帮助屏幕阅读器识别图片，也会在图片无法加载时显示。</string>
+    <string name="image_alt_dialog_label">描述</string>
+    <string name="image_alt_dialog_save">保存</string>
+    <string name="add_note">添加笔记</string>
+    <string name="no_notes_yet">暂无笔记</string>
+    <string name="create_first_note_hint">点击 + 创建第一篇笔记</string>
+    <string name="create_note">创建笔记</string>
+    <string name="untitled">无标题</string>
+    <string name="untitled_parenthesized">（无标题）</string>
+    <string name="select_note_to_view">选择要查看的笔记</string>
+
+    <string name="preview">预览</string>
+    <string name="edit">编辑</string>
+    <string name="edit_note">编辑笔记</string>
+    <string name="new_note">新建笔记</string>
+    <string name="back">返回</string>
+    <string name="note_content">笔记内容</string>
+    <string name="editor_empty_title">空白页面已准备就绪</string>
+    <string name="editor_empty_hint">可使用 Markdown、#标签、链接和复选框。Markleaf 会在你输入时自动保存到本地。</string>
+    <string name="bold">粗体</string>
+    <string name="formatting">格式</string>
+    <string name="formatting_inline">行内格式</string>
+    <string name="formatting_structure">结构</string>
+    <string name="formatting_block_media">块与媒体</string>
+    <string name="expanded">已展开</string>
+    <string name="collapsed">已收起</string>
+    <string name="italic">斜体</string>
+    <string name="strikethrough">删除线</string>
+    <string name="inline_code">行内代码</string>
+    <string name="checkbox">复选框</string>
+    <string name="markdown_link">Markdown 链接</string>
+    <string name="insert_image">插入图片</string>
+    <string name="attachment_failed">无法附加图片。</string>
+    <string name="heading">标题</string>
+    <string name="bullet_list">项目符号列表</string>
+    <string name="ordered_list">编号列表</string>
+    <string name="blockquote">引用</string>
+    <string name="code_block">代码块</string>
+    <string name="horizontal_rule">分隔线</string>
+    <string name="quick_insert_title">快速插入</string>
+    <string name="quick_insert_heading_1">一级标题</string>
+    <string name="quick_insert_heading_2">二级标题</string>
+    <string name="quick_insert_heading_3">三级标题</string>
+    <string name="quick_insert_bullet_list">项目符号列表</string>
+    <string name="quick_insert_numbered_list">编号列表</string>
+    <string name="quick_insert_checklist">任务列表</string>
+    <string name="quick_insert_quote">引用</string>
+    <string name="quick_insert_code_block">代码块</string>
+    <string name="quick_insert_divider">分隔线</string>
+    <string name="quick_insert_table">表格</string>
+    <string name="quick_insert_callout">提示块</string>
+    <string name="quick_insert_wikilink">链接到笔记</string>
+    <string name="quick_insert_image">图片</string>
+    <string name="quick_insert_date">今天的日期</string>
+    <string name="editor_stats_format">%1$d 个词 · %2$d 个字符 · %3$d 分钟</string>
+    <string name="focus_mode">专注模式</string>
+    <string name="exit_focus_mode">退出专注模式</string>
+    <string name="find_in_note">在笔记中查找</string>
+    <string name="find_in_note_hint">查找</string>
+    <string name="find_previous_match">上一个匹配项</string>
+    <string name="find_next_match">下一个匹配项</string>
+    <string name="replace_in_note_hint">替换</string>
+    <string name="replace_match">替换</string>
+    <string name="replace_all_matches">全部替换</string>
+    <plurals name="replace_all_done_format">
+        <item quantity="other">已替换 %1$d 处。</item>
+    </plurals>
+    <string name="close">关闭</string>
+    <string name="share_note">分享或导出</string>
+    <string name="share_via_system">通过其他应用分享…</string>
+    <string name="export_as_file">另存为 .md 文件…</string>
+    <string name="export_success">笔记已导出。</string>
+    <string name="export_failed">导出失败。</string>
+    <string name="callout_note">注意</string>
+    <string name="callout_tip">提示</string>
+    <string name="callout_important">重要</string>
+    <string name="callout_warning">警告</string>
+    <string name="callout_caution">小心</string>
+
+    <string name="pin">置顶</string>
+    <string name="unpin">取消置顶</string>
+    <string name="pinned">已置顶</string>
+    <string name="section_pinned">置顶</string>
+    <string name="section_today">今天</string>
+    <string name="section_yesterday">昨天</string>
+    <string name="section_past_week">过去 7 天</string>
+    <string name="section_older">更早</string>
+    <string name="relative_today">今天 %1$s</string>
+    <string name="relative_yesterday">昨天 %1$s</string>
+    <string name="relative_days_ago">%1$d 天前</string>
+
+    <!-- Elapsed time since a timestamp, for the sync status rows. Distinct from
+         the relative_* strings above, which name a calendar day. -->
+    <string name="elapsed_just_now">刚刚</string>
+    <plurals name="elapsed_minutes_ago">
+        <item quantity="other">%1$d 分钟前</item>
+    </plurals>
+    <plurals name="elapsed_hours_ago">
+        <item quantity="other">%1$d 小时前</item>
+    </plurals>
+    <plurals name="elapsed_days_ago">
+        <item quantity="other">%1$d 天前</item>
+    </plurals>
+
+    <string name="search_notes_hint">搜索笔记...</string>
+    <string name="type_to_search_notes">输入内容以搜索笔记</string>
+    <string name="no_results_found">未找到结果</string>
+    <string name="matching_notes">笔记</string>
+    <string name="matching_tags">标签</string>
+    <string name="search_recent_notes">最近的笔记</string>
+    <string name="search_mode_all">全部内容</string>
+    <string name="search_mode_titles">仅标题</string>
+    <string name="sort_notes">笔记排序</string>
+    <string name="sort_updated_newest">最近编辑优先</string>
+    <string name="sort_updated_oldest">最早编辑优先</string>
+    <string name="sort_title_az">标题 A 到 Z</string>
+    <string name="sort_title_za">标题 Z 到 A</string>
+    <string name="tag_result_format">#%1$s</string>
+    <string name="no_tags_yet">暂无标签</string>
+    <string name="tags_empty_hint">在笔记中输入 #标签 进行整理</string>
+    <plurals name="tag_note_count_format">
+        <item quantity="other">%1$d 篇笔记</item>
+    </plurals>
+
+    <string name="trash_empty">回收站为空</string>
+    <string name="trash_empty_hint">删除的笔记会显示在这里</string>
+    <string name="restore">恢复</string>
+    <string name="delete">删除</string>
+    <string name="delete_forever_title">永久删除？</string>
+    <string name="delete_forever_message">此笔记将被永久删除且无法恢复。</string>
+    <string name="delete_forever">永久删除</string>
+    <string name="cancel">取消</string>
+
+    <string name="move_to_trash">移至回收站</string>
+    <string name="move_to_trash_title">移至回收站？</string>
+    <string name="move_to_trash_message">将 &quot;%1$s&quot; 移至回收站？你可以稍后从回收站恢复。</string>
+    <string name="move_to_trash_editor_message">将此笔记移至回收站？你可以稍后从回收站恢复。</string>
+
+    <string name="settings_appearance">外观</string>
+    <string name="theme_label">主题</string>
+    <string name="theme_markleaf_green">Markleaf 绿</string>
+    <string name="theme_material_you">Material You</string>
+    <string name="theme_description">Markleaf 绿是以树叶为灵感的原始配色。Material You 在 Android 12 及更高版本上会跟随系统壁纸配色。</string>
+
+    <string name="settings_markdown">Markdown</string>
+    <string name="show_markdown_syntax">显示 Markdown 语法</string>
+    <string name="show_markdown_syntax_description">实时编辑器会在输入时突出显示 Markdown 标记。</string>
+    <string name="line_width">行宽</string>
+    <string name="line_width_narrow">窄</string>
+    <string name="line_width_comfortable">适中</string>
+    <string name="line_width_wide">宽</string>
+    <string name="settings_notes_section">笔记与搜索</string>
+    <string name="show_note_previews">显示笔记预览</string>
+    <string name="show_note_previews_description">在每个标题下显示内容摘要和编辑时间。关闭后可在屏幕上显示更多笔记。</string>
+    <string name="reopen_last_note">启动时重新打开上次的笔记</string>
+    <string name="reopen_last_note_description">启动后直接打开上次编辑的笔记，而不是笔记列表。</string>
+    <string name="open_notes_in_preview">以预览模式打开笔记</string>
+    <string name="open_notes_in_preview_description">打开笔记时显示渲染后的预览，而不是编辑视图。新笔记仍会在编辑视图中打开。提示：长按笔记中的预览/编辑图标可切换此设置。</string>
+    <string name="open_notes_at">打开笔记时定位到</string>
+    <string name="open_notes_at_top">顶部</string>
+    <string name="open_notes_at_bottom">底部</string>
+    <string name="open_notes_at_last_position">上次离开的位置</string>
+    <string name="open_notes_at_description">设置打开笔记时的定位位置。“底部”适合只在末尾追加内容的笔记。“上次离开的位置”仅在应用中记住每篇笔记的位置，不会向文件写入任何内容。</string>
+    <string name="notes_layout">笔记列表布局</string>
+    <string name="notes_layout_list">列表</string>
+    <string name="notes_layout_grid">网格</string>
+    <string name="notes_layout_description">网格布局以卡片形式显示笔记，并根据屏幕宽度排列尽可能多的列。“显示笔记预览”同时适用于两种布局。</string>
+    <string name="note_title_source">笔记标题</string>
+    <string name="note_title_source_first_heading">第一个标题</string>
+    <string name="note_title_source_first_line">第一行</string>
+    <string name="note_title_source_description">设置笔记列表中用作标题的行。“第一个标题”会采用笔记中任意位置的第一个 Markdown 标题；“第一行”始终采用你输入的第一行。更改此设置会更新现有笔记的标题；在同步中心使用“将文件重命名为笔记标题”，可同时更新已同步的文件名。</string>
+    <plurals name="note_title_retitled_format">
+        <item quantity="other">已更新 %1$d 篇笔记的标题。</item>
+    </plurals>
+    <string name="jump_to_end">跳转到末尾</string>
+    <string name="jump_to_start">跳转到开头</string>
+    <string name="view_mode_locked">笔记现在默认以预览模式打开</string>
+    <string name="view_mode_unlocked">笔记现在默认以编辑模式打开</string>
+    <string name="lock_view_mode">锁定查看模式</string>
+    <string name="settings_privacy">隐私</string>
+    <string name="privacy_no_tracking">无需账户，不含分析、广告、远程配置或专有崩溃报告 SDK。</string>
+    <string name="privacy_no_internet">MVP 版本未声明 INTERNET 权限。</string>
+    <string name="privacy_local_first">只有当你明确选择导出或分享时，笔记才会离开设备。</string>
+    <string name="settings_data">数据</string>
+    <string name="export_all_notes">导出所有笔记…</string>
+    <string name="export_all_notes_description">选择一个文件夹，Markleaf 会将每篇笔记分别保存为 .md 文件。回收站中的笔记不会导出。</string>
+    <plurals name="export_all_done_format">
+        <item quantity="other">已导出 %1$d 篇笔记。</item>
+    </plurals>
+
+    <string name="sync_title">多设备同步（文件夹镜像）</string>
+    <string name="sync_explainer">Markleaf 本身不会联网。你可以选择一个文件夹，Markleaf 会将每篇笔记以 `.md` 文件保存到其中。如果该文件夹由其他应用同步，例如 Dropbox、Google 云端硬盘、Syncthing、OneDrive 或 NAS，你的笔记也会同步到其他设备。</string>
+    <string name="sync_recommended_locations">建议将 Markleaf 指向以下位置：\n· /内部存储/Dropbox/Markleaf\n· /内部存储/Drive/Markleaf\n· /内部存储/Sync/Markleaf  (Syncthing)</string>
+    <string name="sync_status_unset">尚未选择文件夹。</string>
+    <string name="sync_status_folder_format">文件夹：%1$s</string>
+    <string name="sync_status_last_synced_format">上次同步：%1$s</string>
+    <string name="sync_status_last_synced_never">上次同步：从未</string>
+    <string name="sync_metadata_mode">笔记元数据</string>
+    <string name="sync_metadata_mode_frontmatter">保存在文件内</string>
+    <string name="sync_metadata_mode_sidecar">保存在文件旁</string>
+    <string name="sync_metadata_mode_description">Markleaf 需要知道每个文件对应哪篇笔记。默认情况下，它会在每个文件顶部写入一个简短的 `---` 标头。“保存在文件旁”会将这些信息存入隐藏索引，使笔记文件只包含你输入的内容。</string>
+    <string name="sync_metadata_sidecar_costs">注意：在 Markleaf 外部重命名文件可能会断开文件与笔记的关联；复制文件夹时如果未包含索引，每篇笔记的创建日期和置顶状态将会丢失。</string>
+    <string name="sync_metadata_switched_format">已转换 %1$d 个文件。</string>
+    <string name="sync_behavior_summary">· 每次编辑后约 1 秒保存到文件夹。\n· &quot;立即同步&quot; 会拉取其他设备上的更改。\n· 发生冲突时，以最近的编辑为准。\n· 删除操作不会同步，请在每台设备上分别管理回收站。</string>
+    <string name="sync_pick_folder">选择同步文件夹</string>
+    <string name="sync_change_folder">更改文件夹</string>
+    <string name="sync_now">立即同步</string>
+    <string name="sync_stop">停止同步</string>
+    <plurals name="sync_seeded_format">
+        <item quantity="other">已将 %1$d 篇笔记镜像到文件夹。</item>
+    </plurals>
+    <string name="sync_file_format">同步文件格式</string>
+    <string name="sync_tidy_filenames">将文件重命名为笔记标题</string>
+    <plurals name="sync_tidy_done_format">
+        <item quantity="other">已整理 %1$d 个文件名。</item>
+    </plurals>
+    <string name="sync_done_format">同步完成：已更新 %1$d 篇，新增 %2$d 篇，未更改 %3$d 篇。</string>
+    <string name="sync_done_with_conflicts_format">同步完成：已更新 %1$d 篇，新增 %2$d 篇，%3$d 篇作为副本保留（冲突），未更改 %4$d 篇。</string>
+    <string name="sync_conflict_copy_suffix">（来自其他设备的副本 %1$s）</string>
+    <string name="sync_stopped">同步已关闭。</string>
+    <string name="screenshot_protection">禁止截屏和最近任务预览</string>
+    <string name="screenshot_protection_description">在截屏和最近任务界面中隐藏笔记内容。重新打开编辑器界面后更改才会生效。</string>
+    <string name="settings_app">应用</string>
+    <string name="version_format">版本 %1$s</string>
+    <string name="application_id_format">应用 ID %1$s</string>
+
+    <string name="settings_open_source">开源</string>
+    <string name="oss_license_label">许可证</string>
+    <string name="oss_license_value">Apache License 2.0</string>
+    <string name="oss_source_label">源代码</string>
+    <string name="oss_source_url">https://github.com/jeiel85/markleaf-android</string>
+    <string name="oss_view_source">在 GitHub 上查看</string>
+    <string name="oss_view_license">查看完整许可证</string>
+    <string name="oss_license_url">https://github.com/jeiel85/markleaf-android/blob/main/LICENSE</string>
+    <string name="oss_fdroid_label">F-Droid</string>
+    <string name="oss_fdroid_url">https://f-droid.org/packages/com.markleaf.notes/</string>
+    <string name="oss_view_fdroid">在 F-Droid 上查看</string>
+    <string name="oss_explainer">Markleaf 基于 Apache 2.0 许可证完全开源。你可以阅读代码、检查笔记的存储方式，并在 GitHub 上参与贡献。</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title_welcome">欢迎使用 Markleaf</string>
+    <string name="onboarding_body_welcome">一款安静、以本地存储为优先的 Android Markdown 笔记应用。除非你选择分享或导出，否则文字始终保留在此设备上。</string>
+    <string name="onboarding_title_markdown">使用 Markdown 写作</string>
+    <string name="onboarding_body_markdown">可使用 **粗体**、_斜体_、# 标题、列表、代码和引用。随时点击顶部栏中的“预览”查看渲染效果。</string>
+    <string name="onboarding_title_tags">使用 #标签 整理笔记</string>
+    <string name="onboarding_body_tags">在笔记中的任意位置输入 #项目 或 #会议。应用会自动识别标签，并将其显示在“标签”界面中。</string>
+    <string name="onboarding_title_local">数据保留在本地</string>
+    <string name="onboarding_body_local">无需账户，不含分析功能，也不依赖云服务。你可以将任意笔记导出为 .md 文件，或将 Markleaf 指向同步文件夹（Dropbox / Google 云端硬盘 / Syncthing）以实现多设备同步。</string>
+    <string name="onboarding_next">下一步</string>
+    <string name="onboarding_done">开始使用</string>
+    <string name="onboarding_skip">跳过</string>
+
+    <!-- Biometric lock -->
+    <string name="biometric_lock_title">应用锁</string>
+    <string name="biometric_lock_setting">打开时要求生物识别验证</string>
+    <string name="biometric_lock_description">打开 Markleaf 时需要使用指纹或面容解锁。笔记内容绝不会发送到设备之外。</string>
+    <string name="biometric_lock_prompt_title">解锁 Markleaf</string>
+    <string name="biometric_lock_prompt_subtitle">验证身份以访问笔记</string>
+    <string name="biometric_lock_cancel">取消</string>
+    <string name="biometric_lock_unavailable">此设备不支持生物识别验证。请先在系统设置中设置指纹或面容，以使用应用锁。</string>
+    <string name="biometric_lock_retry">重试</string>
+    <string name="biometric_lock_locked_message">Markleaf 已锁定。</string>
+
+    <!-- Locked notes (#155) -->
+    <string name="locked_notes_title">已锁定笔记</string>
+    <string name="move_to_locked">移至已锁定笔记</string>
+    <string name="remove_from_locked">从已锁定笔记中移除</string>
+    <string name="locked_notes_empty">暂无已锁定笔记</string>
+    <string name="locked_notes_empty_hint">移至“已锁定笔记”的内容会显示在这里，并受密码保护。</string>
+    <string name="locked_unlock_hint">输入密码以打开已锁定笔记。</string>
+    <string name="locked_passcode_label">密码</string>
+    <string name="locked_unlock_button">解锁</string>
+    <string name="locked_wrong_passcode">密码错误。</string>
+    <string name="locked_too_many_attempts">尝试次数过多。请在 %1$s 后重试。</string>
+    <string name="wikilink_target_locked">该笔记位于已锁定笔记中。</string>
+    <string name="locked_no_passcode_title">尚未设置密码</string>
+    <string name="locked_no_passcode_hint">请在设置中设置密码，以保护已锁定笔记。</string>
+    <string name="locked_open_settings">打开设置</string>
+    <string name="locked_need_passcode_title">请先设置密码</string>
+    <string name="locked_need_passcode_message">要锁定笔记，请先在设置中设置“已锁定笔记”密码。</string>
+    <string name="locked_passcode_setting_title">已锁定笔记密码</string>
+    <string name="locked_passcode_setting_description">保护移至“已锁定笔记”的内容。此功能只会在应用中隐藏笔记，并非完整加密。</string>
+    <string name="locked_passcode_set">设置密码</string>
+    <string name="locked_passcode_change">更改密码</string>
+    <string name="locked_passcode_remove">移除密码</string>
+    <string name="locked_passcode_dialog_title">已锁定笔记密码</string>
+    <string name="locked_passcode_new_label">新密码</string>
+    <string name="locked_passcode_confirm_label">确认密码</string>
+    <string name="locked_passcode_save">保存</string>
+    <string name="locked_passcode_too_short">请至少使用 4 个字符。</string>
+    <string name="locked_passcode_mismatch">两次输入的密码不一致。</string>
+    <string name="locked_passcode_set_done">密码已设置。</string>
+    <string name="locked_passcode_removed_done">密码已移除。已锁定笔记已移回笔记列表。</string>
+    <string name="locked_passcode_remove_confirm_title">移除密码？</string>
+    <string name="locked_passcode_remove_confirm_message">这会将所有已锁定笔记移回笔记列表。</string>
+
+    <!-- Note information sheet accessibility (#152) -->
+    <string name="note_information_heading_action">跳转到章节</string>
+    <string name="note_information_backlink_action">打开笔记</string>
+
+    <!-- PDF export -->
+    <string name="export_pdf">导出为 PDF…</string>
+    <string name="export_pdf_job_name">Markleaf — %1$s</string>
+    <string name="export_pdf_unavailable">仅 Android 5 及更高版本支持导出 PDF。</string>
+
+    <!-- Widget -->
+    <string name="quick_note_widget_label">快速笔记</string>
+    <string name="quick_note_widget_description">点击即可快速创建新笔记</string>
+
+    <!-- Privacy Dashboard -->
+    <string name="privacy_dashboard_title">隐私面板</string>
+    <string name="privacy_guarantee_title">数据始终保留在本地</string>
+    <string name="privacy_guarantee_desc">Markleaf 以隐私保护为核心进行设计。除非你明确选择导出或分享，否则笔记绝不会离开你的设备。</string>
+    <string name="privacy_data_storage_title">本地优先存储</string>
+    <string name="privacy_data_storage_desc">所有笔记和标签均使用 Android 安全的 Room 数据库在设备本地存储。不使用云服务器，也不会上传数据。</string>
+    <string name="privacy_no_cloud_title">不依赖云服务</string>
+    <string name="privacy_no_cloud_desc">核心功能不使用任何云服务，不包含 Google 云端硬盘同步、Dropbox 集成或专有后端服务器。</string>
+    <string name="privacy_no_tracking_title">零跟踪</string>
+    <string name="privacy_no_tracking_desc">不含分析功能、崩溃报告 SDK 或广告网络。我们无法得知你如何使用本应用，并且希望一直如此。</string>
+    <string name="privacy_verification_title">隐私验证</string>
+    <string name="privacy_verify_no_internet">未声明 INTERNET 权限</string>
+    <string name="privacy_verify_local_only">100% 本地数据处理</string>
+    <string name="privacy_verify_no_ads">无广告或跟踪器</string>
+    <string name="privacy_verify_no_analytics">无分析或遥测</string>
+    <string name="privacy_verify_open_source">开源且可审查</string>
+    <string name="privacy_app_info_title">关于此版本</string>
+    <string name="privacy_app_info_desc">版本 %1$s\n\n此版本的 Markleaf 遵循严格的隐私标准，所有功能均可完全离线运行。</string>
+    <string name="privacy_dashboard_button">查看隐私面板</string>
+
+    <!-- Sync & Conflict Center -->
+    <string name="sync_center_title">同步中心</string>
+    <string name="conflict_center_title">冲突中心</string>
+    <string name="conflict_center_desc">这些笔记曾在多台设备上同时修改。请检查并编辑以手动合并更改，或删除不再需要的副本。</string>
+    <string name="conflict_center_empty">未检测到冲突</string>
+    <string name="conflict_center_empty_desc">所有镜像笔记均已完全同步。</string>
+    <string name="conflict_delete_confirm_title">删除冲突副本？</string>
+    <string name="conflict_delete_confirm_desc">此冲突副本将被永久删除。</string>
+    <string name="conflict_note_updated_format">更新时间：%1$s</string>
+
+</resources>

@@ -16,7 +16,8 @@ class ResourceParityTest {
             "src/main/res/values-es/strings.xml",
             "src/main/res/values-ja/strings.xml",
             "src/main/res/values-de/strings.xml",
-            "src/main/res/values-fr/strings.xml"
+            "src/main/res/values-fr/strings.xml",
+            "src/main/res/values-zh/strings.xml"
         ).forEach { path ->
             val localizedKeys = stringNames(path)
             assertEquals(
@@ -32,6 +33,16 @@ class ResourceParityTest {
         }
     }
 
+    /**
+     * `raw-zh` is deliberately not in this list. The Chinese contribution (#294)
+     * covers `strings.xml` only, so a Chinese device falls back to the English
+     * `raw/starter_notes.md` on first launch — degraded, but working.
+     *
+     * Writing that down is the point. This list is the only record of which
+     * locales have starter notes, so an omission left silent reads as an
+     * oversight the next time someone counts the directories. Add `raw-zh` here
+     * when the file lands.
+     */
     @Test
     fun localizedStarterNotesExist() {
         listOf(

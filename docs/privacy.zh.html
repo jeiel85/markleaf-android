@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - Markleaf</title>
+    <meta name="description" content="Markleaf 隐私政策。Markleaf 是一款本地优先的 Markdown 笔记应用，不申请 INTERNET 权限，没有账户、分析、广告或跟踪。">
+    <link rel="canonical" href="https://jeiel85.github.io/markleaf-android/privacy.zh.html">
+    <link rel="alternate" hreflang="en" href="https://jeiel85.github.io/markleaf-android/privacy.html">
+    <link rel="alternate" hreflang="ko" href="https://jeiel85.github.io/markleaf-android/privacy.ko.html">
+    <link rel="alternate" hreflang="ja" href="https://jeiel85.github.io/markleaf-android/privacy.ja.html">
+    <link rel="alternate" hreflang="zh-Hans" href="https://jeiel85.github.io/markleaf-android/privacy.zh.html">
+    <link rel="alternate" hreflang="de" href="https://jeiel85.github.io/markleaf-android/privacy.de.html">
+    <link rel="alternate" hreflang="es" href="https://jeiel85.github.io/markleaf-android/privacy.es.html">
+    <link rel="alternate" hreflang="fr" href="https://jeiel85.github.io/markleaf-android/privacy.fr.html">
+    <link rel="alternate" hreflang="x-default" href="https://jeiel85.github.io/markleaf-android/privacy.html">
+    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav aria-label="主导航">
+            <a class="logo" href="index.zh.html" aria-label="Markleaf 首页">
+                <img src="assets/logo.svg" alt="">
+                <span>Markleaf</span>
+            </a>
+            <div class="nav-cluster">
+                <ul>
+                    <li><a href="index.zh.html">首页</a></li>
+                    <li><a href="privacy.zh.html">隐私</a></li>
+                    <li><a href="https://github.com/jeiel85/markleaf-android">GitHub</a></li>
+                </ul>
+                <div class="lang-switch" aria-label="语言">
+                    <a href="privacy.html" hreflang="en" aria-label="English">EN</a>
+                    <a href="privacy.ko.html" hreflang="ko" aria-label="한국어">KO</a>
+                    <a href="privacy.ja.html" hreflang="ja" aria-label="日本語">JA</a>
+                    <a href="privacy.zh.html" hreflang="zh-Hans" aria-current="page">ZH</a>
+                    <a href="privacy.de.html" hreflang="de" aria-label="Deutsch">DE</a>
+                    <a href="privacy.es.html" hreflang="es" aria-label="Español">ES</a>
+                    <a href="privacy.fr.html" hreflang="fr" aria-label="Français">FR</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <article class="content">
+            <h1>Markleaf 隐私政策</h1>
+            <p class="updated">最后更新：2026 年 5 月 26 日 · 适用于 Markleaf Android v2.x</p>
+
+            <h2>核心原则</h2>
+            <p>Markleaf 是一款本地优先的 Markdown 笔记应用。Markleaf 本身不具备 <code>android.permission.INTERNET</code> 权限，不运行任何自有服务器，也绝不会自动把笔记、标签、附件或元数据上传到任何外部服务器。</p>
+
+            <h2>Markleaf 不收集的信息</h2>
+            <ul>
+                <li>姓名、电子邮件、通讯录、位置</li>
+                <li>账户或登录信息</li>
+                <li>笔记正文、标题、标签、附加图片、文件名、元数据</li>
+                <li>使用统计、遥测数据、分析事件、广告标识符</li>
+                <li>崩溃报告或设备标识符</li>
+            </ul>
+            <p>应用中也不包含分析、广告、跟踪、远程配置、Firebase 或闭源的崩溃报告 SDK。</p>
+
+            <h2>网络</h2>
+            <p>Markleaf 不声明任何联网权限。</p>
+            <pre>android.permission.INTERNET   none</pre>
+
+            <h2>数据存储位置</h2>
+            <ul>
+                <li>笔记正文、标题与标签索引存储在应用内部的 Room 数据库中。</li>
+                <li>用户设置存储在 DataStore 中。</li>
+                <li>附加的图片会复制到应用的内部存储，保存时会剥离敏感的 EXIF 元数据。</li>
+            </ul>
+
+            <h2>Android 系统备份策略</h2>
+            <p>Markleaf 设置了 <code>android:allowBackup="false"</code>，将应用数据排除在 Android 自动备份和设备间迁移之外。如果你需要更换新设备或在多台设备上使用，请自行选择 Markdown 导出、分享或 SAF 文件夹镜像。</p>
+
+            <h2>由用户发起的数据移动</h2>
+            <p>以下操作只有在你亲自执行时才会发生，并且都会经过 Android 的明确权限对话框或由你做出的界面选择。</p>
+            <ul>
+                <li>将单篇或全部笔记导出为 Markdown（<code>.md</code>）</li>
+                <li>通过 Android 系统分享面板分享笔记文本或文件</li>
+                <li>点击正文中的外部链接，交由系统或默认浏览器处理</li>
+                <li>复制到剪贴板</li>
+                <li>将 Markdown 文件镜像到你选择的 SAF 文件夹</li>
+            </ul>
+            <p>SAF 文件夹是否会被 Drive、Dropbox、OneDrive、Syncthing 或 NAS 挂载等外部同步客户端同步，由那个外部应用负责。Markleaf 自身不执行该同步。</p>
+
+            <h2>权限</h2>
+            <p>Markleaf 声明的唯一运行时类权限是用于触感反馈的 <code>android.permission.VIBRATE</code>。它不声明位置、麦克风、摄像头、通讯录、通知、外部存储读取、媒体读取或网络权限。</p>
+
+            <h2>联系方式</h2>
+            <p>如有疑问或需要提交安全 / 隐私报告，请通过 <a class="text-link" href="https://github.com/jeiel85/markleaf-android/issues">GitHub Issues</a> 与我们联系。</p>
+        </article>
+    </main>
+
+    <footer>
+        <p>Markleaf · 一款轻量、本地优先的 Android Markdown 笔记应用。</p>
+        <p><a href="index.zh.html">首页</a> · <a href="https://github.com/jeiel85/markleaf-android">GitHub</a> · <a href="https://github.com/jeiel85/markleaf-android/blob/main/LICENSE">Apache-2.0</a></p>
+    </footer>
+</body>
+</html>

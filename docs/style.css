@@ -98,6 +98,7 @@ nav a:focus-visible,
 .lang-switch {
     align-items: center;
     display: flex;
+    flex-wrap: wrap;
     gap: 0.3rem;
 }
 

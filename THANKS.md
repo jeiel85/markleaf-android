@@ -15,6 +15,8 @@ the inside: a crash on a device I don't own, a language I don't read laying out
 backwards, a duplicate-file bug that only shows up when the same folder is
 opened by two apps.
 
+## Reported
+
 Listed by first report.
 
 | | Reported |
@@ -42,6 +44,19 @@ Not every request here was accepted — a couple were declined, and saying no to
 thoughtful suggestion is its own kind of debt. Being told what you want from the
 app is useful whether or not it gets built, so those reports are listed too.
 
+## Contributed
+
+A report describes the problem; a patch decides the answer. Translations are the
+sharpest version of that, because they are the one contribution the maintainer
+cannot actually check. I can diff the file, count the keys, and match the format
+specifiers — I cannot tell you whether the words sound like something a person
+would write. Those languages are in the app on someone else's judgement.
+
+| | Contributed |
+|---|---|
+| [@ALILEX-1](https://github.com/ALILEX-1) | [#294](https://github.com/jeiel85/markleaf-android/pull/294) — Simplified Chinese |
+
 Reporting something new? [Issues](https://github.com/jeiel85/markleaf-android/issues)
 for bugs, [Discussions](https://github.com/jeiel85/markleaf-android/discussions)
-for ideas and questions.
+for ideas and questions. A translation, or a fix for one, is welcome as a pull
+request.

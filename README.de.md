@@ -26,6 +26,7 @@
   <a href="README.md">English</a> ·
   <a href="README.ko.md">한국어</a> ·
   <a href="README.ja.md">日本語</a> ·
+  <a href="README.zh.md">简体中文</a> ·
   <strong>Deutsch</strong> ·
   <a href="README.es.md">Español</a> ·
   <a href="README.fr.md">Français</a>
@@ -95,7 +96,7 @@
 - **Markleaf-Grün-Theme + Material-You-Umschalter** – Systemfarben des Hintergrundbilds ab Android 12 optional
 - **Automatischer Dunkelmodus** – folgt der Systemeinstellung
 - **3-Spalten-Layout für Tablets** – Tag-Seitenleiste · Notizliste · Editor; tippe einen Tag in der Seitenleiste an, um die Notizliste direkt zu filtern (Notizliste weiterhin einklappbar)
-- **Oberfläche in 6 Sprachen** – Koreanisch / Englisch / Spanisch / Japanisch / Französisch / Deutsch
+- **Oberfläche in 7 Sprachen** – Koreanisch / Englisch / Spanisch / Japanisch / Französisch / Deutsch / Vereinfachtes Chinesisch
 - **Option zum Blockieren von Screenshots / Vorschau in zuletzt verwendeten Apps** – für vertrauliche Notizen
 
 ---

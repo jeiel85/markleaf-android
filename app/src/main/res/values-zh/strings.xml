@@ -103,7 +103,6 @@
     <string name="replace_match">替换</string>
     <string name="replace_all_matches">全部替换</string>
     <plurals name="replace_all_done_format">
-        <item quantity="one">已替换 %1$d 处。</item>
         <item quantity="other">已替换 %1$d 处。</item>
     </plurals>
     <string name="close">关闭</string>
@@ -134,15 +133,12 @@
          the relative_* strings above, which name a calendar day. -->
     <string name="elapsed_just_now">刚刚</string>
     <plurals name="elapsed_minutes_ago">
-        <item quantity="one">%1$d 分钟前</item>
         <item quantity="other">%1$d 分钟前</item>
     </plurals>
     <plurals name="elapsed_hours_ago">
-        <item quantity="one">%1$d 小时前</item>
         <item quantity="other">%1$d 小时前</item>
     </plurals>
     <plurals name="elapsed_days_ago">
-        <item quantity="one">%1$d 天前</item>
         <item quantity="other">%1$d 天前</item>
     </plurals>
 
@@ -163,7 +159,6 @@
     <string name="no_tags_yet">暂无标签</string>
     <string name="tags_empty_hint">在笔记中输入 #标签 进行整理</string>
     <plurals name="tag_note_count_format">
-        <item quantity="one">%1$d 篇笔记</item>
         <item quantity="other">%1$d 篇笔记</item>
     </plurals>
 
@@ -215,7 +210,6 @@
     <string name="note_title_source_first_line">第一行</string>
     <string name="note_title_source_description">设置笔记列表中用作标题的行。“第一个标题”会采用笔记中任意位置的第一个 Markdown 标题；“第一行”始终采用你输入的第一行。更改此设置会更新现有笔记的标题；在同步中心使用“将文件重命名为笔记标题”，可同时更新已同步的文件名。</string>
     <plurals name="note_title_retitled_format">
-        <item quantity="one">已更新 %1$d 篇笔记的标题。</item>
         <item quantity="other">已更新 %1$d 篇笔记的标题。</item>
     </plurals>
     <string name="jump_to_end">跳转到末尾</string>
@@ -231,7 +225,6 @@
     <string name="export_all_notes">导出所有笔记…</string>
     <string name="export_all_notes_description">选择一个文件夹，Markleaf 会将每篇笔记分别保存为 .md 文件。回收站中的笔记不会导出。</string>
     <plurals name="export_all_done_format">
-        <item quantity="one">已导出 %1$d 篇笔记。</item>
         <item quantity="other">已导出 %1$d 篇笔记。</item>
     </plurals>
 
@@ -254,13 +247,11 @@
     <string name="sync_now">立即同步</string>
     <string name="sync_stop">停止同步</string>
     <plurals name="sync_seeded_format">
-        <item quantity="one">已将 %1$d 篇笔记镜像到文件夹。</item>
         <item quantity="other">已将 %1$d 篇笔记镜像到文件夹。</item>
     </plurals>
     <string name="sync_file_format">同步文件格式</string>
     <string name="sync_tidy_filenames">将文件重命名为笔记标题</string>
     <plurals name="sync_tidy_done_format">
-        <item quantity="one">已整理 %1$d 个文件名。</item>
         <item quantity="other">已整理 %1$d 个文件名。</item>
     </plurals>
     <string name="sync_done_format">同步完成：已更新 %1$d 篇，新增 %2$d 篇，未更改 %3$d 篇。</string>

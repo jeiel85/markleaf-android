@@ -197,23 +197,18 @@ if ($expectedDate) {
 # webp)로 바뀌었고 — 자동재생 GIF 는 `prefers-reduced-motion` 을 존중할 방법이
 # 없고 방문당 ~930KB 였다 — README 는 GitHub 가 마크다운을 그대로 렌더하므로
 # `<video>` 를 쓸 수 없어 GIF 그대로다. 그래서 기대 확장자가 표면마다 다르다.
-#
-# Fallback 이 있는 표면은 자기 언어 클립이 아직 없어서 다른 언어 것을 의도적으로
-# 빌려 쓰는 경우다. 목록에서 빼면 그 표면은 아무 검사도 받지 않게 되므로 — 이
-# 검사가 막으려는 바로 그 구멍이다 — 빌려 쓰는 언어를 여기에 적어 두고, 대신
-# 출력에 표시해서 눈에 띄게 한다. zh 태블릿 데모를 촬영하면 Fallback 을 지운다.
 $assetPairs = @(
     @{ File = "docs/index.html";    Lang = "en"; Kind = "video" }
     @{ File = "docs/index.ko.html"; Lang = "ko"; Kind = "video" }
     @{ File = "docs/index.ja.html"; Lang = "ja"; Kind = "video" }
-    @{ File = "docs/index.zh.html"; Lang = "en"; Kind = "video"; Fallback = "zh 데모 미촬영" }
+    @{ File = "docs/index.zh.html"; Lang = "zh"; Kind = "video" }
     @{ File = "docs/index.de.html"; Lang = "de"; Kind = "video" }
     @{ File = "docs/index.es.html"; Lang = "es"; Kind = "video" }
     @{ File = "docs/index.fr.html"; Lang = "fr"; Kind = "video" }
     @{ File = "README.md";    Lang = "en"; Kind = "gif" }
     @{ File = "README.ko.md"; Lang = "ko"; Kind = "gif" }
     @{ File = "README.ja.md"; Lang = "ja"; Kind = "gif" }
-    @{ File = "README.zh.md"; Lang = "en"; Kind = "gif"; Fallback = "zh 데모 미촬영" }
+    @{ File = "README.zh.md"; Lang = "zh"; Kind = "gif" }
     @{ File = "README.de.md"; Lang = "de"; Kind = "gif" }
     @{ File = "README.es.md"; Lang = "es"; Kind = "gif" }
     @{ File = "README.fr.md"; Lang = "fr"; Kind = "gif" }
@@ -251,8 +246,6 @@ foreach ($pair in $assetPairs) {
     } elseif ($absent.Count) {
         # 에셋 자체가 있어야 참조가 의미를 갖는다.
         Add-Failure ("  FAIL  {0,-20} 참조하는데 docs/assets 에 없는 파일: {1}" -f $pair.File, ($absent -join ', '))
-    } elseif ($pair.ContainsKey('Fallback')) {
-        Write-Host ("  OK    {0,-20} {1}  ({2})" -f $pair.File, ($expected -join ' + '), $pair.Fallback) -ForegroundColor Yellow
     } else {
         Write-Host ("  OK    {0,-20} {1}" -f $pair.File, ($expected -join ' + ')) -ForegroundColor Green
     }

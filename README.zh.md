@@ -47,7 +47,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/markleaf-tablet-en.gif" width="760" alt="平板上的 Markleaf：标签栏、笔记列表与编辑器同屏显示，输入 Markdown 表格、任务列表和提示块后预览会渲染出来" />
+  <img src="docs/assets/markleaf-tablet-zh.gif" width="760" alt="平板上的 Markleaf：标签栏、笔记列表与编辑器同屏显示，输入 Markdown 表格、任务列表和提示块后预览会渲染出来" />
 </p>
 
 <p align="center">

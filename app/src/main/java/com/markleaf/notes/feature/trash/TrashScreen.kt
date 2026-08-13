@@ -113,7 +113,7 @@ fun TrashScreen(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(trashedNotes) { note ->
+                    items(trashedNotes, key = { it.id }) { note ->
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -132,11 +132,11 @@ fun TrashScreen(
                                     modifier = Modifier.weight(1f)
                                 )
                                 Row {
-                                    Button(onClick = { viewModel.restoreFromTrash(note.id) }) {
+                                    TextButton(onClick = { viewModel.restoreFromTrash(note.id) }) {
                                         Text(stringResource(R.string.restore))
                                     }
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Button(onClick = {
+                                    TextButton(onClick = {
                                         noteToDelete = note
                                         showDeleteConfirm.value = true
                                     }) {

@@ -1,0 +1,1 @@
+Kleine Verbesserungen am Papierkorb: Die Schaltflächen „Wiederherstellen" und „Löschen" sind jetzt schlanker, sodass lange Notiztitel auf schmalen Bildschirmen mehr Platz behalten, und die Zeilen bleiben beim Wiederherstellen oder Löschen einer Notiz stabil.

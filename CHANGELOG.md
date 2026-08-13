@@ -4,6 +4,14 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.32.4 - A tidier trash bin - 2026-08-13
+
+Two trash-screen refinements, both found while reviewing the previous release's fix. No feature, permission, or storage-format changes.
+
+### Fixed
+- **Trash rows keep their place (#262).** The trash list was the last list in the app whose rows had no stable key, so the list tracked them by position — restoring or deleting a note could leave the wrong row briefly visible or animate oddly. Rows are now keyed by note id, the same treatment every other list already gets.
+- **Restore and Delete are slimmer (#262).** The two actions were filled buttons, which on a narrow phone with a long localized label (German "Wiederherstellen", for instance) left the title almost no room. They are now text buttons — the standard Material 3 shape for list-row actions — so the title keeps more space while both actions stay fully visible and tappable.
+
 ## v2.32.3 - Trash actions that stay within reach - 2026-08-13
 
 One trash-screen layout fix, reported with screenshots against an F-Droid install. No feature, permission, or storage-format changes.

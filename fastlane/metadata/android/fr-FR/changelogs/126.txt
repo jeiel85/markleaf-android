@@ -1,0 +1,1 @@
+Quelques raffinements de la corbeille : les boutons « Restaurer » et « Supprimer » sont désormais plus fins, ce qui laisse plus de place aux titres longs sur les écrans étroits, et les lignes restent stables lorsque vous restaurez ou supprimez une note.

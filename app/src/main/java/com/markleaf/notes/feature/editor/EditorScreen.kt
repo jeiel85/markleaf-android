@@ -141,7 +141,64 @@ fun EditorScreen(
     val coroutineScope = rememberCoroutineScope()
 
     var editorState by remember(noteId) { mutableStateOf(TextFieldValue("")) }
-    var saveTrigger by remember(noteId) { mutableStateOf(0) }
+    val titleSource = appSettings.noteTitleSource
+    // The persistence behind the debounce gate: reads the note fresh from the
+    // DB so a save never clobbers a newer row, then updates the sync mirror
+    // when one is configured (#262).
+    suspend fun autosave(content: String) {
+        val id = noteId ?: return
+        val currentNote = repo.getNote(id)
+        if (currentNote != null) {
+            val updatedNote = currentNote.copy(
+                title = TitleExtractor.extractTitle(content, appSettings.noteTitleSource),
+                contentMarkdown = content,
+                excerpt = TitleExtractor.generateExcerpt(content, appSettings.noteTitleSource),
+                updatedAt = java.time.Instant.now()
+            )
+            repo.updateNote(updatedNote)
+            tagRepo.reindexTagsForNote(id, content)
+            linkRepo.reindexLinksForNote(id, content)
+            appSettings.syncFolderUriOrNull()?.let { uri ->
+                // Never mirror a locked note to the sync folder — the Locked
+                // space is meant to stay on-device, and the mirror writes plain
+                // text (#155). Removing the lock re-includes it on the next save.
+                if (!updatedNote.locked) {
+                    val ok = withContext(Dispatchers.IO) {
+                        val wrote = NoteFolderMirror.writeNote(
+                            context,
+                            uri,
+                            updatedNote,
+                            appSettings.syncFileExtension,
+                            appSettings.mirrorMetadata()
+                        )
+                        if (wrote) {
+                            val attachments = AttachmentManager.filesForNote(context, id)
+                            if (attachments.isNotEmpty()) {
+                                NoteFolderMirror.mirrorAttachments(context, uri, id, attachments)
+                            }
+                        }
+                        wrote
+                    }
+                    if (ok) {
+                        // Stamp the synced snapshot so the next reconcile
+                        // can distinguish "remote echo" from "remote edit
+                        // by another device since this snapshot."
+                        repo.updateNote(updatedNote.copy(lastImportedAt = updatedNote.updatedAt))
+                    }
+                }
+            }
+        }
+    }
+    // Debounced autosave gate: every edit and formatting action bumps it, and
+    // it coalesces a burst into one save of the latest text (#262). The save
+    // body lives in [autosave] so the timing/ordering contract is testable.
+    val saver = remember(noteId) {
+        DebouncedSaver(
+            debounceMillis = SAVE_DEBOUNCE_MS,
+            readContent = { editorState.text },
+            save = { content -> autosave(content) }
+        )
+    }
     var isLoaded by remember(noteId) { mutableStateOf(noteId == null) }
     var shouldRequestEditorFocus by remember(noteId) { mutableStateOf(noteId == null) }
     val editorFocusRequester = remember(noteId) { FocusRequester() }
@@ -164,7 +221,6 @@ fun EditorScreen(
     val tocHeadings = remember(previewLines) { extractHeadings(previewLines) }
     // Which line becomes the title is a user setting (#280); it keys every
     // derivation below so flipping it re-titles the open note straight away.
-    val titleSource = appSettings.noteTitleSource
     val currentTitle = remember(editorState.text, noteId, titleSource) {
         if (noteId == null) "" else TitleExtractor.extractTitle(editorState.text, titleSource)
     }
@@ -262,7 +318,7 @@ fun EditorScreen(
                         text = updatedText,
                         selection = TextRange(cursor + insertion.length)
                     )
-                    saveTrigger++
+                    saver.requestSave()
                 } else {
                     Toast.makeText(context, R.string.attachment_failed, Toast.LENGTH_SHORT).show()
                 }
@@ -279,7 +335,7 @@ fun EditorScreen(
             is EditorFormattingResult.Edited -> {
                 editorState = result.value
                 shouldRequestEditorFocus = true
-                if (isLoaded) saveTrigger++
+                if (isLoaded) saver.requestSave()
             }
             EditorFormattingResult.PickImage -> {
                 imagePickerLauncher.launch(arrayOf("image/*"))
@@ -385,52 +441,8 @@ fun EditorScreen(
         }
     }
 
-    LaunchedEffect(noteId, saveTrigger, isLoaded) {
-        if (noteId != null && isLoaded && saveTrigger > 0) {
-            delay(1000)
-            val currentNote = repo.getNote(noteId)
-            if (currentNote != null) {
-                val content = editorState.text
-                val updatedNote = currentNote.copy(
-                    title = TitleExtractor.extractTitle(content, titleSource),
-                    contentMarkdown = content,
-                    excerpt = TitleExtractor.generateExcerpt(content, titleSource),
-                    updatedAt = java.time.Instant.now()
-                )
-                repo.updateNote(updatedNote)
-                tagRepo.reindexTagsForNote(noteId, content)
-                linkRepo.reindexLinksForNote(noteId, content)
-                appSettings.syncFolderUriOrNull()?.let { uri ->
-                    // Never mirror a locked note to the sync folder — the Locked
-                    // space is meant to stay on-device, and the mirror writes plain
-                    // text (#155). Removing the lock re-includes it on the next save.
-                    if (!updatedNote.locked) {
-                        val ok = withContext(Dispatchers.IO) {
-                            val wrote = NoteFolderMirror.writeNote(
-                                context,
-                                uri,
-                                updatedNote,
-                                appSettings.syncFileExtension,
-                                appSettings.mirrorMetadata()
-                            )
-                            if (wrote) {
-                                val attachments = AttachmentManager.filesForNote(context, noteId)
-                                if (attachments.isNotEmpty()) {
-                                    NoteFolderMirror.mirrorAttachments(context, uri, noteId, attachments)
-                                }
-                            }
-                            wrote
-                        }
-                        if (ok) {
-                            // Stamp the synced snapshot so the next reconcile
-                            // can distinguish "remote echo" from "remote edit
-                            // by another device since this snapshot."
-                            repo.updateNote(updatedNote.copy(lastImportedAt = updatedNote.updatedAt))
-                        }
-                    }
-                }
-            }
-        }
+    LaunchedEffect(noteId, isLoaded) {
+        if (noteId != null && isLoaded) saver.run()
     }
 
     LaunchedEffect(shouldRequestEditorFocus, isLoaded, isPreviewMode) {
@@ -721,7 +733,7 @@ fun EditorScreen(
                             MarkdownEditActions.toggleTaskAtLine(editorState.text, sourceLine)
                                 ?.let { updated ->
                                     editorState = editorState.copy(text = updated)
-                                    if (isLoaded) saveTrigger++
+                                    if (isLoaded) saver.requestSave()
                                 }
                         },
                         onWikilinkClick = { title ->
@@ -827,7 +839,7 @@ fun EditorScreen(
                                     val target = findMatches[safeIndex]
                                     editorState = replaceRange(editorState, target, replaceQuery)
                                     shouldRequestEditorFocus = true
-                                    if (isLoaded) saveTrigger++
+                                    if (isLoaded) saver.requestSave()
                                 }
                             },
                             onReplaceAll = {
@@ -835,7 +847,7 @@ fun EditorScreen(
                                     val count = findMatches.size
                                     editorState = replaceAllRanges(editorState, findMatches, replaceQuery)
                                     shouldRequestEditorFocus = true
-                                    if (isLoaded) saveTrigger++
+                                    if (isLoaded) saver.requestSave()
                                     Toast.makeText(
                                         context,
                                         context.resources.getQuantityString(R.plurals.replace_all_done_format, count, count),
@@ -867,7 +879,7 @@ fun EditorScreen(
                         editorState = applyQuickInsertCommand(editorState, query, command)
                         quickInsertSelectedIndex = 0
                         shouldRequestEditorFocus = true
-                        if (isLoaded) saveTrigger++
+                        if (isLoaded) saver.requestSave()
                         if (command == QuickInsertCommand.IMAGE) {
                             imagePickerLauncher.launch(arrayOf("image/*"))
                         }
@@ -890,7 +902,7 @@ fun EditorScreen(
                             onValueChange = { incoming ->
                                 isFormattingExpanded = false
                                 editorState = MarkdownEditActions.applyAutoContinuation(editorState, incoming)
-                                if (isLoaded) saveTrigger++
+                                if (isLoaded) saver.requestSave()
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -933,7 +945,7 @@ fun EditorScreen(
                                             } else {
                                                 MarkdownEditActions.indent(editorState)
                                             }
-                                            if (isLoaded) saveTrigger++
+                                            if (isLoaded) saver.requestSave()
                                             true
                                         } else {
                                             // Hardware-keyboard formatting shortcuts resolve through
@@ -1034,7 +1046,7 @@ fun EditorScreen(
                             onPick = { title ->
                                 editorState = completeWikilink(editorState, title)
                                 shouldRequestEditorFocus = true
-                                if (isLoaded) saveTrigger++
+                                if (isLoaded) saver.requestSave()
                             }
                         )
                     } else if (tagQuery != null && tagSuggestions.isNotEmpty() && !isFocusMode) {
@@ -1043,7 +1055,7 @@ fun EditorScreen(
                             onPick = { tag ->
                                 editorState = completeTag(editorState, tag)
                                 shouldRequestEditorFocus = true
-                                if (isLoaded) saveTrigger++
+                                if (isLoaded) saver.requestSave()
                             }
                         )
                     }
@@ -1093,7 +1105,7 @@ fun EditorScreen(
             confirmButton = {
                 Button(onClick = {
                     editorState = replaceImageAlt(editorState, path, draft)
-                    if (isLoaded) saveTrigger++
+                    if (isLoaded) saver.requestSave()
                     imageAltEditing = null
                 }) {
                     Text(stringResource(R.string.image_alt_dialog_save))
@@ -1154,6 +1166,7 @@ private const val MAX_TAG_SUGGESTIONS = 8
  * short enough that putting the phone down mid-note records where you were.
  */
 private const val POSITION_WRITE_DEBOUNCE_MS = 1_000L
+private const val SAVE_DEBOUNCE_MS = 1_000L
 
 /**
  * How long the note-open path waits for DataStore before opening on defaults.

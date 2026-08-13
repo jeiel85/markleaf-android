@@ -36,4 +36,29 @@ class JumpToEndButtonTest {
     fun `a long note gets the control however short its lines are`() {
         assertTrue(isLongEnoughToJump("\n".repeat(200)))
     }
+
+    @Test
+    fun `a note that wraps past the threshold counts its rendered lines`() {
+        // Five long paragraphs can fill sixty screen lines while counting as
+        // five source lines (#262). Ten paragraphs of 160 chars each estimate
+        // to ~41 rendered lines while counting as only ten source lines.
+        val longParagraphs = buildString {
+            repeat(10) {
+                append("word ".repeat(32)) // 160 chars
+                append('\n')
+            }
+        }
+        assertEquals(11, longParagraphs.count { it == '\n' } + 1)
+        assertTrue(isLongEnoughToJump(longParagraphs))
+    }
+
+    @Test
+    fun `a note that fits neither count gets no control`() {
+        // 20 source lines but each only a few characters: nowhere near the
+        // threshold by either count.
+        val shortLines = (1..20).joinToString("\n") { "x" }
+        assertFalse(isLongEnoughToJump(shortLines))
+        // One long paragraph (~3 rendered lines) with no newlines at all.
+        assertFalse(isLongEnoughToJump("word ".repeat(120)))
+    }
 }

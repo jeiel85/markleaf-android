@@ -78,6 +78,7 @@ class AppSettingsRepository internal constructor(
             noteTitleSource = preferences[NOTE_TITLE_SOURCE]
                 ?.let { value -> enumValueOrDefault(value, NoteTitleSource.FIRST_HEADING) }
                 ?: NoteTitleSource.FIRST_HEADING,
+            retitlePending = preferences[RETITLE_PENDING] ?: false,
             searchTitlesOnly = preferences[SEARCH_TITLES_ONLY] ?: false,
             lastOpenedNoteId = preferences[LAST_OPENED_NOTE_ID],
             openNotesInPreview = preferences[OPEN_NOTES_IN_PREVIEW] ?: false,
@@ -273,6 +274,14 @@ class AppSettingsRepository internal constructor(
         }
     }
 
+    /** Marks whether a retitle pass is in flight, so a process death mid-pass
+     *  can be resumed instead of leaving titles from two rules (#262). */
+    suspend fun setRetitlePending(pending: Boolean) {
+        persist { preferences ->
+            preferences[RETITLE_PENDING] = pending
+        }
+    }
+
     suspend fun setSearchTitlesOnly(titlesOnly: Boolean) {
         persist { preferences ->
             preferences[SEARCH_TITLES_ONLY] = titlesOnly
@@ -368,6 +377,7 @@ class AppSettingsRepository internal constructor(
         val NOTES_SORT_MODE = stringPreferencesKey("notes_sort_mode")
         val NOTES_LAYOUT = stringPreferencesKey("notes_layout")
         val NOTE_TITLE_SOURCE = stringPreferencesKey("note_title_source")
+        val RETITLE_PENDING = booleanPreferencesKey("retitle_pending")
         val SEARCH_TITLES_ONLY = booleanPreferencesKey("search_titles_only")
         val LAST_OPENED_NOTE_ID = stringPreferencesKey("last_opened_note_id")
         val OPEN_NOTES_IN_PREVIEW = booleanPreferencesKey("open_notes_in_preview")

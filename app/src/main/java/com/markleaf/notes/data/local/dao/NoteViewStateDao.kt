@@ -17,4 +17,10 @@ interface NoteViewStateDao {
 
     @Query("SELECT * FROM note_view_state WHERE noteId = :noteId")
     suspend fun getForNote(noteId: String): NoteViewStateEntity?
+
+    /** Drop every recorded position — called when the "where I left off"
+     *  setting is switched off, so turning it back on later starts clean
+     *  rather than restoring a stale position for every note (#262). */
+    @Query("DELETE FROM note_view_state")
+    suspend fun clearAll()
 }

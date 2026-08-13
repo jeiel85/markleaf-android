@@ -127,6 +127,12 @@ fun EditorScreen(
     val context = LocalContext.current
     val db = remember { AppDatabase.getInstance(context) }
     val viewStateDao = remember { db.noteViewStateDao() }
+    // Last-known position of the surface that is not on screen, kept in memory
+    // instead of reading the row back on every debounced save (#262). Seeded
+    // from the persisted row when the note loads, so the first write still
+    // preserves the other surface's value.
+    var lastCaretOffset by remember(noteId) { mutableStateOf<Int?>(null) }
+    var lastPreviewIndex by remember(noteId) { mutableStateOf<Int?>(null) }
     val repo = remember { LocalNoteRepository(db) }
     val tagRepo = remember { LocalTagRepository(db) }
     val linkRepo = remember { LocalNoteLinkRepository(db) }
@@ -347,6 +353,8 @@ fun EditorScreen(
             } else {
                 null
             }
+            lastCaretOffset = lastPosition?.caretOffset
+            lastPreviewIndex = lastPosition?.previewIndex
             val caret = when (persistedSettings.openNotesAt) {
                 OpenNotesAt.TOP -> 0
                 OpenNotesAt.BOTTOM -> content.length
@@ -478,12 +486,15 @@ fun EditorScreen(
                 // while you are reading, the caret has not moved since you
                 // left the editor. Writing both would have each surface blank
                 // the other's position every time you switched.
-                val stored = viewStateDao.getForNote(noteId)
+                val effectiveCaret = if (inPreview) lastCaretOffset ?: caretOffset else caretOffset
+                val effectiveIndex = if (inPreview) previewIndex else lastPreviewIndex ?: previewIndex
+                lastCaretOffset = effectiveCaret
+                lastPreviewIndex = effectiveIndex
                 viewStateDao.upsert(
                     NoteViewStateEntity(
                         noteId = noteId,
-                        caretOffset = if (inPreview) stored?.caretOffset ?: caretOffset else caretOffset,
-                        previewIndex = if (inPreview) previewIndex else stored?.previewIndex ?: previewIndex
+                        caretOffset = effectiveCaret,
+                        previewIndex = effectiveIndex
                     )
                 )
             }

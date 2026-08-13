@@ -37,6 +37,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -94,8 +95,9 @@ fun SettingsScreen(
     val scope = rememberCoroutineScope()
     val settingsRepository = remember { AppSettingsRepository(context.applicationContext) }
     val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
-    val noteRepository = remember { LocalNoteRepository(AppDatabase.getInstance(context.applicationContext)) }
-    val noteImporter = remember { NoteImporter(AppDatabase.getInstance(context.applicationContext)) }
+    val db = remember { AppDatabase.getInstance(context.applicationContext) }
+    val noteRepository = remember { LocalNoteRepository(db) }
+    val noteImporter = remember { NoteImporter(db) }
     // Switching metadata mode rewrites every file in the folder. Disabling the
     // control while it runs stops a second switch starting on top of the first,
     // which would have two passes rewriting the same files.
@@ -103,6 +105,32 @@ fun SettingsScreen(
     // Same reason for the title rule (#280): two retitle passes running over the
     // same rows would leave titles from both rules behind.
     var retitleBusy by remember { mutableStateOf(false) }
+    // A retitle pass that died mid-way (process death between writing the
+    // preference and finishing the pass) leaves the new rule selected with part
+    // of the list still under the old one (#262). The preference carries a
+    // pending flag; coming back here resumes the pass and clears it.
+    LaunchedEffect(appSettings.retitlePending, retitleBusy) {
+        if (appSettings.retitlePending && !retitleBusy) {
+            retitleBusy = true
+            try {
+                val changed = withContext(Dispatchers.IO + NonCancellable) {
+                    NoteRetitler.retitleAll(noteRepository, appSettings.noteTitleSource)
+                }
+                Toast.makeText(
+                    context,
+                    context.resources.getQuantityString(
+                        R.plurals.note_title_retitled_format,
+                        changed,
+                        changed
+                    ),
+                    Toast.LENGTH_SHORT
+                ).show()
+            } finally {
+                settingsRepository.setRetitlePending(false)
+                retitleBusy = false
+            }
+        }
+    }
     val exportAllLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocumentTree()
     ) { folderUri ->
@@ -362,6 +390,18 @@ fun SettingsScreen(
                                         onClick = {
                                             scope.launch {
                                                 settingsRepository.setOpenNotesAt(where)
+                                                // Switching away from "where I left off"
+                                                // orphans every recorded position — the
+                                                // setting no longer reads them, but the
+                                                // rows would sit there forever, and
+                                                // turning the setting back on later would
+                                                // restore stale positions for notes that
+                                                // moved in the meantime (#262).
+                                                if (where != OpenNotesAt.LAST_POSITION) {
+                                                    withContext(Dispatchers.IO) {
+                                                        db.noteViewStateDao().clearAll()
+                                                    }
+                                                }
                                             }
                                         }
                                     ) {
@@ -437,22 +477,30 @@ fun SettingsScreen(
                                                 // would appear to do nothing (#280).
                                                 // NonCancellable: leaving the screen
                                                 // mid-pass would otherwise strand half the
-                                                // notes under the old rule.
-                                                val changed = withContext(
-                                                    Dispatchers.IO + NonCancellable
-                                                ) {
-                                                    NoteRetitler.retitleAll(noteRepository, source)
+                                                // notes under the old rule. The pending
+                                                // flag survives a process death mid-pass,
+                                                // and this screen's LaunchedEffect resumes
+                                                // it next time (#262).
+                                                settingsRepository.setRetitlePending(true)
+                                                try {
+                                                    val changed = withContext(
+                                                        Dispatchers.IO + NonCancellable
+                                                    ) {
+                                                        NoteRetitler.retitleAll(noteRepository, source)
+                                                    }
+                                                    retitleBusy = false
+                                                    Toast.makeText(
+                                                        context,
+                                                        context.resources.getQuantityString(
+                                                            R.plurals.note_title_retitled_format,
+                                                            changed,
+                                                            changed
+                                                        ),
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                } finally {
+                                                    settingsRepository.setRetitlePending(false)
                                                 }
-                                                retitleBusy = false
-                                                Toast.makeText(
-                                                    context,
-                                                    context.resources.getQuantityString(
-                                                        R.plurals.note_title_retitled_format,
-                                                        changed,
-                                                        changed
-                                                    ),
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
                                             }
                                         }
                                     ) {

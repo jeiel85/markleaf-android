@@ -1,6 +1,8 @@
 package com.markleaf.notes.feature.editor
 
+import android.util.Log
 import android.widget.Toast
+import com.markleaf.notes.BuildConfig
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -358,7 +360,24 @@ fun EditorScreen(
             val caret = when (persistedSettings.openNotesAt) {
                 OpenNotesAt.TOP -> 0
                 OpenNotesAt.BOTTOM -> content.length
-                OpenNotesAt.LAST_POSITION -> lastPosition?.caretOffset ?: 0
+                OpenNotesAt.LAST_POSITION -> {
+                    val (resolved, status) = resolveRestoredCaret(
+                        lastPosition?.caretOffset, content.length
+                    )
+                    // A dropped or clamped restore is silent to the user but
+                    // explains "it forgot where I was" — leave a debug
+                    // breadcrumb, like the reopen-last-note guard (#195).
+                    if (BuildConfig.DEBUG && status != RestoreStatus.OK) {
+                        Log.d(
+                            "EditorScreen",
+                            "position restore $status for note $noteId" +
+                                (if (status == RestoreStatus.CLAMPED)
+                                    ": saved ${lastPosition?.caretOffset} but note is ${content.length} chars"
+                                else "")
+                        )
+                    }
+                    resolved
+                }
             }
             // Clamped, never trusted: the note can be shorter than when the
             // position was recorded — edited in another app, or a smaller
@@ -1200,6 +1219,25 @@ internal fun recordsPosition(
     openNotesAt: OpenNotesAt,
     openedOnFallbackSettings: Boolean
 ): Boolean = openNotesAt == OpenNotesAt.LAST_POSITION && !openedOnFallbackSettings
+
+/**
+ * Resolves the caret offset to restore for a note, clamping it to the current
+ * content length and reporting whether the saved position was usable as-is
+ * (#262).
+ *
+ * The note can be shorter than when the position was recorded — edited in
+ * another app, or a smaller version brought in by sync — so the saved offset
+ * is never trusted, only clamped. A null saved offset (no row yet) is a
+ * dropped restore. The status lets the caller leave a debug breadcrumb
+ * instead of failing silently.
+ */
+internal enum class RestoreStatus { OK, CLAMPED, DROPPED }
+
+internal fun resolveRestoredCaret(saved: Int?, contentLength: Int): Pair<Int, RestoreStatus> {
+    if (saved == null) return 0 to RestoreStatus.DROPPED
+    val clamped = saved.coerceIn(0, contentLength)
+    return clamped to if (clamped == saved) RestoreStatus.OK else RestoreStatus.CLAMPED
+}
 
 /**
  * A preview scroll waiting for the preview to be built. [animate] separates the

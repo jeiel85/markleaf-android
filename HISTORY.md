@@ -1,3 +1,12 @@
+## 2026-08-13 - Trash list hardening, and v2.32.4 (#262)
+
+- Trigger: the two v2.32.3 hardening candidates recorded on the standing tracker after the #298 review — the trash list was the last `items()` call in the app without a key, and the inline Restore/Delete filled buttons left the title almost no room on narrow screens with long localized labels (German "Wiederherstellen" measures ~340dp on a 411dp phone).
+- Analysis: without `key = { it.id }`, LazyColumn tracks trash rows by position, so restoring or deleting a note could leave the wrong row briefly visible or animate oddly — every other list screen (archive, locked, search, notes, sync, quick-switcher) already passes a key. For the buttons, Material 3's list-row action pattern is a `TextButton`: it keeps both actions visible and tappable while its smaller horizontal padding (~24dp per button) hands the saved width to the title's `weight(1f)` region, which also gives the #298 ellipsis fix more headroom.
+- Contract/scope: `items(trashedNotes, key = { it.id })` and `Button` → `TextButton` for the two inline actions only. The AlertDialog's "Delete forever" confirm stays a filled `Button` on purpose — it is the destructive confirmation, while the inline Delete is only the entry point that opens the dialog. No behaviour, permission, or storage-format change.
+- Implementation: PR #300. Reviewed by the reviewer agent before opening (no blocking findings; the delete-in-error-colour idea was left as a hardening candidate rather than bundled). CI: build, instrumented-tests, launch-smoke all green.
+- Verification: `testDebugUnitTest` (incl. `TrashScreenTest`, which finds the buttons by text and is unaffected by the style change) + `:app:lintRelease` locally; the #298 regression test's boundary assertion only gets more headroom as the buttons shrink.
+- Release: versionCode 125→126, versionName 2.32.3→2.32.4, CHANGELOG both editions, seven store-locale `126.txt`, landing ×7 + README ×7. The two tracker items are checked off in #262 with this PR as evidence.
+
 ## 2026-08-13 - Trash actions pushed off-screen by long titles, and v2.32.3 (#298)
 
 - Trigger: an F-Droid user on 2.32.2 reported that in the trash bin the Recover/Delete buttons are "either not present at all or are elongated", with screenshots showing the Recover button reduced to a sliver at the screen edge, and that the effect tracks title length (#298).

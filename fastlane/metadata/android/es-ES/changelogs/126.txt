@@ -1,0 +1,1 @@
+Pequeños refinamientos en la papelera: los botones «Restaurar» y «Eliminar» ahora son más finos, así los títulos largos conservan más espacio en pantallas estrechas, y las filas se mantienen estables al restaurar o eliminar una nota.

@@ -1,0 +1,1 @@
+Small trash-screen refinements: the Restore and Delete buttons are now slimmer, so long note titles keep more room on narrow screens, and trash rows stay stable when you restore or delete a note.

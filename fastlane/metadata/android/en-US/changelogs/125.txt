@@ -1,0 +1,1 @@
+Recover and Delete buttons in the trash bin no longer get pushed off-screen by long note titles. They now stay fully visible on the right, and the title shrinks with an ellipsis instead — so deleting a note works reliably no matter how long its name is.

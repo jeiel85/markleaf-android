@@ -1,0 +1,1 @@
+Die Schaltflächen „Wiederherstellen“ und „Löschen“ im Papierkorb werden nicht mehr durch lange Notiztitel aus dem Bildschirm gedrängt. Sie bleiben immer vollständig rechts sichtbar, und der Titel wird stattdessen mit Auslassungspunkten gekürzt – so lässt sich eine Notiz zuverlässig löschen, egal wie lang ihr Name ist.

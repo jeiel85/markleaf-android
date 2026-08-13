@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.32.3 - Trash actions that stay within reach - 2026-08-13
+
+One trash-screen layout fix, reported with screenshots against an F-Droid install. No feature, permission, or storage-format changes.
+
+### Fixed
+- **Recover and Delete stay visible for long titles (#298).** In the trash bin, a note's title shared a row with the Recover and Delete buttons but had no width limit, so a long title measured across the whole row and pushed both buttons past the right edge of the screen — reported as buttons that "are either not present at all or are elongated", hard to hit without recovering a note by mistake. The title now takes only the room the buttons leave and ellipsizes when it runs out, the same treatment every other list in the app already gives its titles.
+
 ## v2.32.2 - Quoted lines and rules you can actually read - 2026-08-05
 
 Two editor colour fixes, both found by measuring rather than by report. No feature, permission, or storage-format changes.

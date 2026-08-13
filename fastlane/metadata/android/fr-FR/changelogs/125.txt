@@ -1,0 +1,1 @@
+Les boutons « Restaurer » et « Supprimer » de la corbeille ne sont plus repoussés hors de l'écran par les titres de notes trop longs. Ils restent toujours entièrement visibles à droite, et le titre est tronqué avec des points de suspension. Supprimer une note fonctionne donc de manière fiable, quelle que soit la longueur de son nom.

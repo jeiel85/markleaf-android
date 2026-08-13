@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
 import com.markleaf.notes.ui.component.EmptyState
@@ -126,7 +127,9 @@ fun TrashScreen(
                                 Text(
                                     text = if (note.title.isBlank()) stringResource(R.string.untitled_parenthesized) else note.title,
                                     style = MaterialTheme.typography.titleMedium,
-                                    maxLines = 1
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f)
                                 )
                                 Row {
                                     Button(onClick = { viewModel.restoreFromTrash(note.id) }) {

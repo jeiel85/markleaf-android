@@ -1,3 +1,12 @@
+## 2026-08-13 - Trash actions pushed off-screen by long titles, and v2.32.3 (#298)
+
+- Trigger: an F-Droid user on 2.32.2 reported that in the trash bin the Recover/Delete buttons are "either not present at all or are elongated", with screenshots showing the Recover button reduced to a sliver at the screen edge, and that the effect tracks title length (#298).
+- Analysis: the trash row gives its title no width bound. The title `Text` measures to the full row width, and the action-buttons row then lands beyond the row's visible area, clipped at the screen edge. Every other list screen (notes, archive, locked, tags, search) constrains its title with `overflow = TextOverflow.Ellipsis`; TrashScreen was the only one without it.
+- Contract/scope: the title gets `Modifier.weight(1f)` + `TextOverflow.Ellipsis` — it takes only the room the buttons leave and ellipsizes when it runs out, keeping both actions fully visible at the right edge for any title length. No behaviour, permission, or storage-format change.
+- Implementation: PR #299. `TrashScreenTest` (Robolectric) renders a trash row whose title is longer than the screen and asserts both action texts are displayed, that the title's right edge does not cross the Recover button's left edge, and that Recover sits left of Delete.
+- Verification: `testDebugUnitTest` (68 suites) + `:app:lintRelease` locally. The regression was proven both ways: with the old layout the test fails with Recover not displayed; with the fix it passes. No golden moved — the trash screen had none.
+- Release: versionCode 124→125, versionName 2.32.2→2.32.3, CHANGELOG both editions, seven store-locale `125.txt` (zh-CN's first changelog), landing ×7 + README ×7. No hardening issue filed — issue-response work, and nothing here was a candidate the standing tracker did not already hold.
+
 ## 2026-08-05 - The landing demo stops moving on its own, and the trust ledger stops advertising a stale feature (#262)
 
 - Trigger: the three Public surfaces items on the standing hardening tracker — a "current release" strapline covered by no check, demo GIFs that ignore `prefers-reduced-motion`, and ~940 KB per landing visit. The strapline had become visibly wrong rather than merely stale: v2.32.2 updated the version beside it, so a current `v2.32.2` sat next to "Includes Quiet Formatting", a feature two releases old, on all six pages.

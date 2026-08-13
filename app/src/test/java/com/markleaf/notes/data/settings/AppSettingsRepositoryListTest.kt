@@ -63,6 +63,17 @@ class AppSettingsRepositoryListTest {
         assertEquals(NoteTitleSource.FIRST_HEADING, repo.settings.first().noteTitleSource)
     }
 
+    @Test
+    fun `retitle pending flag round-trips and defaults to false`() = runTest {
+        assertEquals(false, repo.settings.first().retitlePending)
+
+        repo.setRetitlePending(true)
+        assertEquals(true, repo.settings.first().retitlePending)
+
+        repo.setRetitlePending(false)
+        assertEquals(false, repo.settings.first().retitlePending)
+    }
+
     /** Each preference has its own key — writing one must not disturb the other. */
     @Test
     fun `the two settings are stored independently`() = runTest {

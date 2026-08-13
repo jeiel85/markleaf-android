@@ -33,6 +33,11 @@ data class AppSettings(
     /** Which line of a note becomes its title. Defaults to
      *  [NoteTitleSource.FIRST_HEADING], the original rule (#280). */
     val noteTitleSource: NoteTitleSource = NoteTitleSource.FIRST_HEADING,
+    /** True while a [NoteRetitler] pass for a new title rule is in flight. Set
+     *  before the pass starts and cleared when it finishes; a process death
+     *  mid-pass leaves it set so the Settings screen can resume the pass rather
+     *  than showing titles from two rules (#262). */
+    val retitlePending: Boolean = false,
     /** When true the Search screen matches note titles only (the Quick Access
      *  behaviour); full-text search is one toggle away (#193). Persisted so
      *  whichever mode was used last becomes that user's default. */

@@ -1,0 +1,1 @@
+Los botones «Restaurar» y «Eliminar» de la papelera ya no se salen de la pantalla con los títulos de notas largos. Ahora permanecen siempre totalmente visibles a la derecha, y el título se recorta con puntos suspensivos. Eliminar una nota funciona de forma fiable sin importar lo largo que sea su nombre.

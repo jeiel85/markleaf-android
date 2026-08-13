@@ -407,3 +407,28 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
+
+// Roborazzi goldens are rendered by the Linux CI runner. Windows font
+// hinting differs enough that a local verify fails roughly half the
+// snapshots on noise alone, so it cannot separate a real change from
+// platform noise (#262). The canonical visual gate is CI's
+// `verifyRoborazziDebug`; golden updates go through the `record_roborazzi`
+// workflow dispatch (local re-recording would commit Windows-rendered
+// goldens that CI then rejects). The verify/record/compare tasks are
+// therefore not offered on Windows: requesting one fails the build at
+// configuration time with this explanation, before any test runs and before
+// the plugin can inject `roborazzi.test.verify` into the test JVM. The
+// `finalizeTestRoborazzi*` bookkeeping tasks stay enabled — they only
+// assemble the report after the snapshot tests run, which is harmless and
+// useful locally.
+if (System.getProperty("os.name").startsWith("Windows")) {
+    if (gradle.startParameter.taskNames.any { it.contains("Roborazzi", ignoreCase = true) }) {
+        throw GradleException(
+            "Roborazzi verify/record/compare is not offered on Windows: local " +
+                "rendering differs from the Linux CI goldens (font hinting), so a local " +
+                "verify cannot separate a real change from platform noise (#262). " +
+                "Run the visual gate on CI (verifyRoborazziDebug) and update goldens via " +
+                "the record_roborazzi workflow dispatch."
+        )
+    }
+}

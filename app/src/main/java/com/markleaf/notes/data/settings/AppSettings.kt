@@ -59,6 +59,8 @@ data class AppSettings(
     /** Where the note↔file mapping is kept. Defaults to
      *  [SyncMetadataMode.FRONTMATTER], the original behaviour (#216). */
     val syncMetadataMode: SyncMetadataMode = SyncMetadataMode.FRONTMATTER,
+    /** A sidecar folder conversion was started and has not reported finishing (#262). */
+    val sidecarMigrationPending: Boolean = false,
     /**
      * This install's id, used to name the sidecar index it owns so two devices
      * writing the same folder never write the same file. Generated on first use

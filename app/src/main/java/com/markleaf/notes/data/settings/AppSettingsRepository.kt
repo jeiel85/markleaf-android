@@ -88,6 +88,7 @@ class AppSettingsRepository internal constructor(
             syncMetadataMode = preferences[SYNC_METADATA_MODE]
                 ?.let { value -> enumValueOrDefault(value, SyncMetadataMode.FRONTMATTER) }
                 ?: SyncMetadataMode.FRONTMATTER,
+            sidecarMigrationPending = preferences[SIDECAR_MIGRATION_PENDING] ?: false,
             syncDeviceId = preferences[SYNC_DEVICE_ID]
         )
     }
@@ -325,6 +326,34 @@ class AppSettingsRepository internal constructor(
     }
 
     /**
+     * Select sidecar mode and mark its folder conversion as owed, in one write
+     * (#262).
+     *
+     * The mode is selected *before* the conversion runs, because a half-done
+     * folder holds files with no header, and only sidecar mode can identify
+     * those — see `SidecarMigration.toSidecar`. That ordering needs a companion:
+     * with the mode already switched, the settings screen's own "you are already
+     * in this mode" guard would refuse to run the conversion again, so a pass
+     * that died would never be finished. The flag is what the screen resumes
+     * from, and it goes in the same edit as the mode for the reason
+     * [beginRetitle] does: written separately, a death between the two leaves
+     * the mode switched with nothing recording that the folder is unconverted.
+     */
+    suspend fun beginSidecarMigration() {
+        persist { preferences ->
+            preferences[SYNC_METADATA_MODE] = SyncMetadataMode.SIDECAR.name
+            preferences[SIDECAR_MIGRATION_PENDING] = true
+        }
+    }
+
+    /** Clears the flag [beginSidecarMigration] set, once the pass has finished. */
+    suspend fun setSidecarMigrationPending(pending: Boolean) {
+        persist { preferences ->
+            preferences[SIDECAR_MIGRATION_PENDING] = pending
+        }
+    }
+
+    /**
      * This install's device id, generating and persisting one on first call.
      *
      * Only ever used to name the sidecar index file this device owns (#216), so
@@ -391,6 +420,7 @@ class AppSettingsRepository internal constructor(
         val OPEN_NOTES_IN_PREVIEW = booleanPreferencesKey("open_notes_in_preview")
         val OPEN_NOTES_AT = stringPreferencesKey("open_notes_at")
         val SYNC_METADATA_MODE = stringPreferencesKey("sync_metadata_mode")
+        val SIDECAR_MIGRATION_PENDING = booleanPreferencesKey("sidecar_migration_pending")
         val SYNC_DEVICE_ID = stringPreferencesKey("sync_device_id")
     }
 }

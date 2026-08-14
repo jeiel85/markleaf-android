@@ -102,6 +102,33 @@ fun SettingsScreen(
     // control while it runs stops a second switch starting on top of the first,
     // which would have two passes rewriting the same files.
     var metadataSwitchBusy by remember { mutableStateOf(false) }
+    // A conversion to sidecar mode selects the mode first, so a pass that died
+    // mid-way comes back with the mode already switched — and the "you are
+    // already in this mode" guard below would then refuse to finish the folder,
+    // leaving those files carrying headers for good (the import only strips them
+    // in memory). The flag `beginSidecarMigration` set is what this resumes from
+    // (#262).
+    LaunchedEffect(appSettings.sidecarMigrationPending, metadataSwitchBusy) {
+        val uri = appSettings.syncFolderUriOrNull()
+        if (!appSettings.sidecarMigrationPending || metadataSwitchBusy || uri == null) {
+            return@LaunchedEffect
+        }
+        metadataSwitchBusy = true
+        try {
+            withContext(Dispatchers.IO + NonCancellable) {
+                SidecarMigration.toSidecar(
+                    context,
+                    uri,
+                    settingsRepository.getOrCreateSyncDeviceId()
+                )
+            }
+        } finally {
+            // Same order as the retitle resume: the flag goes down before the
+            // guard, or the gap between them satisfies this effect again.
+            settingsRepository.setSidecarMigrationPending(false)
+            metadataSwitchBusy = false
+        }
+    }
     // Same reason for the title rule (#280): two retitle passes running over the
     // same rows would leave titles from both rules behind.
     var retitleBusy by remember { mutableStateOf(false) }
@@ -622,11 +649,42 @@ fun SettingsScreen(
                             if (mode == appSettings.syncMetadataMode) return@SyncSection
                             scope.launch {
                                 metadataSwitchBusy = true
-                                // Convert the folder before flipping the setting.
-                                // The other order would leave a window where the
-                                // mode says "no headers" while every file still
-                                // has one — and an import landing in that window
-                                // would read each header as note text.
+                                // The two directions flip the setting at
+                                // opposite ends of the conversion, and the rule
+                                // behind both is the same: a mirror file with no
+                                // header must never be read by a mode that has
+                                // only the header to identify it by, or the
+                                // import mints a fresh id and the note comes
+                                // back as a second copy (#140).
+                                //
+                                // To SIDECAR, flip first. A pass that dies
+                                // halfway leaves stripped files behind, and the
+                                // frontmatter import has nothing to match them
+                                // with; the sidecar import has the index entry,
+                                // which `toSidecar` makes durable before it
+                                // strips anything. The older comment here said
+                                // the opposite order was needed because an
+                                // import in that window "would read each header
+                                // as note text" — that stopped being true when
+                                // the sidecar import learned to strip a stray
+                                // header and use the id inside it
+                                // (`NoteFolderMirror`, "A file may still carry a
+                                // header").
+                                //
+                                // To FRONTMATTER, flip last, for the mirror
+                                // reason: the conversion is what *adds* the
+                                // header, so until it has run the files are
+                                // identifiable only by the sidecar index, which
+                                // only the sidecar mode reads.
+                                // Selecting the mode also records that the folder
+                                // conversion is owed, in one write — otherwise a
+                                // death between the two leaves the mode switched
+                                // with nothing saying the folder is unconverted,
+                                // and the guard above this block refuses to run
+                                // it again.
+                                if (mode == SyncMetadataMode.SIDECAR) {
+                                    settingsRepository.beginSidecarMigration()
+                                }
                                 val result = withContext(Dispatchers.IO) {
                                     val deviceId = settingsRepository.getOrCreateSyncDeviceId()
                                     when (mode) {
@@ -641,7 +699,11 @@ fun SettingsScreen(
                                             )
                                     }
                                 }
-                                settingsRepository.setSyncMetadataMode(mode)
+                                if (mode == SyncMetadataMode.FRONTMATTER) {
+                                    settingsRepository.setSyncMetadataMode(mode)
+                                } else {
+                                    settingsRepository.setSidecarMigrationPending(false)
+                                }
                                 metadataSwitchBusy = false
                                 Toast.makeText(
                                     context,

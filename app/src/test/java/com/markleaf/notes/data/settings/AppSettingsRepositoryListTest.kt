@@ -64,6 +64,34 @@ class AppSettingsRepositoryListTest {
     }
 
     /**
+     * The sidecar mode and its conversion marker land in one write, for the same
+     * reason (#262). The mode is selected before the folder is converted, so a
+     * death between two separate writes would leave the mode switched with
+     * nothing recording that the folder is still unconverted — and the settings
+     * screen's own same-mode guard would then refuse to finish it.
+     */
+    @Test
+    fun `beginSidecarMigration selects the mode and marks the conversion owed together`() = runTest {
+        val before = repo.settings.first()
+        assertEquals(SyncMetadataMode.FRONTMATTER, before.syncMetadataMode)
+        assertEquals(false, before.sidecarMigrationPending)
+
+        repo.beginSidecarMigration()
+
+        val settings = repo.settings.first()
+        assertEquals(SyncMetadataMode.SIDECAR, settings.syncMetadataMode)
+        assertEquals(true, settings.sidecarMigrationPending)
+
+        repo.setSidecarMigrationPending(false)
+        assertEquals(false, repo.settings.first().sidecarMigrationPending)
+        assertEquals(
+            "clearing the marker must not undo the mode",
+            SyncMetadataMode.SIDECAR,
+            repo.settings.first().syncMetadataMode
+        )
+    }
+
+    /**
      * The rule and the marker that says a pass is owed land in one write (#262).
      * Written separately, a process death between them selects the new rule with
      * the flag still false — no resume, and a list showing titles from two

@@ -83,17 +83,14 @@ CI 또는 릴리즈 검증 시에는 APK 산출물 확인을 반드시 포함한
 - 태그 전에 `pwsh scripts/verify-release-export.ps1` — `D:\Build`의 AAB·mapping·7개
   로케일 노트가 현재 versionName/versionCode로 존재하고 비어 있지 않은지 확인한다.
   **이것이 릴리스 자산의 유일한 영구 사본 검증이다**(D066).
-- GitLab 쪽 검증은 `GITLAB_RELEASE_MIRROR=true`일 때만 적용된다. **2026-08-05(v2.32.2)부터
-  켜져 있으나 `GITLAB_TOKEN`이 아직 `write_repository` 스코프라 발행 스텝이 HTTP 403으로
-  매 태그마다 실패한다.** 따라서 지금은 GitLab Release가 생기지 않고, 이 검증 항목은
-  여전히 해당 없음이다. 토큰이 `api` 스코프로 재발급되면 그때부터 GitLab Release에서
-  APK를 받아 크기를 확인하고, 만료되는 job artifact가 아니라 Generic Package Registry
-  영구 링크인지 본다. **refs 미러는 2026-08-14부터 꺼져 있다(D067)** — `mirror-push`와
-  `mirror-check` 모두 `GITLAB_REF_MIRROR` 미설정으로 skip 되고, GitLab `main`은
-  v2.32.4 시점에 멈춰 있다. 다시 켜는 순서는 `docs/mirror-runbook.md` "현재 상태" 참조.
-- **태그 런의 `release` 잡이 빨간 것과 릴리스 실패는 다르다.** 실패 스텝이 `Publish the
-  GitLab release` 하나뿐이면 위 상태이며, 그 스텝은 `Create GitHub release` **뒤**에 있어
-  APK는 이미 발행돼 있다. 판단 전에 스텝 목록을 볼 것.
+- **GitLab 쪽 검증은 해당 없음이다 — GitLab은 아무것도 발행·미러하지 않는다(D067·D068).**
+  `GITLAB_RELEASE_MIRROR`와 `GITLAB_REF_MIRROR` 둘 다 미설정이라 릴리스 발행 스텝 2개와
+  `mirror-push`·`mirror-check`가 전부 skip 된다. GitLab `main`은 v2.32.4 시점에 얼어
+  있고 태그도 GitHub에만 민다. 되살리는 절차는 `docs/mirror-runbook.md` "현재 상태" 참조.
+- **태그 런의 `release` 잡은 이제 녹색이어야 한다.** 2026-08-05~08-14 사이에는 `Publish
+  the GitLab release`가 매 태그마다 403으로 실패해 "빨간 `release` 잡 = 릴리스 실패
+  아님"이라는 예외를 두었지만, 그 스텝이 skip 되는 지금은 그 예외가 없다. 지금 `release`
+  잡이 빨갛다면 GitLab 문제가 아니므로 스텝 목록을 보고 진짜 원인을 찾을 것.
 
 Android 프로젝트가 아직 초기화되지 않았다면 먼저 표준 Kotlin + Jetpack Compose Android 프로젝트를 생성한다.
 
@@ -160,20 +157,23 @@ GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
    푸시한다. **태그를 밀기 전에** `:app:exportReleaseToBuildDrive`로 `D:\Build` 산출물을
    남기고 `pwsh scripts/verify-release-export.ps1`로 확인한다 — `D:\Build`는 CI가 볼 수 없는
    로컬 경로라 이 단계가 빠져도 아무것도 실패하지 않으며, 실제로 v2.27.2부터 v2.29.0까지
-   여섯 릴리스가 AAB·mapping 없이 지나갔다(#247). 그다음 `vX.Y.Z` 태그를 GitLab 먼저,
-   GitHub 다음으로 푸시한다. **릴리스 자산이 붙는 곳은 GitHub 하나뿐이다** — GitHub
+   여섯 릴리스가 AAB·mapping 없이 지나갔다(#247). 그다음 `vX.Y.Z` 태그를 **GitHub에만**
+   푸시한다 — GitLab 태그 푸시는 D068에서 뺐다(GitLab은 v2.32.4에 얼어붙은 스냅샷이라,
+   태그를 밀면 그쪽 `main`에서 도달하지 못하는 커밋을 가리키게 된다).
+   **릴리스 자산이 붙는 곳은 GitHub 하나뿐이다** — GitHub
    Release는 APK 하나만 담고(AAB 제외는 D062, mapping을 30일 아티팩트로만 두는 이유는
-   D064), **GitLab은 refs만 미러한다**(D066).
+   D064), **GitLab은 아무것도 미러하지 않는다**(D066 → D067·D068).
    <!-- release-assets: markleaf-vX.Y.Z.apk -->
    위 마커는 `scripts/verify-release-assets.ps1`이 읽어 워크플로의 실제
    `gh release create` 인자와 대조한다. 목록을 바꾸려면 세 복사본(워크플로,
    스테이징 스텝, 이 마커)을 함께 고쳐야 하며 그렇지 않으면 PR CI가 실패한다.
    GitLab Release 발행 스텝은
-   `GITLAB_RELEASE_MIRROR` 저장소 변수가 `true`일 때만 돌고, 2026-08-05부터 켜져 있다 —
-   다만 `GITLAB_TOKEN`이 아직 `api` 스코프가 아니라 v2.28.0~v2.32.2 열한 릴리스가
-   미러되지 않았고, 그 스텝은 매 태그마다 403으로 실패한다(#247, #252). 따라서 released
-   AAB·mapping의 영구 사본은 `D:\Build` 하나이며, 위의 `exportReleaseToBuildDrive`
-   단계를 건너뛰면 대체 사본이 없다. GitLab 태그를 먼저 미는 순서는 그대로다.
+   `GITLAB_RELEASE_MIRROR` 저장소 변수가 `true`일 때만 도는데, **2026-08-14에 그 변수를
+   내렸다(D068).** 두 스텝이 skip 되므로 태그 런은 녹색이고, GitLab Release는 만들지
+   않는다 — `GITLAB_TOKEN`이 `api` 스코프가 아니라 v2.28.0~v2.32.2 열한 릴리스가 이미
+   403으로 실패했고(#247, #252), 미러 자체를 끈 마당에 토큰을 재발급할 이유가 없다.
+   따라서 released AAB·mapping의 영구 사본은 `D:\Build` 하나이며, 위의
+   `exportReleaseToBuildDrive` 단계를 건너뛰면 대체 사본이 없다.
    GitHub 태그는 F-Droid 자동 픽업도 발동하므로 별도 F-Droid 제출 단계는 없다.
    릴리스 커밋은 `git add -A`로 만들지 않는다 — 변경 파일을 명시적으로 stage하거나 커밋 전
    working tree가 릴리스 대상만 담고 있는지 확인한다(무관한 작업이 태그에 섞여 나가는 것을

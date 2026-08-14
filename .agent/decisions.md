@@ -7,6 +7,53 @@
 
 ## Confirmed Decisions
 
+### D068 - GitLab Is A Frozen Snapshot, And GitHub Is The Only Release Path
+
+GitLab has no operational role. It publishes nothing, mirrors nothing, and
+receives nothing — not `main` (D067), not tags, not Releases. It is a snapshot
+of the source frozen at the v2.32.4 commit, linked from the READMEs as an
+archive and nothing more. GitHub is the sole release path: tag, Release, APK,
+and F-Droid pickup.
+
+Why:
+- The three GitLab mechanisms had already failed independently, each for its
+  own reason, and each was being kept alive by documentation rather than by
+  use. CI: off behind `SKIP_GITLAB_CI` since the monthly minutes ran out.
+  Releases: eleven consecutive tags red on a 403, waiting on a token nobody
+  re-issued. Refs: diverged and unrepairable without a manual protection dance
+  (D067). Naming one identity is cheaper than tracking three half-states.
+- The READMEs were making claims that were simply false. Seven of them said
+  "**CI**: GitHub Actions + GitLab CI — independent builds and signed
+  releases", which had not been true for months, and offered a "GitLab source
+  mirror" link to a repository that stops at v2.32.4.
+- Keeping `GITLAB_RELEASE_MIRROR=true` costs a red step on every future tag
+  for a publication that cannot succeed, which is the "red check that carries
+  no information" #262 filed against `launch-smoke`. D066's own "Back out"
+  exit was written for exactly this moment.
+- The GitLab tag push had become incoherent: with `main` frozen, a new `v*`
+  tag pushed to GitLab points at a commit that GitLab's `main` cannot reach.
+  D067 left this open for the next release; deciding it now is what makes the
+  release ritual one path instead of two.
+
+Decision:
+- `GITLAB_RELEASE_MIRROR` is unset. Both tag steps skip and the tag run is
+  green.
+- The release ritual pushes tags to GitHub only. `docs/RELEASE.md` and
+  `AGENTS.md` drop the GitLab-first ordering.
+- All seven READMEs describe GitHub Actions as the CI, and label the GitLab
+  link an archive. No version number goes in that label — README version
+  strings are gated by `scripts/verify-landing-versions.ps1`, and a hardcoded
+  one would fail the next bump.
+- Nothing is deleted: `.gitlab-ci.yml`, `mirror-push`, `mirror-check`,
+  `mirror-release-to-gitlab.sh` and `verify-mirror.ps1` stay, parked behind
+  their switches, on the #211/#212 precedent. Reviving GitLab means re-issuing
+  the token, setting both variables, re-aligning `main`, and revisiting this
+  entry — deliberately more than flipping one switch, because the half-states
+  above are what this decision exists to end.
+- `D:\Build` is now the only backup of any kind in the release path (D066), and
+  `scripts/verify-release-export.ps1` is the only thing that checks it. If that
+  gate is ever removed, this entry and D066 both have to be revisited first.
+
 ### D067 - The GitLab Ref Mirror Is Switched Off
 
 `mirror-push` and `mirror-check` are gated behind the repository variable

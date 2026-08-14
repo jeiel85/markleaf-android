@@ -25,15 +25,14 @@ markleaf-android 저장소의 재해 복구(이중 백업) 운영 문서.
 > 아래 문서는 미러가 켜져 있을 때의 운영 절차이며, 그때 기준으로 그대로 유효하다.
 
 - GitHub와 GitLab 모두 활성 원격이지만, 위와 같이 `main` 전달은 중단돼 있다.
-- **GitLab이 실제로 미러하는 것은 refs뿐이다(D066).** GitLab의 최신 Release는
-  `v2.27.2 (2026-07-21)`이고 v2.28.0~v2.32.1 열 릴리스는 Release 객체가 없다.
-  릴리스 자산의 영구 사본은 `D:\Build` 하나다.
-- GitHub 태그는 GitHub Release와 F-Droid 자동 픽업의 기준이다. GitLab Release
-  발행은 GitHub 태그 잡의 두 스텝(`Export versioned release artifacts`,
-  `Publish the GitLab release`)이 맡되, 저장소 변수 `GITLAB_RELEASE_MIRROR=true`
-  일 때만 돈다 — 2026-08-05부터 켜져 있고, `GITLAB_TOKEN` 스코프가 모자라 매 태그마다
-  403으로 실패한다. GitHub Release 발행 뒤에 도는 스텝이라 릴리스 자체에는 영향이
-  없다. 해소 방법은 아래 토큰 항목 참조.
+- **GitLab은 이제 아무것도 미러하지 않는다(D066 → D067·D068).** D066이 refs 전용으로
+  좁혔고, D067이 그 refs 전달마저 껐다. GitLab의 최신 Release는 `v2.27.2 (2026-07-21)`
+  이고 v2.28.0 이후로는 Release 객체가 없다. 릴리스 자산의 영구 사본은 `D:\Build` 하나다.
+- GitHub 태그는 GitHub Release와 F-Droid 자동 픽업의 기준이고, **태그를 미는 곳은
+  GitHub 하나뿐이다(D068)**. GitLab Release 발행 스텝 2개(`Export versioned release
+  artifacts`, `Publish the GitLab release`)는 저장소 변수 `GITLAB_RELEASE_MIRROR`가
+  `true`일 때만 도는데 2026-08-14에 그 변수를 내렸으므로 둘 다 skip 된다 — 따라서 태그
+  런의 `release` 잡은 녹색이어야 정상이다.
 - 제공자 간 자동 양방향 mirror는 설정하지 않는다.
 - **`main`은 양쪽 모두 보호되어 있다.** GitHub `main`은 2026-07-18부터 PR 필수 ·
   `build` 체크 통과 필수 · admin 예외 없음(`enforce_admins`)이고, GitLab `main`은
@@ -54,8 +53,8 @@ markleaf-android 저장소의 재해 복구(이중 백업) 운영 문서.
 
 - **`main`의 정식 경로: GitHub에서 PR을 머지한 뒤 그 커밋을 GitLab으로 전달한다**
   (GitHub → GitLab). `main`이 보호되기 전에는 GitLab 먼저 push했으나, 이제 GitHub
-  `main`은 PR로만 전진하므로 순서가 뒤집혔다. 태그는 여전히 GitLab 먼저다.
-  이 전달은 `mirror-push.yml`이 자동으로 한다 ("미러 push 자동화 설정" 절).
+  `main`은 PR로만 전진하므로 순서가 뒤집혔다. **태그는 GitHub에만 민다(D068).**
+  이 전달은 `mirror-push.yml`이 자동으로 하지만, 지금은 그 잡이 꺼져 있다(D067).
 - GitHub 또는 GitLab 웹 UI에서 직접 만든 커밋은 다른 제공자로 자동 복사되지 않는다.
   단 GitHub `main`에 들어온 커밋은 `mirror-push.yml`이 GitLab으로 전달한다.
 - **자동 양방향 mirror는 여전히 쓰지 않는다.** 동시 편집 시 충돌·재전파 루프와 태그
@@ -101,13 +100,16 @@ git fetch github
 git push gitlab github/main:refs/heads/main
 ```
 
-릴리스 태그는 브랜치 보호와 무관하므로 종전대로 GitLab 먼저, GitHub 다음이다.
-**태그는 자동화 대상이 아니다** — 이 순서를 뒤집으면 양쪽 릴리스가 중복 발동한다:
+**릴리스 태그는 GitHub에만 민다 (D068).** GitLab 태그 푸시는 뺐다 — GitLab `main`이
+v2.32.4에 얼어 있어 태그를 밀면 그쪽 `main`에서 도달하지 못하는 커밋을 가리키고,
+얼린 스냅샷을 다시 움직이는 셈이 된다. **태그는 여전히 자동화 대상이 아니다.**
 
 ```
-git push gitlab vX.Y.Z
 git push github vX.Y.Z
 ```
+
+미러를 되살리기로 한다면 이 절도 함께 되돌려야 한다 — 그때는 "GitLab 먼저, GitHub
+다음" 순서가 다시 의미를 갖는다(순서를 뒤집으면 양쪽 릴리스가 중복 발동한다).
 
 ## 미러 push 자동화 설정
 
@@ -130,11 +132,11 @@ git push github vX.Y.Z
    스코프가 모자란 채로 태그를 밀면 릴리스 잡이 업로드 전에 멈추고
    `The token needs the 'api' scope` 를 남긴다. 절반만 올라간 상태로 끝나지 않는다.
 
-   **저장소 변수 `GITLAB_RELEASE_MIRROR`는 이미 `true`다(2026-08-05, v2.32.2부터).**
-   원래는 토큰 재발급 뒤에 켜기로 했으나(D066), 실패를 직접 확인하려고 먼저 켰다.
-   따라서 지금은 **토큰만 재발급하면 바로 미러가 동작한다** — 변수는 건드릴 필요가 없다.
-   v2.32.0·v2.32.1·v2.32.2 세 태그가 이 메시지로 빨갛게 끝났고(GitHub Release는 매번
-   이미 발행된 상태로), 되돌리려면 변수를 지우면 두 스텝이 다시 skip된다.
+   **저장소 변수 `GITLAB_RELEASE_MIRROR`는 2026-08-14에 내렸다(D068).** 2026-08-05부터
+   토큰 없이 켜져 있었고 v2.32.0·v2.32.1·v2.32.2 세 태그가 403으로 빨갛게 끝난 뒤
+   (GitHub Release는 매번 이미 발행된 상태로), D066이 적어 둔 두 출구 중 "back out"을
+   택했다. 따라서 지금은 **토큰을 재발급해도 아무 일도 일어나지 않는다** — 변수까지 다시
+   켜야 하고, 그 전에 GitLab이 무엇을 위한 곳인지부터 다시 정해야 한다(D068).
 2. **GitHub에 시크릿 등록.** 저장소 → Settings → Secrets and variables → Actions →
    New repository secret. 이름은 정확히 **`GITLAB_TOKEN`**.
 3. **확인.** Actions 탭 → **Mirror push** → Run workflow. 또는 아무 PR이나 머지하면
@@ -227,6 +229,12 @@ pwsh scripts/verify-mirror.ps1 -MirrorOnly `
 > GitHub가 내려가면 새 커밋을 `main`에 넣을 수 없다. 보호 이전에는 GitLab 먼저
 > push해서 GitHub 장애를 우회할 수 있었으나 그 경로가 닫혔다 — 보호를 admin까지
 > 적용한 대가다. 급하면 아래 5번의 임시 해제 절차를 쓴다.
+
+> [!WARNING]
+> **아래 시나리오는 미러가 켜져 있을 때의 것이다.** 지금은 미러가 꺼져 있어(D067)
+> GitLab이 GitHub의 대체 원격 역할을 하지 못한다 — GitLab `main`은 v2.32.4에 얼어
+> 있고, 여기 적힌 `git push gitlab …`은 보호에 막히거나 스냅샷을 깨뜨린다. GitHub
+> 장애 대비가 필요해지면 먼저 미러를 되살릴 것("현재 상태" 참조).
 
 1. **GitLab 장애**: GitHub PR 머지는 평소대로 진행하고 GitLab 전달만 보류한다.
    복구 후 `git push gitlab github/main:refs/heads/main`로 따라잡는다.
@@ -350,7 +358,8 @@ pre-receive 훅까지 가지 않아 거부돼야 할 push도 성공으로 보고
 ## 원칙 (설계 준수)
 
 - `main` push 순서: **GitHub PR 머지 먼저 → GitLab 전달 다음** (2026-07-18 보호 적용으로
-  종전 GitLab 우선에서 뒤집힘). 태그는 종전대로 **GitLab 먼저 → GitHub 다음**.
+  종전 GitLab 우선에서 뒤집힘). **단 그 전달은 D067로 꺼져 있다.** 태그는 **GitHub에만**
+  민다(D068 — 종전 "GitLab 먼저 → GitHub 다음"에서 바뀜).
 - 자동 force push 금지
 - GitHub Actions: 빌드/릴리스/F-Droid 태그 인계용으로 활성.
 - GitLab CI: 브랜치·MR 검증과 보호된 `vX.Y.Z` 태그의 독립 서명 릴리스용으로 활성.

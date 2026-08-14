@@ -35,7 +35,7 @@
 <p align="center">
   <a href="https://github.com/jeiel85/markleaf-android">GitHub-Repository</a> ·
   <a href="https://github.com/jeiel85/markleaf-android/discussions">Discussions (Feedback)</a> ·
-  <a href="https://gitlab.com/jeiel85/markleaf-android">GitLab-Quellcode-Mirror</a>
+  <a href="https://gitlab.com/jeiel85/markleaf-android">GitLab-Mirror (archiviert)</a>
 </p>
 
 <p align="center">
@@ -133,7 +133,7 @@ Markleaf folgt aktuellen Android-Entwicklungsstandards mit einem modernen, wartb
 - **DataStore Preferences** – App-Einstellungen
 - **Profile Installer 1.4.0 + Macrobenchmark** – Messung des Cold-Start-Baseline-Profils (326 ms auf einem TB320FC)
 - **Tests**: JUnit + Robolectric + [Roborazzi](https://github.com/takahirom/roborazzi) visuelle Regressionstests (Linux-Goldens, Schwellenwert 0,005)
-- **CI**: GitHub Actions + GitLab CI – unabhängige Builds und signierte Releases, launch-smoke, record-roborazzi
+- **CI**: GitHub Actions – build und instrumented tests sind Pflichtprüfungen, dazu launch-smoke, record-roborazzi und das signierte Release beim Tag
 
 ---
 

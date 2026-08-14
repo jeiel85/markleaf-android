@@ -35,7 +35,7 @@
 <p align="center">
   <a href="https://github.com/jeiel85/markleaf-android">GitHub 仓库</a> ·
   <a href="https://github.com/jeiel85/markleaf-android/discussions">Discussions（反馈）</a> ·
-  <a href="https://gitlab.com/jeiel85/markleaf-android">GitLab 源码镜像</a>
+  <a href="https://gitlab.com/jeiel85/markleaf-android">GitLab 镜像（存档）</a>
 </p>
 
 <p align="center">
@@ -133,7 +133,7 @@ Markleaf 遵循当下的 Android 开发标准，采用现代且易于维护的�
 - **DataStore Preferences** — 应用设置
 - **Profile Installer 1.4.0 + Macrobenchmark** — 冷启动基准配置文件测量（在 TB320FC 上为 326ms）
 - **测试**：JUnit + Robolectric + [Roborazzi](https://github.com/takahirom/roborazzi) 视觉回归测试（Linux 基准图，阈值 0.005）
-- **CI**：GitHub Actions + GitLab CI — 独立构建与签名发布、launch-smoke、record-roborazzi
+- **CI**：GitHub Actions — build 与 instrumented tests 为必需检查，另有 launch-smoke、record-roborazzi，以及打标签时的签名发布
 
 ---
 

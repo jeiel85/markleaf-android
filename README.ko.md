@@ -35,7 +35,7 @@
 <p align="center">
   <a href="https://github.com/jeiel85/markleaf-android">GitHub 저장소</a> ·
   <a href="https://github.com/jeiel85/markleaf-android/discussions">Discussions (피드백)</a> ·
-  <a href="https://gitlab.com/jeiel85/markleaf-android">GitLab 소스 미러</a>
+  <a href="https://gitlab.com/jeiel85/markleaf-android">GitLab 미러 (보관용)</a>
 </p>
 
 <p align="center">
@@ -133,7 +133,7 @@ Markleaf는 최신 Android 개발 표준을 준수하며, 유지보수가 용이
 - **DataStore Preferences** — 앱 설정
 - **Profile Installer 1.4.0 + Macrobenchmark** — Cold start baseline profile 측정 (TB320FC 기준 326ms)
 - **테스트**: JUnit + Robolectric + [Roborazzi](https://github.com/takahirom/roborazzi) 시각 회귀 테스트 (Linux 골든, threshold 0.005)
-- **CI**: GitHub Actions + GitLab CI — 독립 빌드·서명 릴리스, launch-smoke, record-roborazzi
+- **CI**: GitHub Actions — build·instrumented tests가 필수 체크이고, launch-smoke·record-roborazzi, 태그 시 서명 릴리스
 
 ---
 

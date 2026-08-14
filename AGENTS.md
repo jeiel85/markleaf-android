@@ -88,8 +88,9 @@ CI 또는 릴리즈 검증 시에는 APK 산출물 확인을 반드시 포함한
   매 태그마다 실패한다.** 따라서 지금은 GitLab Release가 생기지 않고, 이 검증 항목은
   여전히 해당 없음이다. 토큰이 `api` 스코프로 재발급되면 그때부터 GitLab Release에서
   APK를 받아 크기를 확인하고, 만료되는 job artifact가 아니라 Generic Package Registry
-  영구 링크인지 본다. refs 미러 자체는 `scripts/verify-mirror.ps1`과 매일 도는
-  `mirror-check`가 확인한다.
+  영구 링크인지 본다. **refs 미러는 2026-08-14부터 꺼져 있다(D067)** — `mirror-push`와
+  `mirror-check` 모두 `GITLAB_REF_MIRROR` 미설정으로 skip 되고, GitLab `main`은
+  v2.32.4 시점에 멈춰 있다. 다시 켜는 순서는 `docs/mirror-runbook.md` "현재 상태" 참조.
 - **태그 런의 `release` 잡이 빨간 것과 릴리스 실패는 다르다.** 실패 스텝이 `Publish the
   GitLab release` 하나뿐이면 위 상태이며, 그 스텝은 `Create GitHub release` **뒤**에 있어
   APK는 이미 발행돼 있다. 판단 전에 스텝 목록을 볼 것.

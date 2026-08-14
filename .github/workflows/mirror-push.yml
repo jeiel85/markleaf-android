@@ -12,6 +12,20 @@
 # non-fast-forward push를 서버가 거부한다. 즉 이 잡은 GitLab을 fast-forward로
 # 전진시키는 것만 할 수 있고, GitHub 쪽 이력이 재작성되면 push가 실패해 잡이 빨개진다.
 # 그게 올바른 동작이다 — 자동으로 덮어쓰지 않는다.
+#
+# **2026-08-14부터 꺼져 있다 (D067).** 위 문단이 예고한 상황이 실제로 왔다:
+# v2.32.4 릴리스 커밋이 GitLab에 직접 push된 뒤 GitHub에서 PR #301로 squash
+# 머지되면서 같은 내용이 다른 SHA(1bcc9c8 vs 27024a3)로 들어갔고, 그때부터 두
+# 이력이 갈라져 이 잡이 7회 연속 non-fast-forward로 실패했다. 복구에는 GitLab
+# `main`의 보호 해제(force push 허용)가 필요한데, D066이 이미 GitLab을 refs
+# 전용으로 좁혀 놓은 마당에 그 수작업을 릴리스마다 반복할 값어치가 없다는 판단이다.
+# 따라서 저장소 변수 `GITLAB_REF_MIRROR`가 게이트다 — 미설정이면 이 잡은 skip
+# 되고, GitLab은 v2.32.4 시점(1bcc9c8)에 멈춘 채로 남는다.
+#
+# 다시 켜려면: GitLab에서 `main`의 force push를 일시 허용 →
+# `git push --force origin <github/main SHA>:refs/heads/main` → 보호 복구 →
+# 저장소 변수 `GITLAB_REF_MIRROR=true`. 정렬을 먼저 하지 않고 변수만 켜면 이
+# 잡은 첫 실행부터 다시 빨개진다.
 
 name: Mirror push
 
@@ -33,7 +47,10 @@ jobs:
   push-to-gitlab:
     name: main → GitLab
     # fork에서는 돌리지 않는다. upstream GitLab에 밀 이유도, 시크릿도 없다.
-    if: github.repository == 'jeiel85/markleaf-android'
+    # `GITLAB_REF_MIRROR`는 위 헤더의 스위치다 — 미설정이면 skip 한다.
+    if: >-
+      github.repository == 'jeiel85/markleaf-android'
+      && vars.GITLAB_REF_MIRROR == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

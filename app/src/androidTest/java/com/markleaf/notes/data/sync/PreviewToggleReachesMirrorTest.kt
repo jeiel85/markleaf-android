@@ -33,11 +33,16 @@ import org.junit.runner.RunWith
  * Where that boundary is, precisely, because it is narrower than "the toggle
  * reaches the file": the steps are called directly rather than through
  * `EditorScreen`, so this stays green if the screen's callback stops updating
- * `editorState`, stops incrementing `saveTrigger`, or stops routing the save
- * through the mirror. What it pins is that *those three steps, in that order,*
- * produce a correctly rewritten file — the part that was hand-verified. Driving
- * the screen's own wiring needs the composable under test rather than the
- * repository, and is on the standing tracker (#262) rather than done here.
+ * `editorState` or stops triggering the save. What it pins is that *those
+ * steps, in that order,* produce a correctly rewritten file — the part that was
+ * hand-verified.
+ *
+ * The other half is now covered too:
+ * `EditorScreenTest.editorScreen_previewCheckboxTapReachesTheSavedNote` drives
+ * the real screen from the tap to the saved note. It stops at the repository,
+ * because the mirror write resolves its folder with `DocumentFile.fromTreeUri`
+ * and a tree Uri needs a SAF grant a person has to tap — so the repository is
+ * where the two tests meet, and the join is a boundary rather than a gap.
  */
 @RunWith(AndroidJUnit4::class)
 class PreviewToggleReachesMirrorTest {

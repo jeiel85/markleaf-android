@@ -15,6 +15,7 @@ import java.time.Instant
 import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -183,5 +184,72 @@ class EditorScreenTest {
             .performTextInput("https://")
 
         composeTestRule.onNodeWithText(context.getString(R.string.quick_insert_title)).assertDoesNotExist()
+    }
+
+    /**
+     * The wiring #262 asked for: a preview checkbox tap has to reach the saved
+     * note through this screen's own callback and autosave, not through the
+     * three steps called by hand.
+     *
+     * `MarkdownTaskToggleClickTest` covers the tap reporting a source line and
+     * `MarkdownEditActionsTest` the string edit; `PreviewToggleReachesMirrorTest`
+     * covers repository → mirror file. What none of them covered is that
+     * `EditorScreen` joins them — that the callback updates `editorState`, that
+     * the save is triggered, and that the debounce lands it. This drives the
+     * real screen, so it fails if any of those three stop happening.
+     *
+     * It stops at the repository on purpose: the mirror write resolves its
+     * folder with `DocumentFile.fromTreeUri`, and a tree Uri needs a SAF grant
+     * that a person has to tap. The seam between the two tests is that
+     * boundary rather than a gap.
+     */
+    @Test
+    fun editorScreen_previewCheckboxTapReachesTheSavedNote() {
+        val noteId = UUID.randomUUID().toString()
+        val repository = LocalNoteRepository(AppDatabase.getInstance(context))
+        val body = "# Plan\n\n- [ ] first\n- [ ] second"
+        val now = Instant.now()
+        runBlocking {
+            repository.createNote(
+                Note(
+                    id = noteId,
+                    title = "Plan",
+                    contentMarkdown = body,
+                    excerpt = body.take(40),
+                    createdAt = now,
+                    updatedAt = now
+                )
+            )
+        }
+
+        try {
+            launchEditor(noteId)
+
+            composeTestRule
+                .onNodeWithContentDescription(context.getString(R.string.preview))
+                .performClick()
+
+            // Only the marker toggles — the label stays selectable (#219), which
+            // is why this clicks the left edge rather than the node's centre.
+            composeTestRule.onNodeWithText("☐ second").performTouchInput {
+                click(centerLeft.copy(x = 4f))
+            }
+
+            // The autosave is debounced by a second, so this waits for the note
+            // rather than asserting immediately.
+            composeTestRule.waitUntil(timeoutMillis = 15_000) {
+                runBlocking {
+                    repository.getNote(noteId)?.contentMarkdown?.contains("- [x] second") == true
+                }
+            }
+
+            val saved = runBlocking { repository.getNote(noteId) }
+            assertTrue(
+                "the untouched row must not move: ${saved?.contentMarkdown}",
+                saved?.contentMarkdown?.contains("- [ ] first") == true
+            )
+        } finally {
+            runBlocking { repository.deleteForever(noteId) }
+        }
     }
 }

@@ -103,7 +103,9 @@ Decision:
   pushed there points at a commit GitLab's `main` does not reach. The tag and
   its objects are still complete and no release step reads GitLab, so this is
   odd rather than broken — but whoever cuts the next release should either
-  re-align first or drop the GitLab tag push, and record which.
+  re-align first or drop the GitLab tag push, and record which. **(Decided by
+  D068 the same day: the tag push was dropped, so "the order is unchanged" above
+  has expired. v2.32.5 was the first release cut GitHub-only.)**
 
 ### D066 - GitLab Mirrors Refs, Not Release Artifacts
 

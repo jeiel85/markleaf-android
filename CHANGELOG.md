@@ -4,11 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
-## Unreleased
+## v2.32.5 - Notes that stay one note - 2026-08-14
 
-Changes already on `main` that no release carries yet. When the next release is cut, this heading becomes `## vX.Y.Z - Title - YYYY-MM-DD` and these entries ship with it. The release job reads the section whose heading matches the pushed tag, so an unnamed section publishes nothing and fails nothing — which is exactly why user-visible work has to be written down as it lands rather than remembered at release time.
+Five fixes from auditing the parts of sync and the editor that had never been tested, and one of them was losing data. No feature, permission, or storage-format changes.
 
 ### Fixed
+- **An interrupted folder conversion no longer duplicates your notes (#262).** Switching a synced folder to metadata-free mode rewrites every file, and if that pass was interrupted — the app killed, the phone out of battery — the files it had already converted carried nothing that identified them, so the next sync brought them back as second copies of themselves. The conversion now records what each file is *before* it touches it, and stops rather than starting if it cannot.
+- **Saving to a metadata-free folder no longer scans the whole folder twice (#262).** Every autosave walked the folder to find the note's file and again to find the index, so a folder of a thousand notes paid for both once a second while you typed. It now goes straight to the file it wrote last time, re-checks that it is still the right one, and falls back to the scan when anything has moved.
 - **The jump control appears for notes that are long on screen (#262).** A note earned the jump-to-end control by the number of lines in its source text, so forty short lines got it while five paragraphs that wrap into sixty screen lines did not. It now takes whichever is larger — the source lines, or an estimate of the lines the note actually fills — so both kinds of long note get it and short notes still get neither.
 - **"Where I left off" clears its saved positions when you turn it off (#262).** The positions it recorded stayed in the database until each note was deleted. They were never shown or synced, but keeping them for a setting no longer in use was not the promise; turning the setting off now removes them.
 - **Changing which line becomes a note's title always finishes (#262).** Switching the title rule rewrites every stored title, and if that pass was interrupted — the app killed while it ran — the new rule was already selected while part of the list still carried titles from the old one, with no way to finish it but toggling the setting away and back. The switch now records that a pass is owed in the same write that selects the rule, and resumes it the next time Settings opens. A pass that has just finished can also no longer be started a second time.

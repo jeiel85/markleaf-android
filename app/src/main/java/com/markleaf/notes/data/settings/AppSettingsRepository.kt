@@ -264,13 +264,21 @@ class AppSettingsRepository internal constructor(
     }
 
     /**
-     * Change which line becomes a note's title (#280). Only the preference is
-     * written here — stored titles are recomputed by the caller, because the
-     * notes database is not this repository's to touch.
+     * Change which line becomes a note's title, and mark the retitle pass it
+     * needs as in flight — in one write (#280, #262).
+     *
+     * Only preferences are written here; stored titles are recomputed by the
+     * caller, because the notes database is not this repository's to touch.
+     * The two keys go into a single edit on purpose: written separately, a
+     * process death between them leaves the new rule selected with the pending
+     * flag still false, so nothing resumes the pass and the list keeps titles
+     * from two rules. That is precisely the window the flag exists to close,
+     * and DataStore's `edit` is what makes the pair land or not land together.
      */
-    suspend fun setNoteTitleSource(source: NoteTitleSource) {
+    suspend fun beginRetitle(source: NoteTitleSource) {
         persist { preferences ->
             preferences[NOTE_TITLE_SOURCE] = source.name
+            preferences[RETITLE_PENDING] = true
         }
     }
 

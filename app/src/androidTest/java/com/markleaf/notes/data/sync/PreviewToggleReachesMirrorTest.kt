@@ -26,9 +26,18 @@ import org.junit.runner.RunWith
  * the callback (`MarkdownTaskToggleClickTest`) and the string edit
  * (`MarkdownEditActionsTest`), but that the flipped marker lands in the note
  * *and* in the synced folder file was only ever checked by hand on an
- * emulator. This walks the same path the editor's autosave takes — toggle the
- * marker, write the note through the repository, mirror it — over the real
+ * emulator. This drives the same steps the editor's autosave drives — toggle
+ * the marker, write the note through the repository, mirror it — over the real
  * IO harness from [NoteFolderMirrorFolderTest], then reads the file back.
+ *
+ * Where that boundary is, precisely, because it is narrower than "the toggle
+ * reaches the file": the steps are called directly rather than through
+ * `EditorScreen`, so this stays green if the screen's callback stops updating
+ * `editorState`, stops incrementing `saveTrigger`, or stops routing the save
+ * through the mirror. What it pins is that *those three steps, in that order,*
+ * produce a correctly rewritten file — the part that was hand-verified. Driving
+ * the screen's own wiring needs the composable under test rather than the
+ * repository, and is on the standing tracker (#262) rather than done here.
  */
 @RunWith(AndroidJUnit4::class)
 class PreviewToggleReachesMirrorTest {

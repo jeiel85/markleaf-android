@@ -1,5 +1,6 @@
 package com.markleaf.notes.core.markdown
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -31,6 +32,16 @@ class PreviewParseCostTest {
     fun veryLongNote_parsesWithinBudget() {
         val note = generateVeryLongNote(LINE_COUNT)
 
+        // The reported number is only worth something if the fixture really is
+        // that long. An earlier draft counted iterations rather than emitted
+        // lines, so the fenced-code and table cases — three lines each — made a
+        // "10,000-line" note 11,600 lines.
+        assertEquals(
+            "the fixture must be exactly the line count it reports",
+            LINE_COUNT,
+            note.count { it == '\n' }
+        )
+
         // Warm up: class loading, extension init, JIT.
         SimpleMarkdownPreview.parse(note)
 
@@ -54,24 +65,35 @@ class PreviewParseCostTest {
         )
     }
 
+    /**
+     * Emits exactly [lineCount] lines of mixed markdown. The count is of lines,
+     * not of iterations: the fenced-code and table cases are three lines each,
+     * and they are skipped when fewer than three remain, so the fixture ends on
+     * the number it advertises rather than overshooting it.
+     */
     private fun generateVeryLongNote(lineCount: Int): String {
         val sb = StringBuilder(lineCount * 48)
-        var line = 0
-        while (line < lineCount) {
-            when (line % 25) {
-                0 -> sb.append("# Heading ").append(line).append('\n')
-                1 -> sb.append("## Subheading ").append(line).append('\n')
-                2 -> sb.append("- [ ] task item ").append(line).append('\n')
-                3 -> sb.append("- [x] done task ").append(line).append('\n')
-                4 -> sb.append("- plain bullet ").append(line).append('\n')
-                5 -> sb.append("1. ordered item ").append(line).append('\n')
-                6 -> sb.append("> blockquote line ").append(line).append('\n')
-                7 -> sb.append("```kotlin\nval x = ").append(line).append("\n```\n")
-                8 -> sb.append("| a | b |\n|---|---|\n| ").append(line).append(" | x |\n")
-                else -> sb.append("A paragraph line with some **bold** and *italic* text ")
-                    .append(line).append('\n')
+        var emitted = 0
+        var i = 0
+        while (emitted < lineCount) {
+            val remaining = lineCount - emitted
+            emitted += when {
+                i % 25 == 0 -> sb.appendLine("# Heading $i").let { 1 }
+                i % 25 == 1 -> sb.appendLine("## Subheading $i").let { 1 }
+                i % 25 == 2 -> sb.appendLine("- [ ] task item $i").let { 1 }
+                i % 25 == 3 -> sb.appendLine("- [x] done task $i").let { 1 }
+                i % 25 == 4 -> sb.appendLine("- plain bullet $i").let { 1 }
+                i % 25 == 5 -> sb.appendLine("1. ordered item $i").let { 1 }
+                i % 25 == 6 -> sb.appendLine("> blockquote line $i").let { 1 }
+                i % 25 == 7 && remaining >= 3 ->
+                    sb.append("```kotlin\nval x = ").append(i).append("\n```\n").let { 3 }
+                i % 25 == 8 && remaining >= 3 ->
+                    sb.append("| a | b |\n|---|---|\n| ").append(i).append(" | x |\n").let { 3 }
+                else -> sb.appendLine(
+                    "A paragraph line with some **bold** and *italic* text $i"
+                ).let { 1 }
             }
-            line++
+            i++
         }
         return sb.toString()
     }

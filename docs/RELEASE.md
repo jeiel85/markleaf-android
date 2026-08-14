@@ -533,27 +533,34 @@ it hits. v2.32.2 is the worked example: release published at 05:31Z with
 treating a red tag run as a broken release — if step 18 is the only failure,
 this is what you are looking at.
 
-`mirror-push` still carries `main` and every `v*` tag, and the daily
-`mirror-check` still verifies them; what is absent is the Release object and the
-files attached to it. The permanent copy of a released AAB and mapping is
-`D:\Build` — see [Release Export](#release-export--local-gate-not-ci), which is
-a required pre-tag step for exactly this reason.
+`mirror-push` no longer carries `main`, and `mirror-check` no longer runs
+(D067) — both skip on an unset `GITLAB_REF_MIRROR`. It never carried tags in
+the first place, whatever this paragraph used to say: `mirror-push.yml`'s own
+header states that its scope is `main` only and that tags are deliberately not
+automated. The permanent copy of a released AAB and mapping is `D:\Build` — see
+[Release Export](#release-export--local-gate-not-ci), which is a required
+pre-tag step for exactly this reason, and now the only backup step that exists.
 
 GitLab's newest Release is `v2.27.2 (2026-07-21)`. Eleven releases — v2.28.0
 through v2.32.2 — have none.
 
-### Making it green again
+### Settled: backed out (D068)
 
-Two ways, and the repository is in neither state until someone picks one:
+This section used to offer two ways out and note that the repository was in
+neither. The second was taken on 2026-08-14:
 
-1. **Finish it.** Issue a GitLab Project Access Token with the **`api`** scope
-   (the mirror-push token carries `write_repository`, which cannot write
-   packages or releases) and replace the `GITLAB_TOKEN` repository secret. The
-   next tag then exports the four versioned files and publishes them; nothing
-   else has to change, the machinery below is intact.
-2. **Back out.** Unset the repository variable `GITLAB_RELEASE_MIRROR`. Both
-   steps skip, the tag job goes green, and GitLab keeps mirroring refs only —
-   the state D066 originally settled on.
+1. ~~**Finish it.** Issue a GitLab Project Access Token with the `api` scope and
+   replace the `GITLAB_TOKEN` secret.~~ Not taken. The token was never
+   re-issued across three releases, and with D067 turning the ref mirror off
+   there is no longer a GitLab role for it to complete.
+2. **Back out — done.** The repository variable `GITLAB_RELEASE_MIRROR` is
+   unset, so both steps skip and the tag job goes green. GitLab publishes
+   nothing and mirrors nothing; it is a snapshot frozen at the v2.32.4 commit.
+
+The machinery described below is kept, unchanged and unreferenced, on the
+#211/#212 precedent: a deleted mechanism cannot be turned back on by someone
+who does not know it existed. Reviving it means re-issuing the token **and**
+setting the variable **and** deciding what GitLab is for again (D068).
 
 ### What the machinery does when it is on
 
@@ -592,9 +599,11 @@ Two things it depends on:
   `write_repository`, which cannot write packages or releases. The script
   probes the Packages API before uploading anything and fails with that
   message rather than part-publishing.
-- **The tag must already be on GitLab.** Release order is GitLab first, GitHub
-  second, so it is by the time the GitHub job runs. The script refuses rather
-  than creating the tag itself, which would invert that order.
+- **The tag must already be on GitLab.** This was true while release order was
+  GitLab first, GitHub second. As of D068 tags are pushed to GitHub only, so
+  this precondition can no longer be met — one more reason the machinery here
+  stays parked rather than half-live. The script refuses rather than creating
+  the tag itself.
 
 The token has still not been re-issued, so v2.32.0, v2.32.1 and v2.32.2 all
 ended their tag run red on a step that could not pass — after the GitHub
@@ -632,12 +641,13 @@ pwsh scripts/run-instrumented-tests.ps1
 pwsh scripts/verify-release-export.ps1
 ```
 
-Push the release tag to GitLab first, then GitHub (unless `SKIP_GITLAB_CI` is
-on, the GitLab tag push runs the GitLab pipeline and the GitHub tag push runs
-the GitHub release job):
+Push the release tag to GitHub. That one push runs the GitHub release job,
+which is the whole release: the signed APK, the GitHub Release, and F-Droid's
+automatic pickup. The GitLab tag push was dropped in D068 — GitLab is a frozen
+snapshot, its `main` stops at v2.32.4, and a tag pushed there would point at a
+commit its own `main` cannot reach.
 
 ```bash
 git tag v0.1.0
-git push gitlab v0.1.0
 git push github v0.1.0
 ```

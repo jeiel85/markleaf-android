@@ -160,20 +160,23 @@ GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
    푸시한다. **태그를 밀기 전에** `:app:exportReleaseToBuildDrive`로 `D:\Build` 산출물을
    남기고 `pwsh scripts/verify-release-export.ps1`로 확인한다 — `D:\Build`는 CI가 볼 수 없는
    로컬 경로라 이 단계가 빠져도 아무것도 실패하지 않으며, 실제로 v2.27.2부터 v2.29.0까지
-   여섯 릴리스가 AAB·mapping 없이 지나갔다(#247). 그다음 `vX.Y.Z` 태그를 GitLab 먼저,
-   GitHub 다음으로 푸시한다. **릴리스 자산이 붙는 곳은 GitHub 하나뿐이다** — GitHub
+   여섯 릴리스가 AAB·mapping 없이 지나갔다(#247). 그다음 `vX.Y.Z` 태그를 **GitHub에만**
+   푸시한다 — GitLab 태그 푸시는 D068에서 뺐다(GitLab은 v2.32.4에 얼어붙은 스냅샷이라,
+   태그를 밀면 그쪽 `main`에서 도달하지 못하는 커밋을 가리키게 된다).
+   **릴리스 자산이 붙는 곳은 GitHub 하나뿐이다** — GitHub
    Release는 APK 하나만 담고(AAB 제외는 D062, mapping을 30일 아티팩트로만 두는 이유는
-   D064), **GitLab은 refs만 미러한다**(D066).
+   D064), **GitLab은 아무것도 미러하지 않는다**(D066 → D067·D068).
    <!-- release-assets: markleaf-vX.Y.Z.apk -->
    위 마커는 `scripts/verify-release-assets.ps1`이 읽어 워크플로의 실제
    `gh release create` 인자와 대조한다. 목록을 바꾸려면 세 복사본(워크플로,
    스테이징 스텝, 이 마커)을 함께 고쳐야 하며 그렇지 않으면 PR CI가 실패한다.
    GitLab Release 발행 스텝은
-   `GITLAB_RELEASE_MIRROR` 저장소 변수가 `true`일 때만 돌고, 2026-08-05부터 켜져 있다 —
-   다만 `GITLAB_TOKEN`이 아직 `api` 스코프가 아니라 v2.28.0~v2.32.2 열한 릴리스가
-   미러되지 않았고, 그 스텝은 매 태그마다 403으로 실패한다(#247, #252). 따라서 released
-   AAB·mapping의 영구 사본은 `D:\Build` 하나이며, 위의 `exportReleaseToBuildDrive`
-   단계를 건너뛰면 대체 사본이 없다. GitLab 태그를 먼저 미는 순서는 그대로다.
+   `GITLAB_RELEASE_MIRROR` 저장소 변수가 `true`일 때만 도는데, **2026-08-14에 그 변수를
+   내렸다(D068).** 두 스텝이 skip 되므로 태그 런은 녹색이고, GitLab Release는 만들지
+   않는다 — `GITLAB_TOKEN`이 `api` 스코프가 아니라 v2.28.0~v2.32.2 열한 릴리스가 이미
+   403으로 실패했고(#247, #252), 미러 자체를 끈 마당에 토큰을 재발급할 이유가 없다.
+   따라서 released AAB·mapping의 영구 사본은 `D:\Build` 하나이며, 위의
+   `exportReleaseToBuildDrive` 단계를 건너뛰면 대체 사본이 없다.
    GitHub 태그는 F-Droid 자동 픽업도 발동하므로 별도 F-Droid 제출 단계는 없다.
    릴리스 커밋은 `git add -A`로 만들지 않는다 — 변경 파일을 명시적으로 stage하거나 커밋 전
    working tree가 릴리스 대상만 담고 있는지 확인한다(무관한 작업이 태그에 섞여 나가는 것을

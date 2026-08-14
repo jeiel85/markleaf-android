@@ -1,8 +1,12 @@
 package com.markleaf.notes.data.sync
 
+import android.content.ContentResolver
 import android.content.Context
+import android.net.Uri
+import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
 import java.io.BufferedWriter
+import java.io.File
 import java.io.OutputStreamWriter
 import java.util.concurrent.ConcurrentHashMap
 
@@ -28,10 +32,24 @@ import java.util.concurrent.ConcurrentHashMap
  */
 internal object SidecarStore {
 
-    /** This device's entries plus the bytes last written, per folder+device. */
+    /**
+     * This device's entries, the bytes last written, and the document those
+     * bytes went to — per folder+device.
+     *
+     * [fileUri] is remembered so a save does not have to find the index by name
+     * again: `DocumentFile.findFile` walks the folder, which is the listing this
+     * class exists to avoid, and it was running on *every* save (#262).
+     *
+     * A **Uri**, not a `DocumentFile`, and that is not incidental. A
+     * `TreeDocumentFile` holds the `Context` it was made from, and the editor
+     * hands this path the Activity's context — so parking one in a
+     * process-wide map would pin an Activity for the life of the process.
+     * `MirrorFileCache` stores Uris for the same reason.
+     */
     private class OwnIndex(
         val entries: MutableMap<String, SidecarEntry>,
-        var lastWritten: String?
+        var lastWritten: String?,
+        var fileUri: Uri? = null
     )
 
     private val own = ConcurrentHashMap<String, OwnIndex>()
@@ -112,15 +130,50 @@ internal object SidecarStore {
 
         val name = SidecarIndex.fileNameFor(deviceId)
         return runCatching {
-            val target = folder.findFile(name)
-                ?: folder.createFile("application/json", name)
+            // The remembered document first — one query against one document,
+            // against `findFile`'s walk of the whole folder, on every save.
+            //
+            // The name is re-checked rather than assumed. If something outside
+            // Markleaf renamed our index, writing blind would put this device's
+            // entries into a file that `readAll` may no longer recognise as an
+            // index — and entries nobody can read are files nobody can identify,
+            // which is the #140 duplicate again. A mismatch drops to the slow
+            // path, where `findFile` misses and a fresh index is created.
+            val targetUri = cached?.fileUri?.takeIf { documentName(context, it) == name }
+                ?: (folder.findFile(name) ?: folder.createFile("application/json", name))?.uri
                 ?: return@runCatching false
-            context.contentResolver.openOutputStream(target.uri, "wt")?.use { stream ->
+            context.contentResolver.openOutputStream(targetUri, "wt")?.use { stream ->
                 BufferedWriter(OutputStreamWriter(stream, Charsets.UTF_8)).use { it.write(encoded) }
             } ?: return@runCatching false
             cached?.lastWritten = encoded
+            cached?.fileUri = targetUri
             true
         }.getOrDefault(false)
+    }
+
+    /**
+     * The display name of the document at [uri], or null if it is gone.
+     *
+     * One projection-limited query, which is what makes the remembered-document
+     * path cheaper than a folder listing. `file://` Uris — the shape the
+     * instrumented tests use, where a SAF grant would need a person to tap —
+     * carry their name in the last path segment and have no provider to ask.
+     */
+    internal fun documentName(context: Context, uri: Uri): String? {
+        if (uri.scheme == ContentResolver.SCHEME_FILE) {
+            return uri.lastPathSegment?.takeIf { File(uri.path.orEmpty()).exists() }
+        }
+        return runCatching {
+            context.contentResolver.query(
+                uri,
+                arrayOf(DocumentsContract.Document.COLUMN_DISPLAY_NAME),
+                null,
+                null,
+                null
+            )?.use { cursor ->
+                if (cursor.moveToFirst()) cursor.getString(0) else null
+            }
+        }.getOrNull()
     }
 
     /**

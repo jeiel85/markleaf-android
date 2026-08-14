@@ -171,6 +171,30 @@ object NoteFolderMirror {
         deviceId: String
     ): Boolean {
         val ownEntries = SidecarStore.ownEntries(context, folder, deviceId)
+
+        // The note's own file, remembered from its last save. This is the
+        // common case — the same note saved again a second later — and taking
+        // it skips the folder listing below, which is proportional to folder
+        // size and ran on every save (#262). The frontmatter path grew
+        // `MirrorFileCache` for exactly this; the sidecar path had no
+        // equivalent because it has no header to identify a file by. The index
+        // entry is that identity instead, so the cache is verified against it.
+        MirrorFileCache.hitSidecar(context, folder.uri, note, ownEntries[note.id]?.fileName)
+            ?.let { cached ->
+                val body = note.contentMarkdown
+                if (!writeRawContents(context, cached.uri, body)) return false
+                ownEntries[note.id] = SidecarEntry(
+                    noteId = note.id,
+                    fileName = cached.name,
+                    contentHash = SidecarIndex.hashOf(body),
+                    createdAtMillis = note.createdAt.toEpochMilli(),
+                    pinned = note.pinned,
+                    archived = note.archived
+                )
+                SidecarStore.write(context, folder, deviceId, ownEntries.values)
+                return true
+            }
+
         val mirrorFiles = folder.listFiles().filter { it.isFile && isMirrorFile(it.name) }
 
         // Our own index answers this for every note we have already written, so
@@ -200,14 +224,17 @@ object NoteFolderMirror {
             existing.renameTo(desiredName)
         }
 
+        val finalName = target.name ?: desiredName
         ownEntries[note.id] = SidecarEntry(
             noteId = note.id,
-            fileName = target.name ?: desiredName,
+            fileName = finalName,
             contentHash = SidecarIndex.hashOf(body),
             createdAtMillis = note.createdAt.toEpochMilli(),
             pinned = note.pinned,
             archived = note.archived
         )
+        // Remembered so the next save of this note takes the fast path above.
+        MirrorFileCache.remember(folder.uri, note.id, target.uri, finalName)
         SidecarStore.write(context, folder, deviceId, ownEntries.values)
         return true
     }
@@ -972,6 +999,9 @@ object NoteFolderMirror {
     /** A cached document that has been re-verified as this note's. */
     private class CachedTarget(val uri: Uri, val extraEntries: List<String>)
 
+    /** A remembered sidecar file, with the name its index entry must keep. */
+    private class SidecarTarget(val uri: Uri, val name: String)
+
     /**
      * Remembers which document holds each note, so an ordinary save doesn't have
      * to list the folder and read the head of every file in it to find one.
@@ -1023,6 +1053,37 @@ object NoteFolderMirror {
                 return null
             }
             return CachedTarget(entry.uri, head.extraEntries)
+        }
+
+        /**
+         * The same idea for sidecar mode, where there is no header to check the
+         * document against. [indexName] — the name this device's index records
+         * for the note — is the identity instead, and it has to still be the
+         * document's actual name: a file renamed outside Markleaf would
+         * otherwise be written under an entry pointing at a name nothing holds,
+         * and a file no entry names is a file the next import reads as a new
+         * note (#140).
+         *
+         * A drifted title also misses on purpose. Renaming needs the folder
+         * listing anyway, to keep the new name clear of every other file.
+         */
+        fun hitSidecar(
+            context: Context,
+            folderUri: Uri,
+            note: Note,
+            indexName: String?
+        ): SidecarTarget? {
+            if (folder != folderUri) return null
+            val name = indexName ?: return null
+            val entry = entries[note.id] ?: return null
+            if (!MirrorFileNames.isPlainNameFor(name, MirrorFileNames.sanitizeBase(note.title))) {
+                return null
+            }
+            if (SidecarStore.documentName(context, entry.uri) != name) {
+                entries.remove(note.id)
+                return null
+            }
+            return SidecarTarget(entry.uri, name)
         }
 
         fun remember(folderUri: Uri, noteId: String, document: Uri, name: String) {

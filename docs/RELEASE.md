@@ -18,12 +18,17 @@
 > reads GitLab, so nothing in this document's release path depends on it; the
 > cost is that git history has no off-GitHub copy but local clones. Turning it
 > back on is a sequence, not a variable — see `docs/mirror-runbook.md` "현재 상태".
-> Release tags are still pushed to GitLab by hand, unchanged.
+> **Release tags go to GitHub only** (D068) — the "GitLab first, GitHub second"
+> order was dropped with the mirror, and v2.32.5 was the first release cut that
+> way.
 >
-> While `SKIP_GITLAB_CI` was on (v2.28.0 / v2.28.1), no GitLab Release was
-> created, so the READMEs currently link only to the GitHub Release. Re-add the
-> "GitLab release mirror" links at the next release cut once GitLab is producing
-> Releases again.
+> The READMEs link only to the GitHub Release, and that is now the settled
+> state rather than a temporary one. An earlier note here said to re-add the
+> "GitLab release mirror" links at the next release cut "once GitLab is
+> producing Releases again"; it is not going to. GitLab's newest Release is
+> `v2.27.2 (2026-07-21)` and D068 ended the attempt, so a release author
+> following that instruction would have been adding links to something that
+> will never exist.
 
 Markleaf release builds are signed only when release signing values are supplied.
 The release keystore is a secret and must not be committed.

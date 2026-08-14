@@ -3,9 +3,28 @@
 markleaf-android 저장소의 재해 복구(이중 백업) 운영 문서.
 설계 원본: `github-gitlab-mirror-final-v4` (v4.0.0)를 이 저장소의 실제 구성에 맞춰 반영.
 
-## 현재 상태 (2026-08-03)
+## 현재 상태 (2026-08-14)
 
-- GitHub와 GitLab 모두 활성 원격이며 같은 `main`과 릴리스 태그를 유지한다.
+> **미러는 꺼져 있다 (D067).** `mirror-push`와 `mirror-check` 둘 다 저장소 변수
+> `GITLAB_REF_MIRROR`로 게이트되어 있고 그 변수는 미설정이라 두 워크플로 모두
+> skip 한다. GitLab `main`은 `1bcc9c8`(v2.32.4 릴리스 커밋)에서 멈춰 있으며 더
+> 이상 전진하지 않는다. **따라서 지금 git 이력의 GitHub 밖 사본은 로컬 클론뿐이다.**
+>
+> 원인은 이력 분기다. v2.32.4 릴리스 커밋이 GitLab에 직접 push된 뒤 GitHub에는
+> PR #301의 squash로 들어가 같은 내용이 다른 SHA(`1bcc9c8` vs `27024a3`)가 됐고,
+> 그 뒤 `mirror-push`가 7회 연속 non-fast-forward로 거부됐다. 아래 "이력이 갈라졌을
+> 때 복구"의 전진 수정으로는 풀리지 않고 force push가 필요한데, GitLab `main`은
+> `allow_force_push=false`라 UI에서 보호를 열었다 닫는 수작업이 매번 따른다.
+>
+> **다시 켜는 순서**(변수만 켜면 첫 실행부터 실패한다):
+> 1. GitLab → Settings → Repository → Protected branches → `main`의 force push 허용
+> 2. `git push --force origin <github/main SHA>:refs/heads/main`
+> 3. 보호 원복
+> 4. 저장소 변수 `GITLAB_REF_MIRROR=true`
+>
+> 아래 문서는 미러가 켜져 있을 때의 운영 절차이며, 그때 기준으로 그대로 유효하다.
+
+- GitHub와 GitLab 모두 활성 원격이지만, 위와 같이 `main` 전달은 중단돼 있다.
 - **GitLab이 실제로 미러하는 것은 refs뿐이다(D066).** GitLab의 최신 Release는
   `v2.27.2 (2026-07-21)`이고 v2.28.0~v2.32.1 열 릴리스는 Release 객체가 없다.
   릴리스 자산의 영구 사본은 `D:\Build` 하나다.

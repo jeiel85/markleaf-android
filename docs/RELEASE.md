@@ -7,9 +7,18 @@
 > skips cleanly (no blocked/stuck jobs, no minutes spent); unset it once the
 > minutes reset and the GitLab pipeline + GitLab Release resume automatically.
 > The GitLab-CI / GitLab-Release sections below apply whenever the pipeline is
-> not skipped. GitLab also stays a git mirror — `main` via
-> `.github/workflows/mirror-push.yml`, release tags pushed by hand, refs checked
-> by `.github/workflows/mirror-check.yml`.
+> not skipped.
+>
+> **The git mirror is off as of 2026-08-14 (D067).** `mirror-push` and
+> `mirror-check` are both gated behind the repository variable
+> `GITLAB_REF_MIRROR`, which is unset, so GitLab `main` stops at the v2.32.4
+> commit and no longer follows GitHub. The histories diverged when that release
+> commit reached GitLab directly and GitHub by squash merge, and re-aligning
+> needs a force push that GitLab's branch protection refuses. No release step
+> reads GitLab, so nothing in this document's release path depends on it; the
+> cost is that git history has no off-GitHub copy but local clones. Turning it
+> back on is a sequence, not a variable — see `docs/mirror-runbook.md` "현재 상태".
+> Release tags are still pushed to GitLab by hand, unchanged.
 >
 > While `SKIP_GITLAB_CI` was on (v2.28.0 / v2.28.1), no GitLab Release was
 > created, so the READMEs currently link only to the GitHub Release. Re-add the

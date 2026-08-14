@@ -7,6 +7,57 @@
 
 ## Confirmed Decisions
 
+### D067 - The GitLab Ref Mirror Is Switched Off
+
+`mirror-push` and `mirror-check` are gated behind the repository variable
+`GITLAB_REF_MIRROR`, which is unset, so both skip. GitLab stops at `1bcc9c8`
+(the v2.32.4 release commit) and no longer receives `main`. This ends what D066
+narrowed: GitLab carried refs and only refs, and now it does not carry those
+either. **There is no longer an off-GitHub copy of the git history** beyond
+local clones — that is the cost of this decision, and it is why this is recorded
+rather than treated as a workflow tweak.
+
+Why:
+- The break is not a flake and does not self-heal. The v2.32.4 release commit
+  was pushed to GitLab directly, then entered GitHub `main` as PR #301's squash
+  — the same tree under a different SHA (`1bcc9c8` vs `27024a3`). From that
+  moment the two histories diverged, and `mirror-push` failed seven consecutive
+  times with `non-fast-forward`. Every future merge fails the same way.
+- Re-aligning is not a git problem, it is a permissions ritual. GitLab `main`
+  is protected with `allow_force_push=false`, so the fix is: open force-push in
+  the GitLab UI, force-push, close it again. The push was attempted and refused
+  ("You are not allowed to force push code to a protected branch"). Nothing in
+  the repository can do it, and it has to be repeated by hand every time this
+  shape recurs — which is the *normal* release shape here, since tags go to
+  GitLab first while `main` arrives via GitHub PR.
+- What the mirror still bought was already small. D066 had narrowed it to refs:
+  no Release objects, no AAB, no mapping, ten releases without one. Weighing a
+  recurring manual protection dance against a copy of commits that are also in
+  every local clone and on GitHub, the dance loses.
+- Leaving it on and red was the worst of the three. A job that fails on every
+  merge by design is the "red check that carries no information" #262 filed
+  against `launch-smoke`, and `mirror-check` would have repeated the same
+  verdict daily.
+
+Decision:
+- Both workflows keep their logic and gain one `if: vars.GITLAB_REF_MIRROR ==
+  'true'`. Deleting them was rejected on the #211/#212 precedent — that PR
+  deleted `.gitlab-ci.yml` and the next restored it behind a switch, because a
+  deleted mechanism cannot be turned back on by someone who does not know it
+  existed.
+- Turning it back on is a sequence, not a variable: align GitLab to GitHub
+  `main` by force-push (opening and re-closing protection), then set
+  `GITLAB_REF_MIRROR=true`. Setting the variable first reddens the first run.
+- `GITLAB_RELEASE_MIRROR` (D066) is a separate switch and is untouched.
+- Tags are out of scope: `mirror-push` never carried them (its header says why),
+  and the "GitLab tag first, GitHub second" order in `docs/RELEASE.md` and
+  `AGENTS.md` is unchanged. One consequence is left for the next release rather
+  than decided here: with GitLab `main` frozen at `1bcc9c8`, a new `v*` tag
+  pushed there points at a commit GitLab's `main` does not reach. The tag and
+  its objects are still complete and no release step reads GitLab, so this is
+  odd rather than broken — but whoever cuts the next release should either
+  re-align first or drop the GitLab tag push, and record which.
+
 ### D066 - GitLab Mirrors Refs, Not Release Artifacts
 
 GitLab carries `main` and every `v*` tag. It does not carry Release objects or
@@ -34,7 +85,9 @@ Why:
   against `launch-smoke`, one job over.
 - Nothing is lost while it is off. The GitHub Release still carries the APK
   (D062, D064); `D:\Build` still carries AAB and mapping under a pre-tag gate;
-  the git history still has an off-machine copy on GitLab.
+  the git history still has an off-machine copy on GitLab. **(That last clause
+  expired with D067 — the ref mirror is off too. The rest of this bullet
+  stands.)**
 
 Decision:
 - The tag job's `Export versioned release artifacts` and `Publish the GitLab

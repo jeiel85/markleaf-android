@@ -622,11 +622,36 @@ fun SettingsScreen(
                             if (mode == appSettings.syncMetadataMode) return@SyncSection
                             scope.launch {
                                 metadataSwitchBusy = true
-                                // Convert the folder before flipping the setting.
-                                // The other order would leave a window where the
-                                // mode says "no headers" while every file still
-                                // has one — and an import landing in that window
-                                // would read each header as note text.
+                                // The two directions flip the setting at
+                                // opposite ends of the conversion, and the rule
+                                // behind both is the same: a mirror file with no
+                                // header must never be read by a mode that has
+                                // only the header to identify it by, or the
+                                // import mints a fresh id and the note comes
+                                // back as a second copy (#140).
+                                //
+                                // To SIDECAR, flip first. A pass that dies
+                                // halfway leaves stripped files behind, and the
+                                // frontmatter import has nothing to match them
+                                // with; the sidecar import has the index entry,
+                                // which `toSidecar` makes durable before it
+                                // strips anything. The older comment here said
+                                // the opposite order was needed because an
+                                // import in that window "would read each header
+                                // as note text" — that stopped being true when
+                                // the sidecar import learned to strip a stray
+                                // header and use the id inside it
+                                // (`NoteFolderMirror`, "A file may still carry a
+                                // header").
+                                //
+                                // To FRONTMATTER, flip last, for the mirror
+                                // reason: the conversion is what *adds* the
+                                // header, so until it has run the files are
+                                // identifiable only by the sidecar index, which
+                                // only the sidecar mode reads.
+                                if (mode == SyncMetadataMode.SIDECAR) {
+                                    settingsRepository.setSyncMetadataMode(mode)
+                                }
                                 val result = withContext(Dispatchers.IO) {
                                     val deviceId = settingsRepository.getOrCreateSyncDeviceId()
                                     when (mode) {
@@ -641,7 +666,9 @@ fun SettingsScreen(
                                             )
                                     }
                                 }
-                                settingsRepository.setSyncMetadataMode(mode)
+                                if (mode == SyncMetadataMode.FRONTMATTER) {
+                                    settingsRepository.setSyncMetadataMode(mode)
+                                }
                                 metadataSwitchBusy = false
                                 Toast.makeText(
                                     context,

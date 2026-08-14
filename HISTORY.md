@@ -1,3 +1,12 @@
+## 2026-08-14 - The editing surface gets its own direction golden (#262)
+
+- Trigger: the tracker's remaining RTL item covers the editor rather than rendered text — "cursor placement, selection, and mixed LTR/RTL lines in the editor's `BasicTextField` were never exercised". The rendering half of that is testable without a device; the cursor and selection half is not.
+- Analysis, and the thing worth writing down: the editor takes `MaterialTheme.typography.bodyLarge.copy(color = …)`, so it *does* inherit `TextDirection.Content` — the item is a coverage gap, not a defect. But checking that turned up a real gap in an existing test: `EditorLiveSnapshotTest` draws its sample with a bare `TextStyle(fontSize = 16.sp, …)` rather than the theme's role. That is fine for the colours it exists to pin, and it means a typography change cannot move it — so the app's most-used surface had no golden drawn the way the app draws it.
+- Contract/scope: one snapshot test over the editing surface as `EditorScreen` composes it — the theme's `bodyLarge` role plus the markdown syntax transformation — with a sample that mixes scripts: English heading and paragraph, Arabic heading and paragraph, an English and an Arabic task, a Hebrew blockquote. Light and dark, since the editor is drawn in both. The recorded images show each line's markers on the side its own direction puts them, which is the property; a blanket direction would put them all on one side.
+- Verification: recorded on the Linux runner via `record_roborazzi`. All 67 existing goldens came back byte-identical, so the two new images are the only movement. `verifyRoborazziDebug` on CI is the gate from here.
+- Left open deliberately: cursor placement and selection in bidi text. Those are interaction, not rendering, and want a device — which this machine cannot give today. The tracker item stays open with its scope narrowed to that half.
+
+
 ## 2026-08-14 - The preview toggle is tested through the screen that wires it (#262)
 
 - Trigger: the tracker item filed from the Codex review on #303 — `PreviewToggleReachesMirrorTest` calls the toggle, the repository write and the mirror write directly, so it stays green if `EditorScreen` stops joining them. The reviewer's suggestion was to drive the real integration or extract it.

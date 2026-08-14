@@ -445,7 +445,9 @@ fun EditorScreen(
                 // "as far as it goes" is all this has to say.
                 OpenNotesAt.BOTTOM -> PreviewScrollRequest(Int.MAX_VALUE, animate = false)
                 OpenNotesAt.LAST_POSITION ->
-                    lastPosition?.let { PreviewScrollRequest(it.previewIndex, animate = false) }
+                    lastPosition?.let {
+                        PreviewScrollRequest(it.previewIndex, animate = false, restore = true)
+                    }
             }
             isPreviewMode = opensInPreview(openInPreview, content)
             shouldRequestEditorFocus = content.isEmpty()
@@ -481,7 +483,19 @@ fun EditorScreen(
         val request = pendingPreviewScroll ?: return@LaunchedEffect
         if (!isPreviewMode || previewLines.isEmpty()) return@LaunchedEffect
         withFrameNanos { }
-        val target = request.index.coerceIn(0, previewLines.lastIndex)
+        val (target, status) = resolveRestoredPreviewIndex(request.index, previewLines.lastIndex)
+        // Only a restore reports. `BOTTOM` asks for `Int.MAX_VALUE` on purpose
+        // and the outline names a row it just read off this same list, so
+        // neither clamp means anything went missing — but a note that opens
+        // straight into preview restores here rather than through the caret,
+        // and that is the case the caret breadcrumb cannot see (#262).
+        if (BuildConfig.DEBUG && request.restore && status != RestoreStatus.OK) {
+            Log.d(
+                "EditorScreen",
+                "preview position restore $status for note $noteId: saved block " +
+                    "${request.index} but the note renders ${previewLines.size}"
+            )
+        }
         if (request.animate) {
             previewListState.animateScrollToItem(target)
         } else {
@@ -1253,11 +1267,33 @@ internal fun resolveRestoredCaret(saved: Int?, contentLength: Int): Pair<Int, Re
 }
 
 /**
+ * The same contract for the preview surface: the saved block index is clamped
+ * to the rows the note actually renders, and the caller is told whether it had
+ * to be (#262).
+ *
+ * A note opened straight into preview restores through this rather than through
+ * the caret, so without it the surface that did the visible restoring is the one
+ * that reports nothing. There is no `DROPPED` counterpart here on purpose: no
+ * saved row means no scroll request is made at all, and the caret resolver
+ * reports that case from the same row.
+ */
+internal fun resolveRestoredPreviewIndex(saved: Int, lastIndex: Int): Pair<Int, RestoreStatus> {
+    val clamped = saved.coerceIn(0, lastIndex)
+    return clamped to if (clamped == saved) RestoreStatus.OK else RestoreStatus.CLAMPED
+}
+
+/**
  * A preview scroll waiting for the preview to be built. [animate] separates the
  * two callers: restoring where a note was left should already be there when the
  * note appears, while a jump the user asked for reads better as movement.
+ * [restore] marks the one caller whose clamp is worth reporting — see the scroll
+ * effect.
  */
-private data class PreviewScrollRequest(val index: Int, val animate: Boolean)
+private data class PreviewScrollRequest(
+    val index: Int,
+    val animate: Boolean,
+    val restore: Boolean = false
+)
 
 /**
  * If the cursor sits inside an *unclosed* `[[…` wikilink (no `]]` between

@@ -421,14 +421,57 @@ dependencies {
 // `finalizeTestRoborazzi*` bookkeeping tasks stay enabled — they only
 // assemble the report after the snapshot tests run, which is harmless and
 // useful locally.
+//
+// Matching is on the requested name, resolved the way Gradle resolves it. A
+// plain `contains("Roborazzi")` fails this in both directions: it rejects
+// `finalizeTestRoborazziDebug`, which the paragraph above promises stays
+// available, and it misses `gradlew vRD`, because Gradle abbreviates task
+// names by camel hump and `startParameter.taskNames` keeps the raw token.
+val roborazziGatedFamilies = listOf(
+    "verifyRoborazzi",
+    "recordRoborazzi",
+    "compareRoborazzi",
+    "verifyAndRecordRoborazzi"
+)
+
+/** Splits a task name into the camel humps Gradle abbreviates it by. */
+fun camelHumps(name: String): List<String> {
+    val humps = mutableListOf<StringBuilder>()
+    name.forEach { ch ->
+        if (humps.isEmpty() || ch.isUpperCase()) humps += StringBuilder()
+        humps.last().append(ch)
+    }
+    return humps.map { it.toString() }
+}
+
+/**
+ * True when [requested] could resolve to a task in [family] — the exact name,
+ * the family with any variant suffix, or a camel-hump abbreviation of either.
+ * Each hump of the request must be a prefix of the matching hump of the family,
+ * which is Gradle's own rule, so `vR`, `vRD` and `verifyRoborazziDebug` all
+ * match `verifyRoborazzi` while `finalizeTestRoborazziDebug` matches nothing.
+ */
+fun couldResolveTo(requested: String, family: String): Boolean {
+    val requestedHumps = camelHumps(requested.substringAfterLast(':'))
+    val familyHumps = camelHumps(family)
+    if (requestedHumps.size < familyHumps.size) return false
+    return familyHumps.indices.all { i ->
+        familyHumps[i].startsWith(requestedHumps[i], ignoreCase = true)
+    }
+}
+
 if (System.getProperty("os.name").startsWith("Windows")) {
-    if (gradle.startParameter.taskNames.any { it.contains("Roborazzi", ignoreCase = true) }) {
+    val gated = gradle.startParameter.taskNames.filter { requested ->
+        roborazziGatedFamilies.any { family -> couldResolveTo(requested, family) }
+    }
+    if (gated.isNotEmpty()) {
         throw GradleException(
-            "Roborazzi verify/record/compare is not offered on Windows: local " +
-                "rendering differs from the Linux CI goldens (font hinting), so a local " +
-                "verify cannot separate a real change from platform noise (#262). " +
-                "Run the visual gate on CI (verifyRoborazziDebug) and update goldens via " +
-                "the record_roborazzi workflow dispatch."
+            "Roborazzi verify/record/compare is not offered on Windows (requested: " +
+                "${gated.joinToString(", ")}): local rendering differs from the Linux CI " +
+                "goldens (font hinting), so a local verify cannot separate a real change " +
+                "from platform noise (#262). Run the visual gate on CI " +
+                "(verifyRoborazziDebug) and update goldens via the record_roborazzi " +
+                "workflow dispatch. The finalizeTestRoborazzi* report tasks still run here."
         )
     }
 }

@@ -56,11 +56,28 @@ class AppSettingsRepositoryListTest {
 
     @Test
     fun `note title source round-trips`() = runTest {
-        repo.setNoteTitleSource(NoteTitleSource.FIRST_LINE)
+        repo.beginRetitle(NoteTitleSource.FIRST_LINE)
         assertEquals(NoteTitleSource.FIRST_LINE, repo.settings.first().noteTitleSource)
 
-        repo.setNoteTitleSource(NoteTitleSource.FIRST_HEADING)
+        repo.beginRetitle(NoteTitleSource.FIRST_HEADING)
         assertEquals(NoteTitleSource.FIRST_HEADING, repo.settings.first().noteTitleSource)
+    }
+
+    /**
+     * The rule and the marker that says a pass is owed land in one write (#262).
+     * Written separately, a process death between them selects the new rule with
+     * the flag still false — no resume, and a list showing titles from two
+     * rules, which is the window the flag exists to close.
+     */
+    @Test
+    fun `beginRetitle selects the rule and marks the pass pending together`() = runTest {
+        assertEquals(false, repo.settings.first().retitlePending)
+
+        repo.beginRetitle(NoteTitleSource.FIRST_LINE)
+
+        val settings = repo.settings.first()
+        assertEquals(NoteTitleSource.FIRST_LINE, settings.noteTitleSource)
+        assertEquals(true, settings.retitlePending)
     }
 
     @Test
@@ -78,7 +95,7 @@ class AppSettingsRepositoryListTest {
     @Test
     fun `the two settings are stored independently`() = runTest {
         repo.setNotesLayout(NotesLayout.GRID)
-        repo.setNoteTitleSource(NoteTitleSource.FIRST_LINE)
+        repo.beginRetitle(NoteTitleSource.FIRST_LINE)
 
         val settings = repo.settings.first()
         assertEquals(NotesLayout.GRID, settings.notesLayout)

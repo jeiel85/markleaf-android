@@ -51,4 +51,39 @@ class ResolveRestoredCaretTest {
         assertEquals(10, caret)
         assertEquals(RestoreStatus.OK, status)
     }
+
+    /**
+     * The preview surface has the same contract against the rendered block
+     * count. A note that opens straight into preview restores through this and
+     * not through the caret, so without it the surface doing the visible
+     * restoring is the one reporting nothing (#262).
+     */
+    @Test
+    fun savedBlockWithinTheRenderedList_isOk() {
+        val (index, status) = resolveRestoredPreviewIndex(saved = 3, lastIndex = 9)
+        assertEquals(3, index)
+        assertEquals(RestoreStatus.OK, status)
+    }
+
+    @Test
+    fun savedBlockPastAShrunkNote_isClamped() {
+        val (index, status) = resolveRestoredPreviewIndex(saved = 40, lastIndex = 9)
+        assertEquals(9, index)
+        assertEquals(RestoreStatus.CLAMPED, status)
+    }
+
+    @Test
+    fun savedBlockAtTheLastRow_isOk() {
+        val (index, status) = resolveRestoredPreviewIndex(saved = 9, lastIndex = 9)
+        assertEquals(9, index)
+        assertEquals(RestoreStatus.OK, status)
+    }
+
+    /** `BOTTOM` asks for this on purpose — "as far as it goes" always clamps. */
+    @Test
+    fun maxValueRequest_clampsToTheLastRow() {
+        val (index, status) = resolveRestoredPreviewIndex(saved = Int.MAX_VALUE, lastIndex = 9)
+        assertEquals(9, index)
+        assertEquals(RestoreStatus.CLAMPED, status)
+    }
 }

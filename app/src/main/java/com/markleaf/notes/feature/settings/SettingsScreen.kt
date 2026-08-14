@@ -471,24 +471,26 @@ fun SettingsScreen(
                                         onClick = {
                                             retitleBusy = true
                                             scope.launch {
-                                                settingsRepository.setNoteTitleSource(source)
                                                 // Stored titles are derived once, at save
                                                 // time, so without this pass the setting
                                                 // would appear to do nothing (#280).
                                                 // NonCancellable: leaving the screen
                                                 // mid-pass would otherwise strand half the
-                                                // notes under the old rule. The pending
-                                                // flag survives a process death mid-pass,
-                                                // and this screen's LaunchedEffect resumes
-                                                // it next time (#262).
-                                                settingsRepository.setRetitlePending(true)
+                                                // notes under the old rule. The rule and
+                                                // its pending flag are written together —
+                                                // a death between two writes would select
+                                                // the rule with nothing to resume — and
+                                                // the flag survives a process death
+                                                // mid-pass, so this screen's
+                                                // LaunchedEffect resumes it next time
+                                                // (#262).
+                                                settingsRepository.beginRetitle(source)
                                                 try {
                                                     val changed = withContext(
                                                         Dispatchers.IO + NonCancellable
                                                     ) {
                                                         NoteRetitler.retitleAll(noteRepository, source)
                                                     }
-                                                    retitleBusy = false
                                                     Toast.makeText(
                                                         context,
                                                         context.resources.getQuantityString(
@@ -499,7 +501,16 @@ fun SettingsScreen(
                                                         Toast.LENGTH_SHORT
                                                     ).show()
                                                 } finally {
+                                                    // Order matters, and it is the same
+                                                    // order the resume effect uses: the
+                                                    // busy guard is what stops that effect
+                                                    // seeing `retitlePending && !busy` and
+                                                    // launching a second full pass, so it
+                                                    // must outlive the pending flag rather
+                                                    // than be released while the flag is
+                                                    // still true (#262).
                                                     settingsRepository.setRetitlePending(false)
+                                                    retitleBusy = false
                                                 }
                                             }
                                         }

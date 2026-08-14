@@ -4,6 +4,15 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## Unreleased
+
+Changes already on `main` that no release carries yet. When the next release is cut, this heading becomes `## vX.Y.Z - Title - YYYY-MM-DD` and these entries ship with it. The release job reads the section whose heading matches the pushed tag, so an unnamed section publishes nothing and fails nothing — which is exactly why user-visible work has to be written down as it lands rather than remembered at release time.
+
+### Fixed
+- **The jump control appears for notes that are long on screen (#262).** A note earned the jump-to-end control by the number of lines in its source text, so forty short lines got it while five paragraphs that wrap into sixty screen lines did not. It now takes whichever is larger — the source lines, or an estimate of the lines the note actually fills — so both kinds of long note get it and short notes still get neither.
+- **"Where I left off" clears its saved positions when you turn it off (#262).** The positions it recorded stayed in the database until each note was deleted. They were never shown or synced, but keeping them for a setting no longer in use was not the promise; turning the setting off now removes them.
+- **Changing which line becomes a note's title always finishes (#262).** Switching the title rule rewrites every stored title, and if that pass was interrupted — the app killed while it ran — the new rule was already selected while part of the list still carried titles from the old one, with no way to finish it but toggling the setting away and back. The switch now records that a pass is owed in the same write that selects the rule, and resumes it the next time Settings opens. A pass that has just finished can also no longer be started a second time.
+
 ## v2.32.4 - A tidier trash bin - 2026-08-13
 
 Two trash-screen refinements, both found while reviewing the previous release's fix. No feature, permission, or storage-format changes.

@@ -127,7 +127,6 @@ object SidecarMigration {
 
         // Phase 2 — apply. Every file below already has its entry on disk.
         var converted = 0
-        var hashDrifted = false
         for (target in planned) {
             val raw = read(context, target.file)
             if (raw == null) {
@@ -145,19 +144,18 @@ object SidecarMigration {
                 errors++
                 continue
             }
-            // The file changed between the phases (another app, a sync client).
-            // Left alone, the recorded hash would say "not what we wrote" on the
-            // next pass and earn the file a conflict copy it has not earned.
-            val hash = SidecarIndex.hashOf(parsed.body)
-            if (entries[target.noteId]?.contentHash != hash) {
-                entries[target.noteId]?.let { entries[target.noteId] = it.copy(contentHash = hash) }
-                hashDrifted = true
-            }
+            // The planned hash stands even when the file changed between the
+            // phases — another app or a sync client editing it mid-conversion.
+            // Recording the *new* body's hash would mark that edit as one we had
+            // already taken: the next import would see "still what we wrote",
+            // skip the file, and the following local save would overwrite an
+            // edit the note never received. Leaving the planned hash makes the
+            // mismatch visible instead, which is the reconcile this file has
+            // earned by actually changing.
             converted++
             onFileStripped()
         }
 
-        if (hashDrifted) SidecarStore.write(context, folder, deviceId, entries.values)
         return Result(converted, skipped, errors)
     }
 

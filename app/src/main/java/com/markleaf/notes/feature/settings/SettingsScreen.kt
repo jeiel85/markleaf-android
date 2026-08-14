@@ -102,6 +102,33 @@ fun SettingsScreen(
     // control while it runs stops a second switch starting on top of the first,
     // which would have two passes rewriting the same files.
     var metadataSwitchBusy by remember { mutableStateOf(false) }
+    // A conversion to sidecar mode selects the mode first, so a pass that died
+    // mid-way comes back with the mode already switched — and the "you are
+    // already in this mode" guard below would then refuse to finish the folder,
+    // leaving those files carrying headers for good (the import only strips them
+    // in memory). The flag `beginSidecarMigration` set is what this resumes from
+    // (#262).
+    LaunchedEffect(appSettings.sidecarMigrationPending, metadataSwitchBusy) {
+        val uri = appSettings.syncFolderUriOrNull()
+        if (!appSettings.sidecarMigrationPending || metadataSwitchBusy || uri == null) {
+            return@LaunchedEffect
+        }
+        metadataSwitchBusy = true
+        try {
+            withContext(Dispatchers.IO + NonCancellable) {
+                SidecarMigration.toSidecar(
+                    context,
+                    uri,
+                    settingsRepository.getOrCreateSyncDeviceId()
+                )
+            }
+        } finally {
+            // Same order as the retitle resume: the flag goes down before the
+            // guard, or the gap between them satisfies this effect again.
+            settingsRepository.setSidecarMigrationPending(false)
+            metadataSwitchBusy = false
+        }
+    }
     // Same reason for the title rule (#280): two retitle passes running over the
     // same rows would leave titles from both rules behind.
     var retitleBusy by remember { mutableStateOf(false) }
@@ -649,8 +676,14 @@ fun SettingsScreen(
                                 // header, so until it has run the files are
                                 // identifiable only by the sidecar index, which
                                 // only the sidecar mode reads.
+                                // Selecting the mode also records that the folder
+                                // conversion is owed, in one write — otherwise a
+                                // death between the two leaves the mode switched
+                                // with nothing saying the folder is unconverted,
+                                // and the guard above this block refuses to run
+                                // it again.
                                 if (mode == SyncMetadataMode.SIDECAR) {
-                                    settingsRepository.setSyncMetadataMode(mode)
+                                    settingsRepository.beginSidecarMigration()
                                 }
                                 val result = withContext(Dispatchers.IO) {
                                     val deviceId = settingsRepository.getOrCreateSyncDeviceId()
@@ -668,6 +701,8 @@ fun SettingsScreen(
                                 }
                                 if (mode == SyncMetadataMode.FRONTMATTER) {
                                     settingsRepository.setSyncMetadataMode(mode)
+                                } else {
+                                    settingsRepository.setSidecarMigrationPending(false)
                                 }
                                 metadataSwitchBusy = false
                                 Toast.makeText(

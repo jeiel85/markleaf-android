@@ -151,6 +151,50 @@ class SidecarMigrationCrashSafetyTest {
     }
 
     /**
+     * A file edited by something else *during* the conversion keeps the hash the
+     * plan recorded, not the hash of what it now holds.
+     *
+     * Recording the new one would mark that edit as already taken: the next
+     * import would read "still what we wrote", skip the file, and the following
+     * local save would overwrite an edit the note never received. Keeping the
+     * planned hash leaves the mismatch visible, which is the reconcile a file
+     * that really changed has earned.
+     */
+    @Test
+    fun anEditDuringTheConversionIsNotMarkedAsAlreadyTaken() = runBlocking {
+        seedHeadedNotes(4)
+        val victim = File(dir, "Note 4.md")
+        val originalBody = "# Note 4\n\nbody 4"
+        val externalBody = "# Note 4\n\nedited by something else"
+
+        // The first strip lands on an earlier file, so this rewrites a file the
+        // apply phase has not reached yet — the window the plan cannot see.
+        var stripped = 0
+        SidecarMigration.toSidecarIn(context, folder, DEVICE) {
+            stripped++
+            if (stripped == 1 && victim.exists()) {
+                victim.writeText(victim.readText().replace("body 4", "edited by something else"))
+            }
+        }
+
+        SidecarStore.forget()
+        val entry = SidecarStore.readAll(context, folder)
+            .first { it.deviceId == DEVICE }
+            .entries
+            .first { it.noteId == "note-4" }
+
+        assertEquals(
+            "the entry must still carry the hash the plan recorded",
+            SidecarIndex.hashOf(originalBody),
+            entry.contentHash
+        )
+        assertTrue(
+            "and must not have adopted the external edit's hash",
+            entry.contentHash != SidecarIndex.hashOf(externalBody)
+        )
+    }
+
+    /**
      * The rule the ordering exists to respect, pinned directly: a stripped file
      * that no index knows about *is* a new note to the importer. If this ever
      * stops being true the two-phase order can be reconsidered — until then it

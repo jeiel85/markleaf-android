@@ -88,6 +88,10 @@ android {
     }
 
     buildTypes {
+        getByName("debug") {
+            applicationIdSuffix = ".debug"
+            isDebuggable = true
+        }
         getByName("release") {
             // R8 + resource shrinking are required for the Play / production
             // gate. ProGuard rules live in `proguard-rules.pro`; keep that

@@ -1,17 +1,28 @@
-<?xml version="1.0" encoding="utf-8"?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <!-- 나뭇잎 형태 (Markleaf 정체성) -->
-    <path
-        android:fillColor="#2E7D32"
-        android:pathData="M54,20 C54,20 30,35 30,60 C30,85 54,88 54,88 C54,88 78,85 78,60 C78,35 54,20 54,20 Z" />
-    <!-- 마크다운 '#' 기호를 형상화한 나뭇잎 맥 -->
-    <path
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="2.5"
-        android:strokeLineCap="round"
-        android:pathData="M54,35 L54,75 M45,45 L63,45 M45,55 L63,55" />
+<vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:name="vector"
+    android:width="512dp"
+    android:height="512dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+    <group
+        android:name="group_2"
+        android:translateX="64"
+        android:translateY="64"
+        android:scaleX="0.75"
+        android:scaleY="0.75">
+        <!-- 나뭇잎 형태 (Markleaf 정체성) -->
+        <path
+            android:name="path_5"
+            android:pathData="M 256 94.815 C 256 94.815 142.222 165.926 142.222 284.444 C 142.222 402.963 256 417.185 256 417.185 C 256 417.185 369.778 402.963 369.778 284.444 C 369.778 165.926 256 94.815 256 94.815 Z"
+            android:fillColor="#2E7D32"
+            android:strokeAlpha="0.8"/>
+        <!-- 마크다운 '#' 기호를 형상화한 나뭇잎 맥 -->
+        <path
+            android:name="path_6"
+            android:pathData="M 256 165.926 L 256 355.556 M 213.333 213.333 L 298.667 213.333 M 213.333 260.741 L 298.667 260.741"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="8"
+            android:strokeLineCap="round"/>
+    </group>
 </vector>

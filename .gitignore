@@ -36,3 +36,13 @@
 # Nightly issue-bot: local secrets (SMTP app password) and runtime scratch.
 /scripts/nightly/config.local.psd1
 /scripts/nightly/.runtime/
+
+# JVM fatal-error dumps. A crashed Gradle daemon or test JVM writes these into
+# whatever its working directory was, so they turn up at the repo root *and*
+# under `app/` — hence no leading slash. They are large (a `replay_pid*.log`
+# measured 520 KB) and mean nothing outside the machine that crashed. Four of
+# them sat untracked through a whole session on 2026-08-14 after the machine
+# ran out of memory; nothing committed them only because release commits stage
+# files explicitly rather than with `git add -A`.
+hs_err_pid*.log
+replay_pid*.log

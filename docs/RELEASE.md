@@ -508,9 +508,9 @@ instead — `markleaf-release-aab` (14-day retention) and
 home through the local `exportReleaseToBuildDrive` hand-off
 (see [Release Artifact Export](../AGENTS.md#release-artifact-export)) rather
 than from GitHub. That hand-off is the **only** permanent copy: GitLab's
-package registry stopped receiving them at v2.27.2 and the mirror step, though
-it now runs, fails on every tag — see
-[GitLab Release Assets](#gitlab-release-assets) and D066.
+package registry stopped receiving them at v2.27.2, and as of D068 the mirror
+steps do not run at all — see [GitLab Release Assets](#gitlab-release-assets),
+D066 and D068.
 
 The release job fails before publishing if the keystore secret is missing, if
 the APK certificate SHA-256 digest differs from the fixed production
@@ -519,12 +519,17 @@ outputs.
 
 ## GitLab Release Assets
 
-**Attempted on every tag, and failing. GitLab mirrors refs, not release
-artifacts (D066).** The two tag-job steps below run only when the repository
-variable `GITLAB_RELEASE_MIRROR` is `true`, and since 2026-08-05 it is —
-switched on while `GITLAB_TOKEN` still carries only `write_repository`. So
-`Publish the GitLab release` returns HTTP 403 on every tag and the `release`
-job ends red.
+**Not attempted. GitLab publishes nothing and mirrors nothing (D068).** The two
+tag-job steps below run only when the repository variable
+`GITLAB_RELEASE_MIRROR` is `true`, and it is unset as of 2026-08-14, so both
+skip and the `release` job ends green.
+
+The paragraphs that follow describe how it behaved while it was on
+(2026-08-05 → 2026-08-14): switched on while `GITLAB_TOKEN` still carried only
+`write_repository`, so `Publish the GitLab release` returned HTTP 403 on every
+tag and the `release` job ended red. That is history now, kept because it is
+the evidence D068 was decided on — not a diagnosis to apply to a current tag
+run. **If a tag run is red today, it is not this.**
 
 **A red `release` job does not mean the release failed.** The step runs after
 `Create GitHub release`, so the APK is already published and downloadable when
@@ -605,13 +610,14 @@ Two things it depends on:
   stays parked rather than half-live. The script refuses rather than creating
   the tag itself.
 
-The token has still not been re-issued, so v2.32.0, v2.32.1 and v2.32.2 all
-ended their tag run red on a step that could not pass — after the GitHub
-Release had already published its APK. D066 gated the steps behind
-`GITLAB_RELEASE_MIRROR` for exactly that reason, but the variable was set on
-2026-08-05 without the token, so they run and fail again rather than skip. The
-token is the only thing left to fix; see
-[Making it green again](#making-it-green-again).
+The token was never re-issued, so v2.32.0, v2.32.1 and v2.32.2 all ended their
+tag run red on a step that could not pass — after the GitHub Release had
+already published its APK. D066 gated the steps behind `GITLAB_RELEASE_MIRROR`
+for exactly that reason, and the variable was then set on 2026-08-05 without
+the token, so they ran and failed rather than skipped. **That ended on
+2026-08-14: the variable is unset and the token is no longer something to fix,
+because there is no longer a GitLab role for it to serve** — see
+[Settled: backed out (D068)](#settled-backed-out-d068).
 
 The GitLab-side path is a separate switch and is genuinely off:
 `package_signed_release` and

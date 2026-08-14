@@ -83,17 +83,14 @@ CI 또는 릴리즈 검증 시에는 APK 산출물 확인을 반드시 포함한
 - 태그 전에 `pwsh scripts/verify-release-export.ps1` — `D:\Build`의 AAB·mapping·7개
   로케일 노트가 현재 versionName/versionCode로 존재하고 비어 있지 않은지 확인한다.
   **이것이 릴리스 자산의 유일한 영구 사본 검증이다**(D066).
-- GitLab 쪽 검증은 `GITLAB_RELEASE_MIRROR=true`일 때만 적용된다. **2026-08-05(v2.32.2)부터
-  켜져 있으나 `GITLAB_TOKEN`이 아직 `write_repository` 스코프라 발행 스텝이 HTTP 403으로
-  매 태그마다 실패한다.** 따라서 지금은 GitLab Release가 생기지 않고, 이 검증 항목은
-  여전히 해당 없음이다. 토큰이 `api` 스코프로 재발급되면 그때부터 GitLab Release에서
-  APK를 받아 크기를 확인하고, 만료되는 job artifact가 아니라 Generic Package Registry
-  영구 링크인지 본다. **refs 미러는 2026-08-14부터 꺼져 있다(D067)** — `mirror-push`와
-  `mirror-check` 모두 `GITLAB_REF_MIRROR` 미설정으로 skip 되고, GitLab `main`은
-  v2.32.4 시점에 멈춰 있다. 다시 켜는 순서는 `docs/mirror-runbook.md` "현재 상태" 참조.
-- **태그 런의 `release` 잡이 빨간 것과 릴리스 실패는 다르다.** 실패 스텝이 `Publish the
-  GitLab release` 하나뿐이면 위 상태이며, 그 스텝은 `Create GitHub release` **뒤**에 있어
-  APK는 이미 발행돼 있다. 판단 전에 스텝 목록을 볼 것.
+- **GitLab 쪽 검증은 해당 없음이다 — GitLab은 아무것도 발행·미러하지 않는다(D067·D068).**
+  `GITLAB_RELEASE_MIRROR`와 `GITLAB_REF_MIRROR` 둘 다 미설정이라 릴리스 발행 스텝 2개와
+  `mirror-push`·`mirror-check`가 전부 skip 된다. GitLab `main`은 v2.32.4 시점에 얼어
+  있고 태그도 GitHub에만 민다. 되살리는 절차는 `docs/mirror-runbook.md` "현재 상태" 참조.
+- **태그 런의 `release` 잡은 이제 녹색이어야 한다.** 2026-08-05~08-14 사이에는 `Publish
+  the GitLab release`가 매 태그마다 403으로 실패해 "빨간 `release` 잡 = 릴리스 실패
+  아님"이라는 예외를 두었지만, 그 스텝이 skip 되는 지금은 그 예외가 없다. 지금 `release`
+  잡이 빨갛다면 GitLab 문제가 아니므로 스텝 목록을 보고 진짜 원인을 찾을 것.
 
 Android 프로젝트가 아직 초기화되지 않았다면 먼저 표준 Kotlin + Jetpack Compose Android 프로젝트를 생성한다.
 

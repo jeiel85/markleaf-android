@@ -52,9 +52,17 @@ cannot actually check. I can diff the file, count the keys, and match the format
 specifiers — I cannot tell you whether the words sound like something a person
 would write. Those languages are in the app on someone else's judgement.
 
+The other thing an outside patch catches is what the maintainer has stopped
+seeing. The launcher icon had been overflowing the adaptive-icon safe zone since
+the day it was drawn — the leaf ran a millimetre past the mask, so every launcher
+quietly cut its tip off — and I had looked at it on my own home screen for months
+without registering it. It took somebody else opening their app drawer and
+deciding the clipped leaf was worth a pull request.
+
 | | Contributed |
 |---|---|
 | [@ALILEX-1](https://github.com/ALILEX-1) | [#294](https://github.com/jeiel85/markleaf-android/pull/294) — Simplified Chinese |
+| [@ThatOneCalculator](https://github.com/ThatOneCalculator) | [#318](https://github.com/jeiel85/markleaf-android/pull/318) — launcher icon clipped by the adaptive-icon mask |
 
 Reporting something new? [Issues](https://github.com/jeiel85/markleaf-android/issues)
 for bugs, [Discussions](https://github.com/jeiel85/markleaf-android/discussions)

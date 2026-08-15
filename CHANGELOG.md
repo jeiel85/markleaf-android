@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.32.6 - The whole leaf - 2026-08-15
+
+One fix, and it came from outside the project. No feature, permission, or storage-format changes.
+
+### Fixed
+- **The launcher icon is no longer clipped by your launcher ([#318](https://github.com/jeiel85/markleaf-android/pull/318)).** Android composes the app icon from layers and then cuts them to whatever shape your launcher uses — a circle, a rounded square, a squircle — which means the artwork has to stay inside a smaller area than the canvas it is drawn on. Markleaf's leaf had been running past that area since the icon was drawn, so launchers had been quietly cutting the tip off. The leaf is now scaled to sit inside it, and the markdown `#` veins keep the weight they have in the themed (monochrome) version, so turning themed icons on no longer changes how heavy the mark looks. Contributed by [@ThatOneCalculator](https://github.com/ThatOneCalculator).
+
 ## v2.32.5 - Notes that stay one note - 2026-08-14
 
 Five fixes from auditing the parts of sync and the editor that had never been tested, and one of them was losing data. No feature, permission, or storage-format changes.

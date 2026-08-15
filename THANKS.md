@@ -38,7 +38,7 @@ Listed by first report.
 | [@Cwpute](https://github.com/Cwpute) | [#188](https://github.com/jeiel85/markleaf-android/issues/188), [#189](https://github.com/jeiel85/markleaf-android/issues/189), [#190](https://github.com/jeiel85/markleaf-android/issues/190), [#191](https://github.com/jeiel85/markleaf-android/issues/191), [#192](https://github.com/jeiel85/markleaf-android/issues/192), [#193](https://github.com/jeiel85/markleaf-android/issues/193), [#213](https://github.com/jeiel85/markleaf-android/issues/213), [#214](https://github.com/jeiel85/markleaf-android/issues/214), [#215](https://github.com/jeiel85/markleaf-android/issues/215), [#216](https://github.com/jeiel85/markleaf-android/issues/216) |
 | [@xentenza](https://github.com/xentenza) | [#197](https://github.com/jeiel85/markleaf-android/issues/197) |
 | [@Me-2u](https://github.com/Me-2u) | [#200](https://github.com/jeiel85/markleaf-android/issues/200) |
-| [@ElizabethWega](https://github.com/ElizabethWega) | [#283](https://github.com/jeiel85/markleaf-android/issues/283) |
+| [@ElizabethWega](https://github.com/ElizabethWega) | [#283](https://github.com/jeiel85/markleaf-android/issues/283), [#298](https://github.com/jeiel85/markleaf-android/issues/298) |
 
 Not every request here was accepted — a couple were declined, and saying no to a
 thoughtful suggestion is its own kind of debt. Being told what you want from the

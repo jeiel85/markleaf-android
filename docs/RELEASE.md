@@ -363,6 +363,78 @@ Since D064 the mapping is no longer a GitHub Release asset — it survives on
 GitHub only as a 30-day workflow artifact. A release that skips this export and
 is noticed more than 30 days later cannot be deobfuscated at all.
 
+### When the local export cannot run: take the artifacts from the tag job
+
+The local export is the preferred path and stays the default. It is also the
+step most likely to be the one thing a machine cannot do: `minifyReleaseWithR8`
+is the heaviest task in the build, and on a machine short of memory it does not
+fail — it kills the Gradle daemon. The symptom is
+
+```text
+Gradle build daemon disappeared unexpectedly
+...
+> Task :app:minifyReleaseWithR8
+```
+
+with `Native memory allocation (malloc) failed` in the `hs_err_pid*.log` it
+leaves behind. Lowering `-Xmx` is the right instinct, because the starvation is
+native rather than heap, and it is not always enough — v2.32.6 crashed at both
+`2048m` and `1536m` with roughly 1.7 GB free. Close what you can and retry
+first; the rest of this section is for when that does not work.
+
+**The tag job has already built the same two artifacts.** `release` runs
+`:app:exportReleaseArtifacts` on the tagged commit with the CI signing secrets,
+which is the same task on the same source with the same key. Its outputs are
+published as workflow artifacts, so the archive can be assembled from them:
+
+```powershell
+$run  = gh run list --repo jeiel85/markleaf-android --workflow 'Android Build' --branch v2.32.6 --json databaseId --jq '.[0].databaseId'
+$stem = 'markleaf-v2.32.6-vc128'   # markleaf-v<semver>-vc<code>, same stem verify-release-export.ps1 expects
+
+gh run download $run --repo jeiel85/markleaf-android -n markleaf-release-aab -n markleaf-release-mapping -D .\artifacts
+Copy-Item .\artifacts\markleaf-release-aab\app-release.aab      "D:\Build\$stem.aab"
+Copy-Item .\artifacts\markleaf-release-mapping\mapping.txt      "D:\Build\$stem.mapping.txt"
+```
+
+The notes file has no CI artifact and is assembled from the fastlane changelogs.
+Keep the locale order the previous releases use — `verify-release-export.ps1`
+only checks that every block is present, but a stable order keeps the archive
+diffable:
+
+```powershell
+$out = "D:\Build\$stem-release-notes.txt"
+Set-Content -Path $out -Value '' -NoNewline -Encoding utf8
+foreach ($loc in 'ko-KR','en-US','ja-JP','zh-CN','de-DE','fr-FR','es-ES') {
+    $note = (Get-Content -Raw -Encoding utf8 "fastlane/metadata/android/$loc/changelogs/<versionCode>.txt").Trim()
+    Add-Content -Path $out -Value "<$loc>`n$note`n</$loc>" -Encoding utf8
+}
+pwsh scripts/verify-release-export.ps1
+```
+
+Then confirm the AAB carries the release identity rather than a debug key — this
+is the one property the local build guarantees for free and this path does not:
+
+```powershell
+& "$env:JAVA_HOME\bin\jarsigner.exe" -verify -certs "D:\Build\$stem.aab" | Select-String 'CN='
+# X.509, CN=Markleaf, OU=Markleaf, O=Markleaf, L=Seoul, ST=Seoul, C=KR
+```
+
+Two things this path changes, both worth holding in mind:
+
+- **It inverts the ordering.** The gate above says to export and verify *before*
+  pushing a tag, because that is what stops a release shipping without an
+  archive. Artifacts only exist after the tag, so here the verification
+  necessarily runs afterwards — and the thing that was supposed to catch a
+  forgotten export is now itself the step that can be forgotten. Do not stop at
+  a green release page.
+- **It expires.** Workflow artifacts are kept 30 days. Past that the AAB and
+  mapping for that release are gone from GitHub too, and there is no path back
+  to them — the tag can be rebuilt, but R8 is not reproducible enough for the
+  new mapping to deobfuscate stack traces from the shipped binary.
+
+Used for v2.32.6. If it is being used often, the machine is the problem to fix,
+not the procedure.
+
 ## Release Version and Notes Checks
 
 Two PowerShell checks guard the parts of a release that are maintained by hand.

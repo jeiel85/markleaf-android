@@ -1,28 +1,35 @@
-<vector
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:name="vector"
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Adaptive-icon foreground. The 512 viewport is the source artwork; the group
+  scales it to 0.85 and re-centres it (translate = 256 * (1 - 0.85)) so the leaf
+  stays inside the 66dp safe circle instead of being clipped by the launcher
+  mask (#318). It used to reach 34dp from centre against a 33dp safe radius;
+  it now reaches 28.9dp.
+
+  Stroke width is the original 2.5dp scaled by the same 512/108 factor as the
+  geometry (2.5 x 4.7407), so the '#' veins keep the weight they have in
+  `ic_launcher_monochrome.xml`. Scaling the geometry without it leaves the two
+  layers drawing the same mark at different weights.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="512dp"
     android:height="512dp"
     android:viewportWidth="512"
     android:viewportHeight="512">
     <group
-        android:name="group_2"
-        android:translateX="64"
-        android:translateY="64"
-        android:scaleX="0.75"
-        android:scaleY="0.75">
+        android:translateX="38.4"
+        android:translateY="38.4"
+        android:scaleX="0.85"
+        android:scaleY="0.85">
         <!-- 나뭇잎 형태 (Markleaf 정체성) -->
         <path
-            android:name="path_5"
-            android:pathData="M 256 94.815 C 256 94.815 142.222 165.926 142.222 284.444 C 142.222 402.963 256 417.185 256 417.185 C 256 417.185 369.778 402.963 369.778 284.444 C 369.778 165.926 256 94.815 256 94.815 Z"
             android:fillColor="#2E7D32"
-            android:strokeAlpha="0.8"/>
+            android:pathData="M 256 94.815 C 256 94.815 142.222 165.926 142.222 284.444 C 142.222 402.963 256 417.185 256 417.185 C 256 417.185 369.778 402.963 369.778 284.444 C 369.778 165.926 256 94.815 256 94.815 Z" />
         <!-- 마크다운 '#' 기호를 형상화한 나뭇잎 맥 -->
         <path
-            android:name="path_6"
-            android:pathData="M 256 165.926 L 256 355.556 M 213.333 213.333 L 298.667 213.333 M 213.333 260.741 L 298.667 260.741"
             android:strokeColor="#FFFFFF"
-            android:strokeWidth="8"
-            android:strokeLineCap="round"/>
+            android:strokeWidth="11.852"
+            android:strokeLineCap="round"
+            android:pathData="M 256 165.926 L 256 355.556 M 213.333 213.333 L 298.667 213.333 M 213.333 260.741 L 298.667 260.741" />
     </group>
 </vector>

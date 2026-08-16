@@ -88,6 +88,19 @@ android {
     }
 
     buildTypes {
+        getByName("debug") {
+            // A debug build used to share `com.markleaf.notes` with the shipped
+            // app, so installing one over the other failed with
+            // INSTALL_FAILED_UPDATE_INCOMPATIBLE — different signing keys — and
+            // the only way through was uninstalling the real app and its data.
+            // The suffix lets both sit on the same device (#319).
+            //
+            // Nothing may hardcode the application id as a result. The manifest
+            // already derives the FileProvider authority from `${applicationId}`,
+            // and `.github/scripts/launch-smoke.sh` reads the id back out of the
+            // APK rather than assuming it.
+            applicationIdSuffix = ".debug"
+        }
         getByName("release") {
             // R8 + resource shrinking are required for the Play / production
             // gate. ProGuard rules live in `proguard-rules.pro`; keep that

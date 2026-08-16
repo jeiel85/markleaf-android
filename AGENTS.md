@@ -28,7 +28,7 @@ com.markleaf.notes
 
 다음 규칙은 MVP에서 절대 어기지 않습니다.
 
-- Android `applicationId`는 반드시 `com.markleaf.notes`를 사용한다.
+- Android `applicationId`는 반드시 `com.markleaf.notes`를 사용한다. 출시되는 모든 빌드(release·benchmark)가 이 id를 그대로 쓴다는 뜻이다. debug 빌드만 `applicationIdSuffix = ".debug"`로 `com.markleaf.notes.debug`가 되며(#319), 이는 설치된 실사용 앱을 지우지 않고 검증하기 위한 것이다 — `defaultConfig.applicationId`는 바뀌지 않는다. 따라서 코드·스크립트는 application id를 문자열로 박지 말고 `BuildConfig.APPLICATION_ID`·`context.packageName`·`${applicationId}`로 파생시킨다.
 - MVP에서는 `android.permission.INTERNET`을 추가하지 않는다.
 - MVP에서는 API 연동을 추가하지 않는다.
 - MVP에서는 로그인/계정 기능을 추가하지 않는다.

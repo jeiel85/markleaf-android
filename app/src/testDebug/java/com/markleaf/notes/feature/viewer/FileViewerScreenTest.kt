@@ -98,7 +98,7 @@ class FileViewerScreenTest {
         render(FileViewerState.Unreadable, onSaveAsNote = { saved = it })
 
         composeRule.onNodeWithText(
-            "This file couldn't be opened. It may have been moved or deleted, or it isn't a text file."
+            "This file couldn't be shown. It may be empty, may have been moved or deleted, or may not be a text file."
         ).assertIsDisplayed()
         composeRule.onNodeWithContentDescription("Save as note").assertDoesNotExist()
         assertNull(saved)

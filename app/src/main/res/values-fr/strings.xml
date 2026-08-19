@@ -21,7 +21,7 @@
     <string name="file_viewer_title">Fichier</string>
     <string name="file_viewer_read_only">Fichier en lecture seule</string>
     <string name="file_viewer_save_as_note">Enregistrer comme note</string>
-    <string name="file_viewer_unreadable">Impossible d\'ouvrir ce fichier. Il a peut-être été déplacé ou supprimé, ou il ne s\'agit pas d\'un fichier texte.</string>
+    <string name="file_viewer_unreadable">Impossible d\'afficher ce fichier. Il est peut-être vide, il a peut-être été déplacé ou supprimé, ou il ne s\'agit pas d\'un fichier texte.</string>
     <string name="quick_switcher_hint">Accéder à la note…</string>
     <string name="quick_switcher_no_results">Aucune note correspondante.</string>
     <string name="backlinks_section_title">Lié depuis</string>

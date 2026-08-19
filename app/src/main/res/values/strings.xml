@@ -29,7 +29,7 @@
     <string name="file_viewer_title">File</string>
     <string name="file_viewer_read_only">Read-only file</string>
     <string name="file_viewer_save_as_note">Save as note</string>
-    <string name="file_viewer_unreadable">This file couldn\'t be opened. It may have been moved or deleted, or it isn\'t a text file.</string>
+    <string name="file_viewer_unreadable">This file couldn\'t be shown. It may be empty, may have been moved or deleted, or may not be a text file.</string>
     <string name="quick_switcher_hint">Jump to note…</string>
     <string name="quick_switcher_no_results">No matching notes.</string>
     <string name="backlinks_section_title">Linked from</string>

@@ -4,7 +4,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.OpenableColumns
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -34,6 +33,7 @@ import com.markleaf.notes.feature.onboarding.WelcomeOnboardingSheet
 import com.markleaf.notes.navigation.MarkleafNavHost
 import com.markleaf.notes.ui.theme.MarkleafTheme
 import com.markleaf.notes.ui.viewmodel.MarkleafViewModelFactory
+import com.markleaf.notes.util.ExternalFile
 import com.markleaf.notes.widget.QuickNoteWidget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -119,6 +119,10 @@ class MainActivity : FragmentActivity() {
             intent.getStringExtra(QuickNoteWidget.EXTRA_NOTE_ID)
         } else null
         val sharedText = extractInitialContent(intent)
+        // A file opened from elsewhere (ACTION_VIEW) is shown for reading rather
+        // than imported (#326); sharing one in (ACTION_SEND) still means "take
+        // this", and keeps creating a note.
+        val viewFileUri = intent.takeIf { it.action == Intent.ACTION_VIEW }?.data?.toString()
 
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
@@ -138,7 +142,8 @@ class MainActivity : FragmentActivity() {
                         viewModelFactory = viewModelFactory,
                         shouldCreateNote = shouldCreateNote,
                         sharedText = sharedText,
-                        openNoteId = openNoteId
+                        openNoteId = openNoteId,
+                        viewFileUri = viewFileUri
                     )
                     if (!appSettings.onboardingCompleted) {
                         WelcomeOnboardingSheet(
@@ -197,29 +202,24 @@ class MainActivity : FragmentActivity() {
 
     private companion object {
         const val THROTTLE_MS = 60_000L
-
-        // Cap how much of an opened/shared file we pull into a note so a huge or
-        // non-text file can't OOM/ANR the cold-start path (#139). Real note files
-        // are a few KB; 2M chars is a generous ceiling.
-        const val MAX_IMPORT_CHARS = 2_000_000
     }
 
     /**
      * Note body to seed from an external intent, or null if there's nothing to
-     * import. Covers three entry points:
-     *  - ACTION_VIEW of a `.md` / `.txt` file tapped in a file manager (#139),
+     * import. Two entry points, both of them a share:
      *  - ACTION_SEND of a shared file stream (#139),
      *  - ACTION_SEND of plain text from the system share sheet (the original
      *    behaviour).
+     *
+     * ACTION_VIEW used to import here too. It now opens the file in the viewer
+     * instead (#326) — tapping a file in a file manager is a request to read it,
+     * and importing wrote a note and, with folder sync on, a second copy of the
+     * file, for every file merely looked at. Keeping it is one tap in the viewer.
      */
     private fun extractInitialContent(intent: Intent?): String? {
         intent ?: return null
-        return when (intent.action) {
-            Intent.ACTION_VIEW -> intent.data?.let(::readNoteFromUri)
-            Intent.ACTION_SEND -> intent.streamUri()?.let(::readNoteFromUri)
-                ?: extractSharedText(intent)
-            else -> null
-        }
+        if (intent.action != Intent.ACTION_SEND) return null
+        return intent.streamUri()?.let(::readNoteFromUri) ?: extractSharedText(intent)
     }
 
     private fun extractSharedText(intent: Intent?): String? {
@@ -246,48 +246,10 @@ class MainActivity : FragmentActivity() {
         }
 
     /**
-     * Read an opened/shared file as UTF-8 text and turn it into a note body.
-     * When the file has no leading heading, its name seeds the title so the
-     * imported note isn't titled by whatever its first body line happens to be
-     * — matching the "filename is the note title" expectation from #134.
+     * Read a shared file as UTF-8 text and turn it into a note body. The rules
+     * — the size cap, and seeding the title from the file name — live in
+     * [ExternalFile], which the file viewer reads through as well.
      */
-    private fun readNoteFromUri(uri: Uri): String? {
-        val content = runCatching {
-            contentResolver.openInputStream(uri)?.use(::readCapped)
-        }.getOrNull()?.takeIf { it.isNotBlank() } ?: return null
-
-        val name = displayNameFor(uri)
-            ?.substringBeforeLast('.')
-            ?.trim()
-            ?.takeIf { it.isNotBlank() }
-        val trimmed = content.trimStart()
-        val alreadyTitled = trimmed.startsWith("#") || trimmed.startsWith("---")
-        return if (name != null && !alreadyTitled) "# $name\n\n$content" else content
-    }
-
-    private fun readCapped(input: java.io.InputStream): String {
-        val reader = input.bufferedReader(Charsets.UTF_8)
-        val sb = StringBuilder()
-        val buf = CharArray(8192)
-        var total = 0
-        while (total < MAX_IMPORT_CHARS) {
-            val read = reader.read(buf)
-            if (read < 0) break
-            val take = minOf(read, MAX_IMPORT_CHARS - total)
-            sb.append(buf, 0, take)
-            total += take
-        }
-        return sb.toString()
-    }
-
-    private fun displayNameFor(uri: Uri): String? {
-        if (uri.scheme == "file") return uri.lastPathSegment
-        return runCatching {
-            contentResolver.query(
-                uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null
-            )?.use { cursor ->
-                if (cursor.moveToFirst()) cursor.getString(0) else null
-            }
-        }.getOrNull()
-    }
+    private fun readNoteFromUri(uri: Uri): String? =
+        ExternalFile.read(this, uri)?.let(ExternalFile::noteBody)
 }

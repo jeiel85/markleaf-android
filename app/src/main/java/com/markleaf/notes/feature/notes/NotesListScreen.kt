@@ -29,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.KeyboardCommandKey
 import androidx.compose.material.icons.filled.Lock
@@ -119,6 +120,7 @@ fun NotesListScreen(
     onLockedClick: () -> Unit = {},
     onTrashClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
+    onOpenFileClick: () -> Unit = {},
     lockPasscodeSet: Boolean = false,
     onRequestSetPasscode: () -> Unit = {},
     onCollapseClick: (() -> Unit)? = null,
@@ -288,6 +290,17 @@ fun NotesListScreen(
                                 onClick = {
                                     overflowExpanded = false
                                     showQuickSwitcher = true
+                                }
+                            )
+                            // Reading a file that is not a note (#326). It sits
+                            // above the note destinations because it is the one
+                            // entry here that leaves the note library alone.
+                            DropdownMenuItem(
+                                leadingIcon = { Icon(Icons.Default.FileOpen, contentDescription = null) },
+                                text = { Text(stringResource(R.string.open_file)) },
+                                onClick = {
+                                    overflowExpanded = false
+                                    onOpenFileClick()
                                 }
                             )
                             DropdownMenuItem(

@@ -17,6 +17,11 @@
     <string name="settings">Ajustes</string>
     <string name="more_options">Más opciones</string>
     <string name="quick_switcher_title">Salto rápido</string>
+    <string name="open_file">Abrir archivo…</string>
+    <string name="file_viewer_title">Archivo</string>
+    <string name="file_viewer_read_only">Archivo de solo lectura</string>
+    <string name="file_viewer_save_as_note">Guardar como nota</string>
+    <string name="file_viewer_unreadable">No se pudo mostrar este archivo. Puede que esté vacío, que se haya movido o eliminado, o que no sea un archivo de texto.</string>
     <string name="quick_switcher_hint">Saltar a nota…</string>
     <string name="quick_switcher_no_results">Ninguna nota coincide.</string>
     <string name="backlinks_section_title">Enlazado desde</string>

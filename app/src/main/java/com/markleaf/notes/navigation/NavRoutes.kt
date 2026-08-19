@@ -12,6 +12,14 @@ object NavRoutes {
     const val SETTINGS = "settings"
     const val PRIVACY = "privacy"
     const val SYNC_CENTER = "sync_center"
+    const val VIEWER = "viewer/{uri}"
+
+    /**
+     * Read-only view of a file outside the app (#326). The whole content URI is
+     * one path segment, so it is percent-encoded here — `/` included — and
+     * Navigation decodes it once when it parses the argument back out.
+     */
+    fun viewerRoute(uri: String): String = "viewer/${android.net.Uri.encode(uri)}"
 
     fun editorRoute(noteId: String? = null): String {
         return if (noteId != null) {

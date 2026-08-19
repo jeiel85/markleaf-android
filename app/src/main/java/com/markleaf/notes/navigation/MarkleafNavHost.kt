@@ -520,6 +520,7 @@ fun MarkleafNavHost(
             val uri = remember(uriArg) { Uri.parse(uriArg) }
             FileViewerScreen(
                 uri = uri,
+                contentMaxWidth = appSettings.lineWidth.maxWidthDp.dp,
                 onBack = { navController.popBackStack() },
                 onSaveAsNote = { body ->
                     coroutineScope.launch {

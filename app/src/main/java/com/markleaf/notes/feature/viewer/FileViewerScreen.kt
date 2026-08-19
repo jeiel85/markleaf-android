@@ -4,8 +4,10 @@ import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.NoteAdd
 import androidx.compose.material3.CircularProgressIndicator
@@ -29,6 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
 import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
@@ -70,7 +73,8 @@ sealed interface FileViewerState {
 fun FileViewerScreen(
     uri: Uri,
     onBack: () -> Unit = {},
-    onSaveAsNote: (String) -> Unit = {}
+    onSaveAsNote: (String) -> Unit = {},
+    contentMaxWidth: Dp = Dp.Unspecified
 ) {
     val context = LocalContext.current
     var state by remember(uri) { mutableStateOf<FileViewerState>(FileViewerState.Loading) }
@@ -90,7 +94,12 @@ fun FileViewerScreen(
         }
     }
 
-    FileViewerContent(state = state, onBack = onBack, onSaveAsNote = onSaveAsNote)
+    FileViewerContent(
+        state = state,
+        onBack = onBack,
+        onSaveAsNote = onSaveAsNote,
+        contentMaxWidth = contentMaxWidth
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -98,7 +107,9 @@ fun FileViewerScreen(
 internal fun FileViewerContent(
     state: FileViewerState,
     onBack: () -> Unit = {},
-    onSaveAsNote: (String) -> Unit = {}
+    onSaveAsNote: (String) -> Unit = {},
+    /** The reading measure the editor honours on wide screens; unconstrained on a phone. */
+    contentMaxWidth: Dp = Dp.Unspecified
 ) {
     Scaffold(
         topBar = {
@@ -162,7 +173,12 @@ internal fun FileViewerContent(
                 )
                 is FileViewerState.Loaded -> MarkdownPreviewList(
                     lines = state.lines,
-                    modifier = Modifier.fillMaxSize(),
+                    // Bounded like the tablet editor: a rendered document read
+                    // edge to edge on a wide screen is the case the line-width
+                    // setting exists for.
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .widthIn(max = contentMaxWidth),
                     contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp)
                     // No onToggleTask and no wikilink handling: a checkbox here
                     // would have nowhere to write, and a wikilink would either

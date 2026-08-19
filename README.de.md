@@ -88,7 +88,7 @@
 
 ### Sync & Export (No-Cloud-Prinzip)
 - **Ordner-Spiegel-Synchronisierung** – spiegelt jede Notiz als `.md`-Datei in einen per SAF gewählten Ordner (Drive/Dropbox/Syncthing/OneDrive/NAS usw.). Markleaf selbst bleibt offline; die Synchronisierung wird *der externen App überlassen, die diesen Ordner synchronisiert*
-- **Import externer `.md` / `.txt`-Dateien** – tippe eine Datei im Dateimanager an oder teile eine aus einer anderen App, um sie als neue Notiz zu übernehmen (ohne Überschrift wird der Dateiname zum Titel). Tags in per Sync übernommenen Notizen werden sofort erkannt
+- **`.md` / `.txt`-Dateien zum Lesen öffnen** – *Datei öffnen…* im ⋮-Menü oder ein Tippen im Dateimanager öffnet die Datei gerendert und schreibgeschützt; eine Notiz entsteht erst mit *Als Notiz speichern* (ohne Überschrift wird der Dateiname zum Titel). Aus einer anderen App geteilte Dateien werden weiterhin sofort übernommen. Tags in per Sync übernommenen Notizen werden sofort erkannt
 - **Export einzelner / aller Notizen als `.md`**
 - **Senden über das System-Share-Sheet**
 

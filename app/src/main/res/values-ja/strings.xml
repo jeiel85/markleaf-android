@@ -17,6 +17,11 @@
     <string name="settings">設定</string>
     <string name="more_options">その他のオプション</string>
     <string name="quick_switcher_title">クイックスイッチャー</string>
+    <string name="open_file">ファイルを開く…</string>
+    <string name="file_viewer_title">ファイル</string>
+    <string name="file_viewer_read_only">読み取り専用ファイル</string>
+    <string name="file_viewer_save_as_note">ノートとして保存</string>
+    <string name="file_viewer_unreadable">このファイルを開けませんでした。移動または削除されたか、テキストファイルではない可能性があります。</string>
     <string name="quick_switcher_hint">ノートに移動…</string>
     <string name="quick_switcher_no_results">該当するノートがありません。</string>
     <string name="backlinks_section_title">リンク元</string>

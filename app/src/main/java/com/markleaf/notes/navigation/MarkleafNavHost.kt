@@ -14,6 +14,8 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import android.net.Uri
 import android.util.Log
@@ -70,6 +72,7 @@ import com.markleaf.notes.feature.tags.TagRail
 import com.markleaf.notes.feature.tags.TagsScreen
 import com.markleaf.notes.feature.trash.TrashScreen
 import com.markleaf.notes.feature.sync.SyncCenterScreen
+import com.markleaf.notes.feature.viewer.FileViewerScreen
 import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.repository.LocalNoteRepository
 import com.markleaf.notes.data.settings.AppSettings
@@ -100,7 +103,8 @@ fun MarkleafNavHost(
     viewModelFactory: ViewModelProvider.Factory,
     shouldCreateNote: Boolean = false,
     sharedText: String? = null,
-    openNoteId: String? = null
+    openNoteId: String? = null,
+    viewFileUri: String? = null
 ) {
     val isExpanded = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded
     val context = LocalContext.current
@@ -111,9 +115,9 @@ fun MarkleafNavHost(
     // shares the instance MainActivity already built the factory from.
     val noteRepository = remember { LocalNoteRepository(AppDatabase.getInstance(context)) }
 
-    // One-shot intent entry points — widget "new note", text/file shared or
-    // opened into the app (#139), and a widget tap on a recent note. These must
-    // run EXACTLY ONCE per launch. They used to live in LaunchedEffects inside
+    // One-shot intent entry points — widget "new note", text or a file shared
+    // into the app (#139), a file opened for reading (#326), and a widget tap on
+    // a recent note. These must run EXACTLY ONCE per launch. They used to live in LaunchedEffects inside
     // the NOTES destination, but a navigation destination re-enters composition
     // every time it returns to the foreground — e.g. pressing back from the
     // editor — which re-ran the effect, created another duplicate note, and
@@ -122,14 +126,20 @@ fun MarkleafNavHost(
     // the whole activity instance, so returning from the editor no longer
     // re-imports. A genuinely new intent arrives on a fresh activity
     // (onNewIntent → recreate) and re-composes the host, so new shares/opens
-    // still import. The three sources are mutually exclusive (each derives from
-    // a single intent action), so a `when` handles at most one.
+    // still import. The sources are mutually exclusive (each derives from a
+    // single intent action), so a `when` handles at most one.
     val intentEntryViewModel = viewModel<NotesViewModel>(factory = viewModelFactory)
     LaunchedEffect(Unit) {
         when {
             shouldCreateNote -> {
                 val newNote = intentEntryViewModel.createNote()
                 navController.navigateOnMain(NavRoutes.editorRoute(newNote.id))
+            }
+            !viewFileUri.isNullOrBlank() -> {
+                // A file tapped in a file manager opens for reading, not as a
+                // new note (#326). Nothing is written until the reader asks for
+                // it in the viewer.
+                navController.navigateOnMain(NavRoutes.viewerRoute(viewFileUri))
             }
             !sharedText.isNullOrBlank() -> {
                 // Read the title rule from the store rather than the collected
@@ -211,6 +221,16 @@ fun MarkleafNavHost(
         composable(NavRoutes.NOTES) {
             val viewModel = viewModel<NotesViewModel>(factory = viewModelFactory)
             val coroutineScope = rememberCoroutineScope()
+            // "Open file…" (#326). The picker's read grant lasts as long as this
+            // task, which is exactly how long the viewer needs it — nothing is
+            // persisted, so the app never accumulates access to files it is no
+            // longer showing.
+            val openFileLauncher = rememberLauncherForActivityResult(
+                ActivityResultContracts.OpenDocument()
+            ) { uri ->
+                if (uri != null) navController.navigate(NavRoutes.viewerRoute(uri.toString()))
+            }
+            val onOpenFile = { openFileLauncher.launch(OPEN_FILE_MIME_TYPES) }
 
             // Intent entry points (widget new-note, shared/opened content, widget
             // recent-note tap) are handled once at the host scope above, not here
@@ -290,6 +310,7 @@ fun MarkleafNavHost(
                                 onLockedClick = { navController.navigate(NavRoutes.LOCKED) },
                                 onTrashClick = { navController.navigate(NavRoutes.TRASH) },
                                 onSettingsClick = { navController.navigate(NavRoutes.SETTINGS) },
+                                onOpenFileClick = onOpenFile,
                                 lockPasscodeSet = appSettings.lockPasscodeSet,
                                 onRequestSetPasscode = { navController.navigate(NavRoutes.SETTINGS) },
                                 onCollapseClick = { isNoteListCollapsed = true },
@@ -381,6 +402,7 @@ fun MarkleafNavHost(
                     onLockedClick = { navController.navigate(NavRoutes.LOCKED) },
                     onTrashClick = { navController.navigate(NavRoutes.TRASH) },
                     onSettingsClick = { navController.navigate(NavRoutes.SETTINGS) },
+                    onOpenFileClick = onOpenFile,
                     lockPasscodeSet = appSettings.lockPasscodeSet,
                     onRequestSetPasscode = { navController.navigate(NavRoutes.SETTINGS) }
                 )
@@ -483,10 +505,54 @@ fun MarkleafNavHost(
                 onBack = { navController.popBackStack() }
             )
         }
+
+        // Reading a file that is not a note (#326) — reached from "Open file…"
+        // and from a file manager's ACTION_VIEW. Nothing is stored unless the
+        // reader asks for it, and asking runs the same import the share sheet
+        // has always used.
+        composable(
+            route = NavRoutes.VIEWER,
+            arguments = listOf(navArgument("uri") { type = NavType.StringType })
+        ) { entry ->
+            val viewerViewModel = viewModel<NotesViewModel>(factory = viewModelFactory)
+            val coroutineScope = rememberCoroutineScope()
+            val uriArg = entry.arguments?.getString("uri").orEmpty()
+            val uri = remember(uriArg) { Uri.parse(uriArg) }
+            FileViewerScreen(
+                uri = uri,
+                onBack = { navController.popBackStack() },
+                onSaveAsNote = { body ->
+                    coroutineScope.launch {
+                        val titleSource = settingsRepository.settings.first().noteTitleSource
+                        val newNote = viewerViewModel.createNote(body, titleSource)
+                        withContext(Dispatchers.Main.immediate) {
+                            navController.navigate(NavRoutes.editorRoute(newNote.id)) {
+                                // The file has been kept; backing out of the new
+                                // note belongs in the list, not in the viewer it
+                                // came from.
+                                popUpTo(NavRoutes.VIEWER) { inclusive = true }
+                            }
+                        }
+                    }
+                }
+            )
+        }
     }
     } // CompositionLocalProvider(LocalSharedTransitionScope)
     } // SharedTransitionLayout
 }
+
+/**
+ * What the "Open file…" picker lets you choose (#326).
+ *
+ * The `text` wildcard covers `.md` and `.txt` wherever the provider types them
+ * honestly.
+ * `application/octet-stream` is there because several file managers and cloud
+ * providers have no MIME type for Markdown and fall back to it — without the
+ * second entry those files are greyed out in the picker and cannot be opened at
+ * all. A file that turns out not to be text is caught on read and reported.
+ */
+private val OPEN_FILE_MIME_TYPES = arrayOf("text/*", "application/octet-stream")
 
 /**
  * Navigate from a coroutine that has been through a suspend point.

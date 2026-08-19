@@ -88,7 +88,7 @@
 
 ### Synchronisation et export (principe No-Cloud)
 - **Synchronisation en miroir de dossier** — reflète chaque note sous forme de fichier `.md` / `.txt` **nommé selon le titre** dans un dossier que vous choisissez via SAF (Drive/Dropbox/Syncthing/OneDrive/NAS, etc.) ; renommez une note et son fichier suit. Markleaf lui-même reste hors ligne ; la synchronisation est déléguée à *l'application externe qui synchronise ce dossier*
-- **Import de fichiers externes `.md` / `.txt`** — appuyez sur un fichier dans votre gestionnaire de fichiers ou partagez-en un depuis une autre application pour l'importer comme nouvelle note (le nom du fichier devient le titre s'il n'y a pas de titre dans le texte). Les étiquettes des notes importées par synchronisation sont reconnues immédiatement
+- **Ouvrir un fichier `.md` / `.txt` pour le lire** — *Ouvrir un fichier…* dans le menu ⋮, ou un appui dans votre gestionnaire de fichiers, ouvre le fichier rendu et en lecture seule ; aucune note n'est créée tant que vous n'appuyez pas sur *Enregistrer comme note* (le nom du fichier devient le titre s'il n'y a pas de titre dans le texte). Un fichier partagé depuis une autre application est toujours importé immédiatement. Les étiquettes des notes importées par synchronisation sont reconnues immédiatement
 - **Export des notes individuelles ou de toutes les notes en `.md`**
 - **Envoi via la feuille de partage du système**
 

@@ -17,6 +17,11 @@
     <string name="settings">Einstellungen</string>
     <string name="more_options">Weitere Optionen</string>
     <string name="quick_switcher_title">Schnellauswahl</string>
+    <string name="open_file">Datei öffnen…</string>
+    <string name="file_viewer_title">Datei</string>
+    <string name="file_viewer_read_only">Schreibgeschützte Datei</string>
+    <string name="file_viewer_save_as_note">Als Notiz speichern</string>
+    <string name="file_viewer_unreadable">Diese Datei konnte nicht geöffnet werden. Sie wurde möglicherweise verschoben oder gelöscht, oder sie ist keine Textdatei.</string>
     <string name="quick_switcher_hint">Zu Notiz springen…</string>
     <string name="quick_switcher_no_results">Keine passenden Notizen.</string>
     <string name="backlinks_section_title">Verlinkt von</string>

@@ -117,17 +117,17 @@ fun MarkleafNavHost(
 
     // One-shot intent entry points — widget "new note", text or a file shared
     // into the app (#139), a file opened for reading (#326), and a widget tap on
-    // a recent note. These must run EXACTLY ONCE per launch. They used to live in LaunchedEffects inside
-    // the NOTES destination, but a navigation destination re-enters composition
-    // every time it returns to the foreground — e.g. pressing back from the
-    // editor — which re-ran the effect, created another duplicate note, and
-    // immediately reopened the editor, trapping the user in a reopen loop
-    // (#142). Hoisting them here ties them to the host, which stays composed for
-    // the whole activity instance, so returning from the editor no longer
-    // re-imports. A genuinely new intent arrives on a fresh activity
-    // (onNewIntent → recreate) and re-composes the host, so new shares/opens
-    // still import. The sources are mutually exclusive (each derives from a
-    // single intent action), so a `when` handles at most one.
+    // a recent note. These must run EXACTLY ONCE per launch. They used to live
+    // in LaunchedEffects inside the NOTES destination, but a navigation
+    // destination re-enters composition every time it returns to the foreground
+    // — e.g. pressing back from the editor — which re-ran the effect, created
+    // another duplicate note, and immediately reopened the editor, trapping the
+    // user in a reopen loop (#142). Hoisting them here ties them to the host,
+    // which stays composed for the whole activity instance, so returning from
+    // the editor no longer re-imports. A genuinely new intent arrives on a
+    // fresh activity (onNewIntent → recreate) and re-composes the host, so new
+    // shares/opens still import. The sources are mutually exclusive (each
+    // derives from a single intent action), so a `when` handles at most one.
     val intentEntryViewModel = viewModel<NotesViewModel>(factory = viewModelFactory)
     LaunchedEffect(Unit) {
         when {

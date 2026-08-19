@@ -7,6 +7,35 @@
 
 ## Confirmed Decisions
 
+### D069 - VIEW Reads, SEND Imports
+
+A `.md`/`.txt` file arriving from outside the app opens in a read-only viewer
+when it comes as `ACTION_VIEW`, and becomes a note when it comes as
+`ACTION_SEND`. The viewer writes nothing; keeping the file is an explicit
+**Save as note**, which runs the same import as before.
+
+Why:
+- `ACTION_VIEW` used to import too, so every file merely looked at left two
+  artifacts behind: a note in the database and — with folder sync on — a
+  second copy of the file in the user's sync folder. The app had no way to
+  read a file at all, which is what #326 was filed about.
+- The two intents already carry different intent. Tapping a file in a file
+  manager asks to see it; sharing a file *into* a note app says "take this".
+  Splitting on that needs no setting and no explanation in the UI.
+- The cost of the change is one extra tap for anyone who used the file-manager
+  tap as an import shortcut, and that tap is the first control in the viewer's
+  bar. The cost of the old behaviour was notes and files the user never asked
+  for, which is the harder one to undo.
+
+Decision:
+- `ACTION_VIEW` navigates to the viewer; `ACTION_SEND` (stream or text) keeps
+  creating a note straight away.
+- The viewer stays a single-file surface: no recents, no directory browsing,
+  no persisted URI permissions, no editing in place. Markleaf keeps one place
+  where notes live, and gains a way to read a file that is not one.
+- File reading (the size cap, the "file name seeds the title" rule) lives in
+  `util/ExternalFile`, shared by both paths, so the two cannot drift.
+
 ### D068 - GitLab Is A Frozen Snapshot, And GitHub Is The Only Release Path
 
 GitLab has no operational role. It publishes nothing, mirrors nothing, and

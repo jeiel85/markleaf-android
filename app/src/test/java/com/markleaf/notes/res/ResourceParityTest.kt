@@ -17,7 +17,8 @@ class ResourceParityTest {
             "src/main/res/values-ja/strings.xml",
             "src/main/res/values-de/strings.xml",
             "src/main/res/values-fr/strings.xml",
-            "src/main/res/values-zh/strings.xml"
+            "src/main/res/values-zh/strings.xml",
+            "src/main/res/values-hr/strings.xml"
         ).forEach { path ->
             val localizedKeys = stringNames(path)
             assertEquals(

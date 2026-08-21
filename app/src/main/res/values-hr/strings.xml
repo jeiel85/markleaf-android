@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Markleaf</string>
+    <string name="notes_title">Bilješke</string>
+    <string name="collapse_note_list">Sažmi popis bilješki</string>
+    <string name="expand_note_list">Proširi popis bilješki</string>
+    <string name="hide_tags">Sakrij oznake</string>
+    <string name="show_tags">Prikaži oznake</string>
+    <string name="search">Traži</string>
+    <string name="tags">Oznake</string>
+    <string name="trash">Smeće</string>
+    <!-- "archive" names the destination: the Archive screen title, and the overflow
+         item that navigates there. "archive_action" is the verb on a note's own menu.
+         English spells both the same, but most locales need a noun and a verb, and
+         archive_empty_hint tells the user which menu entry to look for. -->
+    <string name="archive">Arhiva</string>
+    <string name="archive_action">Arhiviraj</string>
+    <string name="unarchive">Vrati iz arhive</string>
+    <string name="archive_empty">Nema arhiviranih bilješki</string>
+    <string name="archive_empty_hint">Dugo pritisnite bilješku u glavnom popisu i odaberite „Arhiviraj” da bi se ona premjestila ovdje.</string>
+    <string name="settings">Postavke</string>
+    <string name="more_options">Više opcija</string>
+    <string name="quick_switcher_title">Brzo prebacivanje</string>
+    <!-- Reading a file that is not a note (#326): the overflow entry that opens
+         the picker, and the viewer it lands on. "file_viewer_read_only" is what
+         tells the reader the text is a file rather than a note, so "Save as
+         note" does not read as "save my edits". -->
+    <string name="open_file">Otvori datoteku…</string>
+    <string name="file_viewer_title">Datoteka</string>
+    <string name="file_viewer_read_only">Datoteka samo za čitanje</string>
+    <string name="file_viewer_save_as_note">Spremi kao bilješku</string>
+    <string name="file_viewer_unreadable">Nije moguće prikazati ovu datoteku. Možda je prazna, premještena, izbrisana ili nije tekstualna datoteka.</string>
+    <string name="quick_switcher_hint">Skoči na bilješku…</string>
+    <string name="quick_switcher_no_results">Nema podudarajućih bilješki.</string>
+    <string name="backlinks_section_title">Povezano iz</string>
+    <string name="wikilink_suggestions_title">Poveži s…</string>
+    <string name="tag_suggestions_title">Oznake</string>
+    <string name="table_of_contents">Sadržaj</string>
+    <string name="note_information">Informacije o bilješci</string>
+    <string name="note_statistics">Statistika</string>
+    <string name="note_information_no_headings">Još nema naslova.</string>
+    <string name="note_information_no_backlinks">Nijedna bilješka nije povezana ovamo.</string>
+    <string name="font_label">Font</string>
+    <string name="font_sans">Sans</string>
+    <string name="font_serif">Serif</string>
+    <string name="font_description">Serif daje bilješkama klasični izgled knjige. Kôd uvijek koristi font fiksne širine.</string>
+    <string name="all_notes">Sve bilješke</string>
+    <string name="no_notes_for_tag">Nema bilješki s ovom oznakom</string>
+    <string name="image_alt_dialog_title">Uredi opis slike</string>
+    <string name="image_alt_dialog_description">Alternativni tekst pomaže pri korištenju čitača zaslona i prikazuje se kada se slika ne uspije učitati.</string>
+    <string name="image_alt_dialog_label">Opis</string>
+    <string name="image_alt_dialog_save">Spremi</string>
+    <string name="add_note">Dodaj bilješku</string>
+    <string name="no_notes_yet">Još nema bilješki</string>
+    <string name="create_first_note_hint">Dodirnite + za stvaranje svoje prve bilješke</string>
+    <string name="create_note">Stvori bilješku</string>
+    <string name="untitled">Bez naslova</string>
+    <string name="untitled_parenthesized">(bez naslova)</string>
+    <string name="select_note_to_view">Odaberite bilješku za prikaz</string>
+
+    <string name="preview">Pretpregled</string>
+    <string name="edit">Uredi</string>
+    <string name="edit_note">Uredi bilješku</string>
+    <string name="new_note">Nova bilješka</string>
+    <string name="back">Natrag</string>
+    <string name="note_content">Sadržaj bilješke</string>
+    <string name="editor_empty_title">Tiha bilješka je spremna</string>
+    <string name="editor_empty_hint">Koristite Markdown, #oznake, poveznice i potvrdne okvire. Tijekom pisanja, Markleaf će lokalno spremati promjene.</string>
+    <string name="bold">Podebljano</string>
+    <string name="formatting">Formatiranje</string>
+    <string name="formatting_inline">Unutar teksta</string>
+    <string name="formatting_structure">Struktura</string>
+    <string name="formatting_block_media">Blokovi i mediji</string>
+    <string name="expanded">Prošireno</string>
+    <string name="collapsed">Sažeto</string>
+    <string name="italic">Kurziv</string>
+    <string name="strikethrough">Precrtano</string>
+    <string name="inline_code">Kod unutar teksta</string>
+    <string name="checkbox">Potvrdi okvir</string>
+    <string name="markdown_link">Markdown poveznica</string>
+    <string name="insert_image">Umetni sliku</string>
+    <string name="attachment_failed">Nije moguće umetnuti sliku.</string>
+    <string name="heading">Naslov</string>
+    <string name="bullet_list">Grafički popis</string>
+    <string name="ordered_list">Numerirani popis</string>
+    <string name="blockquote">Citat</string>
+    <string name="code_block">Blok koda</string>
+    <string name="horizontal_rule">Razdjelnik</string>
+    <string name="quick_insert_title">Brzo umetanje</string>
+    <string name="quick_insert_heading_1">Naslov 1</string>
+    <string name="quick_insert_heading_2">Naslov 2</string>
+    <string name="quick_insert_heading_3">Naslov 3</string>
+    <string name="quick_insert_bullet_list">Grafički popis</string>
+    <string name="quick_insert_numbered_list">Numerirani popis</string>
+    <string name="quick_insert_checklist">Popis zadataka</string>
+    <string name="quick_insert_quote">Citat</string>
+    <string name="quick_insert_code_block">Blok koda</string>
+    <string name="quick_insert_divider">Razdjelnik</string>
+    <string name="quick_insert_table">Tablica</string>
+    <string name="quick_insert_callout">Istaknuti okvir</string>
+    <string name="quick_insert_wikilink">Poveznica na bilješku</string>
+    <string name="quick_insert_image">Slika</string>
+    <string name="quick_insert_date">Današnji datum</string>
+    <string name="editor_stats_format">Riječi: %1$d · Znakovi: %2$d · Min: %3$d</string>
+    <string name="focus_mode">Način fokusa</string>
+    <string name="exit_focus_mode">Izađi iz načina fokusa</string>
+    <string name="find_in_note">Pronađi u bilješci</string>
+    <string name="find_in_note_hint">Pronađi</string>
+    <string name="find_previous_match">Prethodno podudaranje</string>
+    <string name="find_next_match">Sljedeće podudaranje</string>
+    <string name="replace_in_note_hint">Zamijeni</string>
+    <string name="replace_match">Zamijeni</string>
+    <string name="replace_all_matches">Zamijeni sve</string>
+    <plurals name="replace_all_done_format">
+        <item quantity="one">Zamijenjeno je %1$d podudaranje.</item>
+        <item quantity="few">Zamijenjena su %1$d podudaranja.</item>
+        <item quantity="other">Zamijenjeno je %1$d podudaranja.</item>
+    </plurals>
+    <string name="close">Zatvori</string>
+    <string name="share_note">Podijeli ili izvezi</string>
+    <string name="share_via_system">Podijeli s…</string>
+    <string name="export_as_file">Spremi kao .md datoteku…</string>
+    <string name="export_success">Bilješka je izvezena.</string>
+    <string name="export_failed">Greška pri izvozu.</string>
+    <string name="callout_note">Bilješka</string>
+    <string name="callout_tip">Savjet</string>
+    <string name="callout_important">Važno</string>
+    <string name="callout_warning">Upozorenje</string>
+    <string name="callout_caution">Oprez</string>
+
+    <string name="pin">Prikvači</string>
+    <string name="unpin">Otkvači</string>
+    <string name="pinned">Prikvačeno</string>
+    <string name="section_pinned">Prikvačeno</string>
+    <string name="section_today">Danas</string>
+    <string name="section_yesterday">Jučer</string>
+    <string name="section_past_week">Prošlih 7 dana</string>
+    <string name="section_older">Starije</string>
+    <string name="relative_today">Danas %1$s</string>
+    <string name="relative_yesterday">Jučer %1$s</string>
+    <string name="relative_days_ago">Prije %1$d dana</string>
+
+    <!-- Elapsed time since a timestamp, for the sync status rows. Distinct from
+         the relative_* strings above, which name a calendar day. -->
+    <string name="elapsed_just_now">upravo sada</string>
+    <plurals name="elapsed_minutes_ago">
+        <item quantity="one">Prije %1$d minute</item>
+        <item quantity="few">Prije %1$d minute</item>
+        <item quantity="other">Prije %1$d minuta</item>
+    </plurals>
+    <plurals name="elapsed_hours_ago">
+        <item quantity="one">Prije %1$d sat</item>
+        <item quantity="few">Prije %1$d sata</item>
+        <item quantity="other">Prije %1$d sati</item>
+    </plurals>
+    <plurals name="elapsed_days_ago">
+        <item quantity="one">Prije %1$d dan</item>
+        <item quantity="few">Prije %1$d dana</item>
+        <item quantity="other">Prije %1$d dana</item>
+    </plurals>
+
+    <string name="search_notes_hint">Pretraži bilješke…</string>
+    <string name="type_to_search_notes">Upišite za pretraživanje bilješki</string>
+    <string name="no_results_found">Nema rezultata</string>
+    <string name="matching_notes">Bilješke</string>
+    <string name="matching_tags">Oznake</string>
+    <string name="search_recent_notes">Nedavne bilješke</string>
+    <string name="search_mode_all">Sve</string>
+    <string name="search_mode_titles">Samo naslovi bilješki</string>
+    <string name="sort_notes">Sortiraj bilješke</string>
+    <string name="sort_updated_newest">Prvo najnovije uređene</string>
+    <string name="sort_updated_oldest">Prvo najstarije uređene</string>
+    <string name="sort_title_az">Naslov od A do Z</string>
+    <string name="sort_title_za">Naslov od Z do A</string>
+    <string name="tag_result_format">#%1$s</string>
+    <string name="no_tags_yet">Još nema oznaki</string>
+    <string name="tags_empty_hint">Upišite #oznake u bilješkama da biste ih organizirali</string>
+    <plurals name="tag_note_count_format">
+        <item quantity="one">%1$d bilješka</item>
+        <item quantity="few">%1$d bilješke</item>
+        <item quantity="other">%1$d bilješki</item>
+    </plurals>
+
+    <string name="trash_empty">Smeće je prazno</string>
+    <string name="trash_empty_hint">Ovdje će se prikazati izbrisane bilješke</string>
+    <string name="restore">Vrati</string>
+    <string name="delete">Izbriši</string>
+    <string name="delete_forever_title">Izbrisati zauvijek?</string>
+    <string name="delete_forever_message">Ova bilješka bit će izbrisana zauvijek i neće se moći oporaviti.</string>
+    <string name="delete_forever">Izbriši zauvijek</string>
+    <string name="cancel">Odustani</string>
+
+    <string name="move_to_trash">Premjesti u smeće</string>
+    <string name="move_to_trash_title">Premjestiti u smeće?</string>
+    <string name="move_to_trash_message">Premjestiti „%1$s” u smeće? Možete ju kasnije vratiti iz smeća.</string>
+    <string name="move_to_trash_editor_message">Premjestiti ovu bilješku u smeće? Možete ju kasnije vratiti iz smeća.</string>
+
+    <string name="settings_appearance">Izgled</string>
+    <string name="theme_label">Tema</string>
+    <string name="theme_markleaf_green">Markleafova zelena</string>
+    <string name="theme_material_you">Material You</string>
+    <string name="theme_description">Markleafova zelena je izvorna paleta boja inspirirana lišćem. Material You slijedi boje tvoje pozadinske slike na Androidu 12 i novijem.</string>
+
+    <string name="settings_markdown">Markdown</string>
+    <string name="show_markdown_syntax">Prikaži Markdown sintaksu</string>
+    <string name="show_markdown_syntax_description">Uređivač u stvarnom vremenu ističe Markdown znakove kada pišeš.</string>
+    <string name="line_width">Širina retka</string>
+    <string name="line_width_narrow">Usko</string>
+    <string name="line_width_comfortable">Udobno</string>
+    <string name="line_width_wide">Široko</string>
+    <string name="settings_notes_section">Bilješke i pretraživanje</string>
+    <string name="show_note_previews">Prikaži pretpregled bilješke</string>
+    <string name="show_note_previews_description">Prikaži isječak i vrijeme uređivanja ispod svakog naslova bilješke. Isključite ovo da bi se prikazalo više bilješki na zaslonu.</string>
+    <string name="reopen_last_note">Ponovno otvori posljednju bilješku pri pokretanju</string>
+    <string name="reopen_last_note_description">Pokretanje s posljednjom uređivanom bilješkom umjesto popisa bilješki.</string>
+    <string name="open_notes_in_preview">Otvori bilješke u pretpregledu</string>
+    <string name="open_notes_in_preview_description">Pri otvaranju pikazuje bilješke u pretpregledu umjeto u načinu za uređivanje. Nove bilješke će se i dalje otvarati u načinu za uređivanje. Savjet: dugo pritisnite ikonu pretpregleda/uređivanja u bilješci za promjenu ove postavke.</string>
+    <string name="open_notes_at">Otvori bilješke u položaju</string>
+    <string name="open_notes_at_top">na vrhu</string>
+    <string name="open_notes_at_bottom">na dnu</string>
+    <string name="open_notes_at_last_position">na posljednjoj lokaciji</string>
+    <string name="open_notes_at_description">Na kojem položaju u bilješci će se ona otvoriti. Dno odgovara za bilješke u koje samo dodajete tekst. „Na posljednoj lokaciji” pamti gdje ste se unutar bilješke posljednji puta nalazili (samo u aplikaciji, lokacija se ne zapisuje u bilješku).</string>
+    <string name="notes_layout">Raspored popisa bilješki</string>
+    <string name="notes_layout_list">Popis</string>
+    <string name="notes_layout_grid">Mreža</string>
+    <string name="notes_layout_description">Mreža prikazuje bilješke u obliku kartica u koliko god stupaca stane na zaslon. „Prikaži pretpregled bilješke” se primjenjuje na oboje.</string>
+    <string name="note_title_source">Naslov bilješke</string>
+    <string name="note_title_source_first_heading">Prvi naslov u tekstu</string>
+    <string name="note_title_source_first_line">Prva linija</string>
+    <string name="note_title_source_description">Koja će linija bilješke postati njen naslov u popisu. „Prvi naslov u tekstu” uzima prvi Markdown naslov bilo gdje u bilješci; „Prva linija” uvijek uzima prvu napisanu liniju u bilješci. Promjena ove postavke će promijeniti naslove već postojećih bilješki – u centru za sinkronizaciju, „Preimenuj datoteke u naslove bilješki” će ponijeti i Vaše sinkronizirane nazive datoteka.</string>
+    <plurals name="note_title_retitled_format">
+        <item quantity="one">Preimenovana je %1$d bilješka.</item>
+        <item quantity="few">Preimenovane su %1$d bilješke.</item>
+        <item quantity="other">Preimenovano je %1$d bilješki.</item>
+    </plurals>
+    <string name="jump_to_end">Skoči na kraj</string>
+    <string name="jump_to_start">Skoči na početak</string>
+    <string name="view_mode_locked">Bilješke se sada otvaraju u pretpregledu</string>
+    <string name="view_mode_unlocked">Bilješke se sada otvaraju za uređivanje</string>
+    <string name="lock_view_mode">Zaključaj način prikaza</string>
+    <string name="settings_privacy">Privatnost</string>
+    <string name="privacy_no_tracking">Nema računa, analitike, oglasa, udaljene konfiguracije ili vlasničkih SDK-ova za prijavu rušenja.</string>
+    <string name="privacy_no_internet">Za MVP nema deklariranih dopuštenja za INTERNET.</string>
+    <string name="privacy_local_first">Bilješke napuštaju uređaj samo kada ih izričito izvezete ili podijelite.</string>
+    <string name="settings_data">Podaci</string>
+    <string name="export_all_notes">Izvezi sve bilješke…</string>
+    <string name="export_all_notes_description">Odaberite mapu i Markleaf će spremiti svaku bilješku kao zasebnu .md datoteku. Bilješke u smeću se preskaču.</string>
+    <plurals name="export_all_done_format">
+        <item quantity="one">Izvezena je %1$d bilješka.</item>
+        <item quantity="few">Izvezene su %1$d bilješke.</item>
+        <item quantity="other">Izvezeno je %1$d bilješki.</item>
+    </plurals>
+
+    <string name="sync_title">Sinkr. na više uređaja (zrcaljenje mape)</string>
+    <string name="sync_explainer">Markleaf nikada ne pristupa mreži. Umjesto toga, odaberite mapu i Markleaf će u njoj spremati svaku bilješku kao „.md” datoteku. Ako tu mapu sinkronizira druga aplikacija (Dropbox, Drive, Syncthing, OneDrive, NAS), Vaše bilješke će se pojaviti na Vašim drugim uređajima.</string>
+    <string name="sync_recommended_locations">Dobre lokacije za odabrati u Markleafu:\n· /Unutarnja pohrana/Dropbox/Markleaf\n· /Unutarnja pohrana/Drive/Markleaf\n· /Unutarnja pohrana/Sync/Markleaf  (Syncthing)</string>
+    <string name="sync_status_unset">Mapa nije odabrana.</string>
+    <string name="sync_status_folder_format">Mapa: %1$s</string>
+    <string name="sync_status_last_synced_format">Posljednja sinkr.: %1$s</string>
+    <string name="sync_status_last_synced_never">Posljednja sinkr.: nikada</string>
+    <string name="sync_metadata_mode">Metapodaci bilješki</string>
+    <string name="sync_metadata_mode_frontmatter">U datoteci</string>
+    <string name="sync_metadata_mode_sidecar">Uz datoteku</string>
+    <string name="sync_metadata_mode_description">Markleaf mora znati koja datoteka sadrži koju bilješku. Po zadanome piše malo zaglavlje s „---” na vrhu svake datoteke. „Uz datoteke” drži te informacije u skrivenom indeksu kako bi Vaše bilješke sadržavale samo ono što ste napisali.</string>
+    <string name="sync_metadata_sidecar_costs">Nedostaci: preimenovanje datoteke izvan Markleafa može slomiti njenu vezu s bilješkom, a mapa koja se kopira bez indeksa gubi datum stvaranje i stanje prikvačivanja svake bilješke.</string>
+    <string name="sync_metadata_switched_format">Pretvoreno datoteka: %1$d.</string>
+    <string name="sync_behavior_summary">· Sprema u mapu ~1 sekundu nakon svake promjene.\n· „Sinkroniziraj sada” povlači promjene s drugih uređaja.\n· Sukobi: pobjeđuje najnovija izmjena.\n· Brisanje se ne sinkronizira. Smećem je potrebno upravljati na svakom uređaju zasebno.</string>
+    <string name="sync_pick_folder">Odaberi mapu za sinkr.</string>
+    <string name="sync_change_folder">Promijeni mapu</string>
+    <string name="sync_now">Sinkroniziraj sada</string>
+    <string name="sync_stop">Zaustavi sinkronizaciju</string>
+    <plurals name="sync_seeded_format">
+        <item quantity="one">Zrcaljena je %1$d bilješka u mapu.</item>
+        <item quantity="few">Zrcaljene su %1$d bilješke u mapu.</item>
+        <item quantity="other">Zrcaljeno je %1$d bilješki u mapu.</item>
+    </plurals>
+    <string name="sync_file_format">Format sinkr. datoteke</string>
+    <string name="sync_tidy_filenames">Preimenuj datoteke u naslove bilješki</string>
+    <plurals name="sync_tidy_done_format">
+        <item quantity="one">Očišćen je %1$d naziv datoteke.</item>
+        <item quantity="few">Očišćena su %1$d naziva datoteka.</item>
+        <item quantity="other">Očišćenp je %1$d naziva datoteka.</item>
+    </plurals>
+    <string name="sync_done_format">Sinkronizirano — ažurirano: %1$d, novo: %2$d, nepromijenjeno: %3$d.</string>
+    <string name="sync_done_with_conflicts_format">Sinkronizirano — ažurirano: %1$d, novo: %2$d, zadržano kao duplikat (sukob): %3$d, nepromijenjeno: %4$d.</string>
+    <string name="sync_conflict_copy_suffix">(kopija s drugog uređaja %1$s)</string>
+    <string name="sync_stopped">Sinkr. je isključena.</string>
+    <string name="screenshot_protection">Blokiraj snimanje zaslona i prikaz u nedavnim aplikacijama</string>
+    <string name="screenshot_protection_description">Sakriva sadržaj bilješki u snimkama zaslona i u zaslonu nedavnih aplikacija. Ponovno pokrenite uređivač kako bi se promjene primijenile.</string>
+    <string name="settings_app">Aplikacija</string>
+    <string name="version_format">Verzija %1$s</string>
+    <string name="application_id_format">ID aplikacije %1$s</string>
+
+    <string name="settings_open_source">Otvoreni kod</string>
+    <string name="oss_license_label">Licencija</string>
+    <string name="oss_license_value">Apache License 2.0</string>
+    <string name="oss_source_label">Izvorni kod</string>
+    <string name="oss_source_url">https://github.com/jeiel85/markleaf-android</string>
+    <string name="oss_view_source">Prikaži na GitHubu</string>
+    <string name="oss_view_license">Prikaži punu licenciju</string>
+    <string name="oss_license_url">https://github.com/jeiel85/markleaf-android/blob/main/LICENSE</string>
+    <string name="oss_fdroid_label">F-Droid</string>
+    <string name="oss_fdroid_url">https://f-droid.org/packages/com.markleaf.notes/</string>
+    <string name="oss_view_fdroid">Prikaži na F-Droidu</string>
+    <string name="oss_explainer">Markleaf je u potpunosti otvorenog koda pod licencijom Apache 2.0. Pročitajte kod, provjerite kako se Vaše bilješke pohranjuju i doprinosite na GitHubu.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title_welcome">Dobro došli u Markleaf</string>
+    <string name="onboarding_body_welcome">Tihu, lokalnu aplikaciju za bilješke za Android. Vaš tekst ostaje na ovom uređaju, osim kada sami odlučite da ga želite podijeliti ili izvesti.</string>
+    <string name="onboarding_title_markdown">Pišite u Markdownu</string>
+    <string name="onboarding_body_markdown">Koristite **podebljanje**, _kurziv_, # naslove, popise, kod i citate. Pritisnite „Pretpregled” u gornjoj traci da biste vidjeli svoju bilješku u načinu za čitanje, bilokada.</string>
+    <string name="onboarding_title_tags">Organizirajte se #oznakama</string>
+    <string name="onboarding_body_tags">Unesite #projekt ili #sastanak bilogdje u bilješci. Oznake se automatski prepoznaju i prikazuju na zaslonu s oznakama.</string>
+    <string name="onboarding_title_local">Vaši podaci ostaju lokalni</string>
+    <string name="onboarding_body_local">Bez računa, analitike ili oblaka. Izvezite bilo koju bilješku kao .md datoteku ili definirajte Markleafu gdje se nalazi Vaša sinkronizirana mapa (Dropbox / Drive / Syncthing) za pristup na više uređaja.</string>
+    <string name="onboarding_next">Sljedeće</string>
+    <string name="onboarding_done">Započnimo</string>
+    <string name="onboarding_skip">Preskoči</string>
+
+    <!-- Biometric lock -->
+    <string name="biometric_lock_title">Zaključavanje aplikacije</string>
+    <string name="biometric_lock_setting">Zahtijeva biometriju za otvaranje</string>
+    <string name="biometric_lock_description">Za otvaranje Markleafa bit će potreban otisak prsta ili prepoznavanje lica. Bilješke se nikada ne šalju s uređaja.</string>
+    <string name="biometric_lock_prompt_title">Otključajte Markleaf</string>
+    <string name="biometric_lock_prompt_subtitle">Autenticirajte se za pristup Markleafu</string>
+    <string name="biometric_lock_cancel">Odustani</string>
+    <string name="biometric_lock_unavailable">Biometrijska autentikacija nije dostupna na ovom uređaju. Postavite otisak prsta ili prepoznavanje lica u postavkama sustava da biste mogli koristiti zaključavanje aplikacije.</string>
+    <string name="biometric_lock_retry">Pokušajte ponovno</string>
+    <string name="biometric_lock_locked_message">Markleaf je zaključan.</string>
+
+    <!-- Locked notes (#155) -->
+    <string name="locked_notes_title">Zaključane bilješke</string>
+    <string name="move_to_locked">Premjesti među zaključane</string>
+    <string name="remove_from_locked">Ukloni iz zaključanih</string>
+    <string name="locked_notes_empty">Nema zaključanih bilješki</string>
+    <string name="locked_notes_empty_hint">Bilješke koje premjestite među zaključane PIN-om će se pojaviti ovdje.</string>
+    <string name="locked_unlock_hint">Unesite PIN za otključavanje zaključanih bilješki.</string>
+    <string name="locked_passcode_label">PIN</string>
+    <string name="locked_unlock_button">Otključaj</string>
+    <string name="locked_wrong_passcode">Nevažeći PIN.</string>
+    <string name="locked_too_many_attempts">Previše pokušaja. Pokušajte ponovno za %1$s.</string>
+    <string name="wikilink_target_locked">Ta bilješka je među zaključanim bilješkama.</string>
+    <string name="locked_no_passcode_title">PIN nije postavljen</string>
+    <string name="locked_no_passcode_hint">Postavite PIN u postavkama kako biste zaštitili svoje zaključane bilješke.</string>
+    <string name="locked_open_settings">Otvori postavke</string>
+    <string name="locked_need_passcode_title">Prvo postavite PIN</string>
+    <string name="locked_need_passcode_message">Za zaključavanje bilješki postavite PIN za zaključane bilješke u postavkama.</string>
+    <string name="locked_passcode_setting_title">PIN za zaključane bilješke</string>
+    <string name="locked_passcode_setting_description">Zaštitite bilješke koje premjestite među zaključane. To će ih sakriti u aplikaciji, ali one nisu šifrirane.</string>
+    <string name="locked_passcode_set">Postavi PIN</string>
+    <string name="locked_passcode_change">Promijeni PIN</string>
+    <string name="locked_passcode_remove">Ukloni PIN</string>
+    <string name="locked_passcode_dialog_title">PIN za zaključane bilješke</string>
+    <string name="locked_passcode_new_label">Novi PIN</string>
+    <string name="locked_passcode_confirm_label">Potvrdite PIN</string>
+    <string name="locked_passcode_save">Spremi</string>
+    <string name="locked_passcode_too_short">Koristite barem 4 znaka.</string>
+    <string name="locked_passcode_mismatch">PIN-ovi se ne podudaraju..</string>
+    <string name="locked_passcode_set_done">PIN je postavljen.</string>
+    <string name="locked_passcode_removed_done">PIN je uklonjen. Zaključane bilješke su premještene među obične.</string>
+    <string name="locked_passcode_remove_confirm_title">Ukloniti PIN?</string>
+    <string name="locked_passcode_remove_confirm_message">Ovo će premjestiti sve zaključane bilješke među obične.</string>
+
+    <!-- Note information sheet accessibility (#152) -->
+    <string name="note_information_heading_action">Skoči na poglavlje</string>
+    <string name="note_information_backlink_action">Otvori bilješku</string>
+
+    <!-- PDF export -->
+    <string name="export_pdf">Izvezi kao PDF…</string>
+    <string name="export_pdf_job_name">Markleaf — %1$s</string>
+    <string name="export_pdf_unavailable">Izvoz u PDF je dostupan samo na Androidu 5 i novijem.</string>
+
+    <!-- Widget -->
+    <string name="quick_note_widget_label">Brza bilješka</string>
+    <string name="quick_note_widget_description">Dodirnite za brzo stvaranje nove bilješke</string>
+
+    <!-- Privacy Dashboard -->
+    <string name="privacy_dashboard_title">Nadzor privatnosti</string>
+    <string name="privacy_guarantee_title">Vaši podaci ostaju lokalni</string>
+    <string name="privacy_guarantee_desc">Markleaf je osmišljen s privatnošću u njegovoj srži. Vaše bilješke nikada ne napuštaju Vaš uređaj, osim kada Vi izričito odaberete ih izvesti ili podijeliti.</string>
+    <string name="privacy_data_storage_title">Lokalna pohrana na prvom mjestu</string>
+    <string name="privacy_data_storage_desc">Sve Vaše bilješke i oznake pohranjene su lokalno na Vašem uređaju u Androidovoj sigurnoj bazi podataka Room. Bez oblaka, bez prijenosa podataka.</string>
+    <string name="privacy_no_cloud_title">Bez ovisnosti o oblaku</string>
+    <string name="privacy_no_cloud_desc">Ne koristimo nikakav oblak za osnovnu funkcionalnost. Bez sinkronizacije na Google disk, bez integracije Dropboxa, bez vlasničkih backend poslužitelja.</string>
+    <string name="privacy_no_tracking_title">Nula praćenja</string>
+    <string name="privacy_no_tracking_desc">Bez analitike, bez SDK-ova za prijavu rušenja, bez mreža za oglašavanje. Nemamo pojma kako koristite aplikaciju i to nam se sviđa.</string>
+    <string name="privacy_verification_title">Verifikacija privatnosti</string>
+    <string name="privacy_verify_no_internet">Nije deklarirana dozvola za INTERNET</string>
+    <string name="privacy_verify_local_only">100% lokalna obrada podataka</string>
+    <string name="privacy_verify_no_ads">Bez oglasa i programa za praćenje</string>
+    <string name="privacy_verify_no_analytics">Bez analitike ili telemetrije</string>
+    <string name="privacy_verify_open_source">Otvorenog koda i provjerljivo</string>
+    <string name="privacy_app_info_title">O ovom buildu</string>
+    <string name="privacy_app_info_desc">Verzija %1$s\n\nOvaj build Markleafa održava stroge standarde privatnosti. Sve značajke rade u potpunosti bez mreže.</string>
+    <string name="privacy_dashboard_button">Prikaži nadzor privatnosti</string>
+
+    <!-- Sync & Conflict Center -->
+    <string name="sync_center_title">Centar za sinkronizaciju</string>
+    <string name="conflict_center_title">Centar za sukobe</string>
+    <string name="conflict_center_desc">Ove su bilješke istovremeno uređene na više uređaja. Pregledajte i uredite za ručno spajanje promjena ili izbrišite kopije koje Vam više ne trebaju.</string>
+    <string name="conflict_center_empty">Nisu otkriveni sukobi</string>
+    <string name="conflict_center_empty_desc">Sve zrcaljene bilješke su u potpunosti sinkronizirane.</string>
+    <string name="conflict_delete_confirm_title">Izbrisati sukobljenu kopiju?</string>
+    <string name="conflict_delete_confirm_desc">Ova sukobljena kopija bit će trajno izbrisana.</string>
+    <string name="conflict_note_updated_format">Ažurirano: %1$s</string>
+
+</resources>

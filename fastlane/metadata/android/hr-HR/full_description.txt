@@ -1,0 +1,37 @@
+Markleaf je primarno lokalna aplikacija za bilješke u Markdownu za Android.
+
+Pišite obični Markdown, organizirajte s oznakama unutar teksta, instantno pretražite i držite svoje bilješke pod svojom kontrolom. Markleaf pohranjuje bilješke u lokalnoj bazi podataka Room i ne zahtijeva dozvolu za INTERNET.
+
+Pisanje i pretpregled:
+
+* Pregled Markdowna u stvarnom vremenu s trenutačnim bojanjem sintakse
+* GFM tablice, potvrdni okviri, blok-citati, istaknuti okviri (> [!NOTE] …)
+* Blokovi koda s isticanjem sintakse za 10 jezika
+* Fusnote sa skakanjem između reference i definicije, wikipoveznice i povratne poveznice
+* Pametno formatiranje odabira ili riječi s podebljanjem/kurzivom/precrtavanjem/kodom
+* Način fokusa, statistika po broju riječi i vremenu čitanja, pronalaženje i zamjena unutar bilješke
+
+Organizacija i navigacija:
+
+* Samo pišite #oznake unutar tijela bilješke za automatsko indeksiranje (bez mapa)
+* Brzo prebacivanje i SQLite FTS pretraživanje punog teksta
+* Tokovi za prikvačivanje, arhiviranje, smeće i vraćanje
+
+Sinkronizacija i uvoz (bez oblaka):
+
+* Zrcalite svaku bilješku kao .md datoteku u mapu koju birate pomoću SAF-a
+* Uvezite vanjske .md / .txt datoteke tako što ih otvorite ili podijelite s aplikacijom
+* Izvoz pojedine i svih Markdown bilješki, plus dijeljenje kroz sustav
+
+Dizajn i pristupačnost:
+
+* Widget za početni zaslon, biometrijsko zaključavanje, opcija blokiranja snimanja zaslona
+* Svijetla tema / tamna tema / Material You, raspored u dva panela za tablete
+* Sučelje u 8 jezika (hrvatski, korejski, engleski, španjolski, japanski, francuski, njemački i kineski (pojednostavljeni))
+
+Privatnost i distribucija:
+
+* Bez računa, bez poslužitelja
+* Bez analitike, oglasa, praćenja, Firebase ili vlasničkih SDK-ova za prijavu rušenja
+* Bez dozvole za INTERNET, Androidovo automatsko sigurnosno kopiranje je isključeno
+* Korisnički podaci napuštaju uređaj samo kroz izričit odabir radnji kojima posreduje OS, poput izvoza, dijeljenja, otvaranja vanjskih poveznica ili SAF mape koju odabire korisnik

@@ -1,5 +1,6 @@
 package com.markleaf.notes.ui
 
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.test.core.app.ActivityScenario
@@ -8,6 +9,7 @@ import com.markleaf.notes.R
 import com.markleaf.notes.TestHostActivity
 import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.repository.LocalNoteRepository
+import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.feature.editor.EditorScreen
 import com.markleaf.notes.ui.theme.MarkleafTheme
@@ -174,6 +176,41 @@ class EditorScreenTest {
 
         composeTestRule.onNodeWithText(context.getString(R.string.quick_insert_title)).assertIsDisplayed()
         composeTestRule.onNodeWithContentDescription(formattingLabel).assertDoesNotExist()
+    }
+
+    /**
+     * "Show formatting button" off (#331) has to remove the standing `Aa` row
+     * without taking the selection actions with it. Those are two different
+     * things sharing one composable: the entry is ambient chrome above the
+     * keyboard, while bold / italic / link only appear because you selected
+     * text, which is how you asked for them. A gate that dropped both would
+     * leave no touch path to formatting at all and still look like it worked.
+     */
+    @Test
+    fun editorScreen_hidingTheFormattingButtonKeepsSelectionActions() {
+        val settings = AppSettingsRepository(context.applicationContext)
+        runBlocking { settings.setShowFormattingButton(false) }
+        try {
+            launchEditor()
+            val editor = composeTestRule.onNodeWithContentDescription(
+                context.getString(R.string.note_content)
+            )
+
+            composeTestRule.onNodeWithContentDescription(context.getString(R.string.formatting))
+                .assertDoesNotExist()
+
+            editor.performTextInput("selectable")
+            editor.performSemanticsAction(SemanticsActions.SetSelection) { setSelection ->
+                setSelection(0, "selectable".length, true)
+            }
+
+            composeTestRule.onNodeWithContentDescription(context.getString(R.string.bold))
+                .assertIsDisplayed()
+            composeTestRule.onNodeWithContentDescription(context.getString(R.string.formatting))
+                .assertDoesNotExist()
+        } finally {
+            runBlocking { settings.setShowFormattingButton(true) }
+        }
     }
 
     @Test

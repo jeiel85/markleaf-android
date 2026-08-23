@@ -22,6 +22,12 @@ data class AppSettings(
      *  and search results. Off collapses rows to title-only so more notes fit
      *  on screen (#188). */
     val notesShowPreview: Boolean = true,
+    /** Keep the standing `Aa` formatting button on the row above the keyboard
+     *  while editing. Off removes that row for people who format by typing
+     *  Markdown, for whom it is chrome that never pays for itself; the actions
+     *  that appear *while text is selected* are unaffected, because selecting
+     *  is how you ask for them (#331). */
+    val showFormattingButton: Boolean = true,
     /** Reopen the last-edited note on a plain launch instead of landing on the
      *  notes list. Opt-in (#192). */
     val reopenLastNote: Boolean = false,

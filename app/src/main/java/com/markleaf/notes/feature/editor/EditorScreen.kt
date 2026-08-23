@@ -557,8 +557,15 @@ fun EditorScreen(
             (quickInsertQuery != null && quickInsertItems.isNotEmpty()) ||
             (wikilinkQuery != null && wikilinkSuggestions.isNotEmpty()) ||
             (tagQuery != null && tagSuggestions.isNotEmpty())
-    LaunchedEffect(isFormattingPreempted) {
-        if (isFormattingPreempted) isFormattingExpanded = false
+    // With "Show formatting button" off, the row is only worth mounting while
+    // text is selected (#331). The standing `Aa` handle is what the setting
+    // removes; bold / italic / link stay, because selecting is how you ask for
+    // them. Unmounting rather than hiding keeps the row from leaving an empty
+    // 48dp strip above the keyboard, which is the whole complaint.
+    val isFormattingIdle =
+        !appSettings.showFormattingButton && editorState.selection.collapsed
+    LaunchedEffect(isFormattingPreempted, isFormattingIdle) {
+        if (isFormattingPreempted || isFormattingIdle) isFormattingExpanded = false
     }
     BackHandler(enabled = isFormattingExpanded) {
         isFormattingExpanded = false
@@ -1093,7 +1100,7 @@ fun EditorScreen(
                         )
                     }
 
-                    if (!isFormattingPreempted) {
+                    if (!isFormattingPreempted && !isFormattingIdle) {
                         EditorFormattingControls(
                             state = EditorFormattingUiState(
                                 selectionActive = !editorState.selection.collapsed,

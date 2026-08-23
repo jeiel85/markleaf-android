@@ -199,6 +199,8 @@
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Show Markdown syntax</string>
     <string name="show_markdown_syntax_description">The live editor highlights Markdown characters while you write.</string>
+    <string name="show_formatting_button">Show formatting button</string>
+    <string name="show_formatting_button_description">Keep the Aa button on the row above the keyboard. Off hides it; bold, italic and link still appear when you select text, and / quick insert is unchanged.</string>
     <string name="line_width">Line width</string>
     <string name="line_width_narrow">Narrow</string>
     <string name="line_width_comfortable">Comfortable</string>

@@ -190,6 +190,8 @@
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">显示 Markdown 语法</string>
     <string name="show_markdown_syntax_description">实时编辑器会在输入时突出显示 Markdown 标记。</string>
+    <string name="show_formatting_button">显示格式按钮</string>
+    <string name="show_formatting_button_description">在键盘上方的行中保留 Aa 按钮。关闭后即隐藏；选中文本时的粗体、斜体和链接以及 / 快速插入均不受影响。</string>
     <string name="line_width">行宽</string>
     <string name="line_width_narrow">窄</string>
     <string name="line_width_comfortable">适中</string>

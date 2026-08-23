@@ -189,6 +189,8 @@
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Afficher la syntaxe Markdown</string>
     <string name="show_markdown_syntax_description">L\'éditeur met en évidence les caractères Markdown pendant que vous écrivez.</string>
+    <string name="show_formatting_button">Afficher le bouton de mise en forme</string>
+    <string name="show_formatting_button_description">Conserve le bouton Aa sur la ligne au-dessus du clavier. Désactivé, il disparaît ; gras, italique et lien apparaissent toujours lorsque vous sélectionnez du texte, et l\'insertion rapide avec / ne change pas.</string>
     <string name="line_width">Largeur de ligne</string>
     <string name="line_width_narrow">Étroite</string>
     <string name="line_width_comfortable">Confortable</string>

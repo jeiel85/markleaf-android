@@ -68,6 +68,7 @@ class AppSettingsRepository internal constructor(
             biometricLockEnabled = preferences[BIOMETRIC_LOCK_ENABLED] ?: false,
             lockPasscodeSet = !preferences[LOCK_PASSCODE_HASH].isNullOrBlank(),
             notesShowPreview = preferences[NOTES_SHOW_PREVIEW] ?: true,
+            showFormattingButton = preferences[SHOW_FORMATTING_BUTTON] ?: true,
             reopenLastNote = preferences[REOPEN_LAST_NOTE] ?: false,
             notesSortMode = preferences[NOTES_SORT_MODE]
                 ?.let { value -> enumValueOrDefault(value, NotesSortMode.UPDATED_DESC) }
@@ -246,6 +247,12 @@ class AppSettingsRepository internal constructor(
         }
     }
 
+    suspend fun setShowFormattingButton(show: Boolean) {
+        persist { preferences ->
+            preferences[SHOW_FORMATTING_BUTTON] = show
+        }
+    }
+
     suspend fun setReopenLastNote(enabled: Boolean) {
         persist { preferences ->
             preferences[REOPEN_LAST_NOTE] = enabled
@@ -410,6 +417,7 @@ class AppSettingsRepository internal constructor(
         val LOCK_FAILED_ATTEMPTS = intPreferencesKey("lock_failed_attempts")
         val LOCK_RETRY_AT = longPreferencesKey("lock_retry_at")
         val NOTES_SHOW_PREVIEW = booleanPreferencesKey("notes_show_preview")
+        val SHOW_FORMATTING_BUTTON = booleanPreferencesKey("show_formatting_button")
         val REOPEN_LAST_NOTE = booleanPreferencesKey("reopen_last_note")
         val NOTES_SORT_MODE = stringPreferencesKey("notes_sort_mode")
         val NOTES_LAYOUT = stringPreferencesKey("notes_layout")

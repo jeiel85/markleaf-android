@@ -184,6 +184,8 @@
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Markdown 문법 표시</string>
     <string name="show_markdown_syntax_description">에디터에서 작성하는 동안 Markdown 기호를 색으로 강조합니다.</string>
+    <string name="show_formatting_button">서식 버튼 표시</string>
+    <string name="show_formatting_button_description">키보드 위 줄에 Aa 버튼을 둡니다. 끄면 사라지며, 텍스트를 선택했을 때의 굵게·기울임·링크와 / 빠른 삽입은 그대로입니다.</string>
     <string name="line_width">본문 폭</string>
     <string name="line_width_narrow">좁게</string>
     <string name="line_width_comfortable">편안하게</string>

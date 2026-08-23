@@ -204,6 +204,8 @@
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Prikaži Markdown sintaksu</string>
     <string name="show_markdown_syntax_description">Uređivač u stvarnom vremenu ističe Markdown znakove kada pišeš.</string>
+    <string name="show_formatting_button">Prikaži gumb za oblikovanje</string>
+    <string name="show_formatting_button_description">Zadržava gumb Aa u retku iznad tipkovnice. Isključeno ga skriva; podebljano, kurziv i poveznica i dalje se pojavljuju kad odaberete tekst, a brzo umetanje s / ostaje isto.</string>
     <string name="line_width">Širina retka</string>
     <string name="line_width_narrow">Usko</string>
     <string name="line_width_comfortable">Udobno</string>

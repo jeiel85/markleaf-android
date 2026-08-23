@@ -298,6 +298,18 @@ fun SettingsScreen(
                             }
                         )
                         Spacer(Modifier.height(12.dp))
+                        SettingsSwitchRow(
+                            title = stringResource(R.string.show_formatting_button),
+                            description = stringResource(R.string.show_formatting_button_description),
+                            checked = appSettings.showFormattingButton,
+                            onCheckedChange = { checked ->
+                                HapticFeedback.light(context)
+                                scope.launch {
+                                    settingsRepository.setShowFormattingButton(checked)
+                                }
+                            }
+                        )
+                        Spacer(Modifier.height(12.dp))
                         Text(
                             text = stringResource(R.string.line_width),
                             style = MaterialTheme.typography.bodyMedium,

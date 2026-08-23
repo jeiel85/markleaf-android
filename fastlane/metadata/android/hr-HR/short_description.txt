@@ -1,0 +1,1 @@
+Primarno lokalne bilješke u Markdownu s oznakama, pretragom i izvozom datoteka

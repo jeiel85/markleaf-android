@@ -17,7 +17,8 @@ class ResourceParityTest {
             "src/main/res/values-ja/strings.xml",
             "src/main/res/values-de/strings.xml",
             "src/main/res/values-fr/strings.xml",
-            "src/main/res/values-zh/strings.xml"
+            "src/main/res/values-zh/strings.xml",
+            "src/main/res/values-hr/strings.xml"
         ).forEach { path ->
             val localizedKeys = stringNames(path)
             assertEquals(
@@ -51,7 +52,8 @@ class ResourceParityTest {
             "src/main/res/raw-es/starter_notes.md",
             "src/main/res/raw-de/starter_notes.md",
             "src/main/res/raw-ja/starter_notes.md",
-            "src/main/res/raw-fr/starter_notes.md"
+            "src/main/res/raw-fr/starter_notes.md",
+            "src/main/res/raw-hr/starter_notes.md"
         ).forEach { path ->
             val file = File(path)
             assertTrue("$path should exist", file.exists())

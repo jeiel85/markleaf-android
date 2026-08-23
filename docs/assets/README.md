@@ -9,9 +9,9 @@ stale (#258).
 
 | File | Surface | Recorded on |
 |---|---|---|
-| `markleaf-tablet-<lang>.mp4` (6) | Landing story 01, one per language | v2.30.0 |
-| `markleaf-tablet-<lang>-still.webp` (6) | Poster frame for the above | v2.30.0 |
-| `markleaf-tablet-<lang>.gif` (6) | README hero, one per language | v2.30.0 |
+| `markleaf-tablet-<lang>.mp4` (8) | Landing story 01, one per language | v2.30.0 |
+| `markleaf-tablet-<lang>-still.webp` (8) | Poster frame for the above | v2.30.0 |
+| `markleaf-tablet-<lang>.gif` (8) | README hero, one per language | v2.30.0 |
 | `markleaf-demo.gif` | Older single-language demo | v2.23.0 |
 
 `scripts/verify-landing-versions.ps1` asserts that each language surface points
@@ -56,7 +56,7 @@ problem once the layout it shows is gone.
 `markleaf-editor-*.webp`, `markleaf-privacy-*.webp`, `markleaf-tags-*.webp` —
 the landing page screenshots, in 720px and 1280px variants. The version they
 show is carried in each page's `<figcaption>`, which
-`verify-landing-versions.ps1` requires to agree across the six languages.
+`verify-landing-versions.ps1` requires to agree across all the languages.
 
 ### `markleaf-preview-720.webp` / `markleaf-preview-1280.webp` — kept deliberately
 
@@ -85,12 +85,12 @@ URLs regardless.
 
 | File | Use |
 |---|---|
-| `trendshift-daily-kotlin.svg` | Landing hero award badge, all six languages |
+| `trendshift-daily-kotlin.svg` | Landing hero award badge, all languages |
 
 ### Why a local copy and not Trendshift's live badge URL
 
 Trendshift serves this badge from `trendshift.io/api/badge/…`, and that is what
-the six READMEs embed: GitHub proxies README images through camo, so a reader
+the READMEs embed: GitHub proxies README images through camo, so a reader
 never contacts Trendshift. GitHub Pages proxies nothing. Embedding the live URL
 here would have every visitor's browser hit a third party, on the page whose
 whole argument is that Markleaf does not phone home — so the landing pages serve

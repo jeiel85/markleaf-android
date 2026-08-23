@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  공개 표면(랜딩 페이지 6개 + README 6개)의 릴리스 버전 표기가 실제 릴리스 버전과
+  공개 표면(언어별 랜딩 페이지 + README)의 릴리스 버전 표기가 실제 릴리스 버전과
   일치하는지 검증한다.
 .DESCRIPTION
   기대 버전은 `app/build.gradle.kts` 의 versionName 이다. 최신 릴리스 태그가 아니라
@@ -18,11 +18,11 @@
      릴리스 링크가 없는 줄이라 대상에서 빠진다.
 
   스크린샷을 가리키는 hero figcaption 버전은 릴리스 버전과 별개다(스크린샷을 다시 찍기
-  전까지 이전 버전으로 남는다). 릴리스 버전과 달라도 정상이지만, 여섯 언어 사이에서는
+  전까지 이전 버전으로 남는다). 릴리스 버전과 달라도 정상이지만, 모든 언어 사이에서는
   서로 일치해야 한다(모두 같은 스크린샷을 쓰므로).
 
   대상 파일이 없거나 버전 표기를 찾지 못하면 실패로 처리한다. 이전 판은 경고만 하고
-  넘어간 데다 언어끼리만 비교해서, 여섯 언어가 "똑같이" 낡으면 통과했다 — v2.25.0 과
+  넘어간 데다 언어끼리만 비교해서, 모든 언어가 "똑같이" 낡으면 통과했다 — v2.25.0 과
   v2.26.0 두 번 연속으로 누락이 이 검사를 통과했다(#167).
 .EXAMPLE
   pwsh scripts/verify-landing-versions.ps1
@@ -71,7 +71,7 @@ Write-Host "기대 버전: v$ExpectedVersion (app/build.gradle.kts versionName)"
 
 # ---- 랜딩 페이지 ----
 $docsPath = Resolve-UnderRoot $DocsDir
-$landingFiles = @("index.html", "index.ko.html", "index.ja.html", "index.zh.html", "index.de.html", "index.es.html", "index.fr.html")
+$landingFiles = @("index.html", "index.ko.html", "index.ja.html", "index.zh.html", "index.de.html", "index.es.html", "index.fr.html", "index.hr.html")
 $releasePatterns = [ordered]@{
     'softwareVersion' = '"softwareVersion":\s*"([0-9]+\.[0-9]+\.[0-9]+)"'
     'release-line'    = 'class="release-line">[^<]*?v([0-9]+\.[0-9]+\.[0-9]+)'
@@ -114,7 +114,7 @@ foreach ($file in $landingFiles) {
 }
 
 # ---- README ----
-$readmeFiles = @("README.md", "README.ko.md", "README.ja.md", "README.zh.md", "README.de.md", "README.es.md", "README.fr.md")
+$readmeFiles = @("README.md", "README.ko.md", "README.ja.md", "README.zh.md", "README.de.md", "README.es.md", "README.fr.md", "README.hr.md")
 $releaseLinkPattern = '(?:releases/tag/|-/releases/)v[0-9]+\.[0-9]+\.[0-9]+'
 
 Write-Host "`nREADME ($($readmeFiles.Count)개)"
@@ -153,8 +153,8 @@ foreach ($file in $readmeFiles) {
 #
 # 이 자리에는 원래 "Includes Quiet Formatting" 같은 기능 이름이 있었다. 버전 표기
 # 세 곳은 검사를 받는데 그 옆의 <span> 은 아무도 보지 않아서, 두 릴리스 지난 기능을
-# 여섯 페이지에서 계속 광고하고 있었다(#262). 기능 이름은 릴리스마다 낡는 데다
-# 여섯 언어로 번역돼 있어 기계가 대조하기 어렵다 — 날짜는 낡지 않고, 값이 여섯
+# 모든 언어 페이지에서 계속 광고하고 있었다(#262). 기능 이름은 릴리스마다 낡는 데다
+# 언어별로 번역돼 있어 기계가 대조하기 어렵다 — 날짜는 낡지 않고, 값이 모든
 # 언어에서 동일하며, CHANGELOG 에 원본이 있다.
 Write-Host "`n릴리스 날짜 (trust-ledger <span> vs CHANGELOG)"
 $changelogPath = Resolve-UnderRoot "CHANGELOG.md"
@@ -205,6 +205,7 @@ $assetPairs = @(
     @{ File = "docs/index.de.html"; Lang = "de"; Kind = "video" }
     @{ File = "docs/index.es.html"; Lang = "es"; Kind = "video" }
     @{ File = "docs/index.fr.html"; Lang = "fr"; Kind = "video" }
+    @{ File = "docs/index.hr.html"; Lang = "hr"; Kind = "video" }
     @{ File = "README.md";    Lang = "en"; Kind = "gif" }
     @{ File = "README.ko.md"; Lang = "ko"; Kind = "gif" }
     @{ File = "README.ja.md"; Lang = "ja"; Kind = "gif" }
@@ -212,6 +213,7 @@ $assetPairs = @(
     @{ File = "README.de.md"; Lang = "de"; Kind = "gif" }
     @{ File = "README.es.md"; Lang = "es"; Kind = "gif" }
     @{ File = "README.fr.md"; Lang = "fr"; Kind = "gif" }
+    @{ File = "README.hr.md"; Lang = "hr"; Kind = "gif" }
 )
 
 Write-Host "`n데모 클립 ($($assetPairs.Count)개 표면)"

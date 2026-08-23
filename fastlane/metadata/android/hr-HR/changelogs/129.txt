@@ -1,0 +1,1 @@
+Markleaf govori hrvatski, a gumb Aa iznad tipkovnice može se isključiti. Hrvatski prijevod obuhvaća sučelje, početne bilješke i ovaj opis — osmi jezik, doprinos izvan projekta. U Postavke > Markdown > Prikaži gumb za oblikovanje isključivanjem nestaje cijeli redak; podebljano, kurziv i poveznica i dalje se pojavljuju kad odaberete tekst.

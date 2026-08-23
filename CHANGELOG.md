@@ -4,6 +4,14 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.33.0 - A language, and a row you can take back - 2026-08-23
+
+Both changes arrived from outside the project: a complete Croatian translation, and a discussion about what sits above the keyboard while you write. No permission or storage-format changes.
+
+### Added
+- **Markleaf speaks Croatian ([#329](https://github.com/jeiel85/markleaf-android/pull/329)).** The interface, the six starter notes and the store listing are all translated, which makes Croatian the eighth language and the first outside contribution complete enough that nothing falls back to English. The README and the landing page are translated too. Contributed by [@anotherus3r](https://github.com/anotherus3r).
+- **The formatting button can be turned off ([#331](https://github.com/jeiel85/markleaf-android/issues/331)).** With nothing selected, the `Aa` button sits on an otherwise empty row above the keyboard — a handle for the formatting panel, and for anyone who writes Markdown by typing it, a strip of screen that never does anything. **Settings → Markdown → Show formatting button** turns it off and the row goes with it. It stays on by default, so nothing moves unless you ask. What does not go away: select some text and bold, italic and link appear exactly as before, because selecting is how you ask for them, and `/` quick insert and the hardware-keyboard shortcuts are untouched either way. Requested in [discussion #328](https://github.com/jeiel85/markleaf-android/discussions/328) by [@NatJoe64](https://github.com/NatJoe64).
+
 ## v2.32.6 - The whole leaf - 2026-08-15
 
 One fix, and it came from outside the project. No feature, permission, or storage-format changes.

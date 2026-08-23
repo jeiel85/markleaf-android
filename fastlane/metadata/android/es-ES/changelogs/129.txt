@@ -1,0 +1,1 @@
+Markleaf habla croata y el botón Aa sobre el teclado se puede desactivar. La traducción al croata cubre la interfaz, las notas iniciales y esta ficha: el octavo idioma, aportado desde fuera del proyecto. En Ajustes > Markdown > Mostrar el botón de formato, al desactivarlo desaparece toda la fila; negrita, cursiva y enlace siguen apareciendo al seleccionar texto.

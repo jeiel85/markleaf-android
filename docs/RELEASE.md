@@ -404,7 +404,7 @@ diffable:
 ```powershell
 $out = "D:\Build\$stem-release-notes.txt"
 Set-Content -Path $out -Value '' -NoNewline -Encoding utf8
-foreach ($loc in 'ko-KR','en-US','ja-JP','zh-CN','de-DE','fr-FR','es-ES') {
+foreach ($loc in 'ko-KR','en-US','ja-JP','zh-CN','de-DE','fr-FR','es-ES','hr-HR') {
     $note = (Get-Content -Raw -Encoding utf8 "fastlane/metadata/android/$loc/changelogs/<versionCode>.txt").Trim()
     Add-Content -Path $out -Value "<$loc>`n$note`n</$loc>" -Encoding utf8
 }

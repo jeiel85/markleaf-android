@@ -214,7 +214,7 @@
     <string name="reopen_last_note">Ponovno otvori posljednju bilješku pri pokretanju</string>
     <string name="reopen_last_note_description">Pokretanje s posljednjom uređivanom bilješkom umjesto popisa bilješki.</string>
     <string name="open_notes_in_preview">Otvori bilješke u pretpregledu</string>
-    <string name="open_notes_in_preview_description">Pri otvaranju pikazuje bilješke u pretpregledu umjeto u načinu za uređivanje. Nove bilješke će se i dalje otvarati u načinu za uređivanje. Savjet: dugo pritisnite ikonu pretpregleda/uređivanja u bilješci za promjenu ove postavke.</string>
+    <string name="open_notes_in_preview_description">Pri otvaranju prikazuje bilješke u pretpregledu umjesto u načinu za uređivanje. Nove bilješke će se i dalje otvarati u načinu za uređivanje. Savjet: dugo pritisnite ikonu pretpregleda/uređivanja u bilješci za promjenu ove postavke.</string>
     <string name="open_notes_at">Otvori bilješke u položaju</string>
     <string name="open_notes_at_top">na vrhu</string>
     <string name="open_notes_at_bottom">na dnu</string>
@@ -306,7 +306,7 @@
 
     <!-- Onboarding -->
     <string name="onboarding_title_welcome">Dobro došli u Markleaf</string>
-    <string name="onboarding_body_welcome">Tihu, lokalnu aplikaciju za bilješke za Android. Vaš tekst ostaje na ovom uređaju, osim kada sami odlučite da ga želite podijeliti ili izvesti.</string>
+    <string name="onboarding_body_welcome">Tiha, primarno lokalna aplikacija za Markdown bilješke za Android. Vaš tekst ostaje na ovom uređaju, osim kada sami odlučite da ga želite podijeliti ili izvesti.</string>
     <string name="onboarding_title_markdown">Pišite u Markdownu</string>
     <string name="onboarding_body_markdown">Koristite **podebljanje**, _kurziv_, # naslove, popise, kod i citate. Pritisnite „Pretpregled” u gornjoj traci da biste vidjeli svoju bilješku u načinu za čitanje, bilokada.</string>
     <string name="onboarding_title_tags">Organizirajte se #oznakama</string>

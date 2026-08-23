@@ -75,7 +75,7 @@ Cilj nije pisati više. Cilj je učiniti prvu rečenicu jednostavnom.
 
 # Kratki opis projekta
 
-Ovaj bilješka prikazuje kako Markleaf može sadržavati mali projekt bez da postaje nespretan za korištenje.
+Ova bilješka prikazuje kako Markleaf može sadržavati mali projekt bez da postaje nespretan za korištenje.
 
 ## Ishod
 

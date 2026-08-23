@@ -2,15 +2,19 @@
 .SYNOPSIS
   릴리스 노트 자산(fastlane changelog, CHANGELOG 두 판)의 정합성을 검증한다.
 .DESCRIPTION
-  기대 버전은 `app/build.gradle.kts` 의 versionName / versionCode 다. 검사는 세 가지다.
+  기대 버전은 `app/build.gradle.kts` 의 versionName / versionCode 다. 검사는 네 가지다.
 
-  1. fastlane changelog 존재 — 여섯 스토어 로케일 전부에
+  1. fastlane changelog 존재 — `$StoreLocales` 의 스토어 로케일 전부에
      `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt` 가 있어야 한다.
   2. fastlane changelog 길이 — 로케일당 Play Console 상한인 500자 이하여야 한다.
      같은 불변식이 `:app:exportReleaseToBuildDrive` 에도 있지만 그건 릴리스 커밋이
      이미 만들어진 뒤 릴리스 시점에 돈다. de-DE / fr-FR 이 526 / 525자로 작성된 것을
      손으로 세어서야 발견한 적이 있어(#167), 같은 검사를 CI 로 앞당긴다.
-  3. CHANGELOG.md ↔ CHANGELOG.ko.md 동기화 — 영어판이 GitHub 릴리즈 노트의 원본이고
+  3. 스토어 설명문 존재 + 길이 — 로케일당 short_description 80자, full_description
+     4000자가 Play Console 상한이다. 체인지로그와 달리 이 두 파일은 릴리스마다 바뀌지
+     않아서 아무도 다시 세지 않는데, 새 로케일이 들어올 때는 처음 세는 값이다 — hr-HR
+     기여분(#329)이 83자로 들어왔고 어떤 검사도 그걸 보지 않았다.
+  4. CHANGELOG.md ↔ CHANGELOG.ko.md 동기화 — 영어판이 GitHub 릴리즈 노트의 원본이고
      한국어판은 번역이라, 한쪽에만 있는 버전 섹션은 아무 것도 실패시키지 않은 채
      남는다(#167). 버전 섹션의 순서와 날짜가 두 파일에서 같은지, 그리고 이번 버전
      섹션이 양쪽에 있는지 확인한다. 제목은 번역이므로 비교하지 않는다.
@@ -40,8 +44,15 @@ $PlayNoteLimit = 500
 # 얼마 안 남았다는 신호를 상한에 닿기 전에 주기 위한 것이다.
 $PlayNoteWarnAt = [int][math]::Floor($PlayNoteLimit * 0.9)
 
+# 스토어 등록정보 상한(Play Console). 체인지로그와 달리 경고 구간을 두지 않는다 —
+# 릴리스마다 바뀌는 값이 아니라 상한에 조금씩 다가가는 일이 없다.
+$StoreDescriptionLimits = [ordered]@{
+    'short_description.txt' = 80
+    'full_description.txt'  = 4000
+}
+
 # app/build.gradle.kts 의 noteLocales 와 같은 목록이어야 한다.
-$StoreLocales = @("ko-KR", "en-US", "ja-JP", "zh-CN", "de-DE", "fr-FR", "es-ES")
+$StoreLocales = @("ko-KR", "en-US", "ja-JP", "zh-CN", "de-DE", "fr-FR", "es-ES", "hr-HR")
 
 function Resolve-UnderRoot([string]$Path) {
     if ([System.IO.Path]::IsPathRooted($Path)) { return $Path }
@@ -103,7 +114,28 @@ foreach ($locale in $StoreLocales) {
     }
 }
 
-# ---- 3. CHANGELOG.md ↔ CHANGELOG.ko.md ----
+# ---- 3. 스토어 설명문: 존재 + Play 상한 ----
+Write-Host "`n스토어 설명문 ($($StoreLocales.Count)개 로케일)"
+foreach ($locale in $StoreLocales) {
+    foreach ($file in $StoreDescriptionLimits.Keys) {
+        $limit = $StoreDescriptionLimits[$file]
+        $relative = "fastlane/metadata/android/$locale/$file"
+        $path = Resolve-UnderRoot $relative
+        if (-not (Test-Path -LiteralPath $path)) {
+            Add-Failure ("  FAIL  {0,-6} {1} 이(가) 없습니다." -f $locale, $relative)
+            continue
+        }
+
+        $length = (Get-Content -Raw -Encoding utf8 -LiteralPath $path).Trim().Length
+        if ($length -gt $limit) {
+            Add-Failure ("  FAIL  {0,-6} {1,-22} {2,4}자 — Play 상한 {3}자를 {4}자 초과" -f $locale, $file, $length, $limit, ($length - $limit))
+        } else {
+            Write-Host ("  OK    {0,-6} {1,-22} {2,4}자 / {3}" -f $locale, $file, $length, $limit) -ForegroundColor Green
+        }
+    }
+}
+
+# ---- 4. CHANGELOG.md ↔ CHANGELOG.ko.md ----
 Write-Host "`nCHANGELOG 동기화"
 $changelogPaths = [ordered]@{
     'CHANGELOG.md'    = Resolve-UnderRoot "CHANGELOG.md"

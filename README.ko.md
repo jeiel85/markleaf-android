@@ -29,7 +29,8 @@
   <a href="README.zh.md">简体中文</a> ·
   <a href="README.de.md">Deutsch</a> ·
   <a href="README.es.md">Español</a> ·
-  <a href="README.fr.md">Français</a>
+  <a href="README.fr.md">Français</a> ·
+  <a href="README.hr.md">Hrvatski</a>
 </p>
 
 <p align="center">
@@ -96,7 +97,7 @@
 - **Markleaf 녹색 테마 + Material You 토글** — 안드로이드 12+ 시스템 월페이퍼 색상도 옵션
 - **자동 다크 모드** — 시스템 설정 따라
 - **태블릿 3-Pane 레이아웃** — 태그 사이드바 · 노트 목록 · 에디터, 사이드바 태그로 노트 목록 즉석 필터링(노트 목록 접고 펴기 가능)
-- **7개 언어 UI** — 한국어 / 영어 / 스페인어 / 일본어 / 프랑스어 / 독일어 / 중국어 간체 리소스 운영
+- **8개 언어 UI** — 한국어 / 영어 / 스페인어 / 일본어 / 프랑스어 / 독일어 / 중국어 간체 / 크로아티아어 리소스 운영
 - **스크린샷 / 최근 앱 미리보기 차단 옵션** — 민감한 노트용
 
 ---

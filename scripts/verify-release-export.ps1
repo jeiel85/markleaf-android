@@ -37,7 +37,7 @@ Set-StrictMode -Version Latest
 
 # app/build.gradle.kts 의 noteLocales 와 같은 목록이어야 한다. 릴리스 노트 TXT 는
 # 로케일마다 <tag> ... </tag> 블록을 연달아 담는다(writeReleaseArtifacts).
-$StoreLocales = @("ko-KR", "en-US", "ja-JP", "zh-CN", "de-DE", "fr-FR", "es-ES")
+$StoreLocales = @("ko-KR", "en-US", "ja-JP", "zh-CN", "de-DE", "fr-FR", "es-ES", "hr-HR")
 
 function Resolve-UnderRoot([string]$Path) {
     if ([System.IO.Path]::IsPathRooted($Path)) { return $Path }

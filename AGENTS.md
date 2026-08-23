@@ -80,7 +80,7 @@ CI 또는 릴리즈 검증 시에는 APK 산출물 확인을 반드시 포함한
 
 - `app/build/outputs/apk/debug/app-debug.apk` 파일 존재 여부 확인
 - GitHub Release에서 APK 다운로드 가능 여부와 크기가 0보다 큰지 확인
-- 태그 전에 `pwsh scripts/verify-release-export.ps1` — `D:\Build`의 AAB·mapping·7개
+- 태그 전에 `pwsh scripts/verify-release-export.ps1` — `D:\Build`의 AAB·mapping·8개
   로케일 노트가 현재 versionName/versionCode로 존재하고 비어 있지 않은지 확인한다.
   **이것이 릴리스 자산의 유일한 영구 사본 검증이다**(D066).
 - **GitLab 쪽 검증은 해당 없음이다 — GitLab은 아무것도 발행·미러하지 않는다(D067·D068).**
@@ -106,7 +106,7 @@ Android 프로젝트가 아직 초기화되지 않았다면 먼저 표준 Kotlin
 
 - `markleaf-v<semver>-vc<versionCode>.aab` — `app/build/outputs/bundle/release/app-release.aab`(서명) 복사본
 - `markleaf-v<semver>-vc<versionCode>.mapping.txt` — R8 mapping(Play 크래시 deobfuscation; 있으면 복사). AAB가 없으면 task가 예외를 던지지만 mapping은 warn만 남기고 넘어가므로, AAB가 나왔다고 mapping도 나왔다고 볼 수 없다 — `scripts/verify-release-export.ps1`이 이것까지 확인한다
-- `markleaf-v<semver>-vc<versionCode>-release-notes.txt` — **모든 스토어 로케일**(ko-KR / en-US / ja-JP / zh-CN / de-DE / fr-FR / es-ES)의 `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt`를 읽어 하나의 파일에 로케일 태그 블록을 연달아 묶음
+- `markleaf-v<semver>-vc<versionCode>-release-notes.txt` — **모든 스토어 로케일**(ko-KR / en-US / ja-JP / zh-CN / de-DE / fr-FR / es-ES / hr-HR)의 `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt`를 읽어 하나의 파일에 로케일 태그 블록을 연달아 묶음
 
 TXT 파일은 바로 복사/붙여넣기 가능해야 하며, 각 로케일 릴리즈 노트만 아래 태그로 감싼다. 태그 밖에는 어떤 설명이나 문구도 넣지 않는다 (Gradle task가 이 형식을 보장한다).
 
@@ -131,7 +131,7 @@ TXT 파일은 바로 복사/붙여넣기 가능해야 하며, 각 로케일 릴�
 </es-ES>
 ```
 
-따라서 cut 전에 **7개 스토어 로케일 fastlane changelog 전부**(BCP 47 region 대문자)가 새 versionCode 파일명으로 작성되어 있어야 task가 통과한다. 하나라도 누락되거나 로케일당 500자를 넘으면 task가 명시적으로 실패한다.
+따라서 cut 전에 **8개 스토어 로케일 fastlane changelog 전부**(BCP 47 region 대문자)가 새 versionCode 파일명으로 작성되어 있어야 task가 통과한다. 하나라도 누락되거나 로케일당 500자를 넘으면 task가 명시적으로 실패한다.
 
 GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
 `:app:exportReleaseArtifacts`를 실행한다. 이 task는 위 3개 파일에 서명 APK를 더해 내보내며,
@@ -186,7 +186,7 @@ GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
    Play 제출용 서명 AAB와 릴리즈 노트 TXT를 내보낸다(서명 AAB는 CI 릴리스 산출물 기준).
    업로드는 메인테이너가 수동으로 한다.
 5. **마감 + 보고.** 해결된 이슈에 감사 댓글을 달고 닫되, 사용자측 확인이 남으면 열어 둔다.
-   굵직한 변경이면 README·랜딩 페이지의 버전 표기를 7개 언어 모두 갱신하고
+   굵직한 변경이면 README·랜딩 페이지의 버전 표기를 8개 언어 모두 갱신하고
    `scripts/verify-landing-versions.ps1`로 검증한다. 마지막으로 무엇이 나갔는지,
    이슈 상태, 릴리스 링크를 보고한다.
 
@@ -259,9 +259,9 @@ Markleaf 사용자 대부분이 영어를 쓰므로 공개 문서의 기본 언�
 - 이슈 번호(`#123`), 코드 식별자, 파일 경로, 제품명은 번역하지 않고 그대로 둔다.
 - v2.16.0 이전 항목은 영어화 대상이 아니다. `CHANGELOG.md`의 "Earlier releases (Korean)" 이후 구간과 `CHANGELOG.ko.md`에 한국어로 보존되어 있으며 소급 번역하지 않는다.
 
-Play/F-Droid용 `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt`는 기존대로 **7개 스토어 로케일 전부** 작성한다. 이 지침은 [Release Artifact Export](#release-artifact-export)의 7개 로케일 요구사항을 대체하지 않는다.
+Play/F-Droid용 `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt`는 기존대로 **8개 스토어 로케일 전부** 작성한다. 이 지침은 [Release Artifact Export](#release-artifact-export)의 8개 로케일 요구사항을 대체하지 않는다.
 
-README와 GitHub Pages 랜딩도 영어가 기본이며 앱이 지원하는 7개 언어(en · ko · ja · zh · de · es · fr)로 병기한다. 영어판이 canonical이고 `x-default`다. 공개 표면의 버전 표기를 갱신할 때는 7개 언어를 함께 갱신하고 `scripts/verify-landing-versions.ps1`로 검증한다.
+README와 GitHub Pages 랜딩도 영어가 기본이며 앱이 지원하는 8개 언어(en · ko · ja · zh · de · es · fr · hr)로 병기한다. 영어판이 canonical이고 `x-default`다. 공개 표면의 버전 표기를 갱신할 때는 8개 언어를 함께 갱신하고 `scripts/verify-landing-versions.ps1`로 검증한다.
 
 ### GitHub 공개 표면 콘텐츠 — 영어 기본
 

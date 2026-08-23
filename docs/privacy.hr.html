@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pravila privatnosti - Markleaf</title>
+    <meta name="description" content="Markleafova pravila privatnosti. Markleaf je primarno lokalna aplikacija za Markdown bilješke koja radi bez dozvole za INTERNET, bez računa, analitike, oglasa i praćenja.">
+    <link rel="canonical" href="https://jeiel85.github.io/markleaf-android/privacy.hr.html">
+    <link rel="alternate" hreflang="en" href="https://jeiel85.github.io/markleaf-android/privacy.html">
+    <link rel="alternate" hreflang="ko" href="https://jeiel85.github.io/markleaf-android/privacy.ko.html">
+    <link rel="alternate" hreflang="ja" href="https://jeiel85.github.io/markleaf-android/privacy.ja.html">
+    <link rel="alternate" hreflang="zh-Hans" href="https://jeiel85.github.io/markleaf-android/privacy.zh.html">
+    <link rel="alternate" hreflang="de" href="https://jeiel85.github.io/markleaf-android/privacy.de.html">
+    <link rel="alternate" hreflang="es" href="https://jeiel85.github.io/markleaf-android/privacy.es.html">
+    <link rel="alternate" hreflang="fr" href="https://jeiel85.github.io/markleaf-android/privacy.fr.html">
+    <link rel="alternate" hreflang="hr" href="https://jeiel85.github.io/markleaf-android/privacy.hr.html">
+    <link rel="alternate" hreflang="x-default" href="https://jeiel85.github.io/markleaf-android/privacy.html">
+    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav aria-label="Glavna navigacija">
+            <a class="logo" href="index.hr.html" aria-label="Markleaf početna">
+                <img src="assets/logo.svg" alt="">
+                <span>Markleaf</span>
+            </a>
+            <div class="nav-cluster">
+                <ul>
+                    <li><a href="index.hr.html">Početna</a></li>
+                    <li><a href="privacy.hr.html">Privatnost</a></li>
+                    <li><a href="https://github.com/jeiel85/markleaf-android">GitHub</a></li>
+                </ul>
+                <div class="lang-switch" aria-label="Jezik">
+                    <a href="privacy.html" hreflang="en" aria-label="English">EN</a>
+                    <a href="privacy.ko.html" hreflang="ko" aria-label="한국어">KO</a>
+                    <a href="privacy.ja.html" hreflang="ja" aria-label="日本語">JA</a>
+                    <a href="privacy.zh.html" hreflang="zh-Hans" aria-label="简体中文">ZH</a>
+                    <a href="privacy.de.html" hreflang="de" aria-label="Deutsch">DE</a>
+                    <a href="privacy.es.html" hreflang="es" aria-label="Español">ES</a>
+                    <a href="privacy.fr.html" hreflang="fr" aria-label="Français">FR</a>
+                    <a href="privacy.hr.html" hreflang="hr" aria-current="page">HR</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <article class="content">
+            <h1>Markleafova pravila privatnosti</h1>
+            <p class="updated">Zadnje ažuriranje: 26. svibnja 2026. · Odnosi se na Markleaf za Android v2.x</p>
+
+            <h2>Temeljno načelo</h2>
+            <p>Markleaf je primarno lokalna aplikacija za Markdown bilješke. Markleaf sam nema dozvolu <code>android.permission.INTERNET</code>, ne pokreće vlastiti poslužitelj i nikada automatski ne šalje bilješke, oznake, priloge ni metapodatke na bilo koji vanjski poslužitelj.</p>
+
+            <h2>Podaci koje Markleaf ne prikuplja</h2>
+            <ul>
+                <li>Ime, e-poštu, kontakte, lokaciju</li>
+                <li>Podatke o računu ili prijavi</li>
+                <li>Tijelo bilješke, naslov, oznake, priložene slike, imena datoteka, metapodatke</li>
+                <li>Statistiku korištenja, telemetriju, analitičke događaje, oglasne identifikatore</li>
+                <li>Izvješća o rušenju ili identifikatore uređaja</li>
+            </ul>
+            <p>Također ne sadrži analitiku, oglase, praćenje, udaljenu konfiguraciju, Firebase ni SDK-ove zatvorenog koda za prijavu rušenja.</p>
+
+            <h2>Mreža</h2>
+            <p>Markleaf ne deklarira dozvolu za internet.</p>
+            <pre>android.permission.INTERNET   nema</pre>
+
+            <h2>Gdje se podaci pohranjuju</h2>
+            <ul>
+                <li>Tijela bilješki, naslovi i indeks oznaka pohranjuju se u internu Room bazu podataka aplikacije.</li>
+                <li>Korisničke postavke pohranjuju se u DataStore.</li>
+                <li>Priložene slike kopiraju se u internu pohranu aplikacije, uz uklanjanje osjetljivih EXIF metapodataka pri spremanju.</li>
+            </ul>
+
+            <h2>Pravila sigurnosnog kopiranja sustava Android</h2>
+            <p>Markleaf postavlja <code>android:allowBackup="false"</code> kako bi podatke aplikacije izuzeo iz Androidova automatskog sigurnosnog kopiranja i prijenosa s uređaja na uređaj. Ako se selite na novi uređaj ili koristite više uređaja, sami birate izvoz u Markdown, dijeljenje ili zrcaljenje u SAF mapu.</p>
+
+            <h2>Premještanje podataka koje pokreće korisnik</h2>
+            <p>Sljedeće se radnje događaju samo kad ih sami izvedete, kroz Androidov izričit dijalog za dozvole ili izbor koji napravite u sučelju.</p>
+            <ul>
+                <li>Izvoz pojedinačne bilješke ili svih bilješki u Markdown (<code>.md</code>)</li>
+                <li>Dijeljenje teksta ili datoteka bilješke kroz Androidov sustavni izbornik za dijeljenje</li>
+                <li>Dodir vanjske poveznice u tekstu koji zadatak prepušta sustavu / zadanom pregledniku</li>
+                <li>Kopiranje u međuspremnik</li>
+                <li>Zrcaljenje Markdown datoteka u SAF mapu koju odaberete</li>
+            </ul>
+            <p>Sinkronizira li SAF mapu vanjski klijent poput Drivea, Dropboxa, OneDrivea, Syncthinga ili NAS priključka, odgovornost je te vanjske aplikacije. Markleaf tu sinkronizaciju ne obavlja sam.</p>
+
+            <h2>Dozvole</h2>
+            <p>Jedina dozvola nalik izvedbenoj koju Markleaf deklarira jest <code>android.permission.VIBRATE</code> za haptičku povratnu informaciju. Ne deklarira dozvole za lokaciju, mikrofon, kameru, kontakte, obavijesti, čitanje vanjske pohrane, čitanje medija ni mrežu.</p>
+
+            <h2>Kontakt</h2>
+            <p>Za pitanja ili prijave vezane uz sigurnost i privatnost javite se putem <a class="text-link" href="https://github.com/jeiel85/markleaf-android/issues">GitHub Issuesa</a>.</p>
+        </article>
+    </main>
+
+    <footer>
+        <p>Markleaf · Lagana, primarno lokalna aplikacija za Markdown bilješke za Android.</p>
+        <p><a href="index.hr.html">Početna</a> · <a href="https://github.com/jeiel85/markleaf-android">GitHub</a> · <a href="https://github.com/jeiel85/markleaf-android/blob/main/LICENSE">Apache-2.0</a></p>
+    </footer>
+</body>
+</html>

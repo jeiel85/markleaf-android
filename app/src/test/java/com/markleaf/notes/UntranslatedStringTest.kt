@@ -181,11 +181,13 @@ class UntranslatedStringTest {
             "ja" to emptySet(),
             "ko" to emptySet(),
             "zh" to emptySet(),
+            // Croatian borrows the typography vocabulary: "font" is the Croatian
+            // word, and "Sans"/"Serif" name the typefaces rather than describe them.
             "hr" to setOf(
                 "font_label",
                 "font_sans",
                 "font_serif"
-            ),
+            )
         )
     }
 }

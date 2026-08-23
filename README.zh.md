@@ -29,7 +29,8 @@
   <strong>简体中文</strong> ·
   <a href="README.de.md">Deutsch</a> ·
   <a href="README.es.md">Español</a> ·
-  <a href="README.fr.md">Français</a>
+  <a href="README.fr.md">Français</a> ·
+  <a href="README.hr.md">Hrvatski</a>
 </p>
 
 <p align="center">
@@ -96,7 +97,7 @@
 - **Markleaf 绿主题 + Material You 切换** — 可选跟随 Android 12 及以上的系统壁纸配色
 - **自动深色模式** — 跟随系统设置
 - **平板三栏布局** — 标签侧栏 · 笔记列表 · 编辑器；点击侧栏中的标签即可就地筛选笔记列表（笔记列表仍可折叠）
-- **7 种语言界面** — 韩语 / 英语 / 西班牙语 / 日语 / 法语 / 德语 / 简体中文资源
+- **8 种语言界面** — 韩语 / 英语 / 西班牙语 / 日语 / 法语 / 德语 / 简体中文 / 克罗地亚语资源
 - **屏蔽截屏 / 最近任务预览选项** — 面向敏感笔记
 
 ---

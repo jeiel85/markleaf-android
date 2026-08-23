@@ -450,20 +450,21 @@ previous version.
 pwsh scripts/verify-landing-versions.ps1
 ```
 
-The landing page ships in six languages: `docs/index.html` (English, the
+The landing page ships in eight languages: `docs/index.html` (English, the
 canonical / x-default), `docs/index.ko.html`, `docs/index.ja.html`,
-`docs/index.de.html`, `docs/index.es.html`, and `docs/index.fr.html`. The
-"current release" version appears in three places per file — the JSON-LD
-`softwareVersion`, the hero `release-line`, and the trust-ledger `<strong>`.
+`docs/index.zh.html`, `docs/index.de.html`, `docs/index.es.html`,
+`docs/index.fr.html`, and `docs/index.hr.html`. The "current release" version
+appears in three places per file — the JSON-LD `softwareVersion`, the hero
+`release-line`, and the trust-ledger `<strong>`.
 
-The six READMEs are checked as well. There the target is any line carrying a
+The eight READMEs are checked as well. There the target is any line carrying a
 release link (`releases/tag/vX.Y.Z` or `-/releases/vX.Y.Z`), and every version
 string on such a line must match — so a stale link label is caught even when the
 URL beside it was updated. Roadmap entries such as `- [x] v1.0.0 stable release`
 carry no release link and are out of scope.
 
 The hero `figcaption` screenshot version is tracked separately. It lags until
-screenshots are re-taken, so it only has to stay consistent across the six
+screenshots are re-taken, so it only has to stay consistent across the
 languages, not to equal the release version.
 
 Missing files and missing version strings now fail. The earlier version of this
@@ -473,7 +474,7 @@ unnoticed through v2.25.0 and v2.26.0 (#167).
 
 When the check fails, update the lagging file — not the check.
 
-The privacy pages (`docs/privacy*.html`) ship in the same six languages and
+The privacy pages (`docs/privacy*.html`) ship in the same eight languages and
 carry no version string, so they are outside this check.
 
 ### Release notes
@@ -482,15 +483,19 @@ carry no version string, so they are outside this check.
 pwsh scripts/verify-release-notes.ps1
 ```
 
-Three assertions:
+Four assertions:
 
-- All six store locales have
+- All eight store locales have
   `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt`.
 - Each stays within Play Console's 500-character-per-locale limit.
   `:app:exportReleaseToBuildDrive` enforces the same limit, but it runs at
   release time, after the release commit already exists — de-DE and fr-FR were
   once written at 526 and 525 characters and were caught only by counting them
   by hand (#167).
+- Every locale has a `short_description.txt` and a `full_description.txt`, within
+  Play's 80- and 4000-character limits. Those two files do not change per
+  release, so nobody re-counts them — but a new locale counts them for the first
+  time, and the Croatian contribution arrived at 83 characters (#329).
 
 #### Aim the English draft at ~380 characters
 

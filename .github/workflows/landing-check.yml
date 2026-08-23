@@ -1,6 +1,6 @@
 # Landing-page layout gate (#187).
 #
-# verify-landing-versions.ps1 checks the version *strings* across the six
+# verify-landing-versions.ps1 checks the version *strings* across the
 # language landing pages; nothing checked that the rendered pages actually fit
 # their viewport, so a translation could overflow the layout and CI stayed
 # green (that is how the #186 overflows shipped). This renders each landing and

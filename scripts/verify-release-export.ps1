@@ -35,9 +35,11 @@ param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
-# app/build.gradle.kts 의 noteLocales 와 같은 목록이어야 한다. 릴리스 노트 TXT 는
-# 로케일마다 <tag> ... </tag> 블록을 연달아 담는다(writeReleaseArtifacts).
-$StoreLocales = @("ko-KR", "en-US", "ja-JP", "zh-CN", "de-DE", "fr-FR", "es-ES", "hr-HR")
+# 목록은 config/locales.tsv 한 곳에 있고, app/build.gradle.kts 의 noteLocales 도
+# 같은 파일을 읽는다(#262). 릴리스 노트 TXT 는 로케일마다 <tag> ... </tag> 블록을
+# 연달아 담는다(writeReleaseArtifacts).
+. (Join-Path $PSScriptRoot 'locales.ps1')
+$StoreLocales = @((Get-MarkleafLocales -RepoRoot $RepoRoot) | ForEach-Object { $_.Store })
 
 function Resolve-UnderRoot([string]$Path) {
     if ([System.IO.Path]::IsPathRooted($Path)) { return $Path }
@@ -115,7 +117,7 @@ foreach ($label in $expected.Keys) {
     Write-Host ("  OK    {0,-12} {1} ({2})" -f $label, $name, $human) -ForegroundColor Green
 }
 
-# ---- 2. 릴리스 노트 TXT 가 여섯 로케일 블록을 모두 담고 있는지 ----
+# ---- 2. 릴리스 노트 TXT 가 모든 로케일 블록을 담고 있는지 ----
 # 노트 파일은 있는데 로케일이 빠진 채 만들어지는 경우는 Gradle task 가 막지만,
 # 손으로 편집하거나 오래된 버전의 파일이 남아 있는 경우까지 막지는 못한다.
 if ($notesPath) {
@@ -130,7 +132,9 @@ if ($notesPath) {
     if ($missingLocales.Count -gt 0) {
         Add-Failure ("  FAIL  블록이 없는 로케일: {0}" -f ($missingLocales -join ', '))
     } else {
-        Write-Host ("  OK    여섯 로케일 블록이 모두 있습니다.") -ForegroundColor Green
+        # 개수를 문장에 박아 두었더니 언어가 두 번 늘도록 "여섯"으로 남아 있었다.
+        # 헤더가 스크롤을 벗어난 뒤 읽는 줄이 이것이라 값에서 뽑아 쓴다(#262).
+        Write-Host ("  OK    $($StoreLocales.Count)개 로케일 블록이 모두 있습니다: {0}" -f ($StoreLocales -join ', ')) -ForegroundColor Green
     }
 }
 

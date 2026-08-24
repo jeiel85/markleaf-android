@@ -33,6 +33,12 @@ jobs:
 
       # 버전 표기·릴리스 노트 검사는 Gradle 앞에 둔다. 초 단위로 끝나고, 릴리스
       # 준비 커밋에서 빠뜨리기 가장 쉬운 것들이라 먼저 실패하는 편이 낫다.
+      # 언어 목록(config/locales.tsv)과 실제 표면이 맞는지 먼저 본다. 목록이
+      # 일곱 군데에 복사돼 있었을 때는 새 언어가 절반만 들어가도 통과했고,
+      # 그 절반은 아무 게이트도 보지 않는 표면이었다 (#294, #329).
+      - name: Verify locale manifest (declared languages vs files)
+        run: pwsh -File scripts/verify-locales.ps1
+
       - name: Verify public version strings (landing + README)
         run: pwsh -File scripts/verify-landing-versions.ps1
 

@@ -1,0 +1,39 @@
+# The languages Markleaf ships in — the one list.
+#
+# Every gate, script and build step reads this file instead of holding a copy of
+# the list. Copies are how a language ships untested: a locale missing from one
+# of those lists is a surface no gate looks at, so nothing goes red. Both #294
+# (Chinese) and #329 (Croatian) arrived missing most of the copies, and both
+# were caught by hand rather than by CI.
+#
+# Columns are whitespace-separated; `#` starts a comment.
+#
+#   code     the language's resource and asset code, as it appears in filenames
+#   store    the BCP 47 tag Play and F-Droid use, and the block tag inside the
+#            all-locale release-notes TXT
+#   source   yes for the language the app is written in. Its files carry no code
+#            in their names (values/, docs/index.html, README.md); every other
+#            language's do (values-ko/, docs/index.ko.html, README.ko.md).
+#   starter  yes when the language has its own first-launch notes. zh is
+#            deliberately no: the Chinese contribution (#294) covers strings.xml
+#            only, so a Chinese device falls back to the English starter notes —
+#            degraded, but working.
+#
+# Row order is the order the release-notes TXT writes its locale blocks in.
+#
+# Adding a language means adding a row here and then the files the surfaces ask
+# for: app/src/main/res/values-<code>/strings.xml,
+# fastlane/metadata/android/<store>/, docs/index.<code>.html,
+# docs/privacy.<code>.html, README.<code>.md and
+# docs/assets/markleaf-tablet-<code>.{gif,mp4} plus -still.webp.
+# `pwsh scripts/verify-locales.ps1` names whichever one is missing.
+#
+# code	store	source	starter
+ko	ko-KR	no	yes
+en	en-US	yes	yes
+ja	ja-JP	no	yes
+zh	zh-CN	no	no
+de	de-DE	no	yes
+fr	fr-FR	no	yes
+es	es-ES	no	yes
+hr	hr-HR	no	yes

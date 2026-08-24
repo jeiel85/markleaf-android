@@ -39,6 +39,11 @@ param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
+# 언어 목록과 파일명 규칙은 config/locales.tsv 에서 온다. 이 스크립트만 네 벌을
+# 들고 있었고, 그 중 하나라도 빠뜨린 언어는 아무 검사도 받지 않았다(#262).
+# 어떤 언어가 어떤 파일을 가져야 하는지는 verify-locales.ps1 이 본다.
+. (Join-Path $PSScriptRoot 'locales.ps1')
+
 function Resolve-UnderRoot([string]$Path) {
     if ([System.IO.Path]::IsPathRooted($Path)) { return $Path }
     return (Join-Path $RepoRoot $Path)
@@ -71,7 +76,8 @@ Write-Host "기대 버전: v$ExpectedVersion (app/build.gradle.kts versionName)"
 
 # ---- 랜딩 페이지 ----
 $docsPath = Resolve-UnderRoot $DocsDir
-$landingFiles = @("index.html", "index.ko.html", "index.ja.html", "index.zh.html", "index.de.html", "index.es.html", "index.fr.html", "index.hr.html")
+$locales = Get-MarkleafLocales -RepoRoot $RepoRoot
+$landingFiles = @($locales | ForEach-Object { $_.LandingFile })
 $releasePatterns = [ordered]@{
     'softwareVersion' = '"softwareVersion":\s*"([0-9]+\.[0-9]+\.[0-9]+)"'
     'release-line'    = 'class="release-line">[^<]*?v([0-9]+\.[0-9]+\.[0-9]+)'
@@ -114,7 +120,7 @@ foreach ($file in $landingFiles) {
 }
 
 # ---- README ----
-$readmeFiles = @("README.md", "README.ko.md", "README.ja.md", "README.zh.md", "README.de.md", "README.es.md", "README.fr.md", "README.hr.md")
+$readmeFiles = @($locales | ForEach-Object { $_.ReadmeFile })
 $releaseLinkPattern = '(?:releases/tag/|-/releases/)v[0-9]+\.[0-9]+\.[0-9]+'
 
 Write-Host "`nREADME ($($readmeFiles.Count)개)"
@@ -197,24 +203,9 @@ if ($expectedDate) {
 # webp)로 바뀌었고 — 자동재생 GIF 는 `prefers-reduced-motion` 을 존중할 방법이
 # 없고 방문당 ~930KB 였다 — README 는 GitHub 가 마크다운을 그대로 렌더하므로
 # `<video>` 를 쓸 수 없어 GIF 그대로다. 그래서 기대 확장자가 표면마다 다르다.
-$assetPairs = @(
-    @{ File = "docs/index.html";    Lang = "en"; Kind = "video" }
-    @{ File = "docs/index.ko.html"; Lang = "ko"; Kind = "video" }
-    @{ File = "docs/index.ja.html"; Lang = "ja"; Kind = "video" }
-    @{ File = "docs/index.zh.html"; Lang = "zh"; Kind = "video" }
-    @{ File = "docs/index.de.html"; Lang = "de"; Kind = "video" }
-    @{ File = "docs/index.es.html"; Lang = "es"; Kind = "video" }
-    @{ File = "docs/index.fr.html"; Lang = "fr"; Kind = "video" }
-    @{ File = "docs/index.hr.html"; Lang = "hr"; Kind = "video" }
-    @{ File = "README.md";    Lang = "en"; Kind = "gif" }
-    @{ File = "README.ko.md"; Lang = "ko"; Kind = "gif" }
-    @{ File = "README.ja.md"; Lang = "ja"; Kind = "gif" }
-    @{ File = "README.zh.md"; Lang = "zh"; Kind = "gif" }
-    @{ File = "README.de.md"; Lang = "de"; Kind = "gif" }
-    @{ File = "README.es.md"; Lang = "es"; Kind = "gif" }
-    @{ File = "README.fr.md"; Lang = "fr"; Kind = "gif" }
-    @{ File = "README.hr.md"; Lang = "hr"; Kind = "gif" }
-)
+$assetPairs = @()
+$assetPairs += @($locales | ForEach-Object { @{ File = "$DocsDir/$($_.LandingFile)"; Lang = $_.Code; Kind = "video" } })
+$assetPairs += @($locales | ForEach-Object { @{ File = $_.ReadmeFile; Lang = $_.Code; Kind = "gif" } })
 
 Write-Host "`n데모 클립 ($($assetPairs.Count)개 표면)"
 foreach ($pair in $assetPairs) {

@@ -153,6 +153,14 @@ android {
             isIncludeAndroidResources = true
             all {
                 it.systemProperty("robolectric.sqliteMode", "NATIVE")
+                // The locale tests read config/locales.tsv (LocaleManifest), which
+                // is outside the test task's inputs, so editing it alone left the
+                // task UP-TO-DATE and the new language unchecked until something
+                // else changed. CI checks out clean and never saw it; a person
+                // adding a language would have.
+                it.inputs.file(rootProject.file("config/locales.tsv"))
+                    .withPropertyName("localeManifest")
+                    .withPathSensitivity(PathSensitivity.RELATIVE)
             }
         }
         // Compose UI and Roborazzi tests need the ComponentActivity entry that
@@ -199,7 +207,7 @@ ksp {
 // Release artifact export
 // ---------------------------------------------------------------------------
 // Both the local Play hand-off and GitLab CI use this writer so artifact names,
-// six-locale notes, and validation cannot drift between distribution channels.
+// all-locale notes, and validation cannot drift between distribution channels.
 // Local exports omit the APK because D:\Build is the Play Console hand-off;
 // GitLab exports include it for direct sideload downloads.
 val writeReleaseArtifacts: (File, Boolean) -> Unit = { exportDir, includeApk ->
@@ -253,7 +261,21 @@ val writeReleaseArtifacts: (File, Boolean) -> Unit = { exportDir, includeApk ->
     // Every locale must have a changelog for this versionCode; fail fast so
     // a cut never ships notes that silently drop a locale.
     val fastlaneRoot = rootProject.file("fastlane/metadata/android")
-    val noteLocales = listOf("ko-KR", "en-US", "ja-JP", "zh-CN", "de-DE", "fr-FR", "es-ES", "hr-HR")
+    // The store locales come from config/locales.tsv — the one language list
+    // that the unit tests, the verify scripts and CI all read (#262). A copy
+    // here is how #294 and #329 each shipped a language that half the surfaces
+    // did not know about. Row order is the order the blocks are written in.
+    val localeManifest = rootProject.file("config/locales.tsv")
+    if (!localeManifest.isFile) {
+        throw GradleException("Locale manifest not found at ${localeManifest.absolutePath}")
+    }
+    val noteLocales = localeManifest.readLines()
+        .map { it.substringBefore('#').trim() }
+        .filter { it.isNotEmpty() }
+        .map { row ->
+            row.split(Regex("\\s+")).getOrNull(1)
+                ?: throw GradleException("Malformed row in config/locales.tsv: $row")
+        }
     val sources = noteLocales.associateWith { File(fastlaneRoot, "$it/changelogs/$versionCode.txt") }
 
     val missing = noteLocales.filter { !sources.getValue(it).isFile }

@@ -1,5 +1,6 @@
 package com.markleaf.notes.res
 
+import com.markleaf.notes.LocaleManifest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -9,17 +10,9 @@ import javax.xml.parsers.DocumentBuilderFactory
 class ResourceParityTest {
     @Test
     fun localizedStringResourcesContainAllDefaultKeys() {
-        val defaultKeys = stringNames("src/main/res/values/strings.xml")
+        val defaultKeys = stringNames("src/main/res/${LocaleManifest.source.resDir}/strings.xml")
 
-        listOf(
-            "src/main/res/values-ko/strings.xml",
-            "src/main/res/values-es/strings.xml",
-            "src/main/res/values-ja/strings.xml",
-            "src/main/res/values-de/strings.xml",
-            "src/main/res/values-fr/strings.xml",
-            "src/main/res/values-zh/strings.xml",
-            "src/main/res/values-hr/strings.xml"
-        ).forEach { path ->
+        LocaleManifest.translated.map { "src/main/res/${it.resDir}/strings.xml" }.forEach { path ->
             val localizedKeys = stringNames(path)
             assertEquals(
                 "Resource count mismatch for $path",
@@ -35,30 +28,27 @@ class ResourceParityTest {
     }
 
     /**
-     * `raw-zh` is deliberately not in this list. The Chinese contribution (#294)
-     * covers `strings.xml` only, so a Chinese device falls back to the English
-     * `raw/starter_notes.md` on first launch — degraded, but working.
+     * Which languages have starter notes is the `starter` column of
+     * `config/locales.tsv`, and `zh` is deliberately `no` there: the Chinese
+     * contribution (#294) covers `strings.xml` only, so a Chinese device falls
+     * back to the English `raw/starter_notes.md` on first launch — degraded,
+     * but working.
      *
-     * Writing that down is the point. This list is the only record of which
-     * locales have starter notes, so an omission left silent reads as an
-     * oversight the next time someone counts the directories. Add `raw-zh` here
-     * when the file lands.
+     * Writing that down is the point, and the column is now the place it is
+     * written: an omission left silent reads as an oversight the next time
+     * someone counts the directories. `scripts/verify-locales.ps1` checks the
+     * other direction — a `raw-<code>` directory whose column says `no`.
      */
     @Test
     fun localizedStarterNotesExist() {
-        listOf(
-            "src/main/res/raw/starter_notes.md",
-            "src/main/res/raw-ko/starter_notes.md",
-            "src/main/res/raw-es/starter_notes.md",
-            "src/main/res/raw-de/starter_notes.md",
-            "src/main/res/raw-ja/starter_notes.md",
-            "src/main/res/raw-fr/starter_notes.md",
-            "src/main/res/raw-hr/starter_notes.md"
-        ).forEach { path ->
-            val file = File(path)
-            assertTrue("$path should exist", file.exists())
-            assertEquals(6, file.readText().split("---markleaf-note---").size)
-        }
+        LocaleManifest.entries
+            .filter { it.hasStarterNotes }
+            .map { "src/main/res/${it.rawDir}/starter_notes.md" }
+            .forEach { path ->
+                val file = File(path)
+                assertTrue("$path should exist", file.exists())
+                assertEquals(6, file.readText().split("---markleaf-note---").size)
+            }
     }
 
     private fun stringNames(path: String): Set<String> {

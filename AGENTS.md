@@ -263,6 +263,12 @@ Play/F-Droid용 `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt
 
 README와 GitHub Pages 랜딩도 영어가 기본이며 앱이 지원하는 8개 언어(en · ko · ja · zh · de · es · fr · hr)로 병기한다. 영어판이 canonical이고 `x-default`다. 공개 표면의 버전 표기를 갱신할 때는 8개 언어를 함께 갱신하고 `scripts/verify-landing-versions.ps1`로 검증한다.
 
+#### 언어 목록은 `config/locales.tsv` 한 곳에 있다
+
+언어 목록이 테스트 2개·`app/build.gradle.kts`·검사 스크립트 3개에 복사돼 있었고, 새 언어가 그 중 일부에만 들어가면 **나머지 표면은 아무 게이트도 보지 않은 채 초록으로 출시됐다** — 중국어(#294)와 크로아티아어(#329) 모두 손으로 세어서야 발견했다(#262). 지금은 `config/locales.tsv` 가 목록이고, 위의 여섯 곳이 전부 그 파일을 읽는다.
+
+언어를 추가할 때는 그 파일에 행을 하나 넣고, 헤더에 적힌 표면들(`values-<code>/strings.xml`, `fastlane/metadata/android/<store>/`, `docs/index.<code>.html`, `docs/privacy.<code>.html`, `README.<code>.md`, `docs/assets/markleaf-tablet-<code>.{gif,mp4}` + `-still.webp`)을 채운다. `pwsh scripts/verify-locales.ps1` 이 양방향으로 검사하므로 — 선언했는데 없는 파일, 있는데 선언되지 않은 파일 — 빠뜨린 것이 CI에서 이름으로 나온다. 이 문서·`docs/RELEASE.md`·`docs/assets/README.md` 에 적힌 언어 **개수** 표기도 같은 스크립트가 목록과 대조한다.
+
 ### GitHub 공개 표면 콘텐츠 — 영어 기본
 
 Markleaf는 글로벌 유저를 대상으로 하므로, 위 공개 문서와 같은 원칙으로 **GitHub에 공개로 남는 사용자·커뮤니티 대상 콘텐츠는 영어를 기본**으로 작성한다. 대상: Issue·PR 제목/본문, Discussions 글·댓글, 릴리즈 노트, 커밋 메시지. 한국어 등 다른 언어는 필요하면 영어 아래에 번역으로 병기한다.

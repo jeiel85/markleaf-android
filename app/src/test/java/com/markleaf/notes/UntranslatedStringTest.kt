@@ -29,7 +29,7 @@ class UntranslatedStringTest {
         val offenders = mutableListOf<String>()
 
         for (locale in LOCALES) {
-            val allowed = STRUCTURALLY_IDENTICAL + LANGUAGE_COINCIDENCES.getValue(locale)
+            val allowed = STRUCTURALLY_IDENTICAL + coincidencesFor(locale)
             for ((key, value) in readStrings(stringsFor(locale))) {
                 if (key !in allowed && english[key] == value) {
                     offenders += "values-$locale  $key = \"$value\""
@@ -53,9 +53,16 @@ class UntranslatedStringTest {
         val english = readStrings(resDir().resolve("values/strings.xml"))
         val stale = mutableListOf<String>()
 
+        // A coincidence list for a language the app no longer ships is the same
+        // kind of rot: it exempts nothing, and it reads as if that language were
+        // still checked here.
+        for (locale in LANGUAGE_COINCIDENCES.keys - LOCALES.toSet()) {
+            stale += "values-$locale  (not in config/locales.tsv)"
+        }
+
         for (locale in LOCALES) {
             val translated = readStrings(stringsFor(locale))
-            for (key in STRUCTURALLY_IDENTICAL + LANGUAGE_COINCIDENCES.getValue(locale)) {
+            for (key in STRUCTURALLY_IDENTICAL + coincidencesFor(locale)) {
                 val value = translated[key]
                 when {
                     value == null -> stale += "values-$locale  $key (no longer exists)"
@@ -115,7 +122,16 @@ class UntranslatedStringTest {
     }
 
     private companion object {
-        val LOCALES = listOf("fr", "es", "de", "ja", "ko", "zh", "hr")
+        /** From `config/locales.tsv`; see [LocaleManifest]. */
+        val LOCALES = LocaleManifest.translatedCodes
+
+        /**
+         * A language with no list has no exemptions — the strictest reading, so
+         * a new language's genuine coincidences fail here and get looked at
+         * rather than being waved through by a placeholder entry.
+         */
+        fun coincidencesFor(locale: String): Set<String> =
+            LANGUAGE_COINCIDENCES[locale] ?: emptySet()
 
         /**
          * Identical in every language because they are not prose: the app name,
@@ -178,9 +194,9 @@ class UntranslatedStringTest {
                 "tags",
                 "version_format"
             ),
-            "ja" to emptySet(),
-            "ko" to emptySet(),
-            "zh" to emptySet(),
+            // ja, ko and zh have no entry: nothing in them coincides with the
+            // English source, and an absent list means no exemptions.
+            //
             // Croatian borrows the typography vocabulary: "font" is the Croatian
             // word, and "Sans"/"Serif" name the typefaces rather than describe them.
             "hr" to setOf(

@@ -44,6 +44,7 @@ verify_release_docs:
   before_script: []
   cache: []
   script:
+    - pwsh -File scripts/verify-locales.ps1
     - pwsh -File scripts/verify-landing-versions.ps1
     - pwsh -File scripts/verify-release-notes.ps1
   rules:
@@ -98,12 +99,14 @@ package_signed_release:
     - ACTUAL_CERT_SHA256="$("$APKSIGNER" verify --print-certs "$APK" | sed -n 's/^Signer .*certificate SHA-256 digest:[[:space:]]*//p' | tr '[:upper:]' '[:lower:]')"
     - test "$ACTUAL_CERT_SHA256" = "$MARKLEAF_RELEASE_CERT_SHA256"
     - NOTES="$(find dist -maxdepth 1 -name '*-release-notes.txt' -print -quit)"
-    - grep -q '^<ko-KR>$' "$NOTES"
-    - grep -q '^<en-US>$' "$NOTES"
-    - grep -q '^<ja-JP>$' "$NOTES"
-    - grep -q '^<de-DE>$' "$NOTES"
-    - grep -q '^<fr-FR>$' "$NOTES"
-    - grep -q '^<es-ES>$' "$NOTES"
+    # 로케일 목록은 config/locales.tsv 에서 읽는다. 여기 여섯 개를 적어 두었더니
+    # zh-CN(#294)·hr-HR(#329) 두 번의 언어 추가를 지나도록 그대로였고, 이 job 이
+    # GITLAB_RELEASE_FROM_CI 뒤에 가려 아무도 돌리지 않아서 드러나지도 않았다 —
+    # 스위치를 켜는 순간 통과하는 잘못된 게이트가 된다(#262).
+    - |
+      for LOCALE in $(awk '$1 !~ /^#/ && NF { print $2 }' config/locales.tsv); do
+        grep -q "^<$LOCALE>$" "$NOTES" || { echo "release notes are missing the <$LOCALE> block"; exit 1; }
+      done
   after_script:
     - rm -rf .secrets
     - rm -f "$GRADLE_USER_HOME/gradle.properties"

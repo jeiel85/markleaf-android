@@ -51,8 +51,11 @@ $StoreDescriptionLimits = [ordered]@{
     'full_description.txt'  = 4000
 }
 
-# app/build.gradle.kts 의 noteLocales 와 같은 목록이어야 한다.
-$StoreLocales = @("ko-KR", "en-US", "ja-JP", "zh-CN", "de-DE", "fr-FR", "es-ES", "hr-HR")
+# 목록은 config/locales.tsv 한 곳에 있고, app/build.gradle.kts 의 noteLocales 도
+# 같은 파일을 읽는다. 목록을 복사해 두었더니 #294·#329 가 각각 절반만 갱신한 채
+# 통과했다(#262).
+. (Join-Path $PSScriptRoot 'locales.ps1')
+$StoreLocales = @((Get-MarkleafLocales -RepoRoot $RepoRoot) | ForEach-Object { $_.Store })
 
 function Resolve-UnderRoot([string]$Path) {
     if ([System.IO.Path]::IsPathRooted($Path)) { return $Path }

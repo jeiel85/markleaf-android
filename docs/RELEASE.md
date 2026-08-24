@@ -190,6 +190,7 @@ rule in `app/proguard-rules.pro` — not to disable R8.
 
 Every push to `main` and every pull request runs:
 
+- `pwsh -File scripts/verify-locales.ps1` — the languages declared in `config/locales.tsv` and the files on disk agree, in both directions
 - `pwsh -File scripts/verify-landing-versions.ps1` — public version strings match `versionName`
 - `pwsh -File scripts/verify-release-notes.ps1` — fastlane changelogs exist and fit, CHANGELOG editions agree
 - `./gradlew assembleDebug`
@@ -228,7 +229,7 @@ runner first;** one re-run usually settles it.
 GitLab CI independently runs `testDebugUnitTest`, `lintRelease`, and
 `assembleDebug` for branches and merge requests. A semantic version tag
 matching `vX.Y.Z` additionally builds the signed APK/AAB, exports the R8
-mapping and six-locale notes, and verifies the APK certificate before
+mapping and all-locale notes, and verifies the APK certificate before
 publishing. GitHub remains the canonical Roborazzi and emulator-smoke runner;
 GitLab is an independent build and binary-distribution path.
 
@@ -437,12 +438,42 @@ not the procedure.
 
 ## Release Version and Notes Checks
 
-Two PowerShell checks guard the parts of a release that are maintained by hand.
-Both run in CI on every push and pull request, and both take their expected
-version from `app/build.gradle.kts`. `versionName` and `versionCode` are the
-source of truth rather than the latest git tag, because these checks run *before*
-the tag is pushed — during release preparation the newest tag still points at the
-previous version.
+Three PowerShell checks guard the parts of a release that are maintained by
+hand. All run in CI on every push and pull request, and the two version-aware
+ones take their expected version from `app/build.gradle.kts`. `versionName` and
+`versionCode` are the source of truth rather than the latest git tag, because
+these checks run *before* the tag is pushed — during release preparation the
+newest tag still points at the previous version.
+
+### The language list
+
+```powershell
+pwsh scripts/verify-locales.ps1
+```
+
+`config/locales.tsv` is the list of languages Markleaf ships in, and everything
+that needs the list reads that file: both resource-parity unit tests, the store
+locales in `app/build.gradle.kts`, the three verify scripts, and the release
+notes check in `.gitlab-ci.yml`. The list used to be copied into seven places,
+and a language that made it into only some of them shipped with no parity check,
+no untranslated-string check and no store note — green, because the surfaces it
+was missing from are exactly the surfaces nothing looks at. Chinese (#294) and
+Croatian (#329) both arrived that way and were caught by counting by hand.
+
+This check reads the manifest and compares it against the files on disk in both
+directions: a declared language whose files are missing, and a file whose
+language is not declared. It covers app resources, starter notes, fastlane store
+directories, landing *and* privacy pages, READMEs, and the demo clips. The
+privacy pages are the reason the second direction matters — they carry no
+version string, so `verify-landing-versions.ps1` never looked at them, and a
+language added without its privacy translation gave two dead links per page.
+
+It also checks the language *counts* written into `AGENTS.md`, this file and
+`docs/assets/README.md`. Prose counts are the one place the list cannot be
+derived from, which is why they had been stale through two additions.
+
+Adding a language means adding a row to the manifest and then the files its
+header names. The check names whichever one is missing.
 
 ### Public version strings
 

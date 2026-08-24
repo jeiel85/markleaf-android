@@ -119,12 +119,26 @@ import kotlinx.coroutines.launch
 import kotlin.math.ceil
 import kotlin.math.max
 
+/** The production settings repository — the process-wide DataStore singleton. */
+@Composable
+private fun rememberAppSettingsRepository(): AppSettingsRepository {
+    val context = LocalContext.current
+    return remember(context) { AppSettingsRepository(context.applicationContext) }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditorScreen(
     noteId: String? = null,
     onBack: () -> Unit,
-    onNavigateToNote: (String) -> Unit = {}
+    onNavigateToNote: (String) -> Unit = {},
+    // Injectable for the same reason [AppSettingsRepository] takes a DataStore
+    // (#158): the production `preferencesDataStore` delegate caches one instance
+    // per JVM, so a Robolectric test cannot put the real store into a chosen
+    // state. Composing this screen with a setting turned off is what the golden
+    // for "Show formatting button" needs (#331) — the row is *not mounted* when
+    // it is off, so nothing below screen level can show that it left no gap.
+    settingsRepository: AppSettingsRepository = rememberAppSettingsRepository()
 ) {
     val context = LocalContext.current
     val db = remember { AppDatabase.getInstance(context) }
@@ -138,7 +152,6 @@ fun EditorScreen(
     val repo = remember { LocalNoteRepository(db) }
     val tagRepo = remember { LocalTagRepository(db) }
     val linkRepo = remember { LocalNoteLinkRepository(db) }
-    val settingsRepository = remember { AppSettingsRepository(context.applicationContext) }
     val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
     val coroutineScope = rememberCoroutineScope()
 

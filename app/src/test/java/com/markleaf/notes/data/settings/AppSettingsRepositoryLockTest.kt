@@ -1,14 +1,8 @@
 package com.markleaf.notes.data.settings
 
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.emptyPreferences
 import com.markleaf.notes.core.security.PasscodeBackoff
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -25,27 +19,12 @@ import org.junit.Test
  * `File.renameTo`, which fails on Windows for every write after the first —
  * even with a fresh file per test. The repository therefore takes an
  * injectable [DataStore], and these tests exercise the real transform logic
- * over an in-memory implementation. Durability of the file itself is the
+ * over [InMemoryPreferencesDataStore]. Durability of the file itself is the
  * library's guarantee, not this repository's; what is ours — which keys are
  * written, cleared, and consulted, and in what order — is exactly what runs
  * here, identically on Windows and Linux.
  */
 class AppSettingsRepositoryLockTest {
-
-    /** Minimal faithful [DataStore]: serialized transforms over a state flow. */
-    private class InMemoryPreferencesDataStore : DataStore<Preferences> {
-        private val state = MutableStateFlow(emptyPreferences())
-        private val mutex = Mutex()
-        override val data: Flow<Preferences> = state
-
-        override suspend fun updateData(
-            transform: suspend (t: Preferences) -> Preferences
-        ): Preferences = mutex.withLock {
-            val updated = transform(state.value)
-            state.value = updated
-            updated
-        }
-    }
 
     private val store = InMemoryPreferencesDataStore()
     private val repo = AppSettingsRepository(store)

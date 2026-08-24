@@ -63,8 +63,10 @@ function Test-Declared([string]$Label, [string[]]$Expected) {
 }
 
 # 그 자리에 있는 것 중 선언되지 않은 것. $Pattern 은 언어별 항목만 골라내는
-# 정규식이고, 첫 그룹이 언어 코드여야 한다.
-function Test-Strays([string]$Label, [string]$ScanRoot, [string]$Pattern, [string[]]$DeclaredCodes, [switch]$Directory) {
+# 정규식이고, 첫 그룹이 언어 코드여야 한다. $DeclaredCodes 는 "이 자리에 있어도
+# 되는" 코드다 — 코드가 붙는 자리(values-xx, index.xx.html …)에는 소스 언어가
+# 오면 안 되므로 그 목록에서 빠진다.
+function Test-Strays([string]$Label, [string]$ScanRoot, [string]$Pattern, [string[]]$DeclaredCodes, [string]$SourceCode = "", [switch]$Directory) {
     $root = Resolve-UnderRoot $ScanRoot
     if (-not (Test-Path -LiteralPath $root)) {
         Add-Failure ("  FAIL  {0,-14} 검사할 디렉터리가 없습니다: {1}" -f $Label, $ScanRoot)
@@ -76,21 +78,35 @@ function Test-Strays([string]$Label, [string]$ScanRoot, [string]$Pattern, [strin
         Get-ChildItem -LiteralPath $root -File
     }
     $strays = @()
+    $sourceStrays = @()
     foreach ($entry in $entries) {
         $match = [regex]::Match($entry.Name, $Pattern)
         if (-not $match.Success) { continue }
         $code = $match.Groups[1].Value
-        if ($DeclaredCodes -notcontains $code) {
+        if ($DeclaredCodes -contains $code) { continue }
+        if ($SourceCode -and $code -eq $SourceCode) {
+            $sourceStrays += $entry.Name
+        } else {
             $strays += "$($entry.Name) ($code)"
         }
     }
     if ($strays.Count -gt 0) {
         Add-Failure ("  FAIL  {0,-14} config/locales.tsv 에 없는 언어의 파일: {1}" -f $Label, ($strays -join ', '))
     }
+    if ($sourceStrays.Count -gt 0) {
+        # 소스 언어는 코드가 붙지 않는 자리(values/, index.html, README.md)에만
+        # 있어야 한다. values-en 은 영어 기기에서 values/ 를 밀어내는데, 파리티
+        # 테스트는 values/ 만 읽으므로 낡은 영어 리소스가 검사 밖으로 나간다.
+        Add-Failure ("  FAIL  {0,-14} 소스 언어({1})는 코드 없는 자리에만 둡니다: {2}" -f $Label, $SourceCode, ($sourceStrays -join ', '))
+    }
 }
 
 $locales = Get-MarkleafLocales -RepoRoot $RepoRoot
 $codes = @($locales | ForEach-Object { $_.Code })
+$sourceCode = ($locales | Where-Object { $_.IsSource }).Code
+# 코드가 붙는 자리에 올 수 있는 언어. 소스 언어는 values/ · index.html · README.md
+# 쪽이므로 여기서 빠진다 (values-en 은 파리티 테스트가 읽지 않는 자리다).
+$suffixedCodes = @($locales | Where-Object { -not $_.IsSource } | ForEach-Object { $_.Code })
 $stores = @($locales | ForEach-Object { $_.Store })
 Write-Host "로케일 목록: $($locales.Count)개 (config/locales.tsv) — $($codes -join ', ')"
 
@@ -98,7 +114,7 @@ Write-Host "로케일 목록: $($locales.Count)개 (config/locales.tsv) — $($c
 Write-Host "`n앱 리소스 (app/src/main/res)"
 Test-Declared "strings.xml" @($locales | ForEach-Object { "app/src/main/res/$($_.ResDir)/strings.xml" })
 # values-night 처럼 언어가 아닌 한정자는 두 글자 코드 모양이 아니라 저절로 빠진다.
-Test-Strays "values-*" "app/src/main/res" '^values-([a-z]{2})(?:-r[A-Z]{2})?$' $codes -Directory
+Test-Strays "values-*" "app/src/main/res" '^values-([a-z]{2})(?:-r[A-Z]{2})?$' $suffixedCodes $sourceCode -Directory
 
 # ---- 2. 첫 실행 노트 ----
 Write-Host "`n첫 실행 노트 (res/raw)"
@@ -106,7 +122,7 @@ $withStarter = @($locales | Where-Object { $_.HasStarterNotes })
 Test-Declared "starter_notes" @($withStarter | ForEach-Object { "app/src/main/res/$($_.RawDir)/starter_notes.md" })
 # raw-zh 는 일부러 없다(#294). 반대로 raw-<code> 가 있는데 목록에서 starter=no
 # 라면 목록이 낡은 것이므로 그것도 잡는다.
-Test-Strays "raw-*" "app/src/main/res" '^raw-([a-z]{2})$' @($withStarter | ForEach-Object { $_.Code }) -Directory
+Test-Strays "raw-*" "app/src/main/res" '^raw-([a-z]{2})$' @($withStarter | Where-Object { -not $_.IsSource } | ForEach-Object { $_.Code }) $sourceCode -Directory
 
 # ---- 3. 스토어 메타데이터 ----
 Write-Host "`n스토어 메타데이터 (fastlane/metadata/android)"
@@ -117,14 +133,15 @@ Test-Strays "store locale" "fastlane/metadata/android" '^([a-z]{2}-[A-Z]{2})$' $
 Write-Host "`n랜딩·개인정보 페이지 (docs)"
 Test-Declared "index.html" @($locales | ForEach-Object { "docs/$($_.LandingFile)" })
 Test-Declared "privacy.html" @($locales | ForEach-Object { "docs/$($_.PrivacyFile)" })
-# 소스 언어(index.html)는 코드가 없으므로 이 정규식에 걸리지 않는다.
-Test-Strays "index.*.html" "docs" '^index\.([a-z]{2})\.html$' $codes
-Test-Strays "privacy.*.html" "docs" '^privacy\.([a-z]{2})\.html$' $codes
+# 소스 언어의 페이지는 index.html 이므로, index.en.html 은 아무도 링크하지 않는
+# 사본이 된다 — 코드가 붙은 자리에서는 소스 언어도 이물이다.
+Test-Strays "index.*.html" "docs" '^index\.([a-z]{2})\.html$' $suffixedCodes $sourceCode
+Test-Strays "privacy.*.html" "docs" '^privacy\.([a-z]{2})\.html$' $suffixedCodes $sourceCode
 
 # ---- 5. README ----
 Write-Host "`nREADME"
 Test-Declared "README" @($locales | ForEach-Object { $_.ReadmeFile })
-Test-Strays "README.*.md" "." '^README\.([a-z]{2})\.md$' $codes
+Test-Strays "README.*.md" "." '^README\.([a-z]{2})\.md$' $suffixedCodes $sourceCode
 
 # ---- 6. 데모 클립 ----
 Write-Host "`n데모 클립 (docs/assets)"

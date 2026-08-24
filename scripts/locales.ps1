@@ -68,9 +68,14 @@ function Get-MarkleafLocales {
     if ($locales.Count -eq 0) {
         throw "$path 에 로케일 행이 없습니다."
     }
-    $duplicates = @($locales | Group-Object Code | Where-Object { $_.Count -gt 1 })
-    if ($duplicates.Count -gt 0) {
-        throw "$path 에 중복된 code 가 있습니다: $(($duplicates | ForEach-Object { $_.Name }) -join ', ')"
+    # code 와 store 둘 다 유일해야 한다. store 가 겹치면 두 언어가 같은 fastlane
+    # 디렉터리로 검사를 통과하고, 릴리스 노트 TXT 는 같은 블록을 두 번 쓴다 —
+    # 새 언어가 자기 스토어 메타데이터 없이 초록으로 나가는 경로다.
+    foreach ($field in 'Code', 'Store') {
+        $duplicates = @($locales | Group-Object $field | Where-Object { $_.Count -gt 1 })
+        if ($duplicates.Count -gt 0) {
+            throw "$path 에 중복된 $field 가 있습니다: $(($duplicates | ForEach-Object { $_.Name }) -join ', ')"
+        }
     }
     $sources = @($locales | Where-Object { $_.IsSource })
     if ($sources.Count -ne 1) {

@@ -1,3 +1,12 @@
+## 2026-08-26 - Repository debris and stale session state swept
+
+- Trigger: a project review flagged root-level scratch files and leftover session state. Every item was verified before touching: nothing here changes app code, so there is no build or test gate to run.
+- **Three tracked scratch files left the repo root** (a51b92f): `test_regex.kts` was a three-line regex probe, `sync_issues.py` a one-off script that parsed a markdown file into issue bodies, and `FILE_LIST.txt` a 239-byte listing. A search across CI workflows, Gradle files, scripts and docs found zero references to any of the three.
+- **Six stale session worktrees came down** — `.opencode/worktrees/` (`hardening-batch1`…`batch3b`, `issue298-trash-buttons`, `trash-hardening`) plus two `.claude/worktrees/`. All were clean; every branch's content is on `main`, confirmed by patch-id equivalence (`git cherry`) or by matching merged PRs (#299, #300, #305, #306), so the apparent "ahead of main" commit counts were old bases, not unmerged work. Their `fix/*` branches are deleted. Four directories needed the robocopy empty-mirror trick because deep paths exceeded the Windows delete limit.
+- An accidental nested full clone at `markleaf-android/markleaf-android/` is gone. It sat on `main` at 72d0256 with zero dirty files and no commits not reachable from `main`.
+- Two review claims died on contact with evidence, both worth recording: the suspected mojibake in `.agent/decisions.md` does not exist — zero U+FFFD in the file, valid Hangul code points throughout — it was a console encoding artifact; and the #262 colour-default candidate was already fixed on `main` (`MarkdownSyntaxColors` has no defaults since the v2.33.0 pass). The standing tracker's latest entry has no open items.
+- No `CHANGELOG.md` entry: nothing here is user-visible.
+
 ## 2026-08-25 - The v2.33.0 hardening section, spent (#262)
 
 - Trigger: the five candidates the v2.33.0 cut filed into #262. Four of them were one shape — the language list existed in seven copies — and the fifth was the golden that release could not record because the setting it photographs did not exist yet. No new issue was opened for anything found on the way; the pass spends the tracker rather than refilling it.

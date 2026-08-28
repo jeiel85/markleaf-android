@@ -299,6 +299,79 @@ class MarkdownPreviewSnapshotTest {
         )
     }
 
+    /**
+     * Regression net for #339: a nested item must be a row of its own, at its
+     * own indent, with its own marker. Before the fix the whole subtree was
+     * folded into the parent row — `- a` with a nested `- b` rendered as the
+     * single bullet `ab`, and a nested `- [ ] task` had no checkbox at all.
+     */
+    @Test
+    fun nested_lists_light() = snapshot("nested_lists_light", darkTheme = false) {
+        Renders(
+            """
+            - top item
+              - nested item
+                - deeper item
+            - [ ] parent task
+              - [x] child done
+              - [ ] child todo
+
+            1. one
+               1. one-a
+            """.trimIndent()
+        )
+    }
+
+    /**
+     * A loose list — items separated by blank lines — has to render with more
+     * air than a tight one, or the blank lines the author typed disappear
+     * (#340). Both lists below hold the same three items.
+     */
+    @Test
+    fun loose_and_tight_lists_light() = snapshot("loose_and_tight_lists_light", darkTheme = false) {
+        Renders(
+            """
+            Tight:
+
+            - alpha
+            - beta
+            - gamma
+
+            Loose:
+
+            - alpha
+
+            - beta
+
+            - gamma
+            """.trimIndent()
+        )
+    }
+
+    /**
+     * Regression net for #340: the gap between two paragraphs has to be larger
+     * than the gap between two lines of one paragraph, and a heading needs air
+     * above it — except at the very top, where there is nothing to separate it
+     * from.
+     */
+    @Test
+    fun paragraph_rhythm_light() = snapshot("paragraph_rhythm_light", darkTheme = false) {
+        Renders(
+            """
+            # Heading one
+
+            First paragraph, long enough that it wraps onto a second line in
+            the snapshot canvas.
+
+            Second paragraph, which must read as separate from the first.
+
+            ## Heading two
+
+            Another paragraph.
+            """.trimIndent()
+        )
+    }
+
     private fun snapshot(name: String, darkTheme: Boolean, content: @Composable () -> Unit) {
         composeRule.setContent {
             MarkleafTheme(darkTheme = darkTheme, dynamicColor = false) {

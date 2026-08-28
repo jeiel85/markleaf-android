@@ -91,43 +91,59 @@ internal object CommonMarkPreviewAdapter {
 
         var node: Node? = document.firstChild
         while (node != null) {
-            when (node) {
-                is YamlFrontMatterBlock -> { /* already consumed by collectFrontmatter */ }
-                is Heading -> out += renderHeading(node)
-                is Paragraph -> out += renderParagraph(node)
-                is BulletList -> renderBulletList(node, out)
-                is OrderedList -> renderOrderedList(node, out)
-                is BlockQuote -> renderBlockQuote(node, out)
-                is FencedCodeBlock -> out += PreviewLine(
-                    text = node.literal.trimEnd(),
-                    type = PreviewLineType.CODE_BLOCK,
-                    extra = node.info?.takeIf { it.isNotEmpty() }
-                )
-                is IndentedCodeBlock -> out += PreviewLine(
-                    text = node.literal.trimEnd(),
-                    type = PreviewLineType.CODE_BLOCK
-                )
-                is ThematicBreak -> out += PreviewLine(
-                    text = "",
-                    type = PreviewLineType.HORIZONTAL_RULE
-                )
-                is TableBlock -> out += renderTable(node)
-                is FootnoteDefinition -> out += renderFootnoteDefinition(node)
-                else -> {
-                    // Unknown top-level node: render as body so we don't drop content.
-                    val text = collectText(node)
-                    if (text.isNotBlank()) {
-                        out += PreviewLine(
-                            text = text,
-                            type = PreviewLineType.BODY,
-                            segments = collectInlineSegments(node)
-                        )
-                    }
-                }
-            }
+            renderBlock(node, out, depth = 0)
             node = node.next
         }
         return out
+    }
+
+    /**
+     * Renders one block node into [out] at [depth].
+     *
+     * [depth] is 0 for a block at document level and grows by one for each list
+     * item we descend into, so a nested list — or a continuation paragraph,
+     * quote or code block written underneath a list item — arrives as its own
+     * row that knows how far in it belongs (#339).
+     */
+    private fun renderBlock(node: Node, out: MutableList<PreviewLine>, depth: Int) {
+        when (node) {
+            is YamlFrontMatterBlock -> { /* already consumed by collectFrontmatter */ }
+            is Heading -> out += renderHeading(node)
+            is Paragraph -> out += renderParagraph(node, depth)
+            is BulletList -> renderBulletList(node, out, depth)
+            is OrderedList -> renderOrderedList(node, out, depth)
+            is BlockQuote -> renderBlockQuote(node, out, depth)
+            is FencedCodeBlock -> out += PreviewLine(
+                text = node.literal.trimEnd(),
+                type = PreviewLineType.CODE_BLOCK,
+                extra = node.info?.takeIf { it.isNotEmpty() },
+                depth = depth
+            )
+            is IndentedCodeBlock -> out += PreviewLine(
+                text = node.literal.trimEnd(),
+                type = PreviewLineType.CODE_BLOCK,
+                depth = depth
+            )
+            is ThematicBreak -> out += PreviewLine(
+                text = "",
+                type = PreviewLineType.HORIZONTAL_RULE,
+                depth = depth
+            )
+            is TableBlock -> out += renderTable(node, depth)
+            is FootnoteDefinition -> out += renderFootnoteDefinition(node, depth)
+            else -> {
+                // Unknown node: render as body so we don't drop content.
+                val text = collectText(node)
+                if (text.isNotBlank()) {
+                    out += PreviewLine(
+                        text = text,
+                        type = PreviewLineType.BODY,
+                        segments = collectInlineSegments(node),
+                        depth = depth
+                    )
+                }
+            }
+        }
     }
 
     private fun collectFrontmatter(document: Document): String? {
@@ -163,7 +179,7 @@ internal object CommonMarkPreviewAdapter {
         )
     }
 
-    private fun renderParagraph(node: Paragraph): PreviewLine {
+    private fun renderParagraph(node: Paragraph, depth: Int): PreviewLine {
         // Promote `![alt](path)` to a top-level IMAGE block when it stands
         // alone in the paragraph. We don't try to handle inline images
         // mixed with text — they fall through to BODY where the markdown
@@ -174,47 +190,59 @@ internal object CommonMarkPreviewAdapter {
             return PreviewLine(
                 text = alt,
                 type = PreviewLineType.IMAGE,
-                extra = firstChild.destination
+                extra = firstChild.destination,
+                depth = depth
             )
         }
         val text = collectText(node)
-        return PreviewLine(text = text, type = PreviewLineType.BODY, segments = collectInlineSegments(node))
+        return PreviewLine(
+            text = text,
+            type = PreviewLineType.BODY,
+            segments = collectInlineSegments(node),
+            depth = depth
+        )
     }
 
-    private fun renderBulletList(node: BulletList, out: MutableList<PreviewLine>) {
+    private fun renderBulletList(node: BulletList, out: MutableList<PreviewLine>, depth: Int) {
+        val loose = !node.isTight
         var item: Node? = node.firstChild
         while (item != null) {
             if (item is ListItem) {
                 val marker = detectTaskMarker(item)
-                val (text, segments) = textAndSegments(item)
                 val type = when (marker) {
                     TaskState.DONE -> PreviewLineType.CHECKBOX_DONE
                     TaskState.TODO -> PreviewLineType.CHECKBOX_TODO
                     TaskState.NONE -> PreviewLineType.BULLET
                 }
-                out += PreviewLine(
-                    text = text,
+                renderListItem(
+                    item = item,
+                    out = out,
+                    depth = depth,
                     type = type,
-                    segments = segments,
+                    extra = null,
                     // Only task items need it, and only they can be tapped.
-                    sourceLine = if (marker == TaskState.NONE) null else sourceLineOf(item)
+                    sourceLine = if (marker == TaskState.NONE) null else sourceLineOf(item),
+                    looseList = loose
                 )
             }
             item = item.next
         }
     }
 
-    private fun renderOrderedList(node: OrderedList, out: MutableList<PreviewLine>) {
+    private fun renderOrderedList(node: OrderedList, out: MutableList<PreviewLine>, depth: Int) {
+        val loose = !node.isTight
         var item: Node? = node.firstChild
         var index = node.markerStartNumber ?: 1
         while (item != null) {
             if (item is ListItem) {
-                val (text, segments) = textAndSegments(item)
-                out += PreviewLine(
-                    text = text,
+                renderListItem(
+                    item = item,
+                    out = out,
+                    depth = depth,
                     type = PreviewLineType.ORDERED_LIST,
                     extra = index.toString(),
-                    segments = segments
+                    sourceLine = null,
+                    looseList = loose
                 )
                 index++
             }
@@ -222,7 +250,53 @@ internal object CommonMarkPreviewAdapter {
         }
     }
 
-    private fun renderBlockQuote(node: BlockQuote, out: MutableList<PreviewLine>) {
+    /**
+     * Emits one list row, then whatever else the item carries underneath it.
+     *
+     * The row's own text is the item's *first* paragraph and nothing more.
+     * Every block child after it — a nested list, a continuation paragraph, a
+     * quote, a fenced block — becomes its own row one level deeper. Folding the
+     * whole subtree into the row instead was the bug behind #339: `- a` with a
+     * nested `- b` rendered as the single row `• ab`, and a nested `- [ ] task`
+     * lost its checkbox entirely because only the outermost item ever reached
+     * the renderer.
+     */
+    private fun renderListItem(
+        item: ListItem,
+        out: MutableList<PreviewLine>,
+        depth: Int,
+        type: PreviewLineType,
+        extra: String?,
+        sourceLine: Int?,
+        looseList: Boolean
+    ) {
+        // The task-list extension puts its marker ahead of the paragraph, so
+        // the item's own text starts one node later for a checklist row.
+        val lead = item.firstChild.let { if (it is TaskListItemMarker) it.next else it } as? Paragraph
+        out += PreviewLine(
+            text = lead?.let { collectText(it) }.orEmpty(),
+            type = type,
+            extra = extra,
+            segments = lead?.let { collectInlineSegments(it) }.orEmpty(),
+            sourceLine = sourceLine,
+            depth = depth,
+            looseList = looseList
+        )
+        // An item can open straight into a sublist (`-` on its own line), in
+        // which case there is no lead paragraph to walk past. Written long-hand
+        // rather than with an elvis: `lead?.next ?: item.firstChild` also falls
+        // back when the lead paragraph simply has no sibling, which re-renders
+        // that paragraph as a second row.
+        var child: Node? = if (lead != null) lead.next else item.firstChild
+        while (child != null) {
+            if (child !is TaskListItemMarker) {
+                renderBlock(child, out, depth + 1)
+            }
+            child = child.next
+        }
+    }
+
+    private fun renderBlockQuote(node: BlockQuote, out: MutableList<PreviewLine>, depth: Int) {
         // commonmark-java collapses a multi-line `> ...` blockquote into a
         // single Paragraph child whose text contains all the body lines
         // separated by spaces (because soft breaks). For GitHub-style
@@ -237,7 +311,8 @@ internal object CommonMarkPreviewAdapter {
             out += PreviewLine(
                 text = body,
                 type = PreviewLineType.CALLOUT,
-                extra = type
+                extra = type,
+                depth = depth
             )
         } else {
             // Fall back to one BLOCKQUOTE PreviewLine per child paragraph.
@@ -248,7 +323,8 @@ internal object CommonMarkPreviewAdapter {
                     out += PreviewLine(
                         text = text,
                         type = PreviewLineType.BLOCKQUOTE,
-                        segments = collectInlineSegments(child)
+                        segments = collectInlineSegments(child),
+                        depth = depth
                     )
                 }
                 child = child.next
@@ -284,7 +360,7 @@ internal object CommonMarkPreviewAdapter {
         return sb.toString()
     }
 
-    private fun renderTable(block: TableBlock): PreviewLine {
+    private fun renderTable(block: TableBlock, depth: Int): PreviewLine {
         var headerCells = emptyList<CellOut>()
         val bodyRows = mutableListOf<List<CellOut>>()
 
@@ -324,7 +400,8 @@ internal object CommonMarkPreviewAdapter {
                 alignments = paddedHeaderCells.map { it.alignment },
                 headerSegments = paddedHeaderCells.map { it.segments },
                 rowSegments = paddedBodyRows.map { row -> row.map { it.segments } }
-            )
+            ),
+            depth = depth
         )
     }
 
@@ -356,20 +433,15 @@ internal object CommonMarkPreviewAdapter {
         return out
     }
 
-    private fun renderFootnoteDefinition(node: FootnoteDefinition): PreviewLine {
+    private fun renderFootnoteDefinition(node: FootnoteDefinition, depth: Int): PreviewLine {
         val body = collectText(node)
         return PreviewLine(
             text = body,
             type = PreviewLineType.FOOTNOTE_DEF,
             extra = node.label,
-            segments = collectInlineSegments(node)
+            segments = collectInlineSegments(node),
+            depth = depth
         )
-    }
-
-    private fun textAndSegments(node: Node): Pair<String, List<PreviewInlineSegment>> {
-        val text = collectText(node)
-        val segments = collectInlineSegments(node)
-        return text to segments
     }
 
     /**

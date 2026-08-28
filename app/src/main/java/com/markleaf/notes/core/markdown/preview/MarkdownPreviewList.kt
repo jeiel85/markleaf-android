@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
@@ -46,10 +46,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.markleaf.notes.R
 import com.markleaf.notes.core.markdown.CalloutKind
+import kotlin.math.min
 import com.markleaf.notes.core.markdown.PreviewInlineSegment
 import com.markleaf.notes.core.markdown.PreviewInlineType
 import com.markleaf.notes.core.markdown.PreviewLine
@@ -69,6 +71,34 @@ import com.markleaf.notes.core.markdown.syntax.SyntaxHighlighter
  *   The argument is the target text inside the brackets (already trimmed).
  *   Default is a no-op so existing snapshot tests don't need to wire navigation.
  */
+// Vertical rhythm of the rendered preview (#340).
+//
+// Before this, every block carried an ad-hoc 2/4/6/8dp padding and a blank line
+// in the source produced no row at all, so two paragraphs sat 4dp apart while
+// the lines *inside* one paragraph were 26sp apart — the gap between paragraphs
+// was smaller than the gap between two lines of the same paragraph. These
+// values put the ordering back: line < list row < paragraph < heading.
+private val ListRowSpacing = 3.dp
+// 8dp rather than something smaller because the body line height is a generous
+// 26sp: with less, the space between two paragraphs stays close enough to the
+// space between two lines of one paragraph that the break does not read.
+private val ParagraphSpacing = 8.dp
+
+// Indentation per nesting level for rows inside a list (#339 gives them their
+// depth). Shallower than the outline sheet's 24dp per level, because a list can
+// nest far deeper than the six heading levels that sheet ever shows, and the
+// cap keeps a pathological note from squeezing its own text off the screen.
+private val ListIndentPerLevel = 16.dp
+private const val MaxIndentDepth = 6
+
+/**
+ * A heading's top margin separates it from the block above it. The first block
+ * in the preview has nothing above it, so that margin would read as dead space
+ * at the top of every note instead — and most notes open with a heading.
+ */
+private fun headingTop(isFirstBlock: Boolean, margin: Dp): Dp =
+    if (isFirstBlock) 0.dp else margin
+
 @Composable
 fun MarkdownPreviewList(
     lines: List<PreviewLine>,
@@ -96,9 +126,12 @@ fun MarkdownPreviewList(
         state = listState,
         contentPadding = contentPadding
     ) {
-        items(lines) { line ->
+        itemsIndexed(lines) { index, line ->
             PreviewLineRenderer(
                 line = line,
+                // Only a block with something above it needs separating from
+                // it; see [headingTop].
+                isFirstBlock = index == 0,
                 onWikilinkClick = onWikilinkClick,
                 onImageLongPress = onImageLongPress,
                 onFootnoteRefClick = onFootnoteRefClick,
@@ -111,10 +144,49 @@ fun MarkdownPreviewList(
 @Composable
 fun PreviewLineRenderer(
     line: PreviewLine,
+    isFirstBlock: Boolean = false,
     onWikilinkClick: (String) -> Unit = {},
     onImageLongPress: (path: String, currentAlt: String) -> Unit = { _, _ -> },
     onFootnoteRefClick: (String) -> Unit = {},
     onToggleTask: ((sourceLine: Int) -> Unit)? = null
+) {
+    val indent = ListIndentPerLevel * min(line.depth, MaxIndentDepth)
+    if (indent == 0.dp) {
+        // The common case pays for no extra layout node.
+        PreviewLineContent(
+            line = line,
+            isFirstBlock = isFirstBlock,
+            onWikilinkClick = onWikilinkClick,
+            onImageLongPress = onImageLongPress,
+            onFootnoteRefClick = onFootnoteRefClick,
+            onToggleTask = onToggleTask
+        )
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = indent)
+        ) {
+            PreviewLineContent(
+                line = line,
+                isFirstBlock = isFirstBlock,
+                onWikilinkClick = onWikilinkClick,
+                onImageLongPress = onImageLongPress,
+                onFootnoteRefClick = onFootnoteRefClick,
+                onToggleTask = onToggleTask
+            )
+        }
+    }
+}
+
+@Composable
+private fun PreviewLineContent(
+    line: PreviewLine,
+    isFirstBlock: Boolean,
+    onWikilinkClick: (String) -> Unit,
+    onImageLongPress: (path: String, currentAlt: String) -> Unit,
+    onFootnoteRefClick: (String) -> Unit,
+    onToggleTask: ((sourceLine: Int) -> Unit)?
 ) {
     // Only a row that knows its own source line can be toggled; see
     // PreviewLine.sourceLine for why we refuse to guess (#219).
@@ -126,19 +198,19 @@ fun PreviewLineRenderer(
             text = line.text,
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(top = headingTop(isFirstBlock, 24.dp), bottom = 8.dp)
         )
         PreviewLineType.H2 -> Text(
             text = line.text,
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.secondary,
-            modifier = Modifier.padding(top = 8.dp, bottom = 6.dp)
+            modifier = Modifier.padding(top = headingTop(isFirstBlock, 20.dp), bottom = 6.dp)
         )
         PreviewLineType.H3 -> Text(
             text = line.text,
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.secondary,
-            modifier = Modifier.padding(top = 6.dp, bottom = 4.dp)
+            modifier = Modifier.padding(top = headingTop(isFirstBlock, 16.dp), bottom = 4.dp)
         )
         // H4–H6 continue down the same type scale rather than getting a
         // treatment of their own. The last two also drop to the muted colour:
@@ -148,19 +220,19 @@ fun PreviewLineRenderer(
             text = line.text,
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.secondary,
-            modifier = Modifier.padding(top = 6.dp, bottom = 4.dp)
+            modifier = Modifier.padding(top = headingTop(isFirstBlock, 12.dp), bottom = 4.dp)
         )
         PreviewLineType.H5 -> Text(
             text = line.text,
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 4.dp, bottom = 2.dp)
+            modifier = Modifier.padding(top = headingTop(isFirstBlock, 10.dp), bottom = 2.dp)
         )
         PreviewLineType.H6 -> Text(
             text = line.text,
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 4.dp, bottom = 2.dp)
+            modifier = Modifier.padding(top = headingTop(isFirstBlock, 8.dp), bottom = 2.dp)
         )
         PreviewLineType.BULLET -> InlineMarkdownText(
             line = line,
@@ -186,6 +258,7 @@ fun PreviewLineRenderer(
         PreviewLineType.CODE_BLOCK -> MarkdownCodeBlock(line.text, line.extra)
         PreviewLineType.BODY -> InlineMarkdownText(
             line = line,
+            verticalPadding = ParagraphSpacing,
             onWikilinkClick = onWikilinkClick,
             onFootnoteRefClick = onFootnoteRefClick
         )
@@ -244,6 +317,12 @@ internal fun InlineMarkdownText(
      * separate Text) so wrapping and click offsets stay aligned.
      */
     leadingMarker: String = "",
+    /**
+     * Space above and below the row. Defaults to the tighter list rhythm; a
+     * standalone paragraph passes [ParagraphSpacing] so prose breathes without
+     * pulling list items apart from each other.
+     */
+    verticalPadding: Dp = ListRowSpacing,
     color: Color = MaterialTheme.colorScheme.onBackground,
     /**
      * When set, [leadingMarker] becomes a clickable region. Carried inside the
@@ -271,7 +350,7 @@ internal fun InlineMarkdownText(
     Text(
         text = annotated,
         style = MaterialTheme.typography.bodyLarge.copy(color = color),
-        modifier = Modifier.padding(vertical = 2.dp)
+        modifier = Modifier.padding(vertical = verticalPadding)
     )
 }
 

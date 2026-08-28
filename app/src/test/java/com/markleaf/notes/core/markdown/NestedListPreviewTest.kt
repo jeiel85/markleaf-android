@@ -225,6 +225,30 @@ class NestedListPreviewTest {
     }
 
     @Test
+    fun `a table or rule inside a list item is indented with it`() {
+        val lines = SimpleMarkdownPreview.parse(
+            """
+            - item with a table
+
+              | a | b |
+              | --- | --- |
+              | 1 | 2 |
+
+            - item with a rule
+
+              ---
+            """.trimIndent()
+        )
+
+        // Every block a list item can hold has to inherit the item's depth, or
+        // it renders flush against the left margin while the rows around it sit
+        // indented.
+        val byType = lines.associateBy { it.type }
+        assertEquals(1, byType[PreviewLineType.TABLE]?.depth)
+        assertEquals(1, byType[PreviewLineType.HORIZONTAL_RULE]?.depth)
+    }
+
+    @Test
     fun `body rows outside a list stay at depth zero`() {
         val lines = SimpleMarkdownPreview.parse(
             """

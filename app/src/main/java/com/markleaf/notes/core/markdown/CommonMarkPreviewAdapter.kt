@@ -126,10 +126,11 @@ internal object CommonMarkPreviewAdapter {
             )
             is ThematicBreak -> out += PreviewLine(
                 text = "",
-                type = PreviewLineType.HORIZONTAL_RULE
+                type = PreviewLineType.HORIZONTAL_RULE,
+                depth = depth
             )
-            is TableBlock -> out += renderTable(node)
-            is FootnoteDefinition -> out += renderFootnoteDefinition(node)
+            is TableBlock -> out += renderTable(node, depth)
+            is FootnoteDefinition -> out += renderFootnoteDefinition(node, depth)
             else -> {
                 // Unknown node: render as body so we don't drop content.
                 val text = collectText(node)
@@ -359,7 +360,7 @@ internal object CommonMarkPreviewAdapter {
         return sb.toString()
     }
 
-    private fun renderTable(block: TableBlock): PreviewLine {
+    private fun renderTable(block: TableBlock, depth: Int = 0): PreviewLine {
         var headerCells = emptyList<CellOut>()
         val bodyRows = mutableListOf<List<CellOut>>()
 
@@ -399,7 +400,8 @@ internal object CommonMarkPreviewAdapter {
                 alignments = paddedHeaderCells.map { it.alignment },
                 headerSegments = paddedHeaderCells.map { it.segments },
                 rowSegments = paddedBodyRows.map { row -> row.map { it.segments } }
-            )
+            ),
+            depth = depth
         )
     }
 
@@ -431,13 +433,14 @@ internal object CommonMarkPreviewAdapter {
         return out
     }
 
-    private fun renderFootnoteDefinition(node: FootnoteDefinition): PreviewLine {
+    private fun renderFootnoteDefinition(node: FootnoteDefinition, depth: Int = 0): PreviewLine {
         val body = collectText(node)
         return PreviewLine(
             text = body,
             type = PreviewLineType.FOOTNOTE_DEF,
             extra = node.label,
-            segments = collectInlineSegments(node)
+            segments = collectInlineSegments(node),
+            depth = depth
         )
     }
 

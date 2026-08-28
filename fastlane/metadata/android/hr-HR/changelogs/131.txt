@@ -1,0 +1,1 @@
+Izdanje s pospremanjem. Dvije najveće datoteke izvornog koda u Markleafu podijeljene su na manje dijelove od kojih su ionako bile sastavljene, kako bi buduće izmjene bile sigurnije. Ništa vidljivo nije se promijenilo — isti zasloni, isto ponašanje i iste datoteke na disku kao u v2.34.0. Provjera koja je nestala tijekom podjele pronađena je i vraćena prije objave.

@@ -1,0 +1,1 @@
+Las listas anidadas vuelven a mostrarse bien. Un elemento escrito bajo otro es ahora su propia fila, con su sangría, su casilla y su estado; antes se pegaba a la línea de arriba sin separación. La vista previa también tiene espaciado real: las líneas en blanco entre párrafos cuentan, los títulos tienen aire encima y las listas sueltas respiran. Reportado desde Discussions.

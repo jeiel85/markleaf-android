@@ -1,0 +1,1 @@
+Nested lists render properly again. An item written under another is now its own row at its own indent, with its own checkbox and state — before it was folded into the line above with no separator. The preview also has real spacing: blank lines between paragraphs count, headings get room above them, and loose lists breathe. Reported from Discussions.

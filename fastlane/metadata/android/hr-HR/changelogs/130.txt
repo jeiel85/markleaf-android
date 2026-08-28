@@ -1,0 +1,1 @@
+Ugniježđeni popisi ponovno se prikazuju ispravno. Stavka napisana ispod druge sada ima svoj redak, svoju uvlaku, svoj okvir i stanje — prije se lijepila na redak iznad bez razmaka. Pregled sada ima i pravi razmak: prazni redovi između odlomaka se broje, naslovi dobivaju zraka iznad sebe, a razmaknuti popisi dišu. Prijavljeno u Discussions.

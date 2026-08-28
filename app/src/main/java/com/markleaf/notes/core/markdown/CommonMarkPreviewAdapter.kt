@@ -203,6 +203,7 @@ internal object CommonMarkPreviewAdapter {
     }
 
     private fun renderBulletList(node: BulletList, out: MutableList<PreviewLine>, depth: Int) {
+        val loose = !node.isTight
         var item: Node? = node.firstChild
         while (item != null) {
             if (item is ListItem) {
@@ -219,7 +220,8 @@ internal object CommonMarkPreviewAdapter {
                     type = type,
                     extra = null,
                     // Only task items need it, and only they can be tapped.
-                    sourceLine = if (marker == TaskState.NONE) null else sourceLineOf(item)
+                    sourceLine = if (marker == TaskState.NONE) null else sourceLineOf(item),
+                    looseList = loose
                 )
             }
             item = item.next
@@ -227,6 +229,7 @@ internal object CommonMarkPreviewAdapter {
     }
 
     private fun renderOrderedList(node: OrderedList, out: MutableList<PreviewLine>, depth: Int) {
+        val loose = !node.isTight
         var item: Node? = node.firstChild
         var index = node.markerStartNumber ?: 1
         while (item != null) {
@@ -237,7 +240,8 @@ internal object CommonMarkPreviewAdapter {
                     depth = depth,
                     type = PreviewLineType.ORDERED_LIST,
                     extra = index.toString(),
-                    sourceLine = null
+                    sourceLine = null,
+                    looseList = loose
                 )
                 index++
             }
@@ -262,7 +266,8 @@ internal object CommonMarkPreviewAdapter {
         depth: Int,
         type: PreviewLineType,
         extra: String?,
-        sourceLine: Int?
+        sourceLine: Int?,
+        looseList: Boolean
     ) {
         // The task-list extension puts its marker ahead of the paragraph, so
         // the item's own text starts one node later for a checklist row.
@@ -273,7 +278,8 @@ internal object CommonMarkPreviewAdapter {
             extra = extra,
             segments = lead?.let { collectInlineSegments(it) }.orEmpty(),
             sourceLine = sourceLine,
-            depth = depth
+            depth = depth,
+            looseList = looseList
         )
         // An item can open straight into a sublist (`-` on its own line), in
         // which case there is no lead paragraph to walk past. Written long-hand

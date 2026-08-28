@@ -323,6 +323,32 @@ class MarkdownPreviewSnapshotTest {
     }
 
     /**
+     * A loose list — items separated by blank lines — has to render with more
+     * air than a tight one, or the blank lines the author typed disappear
+     * (#340). Both lists below hold the same three items.
+     */
+    @Test
+    fun loose_and_tight_lists_light() = snapshot("loose_and_tight_lists_light", darkTheme = false) {
+        Renders(
+            """
+            Tight:
+
+            - alpha
+            - beta
+            - gamma
+
+            Loose:
+
+            - alpha
+
+            - beta
+
+            - gamma
+            """.trimIndent()
+        )
+    }
+
+    /**
      * Regression net for #340: the gap between two paragraphs has to be larger
      * than the gap between two lines of one paragraph, and a heading needs air
      * above it — except at the very top, where there is nothing to separate it

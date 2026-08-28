@@ -107,7 +107,14 @@ data class PreviewLine(
      * used by the renderer to indent the row. Rows that are not part of a list
      * leave it at 0.
      */
-    val depth: Int = 0
+    val depth: Int = 0,
+    /**
+     * True when this row belongs to a *loose* list — one whose items are
+     * separated by blank lines in the source. CommonMark makes the
+     * distinction and so should the rendering: a loose list is prose the
+     * author spaced out on purpose, a tight one is a compact enumeration.
+     */
+    val looseList: Boolean = false
 )
 
 object SimpleMarkdownPreview {

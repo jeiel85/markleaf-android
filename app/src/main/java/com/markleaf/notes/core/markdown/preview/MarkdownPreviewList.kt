@@ -99,6 +99,15 @@ private const val MaxIndentDepth = 6
 private fun headingTop(isFirstBlock: Boolean, margin: Dp): Dp =
     if (isFirstBlock) 0.dp else margin
 
+/**
+ * A list whose items are separated by blank lines in the source is *loose* in
+ * CommonMark's sense — the author spaced it out deliberately — so its rows get
+ * the paragraph rhythm rather than the compact one. Without this the blank
+ * lines disappear and a loose list is indistinguishable from a tight one.
+ */
+private fun listRowSpacing(line: PreviewLine): Dp =
+    if (line.looseList) ParagraphSpacing else ListRowSpacing
+
 @Composable
 fun MarkdownPreviewList(
     lines: List<PreviewLine>,
@@ -237,12 +246,14 @@ private fun PreviewLineContent(
         PreviewLineType.BULLET -> InlineMarkdownText(
             line = line,
             leadingMarker = "• ",
+            verticalPadding = listRowSpacing(line),
             onWikilinkClick = onWikilinkClick,
             onFootnoteRefClick = onFootnoteRefClick
         )
         PreviewLineType.CHECKBOX_DONE -> InlineMarkdownText(
             line = line,
             leadingMarker = "☑ ",
+            verticalPadding = listRowSpacing(line),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             onWikilinkClick = onWikilinkClick,
             onFootnoteRefClick = onFootnoteRefClick,
@@ -251,6 +262,7 @@ private fun PreviewLineContent(
         PreviewLineType.CHECKBOX_TODO -> InlineMarkdownText(
             line = line,
             leadingMarker = "☐ ",
+            verticalPadding = listRowSpacing(line),
             onWikilinkClick = onWikilinkClick,
             onFootnoteRefClick = onFootnoteRefClick,
             onMarkerClick = toggle
@@ -294,6 +306,7 @@ private fun PreviewLineContent(
         PreviewLineType.ORDERED_LIST -> InlineMarkdownText(
             line = line,
             leadingMarker = "${line.extra ?: "1"}. ",
+            verticalPadding = listRowSpacing(line),
             onWikilinkClick = onWikilinkClick,
             onFootnoteRefClick = onFootnoteRefClick
         )

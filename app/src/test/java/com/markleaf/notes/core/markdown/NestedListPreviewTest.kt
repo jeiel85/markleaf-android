@@ -182,6 +182,49 @@ class NestedListPreviewTest {
     }
 
     @Test
+    fun `a list with blank lines between its items is marked loose`() {
+        val loose = SimpleMarkdownPreview.parse(
+            """
+            - one
+
+            - two
+            """.trimIndent()
+        )
+        val tight = SimpleMarkdownPreview.parse(
+            """
+            - one
+            - two
+            """.trimIndent()
+        )
+
+        // CommonMark reads the blank line as "space this out on purpose" and
+        // keeps both items in one list. The rows have to carry that apart from
+        // each other, or the blank line disappears in the rendering.
+        assertEquals(listOf(true, true), loose.map { it.looseList })
+        assertEquals(listOf(false, false), tight.map { it.looseList })
+        assertEquals(loose.map { it.text }, tight.map { it.text })
+    }
+
+    @Test
+    fun `looseness follows the list a row belongs to`() {
+        val lines = SimpleMarkdownPreview.parse(
+            """
+            - tight one
+            - tight two
+
+              - nested after a blank line
+
+              - nested two
+            """.trimIndent()
+        )
+
+        // The outer list turned loose the moment one of its items held a blank
+        // line, and the inner list is loose in its own right.
+        assertEquals(listOf(0, 0, 1, 1), lines.map { it.depth })
+        lines.forEach { assertEquals(true, it.looseList) }
+    }
+
+    @Test
     fun `body rows outside a list stay at depth zero`() {
         val lines = SimpleMarkdownPreview.parse(
             """

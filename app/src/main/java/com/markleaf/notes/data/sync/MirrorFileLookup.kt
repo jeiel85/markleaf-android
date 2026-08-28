@@ -310,6 +310,17 @@ internal object MirrorFileLookup {
         return MirrorFileNames.uniqueName(base, ext) { it.lowercase() in taken }
     }
 
+    /**
+     * A folder entry the mirror may treat as a note file. The name rule is not
+     * enough on its own: an external sync client can leave a *directory* called
+     * `Plan.md`, and every caller here goes on to read, rename or delete what
+     * it selects — a directory picked up by name would be deleted with its
+     * children. The two checks belong together, so callers filter with this
+     * rather than pairing [isMirrorFile] with their own `isFile` test.
+     */
+    internal fun isMirrorEntry(file: DocumentFile): Boolean =
+        file.isFile && isMirrorFile(file.name)
+
     internal fun isMirrorFile(name: String?): Boolean {
         val n = name?.lowercase() ?: return false
         return n.endsWith(".md") || n.endsWith(".txt")

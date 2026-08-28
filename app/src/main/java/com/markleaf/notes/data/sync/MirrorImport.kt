@@ -59,7 +59,7 @@ internal object MirrorImport {
         var conflicts = 0
 
         val byId = existing.associateBy { it.id }
-        val files = folder.listFiles().filter { MirrorFileLookup.isMirrorFile(it.name) }
+        val files = folder.listFiles().filter { MirrorFileLookup.isMirrorEntry(it) }
 
         for (file in files) {
             val raw = runCatching {
@@ -205,7 +205,7 @@ internal object MirrorImport {
         val merged = SidecarStore.load(context, folder, deviceId)
         val byFileName = SidecarIndex.byFileName(merged)
         val ownEntries = SidecarStore.ownEntries(context, folder, deviceId)
-        val files = folder.listFiles().filter { MirrorFileLookup.isMirrorFile(it.name) }
+        val files = folder.listFiles().filter { MirrorFileLookup.isMirrorEntry(it) }
 
         // Rows describing neither a note nor a file. A note deleted on another
         // device takes its file with it and cannot touch our index, so without

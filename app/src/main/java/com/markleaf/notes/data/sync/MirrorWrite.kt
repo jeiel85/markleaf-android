@@ -52,7 +52,7 @@ internal object MirrorWrite {
             return writeContents(context, cached.uri, note, cached.extraEntries)
         }
 
-        val mirrorFiles = folder.listFiles().filter { MirrorFileLookup.isMirrorFile(it.name) }
+        val mirrorFiles = folder.listFiles().filter { MirrorFileLookup.isMirrorEntry(it) }
         val match = MirrorFileLookup.findMirrorFile(context, mirrorFiles, note)
         val existing = match?.file
         val ext = existing?.mirrorExtension() ?: extension.value
@@ -121,7 +121,7 @@ internal object MirrorWrite {
             return true
         }
 
-        val mirrorFiles = folder.listFiles().filter { MirrorFileLookup.isMirrorFile(it.name) }
+        val mirrorFiles = folder.listFiles().filter { MirrorFileLookup.isMirrorEntry(it) }
 
         // Our own index answers this for every note we have already written, so
         // the common save never reads another device's file. Falling back to the
@@ -221,7 +221,7 @@ internal object MirrorWrite {
     internal fun renameToTitle(context: Context, folderUri: Uri, note: Note): Boolean {
         val folder = DocumentFile.fromTreeUri(context, folderUri) ?: return false
         if (!folder.canWrite()) return false
-        val mirrorFiles = folder.listFiles().filter { MirrorFileLookup.isMirrorFile(it.name) }
+        val mirrorFiles = folder.listFiles().filter { MirrorFileLookup.isMirrorEntry(it) }
         val file = MirrorFileLookup.findFileForNote(context, mirrorFiles, note.id) ?: return false
         val desired = MirrorFileLookup.resolveName(
             note, file.mirrorExtension(), mirrorFiles, ownFile = file
@@ -253,7 +253,7 @@ internal object MirrorWrite {
         // succeeds, the entry has stopped being trustworthy.
         MirrorFileLookup.MirrorFileCache.forget(noteId)
         var changed = false
-        val mirrorFiles = folder.listFiles().filter { MirrorFileLookup.isMirrorFile(it.name) }
+        val mirrorFiles = folder.listFiles().filter { MirrorFileLookup.isMirrorEntry(it) }
         // In sidecar mode the file carries no id to find it by, so the index is
         // the only link — and the entry has to go with the file, or the next
         // pass sees an entry for a note that no longer exists.

@@ -295,4 +295,29 @@ class NoteFolderMirrorFolderTest {
         assertEquals(0, second.conflicts)
         assertEquals(1, created.size)
     }
+
+    // --- a directory is not a note file -------------------------------------
+
+    @Test
+    fun aDirectoryNamedLikeANoteIsNotTreatedAsOne() = runBlocking {
+        // Sync clients do leave folders called "Archive.md". Every path that
+        // lists the mirror goes on to read, rename or delete what it selects,
+        // and `delete()` on a directory takes its children with it — so the
+        // listing has to reject a directory before the name rule ever sees it.
+        val intruder = File(dir, "Archive.md").apply { mkdirs() }
+        val child = File(intruder, "kept.md").apply { writeText("# Kept\n\nnot ours") }
+        val created = mutableListOf<Note>()
+
+        val result = NoteFolderMirror.importChangesFrom(
+            context, folder, existing = emptyList(),
+            applyUpdate = { }, applyCreate = { created += it }
+        )
+
+        // Skipped outright, not read and counted as a failure.
+        assertEquals(0, result.created)
+        assertEquals(0, result.errors)
+        assertTrue("nothing was imported from it", created.isEmpty())
+        assertTrue("the directory is untouched", intruder.isDirectory)
+        assertEquals("# Kept\n\nnot ours", child.readText())
+    }
 }

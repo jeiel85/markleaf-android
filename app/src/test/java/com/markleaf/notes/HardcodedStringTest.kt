@@ -180,7 +180,7 @@ class HardcodedStringTest {
             "com/markleaf/notes/core/markdown/preview/MarkdownPreviewList.kt" to
                 "[^\${line.extra}]",
             "com/markleaf/notes/feature/editor/EditorFormattingControls.kt" to "Aa",
-            "com/markleaf/notes/feature/editor/EditorScreen.kt" to "#\$tag"
+            "com/markleaf/notes/feature/editor/EditorSuggestions.kt" to "#\$tag"
         )
     }
 }

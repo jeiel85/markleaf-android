@@ -179,7 +179,7 @@ internal object CommonMarkPreviewAdapter {
         )
     }
 
-    private fun renderParagraph(node: Paragraph, depth: Int = 0): PreviewLine {
+    private fun renderParagraph(node: Paragraph, depth: Int): PreviewLine {
         // Promote `![alt](path)` to a top-level IMAGE block when it stands
         // alone in the paragraph. We don't try to handle inline images
         // mixed with text — they fall through to BODY where the markdown
@@ -360,7 +360,7 @@ internal object CommonMarkPreviewAdapter {
         return sb.toString()
     }
 
-    private fun renderTable(block: TableBlock, depth: Int = 0): PreviewLine {
+    private fun renderTable(block: TableBlock, depth: Int): PreviewLine {
         var headerCells = emptyList<CellOut>()
         val bodyRows = mutableListOf<List<CellOut>>()
 
@@ -433,7 +433,7 @@ internal object CommonMarkPreviewAdapter {
         return out
     }
 
-    private fun renderFootnoteDefinition(node: FootnoteDefinition, depth: Int = 0): PreviewLine {
+    private fun renderFootnoteDefinition(node: FootnoteDefinition, depth: Int): PreviewLine {
         val body = collectText(node)
         return PreviewLine(
             text = body,

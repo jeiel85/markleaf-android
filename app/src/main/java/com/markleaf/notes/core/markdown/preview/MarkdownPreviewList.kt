@@ -51,7 +51,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.markleaf.notes.R
 import com.markleaf.notes.core.markdown.CalloutKind
-import kotlin.math.min
 import com.markleaf.notes.core.markdown.PreviewInlineSegment
 import com.markleaf.notes.core.markdown.PreviewInlineType
 import com.markleaf.notes.core.markdown.PreviewLine
@@ -60,17 +59,8 @@ import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
 import com.markleaf.notes.core.markdown.TableAlignment
 import com.markleaf.notes.core.markdown.TableData
 import com.markleaf.notes.core.markdown.syntax.SyntaxHighlighter
+import kotlin.math.min
 
-/**
- * Renders a list of [PreviewLine]s as a scrollable Markdown preview.
- * Pulled out of [com.markleaf.notes.feature.editor.EditorScreen] so the same
- * rendering can be exercised by snapshot tests independently of the editor
- * scaffolding.
- *
- * @param onWikilinkClick called when the user taps a `[[Title]]` segment.
- *   The argument is the target text inside the brackets (already trimmed).
- *   Default is a no-op so existing snapshot tests don't need to wire navigation.
- */
 // Vertical rhythm of the rendered preview (#340).
 //
 // Before this, every block carried an ad-hoc 2/4/6/8dp padding and a blank line
@@ -108,6 +98,16 @@ private fun headingTop(isFirstBlock: Boolean, margin: Dp): Dp =
 private fun listRowSpacing(line: PreviewLine): Dp =
     if (line.looseList) ParagraphSpacing else ListRowSpacing
 
+/**
+ * Renders a list of [PreviewLine]s as a scrollable Markdown preview.
+ * Pulled out of [com.markleaf.notes.feature.editor.EditorScreen] so the same
+ * rendering can be exercised by snapshot tests independently of the editor
+ * scaffolding.
+ *
+ * @param onWikilinkClick called when the user taps a `[[Title]]` segment.
+ *   The argument is the target text inside the brackets (already trimmed).
+ *   Default is a no-op so existing snapshot tests don't need to wire navigation.
+ */
 @Composable
 fun MarkdownPreviewList(
     lines: List<PreviewLine>,

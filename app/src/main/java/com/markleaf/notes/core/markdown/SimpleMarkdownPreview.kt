@@ -99,7 +99,15 @@ data class PreviewLine(
      * the outline scrolls the editor to one and a rendered-list index cannot
      * locate a caret (#215). Null means "this row cannot point back".
      */
-    val sourceLine: Int? = null
+    val sourceLine: Int? = null,
+    /**
+     * How deeply a list row is nested: 0 for a top-level item, 1 for an item
+     * written underneath it, and so on. Set by [CommonMarkPreviewAdapter] as it
+     * descends into a nested list or into the blocks a list item carries, and
+     * used by the renderer to indent the row. Rows that are not part of a list
+     * leave it at 0.
+     */
+    val depth: Int = 0
 )
 
 object SimpleMarkdownPreview {

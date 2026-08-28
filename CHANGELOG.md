@@ -4,6 +4,16 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.34.0 - Nested lists, and the space between things - 2026-08-28
+
+Everything here came out of one question asked in Discussions: is it by design that the preview renders quite flat? It was not. No permission or storage-format changes.
+
+### Fixed
+- **Nested list items are rows of their own again ([#339](https://github.com/jeiel85/markleaf-android/issues/339)).** The preview built each list row out of the whole item, including everything nested underneath it, and ran the text together with no separator — so a `- top item` with a nested `- nested item` rendered as the single bullet `top itemnested item`. Checklists had it worst: a nested `- [ ] task` never became a row at all, so it had no checkbox of its own, no visible done state and nothing to tap. Every item is now its own row at its own indent, with its own marker, at any depth, and tapping a nested checkbox flips exactly the line it came from. A second paragraph, a quote, a table or a rule written underneath an item becomes its own row too. Reported in [discussion #338](https://github.com/jeiel85/markleaf-android/discussions/338) by [@Stephane-30](https://github.com/Stephane-30).
+
+### Changed
+- **The preview has a vertical rhythm ([#340](https://github.com/jeiel85/markleaf-android/issues/340)).** A blank line in your Markdown used to render as nothing at all, which left two paragraphs sitting closer together than two lines of the same paragraph — the reason the preview read as squashed rather than merely plain. Paragraphs now stand clearly apart, headings have real space above them (suppressed at the very top, so a note that opens with a heading does not open with a gap), and list rows indent by how deeply they are nested. A list whose items you separated with blank lines is spaced out now as well, the way every other Markdown renderer treats it, instead of being drawn exactly like a compact one.
+
 ## v2.33.0 - A language, and a row you can take back - 2026-08-23
 
 Both changes arrived from outside the project: a complete Croatian translation, and a discussion about what sits above the keyboard while you write. No permission or storage-format changes.

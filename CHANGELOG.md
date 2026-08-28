@@ -4,6 +4,14 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.34.1 - The two big files, taken apart - 2026-08-28
+
+A housekeeping release. The two largest source files in Markleaf were split into the parts they were already made of, so that changing them from here is safer than it was. Nothing you can see is different from v2.34.0 — the same screens, the same behaviour, the same files on disk. No feature, permission, or storage-format changes.
+
+### Internal
+- **The folder-sync file and the editor screen were split along seams they already had ([#343](https://github.com/jeiel85/markleaf-android/pull/343)).** `NoteFolderMirror.kt` (1,232 lines) became five files — writing to the folder, importing from it, finding a note's file, deciding which side wins, and the metadata mode — behind a facade that keeps every existing name and signature, so nothing that calls it had to change. `EditorScreen.kt` (1,651 lines) gave up 515 lines of text helpers, the find bar, the suggestion rows and its two dialogs. The code moved; none of it was rewritten.
+- **The move was checked line by line rather than by eye, and that is how one lost guard was caught.** Comparing every function against the old file turned up six folder listings that had quietly dropped their "this is a file, not a directory" check along the way. A *directory* named `Plan.md` — the kind an external sync client leaves behind — would have been read as a note, and in metadata-free mode deleted along with everything inside it. The check now lives in one place where it cannot be separated from the filename rule again, and a test fails without it. This never reached a released version: the defect was introduced and repaired inside the same change.
+
 ## v2.34.0 - Nested lists, and the space between things - 2026-08-28
 
 Everything here came out of one question asked in Discussions: is it by design that the preview renders quite flat? It was not. No permission or storage-format changes.

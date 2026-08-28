@@ -1,0 +1,1 @@
+A housekeeping release. The two largest source files in Markleaf were split into the smaller parts they were already made of, so future changes are safer to make. Nothing you can see has changed — the same screens, the same behaviour, the same files on disk as v2.34.0. A guard that went missing during the split was caught and restored before this shipped.

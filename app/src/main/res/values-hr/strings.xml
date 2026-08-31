@@ -44,6 +44,12 @@
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>
     <string name="font_description">Serif daje bilješkama klasični izgled knjige. Kôd uvijek koristi font fiksne širine.</string>
+    <string name="font_size_label">Veličina teksta</string>
+    <string name="font_size_small">Mala</string>
+    <string name="font_size_medium">Srednja</string>
+    <string name="font_size_large">Velika</string>
+    <string name="font_size_extra_large">Vrlo velika</string>
+    <string name="font_size_description">Skalira tekst uređivača i pregleda. Potvrdni okviri i ciljne površine poveznica rastu zajedno s tekstom.</string>
     <string name="all_notes">Sve bilješke</string>
     <string name="no_notes_for_tag">Nema bilješki s ovom oznakom</string>
     <string name="image_alt_dialog_title">Uredi opis slike</string>
@@ -200,6 +206,11 @@
     <string name="theme_markleaf_green">Markleafova zelena</string>
     <string name="theme_material_you">Material You</string>
     <string name="theme_description">Markleafova zelena je izvorna paleta boja inspirirana lišćem. Material You slijedi boje tvoje pozadinske slike na Androidu 12 i novijem.</string>
+    <string name="theme_mode_system">Sustav</string>
+    <string name="theme_mode_light">Svijetla</string>
+    <string name="theme_mode_dark">Tamna</string>
+    <string name="theme_mode_description">Slijedi postavku tamnog načina sustava ili uvijek koristi svijetli ili tamni način.</string>
+    <string name="color_palette_label">Boje</string>
 
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Prikaži Markdown sintaksu</string>

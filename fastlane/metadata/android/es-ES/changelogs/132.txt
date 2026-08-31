@@ -1,0 +1,1 @@
+Dos nuevos ajustes de apariencia. Elige cómo se ve Markleaf en la oscuridad: Ajustes → Apariencia → Tema ahora ofrece Sistema, Claro u Oscuro. Y haz el texto más grande o más pequeño: Ajustes → Markdown → Tamaño del texto ofrece Pequeño, Mediano, Grande y Muy grande, escalando el texto del editor y la vista previa, los títulos y las referencias de nota al pie.

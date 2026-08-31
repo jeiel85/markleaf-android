@@ -1,0 +1,1 @@
+Zwei neue Darstellungsoptionen. Wählen Sie, wie Markleaf im Dunkeln aussieht: Einstellungen → Darstellung → Design bietet jetzt System, Hell oder Dunkel. Und machen Sie den Text größer oder kleiner: Einstellungen → Markdown → Textgröße bietet Klein, Mittel, Groß und Extra groß und skaliert Editor- und Vorschautext, Überschriften und Fußnotenverweise.

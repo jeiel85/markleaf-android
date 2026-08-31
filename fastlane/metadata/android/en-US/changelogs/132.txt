@@ -1,0 +1,1 @@
+Two new appearance settings. Choose how Markleaf looks in the dark: Settings → Appearance → Theme now offers System, Light, or Dark. And make the text bigger or smaller: Settings → Markdown → Text size offers Small, Medium, Large, and Extra Large, scaling the editor and preview text, headings, and footnote refs.

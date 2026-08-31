@@ -1,0 +1,1 @@
+Deux nouveaux réglages d'apparence. Choisissez l'aspect de Markleaf dans le noir : Réglages → Apparence → Thème propose désormais Système, Clair ou Sombre. Et agrandissez ou réduisez le texte : Réglages → Markdown → Taille du texte propose Petit, Moyen, Grand et Très grand, en adaptant le texte de l'éditeur et de l'aperçu, les titres et les références de note de bas de page.

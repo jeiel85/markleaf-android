@@ -1,0 +1,1 @@
+Dvije nove postavke izgleda. Odaberite kako Markleaf izgleda u mraku: Postavke → Izgled → Tema sada nudi Sustav, Svijetla ili Tamna. I povećajte ili smanjite tekst: Postavke → Markdown → Veličina teksta nudi Mala, Srednja, Velika i Vrlo velika, skalirajući tekst uređivača i pregleda, naslove i reference bilješki.

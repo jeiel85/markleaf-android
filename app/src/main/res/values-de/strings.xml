@@ -33,6 +33,12 @@
     <string name="note_information_no_headings">Noch keine Überschriften.</string>
     <string name="note_information_no_backlinks">Noch keine Notiz verweist hierher.</string>
     <string name="font_label">Schriftart</string>
+    <string name="font_size_label">Schriftgröße</string>
+    <string name="font_size_small">Klein</string>
+    <string name="font_size_medium">Mittel</string>
+    <string name="font_size_large">Groß</string>
+    <string name="font_size_extra_large">Sehr groß</string>
+    <string name="font_size_description">Skaliert den Text in Editor und Vorschau. Checkboxen und Link-Tippziele wachsen mit.</string>
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>
     <string name="font_description">Serif verleiht Notizen einen klassischen, buchähnlichen Charakter. Code bleibt immer dicktengleich.</string>
@@ -182,6 +188,11 @@
 
     <string name="settings_appearance">Darstellung</string>
     <string name="theme_label">Design</string>
+    <string name="theme_mode_system">System</string>
+    <string name="theme_mode_light">Hell</string>
+    <string name="theme_mode_dark">Dunkel</string>
+    <string name="theme_mode_description">Der Systemeinstellung für den Dunkelmodus folgen oder immer hell bzw. dunkel verwenden.</string>
+    <string name="color_palette_label">Farben</string>
     <string name="theme_markleaf_green">Markleaf-Grün</string>
     <string name="theme_material_you">Material You</string>
     <string name="theme_description">Markleaf-Grün ist die ursprüngliche, vom Blatt inspirierte Farbpalette. Material You folgt deinen Systemfarben ab Android 12.</string>

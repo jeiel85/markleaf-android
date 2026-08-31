@@ -33,6 +33,12 @@
     <string name="note_information_no_headings">見出しはまだありません。</string>
     <string name="note_information_no_backlinks">このノートへのリンクはまだありません。</string>
     <string name="font_label">フォント</string>
+    <string name="font_size_label">文字サイズ</string>
+    <string name="font_size_small">小</string>
+    <string name="font_size_medium">中</string>
+    <string name="font_size_large">大</string>
+    <string name="font_size_extra_large">特大</string>
+    <string name="font_size_description">エディタとプレビューの文字サイズを変更します。チェックボックスやリンクのタップ領域も一緒に大きくなります。</string>
     <string name="font_sans">ゴシック</string>
     <string name="font_serif">明朝</string>
     <string name="font_description">明朝は書籍のような落ち着いた雰囲気になります。コードは常に等幅で表示されます。</string>
@@ -177,6 +183,11 @@
 
     <string name="settings_appearance">外観</string>
     <string name="theme_label">テーマ</string>
+    <string name="theme_mode_system">システム</string>
+    <string name="theme_mode_light">ライト</string>
+    <string name="theme_mode_dark">ダーク</string>
+    <string name="theme_mode_description">システムのダークモード設定に従うか、常にライトまたはダークに固定します。</string>
+    <string name="color_palette_label">配色</string>
     <string name="theme_markleaf_green">Markleaf グリーン</string>
     <string name="theme_material_you">Material You</string>
     <string name="theme_description">Markleaf グリーンは葉をモチーフにしたオリジナルパレットです。Material You は Android 12 以降でシステムの壁紙カラーに追従します。</string>

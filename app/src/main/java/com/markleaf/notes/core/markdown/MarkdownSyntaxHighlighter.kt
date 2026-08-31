@@ -72,6 +72,7 @@ object MarkdownSyntaxHighlighter {
     private class Memo(
         val text: String,
         val colors: MarkdownSyntaxColors,
+        val fontScale: Float,
         val result: AnnotatedString
     )
 
@@ -87,29 +88,32 @@ object MarkdownSyntaxHighlighter {
     @Volatile
     private var memo: Memo? = null
 
-    fun highlight(text: String, colors: MarkdownSyntaxColors): AnnotatedString {
+    fun highlight(text: String, colors: MarkdownSyntaxColors, fontScale: Float = 1f): AnnotatedString {
         memo?.let { cached ->
-            if (cached.text == text && cached.colors == colors) return cached.result
+            if (cached.text == text && cached.colors == colors && cached.fontScale == fontScale) {
+                return cached.result
+            }
         }
 
         val builder = AnnotatedString.Builder(text)
 
-        addLineStyles(builder, text, colors)
+        addLineStyles(builder, text, colors, fontScale)
         addInlineStyles(builder, text, colors)
 
         val result = builder.toAnnotatedString()
-        memo = Memo(text, colors, result)
+        memo = Memo(text, colors, fontScale, result)
         return result
     }
 
     private fun addLineStyles(
         builder: AnnotatedString.Builder,
         text: String,
-        colors: MarkdownSyntaxColors
+        colors: MarkdownSyntaxColors,
+        fontScale: Float
     ) {
         HEADING_REGEX.findAll(text).forEach { match ->
             val markerLen = match.value.takeWhile { it == '#' }.length
-            val (size, weight) = headingMetrics(markerLen)
+            val (size, weight) = headingMetrics(markerLen, fontScale)
 
             // Heading line gets the heading color across the full range.
             builder.addStyle(
@@ -263,11 +267,11 @@ object MarkdownSyntaxHighlighter {
         }
     }
 
-    private fun headingMetrics(level: Int): Pair<TextUnit, FontWeight> = when (level) {
-        1 -> 24.sp to FontWeight.Bold
-        2 -> 20.sp to FontWeight.SemiBold
-        3 -> 18.sp to FontWeight.SemiBold
-        else -> 16.sp to FontWeight.SemiBold
+    private fun headingMetrics(level: Int, fontScale: Float): Pair<TextUnit, FontWeight> = when (level) {
+        1 -> (24.sp * fontScale) to FontWeight.Bold
+        2 -> (20.sp * fontScale) to FontWeight.SemiBold
+        3 -> (18.sp * fontScale) to FontWeight.SemiBold
+        else -> (16.sp * fontScale) to FontWeight.SemiBold
     }
 
     /**

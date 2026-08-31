@@ -41,6 +41,12 @@
     <string name="note_information_no_headings">No headings yet.</string>
     <string name="note_information_no_backlinks">No notes link here yet.</string>
     <string name="font_label">Font</string>
+    <string name="font_size_label">Text size</string>
+    <string name="font_size_small">Small</string>
+    <string name="font_size_medium">Medium</string>
+    <string name="font_size_large">Large</string>
+    <string name="font_size_extra_large">Extra large</string>
+    <string name="font_size_description">Scales the editor and preview text. Checkboxes and link tap targets grow with it.</string>
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>
     <string name="font_description">Serif gives notes a classic, book-like feel. Code always stays monospaced.</string>
@@ -192,6 +198,11 @@
 
     <string name="settings_appearance">Appearance</string>
     <string name="theme_label">Theme</string>
+    <string name="theme_mode_system">System</string>
+    <string name="theme_mode_light">Light</string>
+    <string name="theme_mode_dark">Dark</string>
+    <string name="theme_mode_description">Follow the system dark mode setting, or always use light or dark.</string>
+    <string name="color_palette_label">Colors</string>
     <string name="theme_markleaf_green">Markleaf green</string>
     <string name="theme_material_you">Material You</string>
     <string name="theme_description">Markleaf green is the original leaf-inspired palette. Material You follows your system wallpaper colors on Android 12 and later.</string>

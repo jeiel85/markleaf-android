@@ -114,7 +114,13 @@ data class PreviewLine(
      * distinction and so should the rendering: a loose list is prose the
      * author spaced out on purpose, a tight one is a compact enumeration.
      */
-    val looseList: Boolean = false
+    val looseList: Boolean = false,
+    /**
+     * Text-size multiplier for this row (#346), stamped by
+     * `MarkdownPreviewList` from the user's setting. Defaults to 1f so the
+     * parser, tests, and every existing call site render exactly as before.
+     */
+    val fontScale: Float = 1f
 )
 
 object SimpleMarkdownPreview {

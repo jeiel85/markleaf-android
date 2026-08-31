@@ -11,6 +11,13 @@ data class AppSettings(
     val syncLastSyncedAt: Long? = null,
     val syncFileExtension: SyncFileExtension = SyncFileExtension.MD,
     val colorPalette: ColorPalette = ColorPalette.MARKLEAF_GREEN,
+    /** Light/dark override for the whole app. Defaults to [ThemeMode.SYSTEM],
+     *  which is the pre-existing behaviour of following the system dark-mode
+     *  setting, so an update changes nothing until opted into (#345). */
+    val themeMode: ThemeMode = ThemeMode.SYSTEM,
+    /** Editor and preview text scale. Defaults to [EditorFontSize.MEDIUM]
+     *  (scale 1.0), which renders exactly as before (#346). */
+    val editorFontSize: EditorFontSize = EditorFontSize.MEDIUM,
     val onboardingCompleted: Boolean = false,
     val biometricLockEnabled: Boolean = false,
     /** True when a "Locked notes" passcode has been set (#155). The passcode
@@ -163,6 +170,44 @@ enum class ColorPalette {
 
     /** System wallpaper-derived dynamic colors on Android 12+; falls back to green below S. */
     MATERIAL_YOU
+}
+
+/**
+ * Light/dark override for the whole app (#345).
+ *
+ * Requested by a user whose system is set to light but wants Markleaf dark.
+ * [SYSTEM] is the default and matches what the app has always done — follow
+ * the system dark-mode setting — so nobody's app flips on update.
+ */
+enum class ThemeMode {
+    /** Follow the system dark-mode setting — the original behaviour and the default. */
+    SYSTEM,
+
+    /** Always light, regardless of the system setting. */
+    LIGHT,
+
+    /** Always dark, regardless of the system setting. */
+    DARK
+}
+
+/**
+ * Text scale for the editor and the Markdown preview (#346).
+ *
+ * Requested because the 16sp body text runs small next to other note apps and
+ * the preview checkboxes (text glyphs) are hard to tap next to links. Scaling
+ * the writing surface scales those glyphs and the link tap targets with it.
+ * [MEDIUM] is scale 1.0 — exactly what the app has always rendered — so
+ * existing users and golden images are unaffected until they opt in.
+ */
+enum class EditorFontSize(val scale: Float) {
+    SMALL(0.875f),
+
+    /** The size the app has always rendered at — the default. */
+    MEDIUM(1.0f),
+
+    LARGE(1.125f),
+
+    EXTRA_LARGE(1.25f)
 }
 
 enum class MarkdownSyntaxVisibility {

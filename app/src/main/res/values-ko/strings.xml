@@ -33,6 +33,12 @@
     <string name="note_information_no_headings">아직 제목이 없습니다.</string>
     <string name="note_information_no_backlinks">아직 이 노트를 참조한 노트가 없습니다.</string>
     <string name="font_label">글꼴</string>
+    <string name="font_size_label">글자 크기</string>
+    <string name="font_size_small">작게</string>
+    <string name="font_size_medium">보통</string>
+    <string name="font_size_large">크게</string>
+    <string name="font_size_extra_large">아주 크게</string>
+    <string name="font_size_description">편집기와 미리보기의 글자 크기를 조절합니다. 체크박스와 링크 터치 영역도 함께 커집니다.</string>
     <string name="font_sans">산세리프</string>
     <string name="font_serif">세리프</string>
     <string name="font_description">세리프는 노트에 책 같은 고전적인 느낌을 줍니다. 코드는 항상 고정폭으로 표시됩니다.</string>
@@ -177,6 +183,11 @@
 
     <string name="settings_appearance">외관</string>
     <string name="theme_label">테마</string>
+    <string name="theme_mode_system">시스템</string>
+    <string name="theme_mode_light">라이트</string>
+    <string name="theme_mode_dark">다크</string>
+    <string name="theme_mode_description">시스템 다크 모드 설정을 따르거나, 항상 라이트 또는 다크로 고정합니다.</string>
+    <string name="color_palette_label">색상</string>
     <string name="theme_markleaf_green">Markleaf 그린</string>
     <string name="theme_material_you">Material You</string>
     <string name="theme_description">Markleaf 그린은 앱 이름의 잎과 어울리는 원래 색상입니다. Material You는 Android 12 이상에서 시스템 배경화면의 색을 따라갑니다.</string>

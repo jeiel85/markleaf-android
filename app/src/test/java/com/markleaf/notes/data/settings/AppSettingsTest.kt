@@ -53,4 +53,18 @@ class AppSettingsTest {
     fun notesStillOpenAtTheTopByDefault() {
         assertEquals(OpenNotesAt.TOP, AppSettings().openNotesAt)
     }
+
+    /**
+     * Both appearance additions (#345, #346) default to exactly what the app
+     * already did — follow the system dark mode, render at scale 1.0. Anything
+     * else would change the app under every existing user on update.
+     */
+    @Test
+    fun appearanceDefaultsMatchThePreExistingBehaviour() {
+        val settings = AppSettings()
+
+        assertEquals(ThemeMode.SYSTEM, settings.themeMode)
+        assertEquals(EditorFontSize.MEDIUM, settings.editorFontSize)
+        assertEquals(1.0f, settings.editorFontSize.scale)
+    }
 }

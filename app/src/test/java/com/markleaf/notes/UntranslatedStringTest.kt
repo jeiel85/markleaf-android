@@ -192,6 +192,8 @@ class UntranslatedStringTest {
                 "settings_app",
                 "tag_suggestions_title",
                 "tags",
+                // "System" is also the German word for the theme-mode option.
+                "theme_mode_system",
                 "version_format"
             ),
             // ja, ko and zh have no entry: nothing in them coincides with the

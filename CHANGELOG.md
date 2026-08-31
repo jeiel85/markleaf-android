@@ -4,6 +4,14 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.35.0 - Make it yours - 2026-08-31
+
+Two appearance settings, both requested from outside the project. No permission or storage-format changes.
+
+### Added
+- **Choose how Markleaf looks in the dark ([#345](https://github.com/jeiel85/markleaf-android/issues/345)).** Markleaf used to follow your system's dark-mode setting and nothing else. **Settings → Appearance → Theme** now lets you pick **System** (the old behaviour), **Light**, or **Dark**, so you can keep the app light while the rest of your phone is dark, or the other way round. Requested by [@gamersat678](https://github.com/gamersat678).
+- **Make the text bigger or smaller ([#346](https://github.com/jeiel85/markleaf-android/issues/346)).** The editor and the Markdown preview now honour a text-size setting of their own: **Settings → Markdown → Text size** offers Small, Medium, Large, and Extra Large. It scales the body text, the headings, and the footnote references, and because the checkbox glyphs and the link tap targets ride on the text, they grow with it too. The default is Medium, so nothing moves unless you ask. Requested by [@gamersat678](https://github.com/gamersat678).
+
 ## v2.34.1 - The two big files, taken apart - 2026-08-28
 
 A housekeeping release. The two largest source files in Markleaf were split into the parts they were already made of, so that changing them from here is safer than it was. Nothing you can see is different from v2.34.0 — the same screens, the same behaviour, the same files on disk. No feature, permission, or storage-format changes.

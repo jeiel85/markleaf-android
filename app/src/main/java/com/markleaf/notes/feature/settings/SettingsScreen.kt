@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -64,11 +66,13 @@ import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.ColorPalette
 import com.markleaf.notes.data.settings.EditorFont
+import com.markleaf.notes.data.settings.EditorFontSize
 import com.markleaf.notes.data.settings.EditorLineWidth
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import com.markleaf.notes.data.settings.NotesLayout
 import com.markleaf.notes.data.settings.OpenNotesAt
 import com.markleaf.notes.data.settings.SyncMetadataMode
+import com.markleaf.notes.data.settings.ThemeMode
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.NoteImporter
 import com.markleaf.notes.data.sync.SidecarMigration
@@ -84,7 +88,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
@@ -258,6 +262,38 @@ fun SettingsScreen(
                         )
                         Spacer(Modifier.height(8.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            ThemeMode.entries.forEach { mode ->
+                                val selected = appSettings.themeMode == mode
+                                if (selected) {
+                                    Button(onClick = {}) {
+                                        Text(mode.localizedLabel())
+                                    }
+                                } else {
+                                    OutlinedButton(
+                                        onClick = {
+                                            scope.launch { settingsRepository.setThemeMode(mode) }
+                                        }
+                                    ) {
+                                        Text(mode.localizedLabel())
+                                    }
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        Text(
+                            text = stringResource(R.string.theme_mode_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        Text(
+                            text = stringResource(R.string.color_palette_label),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             ColorPalette.entries.forEach { palette ->
                                 val selected = appSettings.colorPalette == palette
                                 if (selected) {
@@ -368,6 +404,42 @@ fun SettingsScreen(
                         Spacer(Modifier.height(6.dp))
                         Text(
                             text = stringResource(R.string.font_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        Text(
+                            text = stringResource(R.string.font_size_label),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        // Four options with long translations (de "Sehr groß")
+                        // overflow one row at some widths, so they wrap.
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            EditorFontSize.entries.forEach { size ->
+                                val selected = appSettings.editorFontSize == size
+                                if (selected) {
+                                    Button(onClick = {}) {
+                                        Text(size.localizedLabel())
+                                    }
+                                } else {
+                                    OutlinedButton(
+                                        onClick = {
+                                            scope.launch {
+                                                settingsRepository.setEditorFontSize(size)
+                                            }
+                                        }
+                                    ) {
+                                        Text(size.localizedLabel())
+                                    }
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        Text(
+                            text = stringResource(R.string.font_size_description),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -1269,6 +1341,25 @@ private fun ColorPalette.localizedLabel(): String {
     return when (this) {
         ColorPalette.MARKLEAF_GREEN -> stringResource(R.string.theme_markleaf_green)
         ColorPalette.MATERIAL_YOU -> stringResource(R.string.theme_material_you)
+    }
+}
+
+@Composable
+private fun ThemeMode.localizedLabel(): String {
+    return when (this) {
+        ThemeMode.SYSTEM -> stringResource(R.string.theme_mode_system)
+        ThemeMode.LIGHT -> stringResource(R.string.theme_mode_light)
+        ThemeMode.DARK -> stringResource(R.string.theme_mode_dark)
+    }
+}
+
+@Composable
+private fun EditorFontSize.localizedLabel(): String {
+    return when (this) {
+        EditorFontSize.SMALL -> stringResource(R.string.font_size_small)
+        EditorFontSize.MEDIUM -> stringResource(R.string.font_size_medium)
+        EditorFontSize.LARGE -> stringResource(R.string.font_size_large)
+        EditorFontSize.EXTRA_LARGE -> stringResource(R.string.font_size_extra_large)
     }
 }
 

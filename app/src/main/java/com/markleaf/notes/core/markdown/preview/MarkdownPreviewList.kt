@@ -107,6 +107,10 @@ private fun listRowSpacing(line: PreviewLine): Dp =
  * @param onWikilinkClick called when the user taps a `[[Title]]` segment.
  *   The argument is the target text inside the brackets (already trimmed).
  *   Default is a no-op so existing snapshot tests don't need to wire navigation.
+ * @param fontScale multiplier for the rendered type scale (#346). Growing the
+ *   text grows the checkbox glyphs and the link tap targets with it — the
+ *   whole point of the setting. At the default 1f the lines list renders
+ *   byte-identically to before.
  */
 @Composable
 fun MarkdownPreviewList(
@@ -116,7 +120,8 @@ fun MarkdownPreviewList(
     listState: LazyListState = rememberLazyListState(),
     onWikilinkClick: (String) -> Unit = {},
     onImageLongPress: (path: String, currentAlt: String) -> Unit = { _, _ -> },
-    onToggleTask: ((sourceLine: Int) -> Unit)? = null
+    onToggleTask: ((sourceLine: Int) -> Unit)? = null,
+    fontScale: Float = 1f
 ) {
     val scope = rememberCoroutineScope()
     // Footnote ref → def: clicking a superscript `[^N]` scrolls the matching
@@ -130,12 +135,21 @@ fun MarkdownPreviewList(
             listState.animateScrollToItem(targetIndex)
         }
     }
+    // The scale rides the PreviewLine rather than a CompositionLocal:
+    // material3's LocalTypography is internal, and threading it through would
+    // also resize the pieces of this file that are NOT body text (callout
+    // labels, code blocks, frontmatter, table cells), which the setting does
+    // not promise. PreviewLine is this preview's own model, so the scale can
+    // live there with no public API change.
+    val scaledLines = remember(lines, fontScale) {
+        if (fontScale == 1f) lines else lines.map { it.copy(fontScale = fontScale) }
+    }
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         state = listState,
         contentPadding = contentPadding
     ) {
-        itemsIndexed(lines) { index, line ->
+        itemsIndexed(scaledLines) { index, line ->
             PreviewLineRenderer(
                 line = line,
                 // Only a block with something above it needs separating from
@@ -202,22 +216,27 @@ private fun PreviewLineContent(
     val toggle: (() -> Unit)? = line.sourceLine?.let { source ->
         onToggleTask?.let { handler -> { handler(source) } }
     }
+    val scale = line.fontScale
+    val scaled = scale != 1f
     when (line.type) {
         PreviewLineType.H1 -> Text(
             text = line.text,
-            style = MaterialTheme.typography.headlineMedium,
+            style = if (scaled) MaterialTheme.typography.headlineMedium.scaledBy(scale)
+            else MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 24.dp), bottom = 8.dp)
         )
         PreviewLineType.H2 -> Text(
             text = line.text,
-            style = MaterialTheme.typography.headlineSmall,
+            style = if (scaled) MaterialTheme.typography.headlineSmall.scaledBy(scale)
+            else MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 20.dp), bottom = 6.dp)
         )
         PreviewLineType.H3 -> Text(
             text = line.text,
-            style = MaterialTheme.typography.titleLarge,
+            style = if (scaled) MaterialTheme.typography.titleLarge.scaledBy(scale)
+            else MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 16.dp), bottom = 4.dp)
         )
@@ -227,19 +246,22 @@ private fun PreviewLineContent(
         // and six visually distinct heading styles in one note is noise.
         PreviewLineType.H4 -> Text(
             text = line.text,
-            style = MaterialTheme.typography.titleMedium,
+            style = if (scaled) MaterialTheme.typography.titleMedium.scaledBy(scale)
+            else MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 12.dp), bottom = 4.dp)
         )
         PreviewLineType.H5 -> Text(
             text = line.text,
-            style = MaterialTheme.typography.titleSmall,
+            style = if (scaled) MaterialTheme.typography.titleSmall.scaledBy(scale)
+            else MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 10.dp), bottom = 2.dp)
         )
         PreviewLineType.H6 -> Text(
             text = line.text,
-            style = MaterialTheme.typography.labelLarge,
+            style = if (scaled) MaterialTheme.typography.labelLarge.scaledBy(scale)
+            else MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 8.dp), bottom = 2.dp)
         )
@@ -356,16 +378,29 @@ internal fun InlineMarkdownText(
         leadingMarker = leadingMarker,
         onWikilinkClick = onWikilinkClick,
         onFootnoteRefClick = onFootnoteRefClick,
-        onMarkerClick = onMarkerClick
+        onMarkerClick = onMarkerClick,
+        fontScale = line.fontScale
     )
+    val baseStyle = MaterialTheme.typography.bodyLarge
     // Links are now embedded as LinkAnnotations in `annotated`, so a plain Text
     // handles styling, clicks, and accessibility — no offset-mapped onClick.
     Text(
         text = annotated,
-        style = MaterialTheme.typography.bodyLarge.copy(color = color),
+        style = (if (line.fontScale == 1f) baseStyle else baseStyle.scaledBy(line.fontScale))
+            .copy(color = color),
         modifier = Modifier.padding(vertical = verticalPadding)
     )
 }
+
+/**
+ * Returns this style with its font size and line height multiplied by [scale]
+ * (#346). Only called when the row's scale is not 1f, so the default rendering
+ * keeps using the theme styles untouched.
+ */
+private fun androidx.compose.ui.text.TextStyle.scaledBy(
+    scale: Float
+): androidx.compose.ui.text.TextStyle =
+    copy(fontSize = fontSize * scale, lineHeight = lineHeight * scale)
 
 /**
  * Builds the [AnnotatedString] for a list of [PreviewInlineSegment]s, embedding
@@ -379,7 +414,9 @@ private fun inlineAnnotatedString(
     leadingMarker: String = "",
     onWikilinkClick: (String) -> Unit = {},
     onFootnoteRefClick: (String) -> Unit = {},
-    onMarkerClick: (() -> Unit)? = null
+    onMarkerClick: (() -> Unit)? = null,
+    /** Scales the only absolute size in here — the footnote ref (#346). */
+    fontScale: Float = 1f
 ): AnnotatedString {
     // Captured by the LinkAnnotation click listeners built below, so it must be
     // resolved before buildAnnotatedString rather than at the Text call site.
@@ -437,7 +474,10 @@ private fun inlineAnnotatedString(
                             styles = TextLinkStyles(
                                 SpanStyle(
                                     color = MaterialTheme.colorScheme.primary,
-                                    fontSize = 11.sp,
+                                    // Superscript refs scale with the text-size
+                                    // setting (#346); 11.sp is the theme's own
+                                    // labelSmall, so the default is unchanged.
+                                    fontSize = 11.sp * fontScale,
                                     baselineShift = BaselineShift.Superscript
                                 )
                             ),

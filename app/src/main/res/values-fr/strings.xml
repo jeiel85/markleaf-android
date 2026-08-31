@@ -33,6 +33,12 @@
     <string name="note_information_no_headings">Aucun titre pour le moment.</string>
     <string name="note_information_no_backlinks">Aucune note ne pointe encore ici.</string>
     <string name="font_label">Police</string>
+    <string name="font_size_label">Taille du texte</string>
+    <string name="font_size_small">Petite</string>
+    <string name="font_size_medium">Moyenne</string>
+    <string name="font_size_large">Grande</string>
+    <string name="font_size_extra_large">Très grande</string>
+    <string name="font_size_description">Met à l\'échelle le texte de l\'éditeur et de l\'aperçu. Les cases à cocher et les zones tactiles des liens grandissent avec.</string>
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>
     <string name="font_description">Le serif donne aux notes une allure classique, comme un livre. Le code reste toujours à chasse fixe.</string>
@@ -182,6 +188,11 @@
 
     <string name="settings_appearance">Apparence</string>
     <string name="theme_label">Thème</string>
+    <string name="theme_mode_system">Système</string>
+    <string name="theme_mode_light">Clair</string>
+    <string name="theme_mode_dark">Sombre</string>
+    <string name="theme_mode_description">Suit le réglage du mode sombre du système, ou utilise toujours le mode clair ou sombre.</string>
+    <string name="color_palette_label">Couleurs</string>
     <string name="theme_markleaf_green">Vert Markleaf</string>
     <string name="theme_material_you">Material You</string>
     <string name="theme_description">Vert Markleaf est la palette originale inspirée des feuilles. Material You s\'adapte aux couleurs de votre fond d\'écran système sur Android 12 et versions ultérieures.</string>

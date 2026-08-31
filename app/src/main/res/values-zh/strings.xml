@@ -37,6 +37,12 @@
     <string name="note_information_no_headings">暂无标题。</string>
     <string name="note_information_no_backlinks">暂无笔记链接到此处。</string>
     <string name="font_label">字体</string>
+    <string name="font_size_label">文字大小</string>
+    <string name="font_size_small">小</string>
+    <string name="font_size_medium">中</string>
+    <string name="font_size_large">大</string>
+    <string name="font_size_extra_large">特大</string>
+    <string name="font_size_description">调整编辑器和预览的文字大小，复选框和链接的点击区域也会随之变大。</string>
     <string name="font_sans">无衬线体</string>
     <string name="font_serif">衬线体</string>
     <string name="font_description">衬线体让笔记呈现经典的书籍风格。代码始终使用等宽字体。</string>
@@ -183,6 +189,11 @@
 
     <string name="settings_appearance">外观</string>
     <string name="theme_label">主题</string>
+    <string name="theme_mode_system">跟随系统</string>
+    <string name="theme_mode_light">浅色</string>
+    <string name="theme_mode_dark">深色</string>
+    <string name="theme_mode_description">跟随系统深色模式设置，或始终使用浅色或深色。</string>
+    <string name="color_palette_label">配色</string>
     <string name="theme_markleaf_green">Markleaf 绿</string>
     <string name="theme_material_you">Material You</string>
     <string name="theme_description">Markleaf 绿是以树叶为灵感的原始配色。Material You 在 Android 12 及更高版本上会跟随系统壁纸配色。</string>

@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.fragment.app.FragmentActivity
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
@@ -24,6 +25,7 @@ import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.ColorPalette
 import com.markleaf.notes.data.settings.EditorFont
+import com.markleaf.notes.data.settings.ThemeMode
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.NoteImporter
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
@@ -130,7 +132,13 @@ class MainActivity : FragmentActivity() {
                 MarkleafViewModelFactory(LocalNoteRepository(database))
             }
             val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
+            val systemDark = isSystemInDarkTheme()
             MarkleafTheme(
+                darkTheme = when (appSettings.themeMode) {
+                    ThemeMode.SYSTEM -> systemDark
+                    ThemeMode.LIGHT -> false
+                    ThemeMode.DARK -> true
+                },
                 dynamicColor = appSettings.colorPalette == ColorPalette.MATERIAL_YOU,
                 useSerif = appSettings.editorFont == EditorFont.SERIF
             ) {

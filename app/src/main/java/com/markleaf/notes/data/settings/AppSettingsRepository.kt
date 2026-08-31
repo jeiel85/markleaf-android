@@ -64,6 +64,12 @@ class AppSettingsRepository internal constructor(
             colorPalette = preferences[COLOR_PALETTE]
                 ?.let { value -> enumValueOrDefault(value, ColorPalette.MARKLEAF_GREEN) }
                 ?: ColorPalette.MARKLEAF_GREEN,
+            themeMode = preferences[THEME_MODE]
+                ?.let { value -> enumValueOrDefault(value, ThemeMode.SYSTEM) }
+                ?: ThemeMode.SYSTEM,
+            editorFontSize = preferences[EDITOR_FONT_SIZE]
+                ?.let { value -> enumValueOrDefault(value, EditorFontSize.MEDIUM) }
+                ?: EditorFontSize.MEDIUM,
             onboardingCompleted = preferences[ONBOARDING_COMPLETED] ?: false,
             biometricLockEnabled = preferences[BIOMETRIC_LOCK_ENABLED] ?: false,
             lockPasscodeSet = !preferences[LOCK_PASSCODE_HASH].isNullOrBlank(),
@@ -191,6 +197,18 @@ class AppSettingsRepository internal constructor(
     suspend fun setColorPalette(palette: ColorPalette) {
         persist { preferences ->
             preferences[COLOR_PALETTE] = palette.name
+        }
+    }
+
+    suspend fun setThemeMode(mode: ThemeMode) {
+        persist { preferences ->
+            preferences[THEME_MODE] = mode.name
+        }
+    }
+
+    suspend fun setEditorFontSize(size: EditorFontSize) {
+        persist { preferences ->
+            preferences[EDITOR_FONT_SIZE] = size.name
         }
     }
 
@@ -410,6 +428,8 @@ class AppSettingsRepository internal constructor(
         val SYNC_LAST_SYNCED_AT = longPreferencesKey("sync_last_synced_at")
         val SYNC_FILE_EXTENSION = stringPreferencesKey("sync_file_extension")
         val COLOR_PALETTE = stringPreferencesKey("color_palette")
+        val THEME_MODE = stringPreferencesKey("theme_mode")
+        val EDITOR_FONT_SIZE = stringPreferencesKey("editor_font_size")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val BIOMETRIC_LOCK_ENABLED = booleanPreferencesKey("biometric_lock_enabled")
         val LOCK_PASSCODE_HASH = stringPreferencesKey("lock_passcode_hash")

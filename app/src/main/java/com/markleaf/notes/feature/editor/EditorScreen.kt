@@ -809,7 +809,11 @@ fun EditorScreen(
                         },
                         onImageLongPress = { path, currentAlt ->
                             imageAltEditing = path to currentAlt
-                        }
+                        },
+                        // Same scale as the editor (#346): the preview is the
+                        // rendered form of the same text, and growing it grows
+                        // the checkbox glyphs and link tap targets too.
+                        fontScale = appSettings.editorFontSize.scale
                     )
 
                     // The same jump control as the editor (#214). Here the
@@ -898,16 +902,18 @@ fun EditorScreen(
                     }
 
                     val colorScheme = MaterialTheme.colorScheme
+                    val editorFontScale = appSettings.editorFontSize.scale
                     val markdownSyntaxVisible =
                         appSettings.markdownSyntaxVisibility == MarkdownSyntaxVisibility.SHOW && !isFocusMode
                     // Stabilise the transformation instance: without `remember` a
                     // fresh MarkdownSyntaxVisualTransformation is allocated on every
                     // recomposition (i.e. every keystroke), which forces Compose to
                     // re-run the syntax filter over the whole document each time.
-                    // Re-key only when the colours or visibility actually change.
-                    val markdownVisualTransformation = remember(colorScheme, markdownSyntaxVisible) {
+                    // Re-key only when the colours, visibility, or text scale
+                    // actually change.
+                    val markdownVisualTransformation = remember(colorScheme, markdownSyntaxVisible, editorFontScale) {
                         if (markdownSyntaxVisible) {
-                            MarkdownSyntaxVisualTransformation(markdownSyntaxColors(colorScheme))
+                            MarkdownSyntaxVisualTransformation(markdownSyntaxColors(colorScheme), editorFontScale)
                         } else {
                             VisualTransformation.None
                         }
@@ -1000,9 +1006,15 @@ fun EditorScreen(
                                         }
                                     }
                                 },
-                            textStyle = MaterialTheme.typography.bodyLarge.copy(
-                                color = MaterialTheme.colorScheme.onBackground
-                            ),
+                            // Body text honours the text-size setting (#346);
+                            // at scale 1f this is the untouched theme style.
+                            textStyle = run {
+                                val base = MaterialTheme.typography.bodyLarge
+                                (if (editorFontScale == 1f) base else base.copy(
+                                    fontSize = base.fontSize * editorFontScale,
+                                    lineHeight = base.lineHeight * editorFontScale
+                                )).copy(color = MaterialTheme.colorScheme.onBackground)
+                            },
                             visualTransformation = markdownVisualTransformation,
                             // `BasicTextField` defaults its caret to opaque black, and
                             // this is the only field in the app that draws its own —

@@ -6,11 +6,12 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 
 class MarkdownSyntaxVisualTransformation(
-    private val colors: MarkdownSyntaxColors
+    private val colors: MarkdownSyntaxColors,
+    private val fontScale: Float = 1f
 ) : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         return TransformedText(
-            text = MarkdownSyntaxHighlighter.highlight(text.text, colors),
+            text = MarkdownSyntaxHighlighter.highlight(text.text, colors, fontScale),
             offsetMapping = OffsetMapping.Identity
         )
     }

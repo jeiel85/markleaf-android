@@ -386,6 +386,11 @@
     <!-- Widget -->
     <string name="quick_note_widget_label">Brza bilješka</string>
     <string name="quick_note_widget_description">Dodirnite za brzo stvaranje nove bilješke</string>
+    <string name="single_note_widget_label">Jedna bilješka</string>
+    <string name="single_note_widget_description">Prikaži tekst jedne bilješke na početnom zaslonu</string>
+    <string name="single_note_widget_configure_title">Odaberite bilješku</string>
+    <string name="single_note_widget_size_description">Primjenjuje se samo na ovaj widget. Ostali widgeti i uređivač zadržavaju vlastitu veličinu.</string>
+    <string name="single_note_widget_unavailable">Ova bilješka više nije dostupna</string>
 
     <!-- Privacy Dashboard -->
     <string name="privacy_dashboard_title">Nadzor privatnosti</string>

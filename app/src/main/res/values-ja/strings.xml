@@ -358,6 +358,11 @@
     <!-- Widget -->
     <string name="quick_note_widget_label">クイックノート</string>
     <string name="quick_note_widget_description">タップしてすぐに新しいノートを作成</string>
+    <string name="single_note_widget_label">単一ノート</string>
+    <string name="single_note_widget_description">ノート 1 件の本文をホーム画面に表示します</string>
+    <string name="single_note_widget_configure_title">ノートを選択</string>
+    <string name="single_note_widget_size_description">このウィジェットにのみ適用されます。他のウィジェットとエディターはそれぞれのサイズを保ちます。</string>
+    <string name="single_note_widget_unavailable">このノートは利用できなくなりました</string>
 
     <!-- Privacy Dashboard -->
     <string name="privacy_dashboard_title">プライバシーダッシュボード</string>

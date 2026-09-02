@@ -288,6 +288,11 @@
     <!-- Widget -->
     <string name="quick_note_widget_label">Nota rápida</string>
     <string name="quick_note_widget_description">Toca para crear rápidamente una nueva nota</string>
+    <string name="single_note_widget_label">Nota única</string>
+    <string name="single_note_widget_description">Muestra el texto de una nota en la pantalla de inicio</string>
+    <string name="single_note_widget_configure_title">Elegir una nota</string>
+    <string name="single_note_widget_size_description">Se aplica solo a este widget. Los demás widgets y el editor conservan su propio tamaño.</string>
+    <string name="single_note_widget_unavailable">Esta nota ya no está disponible</string>
 
     <!-- Privacy Dashboard -->
     <string name="privacy_dashboard_title">Panel de privacidad</string>

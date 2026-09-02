@@ -358,6 +358,11 @@
     <!-- Widget -->
     <string name="quick_note_widget_label">빠른 노트</string>
     <string name="quick_note_widget_description">탭해서 새 노트 바로 만들기</string>
+    <string name="single_note_widget_label">단일 노트</string>
+    <string name="single_note_widget_description">노트 하나의 내용을 홈 화면에 표시합니다</string>
+    <string name="single_note_widget_configure_title">노트 선택</string>
+    <string name="single_note_widget_size_description">이 위젯에만 적용됩니다. 다른 위젯과 편집기는 각자의 크기를 유지합니다.</string>
+    <string name="single_note_widget_unavailable">이 노트는 더 이상 사용할 수 없습니다</string>
 
     <!-- Privacy Dashboard -->
     <string name="privacy_dashboard_title">개인정보 대시보드</string>

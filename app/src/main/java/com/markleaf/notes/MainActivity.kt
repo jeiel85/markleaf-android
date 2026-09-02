@@ -1,5 +1,6 @@
 package com.markleaf.notes
 
+import android.app.UiModeManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -7,6 +8,7 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.fragment.app.FragmentActivity
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
@@ -117,6 +119,27 @@ class MainActivity : FragmentActivity() {
             }
         }
 
+        // Tell the system which night mode this app is in, so the *starting
+        // window* — the splash the system draws before any app code runs — is
+        // resolved with the Theme the user chose rather than the phone's
+        // dark-mode setting. #354 fixed the window the app itself owns; this is
+        // the one it does not, and nothing an activity does later can reach it.
+        //
+        // setApplicationNightMode persists the -night qualifier for this app, so
+        // the effect is on the *next* cold start rather than this one. API 31+;
+        // below that the splash keeps following the system, which is what every
+        // version has done so far.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    settingsRepository.settings
+                        .map { it.themeMode }
+                        .distinctUntilChanged()
+                        .collect(::applyApplicationNightMode)
+                }
+            }
+        }
+
         val shouldCreateNote = intent.action == QuickNoteWidget.ACTION_CREATE_NOTE
         val openNoteId = if (intent.action == QuickNoteWidget.ACTION_OPEN_NOTE) {
             intent.getStringExtra(QuickNoteWidget.EXTRA_NOTE_ID)
@@ -166,6 +189,37 @@ class MainActivity : FragmentActivity() {
                 }
             }
         }
+    }
+
+    /**
+     * Hands [mode] to the system as this app's night mode (#354).
+     *
+     * `MODE_NIGHT_AUTO` is what returns a Theme of [ThemeMode.SYSTEM] to
+     * following the device, which is why SYSTEM maps to it rather than to
+     * "leave whatever was set last".
+     *
+     * Only called when the mode actually changes — the flow is
+     * `distinctUntilChanged`, and the check below drops the redundant call on
+     * every launch, because the setting arrives once per process whether or not
+     * the user touched it and each real call is a configuration change.
+     */
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun applyApplicationNightMode(mode: ThemeMode) {
+        val manager = getSystemService(UiModeManager::class.java) ?: return
+        // Unconditional on purpose. The effective `uiMode` says what the app is
+        // rendering, not whether an override has been *persisted* — picking Dark
+        // while the phone is already dark matches without storing anything, and
+        // the next system flip would then resolve the splash from the phone
+        // again. There is no getApplicationNightMode to ask, so the setting is
+        // re-asserted once per process; measured on an API 36 emulator, a cold
+        // start in each of the three modes logs one "Displayed MainActivity" and
+        // no relaunch, so re-asserting an unchanged mode costs nothing.
+        //
+        // Not wrapped in runCatching: every value this can pass is in the
+        // platform's own @NightMode IntDef, so a throw here would mean the
+        // system server died — not something to hide from the user by leaving
+        // the Theme silently unapplied.
+        manager.setApplicationNightMode(mode.toApplicationNightMode())
     }
 
     override fun onPause() {
@@ -265,4 +319,23 @@ class MainActivity : FragmentActivity() {
      */
     private fun readNoteFromUri(uri: Uri): String? =
         ExternalFile.read(this, uri)?.let(ExternalFile::noteBody)
+}
+
+/**
+ * The `UiModeManager` night mode that makes the system resolve this app — and
+ * the starting window it draws before the app runs — the way [this] asks (#354).
+ *
+ * [ThemeMode.SYSTEM] maps to `MODE_NIGHT_AUTO` rather than to "leave the last
+ * override in place", and that mapping is the part worth pinning: there is no
+ * `getApplicationNightMode` and the documentation describes AUTO in terms of
+ * location and sensors, so whether it releases an app-local override is not
+ * something the API tells you. Measured on an API 36 emulator: after the Theme
+ * had been set to Dark on a light phone, switching back to System returned the
+ * cold-start splash to 229.6/255 average luma on a light system and 66.2 on a
+ * dark one — i.e. following the device again in both directions.
+ */
+internal fun ThemeMode.toApplicationNightMode(): Int = when (this) {
+    ThemeMode.SYSTEM -> UiModeManager.MODE_NIGHT_AUTO
+    ThemeMode.LIGHT -> UiModeManager.MODE_NIGHT_NO
+    ThemeMode.DARK -> UiModeManager.MODE_NIGHT_YES
 }

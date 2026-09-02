@@ -1,0 +1,1 @@
+A new Single Note widget: pick a note when you place it and its text appears on your home screen; tap it to open the note. Each widget chooses its own text size. Locked notes are never shown. Also fixed: with Theme set against your system's dark mode, moving between the notes list and a note no longer flashes the wrong background colour.

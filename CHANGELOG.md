@@ -4,6 +4,17 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.36.0 - A note on the home screen - 2026-09-02
+
+A widget that shows one note's text, and a theme fix for anyone whose Markleaf disagrees with their system. No permission or storage-format changes.
+
+### Added
+- **Put one note on your home screen ([#351](https://github.com/jeiel85/markleaf-android/issues/351)).** A second widget, **Single Note**: you pick a note when you place it, and the widget shows that note's text. Tapping it opens the note. It sits alongside the widget you already have — the recent-notes list is untouched, and you can place either or both. The text is shown as you typed it, Markdown and all, because a home-screen widget can only draw plain text. Notes in the **Locked** space are never offered, and a note moved into Locked after you chose it stops showing its text. Requested by [@ray4423](https://github.com/ray4423).
+- **Each widget picks its own text size ([#351](https://github.com/jeiel85/markleaf-android/issues/351)).** Placing a Single Note widget offers Small, Medium, Large and Extra Large for that widget alone, so two widgets on the same home screen can be sized differently. The editor's own **Text size** setting is unaffected. Requested by [@ray4423](https://github.com/ray4423).
+
+### Fixed
+- **The Theme setting no longer flashes the wrong colour ([#354](https://github.com/jeiel85/markleaf-android/issues/354)).** With **Settings → Appearance → Theme** set against your system's dark-mode setting — a dark Markleaf on a light phone, or the reverse — moving between the notes list and a note flashed the system's background colour for the length of the animation. The theme reached the app's own screens but not the window underneath them. Both now change together. Reported by [@gamersat678](https://github.com/gamersat678).
+
 ## v2.35.0 - Make it yours - 2026-08-31
 
 Two appearance settings, both requested from outside the project. No permission or storage-format changes.

@@ -1,0 +1,1 @@
+Novi widget „Jedna bilješka“: pri postavljanju odaberete bilješku čiji se tekst prikazuje na početnom zaslonu; dodirom je otvarate. Svaki widget bira vlastitu veličinu teksta. Zaključane bilješke nikad se ne prikazuju. Također ispravljeno: kada se tema razlikuje od tamnog načina sustava, prijelaz između popisa i bilješke više ne bljesne pogrešnom bojom pozadine.

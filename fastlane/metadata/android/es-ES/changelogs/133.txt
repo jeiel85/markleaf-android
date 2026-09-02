@@ -1,0 +1,1 @@
+Nuevo widget «Nota única»: al colocarlo eliges una nota y su texto aparece en la pantalla de inicio; tócalo para abrirla. Cada widget elige su propio tamaño de texto. Las notas bloqueadas nunca se muestran. También corregido: con el tema distinto al modo oscuro del sistema, pasar de la lista de notas a una nota ya no muestra un color de fondo erróneo.

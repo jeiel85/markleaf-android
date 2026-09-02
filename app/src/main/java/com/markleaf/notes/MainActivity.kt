@@ -2,7 +2,6 @@ package com.markleaf.notes
 
 import android.app.UiModeManager
 import android.content.Intent
-import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -207,22 +206,20 @@ class MainActivity : FragmentActivity() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun applyApplicationNightMode(mode: ThemeMode) {
         val manager = getSystemService(UiModeManager::class.java) ?: return
-        val desired = mode.toApplicationNightMode()
-        val nightNow = resources.configuration.uiMode and
-            Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
-        val alreadyThere = when (desired) {
-            UiModeManager.MODE_NIGHT_YES -> nightNow
-            UiModeManager.MODE_NIGHT_NO -> !nightNow
-            // SYSTEM cannot be read back — there is no getApplicationNightMode —
-            // so it is re-applied once per process. Measured on an API 36
-            // emulator: with the Theme on System, a cold start logs one
-            // "Displayed MainActivity" and no relaunch, so the redundant call
-            // costs nothing visible.
-            else -> false
-        }
-        if (!alreadyThere) {
-            runCatching { manager.setApplicationNightMode(desired) }
-        }
+        // Unconditional on purpose. The effective `uiMode` says what the app is
+        // rendering, not whether an override has been *persisted* — picking Dark
+        // while the phone is already dark matches without storing anything, and
+        // the next system flip would then resolve the splash from the phone
+        // again. There is no getApplicationNightMode to ask, so the setting is
+        // re-asserted once per process; measured on an API 36 emulator, a cold
+        // start in each of the three modes logs one "Displayed MainActivity" and
+        // no relaunch, so re-asserting an unchanged mode costs nothing.
+        //
+        // Not wrapped in runCatching: every value this can pass is in the
+        // platform's own @NightMode IntDef, so a throw here would mean the
+        // system server died — not something to hide from the user by leaving
+        // the Theme silently unapplied.
+        manager.setApplicationNightMode(mode.toApplicationNightMode())
     }
 
     override fun onPause() {

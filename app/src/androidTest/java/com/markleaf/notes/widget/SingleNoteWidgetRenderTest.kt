@@ -4,6 +4,8 @@ import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
+import android.os.ParcelFileDescriptor
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -30,15 +32,15 @@ import org.junit.runner.RunWith
  * widget id through `AppWidgetService` and inflates what the launcher would
  * inflate, so the assertions are about the `TextView` a person would look at.
  *
- * Binding needs `BIND_APPWIDGET`, which no app can hold by declaring it:
+ * Binding needs `BIND_APPWIDGET`, which no app can hold by declaring it, so the
+ * test grants it to itself through the instrumentation's shell. Doing that from
+ * the CI workflow is not an option here — the managed device is created and torn
+ * down inside the Gradle task, with no `adb` step in between — and without the
+ * grant these tests skip, which is worse than not having them: a skipped test
+ * looks green while guarding nothing.
  *
- * ```
- * adb shell appwidget grantbind --package com.markleaf.notes.debug --user 0
- * ```
- *
- * Without that grant the bind is refused and these are skipped rather than
- * failed — the code under test is fine, the harness simply is not allowed to
- * stand in for a launcher.
+ * The `assumeTrue` below is the honest fallback for a device where even that is
+ * refused; if it ever fires in CI, the tests are inert and the message says so.
  */
 @RunWith(AndroidJUnit4::class)
 class SingleNoteWidgetRenderTest {
@@ -52,13 +54,29 @@ class SingleNoteWidgetRenderTest {
 
     @Before
     fun setUp() {
+        grantBindPermission()
         InstrumentationRegistry.getInstrumentation().runOnMainSync { host.startListening() }
         appWidgetId = host.allocateAppWidgetId()
         val bound = manager.bindAppWidgetIdIfAllowed(
             appWidgetId,
             ComponentName(context, SingleNoteWidget::class.java)
         )
-        assumeTrue("BIND_APPWIDGET not granted — see the class comment", bound)
+        assumeTrue(
+            "BIND_APPWIDGET was refused even after the shell grant — see the class comment",
+            bound
+        )
+    }
+
+    /**
+     * Stands the test in for a launcher. `executeShellCommand` runs as the shell
+     * user, which is what `appwidget grantbind` requires; the stream has to be
+     * drained or the command may not have finished by the time we bind.
+     */
+    private fun grantBindPermission() {
+        val fd = InstrumentationRegistry.getInstrumentation().uiAutomation.executeShellCommand(
+            "appwidget grantbind --package ${context.packageName} --user 0"
+        )
+        ParcelFileDescriptor.AutoCloseInputStream(fd).use { it.readBytes() }
     }
 
     @After
@@ -80,9 +98,13 @@ class SingleNoteWidgetRenderTest {
 
         assertEquals(BODY, body.text.toString())
         assertEquals(
-            SingleNoteWidgetStore.bodySizeSp(EditorFontSize.EXTRA_LARGE),
-            body.textSize / body.resources.displayMetrics.scaledDensity,
-            0.05f
+            TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_SP,
+                SingleNoteWidgetStore.bodySizeSp(EditorFontSize.EXTRA_LARGE),
+                body.resources.displayMetrics
+            ),
+            body.textSize,
+            0.5f
         )
     }
 

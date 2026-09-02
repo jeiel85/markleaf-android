@@ -1,0 +1,1 @@
+La pantalla de inicio ahora sigue tu ajuste de Tema. Si habías puesto Markleaf en Oscuro en un teléfono claro —o al revés—, al abrir la app aparecía un destello con el color contrario. Ahora coincide desde el primer fotograma. Si tu Tema es Sistema, no cambia nada. Android 12 o posterior.

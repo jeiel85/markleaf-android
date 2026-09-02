@@ -1,0 +1,1 @@
+Der Startbildschirm folgt jetzt Ihrer Design-Einstellung. Wenn Sie Markleaf auf einem hellen Telefon auf Dunkel gestellt hatten – oder umgekehrt –, blitzte beim Öffnen kurz ein Bildschirm in der anderen Farbe auf. Jetzt passt er ab dem ersten Bild. Steht Ihr Design auf System, ändert sich nichts. Ab Android 12.

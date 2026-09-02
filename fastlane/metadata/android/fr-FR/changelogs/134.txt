@@ -1,0 +1,1 @@
+L'écran de démarrage suit désormais votre réglage de Thème. Si vous aviez mis Markleaf en Sombre sur un téléphone clair — ou l'inverse —, l'ouverture faisait apparaître brièvement un écran de l'autre couleur. Il correspond maintenant dès la première image. Si votre Thème est Système, rien ne change. Android 12 et versions ultérieures.

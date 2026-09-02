@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.36.1 - The splash catches up - 2026-09-02
+
+A follow-up to the theme fix in v2.36.0, for the one place it could not reach. No permission or storage-format changes.
+
+### Fixed
+- **The splash screen follows your Theme setting ([#354](https://github.com/jeiel85/markleaf-android/issues/354)).** v2.36.0 stopped Markleaf flashing the wrong colour between the notes list and a note, but opening the app still showed a splash in the system's colour rather than yours — a white one on a light phone even with Markleaf set to Dark. It now matches from the first frame. If your Theme is **System**, nothing changes. Android 12 and later; below that the splash keeps following the system as before. Reported by [@gamersat678](https://github.com/gamersat678).
+
 ## v2.36.0 - A note on the home screen - 2026-09-02
 
 A widget that shows one note's text, and a theme fix for anyone whose Markleaf disagrees with their system. No permission or storage-format changes.

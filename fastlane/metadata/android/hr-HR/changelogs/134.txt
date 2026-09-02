@@ -1,0 +1,1 @@
+Početni zaslon sada slijedi vašu postavku Teme. Ako ste Markleaf postavili na Tamnu na svijetlom telefonu — ili obrnuto — otvaranje aplikacije nakratko bi prikazalo zaslon u suprotnoj boji. Sada se podudara od prvog kadra. Ako je Tema postavljena na Sustav, ništa se ne mijenja. Android 12 i noviji.

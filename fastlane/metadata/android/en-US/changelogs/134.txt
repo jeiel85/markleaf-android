@@ -1,0 +1,1 @@
+The splash screen now follows your Theme setting. If you had set Markleaf to Dark on a light phone — or the reverse — opening the app flashed a screen in the other colour before the app appeared. It now matches from the first frame. If your Theme is System, nothing changes. Android 12 and later.

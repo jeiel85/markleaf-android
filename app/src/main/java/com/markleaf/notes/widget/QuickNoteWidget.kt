@@ -77,7 +77,11 @@ class QuickNoteWidget : AppWidgetProvider() {
             views.setRemoteAdapter(R.id.widget_list, serviceIntent)
             views.setEmptyView(R.id.widget_list, R.id.widget_empty)
 
-            // Pending intent template — fillIn from each row supplies EXTRA_NOTE_ID
+            // Pending intent template — fillIn from each row supplies EXTRA_NOTE_ID.
+            // FLAG_MUTABLE alone: a template exists to be completed by the row's
+            // fill-in, so it cannot be immutable, and asking for both throws
+            // IllegalArgumentException on Android 12+ — which took the whole
+            // receiver down before the widget was ever populated.
             val openNoteTemplate = Intent(context, MainActivity::class.java).apply {
                 action = ACTION_OPEN_NOTE
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -86,7 +90,7 @@ class QuickNoteWidget : AppWidgetProvider() {
                 context,
                 1,
                 openNoteTemplate,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_MUTABLE
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
             )
             views.setPendingIntentTemplate(R.id.widget_list, openNotePending)
 

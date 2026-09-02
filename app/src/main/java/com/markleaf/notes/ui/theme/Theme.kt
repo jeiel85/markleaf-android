@@ -1,6 +1,7 @@
 package com.markleaf.notes.ui.theme
 
 import android.app.Activity
+import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -11,6 +12,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
@@ -215,7 +217,20 @@ fun MarkleafTheme(
     // activity start, so a runtime theme switch (e.g. system dark mode flips,
     // or the user toggles between Markleaf green and Material You) used to
     // leave the status bar icons stale — visible on the wrong background.
+    //
+    // The window background needs the same treatment for a different reason.
+    // `Theme.Markleaf` is declared twice — Material Light in `values/`, Material
+    // Dark in `values-night/` — so the platform picks between them by the
+    // `-night` resource qualifier, which is the *system* dark-mode setting and
+    // not the Theme the user chose in Settings. Nothing covered that gap, so a
+    // Dark app on a light system kept a white window underneath it. It is
+    // invisible while an app surface is drawn over it and shows through the
+    // NavHost cross-fade, where both destinations are briefly translucent —
+    // measured at 189/255 average frame luma mid-transition against 44 at rest
+    // (#354, reported on #345). Repainting it with the scheme's own background
+    // keeps the two in step through every runtime theme change.
     val view = LocalView.current
+    val windowBackground = colorScheme.background
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as? Activity)?.window
@@ -223,6 +238,7 @@ fun MarkleafTheme(
                 val controller = WindowCompat.getInsetsController(window, view)
                 controller.isAppearanceLightStatusBars = !darkTheme
                 controller.isAppearanceLightNavigationBars = !darkTheme
+                window.setBackgroundDrawable(ColorDrawable(windowBackground.toArgb()))
             }
         }
     }

@@ -50,6 +50,27 @@ class SingleNoteWidgetTest {
         assertNull(SingleNoteWidget.showableBody(null))
     }
 
+    /**
+     * `RemoteViews` crosses a Binder transaction with a payload cap around 1 MB
+     * for the whole process, and an imported note may hold `ExternalFile.MAX_CHARS`
+     * — two million characters. Handing that over makes the update throw
+     * `TransactionTooLargeException` instead of drawing, so the body is cut long
+     * after the last line any widget could show.
+     */
+    @Test
+    fun `a very long note is cut before it reaches the parcel`() {
+        val huge = note().copy(contentMarkdown = "x".repeat(2_000_000))
+
+        val body = SingleNoteWidget.showableBody(huge)
+
+        assertEquals(SingleNoteWidget.MAX_BODY_CHARS, body?.length)
+    }
+
+    @Test
+    fun `a note shorter than the cap is untouched`() {
+        assertEquals("# Groceries\n\n- milk", SingleNoteWidget.showableBody(note()))
+    }
+
     @Test
     fun `text size scales the widget body around the medium default`() {
         assertEquals(

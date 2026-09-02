@@ -47,6 +47,20 @@ class SingleNoteWidget : AppWidgetProvider() {
     companion object {
 
         /**
+         * How much of a note's body reaches the widget.
+         *
+         * `RemoteViews` crosses a Binder transaction, whose payload is capped
+         * around 1 MB for the whole process. An imported note may hold up to
+         * `ExternalFile.MAX_CHARS` — two million characters — and handing that
+         * to `setTextViewText` makes the update throw `TransactionTooLargeException`
+         * instead of drawing anything. Nothing is lost by cutting: even a
+         * full-screen widget at the smallest size shows a few thousand
+         * characters, so this is far past the last legible line, and tapping
+         * opens the whole note.
+         */
+        internal const val MAX_BODY_CHARS = 20_000
+
+        /**
          * Repaints every placed single-note widget. Called wherever the notes
          * behind them may have moved — the same points that refresh the
          * recent-notes list.
@@ -126,7 +140,7 @@ class SingleNoteWidget : AppWidgetProvider() {
             note == null -> null
             note.locked -> null
             note.trashed -> null
-            else -> note.contentMarkdown
+            else -> note.contentMarkdown.take(MAX_BODY_CHARS)
         }
 
         /**

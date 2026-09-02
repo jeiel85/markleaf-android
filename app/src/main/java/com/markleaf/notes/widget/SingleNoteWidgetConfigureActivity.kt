@@ -4,14 +4,14 @@ import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
 import com.markleaf.notes.R
 import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.repository.LocalNoteRepository
@@ -47,6 +48,7 @@ import com.markleaf.notes.data.settings.EditorFont
 import com.markleaf.notes.data.settings.EditorFontSize
 import com.markleaf.notes.data.settings.ThemeMode
 import com.markleaf.notes.domain.model.Note
+import com.markleaf.notes.feature.lock.BiometricLockGate
 import com.markleaf.notes.ui.theme.MarkleafTheme
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
@@ -64,7 +66,7 @@ import androidx.compose.material3.rememberTopAppBarState
  * something drawn on an unlocked home screen. [SingleNoteWidget] guards the
  * render path as well, for a note locked after it was chosen here.
  */
-class SingleNoteWidgetConfigureActivity : ComponentActivity() {
+class SingleNoteWidgetConfigureActivity : FragmentActivity() {
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,40 +103,49 @@ class SingleNoteWidgetConfigureActivity : ComponentActivity() {
                 dynamicColor = appSettings.colorPalette == ColorPalette.MATERIAL_YOU,
                 useSerif = appSettings.editorFont == EditorFont.SERIF
             ) {
-                val notes by remember { noteRepository.observeNotes() }
-                    .collectAsState(initial = emptyList())
-                var textSize by rememberSaveable { mutableStateOf(initialTextSize) }
-                val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(
-                    rememberTopAppBarState()
-                )
+                // The launcher starts this activity directly, so app lock has to
+                // be honoured here as it is in MainActivity — otherwise placing a
+                // widget is a way to read every note's title and excerpt, and to
+                // publish one note's body to the home screen, without ever
+                // passing the lock.
+                BiometricLockGate(enabled = appSettings.biometricLockEnabled) {
+                    val notes by remember { noteRepository.observeNotes() }
+                        .collectAsState(initial = emptyList())
+                    var textSize by rememberSaveable { mutableStateOf(initialTextSize) }
+                    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(
+                        rememberTopAppBarState()
+                    )
 
-                Scaffold(
-                    modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                    topBar = {
-                        TopAppBar(
-                            title = { Text(stringResource(R.string.single_note_widget_configure_title)) },
-                            scrollBehavior = scrollBehavior
-                        )
-                    }
-                ) { padding ->
-                    Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-                        TextSizeRow(
-                            selected = textSize,
-                            onSelect = { textSize = it }
-                        )
-                        HorizontalDivider()
-                        if (notes.isEmpty()) {
-                            Text(
-                                text = stringResource(R.string.no_notes_yet),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.fillMaxWidth().padding(24.dp)
+                    Scaffold(
+                        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                        topBar = {
+                            TopAppBar(
+                                title = {
+                                    Text(stringResource(R.string.single_note_widget_configure_title))
+                                },
+                                scrollBehavior = scrollBehavior
                             )
-                        } else {
-                            NoteList(
-                                notes = notes,
-                                onPick = { note -> complete(appWidgetId, note.id, textSize) }
+                        }
+                    ) { padding ->
+                        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+                            TextSizeRow(
+                                selected = textSize,
+                                onSelect = { textSize = it }
                             )
+                            HorizontalDivider()
+                            if (notes.isEmpty()) {
+                                Text(
+                                    text = stringResource(R.string.no_notes_yet),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.fillMaxWidth().padding(24.dp)
+                                )
+                            } else {
+                                NoteList(
+                                    notes = notes,
+                                    onPick = { note -> complete(appWidgetId, note.id, textSize) }
+                                )
+                            }
                         }
                     }
                 }
@@ -158,6 +169,7 @@ class SingleNoteWidgetConfigureActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun TextSizeRow(
     selected: EditorFontSize,
@@ -168,10 +180,13 @@ private fun TextSizeRow(
             text = stringResource(R.string.font_size_label),
             style = MaterialTheme.typography.titleSmall
         )
-        Row(
+        // FlowRow rather than Row: four chips carrying labels like "Extra
+        // grande" or "Vrlo velika" run past the right edge of a narrow phone,
+        // and a chip that is off-screen in a fixed Row cannot be tapped at all.
+        FlowRow(
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             EditorFontSize.entries.forEach { size ->
                 FilterChip(

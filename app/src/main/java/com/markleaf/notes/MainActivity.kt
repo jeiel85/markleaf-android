@@ -37,6 +37,7 @@ import com.markleaf.notes.ui.theme.MarkleafTheme
 import com.markleaf.notes.ui.viewmodel.MarkleafViewModelFactory
 import com.markleaf.notes.util.ExternalFile
 import com.markleaf.notes.widget.QuickNoteWidget
+import com.markleaf.notes.widget.SingleNoteWidget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -169,8 +170,8 @@ class MainActivity : FragmentActivity() {
 
     override fun onPause() {
         super.onPause()
-        // Nudge the home-screen widget so the recent-notes list reflects any
-        // edits made in this session as soon as the user returns to launcher.
+        // Nudge the home-screen widgets so they reflect any edits made in this
+        // session as soon as the user returns to the launcher.
         runCatching {
             val mgr = android.appwidget.AppWidgetManager.getInstance(applicationContext)
             val ids = mgr.getAppWidgetIds(
@@ -180,6 +181,10 @@ class MainActivity : FragmentActivity() {
                 mgr.notifyAppWidgetViewDataChanged(ids, R.id.widget_list)
             }
         }
+        // The single-note widgets redraw rather than reload a list, and each one
+        // also re-checks that its note may still be shown — a note moved into the
+        // Locked space while the app was open must stop rendering (#351).
+        runCatching { SingleNoteWidget.refreshAll(applicationContext) }
     }
 
     // androidx.activity 1.9 tightened this override to a non-null Intent (it

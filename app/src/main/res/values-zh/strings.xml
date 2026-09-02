@@ -364,6 +364,11 @@
     <!-- Widget -->
     <string name="quick_note_widget_label">快速笔记</string>
     <string name="quick_note_widget_description">点击即可快速创建新笔记</string>
+    <string name="single_note_widget_label">单条笔记</string>
+    <string name="single_note_widget_description">在主屏幕上显示一条笔记的正文</string>
+    <string name="single_note_widget_configure_title">选择笔记</string>
+    <string name="single_note_widget_size_description">仅对此小部件生效。其他小部件和编辑器保持各自的大小。</string>
+    <string name="single_note_widget_unavailable">此笔记已不可用</string>
 
     <!-- Privacy Dashboard -->
     <string name="privacy_dashboard_title">隐私面板</string>

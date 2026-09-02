@@ -59,8 +59,12 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+        <!-- Labelled explicitly: without it both widgets fall back to the app
+             name and the picker offers "Markleaf" twice. `quick_note_widget_label`
+             existed unused until the second widget made the pair ambiguous. -->
         <receiver
             android:name=".widget.QuickNoteWidget"
+            android:label="@string/quick_note_widget_label"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -75,6 +79,32 @@
             android:name=".widget.QuickNoteWidgetService"
             android:permission="android.permission.BIND_REMOTEVIEWS"
             android:exported="false" />
+
+        <!-- One chosen note's text on the home screen (#351). Separate from the
+             recent-notes widget above; both can be placed. -->
+        <receiver
+            android:name=".widget.SingleNoteWidget"
+            android:label="@string/single_note_widget_label"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/single_note_widget_info" />
+        </receiver>
+
+        <!-- Launched by the launcher when the widget is placed, and again for the
+             reconfigure action on Android 12+. exported because the launcher, not
+             the app, starts it. -->
+        <activity
+            android:name=".widget.SingleNoteWidgetConfigureActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Markleaf">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

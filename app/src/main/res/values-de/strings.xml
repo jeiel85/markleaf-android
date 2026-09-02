@@ -367,6 +367,11 @@
     <!-- Widget -->
     <string name="quick_note_widget_label">Schnelle Notiz</string>
     <string name="quick_note_widget_description">Tippen, um schnell eine neue Notiz zu erstellen</string>
+    <string name="single_note_widget_label">Einzelne Notiz</string>
+    <string name="single_note_widget_description">Den Text einer Notiz auf dem Startbildschirm anzeigen</string>
+    <string name="single_note_widget_configure_title">Notiz auswählen</string>
+    <string name="single_note_widget_size_description">Gilt nur für dieses Widget. Andere Widgets und der Editor behalten ihre eigene Größe.</string>
+    <string name="single_note_widget_unavailable">Diese Notiz ist nicht mehr verfügbar</string>
 
     <!-- Privacy Dashboard -->
     <string name="privacy_dashboard_title">Datenschutz-Dashboard</string>

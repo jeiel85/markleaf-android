@@ -377,6 +377,11 @@
     <!-- Widget -->
     <string name="quick_note_widget_label">Quick Note</string>
     <string name="quick_note_widget_description">Tap to quickly create a new note</string>
+    <string name="single_note_widget_label">Single Note</string>
+    <string name="single_note_widget_description">Show one note\'s text on the home screen</string>
+    <string name="single_note_widget_configure_title">Choose a note</string>
+    <string name="single_note_widget_size_description">Applies to this widget only. Other widgets and the editor keep their own size.</string>
+    <string name="single_note_widget_unavailable">This note is no longer available</string>
 
     <!-- Privacy Dashboard -->
     <string name="privacy_dashboard_title">Privacy Dashboard</string>

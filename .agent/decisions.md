@@ -7,6 +7,46 @@
 
 ## Confirmed Decisions
 
+### D070 - Undo Is In Memory, Per Open Note, And Watches One Value
+
+The editor's undo/redo history lives in `EditorUndoHistory`, held by the open
+note's composition and dropped when the screen leaves. It records by observing
+`editorState` rather than by being pushed to from each edit site.
+
+Why:
+- Markleaf autosaves, so a destructive edit was permanent as soon as the
+  debounce fired — there was no earlier version anywhere (#360). What was
+  missing is a way back from the edit you just made, which is not the same
+  problem as keeping versions.
+- An on-disk version store is a different feature with a different cost:
+  storage growth, a retention policy, a UI to browse it, and a second copy of
+  every note's history inside a folder the user may be syncing. Markleaf's
+  identity is one file per note in a folder the user owns; shadow copies of
+  earlier text would sit beside them.
+- `EditorScreen` writes to `editorState` from fifteen places (typing, every
+  formatting action, replace-all, quick insert, wikilink and tag completion,
+  the image insert, the preview checkbox). Pushing a step from each would be
+  fifteen chances to forget, and the sixteenth path added later would be
+  silently non-undoable.
+
+Decision:
+- The history is in memory only. Nothing is written to disk, to the database,
+  or to the sync folder. Leaving the note ends it, and that is documented to
+  users rather than hidden.
+- One funnel: the screen hands every `TextFieldValue` the field takes to
+  `record`, which decides what is a step. Values carrying no text change are
+  ignored, so the value a restore feeds back is not itself a step.
+- What counts as one step is a policy in that class, not in the screen: a run
+  of ordinary typing coalesces while it stays small, one kind (all inserting or
+  all deleting), unbroken by a newline, at the caret the last change left, and
+  inside a short window; everything else — paste, replace-all, formatting,
+  typing over a selection — is its own step.
+- Bounded by both a step count and a retained-character budget, oldest dropped
+  first, never below two. A long note must not let the stack grow without
+  limit, and trimming must never leave nothing to undo to.
+- Restores go through the same autosave gate as any edit. An undo the note is
+  not saved with would not answer #360 at all.
+
 ### D069 - VIEW Reads, SEND Imports
 
 A `.md`/`.txt` file arriving from outside the app opens in a read-only viewer

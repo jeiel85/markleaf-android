@@ -219,10 +219,72 @@ class EditorFormattingControlsTest {
         assertEquals(false, expanded.value)
     }
 
+    @Test
+    fun undoAndRedoAreDisabledUntilThereIsSomethingToStepTo() {
+        var undone = 0
+        render(state = { EditorFormattingUiState() }, onUndo = { undone++ })
+
+        composeRule.onNodeWithContentDescription("Undo")
+            .assertIsDisplayed()
+            .assertIsNotEnabled()
+            .performClick()
+        composeRule.onNodeWithContentDescription("Redo").assertIsNotEnabled()
+
+        assertEquals(0, undone)
+    }
+
+    @Test
+    fun undoAndRedoInvokeTheirCallbacks() {
+        var undone = 0
+        var redone = 0
+        render(
+            state = { EditorFormattingUiState(canUndo = true, canRedo = true) },
+            onUndo = { undone++ },
+            onRedo = { redone++ }
+        )
+
+        composeRule.onNodeWithContentDescription("Undo").assertIsEnabled().performClick()
+        composeRule.onNodeWithContentDescription("Redo").assertIsEnabled().performClick()
+
+        assertEquals(1, undone)
+        assertEquals(1, redone)
+    }
+
+    @Test
+    fun undoStaysAvailableWhileTextIsSelected() {
+        render(state = { EditorFormattingUiState(selectionActive = true, canUndo = true) })
+
+        composeRule.onNodeWithContentDescription("Undo").assertIsDisplayed().assertIsEnabled()
+        composeRule.onNodeWithContentDescription("Bold").assertIsDisplayed()
+    }
+
+    /** The row mounted for undo alone: "Show formatting button" is off (#331). */
+    @Test
+    fun theRowCanCarryUndoWithoutTheFormattingEntry() {
+        render(
+            state = {
+                EditorFormattingUiState(canUndo = true, showFormattingEntry = false)
+            }
+        )
+
+        composeRule.onNodeWithContentDescription("Undo").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Redo").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Formatting").assertDoesNotExist()
+    }
+
+    @Test
+    fun undoIsDisabledWhileTheNoteIsStillLoading() {
+        render(state = { EditorFormattingUiState(enabled = false, canUndo = true) })
+
+        composeRule.onNodeWithContentDescription("Undo").assertIsNotEnabled()
+    }
+
     private fun render(
         state: () -> EditorFormattingUiState,
         onExpandedChange: (Boolean) -> Unit = {},
-        onAction: (EditorFormattingAction) -> Unit = {}
+        onAction: (EditorFormattingAction) -> Unit = {},
+        onUndo: () -> Unit = {},
+        onRedo: () -> Unit = {}
     ) {
         composeRule.setContent {
             MarkleafTheme(dynamicColor = false) {
@@ -235,7 +297,9 @@ class EditorFormattingControlsTest {
                         onExpandedChange = onExpandedChange,
                         onAction = onAction,
                         modifier = Modifier,
-                        backgroundColor = MaterialTheme.colorScheme.background
+                        backgroundColor = MaterialTheme.colorScheme.background,
+                        onUndo = onUndo,
+                        onRedo = onRedo
                     )
                 }
             }

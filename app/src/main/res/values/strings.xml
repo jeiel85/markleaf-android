@@ -72,6 +72,8 @@
     <string name="note_content">Note content</string>
     <string name="editor_empty_title">A quiet page is ready</string>
     <string name="editor_empty_hint">Use Markdown, #tags, links, and checkboxes. Markleaf saves locally as you write.</string>
+    <string name="undo">Undo</string>
+    <string name="redo">Redo</string>
     <string name="bold">Bold</string>
     <string name="formatting">Formatting</string>
     <string name="formatting_inline">Inline</string>
@@ -211,7 +213,7 @@
     <string name="show_markdown_syntax">Show Markdown syntax</string>
     <string name="show_markdown_syntax_description">The live editor highlights Markdown characters while you write.</string>
     <string name="show_formatting_button">Show formatting button</string>
-    <string name="show_formatting_button_description">Keep the Aa button on the row above the keyboard. Off hides it; bold, italic and link still appear when you select text, and / quick insert is unchanged.</string>
+    <string name="show_formatting_button_description">Keep the Aa button on the row above the keyboard. Off hides it; undo and redo stay, bold, italic and link still appear when you select text, and / quick insert is unchanged.</string>
     <string name="line_width">Line width</string>
     <string name="line_width_narrow">Narrow</string>
     <string name="line_width_comfortable">Comfortable</string>

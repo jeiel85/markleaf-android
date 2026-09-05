@@ -143,6 +143,10 @@ fun EditorScreen(
     val coroutineScope = rememberCoroutineScope()
 
     var editorState by remember(noteId) { mutableStateOf(TextFieldValue("")) }
+    // Per open note, and dropped when the screen leaves: Markleaf keeps no
+    // on-disk edit history, so this is a way back from the edit you just made,
+    // not a version store (#360).
+    val undoHistory = remember(noteId) { EditorUndoHistory() }
     val titleSource = appSettings.noteTitleSource
     // The persistence behind the debounce gate: reads the note fresh from the
     // DB so a save never clobbers a newer row, then updates the sync mirror
@@ -210,6 +214,37 @@ fun EditorScreen(
     }
     var isLoaded by remember(noteId) { mutableStateOf(noteId == null) }
     var shouldRequestEditorFocus by remember(noteId) { mutableStateOf(noteId == null) }
+    // Every edit path in this screen writes to [editorState], so the history
+    // watches that one value rather than being pushed to from each call site —
+    // an edit path added later is undoable without being wired up by hand.
+    // [EditorUndoHistory.record] ignores values that carry no text change, so
+    // the step a restore puts back does not become a step of its own.
+    LaunchedEffect(noteId) {
+        snapshotFlow { editorState }.collect { undoHistory.record(it) }
+    }
+    val restoreFromHistory: (TextFieldValue?) -> Unit = { restored ->
+        if (restored != null) {
+            HapticFeedback.light(context)
+            editorState = restored
+            shouldRequestEditorFocus = true
+            // The autosave gate reads the live text when it fires, so the
+            // restored version is what reaches the row — an undo the note is
+            // not saved with would be no undo at all.
+            if (isLoaded) saver.requestSave()
+        }
+    }
+    val performUndo = { restoreFromHistory(undoHistory.undo()) }
+    val performRedo = { restoreFromHistory(undoHistory.redo()) }
+    // Every edit the app makes on the user's behalf — a formatting action, a
+    // completion, a replace, a checkbox tap — goes through here rather than
+    // assigning [editorState] directly. From the value stream alone a two-
+    // character insertion is indistinguishable from two keystrokes, so without
+    // the marker the next keystroke merges into the action and one undo takes
+    // back both (#360).
+    val applyEdit: (TextFieldValue) -> Unit = { next ->
+        undoHistory.beginNewStep()
+        editorState = next
+    }
     val editorFocusRequester = remember(noteId) { FocusRequester() }
     var isPreviewMode by remember(noteId) { mutableStateOf(false) }
     // True when the settings read timed out and the note opened on defaults.
@@ -323,9 +358,11 @@ fun EditorScreen(
                     val updatedText = editorState.text.substring(0, cursor) +
                         insertion +
                         editorState.text.substring(cursor)
-                    editorState = editorState.copy(
-                        text = updatedText,
-                        selection = TextRange(cursor + insertion.length)
+                    applyEdit(
+                        editorState.copy(
+                            text = updatedText,
+                            selection = TextRange(cursor + insertion.length)
+                        )
                     )
                     saver.requestSave()
                 } else {
@@ -342,7 +379,7 @@ fun EditorScreen(
         HapticFeedback.light(context)
         when (val result = action.applyTo(editorState)) {
             is EditorFormattingResult.Edited -> {
-                editorState = result.value
+                applyEdit(result.value)
                 shouldRequestEditorFocus = true
                 if (isLoaded) saver.requestSave()
             }
@@ -389,6 +426,7 @@ fun EditorScreen(
 
     LaunchedEffect(noteId) {
         if (noteId == null) {
+            undoHistory.reset(editorState)
             isLoaded = true
         } else {
             // Read the persisted setting directly (not the collectAsState
@@ -446,6 +484,9 @@ fun EditorScreen(
             // position was recorded — edited in another app, or a smaller
             // version brought in by sync.
             editorState = TextFieldValue(content, TextRange(caret.coerceIn(0, content.length)))
+            // The loaded note is the floor: undo must not walk back past it
+            // into the empty text the field held while the row was being read.
+            undoHistory.reset(editorState)
             pendingPreviewScroll = when (persistedSettings.openNotesAt) {
                 OpenNotesAt.TOP -> null
                 // Clamped against the rendered list when the scroll runs, so
@@ -552,9 +593,10 @@ fun EditorScreen(
             }
     }
 
-    val isFormattingPreempted =
-        isFindOpen ||
-            isFocusMode ||
+    // What takes the row above the keyboard away altogether: another surface is
+    // in front of it, or something else is already occupying that slot.
+    val isEditorRowPreempted =
+        isFocusMode ||
             isPreviewMode ||
             showInfo ||
             showOutline ||
@@ -564,6 +606,11 @@ fun EditorScreen(
             (quickInsertQuery != null && quickInsertItems.isNotEmpty()) ||
             (wikilinkQuery != null && wikilinkSuggestions.isNotEmpty()) ||
             (tagQuery != null && tagSuggestions.isNotEmpty())
+    // The find bar stands the formatting controls down but not undo: while it is
+    // open the editor's selection is the current match rather than something the
+    // user chose, so bold / italic / link would be aimed at the wrong thing —
+    // and a replace-all is exactly the change you may want back (#360).
+    val isFormattingPreempted = isEditorRowPreempted || isFindOpen
     // With "Show formatting button" off, the row is only worth mounting while
     // text is selected (#331). The standing `Aa` handle is what the setting
     // removes; bold / italic / link stay, because selecting is how you ask for
@@ -571,6 +618,8 @@ fun EditorScreen(
     // 48dp strip above the keyboard, which is the whole complaint.
     val isFormattingIdle =
         !appSettings.showFormattingButton && editorState.selection.collapsed
+    val showsFormattingEntry = !isFormattingPreempted && !isFormattingIdle
+    val showsSelectionActions = !isFormattingPreempted && !editorState.selection.collapsed
     LaunchedEffect(isFormattingPreempted, isFormattingIdle) {
         if (isFormattingPreempted || isFormattingIdle) isFormattingExpanded = false
     }
@@ -779,7 +828,7 @@ fun EditorScreen(
                         onToggleTask = { sourceLine ->
                             MarkdownEditActions.toggleTaskAtLine(editorState.text, sourceLine)
                                 ?.let { updated ->
-                                    editorState = editorState.copy(text = updated)
+                                    applyEdit(editorState.copy(text = updated))
                                     if (isLoaded) saver.requestSave()
                                 }
                         },
@@ -856,6 +905,23 @@ fun EditorScreen(
                         .padding(paddingValues)
                         .imePadding()
                         .padding(horizontal = 20.dp, vertical = 12.dp)
+                        // Undo is bound here rather than on the text field so it
+                        // works wherever focus is inside the editor body — the
+                        // find and replace fields included. Undoing a
+                        // replace-all is the case that needs it most, and that
+                        // is exactly when the Replace All button still has
+                        // focus (#360). Nothing below this claims Ctrl+Z, so
+                        // taking it on the preview pass costs nothing.
+                        .onPreviewKeyEvent { event ->
+                            val shortcut =
+                                if (event.type == KeyEventType.KeyDown) event.toUndoAction() else null
+                            when (shortcut) {
+                                UndoAction.UNDO -> performUndo()
+                                UndoAction.REDO -> performRedo()
+                                null -> {}
+                            }
+                            shortcut != null
+                        }
                 ) {
                     if (isFindOpen && !isFocusMode) {
                         FindBar(
@@ -888,7 +954,7 @@ fun EditorScreen(
                                 if (findMatches.isNotEmpty()) {
                                     val safeIndex = findIndex.coerceIn(findMatches.indices)
                                     val target = findMatches[safeIndex]
-                                    editorState = replaceRange(editorState, target, replaceQuery)
+                                    applyEdit(replaceRange(editorState, target, replaceQuery))
                                     shouldRequestEditorFocus = true
                                     if (isLoaded) saver.requestSave()
                                 }
@@ -896,7 +962,7 @@ fun EditorScreen(
                             onReplaceAll = {
                                 if (findMatches.isNotEmpty()) {
                                     val count = findMatches.size
-                                    editorState = replaceAllRanges(editorState, findMatches, replaceQuery)
+                                    applyEdit(replaceAllRanges(editorState, findMatches, replaceQuery))
                                     shouldRequestEditorFocus = true
                                     if (isLoaded) saver.requestSave()
                                     Toast.makeText(
@@ -929,7 +995,7 @@ fun EditorScreen(
                     val onQuickInsertPick: (QuickInsertCommand) -> Unit = pick@{ command ->
                         val query = detectQuickInsertQuery(editorState) ?: return@pick
                         HapticFeedback.light(context)
-                        editorState = applyQuickInsertCommand(editorState, query, command)
+                        applyEdit(applyQuickInsertCommand(editorState, query, command))
                         quickInsertSelectedIndex = 0
                         shouldRequestEditorFocus = true
                         if (isLoaded) saver.requestSave()
@@ -993,11 +1059,13 @@ fun EditorScreen(
                                         if (quickInsertHandled) {
                                             true
                                         } else if (event.key == Key.Tab) {
-                                            editorState = if (event.isShiftPressed) {
-                                                MarkdownEditActions.outdent(editorState)
-                                            } else {
-                                                MarkdownEditActions.indent(editorState)
-                                            }
+                                            applyEdit(
+                                                if (event.isShiftPressed) {
+                                                    MarkdownEditActions.outdent(editorState)
+                                                } else {
+                                                    MarkdownEditActions.indent(editorState)
+                                                }
+                                            )
                                             if (isLoaded) saver.requestSave()
                                             true
                                         } else {
@@ -1103,7 +1171,7 @@ fun EditorScreen(
                         WikilinkSuggestionsRow(
                             suggestions = wikilinkSuggestions,
                             onPick = { title ->
-                                editorState = completeWikilink(editorState, title)
+                                applyEdit(completeWikilink(editorState, title))
                                 shouldRequestEditorFocus = true
                                 if (isLoaded) saver.requestSave()
                             }
@@ -1112,26 +1180,40 @@ fun EditorScreen(
                         TagSuggestionsRow(
                             suggestions = tagSuggestions,
                             onPick = { tag ->
-                                editorState = completeTag(editorState, tag)
+                                applyEdit(completeTag(editorState, tag))
                                 shouldRequestEditorFocus = true
                                 if (isLoaded) saver.requestSave()
                             }
                         )
                     }
 
-                    if (!isFormattingPreempted && !isFormattingIdle) {
+                    // The row now also carries undo, so "nothing to format" is
+                    // no longer the only thing it could be showing: with the
+                    // formatting button off, or with the find bar standing the
+                    // formatting controls down, it still mounts once there is a
+                    // step to go back to (#360).
+                    val undoAvailable = undoHistory.canUndo || undoHistory.canRedo
+                    if (
+                        !isEditorRowPreempted &&
+                        (showsFormattingEntry || showsSelectionActions || undoAvailable)
+                    ) {
                         EditorFormattingControls(
                             state = EditorFormattingUiState(
-                                selectionActive = !editorState.selection.collapsed,
+                                selectionActive = showsSelectionActions,
                                 expanded = isFormattingExpanded,
-                                enabled = isLoaded
+                                enabled = isLoaded,
+                                canUndo = undoHistory.canUndo,
+                                canRedo = undoHistory.canRedo,
+                                showFormattingEntry = showsFormattingEntry
                             ),
                             onExpandedChange = { expanded ->
                                 isFormattingExpanded = expanded
                                 if (!expanded) shouldRequestEditorFocus = true
                             },
                             onAction = applyFormattingAction,
-                            backgroundColor = MaterialTheme.colorScheme.background
+                            backgroundColor = MaterialTheme.colorScheme.background,
+                            onUndo = performUndo,
+                            onRedo = performRedo
                         )
                     }
                 }
@@ -1144,7 +1226,7 @@ fun EditorScreen(
             path = path,
             currentAlt = currentAlt,
             onConfirm = { newAlt ->
-                editorState = replaceImageAlt(editorState, path, newAlt)
+                applyEdit(replaceImageAlt(editorState, path, newAlt))
                 if (isLoaded) saver.requestSave()
                 imageAltEditing = null
             },

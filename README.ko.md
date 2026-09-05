@@ -61,7 +61,7 @@
 
 **Markleaf**는 군더더기를 덜어내고 오직 '기록'과 '정리'에만 집중할 수 있도록 설계된 Android Markdown 메모 앱입니다. 당신의 데이터는 오직 당신의 기기에만 저장되며, 표준 Markdown 형식을 사용하여 데이터의 소유권과 이식성을 완벽히 보장합니다. 동기화도 *당신이 선택한 폴더* 를 통해서만 일어납니다 — Markleaf 자체는 인터넷에 나가지 않습니다.
 
-[**브랜딩 페이지 보기**](https://jeiel85.github.io/markleaf-android/) · [현재 버전: v2.36.1](https://github.com/jeiel85/markleaf-android/releases/tag/v2.36.1) · [Privacy Policy](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**브랜딩 페이지 보기**](https://jeiel85.github.io/markleaf-android/) · [현재 버전: v2.37.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.37.0) · [Privacy Policy](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -168,7 +168,7 @@ com.markleaf.notes
 > **Google Play 업데이트는 현재 잠정 보류 중입니다.** 1인 개발자의 한국 사업자 등록 요건 관련 정책 이슈가 정리될 때까지 새 버전을 Play Store에 올리지 않습니다. 최신 버전은 **GitHub Releases**에서 받으세요. F-Droid 빌드가 따라온 뒤에는 F-Droid가 권장 업데이트 경로입니다. (Play Store에 이미 설치돼 있다면 그대로 사용할 수 있습니다.)
 
 - **F-Droid** *(자동 업데이트용 권장)*: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — F-Droid 클라이언트에서 검색하거나 위 링크로 바로 설치할 수 있습니다. 카탈로그 반영은 GitHub보다 늦을 수 있으므로, 아직 최신 버전이 보이지 않으면 아래 GitHub Releases를 사용하세요. 동일 서명 키(SHA-256 `0be97352…f91a`)를 사용하므로 처음 GitHub APK를 사이드로드했어도 업데이트가 이어집니다.
-- **APK 직접 설치**: [GitHub v2.36.1](https://github.com/jeiel85/markleaf-android/releases/tag/v2.36.1) 릴리스에서 APK를 다운로드한 뒤 Android 기기에서 실행해 설치합니다.
+- **APK 직접 설치**: [GitHub v2.37.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.37.0) 릴리스에서 APK를 다운로드한 뒤 Android 기기에서 실행해 설치합니다.
 - **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **업데이트 잠정 보류 중**입니다(위 안내 참고). 이미 설치돼 있으면 계속 쓸 수 있으며, 최신 버전은 GitHub Releases 또는 반영이 끝난 F-Droid에서 받으세요.
 
 ### 개발 환경 구축

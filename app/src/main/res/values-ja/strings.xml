@@ -64,6 +64,8 @@
     <string name="note_content">ノートの内容</string>
     <string name="editor_empty_title">静かなページが用意できました</string>
     <string name="editor_empty_hint">Markdown、#タグ、リンク、チェックボックスが使えます。Markleaf は入力中に端末内へ自動保存します。</string>
+    <string name="undo">元に戻す</string>
+    <string name="redo">やり直す</string>
     <string name="bold">太字</string>
     <string name="formatting">書式</string>
     <string name="formatting_inline">インライン</string>
@@ -196,7 +198,7 @@
     <string name="show_markdown_syntax">Markdown 構文を表示</string>
     <string name="show_markdown_syntax_description">ライブエディタが入力中に Markdown 記号をハイライトします。</string>
     <string name="show_formatting_button">書式ボタンを表示</string>
-    <string name="show_formatting_button_description">キーボード上の行に Aa ボタンを表示します。オフにすると消えますが、テキストを選択したときの太字・斜体・リンクと / クイック挿入はそのままです。</string>
+    <string name="show_formatting_button_description">キーボード上の行に Aa ボタンを表示します。オフにすると消えますが、元に戻す・やり直すと、テキストを選択したときの太字・斜体・リンク、/ クイック挿入はそのままです。</string>
     <string name="line_width">行の幅</string>
     <string name="line_width_narrow">狭め</string>
     <string name="line_width_comfortable">標準</string>

@@ -61,6 +61,19 @@ class EditorFormattingControlsSnapshotTest {
     )
 
     @Test
+    fun undoAvailablePhone() = snapshot(
+        name = "editor_formatting_undo_available_phone",
+        state = EditorFormattingUiState(canUndo = true, canRedo = true)
+    )
+
+    /** The row mounted for undo alone — "Show formatting button" off (#331). */
+    @Test
+    fun undoOnlyPhone() = snapshot(
+        name = "editor_formatting_undo_only_phone",
+        state = EditorFormattingUiState(canUndo = true, showFormattingEntry = false)
+    )
+
+    @Test
     fun expandedDarkPhone() = snapshot(
         name = "editor_formatting_expanded_dark_phone",
         state = EditorFormattingUiState(expanded = true),

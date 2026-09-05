@@ -1,0 +1,1 @@
+Uređivač sada ima poništavanje i ponavljanje. Markleaf sprema dok pišete, pa se spremila i pogreška — označite sve, pritisnete tipku i bilješke više nema. U retku iznad tipkovnice sada su gumbi za to, a na tipkovnici rade Ctrl+Z i Ctrl+Shift+Z. Pisanje preko odabira, zamjena svega i brisanje svega jedan su korak. Povijest vrijedi za otvorenu bilješku.

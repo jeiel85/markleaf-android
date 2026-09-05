@@ -83,7 +83,9 @@ internal data class EditorUndoSnapshot(val text: String, val selection: TextRang
  *  - A run of ordinary typing collapses into a single step while it stays
  *    small, unbroken and within [COALESCE_WINDOW_MS] of the last keystroke.
  *    Newlines, pauses, and runs past [COALESCE_MAX_RUN] characters end it, so
- *    undo walks back in paragraphs rather than in one erasing jump.
+ *    undo walks back in paragraphs rather than in one erasing jump. So do a
+ *    switch between inserting and deleting, and a caret that moved somewhere
+ *    else first — a run is one continuous act of typing in one place.
  *  - Anything larger — a paste, a replace-all, a formatting action, typing over
  *    a selection — is its own step, which is the case the report was about.
  *  - Moving the caret is not a step. The stack tracks text; a selection-only
@@ -105,6 +107,7 @@ internal class EditorUndoHistory(
 
     /** True while the newest entry is an open typing run more may merge into. */
     private var runOpen = false
+    private var runKind = ChangeKind.REPLACE
     private var runStartedAt = 0L
     private var runChars = 0
 
@@ -139,9 +142,12 @@ internal class EditorUndoHistory(
         }
         if (current.text == value.text) {
             // Caret moved, text did not. Keep the caret fresh on the current
-            // step so a later undo/redo lands where the user actually is.
+            // step so a later undo/redo lands where the user actually is, and
+            // close the typing run: what is typed after the caret has been
+            // moved is a new act of writing, not a continuation of the last.
             if (current.selection != value.selection) {
                 replace(index, current.copy(selection = value.selection))
+                endRun()
             }
             return
         }
@@ -150,7 +156,9 @@ internal class EditorUndoHistory(
         val continuesRun = runOpen &&
             index == entries.lastIndex &&
             timestamp - runStartedAt <= coalesceWindowMillis &&
+            change.kind == runKind &&
             change.isTypingSized &&
+            change.continuesFrom(current.selection) &&
             runChars + change.weight <= COALESCE_MAX_RUN
         if (continuesRun) {
             replace(index, value.toSnapshot())
@@ -163,6 +171,7 @@ internal class EditorUndoHistory(
             index = entries.lastIndex
             if (change.isTypingSized) {
                 runOpen = true
+                runKind = change.kind
                 runChars = change.weight
             } else {
                 endRun()
@@ -219,6 +228,7 @@ internal class EditorUndoHistory(
 
     private fun endRun() {
         runOpen = false
+        runKind = ChangeKind.REPLACE
         runChars = 0
     }
 
@@ -230,17 +240,46 @@ internal class EditorUndoHistory(
     private fun TextFieldValue.toSnapshot() = EditorUndoSnapshot(text, selection)
 }
 
+private enum class ChangeKind { INSERT, DELETE, REPLACE }
+
 /** The single contiguous span that differs between two versions of the text. */
-private data class TextChange(val removed: String, val inserted: String) {
+private data class TextChange(val start: Int, val removed: String, val inserted: String) {
     val weight: Int = maxOf(removed.length, inserted.length)
+
+    /**
+     * REPLACE covers typing or pasting over a selection and every formatting
+     * transformation. Those are never part of a typing run however small they
+     * are: merging one would make undo skip past the text it replaced, which is
+     * the whole complaint in miniature.
+     */
+    val kind: ChangeKind = when {
+        removed.isEmpty() -> ChangeKind.INSERT
+        inserted.isEmpty() -> ChangeKind.DELETE
+        else -> ChangeKind.REPLACE
+    }
 
     /**
      * A change small enough, and local enough, to be part of a typing run. A
      * newline on either side ends the run so undo stops at paragraph edges, and
      * the span allowance leaves room for an IME committing a word at once.
      */
-    val isTypingSized: Boolean =
-        weight <= COALESCE_MAX_SPAN && !removed.contains('\n') && !inserted.contains('\n')
+    val isTypingSized: Boolean = kind != ChangeKind.REPLACE &&
+        weight <= COALESCE_MAX_SPAN &&
+        !removed.contains('\n') &&
+        !inserted.contains('\n')
+
+    /**
+     * True when this change happened at the caret the previous state left
+     * behind. Moving the caret and typing somewhere else is a new step, even
+     * within the time window — otherwise one undo would take back two edits
+     * made in different places.
+     */
+    fun continuesFrom(previous: TextRange): Boolean = previous.collapsed && when (kind) {
+        ChangeKind.INSERT -> start == previous.start
+        // Backspace removes up to the caret; forward delete removes from it.
+        ChangeKind.DELETE -> start == previous.start || start + removed.length == previous.start
+        ChangeKind.REPLACE -> false
+    }
 
     companion object {
         fun between(old: String, new: String): TextChange {
@@ -255,6 +294,7 @@ private data class TextChange(val removed: String, val inserted: String) {
                 suffix++
             }
             return TextChange(
+                start = prefix,
                 removed = old.substring(prefix, old.length - suffix),
                 inserted = new.substring(prefix, new.length - suffix)
             )

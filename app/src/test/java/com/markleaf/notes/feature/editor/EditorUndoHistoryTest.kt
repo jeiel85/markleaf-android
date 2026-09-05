@@ -99,6 +99,63 @@ class EditorUndoHistoryTest {
         assertEquals("", undone.last())
     }
 
+    /**
+     * Raised in review on #361: a small replacement used to look like typing,
+     * so selecting what you had just typed and overtyping it merged into the
+     * same run and undo skipped past the replaced text.
+     */
+    @Test
+    fun typingOverASelectionEndsTheRunEvenWhenItIsTiny() {
+        history.reset(value(""))
+        type("a", "ab", "abc")
+
+        // Select "abc", then type over it.
+        history.record(value("abc", selection = TextRange(0, 3)))
+        clock += 50
+        history.record(value("x"))
+
+        assertEquals("abc", history.undo()?.text)
+        assertEquals("", history.undo()?.text)
+    }
+
+    @Test
+    fun typingSomewhereElseEndsTheRun() {
+        history.reset(value("hello world"))
+        clock += 5_000
+        history.record(value("hello world!"))
+
+        // Caret jumps to the front, then types there.
+        clock += 50
+        history.record(value("hello world!", caret = 0))
+        clock += 50
+        history.record(value("Xhello world!", caret = 1))
+
+        assertEquals("hello world!", history.undo()?.text)
+        assertEquals("hello world", history.undo()?.text)
+    }
+
+    @Test
+    fun backspacingAfterTypingEndsTheRun() {
+        history.reset(value(""))
+        type("ab", "abc")
+
+        clock += 50
+        history.record(value("ab"))
+
+        assertEquals("abc", history.undo()?.text)
+        assertEquals("", history.undo()?.text)
+    }
+
+    @Test
+    fun aRunOfBackspacesCollapsesIntoOneStep() {
+        history.reset(value("abcdef"))
+        clock += 5_000
+        type("abcde", "abcd", "abc")
+
+        assertEquals("abcdef", history.undo()?.text)
+        assertFalse(history.canUndo)
+    }
+
     @Test
     fun aPasteIsItsOwnStepAndDoesNotSwallowTheTypingAfterIt() {
         history.reset(value(""))
@@ -226,6 +283,9 @@ class EditorUndoHistoryTest {
         }
     }
 
-    private fun value(text: String, caret: Int = text.length) =
-        TextFieldValue(text, TextRange(caret))
+    private fun value(
+        text: String,
+        caret: Int = text.length,
+        selection: TextRange = TextRange(caret)
+    ) = TextFieldValue(text, selection)
 }

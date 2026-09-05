@@ -302,6 +302,62 @@ class EditorScreenTest {
         }
     }
 
+    /**
+     * Raised in review on #361: a formatting action that only inserts is the
+     * same shape as two keystrokes, so the typing right after it used to merge
+     * into the action and one undo took back both.
+     */
+    @Test
+    fun editorScreen_undoSeparatesAFormattingActionFromTheTypingAfterIt() {
+        launchEditor()
+        val editor = composeTestRule.onNodeWithContentDescription(
+            context.getString(R.string.note_content)
+        )
+
+        editor.performTextInput("Title")
+        composeTestRule.onNodeWithContentDescription(context.getString(R.string.formatting))
+            .performClick()
+        composeTestRule.onNodeWithText(context.getString(R.string.heading)).performScrollTo().performClick()
+        editor.assertTextEquals("# Title")
+        editor.performTextInput("!")
+        editor.assertTextEquals("# Title!")
+
+        val undo = composeTestRule.onNodeWithContentDescription(context.getString(R.string.undo))
+        undo.performClick()
+        editor.assertTextEquals("# Title")
+        undo.performClick()
+        editor.assertTextEquals("Title")
+    }
+
+    /**
+     * The find bar stands the formatting controls down, but a replace-all is
+     * the change most worth taking back — so undo stays on the row (#360).
+     */
+    @Test
+    fun editorScreen_undoStaysOnTheRowWhileTheFindBarIsOpen() {
+        launchEditor()
+        val editor = composeTestRule.onNodeWithContentDescription(
+            context.getString(R.string.note_content)
+        )
+
+        editor.performTextInput("alpha and alpha")
+        composeTestRule.onNodeWithContentDescription(context.getString(R.string.more_options))
+            .performClick()
+        composeTestRule.onNodeWithText(context.getString(R.string.find_in_note)).performClick()
+
+        // The formatting controls stand down here; undo must not.
+        composeTestRule.onNodeWithText(context.getString(R.string.find_in_note_hint))
+            .assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription(context.getString(R.string.formatting))
+            .assertDoesNotExist()
+        composeTestRule.onNodeWithContentDescription(context.getString(R.string.undo))
+            .assertIsDisplayed()
+            .performClick()
+
+        composeTestRule.onNodeWithText(context.getString(R.string.editor_empty_title))
+            .assertIsDisplayed()
+    }
+
     @Test
     fun editorScreen_urlDoesNotOpenQuickInsert() {
         launchEditor()

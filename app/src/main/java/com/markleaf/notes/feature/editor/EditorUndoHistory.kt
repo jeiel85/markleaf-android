@@ -111,6 +111,9 @@ internal class EditorUndoHistory(
     private var runStartedAt = 0L
     private var runChars = 0
 
+    /** Set by [beginNewStep]: the next text change stands alone, both ways. */
+    private var isolateNextStep = false
+
     var canUndo by mutableStateOf(false)
         private set
     var canRedo by mutableStateOf(false)
@@ -127,7 +130,25 @@ internal class EditorUndoHistory(
         add(value.toSnapshot())
         index = 0
         endRun()
+        isolateNextStep = false
         syncFlags()
+    }
+
+    /**
+     * Declares that the next text change is an action of its own, not typing.
+     *
+     * Only the app can tell the difference. A formatting action that inserts
+     * `"# "`, a quick insert, a completion — from the value stream these look
+     * exactly like two keystrokes, so without this the keystroke that follows
+     * one merges into it and a single undo takes back both.
+     *
+     * Called by the screen immediately before it applies such an edit.
+     * Forgetting it degrades to a merge rather than losing a step, which is why
+     * this is a hint rather than the recording mechanism.
+     */
+    fun beginNewStep() {
+        endRun()
+        isolateNextStep = true
     }
 
     /**
@@ -169,13 +190,14 @@ internal class EditorUndoHistory(
             if (index < entries.lastIndex) dropRedoTail()
             add(value.toSnapshot())
             index = entries.lastIndex
-            if (change.isTypingSized) {
+            if (change.isTypingSized && !isolateNextStep) {
                 runOpen = true
                 runKind = change.kind
                 runChars = change.weight
             } else {
                 endRun()
             }
+            isolateNextStep = false
             trim()
         }
         if (runOpen) runStartedAt = timestamp

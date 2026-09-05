@@ -156,6 +156,28 @@ class EditorUndoHistoryTest {
         assertFalse(history.canUndo)
     }
 
+    /**
+     * Raised in review on #361: an insertion-only action — Heading inserting
+     * `"# "`, a quick insert, a completion — is the same shape as two
+     * keystrokes, so the screen marks it. Without the marker the keystroke
+     * after it merged in and one undo took back both.
+     */
+    @Test
+    fun aMarkedActionIsIsolatedFromTheTypingOnEitherSide() {
+        history.reset(value(""))
+        type("Ti", "Tit", "Titl", "Title")
+
+        history.beginNewStep()
+        clock += 50
+        history.record(value("# Title", caret = 7))
+        clock += 50
+        history.record(value("# Title!", caret = 8))
+
+        assertEquals("# Title", history.undo()?.text)
+        assertEquals("Title", history.undo()?.text)
+        assertEquals("", history.undo()?.text)
+    }
+
     @Test
     fun aPasteIsItsOwnStepAndDoesNotSwallowTheTypingAfterIt() {
         history.reset(value(""))

@@ -64,6 +64,8 @@
     <string name="note_content">Notizinhalt</string>
     <string name="editor_empty_title">Eine ruhige Seite wartet</string>
     <string name="editor_empty_hint">Nutze Markdown, #Tags, Links und Checkboxen. Markleaf speichert während des Tippens lokal.</string>
+    <string name="undo">Rückgängig</string>
+    <string name="redo">Wiederherstellen</string>
     <string name="bold">Fett</string>
     <string name="formatting">Formatierung</string>
     <string name="formatting_inline">Inline</string>
@@ -201,7 +203,7 @@
     <string name="show_markdown_syntax">Markdown-Syntax anzeigen</string>
     <string name="show_markdown_syntax_description">Der Editor hebt Markdown-Zeichen beim Tippen hervor.</string>
     <string name="show_formatting_button">Formatierungsschaltfläche anzeigen</string>
-    <string name="show_formatting_button_description">Behält die Aa-Schaltfläche in der Zeile über der Tastatur. Aus blendet sie aus; Fett, Kursiv und Link erscheinen weiterhin, sobald du Text markierst, und das /-Schnelleinfügen bleibt unverändert.</string>
+    <string name="show_formatting_button_description">Behält die Aa-Schaltfläche in der Zeile über der Tastatur. Aus blendet sie aus; Rückgängig und Wiederherstellen bleiben, Fett, Kursiv und Link erscheinen weiterhin, sobald du Text markierst, und das /-Schnelleinfügen bleibt unverändert.</string>
     <string name="line_width">Zeilenbreite</string>
     <string name="line_width_narrow">Schmal</string>
     <string name="line_width_comfortable">Komfortabel</string>

@@ -64,6 +64,8 @@
     <string name="note_content">Contenido de la nota</string>
     <string name="editor_empty_title">Una página tranquila está lista</string>
     <string name="editor_empty_hint">Usa Markdown, #etiquetas, enlaces y casillas. Markleaf guarda localmente mientras escribes.</string>
+    <string name="undo">Deshacer</string>
+    <string name="redo">Rehacer</string>
     <string name="bold">Negrita</string>
     <string name="formatting">Formato</string>
     <string name="formatting_inline">En línea</string>
@@ -201,7 +203,7 @@
     <string name="show_markdown_syntax">Mostrar sintaxis Markdown</string>
     <string name="show_markdown_syntax_description">El editor resalta caracteres Markdown mientras escribes.</string>
     <string name="show_formatting_button">Mostrar el botón de formato</string>
-    <string name="show_formatting_button_description">Mantiene el botón Aa en la fila sobre el teclado. Al desactivarlo se oculta; negrita, cursiva y enlace siguen apareciendo al seleccionar texto, y la inserción rápida con / no cambia.</string>
+    <string name="show_formatting_button_description">Mantiene el botón Aa en la fila sobre el teclado. Al desactivarlo se oculta; deshacer y rehacer permanecen, negrita, cursiva y enlace siguen apareciendo al seleccionar texto, y la inserción rápida con / no cambia.</string>
     <string name="line_width">Ancho de línea</string>
     <string name="line_width_narrow">Estrecho</string>
     <string name="line_width_comfortable">Cómodo</string>

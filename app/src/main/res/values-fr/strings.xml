@@ -64,6 +64,8 @@
     <string name="note_content">Contenu de la note</string>
     <string name="editor_empty_title">Une page calme vous attend</string>
     <string name="editor_empty_hint">Utilisez Markdown, des #étiquettes, des liens et des cases à cocher. Markleaf enregistre localement pendant que vous écrivez.</string>
+    <string name="undo">Annuler</string>
+    <string name="redo">Rétablir</string>
     <string name="bold">Gras</string>
     <string name="formatting">Mise en forme</string>
     <string name="formatting_inline">En ligne</string>
@@ -201,7 +203,7 @@
     <string name="show_markdown_syntax">Afficher la syntaxe Markdown</string>
     <string name="show_markdown_syntax_description">L\'éditeur met en évidence les caractères Markdown pendant que vous écrivez.</string>
     <string name="show_formatting_button">Afficher le bouton de mise en forme</string>
-    <string name="show_formatting_button_description">Conserve le bouton Aa sur la ligne au-dessus du clavier. Désactivé, il disparaît ; gras, italique et lien apparaissent toujours lorsque vous sélectionnez du texte, et l\'insertion rapide avec / ne change pas.</string>
+    <string name="show_formatting_button_description">Conserve le bouton Aa sur la ligne au-dessus du clavier. Désactivé, il disparaît ; annuler et rétablir restent, gras, italique et lien apparaissent toujours lorsque vous sélectionnez du texte, et l\'insertion rapide avec / ne change pas.</string>
     <string name="line_width">Largeur de ligne</string>
     <string name="line_width_narrow">Étroite</string>
     <string name="line_width_comfortable">Confortable</string>

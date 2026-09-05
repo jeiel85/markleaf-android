@@ -64,6 +64,8 @@
     <string name="note_content">노트 본문</string>
     <string name="editor_empty_title">새 노트가 준비됐어요</string>
     <string name="editor_empty_hint">Markdown, #태그, 링크, 체크박스를 쓸 수 있고, 작성하는 동안 기기에 자동으로 저장됩니다.</string>
+    <string name="undo">실행 취소</string>
+    <string name="redo">다시 실행</string>
     <string name="bold">굵게</string>
     <string name="formatting">서식</string>
     <string name="formatting_inline">인라인</string>
@@ -196,7 +198,7 @@
     <string name="show_markdown_syntax">Markdown 문법 표시</string>
     <string name="show_markdown_syntax_description">에디터에서 작성하는 동안 Markdown 기호를 색으로 강조합니다.</string>
     <string name="show_formatting_button">서식 버튼 표시</string>
-    <string name="show_formatting_button_description">키보드 위 줄에 Aa 버튼을 둡니다. 끄면 사라지며, 텍스트를 선택했을 때의 굵게·기울임·링크와 / 빠른 삽입은 그대로입니다.</string>
+    <string name="show_formatting_button_description">키보드 위 줄에 Aa 버튼을 둡니다. 끄면 사라지며, 실행 취소·다시 실행과 텍스트를 선택했을 때의 굵게·기울임·링크, / 빠른 삽입은 그대로입니다.</string>
     <string name="line_width">본문 폭</string>
     <string name="line_width_narrow">좁게</string>
     <string name="line_width_comfortable">편안하게</string>

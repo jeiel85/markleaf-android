@@ -143,6 +143,10 @@ fun EditorScreen(
     val coroutineScope = rememberCoroutineScope()
 
     var editorState by remember(noteId) { mutableStateOf(TextFieldValue("")) }
+    // Per open note, and dropped when the screen leaves: Markleaf keeps no
+    // on-disk edit history, so this is a way back from the edit you just made,
+    // not a version store (#360).
+    val undoHistory = remember(noteId) { EditorUndoHistory() }
     val titleSource = appSettings.noteTitleSource
     // The persistence behind the debounce gate: reads the note fresh from the
     // DB so a save never clobbers a newer row, then updates the sync mirror
@@ -210,6 +214,27 @@ fun EditorScreen(
     }
     var isLoaded by remember(noteId) { mutableStateOf(noteId == null) }
     var shouldRequestEditorFocus by remember(noteId) { mutableStateOf(noteId == null) }
+    // Every edit path in this screen writes to [editorState], so the history
+    // watches that one value rather than being pushed to from each call site —
+    // an edit path added later is undoable without being wired up by hand.
+    // [EditorUndoHistory.record] ignores values that carry no text change, so
+    // the step a restore puts back does not become a step of its own.
+    LaunchedEffect(noteId) {
+        snapshotFlow { editorState }.collect { undoHistory.record(it) }
+    }
+    val restoreFromHistory: (TextFieldValue?) -> Unit = { restored ->
+        if (restored != null) {
+            HapticFeedback.light(context)
+            editorState = restored
+            shouldRequestEditorFocus = true
+            // The autosave gate reads the live text when it fires, so the
+            // restored version is what reaches the row — an undo the note is
+            // not saved with would be no undo at all.
+            if (isLoaded) saver.requestSave()
+        }
+    }
+    val performUndo = { restoreFromHistory(undoHistory.undo()) }
+    val performRedo = { restoreFromHistory(undoHistory.redo()) }
     val editorFocusRequester = remember(noteId) { FocusRequester() }
     var isPreviewMode by remember(noteId) { mutableStateOf(false) }
     // True when the settings read timed out and the note opened on defaults.
@@ -389,6 +414,7 @@ fun EditorScreen(
 
     LaunchedEffect(noteId) {
         if (noteId == null) {
+            undoHistory.reset(editorState)
             isLoaded = true
         } else {
             // Read the persisted setting directly (not the collectAsState
@@ -446,6 +472,9 @@ fun EditorScreen(
             // position was recorded — edited in another app, or a smaller
             // version brought in by sync.
             editorState = TextFieldValue(content, TextRange(caret.coerceIn(0, content.length)))
+            // The loaded note is the floor: undo must not walk back past it
+            // into the empty text the field held while the row was being read.
+            undoHistory.reset(editorState)
             pendingPreviewScroll = when (persistedSettings.openNotesAt) {
                 OpenNotesAt.TOP -> null
                 // Clamped against the rendered list when the scroll runs, so
@@ -990,7 +1019,14 @@ fun EditorScreen(
                                                     }
                                                     else -> false
                                                 }
+                                        val undoShortcut = event.toUndoAction()
                                         if (quickInsertHandled) {
+                                            true
+                                        } else if (undoShortcut != null) {
+                                            when (undoShortcut) {
+                                                UndoAction.UNDO -> performUndo()
+                                                UndoAction.REDO -> performRedo()
+                                            }
                                             true
                                         } else if (event.key == Key.Tab) {
                                             editorState = if (event.isShiftPressed) {
@@ -1119,19 +1155,28 @@ fun EditorScreen(
                         )
                     }
 
-                    if (!isFormattingPreempted && !isFormattingIdle) {
+                    // The row now also carries undo, so "nothing to format" is
+                    // no longer the only thing it could be showing: with the
+                    // formatting button off it still mounts once there is a
+                    // step to go back to (#360).
+                    if (!isFormattingPreempted && (!isFormattingIdle || undoHistory.canUndo || undoHistory.canRedo)) {
                         EditorFormattingControls(
                             state = EditorFormattingUiState(
                                 selectionActive = !editorState.selection.collapsed,
                                 expanded = isFormattingExpanded,
-                                enabled = isLoaded
+                                enabled = isLoaded,
+                                canUndo = undoHistory.canUndo,
+                                canRedo = undoHistory.canRedo,
+                                showFormattingEntry = !isFormattingIdle
                             ),
                             onExpandedChange = { expanded ->
                                 isFormattingExpanded = expanded
                                 if (!expanded) shouldRequestEditorFocus = true
                             },
                             onAction = applyFormattingAction,
-                            backgroundColor = MaterialTheme.colorScheme.background
+                            backgroundColor = MaterialTheme.colorScheme.background,
+                            onUndo = performUndo,
+                            onRedo = performRedo
                         )
                     }
                 }

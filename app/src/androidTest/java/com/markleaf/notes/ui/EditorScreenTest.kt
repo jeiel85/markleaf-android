@@ -213,6 +213,95 @@ class EditorScreenTest {
         }
     }
 
+    /**
+     * The whole of #360 in one pass: Markleaf autosaves, so typing over a
+     * selected note used to be permanent as soon as the debounce fired. Undo
+     * has to put the text back *and* land that version in the row — an undo the
+     * note is not saved with would be no undo at all.
+     *
+     * `EditorUndoHistoryTest` covers what counts as a step; this covers that
+     * `EditorScreen` joins the stack, the button and the autosave.
+     */
+    @Test
+    fun editorScreen_undoRestoresTextTypedOverTheWholeNoteAndSavesIt() {
+        val noteId = UUID.randomUUID().toString()
+        val repository = LocalNoteRepository(AppDatabase.getInstance(context))
+        val body = "A note the writer would hate to lose."
+        val now = Instant.now()
+        runBlocking {
+            repository.createNote(
+                Note(
+                    id = noteId,
+                    title = body,
+                    contentMarkdown = body,
+                    excerpt = body,
+                    createdAt = now,
+                    updatedAt = now
+                )
+            )
+        }
+
+        try {
+            launchEditor(noteId)
+            val editor = composeTestRule.onNodeWithContentDescription(
+                context.getString(R.string.note_content)
+            )
+
+            editor.performTextReplacement("x")
+            editor.assertTextEquals("x")
+            // Wait for the damage to actually reach the row, so the assertion
+            // after the undo cannot pass on a save that never happened.
+            composeTestRule.waitUntil(timeoutMillis = 15_000) {
+                runBlocking { repository.getNote(noteId)?.contentMarkdown == "x" }
+            }
+
+            composeTestRule.onNodeWithContentDescription(context.getString(R.string.undo))
+                .assertIsDisplayed()
+                .performClick()
+
+            editor.assertTextEquals(body)
+            composeTestRule.waitUntil(timeoutMillis = 15_000) {
+                runBlocking { repository.getNote(noteId)?.contentMarkdown == body }
+            }
+        } finally {
+            runBlocking { repository.deleteForever(noteId) }
+        }
+    }
+
+    /**
+     * "Show formatting button" off (#331) takes the standing `Aa` handle away.
+     * It must not take undo with it: the row is the only touch path back, so it
+     * mounts for undo alone once there is a step to go back to (#360).
+     */
+    @Test
+    fun editorScreen_undoStaysReachableWithTheFormattingButtonOff() {
+        val settings = AppSettingsRepository(context.applicationContext)
+        runBlocking { settings.setShowFormattingButton(false) }
+        try {
+            launchEditor()
+            val editor = composeTestRule.onNodeWithContentDescription(
+                context.getString(R.string.note_content)
+            )
+            val undoLabel = context.getString(R.string.undo)
+
+            // Nothing typed yet, so there is nothing for the row to offer.
+            composeTestRule.onNodeWithContentDescription(undoLabel).assertDoesNotExist()
+
+            editor.performTextInput("typed by mistake")
+
+            composeTestRule.onNodeWithContentDescription(context.getString(R.string.formatting))
+                .assertDoesNotExist()
+            composeTestRule.onNodeWithContentDescription(undoLabel)
+                .assertIsDisplayed()
+                .performClick()
+
+            composeTestRule.onNodeWithText(context.getString(R.string.editor_empty_title))
+                .assertIsDisplayed()
+        } finally {
+            runBlocking { settings.setShowFormattingButton(true) }
+        }
+    }
+
     @Test
     fun editorScreen_urlDoesNotOpenQuickInsert() {
         launchEditor()

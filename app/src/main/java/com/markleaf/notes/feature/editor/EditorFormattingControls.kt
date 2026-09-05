@@ -20,6 +20,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
+import androidx.compose.material.icons.automirrored.filled.Redo
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.CheckBox
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.DataObject
@@ -72,10 +74,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
 
+/**
+ * The row above the keyboard. It started as the formatting controls and now
+ * also carries undo/redo (#360): those belong beside the caret rather than in
+ * the top bar, which has no room left, and putting them here means one strip
+ * rather than two competing for the space above the keyboard.
+ *
+ * [showFormattingEntry] is what "Show formatting button" turns off (#331). With
+ * it off and nothing selected the `Aa` handle goes, but the row can still be
+ * mounted for undo alone — an editor that autosaves has to keep a way back
+ * reachable.
+ */
 internal data class EditorFormattingUiState(
     val selectionActive: Boolean = false,
     val expanded: Boolean = false,
-    val enabled: Boolean = true
+    val enabled: Boolean = true,
+    val canUndo: Boolean = false,
+    val canRedo: Boolean = false,
+    val showFormattingEntry: Boolean = true
 )
 
 private data class FormattingItem(
@@ -95,13 +111,23 @@ internal fun EditorFormattingControls(
     onExpandedChange: (Boolean) -> Unit,
     onAction: (EditorFormattingAction) -> Unit,
     backgroundColor: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onUndo: () -> Unit = {},
+    onRedo: () -> Unit = {}
 ) {
     val triggerFocusRequester = remember { FocusRequester() }
     val firstActionFocusRequester = remember { FocusRequester() }
     var openedFromKeyboard by remember { mutableStateOf(false) }
+    // Whichever control owns [triggerFocusRequester] this frame. With the
+    // formatting entry hidden and nothing selected the row is undo-only, so
+    // there is no trigger to hand focus back to.
+    val hasFocusTrigger = state.selectionActive || state.showFormattingEntry
 
-    LaunchedEffect(state.expanded) {
+    LaunchedEffect(state.expanded, hasFocusTrigger) {
+        if (!hasFocusTrigger) {
+            openedFromKeyboard = false
+            return@LaunchedEffect
+        }
         if (state.expanded && openedFromKeyboard) {
             withFrameNanos { }
             firstActionFocusRequester.requestFocus()
@@ -133,7 +159,10 @@ internal fun EditorFormattingControls(
 
             if (state.selectionActive) {
                 SelectionFormattingActions(
-                    showLink = availableWidth >= 192.dp,
+                    // Undo and redo take two of the four slots a 360dp phone
+                    // has, so the link shortcut needs more room than before to
+                    // avoid pushing "More options" off the edge.
+                    showLink = availableWidth >= 288.dp,
                     expanded = state.expanded,
                     enabled = state.enabled,
                     triggerFocusRequester = triggerFocusRequester,
@@ -145,6 +174,9 @@ internal fun EditorFormattingControls(
                     onAction = { action ->
                         if (state.expanded) onExpandedChange(false)
                         onAction(action)
+                    },
+                    undoActions = {
+                        UndoActions(state = state, onUndo = onUndo, onRedo = onRedo)
                     }
                 )
             } else {
@@ -156,7 +188,10 @@ internal fun EditorFormattingControls(
                         openedFromKeyboard = true
                         onExpandedChange(true)
                     },
-                    onExpandedChange = onExpandedChange
+                    onExpandedChange = onExpandedChange,
+                    undoActions = {
+                        UndoActions(state = state, onUndo = onUndo, onRedo = onRedo)
+                    }
                 )
             }
         }
@@ -169,7 +204,8 @@ private fun FormattingEntryRow(
     backgroundColor: Color,
     triggerFocusRequester: FocusRequester,
     onKeyboardOpen: () -> Unit,
-    onExpandedChange: (Boolean) -> Unit
+    onExpandedChange: (Boolean) -> Unit,
+    undoActions: @Composable () -> Unit
 ) {
     val label = stringResource(R.string.formatting)
     val stateLabel = stringResource(if (state.expanded) R.string.expanded else R.string.collapsed)
@@ -179,36 +215,86 @@ private fun FormattingEntryRow(
             .padding(top = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        FormattingTooltip(label = label) {
-            Surface(
-                color = if (state.expanded) MaterialTheme.colorScheme.secondaryContainer else backgroundColor,
-                contentColor = if (state.expanded) {
-                    MaterialTheme.colorScheme.onSecondaryContainer
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                },
-                shape = MaterialTheme.shapes.small
-            ) {
-                IconButton(
-                    onClick = { onExpandedChange(!state.expanded) },
-                    enabled = state.enabled,
-                    modifier = Modifier
-                        .size(48.dp)
-                        .focusRequester(triggerFocusRequester)
-                        .openPanelFromKeyboard(state.enabled, onKeyboardOpen)
-                        .semantics {
-                            contentDescription = label
-                            stateDescription = stateLabel
-                        }
-                        .focusable(state.enabled)
+        undoActions()
+        if (state.showFormattingEntry) {
+            FormattingTooltip(label = label) {
+                Surface(
+                    color = if (state.expanded) MaterialTheme.colorScheme.secondaryContainer else backgroundColor,
+                    contentColor = if (state.expanded) {
+                        MaterialTheme.colorScheme.onSecondaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                    shape = MaterialTheme.shapes.small
                 ) {
-                    Text(
-                        text = "Aa",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    IconButton(
+                        onClick = { onExpandedChange(!state.expanded) },
+                        enabled = state.enabled,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .focusRequester(triggerFocusRequester)
+                            .openPanelFromKeyboard(state.enabled, onKeyboardOpen)
+                            .semantics {
+                                contentDescription = label
+                                stateDescription = stateLabel
+                            }
+                            .focusable(state.enabled)
+                    ) {
+                        Text(
+                            text = "Aa",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                 }
             }
+        }
+    }
+}
+
+/**
+ * Undo and redo, at the left edge of the row. Both stay mounted and simply
+ * disable when there is nothing to step to, so their position never shifts the
+ * controls beside them — a button that moves under the thumb between taps is
+ * worse than one that is greyed out.
+ */
+@Composable
+private fun UndoActions(
+    state: EditorFormattingUiState,
+    onUndo: () -> Unit,
+    onRedo: () -> Unit
+) {
+    UndoActionButton(
+        icon = Icons.AutoMirrored.Filled.Undo,
+        labelRes = R.string.undo,
+        enabled = state.enabled && state.canUndo,
+        onClick = onUndo
+    )
+    UndoActionButton(
+        icon = Icons.AutoMirrored.Filled.Redo,
+        labelRes = R.string.redo,
+        enabled = state.enabled && state.canRedo,
+        onClick = onRedo
+    )
+}
+
+@Composable
+private fun UndoActionButton(
+    icon: ImageVector,
+    labelRes: Int,
+    enabled: Boolean,
+    onClick: () -> Unit
+) {
+    val label = stringResource(labelRes)
+    FormattingTooltip(label = label) {
+        IconButton(
+            onClick = onClick,
+            enabled = enabled,
+            modifier = Modifier
+                .size(48.dp)
+                .semantics { contentDescription = label }
+        ) {
+            Icon(icon, contentDescription = null)
         }
     }
 }
@@ -221,7 +307,8 @@ private fun SelectionFormattingActions(
     triggerFocusRequester: FocusRequester,
     onKeyboardOpen: () -> Unit,
     onExpandedChange: (Boolean) -> Unit,
-    onAction: (EditorFormattingAction) -> Unit
+    onAction: (EditorFormattingAction) -> Unit,
+    undoActions: @Composable () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -230,6 +317,7 @@ private fun SelectionFormattingActions(
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        undoActions()
         ContextAction(EditorFormattingAction.BOLD, Icons.Default.FormatBold, R.string.bold, enabled, onAction)
         ContextAction(EditorFormattingAction.ITALIC, Icons.Default.FormatItalic, R.string.italic, enabled, onAction)
         if (showLink) {

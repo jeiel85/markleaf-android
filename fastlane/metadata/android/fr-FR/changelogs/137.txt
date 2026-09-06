@@ -1,0 +1,1 @@
+En enregistrant un fichier Markdown externe comme note, le fichier est immédiatement mis en miroir si la synchronisation du dossier est activée. En cas d’échec d’écriture, la synchronisation reste à refaire et pourra être retentée lors d’une modification.

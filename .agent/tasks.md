@@ -5,11 +5,12 @@
 
 ---
 
-## GitHub Issue #366 - Sync Save-as-note (In progress, 2026-09-06)
+## GitHub Issue #366 - Sync Save-as-note (Done, 2026-09-06)
 
 - [x] #363 보고자의 후속 확인을 별도 이슈 #366으로 분리하고 원인 재현
 - [x] 읽기 전용 뷰어에서 노트를 저장할 때 설정된 동기화 폴더에도 즉시 미러링
-- [ ] PR 리뷰·머지 및 릴리스 배포
+- [x] PR #367 리뷰·필수 CI·계측 테스트를 통과시키고 머지
+- [x] v2.37.2 / versionCode 137 릴리스 문서·8개 로케일·`D:\Build` 산출물 검증 준비
 
 ---
 

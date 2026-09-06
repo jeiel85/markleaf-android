@@ -1,0 +1,1 @@
+Al guardar un archivo Markdown externo como nota, se refleja de inmediato si la sincronización de carpetas está activa. Si no se puede escribir, no se marca como sincronizado y se puede reintentar al editar después.

@@ -15,6 +15,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import java.time.Instant
 
 /**
  * The read-only file viewer (#326). What matters here is what it does *not* do:
@@ -41,11 +42,15 @@ class FileViewerScreenTest {
     private fun render(
         state: FileViewerState,
         onBack: () -> Unit = {},
-        onSaveAsNote: (String) -> Unit = {}
+        onSaveAsNote: (String, Instant?, Instant?) -> Unit = { _, _, _ -> }
     ) {
         composeRule.setContent {
             MarkleafTheme(dynamicColor = false) {
-                FileViewerContent(state = state, onBack = onBack, onSaveAsNote = onSaveAsNote)
+                FileViewerContent(
+                    state = state,
+                    onBack = onBack,
+                    onSaveAsNote = onSaveAsNote
+                )
             }
         }
     }
@@ -76,7 +81,7 @@ class FileViewerScreenTest {
     @Test
     fun savingHandsBackTheNoteBody() {
         var saved: String? = null
-        render(loaded(), onSaveAsNote = { saved = it })
+        render(loaded(), onSaveAsNote = { body, _, _ -> saved = body })
 
         composeRule.onNodeWithContentDescription("Save as note").performClick()
 
@@ -95,13 +100,34 @@ class FileViewerScreenTest {
     @Test
     fun anUnreadableFileSaysSoAndOffersNoSave() {
         var saved: String? = null
-        render(FileViewerState.Unreadable, onSaveAsNote = { saved = it })
+        render(FileViewerState.Unreadable, onSaveAsNote = { body, _, _ -> saved = body })
 
         composeRule.onNodeWithText(
             "This file couldn't be shown. It may be empty, may have been moved or deleted, or may not be a text file."
         ).assertIsDisplayed()
         composeRule.onNodeWithContentDescription("Save as note").assertDoesNotExist()
         assertNull(saved)
+    }
+
+    @Test
+    fun savingHandsBackSourceTimestamps() {
+        val created = Instant.parse("2026-08-19T10:15:30Z")
+        val updated = Instant.parse("2026-08-20T10:15:30Z")
+        var savedCreated: Instant? = null
+        var savedUpdated: Instant? = null
+
+        render(
+            loaded().copy(createdAt = created, updatedAt = updated),
+            onSaveAsNote = { _, sourceCreated, sourceUpdated ->
+                savedCreated = sourceCreated
+                savedUpdated = sourceUpdated
+            }
+        )
+
+        composeRule.onNodeWithContentDescription("Save as note").performClick()
+
+        assertEquals(created, savedCreated)
+        assertEquals(updated, savedUpdated)
     }
 
     @Test

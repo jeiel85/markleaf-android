@@ -3,6 +3,7 @@ package com.markleaf.notes.util
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.time.Instant
 
 /**
  * The two rules that decide what an outside file becomes (#139, #326): the name
@@ -71,5 +72,39 @@ class ExternalFileTest {
         val text = "# 회의록\n\n다국어 파일도 열린다 — ünicode, 日本語, 中文."
 
         assertTrue(ExternalFile.readCapped(text.byteInputStream()) == text)
+    }
+
+    @Test
+    fun `ordinary files use the source modification time for both note dates`() {
+        val modified = Instant.parse("2026-08-20T10:15:30Z")
+
+        val seed = ExternalFile.noteSeed(
+            ExternalFile.Document("notes.md", "A note", lastModifiedAt = modified)
+        )
+
+        assertEquals(modified, seed.createdAt)
+        assertEquals(modified, seed.updatedAt)
+    }
+
+    @Test
+    fun `Markleaf frontmatter preserves both explicit note dates`() {
+        val created = Instant.parse("2026-08-19T10:15:30Z")
+        val updated = Instant.parse("2026-08-20T10:15:30Z")
+        val text = """
+            ---
+            markleaf_id: note-1
+            created_at: $created
+            updated_at: $updated
+            ---
+
+            # Body
+        """.trimIndent()
+
+        val seed = ExternalFile.noteSeed(
+            ExternalFile.Document("notes.md", text, lastModifiedAt = Instant.now())
+        )
+
+        assertEquals(created, seed.createdAt)
+        assertEquals(updated, seed.updatedAt)
     }
 }

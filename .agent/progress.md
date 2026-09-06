@@ -2610,3 +2610,23 @@ Files changed:
 
 Build/test result:
 - Not run locally (workflow/config change)
+
+---
+
+## 2026-09-06 - GitHub Issue #363 Timestamp Preservation
+
+Selected task:
+- GitHub issue #363: preserve source timestamps when an external Markdown file is explicitly imported
+
+What was implemented:
+- Capture the provider's last-modified timestamp before opening the input stream.
+- Preserve Markleaf `created_at` / `updated_at` frontmatter when present.
+- Use the captured source modification time for both note timestamps when the provider exposes no Markleaf frontmatter.
+- Apply the same timestamp-aware import seed to `Open file…` → `Save as note` and `ACTION_SEND` file imports.
+- Added regression tests for ordinary files and Markleaf frontmatter timestamps.
+
+Issue response:
+- Thanked external reporter @ray4423 on issue #363 and explained the investigation path.
+
+Verification:
+- `./gradlew :app:testDebugUnitTest :app:lintRelease` — passed.

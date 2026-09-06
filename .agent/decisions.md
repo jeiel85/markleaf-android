@@ -1229,3 +1229,17 @@ Implications:
 - 스키마 변경은 명시적 Room migration으로 처리한다.
 - 메모 앱의 핵심 데이터인 노트, 태그, 링크는 앱 업데이트 때문에 삭제되면 안 된다.
 - 오래된 개발 빌드와 호환이 불가능한 경우에도 정식 릴리즈 경로는 데이터 보존을 우선한다.
+
+### D020 - Preserve External File Time at Import
+
+When an external Markdown file is explicitly kept as a Markleaf note, preserve
+its source time without writing back to the file.
+
+Implications:
+
+- Capture the provider's last-modified value before opening the input stream.
+- If Markleaf frontmatter contains `created_at` or `updated_at`, those explicit
+  values take precedence for the corresponding note fields.
+- For ordinary providers that expose only a modification time, use that value
+  for both note timestamps; SAF has no portable creation-time column.
+- Read-only viewing never writes to the source URI.

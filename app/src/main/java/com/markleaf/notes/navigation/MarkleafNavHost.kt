@@ -87,6 +87,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.Instant
 
 // Scopes for the list-card -> editor shared-element (container transform). They
 // are only non-null on the phone navigation path (provided around the NavHost
@@ -103,6 +104,8 @@ fun MarkleafNavHost(
     viewModelFactory: ViewModelProvider.Factory,
     shouldCreateNote: Boolean = false,
     sharedText: String? = null,
+    sharedCreatedAt: Instant? = null,
+    sharedUpdatedAt: Instant? = null,
     openNoteId: String? = null,
     viewFileUri: String? = null
 ) {
@@ -146,7 +149,12 @@ fun MarkleafNavHost(
                 // state: this effect runs on the first composition, where
                 // `appSettings` is still the initial default (#280).
                 val titleSource = settingsRepository.settings.first().noteTitleSource
-                val newNote = intentEntryViewModel.createNote(sharedText, titleSource)
+                val newNote = intentEntryViewModel.createNote(
+                    initialContent = sharedText,
+                    titleSource = titleSource,
+                    createdAt = sharedCreatedAt,
+                    updatedAt = sharedUpdatedAt
+                )
                 navController.navigateOnMain(NavRoutes.editorRoute(newNote.id))
             }
             !openNoteId.isNullOrBlank() -> {
@@ -522,10 +530,15 @@ fun MarkleafNavHost(
                 uri = uri,
                 contentMaxWidth = appSettings.lineWidth.maxWidthDp.dp,
                 onBack = { navController.popBackStack() },
-                onSaveAsNote = { body ->
+                onSaveAsNote = { body, createdAt, updatedAt ->
                     coroutineScope.launch {
                         val titleSource = settingsRepository.settings.first().noteTitleSource
-                        val newNote = viewerViewModel.createNote(body, titleSource)
+                        val newNote = viewerViewModel.createNote(
+                            initialContent = body,
+                            titleSource = titleSource,
+                            createdAt = createdAt,
+                            updatedAt = updatedAt
+                        )
                         withContext(Dispatchers.Main.immediate) {
                             navController.navigate(NavRoutes.editorRoute(newNote.id)) {
                                 // The file has been kept; backing out of the new

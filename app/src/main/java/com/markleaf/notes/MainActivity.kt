@@ -43,6 +43,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.Instant
 
 class MainActivity : FragmentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -120,7 +121,7 @@ class MainActivity : FragmentActivity() {
         val openNoteId = if (intent.action == QuickNoteWidget.ACTION_OPEN_NOTE) {
             intent.getStringExtra(QuickNoteWidget.EXTRA_NOTE_ID)
         } else null
-        val sharedText = extractInitialContent(intent)
+        val sharedContent = extractInitialContent(intent)
         // A file opened from elsewhere (ACTION_VIEW) is shown for reading rather
         // than imported (#326); sharing one in (ACTION_SEND) still means "take
         // this", and keeps creating a note.
@@ -149,7 +150,9 @@ class MainActivity : FragmentActivity() {
                         windowSizeClass = windowSizeClass,
                         viewModelFactory = viewModelFactory,
                         shouldCreateNote = shouldCreateNote,
-                        sharedText = sharedText,
+                        sharedText = sharedContent?.body,
+                        sharedCreatedAt = sharedContent?.createdAt,
+                        sharedUpdatedAt = sharedContent?.updatedAt,
                         openNoteId = openNoteId,
                         viewFileUri = viewFileUri
                     )
@@ -224,10 +227,17 @@ class MainActivity : FragmentActivity() {
      * and importing wrote a note and, with folder sync on, a second copy of the
      * file, for every file merely looked at. Keeping it is one tap in the viewer.
      */
-    private fun extractInitialContent(intent: Intent?): String? {
+    private data class ImportedContent(
+        val body: String,
+        val createdAt: Instant?,
+        val updatedAt: Instant?
+    )
+
+    private fun extractInitialContent(intent: Intent?): ImportedContent? {
         intent ?: return null
         if (intent.action != Intent.ACTION_SEND) return null
-        return intent.streamUri()?.let(::readNoteFromUri) ?: extractSharedText(intent)
+        return intent.streamUri()?.let(::readNoteFromUri)
+            ?: extractSharedText(intent)?.let { ImportedContent(it, null, null) }
     }
 
     private fun extractSharedText(intent: Intent?): String? {
@@ -258,6 +268,8 @@ class MainActivity : FragmentActivity() {
      * — the size cap, and seeding the title from the file name — live in
      * [ExternalFile], which the file viewer reads through as well.
      */
-    private fun readNoteFromUri(uri: Uri): String? =
-        ExternalFile.read(this, uri)?.let(ExternalFile::noteBody)
+    private fun readNoteFromUri(uri: Uri): ImportedContent? =
+        ExternalFile.read(this, uri)?.let(ExternalFile::noteSeed)?.let {
+            ImportedContent(it.body, it.createdAt, it.updatedAt)
+        }
 }

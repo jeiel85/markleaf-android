@@ -62,8 +62,11 @@ class NotesViewModel(
      */
     suspend fun createNote(
         initialContent: String = "",
-        titleSource: NoteTitleSource = NoteTitleSource.FIRST_HEADING
+        titleSource: NoteTitleSource = NoteTitleSource.FIRST_HEADING,
+        createdAt: Instant? = null,
+        updatedAt: Instant? = null
     ): Note {
+        val now = Instant.now()
         val newNote = Note(
             id = UUID.randomUUID().toString(),
             title = if (initialContent.isBlank()) {
@@ -77,8 +80,8 @@ class NotesViewModel(
             } else {
                 TitleExtractor.generateExcerpt(initialContent, titleSource)
             },
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
+            createdAt = createdAt ?: updatedAt ?: now,
+            updatedAt = updatedAt ?: createdAt ?: now
         )
         noteRepository.createNote(newNote)
         return newNote

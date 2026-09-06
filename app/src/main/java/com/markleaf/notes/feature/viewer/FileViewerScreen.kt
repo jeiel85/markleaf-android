@@ -40,6 +40,7 @@ import com.markleaf.notes.core.markdown.PreviewLine
 import com.markleaf.notes.util.ExternalFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.time.Instant
 
 /**
  * Reading one file that is not a note (#326).
@@ -62,7 +63,9 @@ sealed interface FileViewerState {
         val displayName: String?,
         val lines: List<PreviewLine>,
         /** What [FileViewerScreen]'s save action hands back — title seeding included. */
-        val noteBody: String
+        val noteBody: String,
+        val createdAt: Instant? = null,
+        val updatedAt: Instant? = null
     ) : FileViewerState
 
     /** Moved, deleted, not text, or a permission that lapsed while the app was away. */
@@ -73,7 +76,7 @@ sealed interface FileViewerState {
 fun FileViewerScreen(
     uri: Uri,
     onBack: () -> Unit = {},
-    onSaveAsNote: (String) -> Unit = {},
+    onSaveAsNote: (String, Instant?, Instant?) -> Unit = { _, _, _ -> },
     contentMaxWidth: Dp = Dp.Unspecified
 ) {
     val context = LocalContext.current
@@ -86,10 +89,13 @@ fun FileViewerScreen(
         state = withContext(Dispatchers.IO) {
             val document = ExternalFile.read(context, uri)
                 ?: return@withContext FileViewerState.Unreadable
+            val noteSeed = ExternalFile.noteSeed(document)
             FileViewerState.Loaded(
                 displayName = document.displayName,
                 lines = SimpleMarkdownPreview.parse(document.text),
-                noteBody = ExternalFile.noteBody(document)
+                noteBody = noteSeed.body,
+                createdAt = noteSeed.createdAt,
+                updatedAt = noteSeed.updatedAt
             )
         }
     }
@@ -107,7 +113,7 @@ fun FileViewerScreen(
 internal fun FileViewerContent(
     state: FileViewerState,
     onBack: () -> Unit = {},
-    onSaveAsNote: (String) -> Unit = {},
+    onSaveAsNote: (String, Instant?, Instant?) -> Unit = { _, _, _ -> },
     /** The reading measure the editor honours on wide screens; unconstrained on a phone. */
     contentMaxWidth: Dp = Dp.Unspecified
 ) {
@@ -145,7 +151,9 @@ internal fun FileViewerContent(
                 },
                 actions = {
                     if (state is FileViewerState.Loaded) {
-                        IconButton(onClick = { onSaveAsNote(state.noteBody) }) {
+                        IconButton(onClick = {
+                            onSaveAsNote(state.noteBody, state.createdAt, state.updatedAt)
+                        }) {
                             Icon(
                                 Icons.AutoMirrored.Outlined.NoteAdd,
                                 contentDescription = stringResource(R.string.file_viewer_save_as_note)

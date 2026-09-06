@@ -1,0 +1,1 @@
+Pri spremanju vanjske Markdown datoteke kao bilješke, ona se odmah zrcali ako je sinkronizacija mape uključena. Ako se ne može pisati, sinkronizacija se ne označava dovršenom i može se ponoviti nakon uređivanja.

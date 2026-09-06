@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.37.2 - Sync keeps up - 2026-09-06
+
+Saving an external Markdown file as a note now mirrors it immediately when folder sync is enabled.
+
+### Fixed
+- **Save as note mirrors immediately ([#366](https://github.com/jeiel85/markleaf-android/issues/366)).** Notes created from the read-only file viewer are now written to the configured sync folder at the moment you choose **Save as note**. The mirror records its imported snapshot only after the write succeeds, so a later edit can retry if the provider is unavailable.
+
 ## v2.37.1 - Timestamps that stay put - 2026-09-06
 
 External Markdown files remain read-only until you explicitly save them as notes.

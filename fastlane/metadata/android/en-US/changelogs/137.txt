@@ -1,0 +1,1 @@
+Saving an external Markdown file as a note now mirrors it immediately when folder sync is enabled. If the provider cannot be written, the sync snapshot is not marked complete and a later edit can retry.

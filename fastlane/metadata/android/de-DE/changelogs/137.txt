@@ -1,0 +1,1 @@
+Beim Speichern einer externen Markdown-Datei als Notiz wird sie bei aktivierter Ordnersynchronisierung sofort gespiegelt. Bei einem fehlgeschlagenen Schreibvorgang wird die Synchronisierung nicht als abgeschlossen markiert und kann später erneut versucht werden.

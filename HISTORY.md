@@ -1,3 +1,9 @@
+## 2026-09-06 - v2.37.2: save as note mirrors immediately (#366)
+
+- Followed the reporter's confirmation on #363 and opened #366 for the remaining behavior: the viewer's save action created the local note but left the sync folder untouched until the first edit.
+- PR #367 writes the newly created note through `writeNoteAndStamp` immediately when folder sync is enabled, preserving the normal retry behavior when a provider write fails.
+- Release preparation updates versionCode 137, versionName 2.37.2, the eight store changelogs, and all public version surfaces.
+
 ## 2026-09-06 - v2.37.1: external file timestamps stay put (#363)
 
 - Reproduced the external-file import path and traced both `Open file…` → `Save as note` and `ACTION_SEND` Markdown imports.

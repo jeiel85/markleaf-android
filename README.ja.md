@@ -61,7 +61,7 @@
 
 **Markleaf** は、余計なものをそぎ落とし「記録」と「整理」だけに集中できるよう設計された Android 向け Markdown メモアプリです。データは端末内にのみ保存され、標準 Markdown 形式によってデータの所有権と移植性が完全に保証されます。同期も *あなたが選んだフォルダ* を介してのみ行われ、Markleaf 自体はインターネットに接続しません。
 
-[**ブランディングページを見る**](https://jeiel85.github.io/markleaf-android/) · [現在のバージョン: v2.37.1](https://github.com/jeiel85/markleaf-android/releases/tag/v2.37.1) · [プライバシーポリシー](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**ブランディングページを見る**](https://jeiel85.github.io/markleaf-android/) · [現在のバージョン: v2.37.2](https://github.com/jeiel85/markleaf-android/releases/tag/v2.37.2) · [プライバシーポリシー](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -168,7 +168,7 @@ com.markleaf.notes
 > **現在、Google Play での更新は一時保留中です。** 個人開発者の韓国の事業者登録に関するポリシー要件が解決するまで、新しいバージョンは Play ストアに公開しません。最新リリースは **GitHub Releases** から入手してください。F-Droid のビルドが追いついた後は、F-Droid が推奨の更新経路です。（すでに Play ストアからインストール済みの場合はそのまま使えます。）
 
 - **F-Droid** *(自動更新に推奨)*: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — F-Droid クライアントで検索するか、上のリンクから直接インストールできます。カタログへの公開は GitHub より遅れることがあるため、最新版がまだ表示されない場合は下の GitHub Releases を使ってください。同じ署名鍵（SHA-256 `0be97352…f91a`）を使用するため、最初に GitHub の APK をサイドロードしても更新は継続します。
-- **APK の直接インストール**: [GitHub v2.37.1](https://github.com/jeiel85/markleaf-android/releases/tag/v2.37.1) リリースから APK をダウンロードし、Android 端末で実行してインストールします。
+- **APK の直接インストール**: [GitHub v2.37.2](https://github.com/jeiel85/markleaf-android/releases/tag/v2.37.2) リリースから APK をダウンロードし、Android 端末で実行してインストールします。
 - **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **更新は一時保留中**です（上の注記を参照）。すでにインストール済みなら引き続き使えます。最新版は GitHub Releases、または反映後の F-Droid から入手してください。
 
 ### 開発環境の構築

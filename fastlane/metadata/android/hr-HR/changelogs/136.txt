@@ -1,0 +1,1 @@
+Vanjske Markdown datoteke ostaju samo za čitanje dok ih ne spremite kao bilješke. Uvoz prije čitanja bilježi izvorno vrijeme izmjene i čuva vremena iz Markleaf frontmattera. Izvorna se datoteka pri pregledavanju ne mijenja.

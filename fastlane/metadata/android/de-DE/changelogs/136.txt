@@ -1,0 +1,1 @@
+Externe Markdown-Dateien bleiben schreibgeschützt, bis du sie als Notizen speicherst. Beim Import wird die ursprüngliche Änderungszeit vor dem Lesen erfasst; Markleaf behält die Zeiten aus dem Frontmatter bei. Beim Anzeigen wird die Quelldatei nicht beschrieben.

@@ -5,6 +5,15 @@
 
 ---
 
+## GitHub Issue #363 - External File Timestamps (Done, 2026-09-06)
+
+- [x] 외부 보고자에게 감사·트리아지 댓글을 남기고 `Open file…` 및 공유 파일 가져오기 경로를 재현
+- [x] 원본 제공자 메타데이터를 읽기 전에 캡처하고 Markleaf frontmatter 시각을 우선하는 수정 구현
+- [x] PR #364 리뷰·필수 CI·계측 테스트를 통과시키고 머지
+- [x] v2.37.1 / versionCode 136 릴리스 문서·8개 로케일·`D:\Build` 산출물 검증 준비
+
+---
+
 ## User-requested Project Direction Refresh (Done, 2026-07-28)
 
 - [x] 공개 저장소·릴리스·CI·배포 채널을 점검하고, 최신 설치 경로와 3/6개월 안정화 게이트를

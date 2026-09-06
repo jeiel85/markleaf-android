@@ -2630,3 +2630,19 @@ Issue response:
 
 Verification:
 - `./gradlew :app:testDebugUnitTest :app:lintRelease` — passed.
+
+---
+
+## 2026-09-06 - GitHub Issue #366 Sync Save-as-note
+
+Selected task:
+- Follow up on the reporter's confirmation on #363: a note saved from the
+  read-only viewer was not mirrored until its first edit.
+
+What was implemented:
+- Opened #366 to track the separate synchronization behavior.
+- `Save as note` now writes the new note to the configured sync folder
+  immediately and stamps `lastImportedAt` only after a successful write.
+
+Verification:
+- `./gradlew :app:testDebugUnitTest :app:lintRelease` — passed.

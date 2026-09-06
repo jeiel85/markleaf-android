@@ -1243,3 +1243,18 @@ Implications:
 - For ordinary providers that expose only a modification time, use that value
   for both note timestamps; SAF has no portable creation-time column.
 - Read-only viewing never writes to the source URI.
+
+### D021 - Mirror an External Note at Save Time
+
+When the read-only file viewer creates a note, treat that action as a complete
+note creation path and write the new note to the configured sync folder
+immediately.
+
+Implications:
+
+- Use the same `writeNoteAndStamp` path as other seeded notes so the mirror file
+  is created before the user edits the new note.
+- Keep the note local if the mirror provider is unavailable; a later edit can
+  retry through the normal editor autosave path.
+- Record `lastImportedAt` only after the mirror write succeeds, preventing a
+  failed first write from being treated as synchronized.

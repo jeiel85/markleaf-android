@@ -5,6 +5,14 @@
 
 ---
 
+## GitHub Issue #366 - Sync Save-as-note (In progress, 2026-09-06)
+
+- [x] #363 보고자의 후속 확인을 별도 이슈 #366으로 분리하고 원인 재현
+- [x] 읽기 전용 뷰어에서 노트를 저장할 때 설정된 동기화 폴더에도 즉시 미러링
+- [ ] PR 리뷰·머지 및 릴리스 배포
+
+---
+
 ## GitHub Issue #363 - External File Timestamps (Done, 2026-09-06)
 
 - [x] 외부 보고자에게 감사·트리아지 댓글을 남기고 `Open file…` 및 공유 파일 가져오기 경로를 재현

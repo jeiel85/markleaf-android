@@ -1,0 +1,1 @@
+External Markdown files stay read-only until you save them as notes. Imports now capture the source modification time before reading, and Markleaf frontmatter keeps its original created and updated times. No source file is written while it is viewed.

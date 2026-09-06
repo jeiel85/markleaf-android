@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.37.1 - Timestamps that stay put - 2026-09-06
+
+External Markdown files remain read-only until you explicitly save them as notes.
+
+### Fixed
+- **External file timestamps are preserved on import ([#363](https://github.com/jeiel85/markleaf-android/issues/363)).** `Open file…` and shared Markdown files now capture the provider's original modification time before reading. Markleaf files retain their `created_at` and `updated_at` frontmatter; providers that expose only a modification time use it for both note timestamps. Markleaf never writes to the source file while viewing it.
+
 ## v2.37.0 - Take it back - 2026-09-05
 
 The editor gets an undo. No permission or storage-format changes.

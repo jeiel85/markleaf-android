@@ -1,0 +1,1 @@
+Les fichiers Markdown externes restent en lecture seule jusqu’à leur enregistrement comme notes. L’import capture la date de modification avant la lecture et conserve les dates du frontmatter Markleaf. La source n’est jamais modifiée pendant la consultation.

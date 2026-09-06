@@ -1,3 +1,9 @@
+## 2026-09-06 - v2.37.1: external file timestamps stay put (#363)
+
+- Reproduced the external-file import path and traced both `Open file…` → `Save as note` and `ACTION_SEND` Markdown imports.
+- PR #364 preserves provider metadata captured before reading, gives Markleaf frontmatter precedence, and keeps source URIs read-only. It was reviewed, passed the required checks, and merged as `186de4c`.
+- Release preparation updates versionCode 136, versionName 2.37.1, the eight store changelogs, and all public version surfaces. The source provider's own read-side timestamp behavior remains outside Markleaf's write path.
+
 ## 2026-09-05 - v2.37.0: an undo for an editor that saves as you write (#360)
 
 - Trigger: `iamgitcat` filed #360 in four sentences — "select all, press something - everything is just saved to zero file with no way back." There was no undo in the editor at all, and a grep for `undo` across `app/src/main` returned three unrelated hits. A gap, not a design choice.

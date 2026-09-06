@@ -77,6 +77,9 @@ import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.repository.LocalNoteRepository
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
+import com.markleaf.notes.data.sync.NoteFolderMirror
+import com.markleaf.notes.data.sync.mirrorMetadata
+import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.ui.viewmodel.ArchiveViewModel
 import com.markleaf.notes.ui.viewmodel.LockedNotesViewModel
 import com.markleaf.notes.ui.viewmodel.NotesViewModel
@@ -532,13 +535,29 @@ fun MarkleafNavHost(
                 onBack = { navController.popBackStack() },
                 onSaveAsNote = { body, createdAt, updatedAt ->
                     coroutineScope.launch {
-                        val titleSource = settingsRepository.settings.first().noteTitleSource
+                        val settings = settingsRepository.settings.first()
                         val newNote = viewerViewModel.createNote(
                             initialContent = body,
-                            titleSource = titleSource,
+                            titleSource = settings.noteTitleSource,
                             createdAt = createdAt,
                             updatedAt = updatedAt
                         )
+                        // Saving from the read-only viewer is a complete note
+                        // creation path. Mirror it immediately when folder
+                        // sync is enabled; waiting for the first editor change
+                        // leaves the new note local-only until then (#366).
+                        settings.syncFolderUriOrNull()?.let { folderUri ->
+                            withContext(Dispatchers.IO) {
+                                NoteFolderMirror.writeNoteAndStamp(
+                                    context = context,
+                                    folderUri = folderUri,
+                                    note = newNote,
+                                    extension = settings.syncFileExtension,
+                                    metadata = settings.mirrorMetadata(),
+                                    onStamped = { stamped -> noteRepository.updateNote(stamped) }
+                                )
+                            }
+                        }
                         withContext(Dispatchers.Main.immediate) {
                             navController.navigate(NavRoutes.editorRoute(newNote.id)) {
                                 // The file has been kept; backing out of the new

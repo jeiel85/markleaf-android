@@ -10,21 +10,22 @@ import com.markleaf.notes.data.repository.LocalTagRepository
 import com.markleaf.notes.domain.model.Note
 import java.io.File
 import java.time.Instant
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 object StarterNotesSeeder {
     private const val PREFS_NAME = "markleaf_onboarding"
     private const val KEY_STARTER_NOTES_SEEDED = "starter_notes_seeded"
     internal const val STARTER_SAMPLE_IMAGE_PATH = "attachments/starter-note-2/markleaf-sample-cover.png"
+    private val seedMutex = Mutex()
 
-    suspend fun seedIfNeeded(context: Context, database: AppDatabase) {
+    suspend fun seedIfNeeded(context: Context, database: AppDatabase) = seedMutex.withLock {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        if (prefs.getBoolean(KEY_STARTER_NOTES_SEEDED, false)) {
-            return
-        }
+        if (prefs.getBoolean(KEY_STARTER_NOTES_SEEDED, false)) return@withLock
 
         if (database.noteDao().countAllNotes() > 0) {
             prefs.edit().putBoolean(KEY_STARTER_NOTES_SEEDED, true).apply()
-            return
+            return@withLock
         }
 
         val noteRepository = LocalNoteRepository(database)

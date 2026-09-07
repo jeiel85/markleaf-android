@@ -1712,3 +1712,11 @@
 48. 커뮤니티 마크다운 템플릿 갤러리
 49. WCAG 기준 접근성 최적화
 50. 로컬 성능 모니터링 (비추적 방식)
+## 2026-09-07 - v2.37.3: widget picker seeds first-run notes (#262)
+
+- Selected the immediately actionable hardening item from standing tracker #262: the launcher can open the single-note widget configuration activity before `MainActivity`, leaving the first-run note picker falsely empty.
+- `SingleNoteWidgetConfigureActivity` now starts `StarterNotesSeeder.seedIfNeeded` before collecting the note list. The existing Room `Flow` refreshes the picker after the background insert.
+- `StarterNotesSeeder` now serializes process-local callers with a `Mutex`, preventing duplicate starter-note inserts when MainActivity and widget configuration start together.
+- Added a wiring regression test and a concurrent seeder test.
+- Verification: `./gradlew :app:testDebugUnitTest :app:lintRelease` passed.
+- Release preparation updates versionCode 138, versionName 2.37.3, the eight store changelogs, and all public version surfaces.

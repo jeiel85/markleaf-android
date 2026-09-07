@@ -5,6 +5,15 @@
 
 ---
 
+## GitHub Hardening #262 - Widget picker first-run notes (Done, 2026-09-07)
+
+- [x] 위젯 설정 화면에서 `MainActivity` 없이도 첫 실행 샘플 노트를 시드
+- [x] MainActivity와 위젯 설정 화면이 동시에 시작될 때 시더 중복 삽입 방지
+- [x] 시더 동시성 회귀 테스트와 `testDebugUnitTest`·`lintRelease` 통과
+- [x] v2.37.3 / versionCode 138 릴리스 문서·8개 로케일·`D:\Build` 산출물 검증 준비
+
+---
+
 ## GitHub Issue #366 - Sync Save-as-note (Done, 2026-09-06)
 
 - [x] #363 보고자의 후속 확인을 별도 이슈 #366으로 분리하고 원인 재현

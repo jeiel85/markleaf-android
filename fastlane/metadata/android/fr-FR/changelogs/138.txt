@@ -1,0 +1,1 @@
+Le sélecteur du widget de note unique affiche désormais les notes de démarrage sur une nouvelle installation, même avant l’ouverture de Markleaf.

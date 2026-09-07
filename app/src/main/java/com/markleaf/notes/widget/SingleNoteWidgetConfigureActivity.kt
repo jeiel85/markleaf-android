@@ -38,8 +38,10 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
 import com.markleaf.notes.R
 import com.markleaf.notes.data.local.AppDatabase
+import com.markleaf.notes.data.onboarding.StarterNotesSeeder
 import com.markleaf.notes.data.repository.LocalNoteRepository
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
@@ -52,6 +54,8 @@ import com.markleaf.notes.feature.lock.BiometricLockGate
 import com.markleaf.notes.ui.theme.MarkleafTheme
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Placement screen for [SingleNoteWidget] (#351): choose the note the widget
@@ -90,6 +94,14 @@ class SingleNoteWidgetConfigureActivity : FragmentActivity() {
         val noteRepository = LocalNoteRepository(database)
         val settingsRepository = AppSettingsRepository(applicationContext)
         val initialTextSize = SingleNoteWidgetStore.textSize(applicationContext, appWidgetId)
+
+        // The launcher can start this activity before MainActivity has ever
+        // run, so first-run starter notes must be seeded here as well. The
+        // observeNotes Flow below will emit again after the background insert,
+        // replacing the temporary empty state with the real choices.
+        lifecycleScope.launch(Dispatchers.IO) {
+            StarterNotesSeeder.seedIfNeeded(applicationContext, database)
+        }
 
         setContent {
             val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())

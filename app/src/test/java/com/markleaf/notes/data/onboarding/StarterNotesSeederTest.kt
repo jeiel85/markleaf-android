@@ -5,6 +5,8 @@ import androidx.test.core.app.ApplicationProvider
 import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.repository.LocalNoteLinkRepository
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -51,14 +53,20 @@ class StarterNotesSeederTest {
     }
 
     @Test
-    fun `seedIfNeeded inserts starter notes once and indexes tags`() = runTest {
+    fun `seedIfNeeded inserts starter notes once even when startup paths race`() = runTest {
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         context.getSharedPreferences("markleaf_onboarding", android.content.Context.MODE_PRIVATE)
             .edit()
             .clear()
             .commit()
 
-        StarterNotesSeeder.seedIfNeeded(context, db)
+        coroutineScope {
+            repeat(2) {
+                launch {
+                    StarterNotesSeeder.seedIfNeeded(context, db)
+                }
+            }
+        }
         StarterNotesSeeder.seedIfNeeded(context, db)
 
         assertEquals(6, db.noteDao().countAllNotes())

@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.37.3 - Widgets ready on first launch - 2026-09-07
+
+The note picker is ready even when you add a widget before opening Markleaf.
+
+### Fixed
+- **Starter notes are available from the widget picker ([#262](https://github.com/jeiel85/markleaf-android/issues/262)).** The first-run sample notes are now seeded when the launcher opens the single-note widget configuration screen, not only when `MainActivity` starts. Concurrent startup paths are serialized so the same notes cannot be inserted twice.
+
 ## v2.37.2 - Sync keeps up - 2026-09-06
 
 Saving an external Markdown file as a note now mirrors it immediately when folder sync is enabled.

@@ -1,0 +1,1 @@
+Izbornik widgeta za jednu bilješku sada prikazuje početne bilješke na novoj instalaciji, čak i ako se widget doda prije otvaranja aplikacije Markleaf.

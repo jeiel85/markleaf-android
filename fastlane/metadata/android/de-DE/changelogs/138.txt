@@ -1,0 +1,1 @@
+Der Auswahlbildschirm des Einzelnotiz-Widgets zeigt Starter-Notizen auch bei einer frischen Installation, bevor Markleaf geöffnet wurde.

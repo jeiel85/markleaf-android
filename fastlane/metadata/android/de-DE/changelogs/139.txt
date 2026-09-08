@@ -1,0 +1,1 @@
+Das Einzelnotiz-Widget lässt sich jetzt scrollen. Bisher endete der Text dort, wo das Widget endete, und der Rest war vom Startbildschirm aus nicht erreichbar. Leerzeilen behalten ihren Abstand, und ein Tippen öffnet weiterhin die Notiz.

@@ -8,29 +8,45 @@ import android.os.ParcelFileDescriptor
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ListView
+import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.markleaf.notes.R
 import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.local.entity.NoteEntity
 import com.markleaf.notes.data.settings.EditorFontSize
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * What the single-note widget actually puts on a home screen (#351).
+ * What the single-note widget actually puts on a home screen (#351, #371).
  *
- * The Robolectric tests pin the rules — which notes may be drawn, what size the
- * text becomes — but they build `RemoteViews` and stop there. This binds a real
- * widget id through `AppWidgetService` and inflates what the launcher would
- * inflate, so the assertions are about the `TextView` a person would look at.
+ * The Robolectric tests pin the rules — which notes may be drawn, what a line
+ * becomes as a row — but they stop at the row list. This binds a real widget id
+ * through `AppWidgetService` and inflates what the launcher would inflate.
+ *
+ * Two halves, because the widget now has two:
+ *
+ * - The **container** is asserted through the host, as before. Since #371 the
+ *   assertion is that the body is a `ListView`: that is the whole of the fix,
+ *   because a collection view is the only shape a widget can scroll in.
+ * - The **rows** come from [SingleNoteWidgetFactory] against the real database,
+ *   each one inflated through `RemoteViews.apply` so the assertions are still
+ *   about a `TextView` a person would look at. They cannot be read off the host
+ *   view: an adapter-backed list is populated asynchronously by the launcher's
+ *   `RemoteViewsAdapter`, and asserting on that here would be a race dressed up
+ *   as a test.
  *
  * Binding needs `BIND_APPWIDGET`, which no app can hold by declaring it, so the
  * test grants it to itself through the instrumentation's shell. Doing that from
@@ -89,64 +105,155 @@ class SingleNoteWidgetRenderTest {
         runBlocking { AppDatabase.getInstance(context).noteDao().deleteForever(noteId) }
     }
 
+    /**
+     * The fix itself (#371). A `TextView` in a widget clips at the widget's
+     * height with no way to reach the rest, so the assertion is about which
+     * container got inflated rather than about any text inside it.
+     */
     @Test
-    fun theChosenNotesBodyIsDrawnAtTheChosenSize() {
+    fun theBodyIsInflatedAsAScrollableList() {
+        seedNote(locked = false)
+        SingleNoteWidgetStore.save(context, appWidgetId, noteId, EditorFontSize.MEDIUM)
+
+        assertNotNull("The widget inflated without a ListView", inflate().firstListView())
+    }
+
+    @Test
+    fun theChosenNotesLinesAreTheRowsAtTheChosenSize() {
         seedNote(locked = false)
         SingleNoteWidgetStore.save(context, appWidgetId, noteId, EditorFontSize.EXTRA_LARGE)
+        val factory = readyFactory()
 
-        val body = renderBody()
-
-        assertEquals(BODY, body.text.toString())
+        assertEquals(2, factory.getCount())
+        assertEquals(listOf("line one", "line two"), (0 until factory.getCount()).map { rowText(factory.getViewAt(it)) })
         assertEquals(
             TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_SP,
                 SingleNoteWidgetStore.bodySizeSp(EditorFontSize.EXTRA_LARGE),
-                body.resources.displayMetrics
+                context.resources.displayMetrics
             ),
-            body.textSize,
+            rowView(factory.getViewAt(0)).textSize,
             0.5f
         )
     }
 
     /**
+     * The end-to-end half: that a host asking for the adapter actually reaches
+     * [SingleNoteWidgetService] and gets rows back. Nothing else here would
+     * notice the service missing from the manifest, or declared without
+     * `BIND_REMOTEVIEWS` — the widget would simply be empty on a home screen
+     * while every other assertion stayed green.
+     *
+     * Polled rather than asserted once: the adapter connects to the service
+     * asynchronously, so the wait is part of the check, not a race around it.
+     */
+    @Test
+    fun theHostBindsTheServiceAndGetsRows() {
+        seedNote(locked = false)
+        SingleNoteWidgetStore.save(context, appWidgetId, noteId, EditorFontSize.MEDIUM)
+
+        val list = requireNotNull(inflate().firstListView()) { "The widget inflated without a ListView" }
+
+        val deadline = System.currentTimeMillis() + ADAPTER_TIMEOUT_MS
+        var count = 0
+        while (System.currentTimeMillis() < deadline) {
+            InstrumentationRegistry.getInstrumentation().runOnMainSync { count = list.adapter?.count ?: 0 }
+            if (count >= 2) break
+            Thread.sleep(POLL_MS)
+        }
+
+        assertEquals("The list never received the note's rows from the service", 2, count)
+    }
+
+    /**
      * The guard that matters: a home screen is visible without unlocking
      * anything, so a note moved into the Locked space has to stop rendering —
-     * not keep showing the text it had when it was chosen.
+     * not keep showing the text it had when it was chosen. With the body as a
+     * list, "stops rendering" is an empty row set, which is what makes the
+     * launcher swap in the empty view.
      */
     @Test
     fun aNoteLockedAfterItWasChosenStopsShowingItsText() {
         seedNote(locked = false)
         SingleNoteWidgetStore.save(context, appWidgetId, noteId, EditorFontSize.MEDIUM)
-        assertEquals(BODY, renderBody().text.toString())
+        val factory = readyFactory()
+        assertEquals(2, factory.getCount())
 
-        runBlocking {
-            AppDatabase.getInstance(context).noteDao().setLocked(noteId, true)
-        }
-        val body = renderBody()
+        runBlocking { AppDatabase.getInstance(context).noteDao().setLocked(noteId, true) }
+        factory.onDataSetChanged()
 
-        assertEquals(
-            context.getString(com.markleaf.notes.R.string.single_note_widget_unavailable),
-            body.text.toString()
+        assertEquals(0, factory.getCount())
+        // And the view the launcher falls back to says so, rather than going blank.
+        assertNotNull(
+            "The empty view carries no 'nothing to show' message",
+            inflate().findTextViewWithText(context.getString(R.string.single_note_widget_unavailable))
         )
     }
 
-    private fun renderBody(): TextView {
-        SingleNoteWidget.updateAppWidget(context, manager, appWidgetId)
+    /**
+     * The half a row template cannot cover. A ListView consumes taps inside its
+     * own bounds, but the padding around it and the "nothing to show" view it is
+     * swapped for are not rows — and a blank note renders nothing but that view.
+     * Before #371 one pending intent on the root covered all of it; this keeps
+     * that, so a note whose body draws no rows still opens when tapped.
+     */
+    @Test
+    fun theWidgetSurfaceOpensTheNoteWhenNoRowAreDrawn() {
+        seedNote(locked = true)
+        SingleNoteWidgetStore.save(context, appWidgetId, noteId, EditorFontSize.MEDIUM)
+
+        val root = inflate().findViewById<View>(R.id.single_note_root)
+
+        assertNotNull("The widget inflated without its root", root)
+        assertTrue("A widget drawing no rows has no tap target at all", root.hasOnClickListeners())
+    }
+
+    /** Nothing chosen yet — the state every widget is in between drop and picker. */
+    @Test
+    fun anUnconfiguredWidgetHasNothingToOpen() {
+        val root = inflate().findViewById<View>(R.id.single_note_root)
+
+        assertFalse("An unconfigured widget offers a tap that opens nothing", root.hasOnClickListeners())
+    }
+
+    private fun readyFactory(): SingleNoteWidgetFactory =
+        SingleNoteWidgetFactory(context, appWidgetId).apply { onDataSetChanged() }
+
+    private fun rowText(row: RemoteViews): String = rowView(row).text.toString()
+
+    /** Inflates one row the way the launcher would, so the assertion is about a real view. */
+    private fun rowView(row: RemoteViews): TextView {
         var found: TextView? = null
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            found = row.apply(context, null).findViewById(R.id.single_note_line)
+        }
+        return requireNotNull(found) { "A row inflated without its TextView" }
+    }
+
+    private fun inflate(): View {
+        SingleNoteWidget.updateAppWidget(context, manager, appWidgetId)
+        var found: View? = null
         InstrumentationRegistry.getInstrumentation().runOnMainSync {
             val hostView = host.createView(context, appWidgetId, manager.getAppWidgetInfo(appWidgetId))
             hostView.measure(
                 View.MeasureSpec.makeMeasureSpec(600, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(600, View.MeasureSpec.EXACTLY)
             )
-            found = hostView.firstTextView()
+            found = hostView
         }
-        return requireNotNull(found) { "The widget inflated without a TextView" }
+        return requireNotNull(found) { "The widget did not inflate" }
     }
 
-    private fun View.firstTextView(): TextView? = when (this) {
-        is TextView -> this
-        is ViewGroup -> (0 until childCount).firstNotNullOfOrNull { getChildAt(it).firstTextView() }
+    private fun View.firstListView(): ListView? = when (this) {
+        is ListView -> this
+        is ViewGroup -> (0 until childCount).firstNotNullOfOrNull { getChildAt(it).firstListView() }
+        else -> null
+    }
+
+    private fun View.findTextViewWithText(text: String): TextView? = when {
+        this is TextView && this.text?.toString() == text -> this
+        this is ViewGroup ->
+            (0 until childCount).firstNotNullOfOrNull { getChildAt(it).findTextViewWithText(text) }
         else -> null
     }
 
@@ -167,6 +274,11 @@ class SingleNoteWidgetRenderTest {
 
     private companion object {
         const val HOST_ID = 0x4D4C
+
+        /** How long the adapter is given to connect to the service before the check fails. */
+        const val ADAPTER_TIMEOUT_MS = 10_000L
+        const val POLL_MS = 100L
+
         const val BODY = "line one\nline two"
     }
 }

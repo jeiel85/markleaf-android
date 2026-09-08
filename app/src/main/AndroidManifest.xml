@@ -94,6 +94,13 @@
                 android:resource="@xml/single_note_widget_info" />
         </receiver>
 
+        <!-- Feeds the scrolling body of the single-note widget (#371). One
+             factory per placed widget, unlike the recent-notes service above. -->
+        <service
+            android:name=".widget.SingleNoteWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS"
+            android:exported="false" />
+
         <!-- Launched by the launcher when the widget is placed, and again for the
              reconfigure action on Android 12+. exported because the launcher, not
              the app, starts it. -->

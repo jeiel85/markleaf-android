@@ -1,3 +1,21 @@
+## 2026-09-08 - v2.37.4: the single-note widget scrolls (#371)
+
+- Split the unanswered follow-up on closed issue #351 into #371: the reporter pointed out that the recent-notes widget scrolls while the single-note widget does not, which was correct and not a setting they had missed.
+- PR #373 replaces the body `TextView` with a `ListView` fed by the new `SingleNoteWidgetService`, one row per line, so a long line wraps inside its row and a blank line keeps its height. The provider no longer reads the database — the factory does, on the background thread `onDataSetChanged` already runs on.
+- Each placed widget gets a distinct adapter intent, because `RemoteViewsService` keys factories by an intent comparison that ignores extras and two widgets would otherwise share one factory.
+- The Codex review caught a real regression: moving tap-to-open onto a row template left the padding and the empty view with no tap target, so a blank-bodied note's widget stopped opening at all. `f79ea4a` restores a whole-widget intent alongside the template, with separate request-code bases so the two pending intents cannot collide.
+- Verification: unit tests pin the row rules; six instrumented tests on `markleaf-phone-api36` cover the container shape, the factory's rows against the real database, the locked-note guard, the service binding, and the tap targets. `launch-smoke` failed once on an emulator `Broken pipe` unrelated to the change and passed on re-run.
+- Release preparation updates versionCode 139, versionName 2.37.4, the eight store changelogs, and all public version surfaces.
+
+## 2026-09-07 - v2.37.3: widget picker seeds first-run notes (#262)
+
+- Selected the immediately actionable hardening item from standing tracker #262: the launcher can open the single-note widget configuration activity before `MainActivity`, leaving the first-run note picker falsely empty.
+- `SingleNoteWidgetConfigureActivity` now starts `StarterNotesSeeder.seedIfNeeded` before collecting the note list. The existing Room `Flow` refreshes the picker after the background insert.
+- `StarterNotesSeeder` now serializes process-local callers with a `Mutex`, preventing duplicate starter-note inserts when MainActivity and widget configuration start together.
+- Added a wiring regression test and a concurrent seeder test.
+- Verification: `./gradlew :app:testDebugUnitTest :app:lintRelease` passed.
+- Release preparation updates versionCode 138, versionName 2.37.3, the eight store changelogs, and all public version surfaces.
+
 ## 2026-09-06 - v2.37.2: save as note mirrors immediately (#366)
 
 - Followed the reporter's confirmation on #363 and opened #366 for the remaining behavior: the viewer's save action created the local note but left the sync folder untouched until the first edit.
@@ -1712,11 +1730,3 @@
 48. 커뮤니티 마크다운 템플릿 갤러리
 49. WCAG 기준 접근성 최적화
 50. 로컬 성능 모니터링 (비추적 방식)
-## 2026-09-07 - v2.37.3: widget picker seeds first-run notes (#262)
-
-- Selected the immediately actionable hardening item from standing tracker #262: the launcher can open the single-note widget configuration activity before `MainActivity`, leaving the first-run note picker falsely empty.
-- `SingleNoteWidgetConfigureActivity` now starts `StarterNotesSeeder.seedIfNeeded` before collecting the note list. The existing Room `Flow` refreshes the picker after the background insert.
-- `StarterNotesSeeder` now serializes process-local callers with a `Mutex`, preventing duplicate starter-note inserts when MainActivity and widget configuration start together.
-- Added a wiring regression test and a concurrent seeder test.
-- Verification: `./gradlew :app:testDebugUnitTest :app:lintRelease` passed.
-- Release preparation updates versionCode 138, versionName 2.37.3, the eight store changelogs, and all public version surfaces.

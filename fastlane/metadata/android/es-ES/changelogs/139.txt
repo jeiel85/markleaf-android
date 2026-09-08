@@ -1,0 +1,1 @@
+El widget de una sola nota ahora se desplaza. Antes el texto terminaba donde terminaba el widget y el resto no se podía leer desde la pantalla de inicio. Las líneas en blanco mantienen su espaciado y al tocarlo se sigue abriendo la nota.

@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.37.4 - The widget scrolls - 2026-09-08
+
+The Single Note widget shows a whole note on the home screen instead of stopping where the widget does.
+
+### Fixed
+- **The Single Note widget scrolls ([#371](https://github.com/jeiel85/markleaf-android/issues/371)).** The note's body used to be drawn as a single block of text that was clipped at the widget's height, with no way to reach the rest. It is now a scrolling list, one row per line, so a long note can be read in place. Blank lines keep their spacing, a long line still wraps rather than being cut, and a note too long to hand over ends in a `…` row so a cut is visible rather than silent. Tapping the widget still opens the note — including the parts of the widget that are not rows, which a note with a blank body is made entirely of.
+
 ## v2.37.3 - Widgets ready on first launch - 2026-09-07
 
 The note picker is ready even when you add a widget before opening Markleaf.

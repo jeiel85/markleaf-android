@@ -1,0 +1,1 @@
+Le widget de note unique défile désormais. Son texte s’arrêtait à la taille du widget, et la suite restait inaccessible depuis l’écran d’accueil. Les lignes vides gardent leur espacement, et un appui ouvre toujours la note.

@@ -1,0 +1,1 @@
+The single-note widget now scrolls. Its body used to stop at whatever fit the widget, so the rest of a note could not be reached from the home screen. Blank lines keep their spacing, and tapping the widget still opens the note.

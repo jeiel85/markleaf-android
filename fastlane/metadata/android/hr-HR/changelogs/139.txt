@@ -1,0 +1,1 @@
+Widget za jednu bilješku sada se može pomicati. Tekst je prije završavao ondje gdje i widget, pa ostatak bilješke nije bio dostupan s početnog zaslona. Prazni redci zadržavaju razmak, a dodir i dalje otvara bilješku.

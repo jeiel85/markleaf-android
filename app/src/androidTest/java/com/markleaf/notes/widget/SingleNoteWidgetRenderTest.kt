@@ -21,7 +21,9 @@ import com.markleaf.notes.data.settings.EditorFontSize
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
@@ -186,6 +188,32 @@ class SingleNoteWidgetRenderTest {
             "The empty view carries no 'nothing to show' message",
             inflate().findTextViewWithText(context.getString(R.string.single_note_widget_unavailable))
         )
+    }
+
+    /**
+     * The half a row template cannot cover. A ListView consumes taps inside its
+     * own bounds, but the padding around it and the "nothing to show" view it is
+     * swapped for are not rows — and a blank note renders nothing but that view.
+     * Before #371 one pending intent on the root covered all of it; this keeps
+     * that, so a note whose body draws no rows still opens when tapped.
+     */
+    @Test
+    fun theWidgetSurfaceOpensTheNoteWhenNoRowAreDrawn() {
+        seedNote(locked = true)
+        SingleNoteWidgetStore.save(context, appWidgetId, noteId, EditorFontSize.MEDIUM)
+
+        val root = inflate().findViewById<View>(R.id.single_note_root)
+
+        assertNotNull("The widget inflated without its root", root)
+        assertTrue("A widget drawing no rows has no tap target at all", root.hasOnClickListeners())
+    }
+
+    /** Nothing chosen yet — the state every widget is in between drop and picker. */
+    @Test
+    fun anUnconfiguredWidgetHasNothingToOpen() {
+        val root = inflate().findViewById<View>(R.id.single_note_root)
+
+        assertFalse("An unconfigured widget offers a tap that opens nothing", root.hasOnClickListeners())
     }
 
     private fun readyFactory(): SingleNoteWidgetFactory =

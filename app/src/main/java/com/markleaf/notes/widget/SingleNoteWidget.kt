@@ -98,6 +98,21 @@ class SingleNoteWidget : AppWidgetProvider() {
         internal const val TRUNCATION_MARKER = "…"
 
         /**
+         * Request-code namespaces for the widget's two tap targets.
+         *
+         * A `PendingIntent` is identified by its request code and by an intent
+         * comparison that ignores extras — and the row template and the
+         * whole-widget intent differ only in extras. Sharing a request code
+         * would therefore make them the same `PendingIntent`, with
+         * `FLAG_UPDATE_CURRENT` overwriting one from the other and their
+         * mutability flags in conflict. Two bases, offset by the widget id, keep
+         * every pair distinct; the values sit clear of the plain 0 and 1
+         * [QuickNoteWidget] uses for intents that name the same activity.
+         */
+        private const val TEMPLATE_REQUEST_BASE = 0x510000
+        private const val ROOT_REQUEST_BASE = 0x520000
+
+        /**
          * Repaints every placed single-note widget. Called wherever the notes
          * behind them may have moved — the same points that refresh the
          * recent-notes list.
@@ -118,6 +133,7 @@ class SingleNoteWidget : AppWidgetProvider() {
             appWidgetId: Int
         ) {
             val views = RemoteViews(context.packageName, R.layout.widget_single_note)
+            val noteId = SingleNoteWidgetStore.noteId(context, appWidgetId)
             val bodySizeSp = SingleNoteWidgetStore.bodySizeSp(
                 SingleNoteWidgetStore.textSize(context, appWidgetId)
             )
@@ -133,19 +149,42 @@ class SingleNoteWidget : AppWidgetProvider() {
                 bodySizeSp
             )
 
-            // A ListView consumes row taps, so tap-to-open can no longer be one
-            // pending intent on the root: it becomes a template each row
-            // completes with its note id. Mutable for that reason, and only for
-            // it — asking for both MUTABLE and IMMUTABLE throws on Android 12+.
+            // Tap-to-open, in two halves, because a ListView consumes taps that
+            // land inside it and nothing else does.
+            //
+            // The rows get a template each one completes with its note id.
+            // Mutable for that reason, and only for it — asking for both
+            // MUTABLE and IMMUTABLE throws on Android 12+.
             views.setPendingIntentTemplate(
                 R.id.single_note_list,
                 PendingIntent.getActivity(
                     context,
-                    appWidgetId,
+                    TEMPLATE_REQUEST_BASE + appWidgetId,
                     openNoteTemplate(context),
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
                 )
             )
+            // The rest of the surface keeps the whole-widget tap it had before
+            // #371: the padding, and the "nothing to show" view, which is what a
+            // blank note renders — a widget the template alone would leave with
+            // no tap target at all. It fires for a note that cannot be drawn
+            // (locked, trashed, deleted) too, which the previous code did not do
+            // for the locked case: telling those apart needs a database read,
+            // and doing one here is exactly what this change moved off the
+            // receiver's main thread. Nothing is revealed by it — the tap opens
+            // Markleaf, and the Locked space's passcode is what stands in front
+            // of the note.
+            if (noteId != null) {
+                views.setOnClickPendingIntent(
+                    R.id.single_note_root,
+                    PendingIntent.getActivity(
+                        context,
+                        ROOT_REQUEST_BASE + appWidgetId,
+                        openNoteIntent(context, noteId),
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    )
+                )
+            }
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
             // Without this an edited note keeps showing its old text: the views

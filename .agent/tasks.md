@@ -5,6 +5,16 @@
 
 ---
 
+## GitHub Issue #371 - Single-note widget scrolling (Done, 2026-09-08)
+
+- [x] #351 보고자의 미응답 후속 지적을 확인하고 별도 이슈 #371로 분리
+- [x] 본문을 `TextView`에서 `ListView` + `SingleNoteWidgetService`로 전환해 스크롤 가능하게 구현
+- [x] 위젯 인스턴스별 factory 분리(`data` 고유화), 행 탭은 `PendingIntentTemplate` + fill-in으로 이전
+- [x] 빈 줄 높이 유지·긴 줄 래핑·문자/행 상한 말줄임 규칙을 단위 테스트로 고정
+- [x] 계측 테스트를 컨테이너 형태·factory 행·서비스 바인딩 3축으로 재작성하고 에뮬레이터에서 통과
+
+---
+
 ## GitHub Hardening #262 - Widget picker first-run notes (Done, 2026-09-07)
 
 - [x] 위젯 설정 화면에서 `MainActivity` 없이도 첫 실행 샘플 노트를 시드

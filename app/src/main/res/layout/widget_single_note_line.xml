@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+    One line of the chosen note (#371). Rows are lines rather than fixed-size
+    chunks so a long line still wraps inside its own row instead of being cut at
+    a row boundary; a blank line carries a non-breaking space from the factory so
+    it keeps its height and paragraphs stay apart.
+
+    No maxLines and no ellipsize: nothing here may truncate, because scrolling is
+    the point.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/single_note_line_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/single_note_line"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:lineSpacingMultiplier="1.2"
+        android:textColor="?android:attr/textColorPrimaryInverse"
+        android:textSize="14sp" />
+
+</LinearLayout>

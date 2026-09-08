@@ -1,4 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?><!--
+    The body is a ListView rather than a TextView because a widget cannot scroll
+    any other way (#371): a RemoteViews tree may only hold a fixed set of views,
+    ScrollView is not among them, and a TextView there clips at the widget's
+    height with no way to reach the rest. The scrollable containers a widget can
+    hold are the collection views, each needing a RemoteViewsService behind it —
+    here SingleNoteWidgetService, which returns one row per line of the note.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/single_note_root"
     android:layout_width="match_parent"
@@ -7,14 +14,23 @@
     android:orientation="vertical"
     android:padding="12dp">
 
-    <TextView
-        android:id="@+id/single_note_body"
+    <ListView
+        android:id="@+id/single_note_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:ellipsize="end"
-        android:lineSpacingMultiplier="1.2"
+        android:divider="@null"
+        android:dividerHeight="0dp" />
+
+    <TextView
+        android:id="@+id/single_note_empty"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="@string/single_note_widget_unavailable"
         android:textColor="?android:attr/textColorPrimaryInverse"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        android:visibility="gone" />
 
 </LinearLayout>

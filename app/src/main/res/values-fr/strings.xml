@@ -262,7 +262,7 @@
     <string name="sync_metadata_mode_description">Markleaf doit savoir quel fichier correspond à quelle note. Par défaut, il écrit un petit en-tête `---` en haut de chaque fichier. « À côté des fichiers » place cette information dans un index masqué, pour que vos notes ne contiennent que ce que vous avez écrit.</string>
     <string name="sync_metadata_sidecar_costs">Contreparties : renommer un fichier hors de Markleaf peut rompre son lien avec la note, et un dossier copié sans son index perd la date de création et l’épinglage de chaque note.</string>
     <string name="sync_metadata_switched_format">%1$d fichiers convertis.</string>
-    <string name="sync_behavior_summary">· Sauvegarde dans le dossier ~1 seconde après chaque modification.\n· \"Synchroniser maintenant\" récupère les modifications des autres appareils.\n· Conflits : la modification la plus récente l\'emporte.\n· Les suppressions ne sont pas synchronisées — gérez la corbeille sur chaque appareil.</string>
+    <string name="sync_behavior_summary">· Sauvegarde dans le dossier ~1 seconde après chaque modification.\n· \"Synchroniser maintenant\" récupère les modifications des autres appareils.\n· Conflits : la modification la plus récente l\'emporte.\n· Les suppressions ne sont pas synchronisées — gérez la corbeille sur chaque appareil.\n· Les fichiers déjà présents dans le dossier sont importés comme notes.</string>
     <string name="sync_pick_folder">Choisir le dossier de synchronisation</string>
     <string name="sync_change_folder">Changer de dossier</string>
     <string name="sync_now">Synchroniser maintenant</string>
@@ -280,6 +280,11 @@
     <string name="sync_done_format">Synchronisé — %1$d mises à jour, %2$d nouvelles, %3$d inchangées.</string>
     <string name="sync_done_with_conflicts_format">Synchronisé — %1$d mises à jour, %2$d nouvelles, %3$d conservées en double (conflit), %4$d inchangées.</string>
     <string name="sync_conflict_copy_suffix">(copie d\'un autre appareil %1$s)</string>
+    <string name="sync_link_import_title">Ce dossier contient déjà des fichiers</string>
+    <string name="sync_link_import_message_format">%1$d fichiers de ce dossier ne sont pas encore des notes Markleaf. La liaison les importe : ils apparaissent dans votre liste et vos modifications sont réécrites dans le même fichier.</string>
+    <string name="sync_link_import_frontmatter_note">Markleaf écrira aussi un petit en-tête « --- » dans chacun. Pour laisser vos fichiers en texte brut, annulez et réglez d’abord %1$s sur « %2$s ».</string>
+    <string name="sync_link_import_confirm">Lier et importer</string>
+    <string name="sync_linked_format">Lié — %1$d notes écrites, %2$d importées.</string>
     <string name="sync_stopped">Synchronisation désactivée.</string>
     <string name="screenshot_protection">Bloquer les captures d\'écran et l\'aperçu des applications récentes</string>
     <string name="screenshot_protection_description">Masque le contenu des notes dans les captures d\'écran et l\'écran des applications récentes. Redémarrez l\'écran de l\'éditeur pour que le changement prenne effet.</string>

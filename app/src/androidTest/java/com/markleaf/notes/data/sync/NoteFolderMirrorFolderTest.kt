@@ -296,6 +296,75 @@ class NoteFolderMirrorFolderTest {
         assertEquals(1, created.size)
     }
 
+    // --- #372: what linking is about to adopt, counted before it happens ----
+
+    @Test
+    fun surveyCountsFilesNoNoteOwns() {
+        seed("Groceries.md", "# Groceries\n\nmilk")
+        seed("Ideas.md", "# Ideas\n\nthings")
+        seed("notes.txt", "plain text")
+
+        val survey = NoteFolderMirror.surveyFolderIn(context, folder, existing = emptyList())
+
+        assertEquals(3, survey.newFiles)
+        assertEquals(0, survey.knownFiles)
+        assertEquals(3, survey.totalFiles)
+    }
+
+    @Test
+    fun surveyDoesNotCountAFileItsNoteAlreadyOwns() {
+        seed("My Note.md", "---\nmarkleaf_id: note-1\n---\n\nours")
+        seed("Dropped In.md", "# Dropped In\n\ntheirs")
+
+        val survey = NoteFolderMirror.surveyFolderIn(context, folder, existing = listOf(note()))
+
+        // The user is asked about the one file that is about to become a note,
+        // not about the folder's size.
+        assertEquals(1, survey.newFiles)
+        assertEquals(1, survey.knownFiles)
+    }
+
+    @Test
+    fun surveyCountsAHiddenNotesFileAsKnown() {
+        // Same rule the import runs on (#148): a file matching an archived or
+        // trashed note is not a new note. Counting it as one would promise an
+        // arrival that never comes -- the import skips it.
+        seed("Archived.md", "---\nmarkleaf_id: note-a\n---\n\nfiled away")
+        seed("Trashed.md", "---\nmarkleaf_id: note-t\n---\n\nthrown out")
+        val hidden = listOf(
+            note(id = "note-a").copy(archived = true),
+            note(id = "note-t").copy(trashed = true)
+        )
+
+        val survey = NoteFolderMirror.surveyFolderIn(context, folder, existing = hidden)
+
+        assertEquals(0, survey.newFiles)
+        assertEquals(2, survey.knownFiles)
+    }
+
+    @Test
+    fun surveyReadsAndChangesNothing() {
+        // The count runs before the user has agreed to anything, so it must
+        // leave the folder exactly as it found it: no id stamped into a file,
+        // no file created, none renamed.
+        seed("Dropped In.md", "# Dropped In\n\nhand-dropped")
+        val before = File(dir, "Dropped In.md").readText()
+
+        NoteFolderMirror.surveyFolderIn(context, folder, existing = emptyList())
+
+        assertEquals(listOf("Dropped In.md"), files())
+        assertEquals(before, File(dir, "Dropped In.md").readText())
+    }
+
+    @Test
+    fun surveyOfAnEmptyFolderAsksNothing() {
+        val survey = NoteFolderMirror.surveyFolderIn(context, folder, existing = emptyList())
+
+        assertEquals(0, survey.newFiles)
+        assertEquals(0, survey.totalFiles)
+        assertTrue("an empty folder is still a readable one", survey.readable)
+    }
+
     // --- a directory is not a note file -------------------------------------
 
     @Test

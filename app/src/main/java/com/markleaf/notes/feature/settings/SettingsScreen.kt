@@ -79,6 +79,7 @@ import com.markleaf.notes.data.sync.SidecarMigration
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.data.sync.mirrorMetadata
 import com.markleaf.notes.feature.lock.canUseBiometric
+import com.markleaf.notes.feature.sync.rememberSyncFolderLinker
 import com.markleaf.notes.ui.component.elapsedTimeLabel
 import com.markleaf.notes.util.ExportAllNotes
 import com.markleaf.notes.util.HapticFeedback
@@ -178,45 +179,15 @@ fun SettingsScreen(
         }
     }
 
-    val syncFolderLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocumentTree()
-    ) { folderUri ->
-        if (folderUri != null) {
-            // Persist read+write so the URI keeps working after a reboot.
-            val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            runCatching {
-                context.contentResolver.takePersistableUriPermission(folderUri, flags)
-            }
-            scope.launch {
-                settingsRepository.setSyncFolderUri(folderUri.toString())
-                // Mirror every existing note immediately so the folder is seeded.
-                val notes = withContext(Dispatchers.IO) { noteRepository.observeNotes().first() }
-                    .filter { !it.trashed }
-                var written = 0
-                withContext(Dispatchers.IO) {
-                    notes.forEach { note ->
-                        // writeNoteAndStamp, not writeNote: a seeded note whose
-                        // lastImportedAt stays null reads as "edited locally
-                        // since the last import" for ever, so the next genuinely
-                        // newer file becomes a conflict copy instead of a clean
-                        // overwrite (#217).
-                        val wrote = NoteFolderMirror.writeNoteAndStamp(
-                            context,
-                            folderUri,
-                            note,
-                            appSettings.syncFileExtension,
-                            appSettings.mirrorMetadata()
-                        ) { stamped -> noteRepository.updateNote(stamped) }
-                        if (wrote) written++
-                    }
-                }
-                settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())
-                val msg = context.resources.getQuantityString(R.plurals.sync_seeded_format, written, written)
-                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
+    // Picker, the question about files already in the folder, and the link
+    // itself all live in one place now — the Sync Center offers the same
+    // button, and the import used to be missing from both copies (#372).
+    val pickSyncFolder = rememberSyncFolderLinker(
+        settingsRepository = settingsRepository,
+        noteRepository = noteRepository,
+        noteImporter = noteImporter,
+        appSettings = appSettings
+    )
 
     Scaffold(
         topBar = {
@@ -799,7 +770,7 @@ fun SettingsScreen(
                                 ).show()
                             }
                         },
-                        onPickFolder = { syncFolderLauncher.launch(null) },
+                        onPickFolder = pickSyncFolder,
                         onSyncNow = {
                             val uri = appSettings.syncFolderUriOrNull() ?: return@SyncSection
                             scope.launch {

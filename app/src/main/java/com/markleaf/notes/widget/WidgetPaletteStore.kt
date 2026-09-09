@@ -1,8 +1,11 @@
 package com.markleaf.notes.widget
 
 import android.content.Context
+import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.ColorPalette
 import com.markleaf.notes.data.settings.ThemeMode
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 /**
  * The two Appearance settings a widget paints itself from, mirrored where it can
@@ -64,6 +67,40 @@ object WidgetPaletteStore {
             .putString(KEY_THEME_MODE, themeMode.name)
             .commit()
         return true
+    }
+
+    /**
+     * Re-reads the authoritative settings and updates the mirror, reporting
+     * whether it moved.
+     *
+     * `MainActivity` is not enough on its own. The mirror starts empty, so
+     * until it has been written once every widget renders the green default —
+     * and there are two ways to reach a widget without `MainActivity` having
+     * run: an existing Material You user upgrading, whose launcher recreates
+     * the placed widgets after the package update, and someone adding a widget
+     * from the launcher's picker, which starts
+     * [SingleNoteWidgetConfigureActivity] directly (the same route that made
+     * the note picker look empty in #262). Either one would have shown the
+     * defect this change is fixing.
+     *
+     * Callers must be off the main thread — this reads DataStore and commits.
+     * Both [RemoteViewsFactory][android.widget.RemoteViewsService.RemoteViewsFactory]
+     * implementations call it from `onDataSetChanged`, which the AppWidgetManager
+     * runs on a background thread precisely so a factory can do synchronous I/O,
+     * and which follows every provider update. That is what makes the mirror
+     * self-healing rather than dependent on one writer.
+     *
+     * [repository] is defaulted rather than constructed inline so a test can
+     * hand in its own DataStore: the `preferencesDataStore` delegate caches one
+     * instance per JVM, which Robolectric's per-method data directories can
+     * never work with (#158).
+     */
+    fun syncFromSettings(
+        context: Context,
+        repository: AppSettingsRepository = AppSettingsRepository(context)
+    ): Boolean {
+        val settings = runBlocking { repository.settings.first() }
+        return save(context, settings.colorPalette, settings.themeMode)
     }
 
     private fun prefs(context: Context) =

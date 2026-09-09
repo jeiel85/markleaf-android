@@ -2675,9 +2675,22 @@ Review round (세 건 모두 머지 전 수정):
   둘이 어긋날 수 있다. `refreshAll` 로 바꿨다(끝에서 같은 notify 를 한다).
 - 미러의 `commit()` 이 메인 스레드에서 돌았다. `Dispatchers.IO` 로 옮겼다.
 
+Codex review round (두 건 모두 머지 전 수정):
+- 미러가 비어 있는 상태를 아무도 채우지 않았다. Material You 사용자가 업그레이드하거나
+  런처 피커에서 위젯을 추가하면(#262 와 같은 경로) `MainActivity` 가 돌기 전까지
+  초록 위젯을 본다 — 고치려던 결함이 그대로 남는 셈이다. 이제 두 factory 의
+  백그라운드 스레드(위젯 스택에서 DataStore 를 읽을 수 있는 유일한 곳)에서
+  `syncFromSettings` 로 스스로 치유한다.
+- Theme = SYSTEM 에서 기기가 주야 전환을 해도 저장된 두 값이 그대로라 아무것도
+  다시 그리지 않았다. `updatePeriodMillis` 가 0 이라 달리 갱신될 일도 없다.
+  `setColorStateList`/`setColorInt` 의 2값 오버로드로 호스트에게 두 표면을 모두
+  넘겨, SYSTEM 이면 호스트가 자기 night mode 로 고르고 Light/Dark 면 선택지가 없다.
+- 남는 한계: 앱이 닫힌 동안 배경화면 강조색이 바뀌면 스냅샷으로 남는다.
+
 Verification:
-- `WidgetPaletteTest` 10개 — 결함을 되돌려 놓으면
-  `material you reaches the recent-notes widget` 와
-  `the theme setting picks which end of the palette to take` 가
-  각각 실패하는 것을 확인했다.
+- `WidgetPaletteTest` 12개 — 결함을 되돌려 놓으면
+  각 결함마다 그에 맞춰 쓴 테스트가 정확히 하나씩 실패하는 것을 확인했다
+  (`material you reaches the recent-notes widget`,
+  `a fixed theme gives the host no choice`,
+  `the mirror heals itself from the authoritative settings`).
 - `./gradlew :app:testDebugUnitTest :app:lintRelease` — passed.

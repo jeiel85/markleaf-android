@@ -7,7 +7,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.util.TypedValue
 import android.widget.RemoteViews
 import com.markleaf.notes.MainActivity
@@ -203,9 +202,8 @@ class SingleNoteWidget : AppWidgetProvider() {
          */
         private fun applyPalette(context: Context, views: RemoteViews) {
             val colors = WidgetPalette.colors(context) ?: return
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
-            views.setWidgetBackground(R.id.single_note_root, colors.background)
-            views.setTextColor(R.id.single_note_empty, colors.onBackground)
+            views.setWidgetBackground(R.id.single_note_root, colors)
+            views.setWidgetTextColor(R.id.single_note_empty, colors)
         }
 
         /**

@@ -5,7 +5,6 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.widget.RemoteViews
 import com.markleaf.notes.MainActivity
 import com.markleaf.notes.R
@@ -128,14 +127,10 @@ class QuickNoteWidget : AppWidgetProvider() {
          */
         private fun applyPalette(context: Context, views: RemoteViews) {
             val colors = WidgetPalette.colors(context) ?: return
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
-            views.setWidgetBackground(R.id.widget_container, colors.background)
-            views.setTextColor(R.id.widget_title, colors.onBackground)
-            views.setTextColor(R.id.widget_empty, colors.onBackground)
-            // ImageView has no tint setter a RemoteViews may call by name, so
-            // the "+" takes a colour filter instead — the same result for a
-            // single-colour vector.
-            views.setInt(R.id.widget_new_note, "setColorFilter", colors.onBackground)
+            views.setWidgetBackground(R.id.widget_container, colors)
+            views.setWidgetTextColor(R.id.widget_title, colors)
+            views.setWidgetTextColor(R.id.widget_empty, colors)
+            views.setWidgetIconColor(R.id.widget_new_note, colors)
         }
     }
 }

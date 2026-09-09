@@ -40,6 +40,15 @@ private class QuickNoteWidgetFactory(
     override fun onCreate() {}
 
     override fun onDataSetChanged() {
+        // This thread is the only place in the widget stack that may read
+        // DataStore, so it is where the appearance mirror is kept honest — see
+        // WidgetPaletteStore.syncFromSettings. When the mirror moved, the
+        // container the provider drew is a repaint behind these rows, so ask for
+        // one; that update ends in another notifyAppWidgetViewDataChanged, which
+        // lands here with the mirror already matching and stops.
+        if (WidgetPaletteStore.syncFromSettings(context)) {
+            QuickNoteWidget.refreshAll(context)
+        }
         colors = WidgetPalette.colors(context)
         notes = runBlocking {
             val db = AppDatabase.getInstance(context)
@@ -66,8 +75,8 @@ private class QuickNoteWidgetFactory(
         view.setTextViewText(R.id.widget_item_excerpt, note.excerpt)
         // Null means Markleaf Green, which the layout already draws.
         colors?.let {
-            view.setTextColor(R.id.widget_item_title, it.onBackground)
-            view.setTextColor(R.id.widget_item_excerpt, it.onBackgroundSecondary)
+            view.setWidgetTextColor(R.id.widget_item_title, it)
+            view.setWidgetSecondaryTextColor(R.id.widget_item_excerpt, it)
         }
 
         val fillIn = Intent().apply {

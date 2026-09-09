@@ -2,7 +2,6 @@ package com.markleaf.notes.widget
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.content.res.Configuration
 import android.os.Build
 import android.widget.RemoteViews
 import androidx.annotation.ColorInt
@@ -14,8 +13,8 @@ import com.markleaf.notes.data.settings.ThemeMode
 /**
  * Which colours a home-screen widget paints itself with (#375).
  *
- * Input: the app context, plus the Colors setting as [WidgetPaletteStore] last
- * mirrored it out of DataStore.
+ * Input: the app context, plus the Appearance settings as [WidgetPaletteStore]
+ * last mirrored them.
  * Output: a [WidgetColors] to apply over the layout, or `null` for "leave the
  * layout alone".
  *
@@ -31,7 +30,7 @@ import com.markleaf.notes.data.settings.ThemeMode
 object WidgetPalette {
 
     /**
-     * The override for the current setting, or `null` when there is none.
+     * The override for the current settings, or `null` when there is none.
      *
      * Null on API < 31 whatever the setting says: the dynamic colours below are
      * `android.R.color.system_accent1_*`, which the platform only defines from
@@ -47,45 +46,46 @@ object WidgetPalette {
     }
 
     /**
-     * The wallpaper-derived primary / on-primary pair, chosen for the night mode
-     * the app is rendering in.
+     * The wallpaper-derived surfaces to hand the host, one per night mode.
      *
-     * The same roles the app's top bar uses, so a widget and the app it opens
-     * are the same colour — `dynamicLightColorScheme`'s `primary` is tone 40
-     * (`system_accent1_600`) against white, and the dark scheme's is tone 80
-     * (`system_accent1_200`) against tone 20. Taking the pair rather than
-     * picking a background alone is what keeps the text readable on it: those
-     * two are the ones Material guarantees a contrast ratio for, and the
+     * The pair is the whole point. A widget's `RemoteViews` are cached by the
+     * launcher and re-applied when its configuration changes, and the
+     * two-argument `setColorStateList` / `setColorInt` calls let the host pick
+     * between the values *at that moment* — so a device switching to dark
+     * repaints the widget without the app being opened, which a single resolved
+     * colour could not do while nothing schedules a widget update
+     * (`updatePeriodMillis` is 0 by design).
+     *
+     * The Theme setting therefore chooses which pair the host is given rather
+     * than resolving night here. Reading night from this process's
+     * `Configuration` would be wrong twice over: the app renders dark straight
+     * from the setting while the matching `-night` qualifier arrives through
+     * `UiModeManager.setApplicationNightMode` (#354) at a moment this code does
+     * not control, and the answer would be frozen into the pushed views anyway.
+     *
+     * The surfaces themselves are the same roles the app's top bar uses, so a
+     * widget and the app it opens are the same colour — `dynamicLightColorScheme`'s
+     * `primary` is tone 40 (`system_accent1_600`) against white, and the dark
+     * scheme's is tone 80 (`system_accent1_200`) against tone 20. Taking the
+     * pair rather than a background alone is what keeps the text readable on it:
+     * those two are the ones Material guarantees a contrast ratio for, and the
      * layouts' `?android:attr/textColorPrimaryInverse` would resolve against the
      * *launcher's* theme, which knows nothing about the wallpaper accent.
-     *
-     * Night comes from the Theme setting, not from this context's
-     * `Configuration`. The app renders dark straight from that setting, while
-     * the matching `-night` qualifier reaches the process through
-     * `UiModeManager.setApplicationNightMode` (#354) at a moment this code does
-     * not control — so reading `uiMode` here would paint a light widget over a
-     * dark app for whoever picked Dark on a light phone. SYSTEM is the one case
-     * with no answer of its own, and there the configuration *is* the setting.
      */
     @RequiresApi(Build.VERSION_CODES.S)
     private fun dynamicColors(context: Context): WidgetColors {
-        val night = when (WidgetPaletteStore.themeMode(context)) {
-            ThemeMode.LIGHT -> false
-            ThemeMode.DARK -> true
-            ThemeMode.SYSTEM ->
-                (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
-                    Configuration.UI_MODE_NIGHT_YES
-        }
-        return if (night) {
-            WidgetColors(
-                background = context.getColor(android.R.color.system_accent1_200),
-                onBackground = context.getColor(android.R.color.system_accent1_800)
-            )
-        } else {
-            WidgetColors(
-                background = context.getColor(android.R.color.system_accent1_600),
-                onBackground = context.getColor(android.R.color.system_accent1_0)
-            )
+        val light = WidgetSurface(
+            background = context.getColor(android.R.color.system_accent1_600),
+            onBackground = context.getColor(android.R.color.system_accent1_0)
+        )
+        val dark = WidgetSurface(
+            background = context.getColor(android.R.color.system_accent1_200),
+            onBackground = context.getColor(android.R.color.system_accent1_800)
+        )
+        return when (WidgetPaletteStore.themeMode(context)) {
+            ThemeMode.SYSTEM -> WidgetColors(notNight = light, night = dark)
+            ThemeMode.LIGHT -> WidgetColors(notNight = light, night = light)
+            ThemeMode.DARK -> WidgetColors(notNight = dark, night = dark)
         }
     }
 }
@@ -99,7 +99,7 @@ object WidgetPalette {
  * primary-inverse-with-alpha, so this keeps the same relationship instead of
  * inventing a new one.
  */
-data class WidgetColors(
+data class WidgetSurface(
     @ColorInt val background: Int,
     @ColorInt val onBackground: Int
 ) {
@@ -113,14 +113,76 @@ data class WidgetColors(
 }
 
 /**
+ * What the host is handed: one [WidgetSurface] for each of its night modes.
+ *
+ * Both entries are the same surface unless the Theme setting is
+ * [ThemeMode.SYSTEM] — the host only gets a choice when the user has asked to
+ * follow the device.
+ */
+data class WidgetColors(
+    val notNight: WidgetSurface,
+    val night: WidgetSurface
+)
+
+/**
  * Recolours the rounded background of [viewId].
  *
  * A tint rather than `setBackgroundColor`: the background is a shape drawable
  * carrying the 16dp corner radius, and setting a flat colour would replace the
- * shape with a square block. `setColorStateList` is API 31, which every caller
- * already is — [WidgetPalette.colors] returns null below it.
+ * shape with a square block. The two-value overload is API 31, which every
+ * caller already is — [WidgetPalette.colors] returns null below it.
  */
-@RequiresApi(Build.VERSION_CODES.S)
-fun RemoteViews.setWidgetBackground(@IdRes viewId: Int, @ColorInt color: Int) {
-    setColorStateList(viewId, "setBackgroundTintList", ColorStateList.valueOf(color))
+fun RemoteViews.setWidgetBackground(@IdRes viewId: Int, colors: WidgetColors) {
+    // Unreachable below Android 12 — WidgetPalette.colors() answers null there,
+    // so no caller holds a WidgetColors to pass. It is stated here rather than at
+    // each of the five call sites because that is one place for lint and the
+    // next reader to find the rule, instead of five copies of it.
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+    setColorStateList(
+        viewId,
+        "setBackgroundTintList",
+        ColorStateList.valueOf(colors.notNight.background),
+        ColorStateList.valueOf(colors.night.background)
+    )
+}
+
+/** The primary text role of [viewId], per the host's night mode. */
+fun RemoteViews.setWidgetTextColor(@IdRes viewId: Int, colors: WidgetColors) {
+    // Unreachable below Android 12 — WidgetPalette.colors() answers null there,
+    // so no caller holds a WidgetColors to pass. It is stated here rather than at
+    // each of the five call sites because that is one place for lint and the
+    // next reader to find the rule, instead of five copies of it.
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+    setColorInt(viewId, "setTextColor", colors.notNight.onBackground, colors.night.onBackground)
+}
+
+/** The secondary text role of [viewId] — the same hue, less opaque. */
+fun RemoteViews.setWidgetSecondaryTextColor(@IdRes viewId: Int, colors: WidgetColors) {
+    // Unreachable below Android 12 — WidgetPalette.colors() answers null there,
+    // so no caller holds a WidgetColors to pass. It is stated here rather than at
+    // each of the five call sites because that is one place for lint and the
+    // next reader to find the rule, instead of five copies of it.
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+    setColorInt(
+        viewId,
+        "setTextColor",
+        colors.notNight.onBackgroundSecondary,
+        colors.night.onBackgroundSecondary
+    )
+}
+
+/**
+ * Tints a single-colour icon to the primary text role.
+ *
+ * `setColorFilter` rather than a tint: `ImageView` has no tint setter a
+ * `RemoteViews` may call by name, and a drawable prefers an explicit colour
+ * filter over its XML `android:tint`.
+ */
+fun RemoteViews.setWidgetIconColor(@IdRes viewId: Int, colors: WidgetColors) {
+    // Unreachable below Android 12 — WidgetPalette.colors() answers null there,
+    // so no caller holds a WidgetColors to pass. It is stated here rather than at
+    // each of the five call sites because that is one place for lint and the
+    // next reader to find the rule, instead of five copies of it.
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+    setColorInt(viewId, "setColorFilter", colors.notNight.onBackground, colors.night.onBackground)
 }

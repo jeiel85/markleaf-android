@@ -63,6 +63,15 @@ internal class SingleNoteWidgetFactory(
         // Re-read the placement every time rather than caching it: on Android 12+
         // a widget can be reconfigured onto a different note, or to a different
         // size, without ever being removed and re-added.
+        // This thread is the only place in the widget stack that may read
+        // DataStore, so it is where the appearance mirror is kept honest — see
+        // WidgetPaletteStore.syncFromSettings. When the mirror moved, the
+        // container the provider drew is a repaint behind these rows, so ask for
+        // one; that update ends in another notifyAppWidgetViewDataChanged, which
+        // lands here with the mirror already matching and stops.
+        if (WidgetPaletteStore.syncFromSettings(context)) {
+            SingleNoteWidget.refreshAll(context)
+        }
         val id = SingleNoteWidgetStore.noteId(context, appWidgetId)
         noteId = id
         colors = WidgetPalette.colors(context)
@@ -102,7 +111,7 @@ internal class SingleNoteWidgetFactory(
             textSizeSp
         )
         // Null means Markleaf Green, which the layout already draws.
-        colors?.let { view.setTextColor(R.id.single_note_line, it.onBackground) }
+        colors?.let { view.setWidgetTextColor(R.id.single_note_line, it) }
         // Every row opens the same note, so the fill-in is the same for all of
         // them; the template in the provider carries the action and component.
         noteId?.let {

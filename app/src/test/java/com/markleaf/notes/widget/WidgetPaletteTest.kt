@@ -5,7 +5,10 @@ import android.content.Context
 import android.widget.TextView
 import androidx.test.core.app.ApplicationProvider
 import com.markleaf.notes.R
+import kotlinx.coroutines.runBlocking
+import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.ColorPalette
+import com.markleaf.notes.data.settings.InMemoryPreferencesDataStore
 import com.markleaf.notes.data.settings.ThemeMode
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -76,25 +79,72 @@ class WidgetPaletteTest {
     }
 
     /**
-     * The Theme setting decides the end of the palette, not the context's
-     * `Configuration`: the app renders dark straight from the setting, while the
-     * matching `-night` qualifier arrives through `UiModeManager` (#354) at a
-     * moment this code does not control. Robolectric's default configuration is
-     * not night, so a Dark that read `uiMode` would come back light here — which
-     * is exactly the mismatch a user picking Dark on a light phone would see.
+     * Theme = SYSTEM is the only case where the host gets a choice, and it must
+     * get one: a widget's views are cached by the launcher and re-applied when
+     * its configuration changes, so handing it both surfaces is what lets a
+     * device switching to dark repaint the widget with the app closed. Nothing
+     * schedules a widget update otherwise — `updatePeriodMillis` is 0.
      */
     @Test
-    fun `the theme setting picks which end of the palette to take`() {
-        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.LIGHT)
-        val light = requireNotNull(WidgetPalette.colors(context))
+    fun `following the system hands the host both surfaces`() {
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM)
 
+        val colors = requireNotNull(WidgetPalette.colors(context))
+
+        assertNotEquals(colors.notNight.background, colors.night.background)
+        assertEquals(
+            context.getColor(android.R.color.system_accent1_600),
+            colors.notNight.background
+        )
+        assertEquals(context.getColor(android.R.color.system_accent1_200), colors.night.background)
+    }
+
+    /**
+     * A fixed Theme is fixed on the home screen too: both entries are the same
+     * surface, so the host's night mode cannot move a widget away from what the
+     * app is rendering. Reading night from this process's `Configuration`
+     * instead would be wrong twice over — the `-night` qualifier arrives through
+     * `UiModeManager` (#354) at a moment this code does not control, and the
+     * answer would be frozen into the pushed views anyway.
+     */
+    @Test
+    fun `a fixed theme gives the host no choice`() {
         WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.DARK)
         val dark = requireNotNull(WidgetPalette.colors(context))
 
-        assertNotEquals(light.background, dark.background)
-        assertNotEquals(light.onBackground, dark.onBackground)
-        assertEquals(context.getColor(android.R.color.system_accent1_600), light.background)
-        assertEquals(context.getColor(android.R.color.system_accent1_200), dark.background)
+        assertEquals(dark.notNight, dark.night)
+        assertEquals(context.getColor(android.R.color.system_accent1_200), dark.notNight.background)
+
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.LIGHT)
+        val light = requireNotNull(WidgetPalette.colors(context))
+
+        assertEquals(light.notNight, light.night)
+        assertEquals(context.getColor(android.R.color.system_accent1_600), light.notNight.background)
+    }
+
+    /**
+     * The mirror has to survive the app never having been opened. An existing
+     * Material You user upgrading, or someone adding a widget straight from the
+     * launcher's picker, reaches a widget without `MainActivity` — and either
+     * would otherwise see the green default this change exists to remove.
+     */
+    @Test
+    fun `the mirror heals itself from the authoritative settings`() {
+        val repository = AppSettingsRepository(InMemoryPreferencesDataStore())
+        runBlocking {
+            repository.setColorPalette(ColorPalette.MATERIAL_YOU)
+            repository.setThemeMode(ThemeMode.DARK)
+        }
+        // Nothing has written the mirror, which is the state an upgrade or a
+        // widget added before the first launch arrives in.
+        assertEquals(ColorPalette.MARKLEAF_GREEN, WidgetPaletteStore.palette(context))
+
+        assertTrue(WidgetPaletteStore.syncFromSettings(context, repository))
+
+        assertEquals(ColorPalette.MATERIAL_YOU, WidgetPaletteStore.palette(context))
+        assertEquals(ThemeMode.DARK, WidgetPaletteStore.themeMode(context))
+        // A second pass has nothing to move, so it asks for no repaint.
+        assertFalse(WidgetPaletteStore.syncFromSettings(context, repository))
     }
 
     /**
@@ -117,9 +167,12 @@ class WidgetPaletteTest {
      */
     @Test
     fun `secondary text is the primary at reduced alpha`() {
-        val colors = WidgetColors(background = 0xFF102030.toInt(), onBackground = 0xFFFFFFFF.toInt())
+        val surface = WidgetSurface(
+            background = 0xFF102030.toInt(),
+            onBackground = 0xFFFFFFFF.toInt()
+        )
 
-        assertEquals(0xB3FFFFFF.toInt(), colors.onBackgroundSecondary)
+        assertEquals(0xB3FFFFFF.toInt(), surface.onBackgroundSecondary)
     }
 
     /**
@@ -137,9 +190,9 @@ class WidgetPaletteTest {
 
         val view = inflateQuickNoteWidget()
 
-        assertEquals(expected.background, view.backgroundTintList?.defaultColor)
+        assertEquals(expected.notNight.background, view.backgroundTintList?.defaultColor)
         assertEquals(
-            expected.onBackground,
+            expected.notNight.onBackground,
             view.findViewById<TextView>(R.id.widget_title).currentTextColor
         )
     }

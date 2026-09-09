@@ -80,9 +80,10 @@ CI 또는 릴리즈 검증 시에는 APK 산출물 확인을 반드시 포함한
 
 - `app/build/outputs/apk/debug/app-debug.apk` 파일 존재 여부 확인
 - GitHub Release에서 APK 다운로드 가능 여부와 크기가 0보다 큰지 확인
-- 태그 전에 `pwsh scripts/verify-release-export.ps1` — `D:\Build`의 AAB·mapping·8개
-  로케일 노트가 현재 versionName/versionCode로 존재하고 비어 있지 않은지 확인한다.
-  **이것이 릴리스 자산의 유일한 영구 사본 검증이다**(D066).
+- **태그 전 로컬 검증은 없다(D072).** `verify-release-export.ps1`은 `D:\Build`를 보는
+  스크립트인데 그 export가 릴리스 경로에서 빠졌다. 릴리스 자산은 태그 런이 만들어
+  GitHub Release에 붙이므로, 확인할 곳은 Release 페이지다 — APK와 mapping 두 개.
+  Play가 재개되면 `MARKLEAF_PLAY_AAB`와 함께 이 검증도 되살린다.
 - **GitLab 쪽 검증은 해당 없음이다 — GitLab은 아무것도 발행·미러하지 않는다(D067·D068).**
   `GITLAB_RELEASE_MIRROR`와 `GITLAB_REF_MIRROR` 둘 다 미설정이라 릴리스 발행 스텝 2개와
   `mirror-push`·`mirror-check`가 전부 skip 된다. GitLab `main`은 v2.32.4 시점에 얼어
@@ -179,8 +180,8 @@ GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
    내렸다(D068).** 두 스텝이 skip 되므로 태그 런은 녹색이고, GitLab Release는 만들지
    않는다 — `GITLAB_TOKEN`이 `api` 스코프가 아니라 v2.28.0~v2.32.2 열한 릴리스가 이미
    403으로 실패했고(#247, #252), 미러 자체를 끈 마당에 토큰을 재발급할 이유가 없다.
-   따라서 released AAB·mapping의 영구 사본은 `D:\Build` 하나이며, 위의
-   `exportReleaseToBuildDrive` 단계를 건너뛰면 대체 사본이 없다.
+   released mapping의 영구 사본은 이제 GitHub Release 자산이다(D072) — `D:\Build`가
+   유일한 사본이던 시절의 서술은 여기서 끝난다. AAB는 Play 보류 동안 아예 만들지 않는다.
    GitHub 태그는 F-Droid 자동 픽업도 발동하므로 별도 F-Droid 제출 단계는 없다.
    릴리스 커밋은 `git add -A`로 만들지 않는다 — 변경 파일을 명시적으로 stage하거나 커밋 전
    working tree가 릴리스 대상만 담고 있는지 확인한다(무관한 작업이 태그에 섞여 나가는 것을
@@ -189,9 +190,10 @@ GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
    `build` 워크플로가 `scripts/verify-release-notes.ps1`과 `scripts/verify-landing-versions.ps1`로
    검사한다. 기준은 `app/build.gradle.kts`의 versionName/versionCode이므로, bump만 하고 나머지를
    빠뜨리면 태그를 밀기 전에 PR 단계에서 실패한다(#167).
-4. **Play Store — 산출물 핸드오프.** [Release Artifact Export](#release-artifact-export)에 따라
-   Play 제출용 서명 AAB와 릴리즈 노트 TXT를 내보낸다(서명 AAB는 CI 릴리스 산출물 기준).
-   업로드는 메인테이너가 수동으로 한다.
+4. **Play Store — 현재 해당 없음(D072).** Play 업데이트가 보류 중이라 서명 AAB를 만들지
+   않으므로 핸드오프할 산출물이 없다. 재개하면 `MARKLEAF_PLAY_AAB` 저장소 변수를 `true`로
+   두고 [Release Artifact Export](#release-artifact-export)의 절차를 되살린다 — 업로드는
+   그때도 메인테이너가 수동으로 한다.
 5. **마감 + 보고.** 해결된 이슈에 감사 댓글을 달고 닫되, 사용자측 확인이 남으면 열어 둔다.
    굵직한 변경이면 README·랜딩 페이지의 버전 표기를 8개 언어 모두 갱신하고
    `scripts/verify-landing-versions.ps1`로 검증한다. 마지막으로 무엇이 나갔는지,

@@ -2694,3 +2694,29 @@ Verification:
   `a fixed theme gives the host no choice`,
   `the mirror heals itself from the authoritative settings`).
 - `./gradlew :app:testDebugUnitTest :app:lintRelease` — passed.
+
+---
+
+## 2026-09-09 - Release build handed to CI (D072)
+
+Selected task:
+- 메인테이너 요청: Play 보류 중이라 AAB가 필요 없으니 릴리스 빌드를 CI로 넘긴다.
+
+What was implemented:
+- AAB 3개 스텝(빌드·검증·아티팩트)을 `MARKLEAF_PLAY_AAB` 저장소 변수 뒤로 넣었다.
+  삭제가 아니라 게이트인 이유는 #211/#212 선례(D067 인용) — Play는 포기가 아니라 보류다.
+- R8 mapping을 다시 Release 자산으로 붙인다. D064가 mapping을 뺀 근거가
+  "`D:\Build`에 영구 사본이 있다"였고, 그 export가 릴리스 경로에서 빠지면 그 전제가
+  무너진다. D064 자신이 "the local export is ever dropped → revisit this entry first"
+  라고 적어 둔 상황이라 그대로 재검토해 되돌렸다.
+- `AGENTS.md` 릴리스 절차에서 태그 전 로컬 단계를 없앴다. `exportReleaseToBuildDrive`와
+  `verify-release-export.ps1`은 지우지 않고 남겨 Play 재개 시 되살린다.
+- 자산 목록 세 복사본(워크플로 인자, 스테이징 스텝, 문서 마커 3곳)을 함께 갱신했다.
+
+Verification:
+- `verify-release-assets.ps1`의 세 검사를 파이썬으로 재현해 통과 확인
+  (pwsh 미설치). 워크플로 YAML 파싱 확인. CI가 스크립트 자체를 `build`에서 돌린다.
+
+Decision:
+- D072 기록.
+

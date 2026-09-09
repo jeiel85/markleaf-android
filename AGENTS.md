@@ -96,6 +96,11 @@ Android 프로젝트가 아직 초기화되지 않았다면 먼저 표준 Kotlin
 
 ## Release Artifact Export
 
+> **이 절차는 Play 업로드가 보류된 동안 릴리스 경로에서 빠져 있다(D072).** 태그 런이
+> APK와 mapping을 만들어 GitHub Release에 붙이므로 태그 전에 할 로컬 작업은 없다.
+> 아래 내용은 Play 업로드가 재개될 때 되살리기 위해 그대로 둔다 — 그때는
+> `MARKLEAF_PLAY_AAB` 저장소 변수를 `true`로 두면 CI가 서명 AAB도 다시 만든다.
+
 사용자가 "새 버전 만들기"를 요청하면 버전 bump, changelog, fastlane changelog, 검증, commit/tag 작업과 함께 실제 산출물 디렉터리인 `D:\Build`에 Play Console 제출용 파일을 내보낸다. 바탕화면의 `Build`는 이 디렉터리를 가리키는 바로가기일 뿐이며, 릴리스 task는 바로가기를 경유하지 않는다. 이 dump는 전용 Gradle task로 자동화되어 있다:
 
 ```bash
@@ -154,16 +159,18 @@ GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
    workflow_dispatch — 로컬 재기록은 폰트 힌팅 차이로 CI verify와 어긋난다).
 3. **F-Droid — 태그 푸시로 자동 배포.** versionCode/versionName bump + `CHANGELOG.md`(영어,
    릴리즈 노트 원본) + `CHANGELOG.ko.md`(한국어판) + fastlane changelog 작성 후 main에
-   푸시한다. **태그를 밀기 전에** `:app:exportReleaseToBuildDrive`로 `D:\Build` 산출물을
-   남기고 `pwsh scripts/verify-release-export.ps1`로 확인한다 — `D:\Build`는 CI가 볼 수 없는
-   로컬 경로라 이 단계가 빠져도 아무것도 실패하지 않으며, 실제로 v2.27.2부터 v2.29.0까지
-   여섯 릴리스가 AAB·mapping 없이 지나갔다(#247). 그다음 `vX.Y.Z` 태그를 **GitHub에만**
+   푸시한다. **태그를 밀기 전에 할 로컬 작업은 없다(D072).** 릴리스 산출물은 태그 런이
+   전부 만들고 Release에 붙인다 — APK와 mapping 둘 다. `:app:exportReleaseToBuildDrive`와
+   `verify-release-export.ps1`은 지우지 않고 남겨 두었지만 릴리스 절차에서 빠졌다:
+   Play 업로드가 재개되면 그때 되살린다. 사람이 기억해야만 도는 단계였기에 v2.27.2부터
+   v2.29.0까지 여섯 릴리스가 AAB·mapping 없이 지나갔고(#247), 그 실패 양식을 없애는 것이
+   이 변경의 목적이다. `vX.Y.Z` 태그는 **GitHub에만**
    푸시한다 — GitLab 태그 푸시는 D068에서 뺐다(GitLab은 v2.32.4에 얼어붙은 스냅샷이라,
    태그를 밀면 그쪽 `main`에서 도달하지 못하는 커밋을 가리키게 된다).
-   **릴리스 자산이 붙는 곳은 GitHub 하나뿐이다** — GitHub
-   Release는 APK 하나만 담고(AAB 제외는 D062, mapping을 30일 아티팩트로만 두는 이유는
-   D064), **GitLab은 아무것도 미러하지 않는다**(D066 → D067·D068).
-   <!-- release-assets: markleaf-vX.Y.Z.apk -->
+   **릴리스 자산이 붙는 곳은 GitHub 하나뿐이다** — GitHub Release는 APK와 mapping
+   두 개를 담고(mapping을 자산으로 되돌린 이유는 D072, AAB 제외는 D062),
+   **GitLab은 아무것도 미러하지 않는다**(D066 → D067·D068).
+   <!-- release-assets: markleaf-vX.Y.Z.apk, markleaf-vX.Y.Z.mapping.txt -->
    위 마커는 `scripts/verify-release-assets.ps1`이 읽어 워크플로의 실제
    `gh release create` 인자와 대조한다. 목록을 바꾸려면 세 복사본(워크플로,
    스테이징 스텝, 이 마커)을 함께 고쳐야 하며 그렇지 않으면 PR CI가 실패한다.

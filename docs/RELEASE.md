@@ -600,11 +600,12 @@ tag pipelines can read the signing variables. Never expose these variables to
 branch or merge-request jobs.
 
 On tag pushes matching `v*`, GitHub Actions runs tests, builds the signed
-release APK and AAB, and creates a GitHub Release with **one** asset attached:
+release APK, and creates a GitHub Release with **two** assets attached:
 
-<!-- release-assets: markleaf-vX.Y.Z.apk -->
+<!-- release-assets: markleaf-vX.Y.Z.apk, markleaf-vX.Y.Z.mapping.txt -->
 
 - `markleaf-vX.Y.Z.apk` — signed, R8-shrunk APK for sideload installs and the Releases mirror
+- `markleaf-vX.Y.Z.mapping.txt` — R8 mapping for deobfuscating crash reports from that build
 
 The comment above is not decoration. `scripts/verify-release-assets.ps1` reads
 it and fails the `build` job if it disagrees with the arguments the workflow
@@ -612,23 +613,27 @@ actually passes to `gh release create` — this list drifted twice while D062 an
 D064 shrank it, and nothing failed either time. Change the list and you change
 all three copies together, or CI says so.
 
-<!-- release-assets: markleaf-vX.Y.Z.apk -->
+<!-- release-assets: markleaf-vX.Y.Z.apk, markleaf-vX.Y.Z.mapping.txt -->
 
-The signed AAB and the R8 mapping are built and verified in the same job but are
-**not** attached to the GitHub Release. Both are uploaded as workflow artifacts
-instead — `markleaf-release-aab` (14-day retention) and
-`markleaf-release-mapping` (30-day retention) — and both reach their permanent
-home through the local `exportReleaseToBuildDrive` hand-off
-(see [Release Artifact Export](../AGENTS.md#release-artifact-export)) rather
-than from GitHub. That hand-off is the **only** permanent copy: GitLab's
-package registry stopped receiving them at v2.27.2, and as of D068 the mirror
-steps do not run at all — see [GitLab Release Assets](#gitlab-release-assets),
-D066 and D068.
+The mapping is attached because the Release is now where it permanently lives
+(D072). It used to reach `D:\Build` through the local `exportReleaseToBuildDrive`
+hand-off, and that hand-off left the release path when Play uploads were paused —
+so the reason D064 gave for keeping the mapping off the Release ("permanent
+copies already exist") stopped being true, and the decision was reversed rather
+than left to rot. `markleaf-release-mapping` is still uploaded as a 30-day
+workflow artifact, now for convenience rather than as the only GitHub-side copy.
+
+The signed AAB is **not built at all** while Play updates are on hold. Its three
+steps — build, verify, artifact upload — are gated behind the repository
+variable `MARKLEAF_PLAY_AAB`, which is unset. Setting it to `true` brings them
+back; nothing was deleted, on the same precedent D067 cites for the GitLab
+mirror. An `.aab` cannot be sideloaded, so it was never a Release asset anyway
+(D062).
 
 The release job fails before publishing if the keystore secret is missing, if
 the APK certificate SHA-256 digest differs from the fixed production
-certificate, or if the APK, AAB, or mapping file is missing from the build
-outputs.
+certificate, or if the APK or mapping file is missing from the build outputs —
+and, when `MARKLEAF_PLAY_AAB` is set, the AAB as well.
 
 ## GitLab Release Assets
 

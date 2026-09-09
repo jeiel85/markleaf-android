@@ -340,9 +340,27 @@ jobs:
           MARKLEAF_RELEASE_KEY_ALIAS: ${{ secrets.MARKLEAF_RELEASE_KEY_ALIAS }}
           MARKLEAF_RELEASE_KEY_PASSWORD: ${{ secrets.MARKLEAF_RELEASE_KEY_PASSWORD }}
           ORG_GRADLE_PROJECT_markleaf.requireReleaseSigning: "true"
-        run: |
-          ./gradlew :app:assembleRelease
-          ./gradlew :app:bundleRelease
+        run: ./gradlew :app:assembleRelease
+
+      # The AAB exists for exactly one consumer, Play Console, and Play updates
+      # are on hold (README, all eight languages). Building it anyway costs a
+      # couple of minutes per tag and produces a file nobody can take: an .aab
+      # cannot be sideloaded, and D062 already keeps it off the Release for that
+      # reason.
+      #
+      # Gated rather than deleted, on the #211/#212 precedent D067 cites: a
+      # deleted mechanism cannot be turned back on by someone who does not know
+      # it existed, and Play is paused rather than abandoned. Set the repository
+      # variable MARKLEAF_PLAY_AAB to 'true' and the three AAB steps come back.
+      - name: Build Play Console AAB
+        if: vars.MARKLEAF_PLAY_AAB == 'true'
+        env:
+          MARKLEAF_RELEASE_STORE_FILE: release/markleaf-release.p12
+          MARKLEAF_RELEASE_STORE_PASSWORD: ${{ secrets.MARKLEAF_RELEASE_STORE_PASSWORD }}
+          MARKLEAF_RELEASE_KEY_ALIAS: ${{ secrets.MARKLEAF_RELEASE_KEY_ALIAS }}
+          MARKLEAF_RELEASE_KEY_PASSWORD: ${{ secrets.MARKLEAF_RELEASE_KEY_PASSWORD }}
+          ORG_GRADLE_PROJECT_markleaf.requireReleaseSigning: "true"
+        run: ./gradlew :app:bundleRelease
 
       - name: Verify release signing certificate
         run: |
@@ -371,8 +389,14 @@ jobs:
           cp "$APK" "markleaf-${GITHUB_REF_NAME}.apk"
           test -s "markleaf-${GITHUB_REF_NAME}.apk"
           ls -lh "markleaf-${GITHUB_REF_NAME}.apk"
+          MAPPING="app/build/outputs/mapping/release/mapping.txt"
+          test -f "$MAPPING"
+          cp "$MAPPING" "markleaf-${GITHUB_REF_NAME}.mapping.txt"
+          test -s "markleaf-${GITHUB_REF_NAME}.mapping.txt"
+          ls -lh "markleaf-${GITHUB_REF_NAME}.mapping.txt"
 
       - name: Verify Play Console AAB exists
+        if: vars.MARKLEAF_PLAY_AAB == 'true'
         run: |
           AAB="app/build/outputs/bundle/release/app-release.aab"
           test -f "$AAB"
@@ -387,6 +411,7 @@ jobs:
           ls -lh "$MAPPING"
 
       - name: Upload Play Console AAB artifact
+        if: vars.MARKLEAF_PLAY_AAB == 'true'
         uses: actions/upload-artifact@v7
         with:
           name: markleaf-release-aab
@@ -402,9 +427,9 @@ jobs:
           name: markleaf-release-mapping
           path: app/build/outputs/mapping/release/mapping.txt
           if-no-files-found: error
-          # 릴리스 에셋에서 뺀 뒤로는 GitHub 쪽 유일한 사본이다(영구 사본은
-          # D:\Build 와 GitLab 패키지 레지스트리, D064). 크래시 역난독화
-          # 요청이 뒤늦게 들어올 여유를 두어 30일로 잡는다.
+          # 영구 사본은 이제 Release 자산 쪽이다(D072). 이 아티팩트는 태그 런의
+          # 다른 산출물과 같은 자리에서 바로 집을 수 있다는 편의로 남기고,
+          # 30일이면 그 용도에는 충분하다.
           retention-days: 30
 
       - name: Prepare release notes
@@ -445,6 +470,7 @@ jobs:
           fi
           gh release create "$GITHUB_REF_NAME" \
             "markleaf-${GITHUB_REF_NAME}.apk" \
+            "markleaf-${GITHUB_REF_NAME}.mapping.txt" \
             --repo "$GITHUB_REPOSITORY" \
             --title "$(cat release-title.txt)" \
             --notes-file release-notes.md
@@ -471,9 +497,12 @@ jobs:
       #   * re-issue GITLAB_TOKEN with the `api` scope (then this works), or
       #   * unset GITLAB_RELEASE_MIRROR (then both steps skip, as before).
       #
-      # assembleRelease and bundleRelease already ran above; this re-runs them
-      # as dependencies, finds them up to date, and copies the outputs out under
-      # their versioned names alongside the six-locale notes.
+      # assembleRelease already ran above; this re-runs it as a dependency and
+      # finds it up to date, then copies the outputs out under their versioned
+      # names alongside the six-locale notes. bundleRelease no longer runs above
+      # unless MARKLEAF_PLAY_AAB is set (D072), so when this step is revived it
+      # builds the AAB itself — slower on the first tag after the revival, and
+      # correct either way.
       - name: Export versioned release artifacts
         if: vars.GITLAB_RELEASE_MIRROR == 'true'
         env:

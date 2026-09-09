@@ -104,6 +104,12 @@ Android 프로젝트가 아직 초기화되지 않았다면 먼저 표준 Kotlin
 
 사용자가 "새 버전 만들기"를 요청하면 버전 bump, changelog, fastlane changelog, 검증, commit/tag 작업과 함께 실제 산출물 디렉터리인 `D:\Build`에 Play Console 제출용 파일을 내보낸다. 바탕화면의 `Build`는 이 디렉터리를 가리키는 바로가기일 뿐이며, 릴리스 task는 바로가기를 경유하지 않는다. 이 dump는 전용 Gradle task로 자동화되어 있다:
 
+**릴리스는 무엇이 시작했든 Discussions 공지로 끝난다.** 이슈 대응이든, 위처럼 직접
+"새 버전 만들기"를 받았든, 문서만 바뀐 릴리스든 마찬가지다 — 태그 런이 녹색이면
+[GitHub 이슈 대응](#github-이슈-대응)의 **5단계 공지**를 그대로 진행한다. 카테고리 ID와
+본문에 담을 것은 그 단계에 적혀 있다. 공지만 그 플로 안에 살고 있어서, 이슈에서 출발하지 않은
+릴리스가 조용히 빠지는 일을 막기 위해 여기에도 적는다.
+
 ```bash
 ./gradlew :app:exportReleaseToBuildDrive
 ```

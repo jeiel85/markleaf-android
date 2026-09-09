@@ -365,6 +365,42 @@ class NoteFolderMirrorFolderTest {
         assertTrue("an empty folder is still a readable one", survey.readable)
     }
 
+    @Test
+    fun readingBeforeSeedingKeepsAFileTheSeedWouldHaveAdopted() = runBlocking {
+        // The order SyncFolderLink runs the two directions in, pinned here
+        // because getting it wrong loses the user's text silently. A file
+        // called "My Note.md" carrying no id is adopted by the write path --
+        // that adoption is what stops a lost id forking a file per save
+        // (#213) -- so seeding first would overwrite this one with the local
+        // note and the import that followed would read back only what we had
+        // just written.
+        seed("My Note.md", "# My Note\n\nwritten by hand, never seen by us")
+        val local = note()
+        val created = mutableListOf<Note>()
+
+        // Import first.
+        val result = NoteFolderMirror.importChangesFrom(
+            context, folder, existing = listOf(local),
+            applyUpdate = { }, applyCreate = { created += it }
+        )
+        // Then seed.
+        write(local)
+
+        assertEquals(1, result.created)
+        val kept = File(dir, "My Note.md").readText()
+        assertTrue(
+            "the hand-written text survives: $kept",
+            kept.contains("written by hand, never seen by us")
+        )
+        assertFalse(
+            "the local note did not overwrite it: $kept",
+            kept.contains("local body")
+        )
+        // The local note could not take that file over, so it has one of its
+        // own -- two notes, two files, nothing overwritten.
+        assertTrue("the local note got its own file", files().size == 2)
+    }
+
     // --- a directory is not a note file -------------------------------------
 
     @Test

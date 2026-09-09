@@ -1,0 +1,1 @@
+Choosing a sync folder now reads it. Files already in the folder become notes straight away instead of waiting for the next sync, so a folder you already keep notes in works the moment you link it. When there is anything to take in, Markleaf asks first and tells you how many files — and, in the default metadata mode, that a small header goes into each one.

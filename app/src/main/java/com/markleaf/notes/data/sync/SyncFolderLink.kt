@@ -33,14 +33,21 @@ object SyncFolderLink {
     )
 
     /**
-     * Point folder sync at [folderUri]: record it, write every live note out,
-     * then read the folder back in.
+     * Point folder sync at [folderUri]: record it, read the folder in, then
+     * write every live note out.
      *
-     * Export first, import second, deliberately. The export stamps each note's
-     * file with its id, so the import that follows recognises those files as
-     * notes it already has and skips them; the other order would read the
-     * folder before our own notes were in it, which changes nothing for a
-     * folder of somebody else's files but costs a pass on every seeded one.
+     * **Import first, and the order is the whole safety of this.** Seeding
+     * writes a note into the file that carries its id — and, when no file does,
+     * into an unclaimed file that merely bears its title ([MirrorFileLookup]
+     * adopts one, which is what keeps a lost id from forking a new file on
+     * every save). Both of those files may be the user's, holding text we have
+     * never read: a note edited on another device since this one last saw it,
+     * or a hand-dropped file that happens to be called `Groceries.md`. Seeding
+     * first overwrites them and the import that followed would read back only
+     * what we just wrote, so the edit is gone with nothing to show it ever
+     * existed. Reading first cannot lose anything: a newer file updates its
+     * note, an unowned one becomes a note of its own, and the seed that follows
+     * writes notes whose content is by then the file's.
      */
     suspend fun link(
         context: Context,
@@ -54,6 +61,21 @@ object SyncFolderLink {
     ): LinkResult {
         settingsRepository.setSyncFolderUri(folderUri.toString())
 
+        // Full set (incl. trashed/archived) so a hidden note isn't re-imported
+        // as new — see #148.
+        val all = noteRepository.getAllNotes()
+        val imported = NoteFolderMirror.importChanges(
+            context = context,
+            folderUri = folderUri,
+            existing = all,
+            applyUpdate = { updated -> noteImporter.update(updated) },
+            applyCreate = { created -> noteImporter.create(created) },
+            metadata = metadata,
+            titleSource = titleSource
+        )
+
+        // Read after the import, so a note the folder just updated is written
+        // back as the merged version rather than the one we started with.
         val live = noteRepository.observeNotes().first().filter { !it.trashed }
         var seeded = 0
         live.forEach { note ->
@@ -70,19 +92,6 @@ object SyncFolderLink {
             ) { stamped -> noteRepository.updateNote(stamped) }
             if (wrote) seeded++
         }
-
-        // Full set (incl. trashed/archived) so a hidden note isn't re-imported
-        // as new — see #148.
-        val all = noteRepository.getAllNotes()
-        val imported = NoteFolderMirror.importChanges(
-            context = context,
-            folderUri = folderUri,
-            existing = all,
-            applyUpdate = { updated -> noteImporter.update(updated) },
-            applyCreate = { created -> noteImporter.create(created) },
-            metadata = metadata,
-            titleSource = titleSource
-        )
 
         settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())
         return LinkResult(seeded = seeded, imported = imported)

@@ -4,6 +4,16 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.38.0 - Linking a folder reads it - 2026-09-10
+
+Choosing a sync folder now takes in the files that are already in it, instead of only writing your notes out.
+
+### Fixed
+- **Choosing a sync folder imports what is already there ([#372](https://github.com/jeiel85/markleaf-android/issues/372), reported in [#370](https://github.com/jeiel85/markleaf-android/issues/370)).** Linking a folder ran one direction: your notes were written out, the screen said how many, and the files already sitting in the folder waited for the next sync pass — **Sync now**, or leaving and reopening the app — with nothing on screen saying so. Point sync at a folder you already keep notes in and the visible result was a message about writing notes out and a list that did not contain your files. Linking now reads the folder as part of the same step and reports both directions.
+
+### Changed
+- **Markleaf asks before it adopts a folder full of files.** Reading a folder is also the moment its files become notes, and in the default metadata mode a small `---` header is written into each of them. When the folder holds files no note owns, you are told how many and asked first, with a pointer to the **Note metadata** setting — that setting is on the same screen, and linking is the last moment it can be changed without rewriting every file twice. A folder with nothing new in it asks nothing. Choosing **Beside the files** first leaves your files as plain text, and the dialog does not claim otherwise in that mode.
+
 ## v2.37.5 - Widgets follow your colours - 2026-09-09
 
 The home-screen widgets are painted in the palette chosen in Settings instead of always being Markleaf Green.

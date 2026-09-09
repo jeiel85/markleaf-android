@@ -1,0 +1,1 @@
+Al elegir una carpeta de sincronización, ahora se lee. Los archivos que ya están en ella se convierten en notas de inmediato, sin esperar a la siguiente sincronización, así que una carpeta donde ya guardas tus notas funciona en cuanto la vinculas. Si hay algo que importar, Markleaf pregunta antes e indica cuántos archivos son.

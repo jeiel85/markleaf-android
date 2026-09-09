@@ -320,4 +320,79 @@ class NoteFolderMirrorFolderTest {
         assertTrue("the directory is untouched", intruder.isDirectory)
         assertEquals("# Kept\n\nnot ours", child.readText())
     }
+
+    // --- delete and rename, over the same live tree --------------------------
+
+    /**
+     * The delete path is where the "a directory is not a note file" guard
+     * actually prevents data loss — `delete()` on a `DocumentFile` directory
+     * takes its children with it — and it could not be reached from here until
+     * [NoteFolderMirror.deleteNoteIn] existed, so the regression above had to
+     * be written against import instead (#262).
+     */
+    @Test
+    fun deleteLeavesADirectoryNamedLikeTheNoteAlone() {
+        val intruder = File(dir, "My Note.md").apply { mkdirs() }
+        val child = File(intruder, "kept.md").apply { writeText("# Kept") }
+
+        val removed = NoteFolderMirror.deleteNoteIn(context, folder, "note-1")
+
+        assertFalse("nothing was removed", removed)
+        assertTrue("the directory survives", intruder.isDirectory)
+        assertTrue("and so does what it held", child.exists())
+    }
+
+    @Test
+    fun deleteRemovesTheFileCarryingTheNotesId() {
+        seed("My Note.md", "---\nmarkleaf_id: note-1\n---\n\nbody")
+        seed("Someone Else.md", "---\nmarkleaf_id: note-2\n---\n\nbody")
+
+        assertTrue(NoteFolderMirror.deleteNoteIn(context, folder, "note-1"))
+
+        assertEquals(listOf("Someone Else.md"), files())
+    }
+
+    @Test
+    fun deleteAlsoClearsTheNotesAttachmentFolder() {
+        seed("My Note.md", "---\nmarkleaf_id: note-1\n---\n\nbody")
+        val attachments = File(dir, "attachments/note-1").apply { mkdirs() }
+        File(attachments, "photo.jpg").writeText("bytes")
+
+        assertTrue(NoteFolderMirror.deleteNoteIn(context, folder, "note-1"))
+
+        assertFalse("the per-note attachment folder is gone", attachments.exists())
+    }
+
+    /** Idempotent: a note whose file was already removed is not an error. */
+    @Test
+    fun deleteOfAnAbsentNoteChangesNothing() {
+        seed("Someone Else.md", "---\nmarkleaf_id: note-2\n---\n\nbody")
+
+        assertFalse(NoteFolderMirror.deleteNoteIn(context, folder, "note-1"))
+
+        assertEquals(listOf("Someone Else.md"), files())
+    }
+
+    @Test
+    fun renameToTitleMovesTheFileWithoutRewritingIt() {
+        seed("slug-note-1.md", "---\nmarkleaf_id: note-1\n---\n\nuntouched body")
+
+        assertTrue(NoteFolderMirror.renameToTitleIn(context, folder, note(title = "My Note")))
+
+        assertEquals(listOf("My Note.md"), files())
+        assertTrue(
+            "the body was carried over verbatim",
+            File(dir, "My Note.md").readText().contains("untouched body")
+        )
+    }
+
+    /** Nothing to do is reported as nothing done, not as a failed rename. */
+    @Test
+    fun renameToTitleIsANoOpWhenTheNameAlreadyMatches() {
+        seed("My Note.md", "---\nmarkleaf_id: note-1\n---\n\nbody")
+
+        assertFalse(NoteFolderMirror.renameToTitleIn(context, folder, note(title = "My Note")))
+
+        assertEquals(listOf("My Note.md"), files())
+    }
 }

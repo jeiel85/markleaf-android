@@ -220,8 +220,9 @@ class SimpleMarkdownPreviewTest {
         // the adapter reformats to "key: value" lines for display.
         assertEquals(PreviewLineType.FRONTMATTER, lines[0].type)
         assertTrue("frontmatter contains title", lines[0].text.contains("title: Hello"))
-        // First non-frontmatter, non-empty line should be BODY.
-        val firstAfterFrontmatter = lines.drop(1).firstOrNull { it.type != PreviewLineType.EMPTY }
+        // First line after the frontmatter should be BODY. No filter: the
+        // parser emits no row for a blank line, so there is nothing to skip.
+        val firstAfterFrontmatter = lines.drop(1).firstOrNull()
         assertEquals(PreviewLineType.BODY, firstAfterFrontmatter?.type)
         assertEquals("Body text", firstAfterFrontmatter?.text)
     }

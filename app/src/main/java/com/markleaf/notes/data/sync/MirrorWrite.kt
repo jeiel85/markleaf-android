@@ -220,6 +220,21 @@ internal object MirrorWrite {
      */
     internal fun renameToTitle(context: Context, folderUri: Uri, note: Note): Boolean {
         val folder = DocumentFile.fromTreeUri(context, folderUri) ?: return false
+        return renameToTitleIn(context, folder, note)
+    }
+
+    /**
+     * [renameToTitle] once the folder has been resolved.
+     *
+     * The seam exists for the same reason [writeNoteInto] and
+     * [MirrorImport.importChangesFrom] have theirs: a `DocumentFile` can be
+     * built over a temp directory, a tree `Uri` needs a person to grant it. The
+     * write and import paths could be tested and these two could not — which
+     * is why the regression test for the dropped directory guard had to be
+     * written against import, even though delete is the call site where the
+     * guard prevents data loss (#262).
+     */
+    internal fun renameToTitleIn(context: Context, folder: DocumentFile, note: Note): Boolean {
         if (!folder.canWrite()) return false
         val mirrorFiles = folder.listFiles().filter { MirrorFileLookup.isMirrorEntry(it) }
         val file = MirrorFileLookup.findFileForNote(context, mirrorFiles, note.id) ?: return false
@@ -247,6 +262,16 @@ internal object MirrorWrite {
         metadata: MirrorMetadata = MirrorMetadata.Frontmatter
     ): Boolean {
         val folder = DocumentFile.fromTreeUri(context, folderUri) ?: return false
+        return deleteNoteIn(context, folder, noteId, metadata)
+    }
+
+    /** [deleteNote] once the folder has been resolved — see [renameToTitleIn]. */
+    internal fun deleteNoteIn(
+        context: Context,
+        folder: DocumentFile,
+        noteId: String,
+        metadata: MirrorMetadata = MirrorMetadata.Frontmatter
+    ): Boolean {
         if (!folder.canWrite()) return false
 
         // Drop the remembered document up front: whether or not the delete

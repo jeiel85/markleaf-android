@@ -147,6 +147,10 @@ object NoteFolderMirror {
     fun renameToTitle(context: Context, folderUri: Uri, note: Note): Boolean =
         MirrorWrite.renameToTitle(context, folderUri, note)
 
+    /** [renameToTitle] once the folder has been resolved — see [MirrorWrite]. */
+    internal fun renameToTitleIn(context: Context, folder: DocumentFile, note: Note): Boolean =
+        MirrorWrite.renameToTitleIn(context, folder, note)
+
     /** See [MirrorWrite.deleteNote]. */
     fun deleteNote(
         context: Context,
@@ -154,6 +158,14 @@ object NoteFolderMirror {
         noteId: String,
         metadata: MirrorMetadata = MirrorMetadata.Frontmatter
     ): Boolean = MirrorWrite.deleteNote(context, folderUri, noteId, metadata)
+
+    /** [deleteNote] once the folder has been resolved — see [MirrorWrite]. */
+    internal fun deleteNoteIn(
+        context: Context,
+        folder: DocumentFile,
+        noteId: String,
+        metadata: MirrorMetadata = MirrorMetadata.Frontmatter
+    ): Boolean = MirrorWrite.deleteNoteIn(context, folder, noteId, metadata)
 
     /** See [MirrorWrite.mirrorAttachments]. */
     fun mirrorAttachments(

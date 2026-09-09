@@ -194,13 +194,33 @@ GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
    않으므로 핸드오프할 산출물이 없다. 재개하면 `MARKLEAF_PLAY_AAB` 저장소 변수를 `true`로
    두고 [Release Artifact Export](#release-artifact-export)의 절차를 되살린다 — 업로드는
    그때도 메인테이너가 수동으로 한다.
-5. **마감 + 보고.** 해결된 이슈에 감사 댓글을 달고 닫되, 사용자측 확인이 남으면 열어 둔다.
+5. **Discussions 공지.** 태그 런의 `release` 잡이 녹색이고 Release 자산(APK·mapping)을
+   눈으로 확인한 뒤, Discussions → **Announcements**에 릴리스 공지를 올린다. 그 카테고리는
+   환영글 #206이 스스로 "releases and important notices (maintainer posts)"로 정의해 둔 자리다.
+   본문은 아래 "GitHub 공개 표면 콘텐츠 — 영어 기본"에 따라 **영어**로 쓴다.
+
+   담을 것: Release 페이지 링크와 versionCode, CHANGELOG 제목 한 줄, 사용자가 실제로
+   겪을 변화와 **그 변화의 한계**(예: OS 버전 요구, 새로 고치지 못한 경계 조건),
+   외부 보고자 크레딧(`@handle` + 이슈 링크), F-Droid는 자체 일정이라 며칠 걸릴 수 있다는
+   안내, 버그는 Issues·아이디어는 Discussions라는 분기. CHANGELOG를 그대로 붙여넣지
+   않는다 — 릴리스 노트는 Release 페이지에 이미 있고, 공지는 그것을 읽혀야 할 이유다.
+
+   ```bash
+   QUERY='mutation($repo:ID!,$cat:ID!,$title:String!,$body:String!){ createDiscussion(input:{repositoryId:$repo,categoryId:$cat,title:$title,body:$body}){ discussion{ number url } } }'
+   gh api graphql -f query="$QUERY" -f repo=R_kgDOSPZMRw -f cat=DIC_kwDOSPZMR84DBtQR -f title='Markleaf vX.Y.Z — <CHANGELOG title>' -F body=@announcement.md
+   ```
+
+   `cat=DIC_kwDOSPZMR84DBtQR`가 Announcements다. **공지 고정(pin)은 웹 UI 전용**이라 API로
+   못 한다 — 고정이 필요하면 보고에 적어 메인테이너가 누르게 한다. 첫 사례는
+   v2.37.5의 [#379](https://github.com/jeiel85/markleaf-android/discussions/379)이다.
+
+6. **마감 + 보고.** 해결된 이슈에 감사 댓글을 달고 닫되, 사용자측 확인이 남으면 열어 둔다.
    굵직한 변경이면 README·랜딩 페이지의 버전 표기를 8개 언어 모두 갱신하고
    `scripts/verify-landing-versions.ps1`로 검증한다. 마지막으로 무엇이 나갔는지,
    이슈 상태, 릴리스 링크를 보고한다.
 
-코드 수정이 실제로 들어간 경우에만 3·4단계(태그·Play 핸드오프)를 진행한다. 댓글로 끝나는
-이슈는 1·5단계만 적용한다.
+코드 수정이 실제로 들어가 릴리스가 나간 경우에만 3·4·5단계(태그·Play 핸드오프·공지)를
+진행한다. 댓글로 끝나는 이슈는 1·6단계만 적용한다.
 
 이 플로에서는 **새 하드닝 후보 이슈를 만들지 않는다.** 남은 이슈를 소진하려는 작업이 매번 새
 이슈를 낳으면 백로그가 줄지 않고 끝나지 않는 굴레가 된다. 대응 중 드러난 개선점은 지금 다루는

@@ -29,9 +29,27 @@ private class QuickNoteWidgetFactory(
 
     private var notes: List<Note> = emptyList()
 
+    /**
+     * The palette the rows are drawn in (#375), re-read with the notes.
+     *
+     * Read in `onDataSetChanged` rather than per row: that is the background
+     * pass, and `getViewAt` runs once per visible row.
+     */
+    private var colors: WidgetColors? = null
+
     override fun onCreate() {}
 
     override fun onDataSetChanged() {
+        // This thread is the only place in the widget stack that may read
+        // DataStore, so it is where the appearance mirror is kept honest — see
+        // WidgetPaletteStore.syncFromSettings. When the mirror moved, the
+        // container the provider drew is a repaint behind these rows, so ask for
+        // one; that update ends in another notifyAppWidgetViewDataChanged, which
+        // lands here with the mirror already matching and stops.
+        if (WidgetPaletteStore.syncFromSettings(context)) {
+            QuickNoteWidget.refreshAll(context)
+        }
+        colors = WidgetPalette.colors(context)
         notes = runBlocking {
             val db = AppDatabase.getInstance(context)
             // observeNotes already filters trashed + archived and sorts by
@@ -42,6 +60,7 @@ private class QuickNoteWidgetFactory(
 
     override fun onDestroy() {
         notes = emptyList()
+        colors = null
     }
 
     override fun getCount(): Int = notes.size
@@ -54,6 +73,11 @@ private class QuickNoteWidgetFactory(
             note.title.ifBlank { context.getString(R.string.untitled_parenthesized) }
         )
         view.setTextViewText(R.id.widget_item_excerpt, note.excerpt)
+        // Null means Markleaf Green, which the layout already draws.
+        colors?.let {
+            view.setWidgetTextColor(R.id.widget_item_title, it)
+            view.setWidgetSecondaryTextColor(R.id.widget_item_excerpt, it)
+        }
 
         val fillIn = Intent().apply {
             putExtra(QuickNoteWidget.EXTRA_NOTE_ID, note.id)

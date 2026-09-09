@@ -49,14 +49,32 @@ internal class SingleNoteWidgetFactory(
     private var noteId: String? = null
     private var textSizeSp: Float = SingleNoteWidgetStore.bodySizeSp(EditorFontSize.MEDIUM)
 
+    /**
+     * The palette the rows are drawn in (#375), re-read with the placement.
+     *
+     * Read here rather than per row: `onDataSetChanged` is the background pass,
+     * `getViewAt` is called once per visible row and should not touch storage.
+     */
+    private var colors: WidgetColors? = null
+
     override fun onCreate() {}
 
     override fun onDataSetChanged() {
         // Re-read the placement every time rather than caching it: on Android 12+
         // a widget can be reconfigured onto a different note, or to a different
         // size, without ever being removed and re-added.
+        // This thread is the only place in the widget stack that may read
+        // DataStore, so it is where the appearance mirror is kept honest — see
+        // WidgetPaletteStore.syncFromSettings. When the mirror moved, the
+        // container the provider drew is a repaint behind these rows, so ask for
+        // one; that update ends in another notifyAppWidgetViewDataChanged, which
+        // lands here with the mirror already matching and stops.
+        if (WidgetPaletteStore.syncFromSettings(context)) {
+            SingleNoteWidget.refreshAll(context)
+        }
         val id = SingleNoteWidgetStore.noteId(context, appWidgetId)
         noteId = id
+        colors = WidgetPalette.colors(context)
         textSizeSp = SingleNoteWidgetStore.bodySizeSp(
             SingleNoteWidgetStore.textSize(context, appWidgetId)
         )
@@ -74,6 +92,7 @@ internal class SingleNoteWidgetFactory(
     override fun onDestroy() {
         rows = emptyList()
         noteId = null
+        colors = null
     }
 
     override fun getCount(): Int = rows.size
@@ -91,6 +110,8 @@ internal class SingleNoteWidgetFactory(
             TypedValue.COMPLEX_UNIT_SP,
             textSizeSp
         )
+        // Null means Markleaf Green, which the layout already draws.
+        colors?.let { view.setWidgetTextColor(R.id.single_note_line, it) }
         // Every row opens the same note, so the fill-in is the same for all of
         // them; the template in the provider carries the action and component.
         noteId?.let {

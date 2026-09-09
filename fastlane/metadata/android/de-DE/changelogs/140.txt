@@ -1,0 +1,1 @@
+Die Startbildschirm-Widgets folgen jetzt Einstellungen → Darstellung → Farben. Bisher blieben die Widgets grün, egal was ausgewählt war. Mit Material You übernehmen sie die Farben deines Hintergrundbilds; mit Markleaf Green sehen sie aus wie bisher. Bereits platzierte Widgets werden bei einer Änderung neu gezeichnet.

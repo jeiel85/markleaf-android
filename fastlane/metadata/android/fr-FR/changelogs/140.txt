@@ -1,0 +1,1 @@
+Les widgets de l’écran d’accueil suivent désormais Paramètres → Apparence → Couleurs. Jusqu’ici, ils restaient verts quel que soit le choix. Avec Material You, ils reprennent les couleurs de votre fond d’écran ; avec Markleaf Green, leur aspect ne change pas. Les widgets déjà posés se redessinent quand le réglage change.

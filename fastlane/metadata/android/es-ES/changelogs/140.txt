@@ -1,0 +1,1 @@
+Los widgets de la pantalla de inicio ahora siguen Ajustes → Apariencia → Colores. Hasta ahora seguían siendo verdes eligieras lo que eligieras. Con Material You toman los colores de tu fondo de pantalla; con Markleaf Green se ven igual que antes. Los widgets ya colocados se repintan al cambiar el ajuste.

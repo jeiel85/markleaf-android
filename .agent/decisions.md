@@ -1073,6 +1073,32 @@ Implications:
 - GitHub Actions는 `MARKLEAF_RELEASE_KEYSTORE_BASE64` 시크릿을 복원해 태그 릴리즈에서만 signed APK를 생성한다.
 - 일반 PR/main 빌드는 debug 빌드와 테스트만 수행해 공개 소스 빌드 가능성을 유지한다.
 
+### D071 - The Widgets Read The Colors Setting From A SharedPreferences Mirror
+
+홈 화면 위젯은 Settings → Appearance → Colors 값을 DataStore가 아니라
+`WidgetPaletteStore`(SharedPreferences)에서 읽는다. `MainActivity`가 설정이 바뀔
+때마다 이 사본을 쓰고, 값이 실제로 바뀐 경우에만 두 위젯을 다시 그린다.
+
+Why:
+- 위젯은 리시버의 메인 스레드에서 그려진다. DataStore 읽기는 코루틴이고, 거기서
+  블로킹하는 것은 `SingleNoteWidgetStore`가 SharedPreferences를 쓰는 이유와 같은
+  이유로 받아들일 수 없다.
+- 레이아웃 리소스로는 표현할 수 없다. `@color/widget_background`는 고정된
+  `#FF4CAF50`이고, Material You 색은 런타임에만 존재하며 "사용자가 고른 팔레트"는
+  device configuration이 아니라 설정값이다(#375).
+- 미러가 낡을 수 있는 구간은 "설정 변경 ~ 그 직후의 쓰기" 하나뿐이고, 그 쓰기가
+  곧 위젯 갱신을 발동하므로 실사용에서는 즉시 닫힌다.
+
+Implications:
+
+- 위젯이 쓰는 색은 앱의 dynamic scheme과 같은 역할(primary / onPrimary)에서
+  가져온다. 배경만 고르면 대비를 보장할 수 없고, 레이아웃의
+  `?android:attr/textColorPrimaryInverse`는 런처 테마 기준이라 배경색을 모른다.
+- Markleaf Green은 override 없음(`null`)으로 표현한다. 레이아웃이 이미 그 색이며,
+  코드에 다시 적으면 서로 어긋날 수 있는 사본이 하나 더 생긴다.
+- API 31 미만에서는 `system_accent1_*`가 없으므로 override를 하지 않는다.
+  `MarkleafTheme`가 같은 조건으로 green scheme에 fallback 하는 것과 맞춘다.
+
 ---
 
 ## Resolved (Pending → Confirmed)

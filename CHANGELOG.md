@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.37.5 - Widgets follow your colours - 2026-09-09
+
+The home-screen widgets are painted in the palette chosen in Settings instead of always being Markleaf Green.
+
+### Fixed
+- **The Colors setting reaches the widgets ([#375](https://github.com/jeiel85/markleaf-android/issues/375)).** Settings → Appearance → Colors chose the app's palette and nothing else: both widgets painted a hardcoded green, so a widget added while Material You was selected still came out Markleaf Green. They now take the wallpaper accent — the same colours the app itself uses, so a widget and the screen it opens match — and the text on them moves with the background instead of being decided by the launcher's theme. Choosing Markleaf Green leaves the widgets exactly as they looked before. Material You needs Android 12; below that the widgets stay green, as the app does. A widget already on the home screen repaints when the setting changes, with no need to remove and re-add it.
+
 ## v2.37.4 - The widget scrolls - 2026-09-08
 
 The Single Note widget shows a whole note on the home screen instead of stopping where the widget does.

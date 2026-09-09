@@ -2646,3 +2646,51 @@ What was implemented:
 
 Verification:
 - `./gradlew :app:testDebugUnitTest :app:lintRelease` — passed.
+
+---
+
+## 2026-09-09 - GitHub Issue #375 Widget Colors
+
+Selected task:
+- Settings → Appearance → Colors 를 Material You 로 두어도 홈 화면 위젯이 계속
+  Markleaf Green 으로 그려지는 문제(#375, 보고자 @ray4423).
+
+What was implemented:
+- `WidgetPaletteStore` — Colors 설정을 위젯이 메인 스레드에서 읽을 수 있는
+  SharedPreferences 사본으로 미러링.
+- `WidgetPalette` — 설정과 night mode 로부터 배경/본문 색 한 쌍을 고르고,
+  Markleaf Green 은 `null`(레이아웃 그대로)로 답한다. API 31 미만도 `null`.
+- 두 위젯의 provider 와 두 RemoteViewsFactory 가 그 색을 적용한다. 배경은
+  `setBackgroundColor` 가 아니라 tint — 16dp 라운드 코너를 유지하기 위해서다.
+- `MainActivity` 가 설정 변경 시 미러를 쓰고, 값이 실제로 바뀐 경우에만
+  두 위젯을 다시 그린다.
+
+Review round (세 건 모두 머지 전 수정):
+- 위젯이 night mode 를 자기 `Configuration` 에서 읽고 있었다. #354 의
+  `UiModeManager` override 가 프로세스에 닿는 시점을 이 코드가 통제하지 못하므로,
+  밝은 폰에서 Theme = Dark 를 고르면 어두운 앱 위에 밝은 위젯이 그려진다.
+  Theme 도 미러에 함께 싣고 팔레트의 끝을 그 값으로 직접 고르게 했다.
+- `onPause` 가 최근 노트 위젯을 `notifyAppWidgetViewDataChanged` 로만 갱신했다.
+  그건 팔레트를 읽는 *행* 만 다시 불러오고 배경을 든 컨테이너는 그대로 두므로
+  둘이 어긋날 수 있다. `refreshAll` 로 바꿨다(끝에서 같은 notify 를 한다).
+- 미러의 `commit()` 이 메인 스레드에서 돌았다. `Dispatchers.IO` 로 옮겼다.
+
+Codex review round (두 건 모두 머지 전 수정):
+- 미러가 비어 있는 상태를 아무도 채우지 않았다. Material You 사용자가 업그레이드하거나
+  런처 피커에서 위젯을 추가하면(#262 와 같은 경로) `MainActivity` 가 돌기 전까지
+  초록 위젯을 본다 — 고치려던 결함이 그대로 남는 셈이다. 이제 두 factory 의
+  백그라운드 스레드(위젯 스택에서 DataStore 를 읽을 수 있는 유일한 곳)에서
+  `syncFromSettings` 로 스스로 치유한다.
+- Theme = SYSTEM 에서 기기가 주야 전환을 해도 저장된 두 값이 그대로라 아무것도
+  다시 그리지 않았다. `updatePeriodMillis` 가 0 이라 달리 갱신될 일도 없다.
+  `setColorStateList`/`setColorInt` 의 2값 오버로드로 호스트에게 두 표면을 모두
+  넘겨, SYSTEM 이면 호스트가 자기 night mode 로 고르고 Light/Dark 면 선택지가 없다.
+- 남는 한계: 앱이 닫힌 동안 배경화면 강조색이 바뀌면 스냅샷으로 남는다.
+
+Verification:
+- `WidgetPaletteTest` 12개 — 결함을 되돌려 놓으면
+  각 결함마다 그에 맞춰 쓴 테스트가 정확히 하나씩 실패하는 것을 확인했다
+  (`material you reaches the recent-notes widget`,
+  `a fixed theme gives the host no choice`,
+  `the mirror heals itself from the authoritative settings`).
+- `./gradlew :app:testDebugUnitTest :app:lintRelease` — passed.

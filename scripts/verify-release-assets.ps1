@@ -20,7 +20,7 @@
 
   문서 쪽은 산문을 파싱하지 않는다. 기계가 읽을 마커 한 줄을 두고 그것을 비교한다:
 
-      <!-- release-assets: markleaf-vX.Y.Z.apk -->
+      <!-- release-assets: markleaf-vX.Y.Z.apk, markleaf-vX.Y.Z.mapping.txt -->
 
   마커는 자기를 설명하는 산문 바로 옆에 둔다. 목록을 고치는 사람이 마커를 못 보고
   지나가기 어렵고, 지나가면 이 검사가 잡는다.

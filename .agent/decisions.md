@@ -1073,6 +1073,48 @@ Implications:
 - GitHub Actions는 `MARKLEAF_RELEASE_KEYSTORE_BASE64` 시크릿을 복원해 태그 릴리즈에서만 signed APK를 생성한다.
 - 일반 PR/main 빌드는 debug 빌드와 테스트만 수행해 공개 소스 빌드 가능성을 유지한다.
 
+### D072 - The Release Is Built Entirely By CI, And Carries The Mapping Again
+
+Play 업로드가 보류된 동안 릴리스 경로에서 로컬 단계를 없앤다. 태그 런이 서명 APK와
+R8 mapping을 만들어 **둘 다** GitHub Release에 붙이고, AAB는 만들지 않는다. 태그를
+밀기 전에 사람이 할 일은 없다.
+
+Why:
+- **D064가 이 재검토를 명시적으로 요구했다.** "If the local export is ever dropped,
+  this entry has to be revisited before it is." D064가 mapping을 Release 자산에서
+  뺀 근거는 "영구 사본이 이미 있다"(`D:\Build`)였고, 그 export를 릴리스 경로에서
+  빼면 근거가 사라진다. 남는 것은 30일 아티팩트뿐이고, 그건 영구 사본이 아니다.
+  결정을 그대로 두고 전제만 무너뜨리는 것이 최악이므로 되돌린다.
+- **AAB는 소비자가 하나뿐인데 그 하나가 멈춰 있다.** Play Console 전용이고 Play
+  업데이트는 보류 중이다(README 8개 언어). `.aab`는 사이드로드가 불가능해 Release
+  자산도 아니었다(D062). 태그마다 몇 분과 산출물 하나를 아무도 쓰지 않는 데 쓴다.
+- **사람이 기억해야만 도는 단계는 실제로 잊힌다.** `D:\Build`는 CI가 볼 수 없는
+  로컬 경로라 건너뛰어도 아무것도 빨개지지 않았고, v2.27.2부터 v2.29.0까지 여섯
+  릴리스가 AAB·mapping 없이 지나갔다(#247). `verify-release-export.ps1`은 그 뒤에
+  추가된 보정이지만, 그것 역시 사람이 실행해야 돈다. 산출물을 태그 런으로 옮기면
+  이 실패 양식 자체가 사라진다.
+- mapping이 Release에 다시 붙는 대가는 D064가 적은 그대로다: 41 MB 파일이 2.7 MB
+  APK 옆에 놓인다. 다운로드 0회라는 관찰도 유효하다. 다만 그건 **필요할 때 없는 것**
+  보다 나은 문제이고, 사이드로드 크래시 역난독화는 이 파일이 유일한 수단이다.
+
+Implications:
+
+- `gh release create`는 `markleaf-vX.Y.Z.apk`와 `markleaf-vX.Y.Z.mapping.txt` 둘을
+  붙인다. 목록의 세 복사본(워크플로 인자, 스테이징 스텝, 문서 마커 3곳)은
+  `scripts/verify-release-assets.ps1`이 계속 대조하므로 함께 고쳐야 한다.
+- AAB 3개 스텝(빌드·검증·아티팩트)은 저장소 변수 `MARKLEAF_PLAY_AAB` 뒤로 들어간다.
+  변수는 미설정이라 전부 skip 된다. **삭제가 아니라 게이트인 이유**는 #211/#212
+  선례(D067이 인용)다 — 지워진 메커니즘은 그것이 있었는지 모르는 사람이 되살릴 수
+  없고, Play는 포기가 아니라 보류다. 재개 시 변수를 `true`로 두면 그대로 돌아온다.
+- `:app:exportReleaseToBuildDrive`와 `scripts/verify-release-export.ps1`은 지우지
+  않는다. 같은 이유로 남겨 두되 `AGENTS.md`의 릴리스 절차에서는 빠진다. 되살릴 때는
+  `MARKLEAF_PLAY_AAB`와 함께 켠다.
+- **D066을 다시 건드리지는 않는다.** GitLab은 여전히 아무것도 미러하지 않는다.
+  이 결정은 "영구 사본이 어디인가"를 `D:\Build`에서 GitHub Release로 옮기는 것이지,
+  미러를 되살리는 것이 아니다.
+- `markleaf-release-mapping` 아티팩트(30일)는 남긴다. 이제 유일한 GitHub 사본이
+  아니라 태그 런에서 바로 집기 위한 편의다.
+
 ### D071 - The Widgets Read The Colors Setting From A SharedPreferences Mirror
 
 홈 화면 위젯은 Settings → Appearance → Colors 값을 DataStore가 아니라

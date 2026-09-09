@@ -49,6 +49,14 @@ internal class SingleNoteWidgetFactory(
     private var noteId: String? = null
     private var textSizeSp: Float = SingleNoteWidgetStore.bodySizeSp(EditorFontSize.MEDIUM)
 
+    /**
+     * The palette the rows are drawn in (#375), re-read with the placement.
+     *
+     * Read here rather than per row: `onDataSetChanged` is the background pass,
+     * `getViewAt` is called once per visible row and should not touch storage.
+     */
+    private var colors: WidgetColors? = null
+
     override fun onCreate() {}
 
     override fun onDataSetChanged() {
@@ -57,6 +65,7 @@ internal class SingleNoteWidgetFactory(
         // size, without ever being removed and re-added.
         val id = SingleNoteWidgetStore.noteId(context, appWidgetId)
         noteId = id
+        colors = WidgetPalette.colors(context)
         textSizeSp = SingleNoteWidgetStore.bodySizeSp(
             SingleNoteWidgetStore.textSize(context, appWidgetId)
         )
@@ -74,6 +83,7 @@ internal class SingleNoteWidgetFactory(
     override fun onDestroy() {
         rows = emptyList()
         noteId = null
+        colors = null
     }
 
     override fun getCount(): Int = rows.size
@@ -91,6 +101,8 @@ internal class SingleNoteWidgetFactory(
             TypedValue.COMPLEX_UNIT_SP,
             textSizeSp
         )
+        // Null means Markleaf Green, which the layout already draws.
+        colors?.let { view.setTextColor(R.id.single_note_line, it.onBackground) }
         // Every row opens the same note, so the fill-in is the same for all of
         // them; the template in the provider carries the action and component.
         noteId?.let {

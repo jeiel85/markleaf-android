@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.widget.RemoteViews
 import com.markleaf.notes.MainActivity
 import com.markleaf.notes.R
@@ -56,6 +57,7 @@ class QuickNoteWidget : AppWidgetProvider() {
             appWidgetId: Int
         ) {
             val views = RemoteViews(context.packageName, R.layout.widget_quick_note)
+            applyPalette(context, views)
 
             // Header "+" → create-note intent
             val newNoteIntent = Intent(context, MainActivity::class.java).apply {
@@ -96,6 +98,44 @@ class QuickNoteWidget : AppWidgetProvider() {
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
             appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_list)
+        }
+
+        /**
+         * Repaints every placed recent-notes widget.
+         *
+         * `onPause` only calls `notifyAppWidgetViewDataChanged`, which reloads
+         * the *rows* — the container and its header are the provider's, so a
+         * change to either (the Colors setting, #375) needs the full update this
+         * runs. Named to match [SingleNoteWidget.refreshAll].
+         */
+        fun refreshAll(context: Context) {
+            val manager = AppWidgetManager.getInstance(context)
+            val ids = manager.getAppWidgetIds(
+                android.content.ComponentName(context, QuickNoteWidget::class.java)
+            )
+            for (appWidgetId in ids) {
+                updateAppWidget(context, manager, appWidgetId)
+            }
+        }
+
+        /**
+         * Paints the container in the user's chosen palette (#375).
+         *
+         * No-op for Markleaf Green: the layout already draws it, and
+         * [WidgetPalette.colors] returns null to say so. The rows are not
+         * touched here — they are the factory's views, and
+         * [QuickNoteWidgetService] colours them from the same source.
+         */
+        private fun applyPalette(context: Context, views: RemoteViews) {
+            val colors = WidgetPalette.colors(context) ?: return
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+            views.setWidgetBackground(R.id.widget_container, colors.background)
+            views.setTextColor(R.id.widget_title, colors.onBackground)
+            views.setTextColor(R.id.widget_empty, colors.onBackground)
+            // ImageView has no tint setter a RemoteViews may call by name, so
+            // the "+" takes a colour filter instead — the same result for a
+            // single-colour vector.
+            views.setInt(R.id.widget_new_note, "setColorFilter", colors.onBackground)
         }
     }
 }

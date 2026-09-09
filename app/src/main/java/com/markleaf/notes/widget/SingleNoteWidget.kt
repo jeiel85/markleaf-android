@@ -7,6 +7,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.util.TypedValue
 import android.widget.RemoteViews
 import com.markleaf.notes.MainActivity
@@ -133,6 +134,7 @@ class SingleNoteWidget : AppWidgetProvider() {
             appWidgetId: Int
         ) {
             val views = RemoteViews(context.packageName, R.layout.widget_single_note)
+            applyPalette(context, views)
             val noteId = SingleNoteWidgetStore.noteId(context, appWidgetId)
             val bodySizeSp = SingleNoteWidgetStore.bodySizeSp(
                 SingleNoteWidgetStore.textSize(context, appWidgetId)
@@ -190,6 +192,20 @@ class SingleNoteWidget : AppWidgetProvider() {
             // Without this an edited note keeps showing its old text: the views
             // above are the container, and the rows inside it are the factory's.
             appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.single_note_list)
+        }
+
+        /**
+         * Paints the surface in the user's chosen palette (#375).
+         *
+         * No-op for Markleaf Green, which the layout already draws — see
+         * [WidgetPalette]. The body rows belong to [SingleNoteWidgetService] and
+         * are coloured there from the same source.
+         */
+        private fun applyPalette(context: Context, views: RemoteViews) {
+            val colors = WidgetPalette.colors(context) ?: return
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+            views.setWidgetBackground(R.id.single_note_root, colors.background)
+            views.setTextColor(R.id.single_note_empty, colors.onBackground)
         }
 
         /**

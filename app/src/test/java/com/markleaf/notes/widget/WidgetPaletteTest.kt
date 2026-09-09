@@ -1,0 +1,140 @@
+package com.markleaf.notes.widget
+
+import android.appwidget.AppWidgetManager
+import android.content.Context
+import android.widget.TextView
+import androidx.test.core.app.ApplicationProvider
+import com.markleaf.notes.R
+import com.markleaf.notes.data.settings.ColorPalette
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
+
+/**
+ * The Colors setting reaching the widgets (#375).
+ *
+ * The defect this pins: the widget layouts paint a fixed `#FF4CAF50`, so a user
+ * on Material You saw Markleaf Green on the home screen whatever Settings said.
+ * These tests cover the two halves the widgets depend on — the mirror they read
+ * the setting from, and the rule that turns it into colours.
+ */
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34])
+class WidgetPaletteTest {
+
+    private val context: Context = ApplicationProvider.getApplicationContext()
+
+    @Test
+    fun `an unmirrored setting reads as the green default`() {
+        assertEquals(ColorPalette.MARKLEAF_GREEN, WidgetPaletteStore.palette(context))
+    }
+
+    @Test
+    fun `the mirrored palette is what comes back`() {
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU)
+
+        assertEquals(ColorPalette.MATERIAL_YOU, WidgetPaletteStore.palette(context))
+    }
+
+    /**
+     * The return value is what stops every launch repainting every widget: the
+     * setting arrives once per process whether or not the user touched it.
+     */
+    @Test
+    fun `saving reports only a real change`() {
+        assertTrue(WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU))
+        assertFalse(WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU))
+        assertTrue(WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN))
+    }
+
+    /** Null means "leave the layout alone", which already draws the green. */
+    @Test
+    fun `markleaf green asks for no override`() {
+        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN)
+
+        assertNull(WidgetPalette.colors(context))
+    }
+
+    @Test
+    fun `material you asks for an override`() {
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU)
+
+        assertNotNull(WidgetPalette.colors(context))
+    }
+
+    /**
+     * Below Android 12 there are no `system_accent1_*` resources to read, and
+     * `MarkleafTheme` falls back to the green scheme on the same check — a
+     * widget that tried anyway would crash the launcher's inflate.
+     */
+    @Test
+    @Config(sdk = [30])
+    fun `material you asks for no override before android 12`() {
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU)
+
+        assertNull(WidgetPalette.colors(context))
+    }
+
+    /**
+     * The secondary role keeps the primary's hue and only loses opacity, the
+     * way `?android:attr/textColorSecondaryInverse` does — so a change to the
+     * pair cannot silently leave the excerpt a different colour family.
+     */
+    @Test
+    fun `secondary text is the primary at reduced alpha`() {
+        val colors = WidgetColors(background = 0xFF102030.toInt(), onBackground = 0xFFFFFFFF.toInt())
+
+        assertEquals(0xB3FFFFFF.toInt(), colors.onBackgroundSecondary)
+    }
+
+    /**
+     * The end-to-end half: that the chosen colours reach the views the launcher
+     * inflates, not just the rule that picks them.
+     *
+     * This is the assertion the defect fails — before the fix, `updateAppWidget`
+     * wrote no tint at all and the shape drawable's hardcoded green was the only
+     * colour the widget could have.
+     */
+    @Test
+    fun `material you reaches the recent-notes widget`() {
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU)
+        val expected = requireNotNull(WidgetPalette.colors(context))
+
+        val view = inflateQuickNoteWidget()
+
+        assertEquals(expected.background, view.backgroundTintList?.defaultColor)
+        assertEquals(
+            expected.onBackground,
+            view.findViewById<TextView>(R.id.widget_title).currentTextColor
+        )
+    }
+
+    /** The counterpart: green leaves the layout's own background untouched. */
+    @Test
+    fun `markleaf green leaves the recent-notes widget as the layout drew it`() {
+        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN)
+
+        assertNull(inflateQuickNoteWidget().backgroundTintList)
+    }
+
+    /**
+     * Runs the provider and hands back the view the launcher would show.
+     * `getViewFor` is the shadow's inflation of the RemoteViews the widget
+     * pushed, so it sees exactly what `updateAppWidget` set and nothing else.
+     */
+    private fun inflateQuickNoteWidget(): android.view.View {
+        val manager = AppWidgetManager.getInstance(context)
+        val id = shadowOf(manager)
+            .createWidgets(QuickNoteWidget::class.java, R.layout.widget_quick_note, 1)
+            .first()
+        QuickNoteWidget.updateAppWidget(context, manager, id)
+        return shadowOf(manager).getViewFor(id)
+    }
+}

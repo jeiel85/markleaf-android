@@ -2646,3 +2646,27 @@ What was implemented:
 
 Verification:
 - `./gradlew :app:testDebugUnitTest :app:lintRelease` — passed.
+
+---
+
+## 2026-09-09 - GitHub Issue #375 Widget Colors
+
+Selected task:
+- Settings → Appearance → Colors 를 Material You 로 두어도 홈 화면 위젯이 계속
+  Markleaf Green 으로 그려지는 문제(#375, 보고자 @ray4423).
+
+What was implemented:
+- `WidgetPaletteStore` — Colors 설정을 위젯이 메인 스레드에서 읽을 수 있는
+  SharedPreferences 사본으로 미러링.
+- `WidgetPalette` — 설정과 night mode 로부터 배경/본문 색 한 쌍을 고르고,
+  Markleaf Green 은 `null`(레이아웃 그대로)로 답한다. API 31 미만도 `null`.
+- 두 위젯의 provider 와 두 RemoteViewsFactory 가 그 색을 적용한다. 배경은
+  `setBackgroundColor` 가 아니라 tint — 16dp 라운드 코너를 유지하기 위해서다.
+- `MainActivity` 가 설정 변경 시 미러를 쓰고, 값이 실제로 바뀐 경우에만
+  두 위젯을 다시 그린다.
+
+Verification:
+- `WidgetPaletteTest` 9개 — 결함을 되돌려 놓으면
+  `material you reaches the recent-notes widget` 가 실패하는 것을 확인했다.
+- `./gradlew :app:testDebugUnitTest :app:lintRelease` — passed.
+

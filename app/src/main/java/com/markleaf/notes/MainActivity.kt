@@ -40,6 +40,7 @@ import com.markleaf.notes.ui.viewmodel.MarkleafViewModelFactory
 import com.markleaf.notes.util.ExternalFile
 import com.markleaf.notes.widget.QuickNoteWidget
 import com.markleaf.notes.widget.SingleNoteWidget
+import com.markleaf.notes.widget.WidgetPaletteStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -138,6 +139,34 @@ class MainActivity : FragmentActivity() {
                         .distinctUntilChanged()
                         .collect(::applyApplicationNightMode)
                 }
+            }
+        }
+
+        // Mirror the Colors setting where the widgets can read it, and repaint
+        // them when it changes (#375). A widget is drawn by a receiver on its
+        // main thread and cannot wait on DataStore, so the value has to be
+        // pushed to it rather than pulled — WidgetPaletteStore is that copy.
+        //
+        // Collected from the repository rather than from the Compose state
+        // above: `collectAsState` starts at `AppSettings()`, whose palette is
+        // the green default, so a Material You user's widgets would repaint
+        // green and then correct themselves on every launch. This flow emits
+        // only what is stored.
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                settingsRepository.settings
+                    .map { it.colorPalette }
+                    .distinctUntilChanged()
+                    .collect { palette ->
+                        // save() reports whether the value actually moved; the
+                        // setting arrives once per process whether or not anyone
+                        // touched it, and repainting every widget on each launch
+                        // would be work for nothing.
+                        if (WidgetPaletteStore.save(applicationContext, palette)) {
+                            runCatching { QuickNoteWidget.refreshAll(applicationContext) }
+                            runCatching { SingleNoteWidget.refreshAll(applicationContext) }
+                        }
+                    }
             }
         }
 

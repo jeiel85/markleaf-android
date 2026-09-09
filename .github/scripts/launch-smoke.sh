@@ -33,8 +33,38 @@ adb wait-for-device
 BOOT_COMPLETED="$(adb shell getprop sys.boot_completed | tr -d '\r')"
 echo "sys.boot_completed=${BOOT_COMPLETED}"
 
-# adb install can intermittently fail with broken pipe on CI emulators.
-# Retry with adb server restart before failing the job.
+# Waits until the device's package manager answers, or gives up.
+#
+# `Can't find service: package` is the device saying its own package service is
+# not there -- system_server dropped it -- and no amount of restarting the *adb
+# server* touches that. The string is matched by name because it is the one this
+# job has actually produced (twice: 2026-08-05 and on #377's own CI run); a
+# success format is not parsed, so nothing here depends on guessing what "ready"
+# looks like.
+#
+# Output is captured rather than piped, so `set -o pipefail` cannot turn an adb
+# failure into a false "service is back".
+wait_for_package_service() {
+  for _ in $(seq 1 30); do
+    probe="$(adb shell cmd package list packages 2>&1 || true)"
+    case "$probe" in
+      *"Can't find service: package"*) ;;
+      *) return 0 ;;
+    esac
+    echo "Package service is not answering yet"
+    sleep 2
+  done
+  return 1
+}
+
+# adb install can intermittently fail on CI emulators, in two different places.
+# `Broken pipe (32)` is the connection; `Can't find service: package` is the
+# device's own package service being gone. Restarting the adb server addresses
+# only the first -- so the second half of this loop waits for the service to
+# come back before spending the next attempt on it, which the previous version
+# did not: it burned attempts 2 and 3 six seconds apart against a device that
+# had no package manager, and reported "adb install failed after retries" as
+# though the APK were at fault.
 for attempt in 1 2 3; do
   echo "Install attempt ${attempt}"
   if adb install -r "$APK"; then
@@ -49,6 +79,10 @@ for attempt in 1 2 3; do
   adb kill-server || true
   adb start-server
   adb wait-for-device
+  if ! wait_for_package_service; then
+    echo "The device's package service never came back; the emulator is gone, not the build."
+    exit 1
+  fi
   sleep 5
 done
 

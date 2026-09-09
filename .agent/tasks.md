@@ -5,6 +5,20 @@
 
 ---
 
+## #262 hardening pass - v2.34.0/v2.34.1/v2.36.0 items (Done, 2026-09-10)
+
+- [x] 프리뷰 블록 재귀 상한 `MAX_BLOCK_DEPTH` + 파서 자체 오버플로 폴백 (실측: 렌더러 2,000 / commonmark 3,000단계)
+- [x] 폴더 임포트가 위젯을 갱신하도록 세 호출부 + 에디터 자동저장을 `WidgetRefresh`로 통합
+- [x] 한 번도 브로드캐스트되지 않은 exported `ACTION_WIDGET_NOTES_CHANGED` 제거(매니페스트·리시버·상수)
+- [x] 죽은 `parseHandRolled`와 그것만 만들던 `PreviewLineType.EMPTY`·렌더러 분기 제거
+- [x] `SidecarMigration.isMirrorFileName`을 `MirrorFileLookup.isMirrorEntry`로 접기
+- [x] `MirrorWrite` delete/rename에 `DocumentFile` 이음매 추가 + 계측 테스트 6개
+- [x] DESIGN.md 프리뷰 2dp 서브그리드 예외, AGENTS.md 코드이동 검증 절차 기록
+- [x] 코드 변경 없이 닫은 2건(위젯 절단 표시는 #371에서 이미 완료 / `PreviewLineRenderer` 파라미터 순서는 컴파일 에러로 드러나므로 이동 불필요)
+- [x] 릴리스 문서 정리 — 준비하던 v2.37.6 대신 v2.38.0(#381)에 이미 실려 나갔으므로, 그 섹션에 항목을 합치고 HISTORY에 경위를 남김
+
+---
+
 ## GitHub Issue #375 - Widgets follow the Colors setting (Done, 2026-09-09)
 
 - [x] 보고 확인: Material You를 골라도 위젯이 계속 Markleaf Green으로 그려지는 원인을 `@color/widget_background` 고정값으로 특정

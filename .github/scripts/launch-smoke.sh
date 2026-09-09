@@ -75,5 +75,52 @@ if ! adb shell pm path "$PACKAGE" 2>/dev/null | tr -d '\r' | grep -q '^package:'
   exit 1
 fi
 
-adb shell am start -W -n "$PACKAGE/$ACTIVITY"
+# The wait above is necessary and not sufficient. `am start` can still answer
+# "Error type 3 / Activity class ... does not exist" after `pm path` has already
+# said yes: that query is satisfied once the APK path is registered, which is
+# earlier than the package manager's component index being complete. It is the
+# same post-install window, one step further along.
+#
+# Three runs of #376 failed exactly there -- install reported Success, this
+# script printed "Package indexed.", and `am start` then said the activity did
+# not exist -- on a runner whose emulator took six minutes to boot, while
+# `instrumented-tests` installed and drove the same build on the same commit.
+# A fourth run passed with no relevant change in between.
+#
+# Retrying the command that failed is deliberate. Waiting on some other query
+# instead would need an assumption about which one is authoritative for
+# component resolution, and the wrong choice is how the current guard came to
+# report success before `am start` could work. Retrying `am start` needs only
+# that this particular error is transient, and it is checked for by name:
+# anything else the command says is a real failure and stops immediately, so a
+# genuinely broken build still fails on the first attempt rather than after a
+# minute of retries.
+START_ATTEMPTS=15
+for attempt in $(seq 1 "$START_ATTEMPTS"); do
+  set +e
+  start_output="$(adb shell am start -W -n "$PACKAGE/$ACTIVITY" 2>&1)"
+  start_status=$?
+  set -e
+  printf '%s\n' "$start_output"
+
+  if ! printf '%s\n' "$start_output" | grep -q 'does not exist'; then
+    if [ "$start_status" -ne 0 ]; then
+      echo "am start failed (exit $start_status) for a reason other than the post-install window"
+      exit 1
+    fi
+    break
+  fi
+
+  if [ "$attempt" -eq "$START_ATTEMPTS" ]; then
+    echo "The activity was still unresolvable after $START_ATTEMPTS attempts."
+    echo "That is longer than the post-install window has ever taken; treat it as a real failure."
+    exit 1
+  fi
+
+  echo "Activity not resolvable yet -- retrying ($attempt/$START_ATTEMPTS)"
+  sleep 2
+done
+
+# The assertion the whole job exists for: the process is alive after the launch.
+# `set -e` fails the script when pidof prints nothing.
 adb shell pidof "$PACKAGE"

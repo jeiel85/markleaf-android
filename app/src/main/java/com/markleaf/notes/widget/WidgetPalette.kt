@@ -9,6 +9,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
 import androidx.annotation.RequiresApi
 import com.markleaf.notes.data.settings.ColorPalette
+import com.markleaf.notes.data.settings.ThemeMode
 
 /**
  * Which colours a home-screen widget paints itself with (#375).
@@ -47,7 +48,7 @@ object WidgetPalette {
 
     /**
      * The wallpaper-derived primary / on-primary pair, chosen for the night mode
-     * the given context reports.
+     * the app is rendering in.
      *
      * The same roles the app's top bar uses, so a widget and the app it opens
      * are the same colour — `dynamicLightColorScheme`'s `primary` is tone 40
@@ -58,15 +59,23 @@ object WidgetPalette {
      * layouts' `?android:attr/textColorPrimaryInverse` would resolve against the
      * *launcher's* theme, which knows nothing about the wallpaper accent.
      *
-     * Night mode is read from the context's own configuration rather than the
-     * system's, because #354 gives the application a night-mode override — a
-     * widget of an app forced to Dark should not repaint light when the phone
-     * flips.
+     * Night comes from the Theme setting, not from this context's
+     * `Configuration`. The app renders dark straight from that setting, while
+     * the matching `-night` qualifier reaches the process through
+     * `UiModeManager.setApplicationNightMode` (#354) at a moment this code does
+     * not control — so reading `uiMode` here would paint a light widget over a
+     * dark app for whoever picked Dark on a light phone. SYSTEM is the one case
+     * with no answer of its own, and there the configuration *is* the setting.
      */
     @RequiresApi(Build.VERSION_CODES.S)
     private fun dynamicColors(context: Context): WidgetColors {
-        val night = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
-            Configuration.UI_MODE_NIGHT_YES
+        val night = when (WidgetPaletteStore.themeMode(context)) {
+            ThemeMode.LIGHT -> false
+            ThemeMode.DARK -> true
+            ThemeMode.SYSTEM ->
+                (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+                    Configuration.UI_MODE_NIGHT_YES
+        }
         return if (night) {
             WidgetColors(
                 background = context.getColor(android.R.color.system_accent1_200),

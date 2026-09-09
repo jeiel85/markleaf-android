@@ -6,8 +6,10 @@ import android.widget.TextView
 import androidx.test.core.app.ApplicationProvider
 import com.markleaf.notes.R
 import com.markleaf.notes.data.settings.ColorPalette
+import com.markleaf.notes.data.settings.ThemeMode
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -32,41 +34,67 @@ class WidgetPaletteTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     @Test
-    fun `an unmirrored setting reads as the green default`() {
+    fun `an unmirrored setting reads as the defaults`() {
         assertEquals(ColorPalette.MARKLEAF_GREEN, WidgetPaletteStore.palette(context))
+        assertEquals(ThemeMode.SYSTEM, WidgetPaletteStore.themeMode(context))
     }
 
     @Test
-    fun `the mirrored palette is what comes back`() {
-        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU)
+    fun `the mirrored settings are what come back`() {
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.DARK)
 
         assertEquals(ColorPalette.MATERIAL_YOU, WidgetPaletteStore.palette(context))
+        assertEquals(ThemeMode.DARK, WidgetPaletteStore.themeMode(context))
     }
 
     /**
      * The return value is what stops every launch repainting every widget: the
-     * setting arrives once per process whether or not the user touched it.
+     * settings arrive once per process whether or not the user touched them.
+     * Either one moving is a repaint, which is why the check is on the pair.
      */
     @Test
     fun `saving reports only a real change`() {
-        assertTrue(WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU))
-        assertFalse(WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU))
-        assertTrue(WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN))
+        assertTrue(WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM))
+        assertFalse(WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM))
+        assertTrue(WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.DARK))
+        assertTrue(WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.DARK))
     }
 
     /** Null means "leave the layout alone", which already draws the green. */
     @Test
     fun `markleaf green asks for no override`() {
-        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN)
+        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM)
 
         assertNull(WidgetPalette.colors(context))
     }
 
     @Test
     fun `material you asks for an override`() {
-        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU)
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM)
 
         assertNotNull(WidgetPalette.colors(context))
+    }
+
+    /**
+     * The Theme setting decides the end of the palette, not the context's
+     * `Configuration`: the app renders dark straight from the setting, while the
+     * matching `-night` qualifier arrives through `UiModeManager` (#354) at a
+     * moment this code does not control. Robolectric's default configuration is
+     * not night, so a Dark that read `uiMode` would come back light here — which
+     * is exactly the mismatch a user picking Dark on a light phone would see.
+     */
+    @Test
+    fun `the theme setting picks which end of the palette to take`() {
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.LIGHT)
+        val light = requireNotNull(WidgetPalette.colors(context))
+
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.DARK)
+        val dark = requireNotNull(WidgetPalette.colors(context))
+
+        assertNotEquals(light.background, dark.background)
+        assertNotEquals(light.onBackground, dark.onBackground)
+        assertEquals(context.getColor(android.R.color.system_accent1_600), light.background)
+        assertEquals(context.getColor(android.R.color.system_accent1_200), dark.background)
     }
 
     /**
@@ -77,7 +105,7 @@ class WidgetPaletteTest {
     @Test
     @Config(sdk = [30])
     fun `material you asks for no override before android 12`() {
-        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU)
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM)
 
         assertNull(WidgetPalette.colors(context))
     }
@@ -104,7 +132,7 @@ class WidgetPaletteTest {
      */
     @Test
     fun `material you reaches the recent-notes widget`() {
-        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU)
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM)
         val expected = requireNotNull(WidgetPalette.colors(context))
 
         val view = inflateQuickNoteWidget()
@@ -119,7 +147,7 @@ class WidgetPaletteTest {
     /** The counterpart: green leaves the layout's own background untouched. */
     @Test
     fun `markleaf green leaves the recent-notes widget as the layout drew it`() {
-        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN)
+        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM)
 
         assertNull(inflateQuickNoteWidget().backgroundTintList)
     }

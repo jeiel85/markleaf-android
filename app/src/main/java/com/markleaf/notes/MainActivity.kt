@@ -142,10 +142,16 @@ class MainActivity : FragmentActivity() {
             }
         }
 
-        // Mirror the Colors setting where the widgets can read it, and repaint
-        // them when it changes (#375). A widget is drawn by a receiver on its
-        // main thread and cannot wait on DataStore, so the value has to be
-        // pushed to it rather than pulled — WidgetPaletteStore is that copy.
+        // Mirror the Appearance settings where the widgets can read them, and
+        // repaint the widgets when either changes (#375). A widget is drawn by a
+        // receiver on its main thread and cannot wait on DataStore, so the
+        // values have to be pushed to it rather than pulled — WidgetPaletteStore
+        // is that copy.
+        //
+        // Theme travels with Colors because the widget needs to know which end
+        // of the dynamic palette to take, and its own Configuration cannot be
+        // trusted to say: #354's night mode reaches the process through
+        // UiModeManager at a moment this does not control.
         //
         // Collected from the repository rather than from the Compose state
         // above: `collectAsState` starts at `AppSettings()`, whose palette is
@@ -155,14 +161,18 @@ class MainActivity : FragmentActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 settingsRepository.settings
-                    .map { it.colorPalette }
+                    .map { it.colorPalette to it.themeMode }
                     .distinctUntilChanged()
-                    .collect { palette ->
-                        // save() reports whether the value actually moved; the
-                        // setting arrives once per process whether or not anyone
-                        // touched it, and repainting every widget on each launch
-                        // would be work for nothing.
-                        if (WidgetPaletteStore.save(applicationContext, palette)) {
+                    .collect { (palette, themeMode) ->
+                        // save() reports whether the values actually moved; they
+                        // arrive once per process whether or not anyone touched
+                        // them, and repainting every widget on each launch would
+                        // be work for nothing. It commits, so it runs off the
+                        // main thread this collector is on.
+                        val changed = withContext(Dispatchers.IO) {
+                            WidgetPaletteStore.save(applicationContext, palette, themeMode)
+                        }
+                        if (changed) {
                             runCatching { QuickNoteWidget.refreshAll(applicationContext) }
                             runCatching { SingleNoteWidget.refreshAll(applicationContext) }
                         }
@@ -258,15 +268,14 @@ class MainActivity : FragmentActivity() {
         super.onPause()
         // Nudge the home-screen widgets so they reflect any edits made in this
         // session as soon as the user returns to the launcher.
-        runCatching {
-            val mgr = android.appwidget.AppWidgetManager.getInstance(applicationContext)
-            val ids = mgr.getAppWidgetIds(
-                android.content.ComponentName(applicationContext, QuickNoteWidget::class.java)
-            )
-            if (ids.isNotEmpty()) {
-                mgr.notifyAppWidgetViewDataChanged(ids, R.id.widget_list)
-            }
-        }
+        //
+        // A full update rather than the bare notifyAppWidgetViewDataChanged this
+        // used to be. That call reloads the *rows*, which read the palette, while
+        // the container that carries the background is the provider's — so the
+        // pair could drift apart into light text on a light background (#375).
+        // refreshAll ends in the same notify, so nothing is lost by going
+        // through it.
+        runCatching { QuickNoteWidget.refreshAll(applicationContext) }
         // The single-note widgets redraw rather than reload a list, and each one
         // also re-checks that its note may still be shown — a note moved into the
         // Locked space while the app was open must stop rendering (#351).

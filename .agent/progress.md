@@ -2665,8 +2665,19 @@ What was implemented:
 - `MainActivity` 가 설정 변경 시 미러를 쓰고, 값이 실제로 바뀐 경우에만
   두 위젯을 다시 그린다.
 
-Verification:
-- `WidgetPaletteTest` 9개 — 결함을 되돌려 놓으면
-  `material you reaches the recent-notes widget` 가 실패하는 것을 확인했다.
-- `./gradlew :app:testDebugUnitTest :app:lintRelease` — passed.
+Review round (세 건 모두 머지 전 수정):
+- 위젯이 night mode 를 자기 `Configuration` 에서 읽고 있었다. #354 의
+  `UiModeManager` override 가 프로세스에 닿는 시점을 이 코드가 통제하지 못하므로,
+  밝은 폰에서 Theme = Dark 를 고르면 어두운 앱 위에 밝은 위젯이 그려진다.
+  Theme 도 미러에 함께 싣고 팔레트의 끝을 그 값으로 직접 고르게 했다.
+- `onPause` 가 최근 노트 위젯을 `notifyAppWidgetViewDataChanged` 로만 갱신했다.
+  그건 팔레트를 읽는 *행* 만 다시 불러오고 배경을 든 컨테이너는 그대로 두므로
+  둘이 어긋날 수 있다. `refreshAll` 로 바꿨다(끝에서 같은 notify 를 한다).
+- 미러의 `commit()` 이 메인 스레드에서 돌았다. `Dispatchers.IO` 로 옮겼다.
 
+Verification:
+- `WidgetPaletteTest` 10개 — 결함을 되돌려 놓으면
+  `material you reaches the recent-notes widget` 와
+  `the theme setting picks which end of the palette to take` 가
+  각각 실패하는 것을 확인했다.
+- `./gradlew :app:testDebugUnitTest :app:lintRelease` — passed.

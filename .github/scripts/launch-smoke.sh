@@ -35,22 +35,30 @@ echo "sys.boot_completed=${BOOT_COMPLETED}"
 
 # Waits until the device's package manager answers, or gives up.
 #
-# `Can't find service: package` is the device saying its own package service is
-# not there -- system_server dropped it -- and no amount of restarting the *adb
-# server* touches that. The string is matched by name because it is the one this
-# job has actually produced (twice: 2026-08-05 and on #377's own CI run); a
-# success format is not parsed, so nothing here depends on guessing what "ready"
-# looks like.
+# The probe must fail closed. An unrecognised answer is *not* evidence of
+# health: `Failure calling service package: Broken pipe (32)` is a second error
+# this job has produced, and treating anything-but-one-known-string as ready
+# would let it through and spend the next install attempt against a device that
+# is still broken -- which is the exhaustion this wait exists to prevent. So a
+# non-zero probe means not ready, and so does either observed error string; only
+# a clean exit with neither of them proceeds.
+#
+# The strings are still matched by name rather than a success format being
+# parsed: nothing here depends on guessing what "ready" looks like, only on
+# refusing to call "unknown" ready.
 #
 # Output is captured rather than piped, so `set -o pipefail` cannot turn an adb
-# failure into a false "service is back".
+# failure into a false "service is back"; the assignment sits in an `if` so its
+# exit status is kept instead of discarded.
 wait_for_package_service() {
   for _ in $(seq 1 30); do
-    probe="$(adb shell cmd package list packages 2>&1 || true)"
-    case "$probe" in
-      *"Can't find service: package"*) ;;
-      *) return 0 ;;
-    esac
+    if probe="$(adb shell cmd package list packages 2>&1)"; then
+      case "$probe" in
+        *"Can't find service: package"*) ;;
+        *"Failure calling service package"*) ;;
+        *) return 0 ;;
+      esac
+    fi
     echo "Package service is not answering yet"
     sleep 2
   done

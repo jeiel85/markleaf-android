@@ -33,13 +33,13 @@ import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.SyncFileExtension
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.NoteImporter
-import com.markleaf.notes.widget.WidgetRefresh
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.data.sync.mirrorMetadata
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.ui.component.elapsedTimeLabel
 import com.markleaf.notes.ui.viewmodel.SyncCenterViewModel
 import com.markleaf.notes.util.HapticFeedback
+import com.markleaf.notes.widget.WidgetRefresh
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch

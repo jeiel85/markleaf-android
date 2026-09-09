@@ -272,15 +272,14 @@ class MainActivity : FragmentActivity() {
         // Nudge the home-screen widgets so they reflect any edits made in this
         // session as soon as the user returns to the launcher.
         //
-        // A full update rather than the bare notifyAppWidgetViewDataChanged this
-        // used to be. That call reloads the *rows*, which read the palette, while
-        // the container that carries the background is the provider's — so the
-        // pair could drift apart into light text on a light background (#375).
-        // refreshAll ends in the same notify, so nothing is lost by going
-        // through it.
-        // The single-note widgets redraw rather than reload a list, and each one
-        // also re-checks that its note may still be shown — a note moved into the
-        // Locked space while the app was open must stop rendering (#351).
+        // A full update of both kinds, rather than the bare
+        // notifyAppWidgetViewDataChanged this used to be. That call reloads the
+        // recent-notes *rows*, which read the palette, while the container that
+        // carries the background is the provider's — so the pair could drift
+        // apart into light text on a light background (#375). The single-note
+        // widgets redraw rather than reload a list, and each re-checks that its
+        // note may still be shown: one moved into the Locked space while the app
+        // was open must stop rendering (#351).
         WidgetRefresh.notesChanged(applicationContext)
     }
 

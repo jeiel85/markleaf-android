@@ -75,7 +75,6 @@ import com.markleaf.notes.data.settings.SyncMetadataMode
 import com.markleaf.notes.data.settings.ThemeMode
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.NoteImporter
-import com.markleaf.notes.widget.WidgetRefresh
 import com.markleaf.notes.data.sync.SidecarMigration
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.data.sync.mirrorMetadata
@@ -83,6 +82,7 @@ import com.markleaf.notes.feature.lock.canUseBiometric
 import com.markleaf.notes.ui.component.elapsedTimeLabel
 import com.markleaf.notes.util.ExportAllNotes
 import com.markleaf.notes.util.HapticFeedback
+import com.markleaf.notes.widget.WidgetRefresh
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.first

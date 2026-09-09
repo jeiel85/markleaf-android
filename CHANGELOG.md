@@ -4,6 +4,14 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.37.6 - Deeply nested notes, and fresher widgets - 2026-09-10
+
+A note with deeply nested lists no longer closes the app, and the home-screen widgets keep up with a folder sync.
+
+### Fixed
+- **A deeply nested note no longer closes the app.** Opening a note in preview walked its structure one nesting level at a time with nothing stopping it, so a note with lists nested deeply enough — the kind a generator or another app can produce, well past anything typed by hand — ran the app out of room and closed it on the spot. The preview now renders as deep as it can and marks the cut with a `…` row, and a note deeper still is shown as plain text rather than not at all. Ordinary notes render exactly as before.
+- **The home-screen widgets follow a folder sync.** A note changed on another device and pulled in by folder sync reached Markleaf without the widgets hearing about it, so a widget could show the old text until Markleaf was next opened and left again. Both widgets now refresh as soon as a sync actually brings something in — and the same refresh follows an edit in the editor, which the recent-notes widget was missing.
+
 ## v2.37.5 - Widgets follow your colours - 2026-09-09
 
 The home-screen widgets are painted in the palette chosen in Settings instead of always being Markleaf Green.

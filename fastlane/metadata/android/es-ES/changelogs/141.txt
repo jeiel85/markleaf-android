@@ -1,0 +1,1 @@
+Dos correcciones. Una nota con listas muy anidadas podía cerrar la aplicación al abrir la vista previa; ahora la vista previa muestra todo lo que puede, marca el corte y pasa a texto sin formato más allá. Y los widgets de la pantalla de inicio se actualizan en cuanto una sincronización de carpeta trae un cambio de otro dispositivo.

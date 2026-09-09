@@ -1,0 +1,1 @@
+Dva popravka. Bilješka s duboko ugniježđenim popisima mogla je zatvoriti aplikaciju pri otvaranju pretpregleda; pretpregled sada prikazuje koliko može, označi rez i dalje prelazi na obični tekst. Widgeti na početnom zaslonu osvježavaju se čim sinkronizacija mape donese promjenu s drugog uređaja.

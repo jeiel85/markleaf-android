@@ -1,0 +1,1 @@
+Zwei Korrekturen. Eine Notiz mit tief verschachtelten Listen konnte die App beim Öffnen der Vorschau schließen; die Vorschau rendert jetzt so tief wie möglich, markiert den Schnitt und zeigt darüber hinaus einfachen Text. Und die Startbildschirm-Widgets aktualisieren sich, sobald ein Ordner-Sync eine Änderung von einem anderen Gerät hereinholt.

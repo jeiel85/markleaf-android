@@ -1,0 +1,1 @@
+Two fixes. A note with deeply nested lists could close the app when opened in preview; the preview now renders as deep as it can, marks the cut and falls back to plain text past that. And the home-screen widgets refresh as soon as a folder sync brings in a change from another device, instead of waiting until you next open and leave Markleaf.

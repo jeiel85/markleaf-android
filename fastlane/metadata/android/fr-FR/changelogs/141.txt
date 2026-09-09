@@ -1,0 +1,1 @@
+Deux correctifs. Une note contenant des listes très imbriquées pouvait fermer l’application à l’ouverture de l’aperçu ; l’aperçu affiche maintenant ce qu’il peut, marque la coupure et bascule en texte simple au-delà. Et les widgets de l’écran d’accueil se rafraîchissent dès qu’une synchronisation de dossier apporte une modification d’un autre appareil.

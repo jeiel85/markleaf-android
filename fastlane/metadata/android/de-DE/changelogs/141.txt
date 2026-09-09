@@ -1,0 +1,1 @@
+Beim Auswählen eines Sync-Ordners wird dieser jetzt auch gelesen. Dateien, die bereits darin liegen, werden sofort zu Notizen, statt auf die nächste Synchronisierung zu warten — ein Ordner, in dem du deine Notizen schon hältst, funktioniert also ab dem Verknüpfen. Gibt es etwas zu übernehmen, fragt Markleaf vorher und nennt die Anzahl.

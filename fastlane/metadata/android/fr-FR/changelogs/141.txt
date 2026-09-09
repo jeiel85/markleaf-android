@@ -1,0 +1,1 @@
+Choisir un dossier de synchronisation le lit désormais. Les fichiers déjà présents deviennent des notes immédiatement, sans attendre la synchronisation suivante : un dossier où vous gardez déjà vos notes fonctionne dès la liaison. S’il y a quelque chose à importer, Markleaf demande d’abord et indique combien de fichiers sont concernés.

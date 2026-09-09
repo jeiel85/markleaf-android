@@ -279,6 +279,17 @@ internal object MirrorFileLookup {
         }.getOrNull()
 
     /**
+     * The `markleaf_id` in the head of [documentUri], or null when the file
+     * carries none — and also when it could not be read to the end of its
+     * block. Both mean "this file names no owner", which is what a caller
+     * counting unclaimed files wants to hear: an unreadable head is one the
+     * import will treat as a new note, so counting it as claimed would
+     * understate what linking is about to do.
+     */
+    internal fun peekMarkleafId(context: Context, documentUri: Uri): String? =
+        peekFrontmatter(context, documentUri)?.markleafId
+
+    /**
      * Locate the mirror file that belongs to [noteId] by parsing each file's
      * frontmatter `markleaf_id`. We only read the leading bytes — the
      * frontmatter always sits at the very top — so this stays cheap even though

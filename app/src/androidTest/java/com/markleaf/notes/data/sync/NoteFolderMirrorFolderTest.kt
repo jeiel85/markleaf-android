@@ -296,6 +296,111 @@ class NoteFolderMirrorFolderTest {
         assertEquals(1, created.size)
     }
 
+    // --- #372: what linking is about to adopt, counted before it happens ----
+
+    @Test
+    fun surveyCountsFilesNoNoteOwns() {
+        seed("Groceries.md", "# Groceries\n\nmilk")
+        seed("Ideas.md", "# Ideas\n\nthings")
+        seed("notes.txt", "plain text")
+
+        val survey = NoteFolderMirror.surveyFolderIn(context, folder, existing = emptyList())
+
+        assertEquals(3, survey.newFiles)
+        assertEquals(0, survey.knownFiles)
+        assertEquals(3, survey.totalFiles)
+    }
+
+    @Test
+    fun surveyDoesNotCountAFileItsNoteAlreadyOwns() {
+        seed("My Note.md", "---\nmarkleaf_id: note-1\n---\n\nours")
+        seed("Dropped In.md", "# Dropped In\n\ntheirs")
+
+        val survey = NoteFolderMirror.surveyFolderIn(context, folder, existing = listOf(note()))
+
+        // The user is asked about the one file that is about to become a note,
+        // not about the folder's size.
+        assertEquals(1, survey.newFiles)
+        assertEquals(1, survey.knownFiles)
+    }
+
+    @Test
+    fun surveyCountsAHiddenNotesFileAsKnown() {
+        // Same rule the import runs on (#148): a file matching an archived or
+        // trashed note is not a new note. Counting it as one would promise an
+        // arrival that never comes -- the import skips it.
+        seed("Archived.md", "---\nmarkleaf_id: note-a\n---\n\nfiled away")
+        seed("Trashed.md", "---\nmarkleaf_id: note-t\n---\n\nthrown out")
+        val hidden = listOf(
+            note(id = "note-a").copy(archived = true),
+            note(id = "note-t").copy(trashed = true)
+        )
+
+        val survey = NoteFolderMirror.surveyFolderIn(context, folder, existing = hidden)
+
+        assertEquals(0, survey.newFiles)
+        assertEquals(2, survey.knownFiles)
+    }
+
+    @Test
+    fun surveyReadsAndChangesNothing() {
+        // The count runs before the user has agreed to anything, so it must
+        // leave the folder exactly as it found it: no id stamped into a file,
+        // no file created, none renamed.
+        seed("Dropped In.md", "# Dropped In\n\nhand-dropped")
+        val before = File(dir, "Dropped In.md").readText()
+
+        NoteFolderMirror.surveyFolderIn(context, folder, existing = emptyList())
+
+        assertEquals(listOf("Dropped In.md"), files())
+        assertEquals(before, File(dir, "Dropped In.md").readText())
+    }
+
+    @Test
+    fun surveyOfAnEmptyFolderAsksNothing() {
+        val survey = NoteFolderMirror.surveyFolderIn(context, folder, existing = emptyList())
+
+        assertEquals(0, survey.newFiles)
+        assertEquals(0, survey.totalFiles)
+        assertTrue("an empty folder is still a readable one", survey.readable)
+    }
+
+    @Test
+    fun readingBeforeSeedingKeepsAFileTheSeedWouldHaveAdopted() = runBlocking {
+        // The order SyncFolderLink runs the two directions in, pinned here
+        // because getting it wrong loses the user's text silently. A file
+        // called "My Note.md" carrying no id is adopted by the write path --
+        // that adoption is what stops a lost id forking a file per save
+        // (#213) -- so seeding first would overwrite this one with the local
+        // note and the import that followed would read back only what we had
+        // just written.
+        seed("My Note.md", "# My Note\n\nwritten by hand, never seen by us")
+        val local = note()
+        val created = mutableListOf<Note>()
+
+        // Import first.
+        val result = NoteFolderMirror.importChangesFrom(
+            context, folder, existing = listOf(local),
+            applyUpdate = { }, applyCreate = { created += it }
+        )
+        // Then seed.
+        write(local)
+
+        assertEquals(1, result.created)
+        val kept = File(dir, "My Note.md").readText()
+        assertTrue(
+            "the hand-written text survives: $kept",
+            kept.contains("written by hand, never seen by us")
+        )
+        assertFalse(
+            "the local note did not overwrite it: $kept",
+            kept.contains("local body")
+        )
+        // The local note could not take that file over, so it has one of its
+        // own -- two notes, two files, nothing overwritten.
+        assertTrue("the local note got its own file", files().size == 2)
+    }
+
     // --- a directory is not a note file -------------------------------------
 
     @Test

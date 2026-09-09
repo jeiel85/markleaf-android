@@ -79,6 +79,7 @@ import com.markleaf.notes.data.sync.SidecarMigration
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.data.sync.mirrorMetadata
 import com.markleaf.notes.feature.lock.canUseBiometric
+import com.markleaf.notes.feature.sync.rememberSyncFolderLinker
 import com.markleaf.notes.ui.component.elapsedTimeLabel
 import com.markleaf.notes.util.ExportAllNotes
 import com.markleaf.notes.util.HapticFeedback
@@ -179,45 +180,15 @@ fun SettingsScreen(
         }
     }
 
-    val syncFolderLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocumentTree()
-    ) { folderUri ->
-        if (folderUri != null) {
-            // Persist read+write so the URI keeps working after a reboot.
-            val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            runCatching {
-                context.contentResolver.takePersistableUriPermission(folderUri, flags)
-            }
-            scope.launch {
-                settingsRepository.setSyncFolderUri(folderUri.toString())
-                // Mirror every existing note immediately so the folder is seeded.
-                val notes = withContext(Dispatchers.IO) { noteRepository.observeNotes().first() }
-                    .filter { !it.trashed }
-                var written = 0
-                withContext(Dispatchers.IO) {
-                    notes.forEach { note ->
-                        // writeNoteAndStamp, not writeNote: a seeded note whose
-                        // lastImportedAt stays null reads as "edited locally
-                        // since the last import" for ever, so the next genuinely
-                        // newer file becomes a conflict copy instead of a clean
-                        // overwrite (#217).
-                        val wrote = NoteFolderMirror.writeNoteAndStamp(
-                            context,
-                            folderUri,
-                            note,
-                            appSettings.syncFileExtension,
-                            appSettings.mirrorMetadata()
-                        ) { stamped -> noteRepository.updateNote(stamped) }
-                        if (wrote) written++
-                    }
-                }
-                settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())
-                val msg = context.resources.getQuantityString(R.plurals.sync_seeded_format, written, written)
-                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
+    // Picker, the question about files already in the folder, and the link
+    // itself all live in one place now — the Sync Center offers the same
+    // button, and the import used to be missing from both copies (#372).
+    val pickSyncFolder = rememberSyncFolderLinker(
+        settingsRepository = settingsRepository,
+        noteRepository = noteRepository,
+        noteImporter = noteImporter,
+        appSettings = appSettings
+    )
 
     Scaffold(
         topBar = {
@@ -729,9 +700,26 @@ fun SettingsScreen(
                         metadataMode = appSettings.syncMetadataMode,
                         metadataBusy = metadataSwitchBusy,
                         onMetadataModeChange = { mode ->
-                            val uri = appSettings.syncFolderUriOrNull()
-                                ?: return@SyncSection
                             if (mode == appSettings.syncMetadataMode) return@SyncSection
+                            val uri = appSettings.syncFolderUriOrNull()
+                            if (uri == null) {
+                                // No folder yet: no files carry a header and no
+                                // index exists, so there is nothing to migrate
+                                // and the setting is the whole change. This is
+                                // the cheap moment to choose, and the only one
+                                // that costs nothing.
+                                scope.launch {
+                                    // Sidecar mode needs a device id to name the
+                                    // index it owns; without one mirrorMetadata()
+                                    // falls back to Frontmatter and the choice
+                                    // would be silently undone at link time.
+                                    if (mode == SyncMetadataMode.SIDECAR) {
+                                        settingsRepository.getOrCreateSyncDeviceId()
+                                    }
+                                    settingsRepository.setSyncMetadataMode(mode)
+                                }
+                                return@SyncSection
+                            }
                             scope.launch {
                                 metadataSwitchBusy = true
                                 // The two directions flip the setting at
@@ -800,7 +788,7 @@ fun SettingsScreen(
                                 ).show()
                             }
                         },
-                        onPickFolder = { syncFolderLauncher.launch(null) },
+                        onPickFolder = pickSyncFolder,
                         onSyncNow = {
                             val uri = appSettings.syncFolderUriOrNull() ?: return@SyncSection
                             scope.launch {
@@ -1027,7 +1015,12 @@ internal fun SyncSection(
                 }
             }
         }
-        if (!folderUri.isNullOrBlank()) {
+        // Rendered whether or not a folder is linked. It used to appear only
+        // after linking, which put the choice one step *past* the moment it is
+        // free: the first link is what writes headers into the user's files, and
+        // the dialog that offers to stop it told them to change a setting that
+        // was not on the screen yet (#372 review).
+        run {
             Spacer(Modifier.height(16.dp))
             Text(
                 text = stringResource(R.string.sync_metadata_mode),

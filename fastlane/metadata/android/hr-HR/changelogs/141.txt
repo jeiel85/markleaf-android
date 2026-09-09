@@ -1,0 +1,1 @@
+Odabir mape za sinkronizaciju sada je i čita. Datoteke koje su već u njoj odmah postaju bilješke umjesto da čekaju sljedeću sinkronizaciju, pa mapa u kojoj već držiš bilješke radi čim je povežeš. Ako ima što uvesti, Markleaf prvo pita i kaže o koliko se datoteka radi.

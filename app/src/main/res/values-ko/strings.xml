@@ -255,7 +255,7 @@
     <string name="sync_metadata_mode_description">Markleaf는 어떤 파일이 어떤 노트인지 알아야 합니다. 기본값은 각 파일 맨 위에 작은 `---` 헤더를 쓰는 것입니다. ‘파일 옆에’를 고르면 그 정보를 숨김 색인에 두므로 노트에는 직접 쓴 내용만 남습니다.</string>
     <string name="sync_metadata_sidecar_costs">감수할 점: Markleaf 밖에서 파일 이름을 바꾸면 노트와의 연결이 끓길 수 있고, 색인 없이 폴더만 복사하면 노트별 생성 날짜와 고정 상태가 사라집니다.</string>
     <string name="sync_metadata_switched_format">파일 %1$d개를 변환했습니다.</string>
-    <string name="sync_behavior_summary">· 편집하고 약 1초 뒤 폴더에 자동으로 저장됩니다.\n· \"지금 동기화\"를 누르면 다른 기기의 변경 내용을 가져옵니다.\n· 같은 노트가 양쪽에서 바뀌면 더 최근에 수정한 쪽이 남습니다.\n· 삭제는 동기화되지 않습니다 — 각 기기에서 따로 정리해 주세요.</string>
+    <string name="sync_behavior_summary">· 편집하고 약 1초 뒤 폴더에 자동으로 저장됩니다.\n· \"지금 동기화\"를 누르면 다른 기기의 변경 내용을 가져옵니다.\n· 같은 노트가 양쪽에서 바뀌면 더 최근에 수정한 쪽이 남습니다.\n· 삭제는 동기화되지 않습니다 — 각 기기에서 따로 정리해 주세요.\n· 폴더에 이미 있던 파일은 노트로 읽어 들입니다.</string>
     <string name="sync_pick_folder">동기화 폴더 선택</string>
     <string name="sync_change_folder">폴더 변경</string>
     <string name="sync_now">지금 동기화</string>
@@ -271,6 +271,12 @@
     <string name="sync_done_format">동기화 완료 — 업데이트 %1$d, 신규 %2$d, 변화 없음 %3$d</string>
     <string name="sync_done_with_conflicts_format">동기화 완료 — 업데이트 %1$d, 신규 %2$d, 충돌 사본 %3$d, 변화 없음 %4$d</string>
     <string name="sync_conflict_copy_suffix">(다른 기기 사본 %1$s)</string>
+    <string name="sync_link_import_title">이 폴더에 이미 파일이 있습니다</string>
+    <string name="sync_link_import_message_format">이 폴더의 파일 %1$d개는 아직 Markleaf 노트가 아닙니다. 폴더를 연결하면 그 파일들을 읽어 목록에 넣고, 노트를 편집하면 같은 파일에 다시 씁니다.</string>
+    <string name="sync_link_import_frontmatter_note">기본 설정에서는 각 파일 맨 위에 작은 “---” 헤더도 함께 씁니다. 파일을 순수 텍스트로 두려면 취소하고 %1$s을(를) “%2$s”로 먼저 바꾸세요.</string>
+    <string name="sync_link_import_confirm">연결하고 가져오기</string>
+    <string name="sync_linked_format">연결했습니다 — 노트 %1$d개를 내보내고 %2$d개를 가져왔습니다.</string>
+    <string name="sync_linked_with_problems_format">연결했습니다 — 노트 %1$d개를 내보내고 %2$d개를 가져왔으며, %3$d개는 사본으로 두었고(충돌) %4$d개는 읽지 못했습니다.</string>
     <string name="sync_stopped">동기화를 껐습니다.</string>
     <string name="screenshot_protection">스크린샷·최근 앱 미리보기 차단</string>
     <string name="screenshot_protection_description">노트 본문이 스크린샷과 최근 앱 화면에 표시되지 않도록 합니다. 변경 사항이 반영되려면 에디터를 다시 열어주세요.</string>

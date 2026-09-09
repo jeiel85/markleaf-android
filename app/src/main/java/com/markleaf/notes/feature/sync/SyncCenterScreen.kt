@@ -1,9 +1,6 @@
 package com.markleaf.notes.feature.sync
 
-import android.content.Intent
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -66,43 +63,15 @@ fun SyncCenterScreen(
     var showDeleteConfirm by remember { mutableStateOf(false) }
     var isSyncing by remember { mutableStateOf(false) }
 
-    val syncFolderLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocumentTree()
-    ) { folderUri ->
-        if (folderUri != null) {
-            val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            runCatching {
-                context.contentResolver.takePersistableUriPermission(folderUri, flags)
-            }
-            scope.launch {
-                settingsRepository.setSyncFolderUri(folderUri.toString())
-                val notes = withContext(Dispatchers.IO) { noteRepository.observeNotes().first() }
-                    .filter { !it.trashed }
-                var written = 0
-                withContext(Dispatchers.IO) {
-                    notes.forEach { note ->
-                        // writeNoteAndStamp, not writeNote: a seeded note whose
-                        // lastImportedAt stays null reads as "edited locally
-                        // since the last import" for ever, so the next genuinely
-                        // newer file becomes a conflict copy instead of a clean
-                        // overwrite (#217).
-                        val wrote = NoteFolderMirror.writeNoteAndStamp(
-                            context,
-                            folderUri,
-                            note,
-                            appSettings.syncFileExtension,
-                            appSettings.mirrorMetadata()
-                        ) { stamped -> noteRepository.updateNote(stamped) }
-                        if (wrote) written++
-                    }
-                }
-                settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())
-                val msg = context.resources.getQuantityString(R.plurals.sync_seeded_format, written, written)
-                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
+    // Same picker, same question, same link as Settings — see
+    // [rememberSyncFolderLinker]. Keeping one copy is what stopped the two
+    // screens drifting apart, which is how the import went missing (#372).
+    val pickSyncFolder = rememberSyncFolderLinker(
+        settingsRepository = settingsRepository,
+        noteRepository = noteRepository,
+        noteImporter = noteImporter,
+        appSettings = appSettings
+    )
 
     Scaffold(
         topBar = {
@@ -181,7 +150,7 @@ fun SyncCenterScreen(
                                 )
                                 
                                 Button(
-                                    onClick = { syncFolderLauncher.launch(null) },
+                                    onClick = pickSyncFolder,
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     Icon(Icons.Default.Folder, contentDescription = null)
@@ -319,7 +288,7 @@ fun SyncCenterScreen(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     OutlinedButton(
-                                        onClick = { syncFolderLauncher.launch(null) },
+                                        onClick = pickSyncFolder,
                                         modifier = Modifier.weight(1f)
                                     ) {
                                         Text(stringResource(R.string.sync_change_folder))

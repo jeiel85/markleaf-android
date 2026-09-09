@@ -262,7 +262,7 @@
     <string name="sync_metadata_mode_description">Markleaf necesita saber qué archivo corresponde a cada nota. De forma predeterminada escribe una pequeña cabecera `---` al principio de cada archivo. «Junto a los archivos» guarda esa información en un índice oculto, para que tus notas contengan solo lo que escribiste.</string>
     <string name="sync_metadata_sidecar_costs">Contrapartidas: renombrar un archivo fuera de Markleaf puede romper su vínculo con la nota, y una carpeta copiada sin su índice pierde la fecha de creación y el anclaje de cada nota.</string>
     <string name="sync_metadata_switched_format">%1$d archivos convertidos.</string>
-    <string name="sync_behavior_summary">· Guarda en la carpeta ~1 segundo después de cada edición.\n· \"Sincronizar ahora\" trae los cambios de otros dispositivos.\n· Conflictos: gana la edición más reciente.\n· Los borrados no se sincronizan — gestiona la papelera en cada dispositivo.</string>
+    <string name="sync_behavior_summary">· Guarda en la carpeta ~1 segundo después de cada edición.\n· \"Sincronizar ahora\" trae los cambios de otros dispositivos.\n· Conflictos: gana la edición más reciente.\n· Los borrados no se sincronizan — gestiona la papelera en cada dispositivo.\n· Los archivos que ya están en la carpeta se leen como notas.</string>
     <string name="sync_pick_folder">Elegir carpeta de sincronización</string>
     <string name="sync_change_folder">Cambiar carpeta</string>
     <string name="sync_now">Sincronizar ahora</string>
@@ -280,6 +280,12 @@
     <string name="sync_done_format">Sincronizado — %1$d actualizadas, %2$d nuevas, %3$d sin cambios.</string>
     <string name="sync_done_with_conflicts_format">Sincronizado — %1$d actualizadas, %2$d nuevas, %3$d guardadas como duplicado (conflicto), %4$d sin cambios.</string>
     <string name="sync_conflict_copy_suffix">(copia de otro dispositivo %1$s)</string>
+    <string name="sync_link_import_title">Esta carpeta ya contiene archivos</string>
+    <string name="sync_link_import_message_format">%1$d archivos de esta carpeta aún no son notas de Markleaf. Al vincularla se leen y aparecen en tu lista, y al editarlos se vuelve a escribir en el mismo archivo.</string>
+    <string name="sync_link_import_frontmatter_note">Markleaf también escribirá una pequeña cabecera «---» en cada uno. Para dejar tus archivos como texto plano, cancela y ajusta antes %1$s a «%2$s».</string>
+    <string name="sync_link_import_confirm">Vincular e importar</string>
+    <string name="sync_linked_format">Vinculada — %1$d notas escritas, %2$d importadas.</string>
+    <string name="sync_linked_with_problems_format">Vinculada — %1$d notas escritas, %2$d importadas, %3$d conservadas como duplicados (conflicto), %4$d ilegibles.</string>
     <string name="sync_stopped">Sincronización desactivada.</string>
     <string name="screenshot_protection">Bloquear capturas y vista previa de Recientes</string>
     <string name="screenshot_protection_description">Oculta el contenido de las notas en capturas de pantalla y en la vista de aplicaciones recientes. Reabre el editor para aplicar el cambio.</string>

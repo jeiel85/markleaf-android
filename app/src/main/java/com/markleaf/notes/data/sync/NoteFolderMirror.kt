@@ -72,6 +72,22 @@ object NoteFolderMirror {
         fun changedAnything(): Boolean = updated > 0 || created > 0 || conflicts > 0
     }
 
+    /**
+     * What a folder holds before it is linked — see [MirrorSurvey].
+     *
+     * [newFiles] is the count that matters to the user: files no note in the
+     * database owns, which linking will turn into that many new notes.
+     * [readable] is false when the folder could not be listed at all, which is
+     * not the same as an empty folder and must not be reported as one.
+     */
+    data class FolderSurvey(
+        val newFiles: Int,
+        val knownFiles: Int,
+        val readable: Boolean = true
+    ) {
+        val totalFiles: Int get() = newFiles + knownFiles
+    }
+
     /** The action the reconcile takes for one mirror file. */
     internal enum class Reconcile { Create, SkipTrashed, Skip, Overwrite, Conflict }
 
@@ -194,6 +210,29 @@ object NoteFolderMirror {
             context, folder, existing, applyUpdate, applyCreate, metadata, titleSource
         )
     }
+
+    /**
+     * Count what [importChanges] would take in, without taking any of it in.
+     * See [MirrorSurvey] for why linking asks before importing.
+     */
+    fun surveyFolder(
+        context: Context,
+        folderUri: Uri,
+        existing: List<Note>,
+        metadata: MirrorMetadata = MirrorMetadata.Frontmatter
+    ): FolderSurvey {
+        val folder = DocumentFile.fromTreeUri(context, folderUri)
+            ?: return FolderSurvey(0, 0, readable = false)
+        return MirrorSurvey.surveyFolder(context, folder, existing, metadata)
+    }
+
+    /** [surveyFolder] once the folder has been resolved — see [MirrorSurvey]. */
+    internal fun surveyFolderIn(
+        context: Context,
+        folder: DocumentFile,
+        existing: List<Note>,
+        metadata: MirrorMetadata = MirrorMetadata.Frontmatter
+    ): FolderSurvey = MirrorSurvey.surveyFolder(context, folder, existing, metadata)
 
     /** [importChanges] once the folder has been resolved — see [MirrorImport]. */
     internal suspend fun importChangesFrom(

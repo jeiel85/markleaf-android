@@ -57,6 +57,37 @@ import com.markleaf.notes.util.WikilinkExtractor
  */
 internal object CommonMarkPreviewAdapter {
 
+    /**
+     * How deep the renderer will descend into nested blocks.
+     *
+     * [renderBlock] recurses once per nesting level, and a note can nest
+     * without limit — CommonMark sets no ceiling and neither did this. A list
+     * indented two thousand levels parsed fine and then took the renderer's
+     * stack down with a `StackOverflowError`, which on a device is the app
+     * disappearing the moment the note is opened. Not a crafted-input worry
+     * alone: a generated outline or a file from another tool can carry
+     * nesting no person would type.
+     *
+     * 64 rather than something tighter because the preview stops *showing*
+     * nesting at `MaxIndentDepth` (6) — every level past that already draws at
+     * the same indent — so this sits an order of magnitude beyond the last
+     * level a reader can tell apart, and an order of magnitude under the depth
+     * that faulted (measured on the JVM test runner: this renderer at 2,000
+     * levels, commonmark's own visitors at 3,000; Android's main thread has a
+     * larger stack than either). The deeper case is [parse]'s to contain —
+     * a ceiling here cannot help when the parser never returns.
+     */
+    internal const val MAX_BLOCK_DEPTH = 64
+
+    /**
+     * The one row that stands in for everything below [MAX_BLOCK_DEPTH].
+     *
+     * Punctuation, so it needs no translation — the same choice
+     * `SingleNoteWidget.TRUNCATION_MARKER` makes for the same reason. Cutting
+     * visibly beats both crashing and dropping the subtree in silence.
+     */
+    internal const val DEPTH_CUT_MARKER = "…"
+
     private val parser: Parser = Parser.builder()
         // Block spans give each ListItem the line it started on, which is what
         // lets a preview checkbox tap flip the right `[ ]` in the source (#219).
@@ -74,7 +105,47 @@ internal object CommonMarkPreviewAdapter {
         )
         .build()
 
-    fun parse(markdown: String): List<PreviewLine> {
+    /**
+     * Parses [markdown] into preview rows, degrading to plain text rather than
+     * taking the process down.
+     *
+     * [MAX_BLOCK_DEPTH] bounds *this file's* recursion, which is all it can
+     * bound: commonmark walks the same tree with its own recursive visitors —
+     * the task-list post-processor faults first, measured at 3,000 nesting
+     * levels — and a note deep enough to overflow it never reaches the
+     * renderer at all. There is no depth limit to configure on the parser, so
+     * the only place left to stand is here.
+     *
+     * `StackOverflowError` is an `Error`, and catching one is normally wrong
+     * because the JVM's state after it is not worth trusting. This is the case
+     * the rule is written around: the stack is fully unwound by the time the
+     * catch runs, the parser is stateless between calls (a fresh document
+     * parser per `parse`), and the only value at risk is the local list being
+     * built. Weighed against that, the alternative is the app vanishing when
+     * someone opens a note — and the note is still theirs to read and edit,
+     * which is exactly what the fallback leaves them with.
+     */
+    fun parse(markdown: String): List<PreviewLine> = try {
+        parseStructured(markdown)
+    } catch (overflow: StackOverflowError) {
+        plainTextRows(markdown)
+    }
+
+    /**
+     * Every line as its own body row — the preview when the document is too
+     * deeply nested to render as structure.
+     *
+     * No inline segments and no block types: this runs precisely when walking
+     * the tree is what failed, so it walks nothing. Blank lines are dropped
+     * because a `BODY` row of empty text draws as a gap the source did not ask
+     * for.
+     */
+    internal fun plainTextRows(markdown: String): List<PreviewLine> =
+        markdown.lines()
+            .filter { it.isNotBlank() }
+            .map { PreviewLine(text = it.trimEnd(), type = PreviewLineType.BODY) }
+
+    private fun parseStructured(markdown: String): List<PreviewLine> {
         // Special case: a document that is just `---` should render as a
         // horizontal rule, not be eaten by the YAML front-matter extension as
         // an unclosed block.
@@ -106,6 +177,18 @@ internal object CommonMarkPreviewAdapter {
      * row that knows how far in it belongs (#339).
      */
     private fun renderBlock(node: Node, out: MutableList<PreviewLine>, depth: Int) {
+        if (depth > MAX_BLOCK_DEPTH) {
+            // One marker per cut, not one per sibling: consecutive siblings
+            // below the ceiling all mean the same thing to the reader.
+            if (out.lastOrNull()?.text != DEPTH_CUT_MARKER) {
+                out += PreviewLine(
+                    text = DEPTH_CUT_MARKER,
+                    type = PreviewLineType.BODY,
+                    depth = MAX_BLOCK_DEPTH
+                )
+            }
+            return
+        }
         when (node) {
             is YamlFrontMatterBlock -> { /* already consumed by collectFrontmatter */ }
             is Heading -> out += renderHeading(node)

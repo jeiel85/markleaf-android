@@ -336,7 +336,6 @@ private fun PreviewLineContent(
             modifier = Modifier.padding(vertical = 8.dp),
             color = MaterialTheme.colorScheme.outlineVariant
         )
-        PreviewLineType.EMPTY -> Spacer(Modifier.height(8.dp))
     }
 }
 

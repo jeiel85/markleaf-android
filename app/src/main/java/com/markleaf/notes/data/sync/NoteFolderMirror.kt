@@ -61,7 +61,16 @@ object NoteFolderMirror {
          * of overwriting the local edits.
          */
         val conflicts: Int = 0
-    )
+    ) {
+        /**
+         * Whether this pass put anything new in front of the user.
+         *
+         * A conflict counts: it lands as its own note, which a widget showing
+         * the note list has to hear about. `skipped` and `errors` do not — by
+         * definition nothing moved.
+         */
+        fun changedAnything(): Boolean = updated > 0 || created > 0 || conflicts > 0
+    }
 
     /** The action the reconcile takes for one mirror file. */
     internal enum class Reconcile { Create, SkipTrashed, Skip, Overwrite, Conflict }
@@ -138,6 +147,10 @@ object NoteFolderMirror {
     fun renameToTitle(context: Context, folderUri: Uri, note: Note): Boolean =
         MirrorWrite.renameToTitle(context, folderUri, note)
 
+    /** [renameToTitle] once the folder has been resolved — see [MirrorWrite]. */
+    internal fun renameToTitleIn(context: Context, folder: DocumentFile, note: Note): Boolean =
+        MirrorWrite.renameToTitleIn(context, folder, note)
+
     /** See [MirrorWrite.deleteNote]. */
     fun deleteNote(
         context: Context,
@@ -145,6 +158,14 @@ object NoteFolderMirror {
         noteId: String,
         metadata: MirrorMetadata = MirrorMetadata.Frontmatter
     ): Boolean = MirrorWrite.deleteNote(context, folderUri, noteId, metadata)
+
+    /** [deleteNote] once the folder has been resolved — see [MirrorWrite]. */
+    internal fun deleteNoteIn(
+        context: Context,
+        folder: DocumentFile,
+        noteId: String,
+        metadata: MirrorMetadata = MirrorMetadata.Frontmatter
+    ): Boolean = MirrorWrite.deleteNoteIn(context, folder, noteId, metadata)
 
     /** See [MirrorWrite.mirrorAttachments]. */
     fun mirrorAttachments(

@@ -3,6 +3,7 @@ package com.markleaf.notes.core.markdown
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -261,5 +262,65 @@ class NestedListPreviewTest {
         )
 
         assertEquals(listOf(0, 0, 0), lines.map { it.depth })
+    }
+
+    /**
+     * The renderer recurses once per nesting level, and a note can nest
+     * without limit. Before [CommonMarkPreviewAdapter.MAX_BLOCK_DEPTH] the
+     * only ceiling was the stack, so a deep enough list took the app down when
+     * the note was opened — not a crafted-input worry alone, since a generated
+     * outline or a file from another tool can carry nesting no person types.
+     */
+    @Test
+    fun `nesting deeper than the ceiling is cut, not crashed`() {
+        val markdown = nestedList(CommonMarkPreviewAdapter.MAX_BLOCK_DEPTH * 3)
+
+        val lines = SimpleMarkdownPreview.parse(markdown)
+
+        // Every level the renderer descends into, plus the one marker row that
+        // stands in for everything below it.
+        assertEquals(CommonMarkPreviewAdapter.MAX_BLOCK_DEPTH + 2, lines.size)
+        assertEquals(CommonMarkPreviewAdapter.DEPTH_CUT_MARKER, lines.last().text)
+        assertEquals(CommonMarkPreviewAdapter.MAX_BLOCK_DEPTH, lines.last().depth)
+    }
+
+    /** The ceiling must not touch the nesting a person actually writes. */
+    @Test
+    fun `nesting within the ceiling keeps every row`() {
+        val markdown = nestedList(CommonMarkPreviewAdapter.MAX_BLOCK_DEPTH + 1)
+
+        val lines = SimpleMarkdownPreview.parse(markdown)
+
+        assertEquals(CommonMarkPreviewAdapter.MAX_BLOCK_DEPTH + 1, lines.size)
+        assertEquals("item 0", lines.first().text)
+        assertEquals("item ${CommonMarkPreviewAdapter.MAX_BLOCK_DEPTH}", lines.last().text)
+    }
+
+    /**
+     * Past a few thousand levels commonmark's own visitors fault before the
+     * renderer is reached, which no ceiling in this codebase can prevent — so
+     * the property asserted is the one that matters to a person holding the
+     * phone: the preview comes back with the note's text in it.
+     *
+     * Which representation it comes back as is deliberately not asserted. The
+     * depth where the parser gives out is a property of the runtime's stack,
+     * so a device with more room may still render structure here; both answers
+     * are correct, and only crashing is not. 3,000 is past the measured fault
+     * on the JVM test runner and short of the depth where the indentation
+     * alone — quadratic in the level count — exhausts its heap.
+     */
+    @Test
+    fun `nesting past the parser's own limit still renders the text`() {
+        val lines = SimpleMarkdownPreview.parse(nestedList(3_000))
+
+        assertTrue(lines.isNotEmpty())
+        assertEquals("item 0", lines.first().text.trim().removePrefix("- "))
+    }
+
+    /** A list nested [levels] deep, one item per level. */
+    private fun nestedList(levels: Int): String = buildString {
+        repeat(levels) { level ->
+            append(" ".repeat(level * 2)).append("- item ").append(level).append('\n')
+        }
     }
 }

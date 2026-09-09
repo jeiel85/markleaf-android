@@ -96,7 +96,7 @@ import com.markleaf.notes.util.ExportUtil
 import com.markleaf.notes.util.HapticFeedback
 import com.markleaf.notes.util.ExportPdf
 import com.markleaf.notes.util.ShareNoteUtil
-import com.markleaf.notes.widget.SingleNoteWidget
+import com.markleaf.notes.widget.WidgetRefresh
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -199,7 +199,11 @@ fun EditorScreen(
             // refresh *before* this save lands — leaving the old text on the
             // home screen until the next pause. Refreshing here means the widget
             // follows the write rather than racing it (#351).
-            SingleNoteWidget.refreshAll(context)
+            //
+            // Both kinds, not just the single-note one: this save also moves the
+            // note to the top of the recent list the other widget draws, and it
+            // loses the same race (#262).
+            WidgetRefresh.notesChanged(context)
         }
     }
     // Debounced autosave gate: every edit and formatting action bumps it, and

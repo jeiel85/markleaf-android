@@ -19,7 +19,6 @@ enum class PreviewLineType {
     ORDERED_LIST,
     HORIZONTAL_RULE,
     BODY,
-    EMPTY,
     CODE_BLOCK,
     FRONTMATTER,
     FOOTNOTE_DEF,
@@ -138,94 +137,20 @@ object SimpleMarkdownPreview {
     private val strikethroughRegex = Regex("""~~(.+?)~~""")
     private val inlineCodeRegex = Regex("""`([^`\n]+?)`""")
     private val footnoteRefRegex = Regex("""\[\^([A-Za-z0-9_-]+)](?!:)""")
-    private val footnoteDefRegex = Regex("""^\[\^([A-Za-z0-9_-]+)]:\s*(.*)$""")
-    private val calloutHeadRegex = Regex("""^>\s*\[!([A-Za-z]+)]\s*$""")
 
     /**
      * Parses a markdown string into [PreviewLine]s.
      *
-     * Since v2.3.0, this delegates to [CommonMarkPreviewAdapter] (commonmark-java
-     * + extensions). The hand-rolled implementation that lived here from v0.x
-     * to v2.2.x is preserved as [parseHandRolled] below — kept for tests and
-     * fallback debugging, but no longer the primary path.
+     * Delegates to [CommonMarkPreviewAdapter] (commonmark-java + extensions),
+     * unconditionally and since v2.3.0. The hand-rolled parser this file
+     * carried from v0.x to v2.2.x was kept beside it "for parity tests and
+     * fallback debugging" and was called by neither — it had no callers at all,
+     * and it was the only thing still producing `PreviewLineType.EMPTY`, which
+     * kept a blank-line branch alive in the renderer and cost real time during
+     * the #340 diagnosis by making the preview look like it handled blank lines
+     * when it had not since v2.3.0. Both are gone (#262).
      */
     fun parse(markdown: String): List<PreviewLine> = CommonMarkPreviewAdapter.parse(markdown)
-
-    /** The original hand-rolled parser. Retained for parity tests during the v2.3 swap. */
-    internal fun parseHandRolled(markdown: String): List<PreviewLine> {
-        val rawLines = markdown.lines()
-        val result = mutableListOf<PreviewLine>()
-        var index = 0
-
-        // Frontmatter: a leading `---` … `---` block at the top of the document.
-        if (rawLines.isNotEmpty() && rawLines[0].trim() == "---") {
-            val closeOffset = rawLines.subList(1, rawLines.size)
-                .indexOfFirst { it.trim() == "---" }
-            if (closeOffset >= 0) {
-                val body = rawLines.subList(1, 1 + closeOffset).joinToString("\n")
-                result += PreviewLine(text = body, type = PreviewLineType.FRONTMATTER)
-                index = 1 + closeOffset + 1
-            }
-        }
-
-        while (index < rawLines.size) {
-            val line = rawLines[index].trimEnd()
-
-            when {
-                line.trim().startsWith("```") -> {
-                    val language = line.trim().removePrefix("```").trim()
-                    val codeLines = mutableListOf<String>()
-                    index++
-                    while (index < rawLines.size && !rawLines[index].trim().startsWith("```")) {
-                        codeLines += rawLines[index]
-                        index++
-                    }
-                    if (index < rawLines.size && rawLines[index].trim().startsWith("```")) {
-                        index++
-                    }
-                    result += PreviewLine(
-                        text = codeLines.joinToString("\n"),
-                        type = PreviewLineType.CODE_BLOCK,
-                        extra = language.takeIf { it.isNotEmpty() }
-                    )
-                }
-                calloutHeadRegex.matches(line) -> {
-                    val kind = calloutHeadRegex.find(line)!!.groupValues[1]
-                    val bodyLines = mutableListOf<String>()
-                    index++
-                    while (index < rawLines.size && rawLines[index].trimEnd().startsWith(">")) {
-                        val body = rawLines[index].trimEnd().removePrefix(">").let {
-                            if (it.startsWith(" ")) it.removePrefix(" ") else it
-                        }
-                        bodyLines += body
-                        index++
-                    }
-                    result += PreviewLine(
-                        text = bodyLines.joinToString("\n"),
-                        type = PreviewLineType.CALLOUT,
-                        extra = kind
-                    )
-                }
-                footnoteDefRegex.matches(line) -> {
-                    val match = footnoteDefRegex.find(line)!!
-                    val body = match.groupValues[2]
-                    result += PreviewLine(
-                        text = body,
-                        type = PreviewLineType.FOOTNOTE_DEF,
-                        extra = match.groupValues[1],
-                        segments = parseInlineSegments(body)
-                    )
-                    index++
-                }
-                else -> {
-                    result += parseLine(line)
-                    index++
-                }
-            }
-        }
-
-        return result
-    }
 
     fun parseInlineSegments(text: String): List<PreviewInlineSegment> {
         val allMatches = mutableListOf<InlineMatch>()
@@ -288,44 +213,6 @@ object SimpleMarkdownPreview {
             listOf(PreviewInlineSegment(text, PreviewInlineType.TEXT))
         } else {
             segments
-        }
-    }
-
-    private fun parseLine(line: String): PreviewLine {
-        return when {
-            line.isBlank() -> PreviewLine("", PreviewLineType.EMPTY)
-            // Longest marker first. `startsWith("### ")` is already false for
-            // `#### ` — the fourth character is `#`, not a space — but ordering
-            // by length keeps that from being something a reader has to work out.
-            line.startsWith("###### ") ->
-                PreviewLine(line.removePrefix("###### ").trim(), PreviewLineType.H6)
-            line.startsWith("##### ") ->
-                PreviewLine(line.removePrefix("##### ").trim(), PreviewLineType.H5)
-            line.startsWith("#### ") ->
-                PreviewLine(line.removePrefix("#### ").trim(), PreviewLineType.H4)
-            line.startsWith("### ") -> PreviewLine(line.removePrefix("### ").trim(), PreviewLineType.H3)
-            line.startsWith("## ") -> PreviewLine(line.removePrefix("## ").trim(), PreviewLineType.H2)
-            line.startsWith("# ") -> PreviewLine(line.removePrefix("# ").trim(), PreviewLineType.H1)
-            line.startsWith("- [x] ", ignoreCase = true) -> PreviewLine(
-                line.removePrefix("- [x] ").trim(),
-                PreviewLineType.CHECKBOX_DONE
-            )
-            line.startsWith("- [ ] ") -> PreviewLine(
-                line.removePrefix("- [ ] ").trim(),
-                PreviewLineType.CHECKBOX_TODO
-            )
-            line.startsWith("- ") -> PreviewLine(line.removePrefix("- ").trim(), PreviewLineType.BULLET)
-            line.startsWith("> ") -> PreviewLine(line.removePrefix("> ").trim(), PreviewLineType.BLOCKQUOTE, segments = parseInlineSegments(line.removePrefix("> ").trim()))
-            line.matches(Regex("""^\d+\.\s+.+""")) -> {
-                val match = Regex("""^(\d+)\.\s+(.+)""").find(line)
-                PreviewLine(
-                    text = match!!.groupValues[2],
-                    type = PreviewLineType.ORDERED_LIST,
-                    extra = match.groupValues[1]
-                )
-            }
-            line.matches(Regex("""^(---|\*\*\*|___)\s*$""")) -> PreviewLine("", PreviewLineType.HORIZONTAL_RULE)
-            else -> PreviewLine(line, PreviewLineType.BODY, segments = parseInlineSegments(line))
         }
     }
 }

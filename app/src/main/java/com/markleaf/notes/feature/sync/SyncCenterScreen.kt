@@ -39,6 +39,7 @@ import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.ui.component.elapsedTimeLabel
 import com.markleaf.notes.ui.viewmodel.SyncCenterViewModel
 import com.markleaf.notes.util.HapticFeedback
+import com.markleaf.notes.widget.WidgetRefresh
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -234,7 +235,14 @@ fun SyncCenterScreen(
                                                     titleSource = appSettings.noteTitleSource
                                                 )
                                             }
-                                            settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())
+                                            // A placed widget hears about an
+                                            // import no other way (#262).
+                                            if (result.changedAnything()) {
+                                                WidgetRefresh.notesChanged(context)
+                                            }
+                                            settingsRepository.setSyncLastSyncedAt(
+                                                System.currentTimeMillis()
+                                            )
                                             isSyncing = false
                                             val msg = if (result.conflicts > 0) {
                                                 context.getString(

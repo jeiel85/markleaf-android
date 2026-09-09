@@ -31,23 +31,9 @@ class QuickNoteWidget : AppWidgetProvider() {
         }
     }
 
-    override fun onReceive(context: Context, intent: Intent) {
-        super.onReceive(context, intent)
-        if (intent.action == ACTION_NOTES_CHANGED) {
-            // Pushes a refresh to every active widget. Called from anywhere a
-            // note mutation needs the widget to repaint (e.g. note saved/deleted).
-            val mgr = AppWidgetManager.getInstance(context)
-            val ids = mgr.getAppWidgetIds(android.content.ComponentName(context, QuickNoteWidget::class.java))
-            if (ids.isNotEmpty()) {
-                mgr.notifyAppWidgetViewDataChanged(ids, R.id.widget_list)
-            }
-        }
-    }
-
     companion object {
         const val ACTION_CREATE_NOTE = "com.markleaf.notes.ACTION_CREATE_NOTE"
         const val ACTION_OPEN_NOTE = "com.markleaf.notes.ACTION_OPEN_NOTE"
-        const val ACTION_NOTES_CHANGED = "com.markleaf.notes.ACTION_WIDGET_NOTES_CHANGED"
         const val EXTRA_NOTE_ID = "note_id"
 
         fun updateAppWidget(
@@ -105,7 +91,8 @@ class QuickNoteWidget : AppWidgetProvider() {
          * `onPause` only calls `notifyAppWidgetViewDataChanged`, which reloads
          * the *rows* — the container and its header are the provider's, so a
          * change to either (the Colors setting, #375) needs the full update this
-         * runs. Named to match [SingleNoteWidget.refreshAll].
+         * runs. Named to match [SingleNoteWidget.refreshAll]; callers outside
+         * the widget package go through [WidgetRefresh] rather than either.
          */
         fun refreshAll(context: Context) {
             val manager = AppWidgetManager.getInstance(context)

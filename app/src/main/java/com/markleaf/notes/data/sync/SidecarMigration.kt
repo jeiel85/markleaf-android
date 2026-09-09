@@ -84,7 +84,7 @@ object SidecarMigration {
         // said. Nothing is written to a note file here.
         val planned = mutableListOf<PlannedStrip>()
         for (file in folder.listFiles()) {
-            if (!file.isFile || !isMirrorFileName(file.name)) continue
+            if (!MirrorFileLookup.isMirrorEntry(file)) continue
             val raw = read(context, file)
             if (raw == null) {
                 errors++
@@ -194,7 +194,7 @@ object SidecarMigration {
         val byName = SidecarIndex.byFileName(merged)
 
         for (file in folder.listFiles()) {
-            if (!file.isFile || !isMirrorFileName(file.name)) continue
+            if (!MirrorFileLookup.isMirrorEntry(file)) continue
             val name = file.name.orEmpty()
             val note = byName[name]?.noteId?.let(byId::get)
             if (note == null) {
@@ -225,11 +225,6 @@ object SidecarMigration {
         }
         SidecarStore.forget()
         return Result(converted, skipped, errors)
-    }
-
-    private fun isMirrorFileName(name: String?): Boolean {
-        val n = name?.lowercase() ?: return false
-        return n.endsWith(".md") || n.endsWith(".txt")
     }
 
     private fun read(context: Context, file: DocumentFile): String? = runCatching {

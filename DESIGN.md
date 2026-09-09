@@ -77,6 +77,7 @@ Layout rules:
 - Writing content stays visually centered and uses the existing editor width preference.
 - Interactive rows retain at least a 48dp touch target.
 - Temporary suggestion panels are height-bounded so the writing canvas and keyboard remain usable.
+- The rendered markdown preview keeps a finer 2dp sub-grid (3dp list rows, 10dp above an H5) and is the one deliberate exception to the base unit. Its spacing is not panel spacing: it has to order *line < list row < paragraph < heading* inside a single column of running text, and the body line height is already 26sp, so rounding those steps to 4dp collapses two of them into each other. Values are tuned against the preview goldens (#340) — change one and re-record.
 
 ## 5. Components
 

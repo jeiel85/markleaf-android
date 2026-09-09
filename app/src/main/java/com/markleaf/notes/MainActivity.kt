@@ -39,8 +39,8 @@ import com.markleaf.notes.ui.theme.MarkleafTheme
 import com.markleaf.notes.ui.viewmodel.MarkleafViewModelFactory
 import com.markleaf.notes.util.ExternalFile
 import com.markleaf.notes.widget.QuickNoteWidget
-import com.markleaf.notes.widget.SingleNoteWidget
 import com.markleaf.notes.widget.WidgetPaletteStore
+import com.markleaf.notes.widget.WidgetRefresh
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -89,7 +89,7 @@ class MainActivity : FragmentActivity() {
                     // re-import a hidden note as a brand-new one — see #148.
                     noteRepository.getAllNotes()
                 }
-                withContext(Dispatchers.IO) {
+                val result = withContext(Dispatchers.IO) {
                     NoteFolderMirror.importChanges(
                         context = applicationContext,
                         folderUri = uri,
@@ -100,6 +100,10 @@ class MainActivity : FragmentActivity() {
                         titleSource = settings.noteTitleSource
                     )
                 }
+                // The import can finish after the onPause that would otherwise
+                // have covered it, and a placed widget has no other way to hear
+                // that a note it shows was rewritten from the folder (#262).
+                if (result.changedAnything()) WidgetRefresh.notesChanged(applicationContext)
                 settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())
             }
         }
@@ -173,8 +177,7 @@ class MainActivity : FragmentActivity() {
                             WidgetPaletteStore.save(applicationContext, palette, themeMode)
                         }
                         if (changed) {
-                            runCatching { QuickNoteWidget.refreshAll(applicationContext) }
-                            runCatching { SingleNoteWidget.refreshAll(applicationContext) }
+                            WidgetRefresh.notesChanged(applicationContext)
                         }
                     }
             }
@@ -269,17 +272,15 @@ class MainActivity : FragmentActivity() {
         // Nudge the home-screen widgets so they reflect any edits made in this
         // session as soon as the user returns to the launcher.
         //
-        // A full update rather than the bare notifyAppWidgetViewDataChanged this
-        // used to be. That call reloads the *rows*, which read the palette, while
-        // the container that carries the background is the provider's — so the
-        // pair could drift apart into light text on a light background (#375).
-        // refreshAll ends in the same notify, so nothing is lost by going
-        // through it.
-        runCatching { QuickNoteWidget.refreshAll(applicationContext) }
-        // The single-note widgets redraw rather than reload a list, and each one
-        // also re-checks that its note may still be shown — a note moved into the
-        // Locked space while the app was open must stop rendering (#351).
-        runCatching { SingleNoteWidget.refreshAll(applicationContext) }
+        // A full update of both kinds, rather than the bare
+        // notifyAppWidgetViewDataChanged this used to be. That call reloads the
+        // recent-notes *rows*, which read the palette, while the container that
+        // carries the background is the provider's — so the pair could drift
+        // apart into light text on a light background (#375). The single-note
+        // widgets redraw rather than reload a list, and each re-checks that its
+        // note may still be shown: one moved into the Locked space while the app
+        // was open must stop rendering (#351).
+        WidgetRefresh.notesChanged(applicationContext)
     }
 
     // androidx.activity 1.9 tightened this override to a non-null Intent (it

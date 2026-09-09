@@ -68,7 +68,6 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.markleaf.notes.ACTION_WIDGET_NOTES_CHANGED" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"

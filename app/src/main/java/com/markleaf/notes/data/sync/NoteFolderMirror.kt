@@ -61,7 +61,16 @@ object NoteFolderMirror {
          * of overwriting the local edits.
          */
         val conflicts: Int = 0
-    )
+    ) {
+        /**
+         * Whether this pass put anything new in front of the user.
+         *
+         * A conflict counts: it lands as its own note, which a widget showing
+         * the note list has to hear about. `skipped` and `errors` do not — by
+         * definition nothing moved.
+         */
+        fun changedAnything(): Boolean = updated > 0 || created > 0 || conflicts > 0
+    }
 
     /** The action the reconcile takes for one mirror file. */
     internal enum class Reconcile { Create, SkipTrashed, Skip, Overwrite, Conflict }

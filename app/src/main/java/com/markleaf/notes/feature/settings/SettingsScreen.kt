@@ -75,6 +75,7 @@ import com.markleaf.notes.data.settings.SyncMetadataMode
 import com.markleaf.notes.data.settings.ThemeMode
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.NoteImporter
+import com.markleaf.notes.widget.WidgetRefresh
 import com.markleaf.notes.data.sync.SidecarMigration
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.data.sync.mirrorMetadata
@@ -823,6 +824,9 @@ fun SettingsScreen(
                                         titleSource = appSettings.noteTitleSource
                                     )
                                 }
+                                // A placed widget hears about an import no
+                                // other way (#262).
+                                if (result.changedAnything()) WidgetRefresh.notesChanged(context)
                                 settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())
                                 val msg = if (result.conflicts > 0) {
                                     context.getString(

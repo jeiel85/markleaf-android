@@ -305,6 +305,24 @@ class NoteFolderMirrorConflictLogicTest {
         assertEquals(90_000L, effectiveTs(frontmatterMs = 90_000, mtimeMs = 10_000, bodyChanged = true))
     }
 
+    /**
+     * The home-screen widgets repaint after an import only when it changed
+     * something, so what counts as "something" is worth pinning: a conflict
+     * copy is a new note the user can see, while a skip or an error moved
+     * nothing (#262).
+     */
+    @Test
+    fun changedAnything_isTrueOnlyWhenTheImportMovedNotes() {
+        fun result(updated: Int = 0, created: Int = 0, skipped: Int = 0, errors: Int = 0, conflicts: Int = 0) =
+            NoteFolderMirror.ImportResult(updated, created, skipped, errors, conflicts)
+
+        assertEquals(false, result().changedAnything())
+        assertEquals(false, result(skipped = 7, errors = 3).changedAnything())
+        assertEquals(true, result(updated = 1).changedAnything())
+        assertEquals(true, result(created = 1).changedAnything())
+        assertEquals(true, result(conflicts = 1).changedAnything())
+    }
+
     @Test
     fun base_noteCarriesLastImportedAtField() {
         // Smoke check that the field exists on the domain model and defaults to

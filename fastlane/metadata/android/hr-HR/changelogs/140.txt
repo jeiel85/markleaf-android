@@ -1,0 +1,1 @@
+Widgeti na početnom zaslonu sada prate Postavke → Izgled → Boje. Dosad su ostajali zeleni bez obzira na odabir. Uz Material You preuzimaju boje vaše pozadinske slike, a uz Markleaf Green izgledaju kao i prije. Već postavljeni widgeti ponovno se iscrtavaju kad promijenite postavku.

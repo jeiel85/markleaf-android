@@ -1,0 +1,1 @@
+The home-screen widgets now follow Settings → Appearance → Colors. Until now the widgets stayed green whatever you picked. Choose Material You and they take your wallpaper colours; choose Markleaf Green and they look exactly as before. Widgets already on the home screen repaint when you change the setting.

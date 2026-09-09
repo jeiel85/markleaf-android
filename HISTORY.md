@@ -1,3 +1,12 @@
+## 2026-09-09 - v2.37.5: the widgets follow the Colors setting (#375)
+
+- @ray4423 reported that a widget added with Settings → Appearance → Colors on Material You still rendered in Markleaf Green. The setting reached `MarkleafTheme` and nothing else: both widget layouts paint `@drawable/widget_background`, whose solid is a hardcoded `#FF4CAF50`.
+- No resource qualifier could express the fix — Material You's colours only exist at runtime, and "the palette the user picked" is a setting rather than a device configuration — and a `RemoteViews` tree cannot ask a question, so PR #376 pushes the answer in at update time.
+- `WidgetPaletteStore` mirrors the setting into SharedPreferences, for the reason `SingleNoteWidgetStore` is one: a widget is drawn by a receiver on its main thread and cannot block on DataStore. `WidgetPalette` turns it into a background / on-background pair taken from the app's own `primary` / `onPrimary` roles, so the pair carries a guaranteed contrast the layouts' `?android:attr/textColorPrimaryInverse` could not — that attribute resolves against the launcher's theme, which knows nothing about the wallpaper accent.
+- Markleaf Green answers "no override" rather than re-stating the green in code, where it would be a second copy free to drift from the drawable; API 31 and below answer the same way, on the check `MarkleafTheme` already uses to fall back.
+- Verification: `WidgetPaletteTest` covers the mirror, the rule, the API gate and the end-to-end path through `updateAppWidget` into the inflated view; reinstating the defect fails that last test and only it. `./gradlew :app:testDebugUnitTest :app:lintRelease` passed.
+- Release preparation updates versionCode 140, versionName 2.37.5, the eight store changelogs, and all public version surfaces.
+
 ## 2026-09-08 - v2.37.4: the single-note widget scrolls (#371)
 
 - Split the unanswered follow-up on closed issue #351 into #371: the reporter pointed out that the recent-notes widget scrolls while the single-note widget does not, which was correct and not a setting they had missed.

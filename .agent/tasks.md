@@ -5,6 +5,17 @@
 
 ---
 
+## GitHub Issue #375 - Widgets follow the Colors setting (Done, 2026-09-09)
+
+- [x] 보고 확인: Material You를 골라도 위젯이 계속 Markleaf Green으로 그려지는 원인을 `@color/widget_background` 고정값으로 특정
+- [x] `WidgetPaletteStore`로 설정을 SharedPreferences에 미러링(리시버 메인 스레드에서 DataStore를 못 읽는 제약)
+- [x] `WidgetPalette`가 앱과 같은 primary/onPrimary 쌍을 고르고, Markleaf Green·API 31 미만은 override 없음으로 처리
+- [x] 두 provider와 두 RemoteViewsFactory에 적용, `MainActivity`가 설정 변경 시에만 다시 그림
+- [x] `WidgetPaletteTest` 9개 — 결함을 되돌리면 end-to-end 테스트가 실패하는 것까지 확인
+- [x] v2.37.5 / versionCode 140 릴리스 문서·8개 로케일 검증
+
+---
+
 ## GitHub Issue #371 - Single-note widget scrolling (Done, 2026-09-08)
 
 - [x] #351 보고자의 미응답 후속 지적을 확인하고 별도 이슈 #371로 분리

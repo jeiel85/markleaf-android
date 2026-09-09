@@ -285,6 +285,7 @@
     <string name="sync_link_import_frontmatter_note">Markleaf écrira aussi un petit en-tête « --- » dans chacun. Pour laisser vos fichiers en texte brut, annulez et réglez d’abord %1$s sur « %2$s ».</string>
     <string name="sync_link_import_confirm">Lier et importer</string>
     <string name="sync_linked_format">Lié — %1$d notes écrites, %2$d importées.</string>
+    <string name="sync_linked_with_problems_format">Lié — %1$d notes écrites, %2$d importées, %3$d conservées en double (conflit), %4$d illisibles.</string>
     <string name="sync_stopped">Synchronisation désactivée.</string>
     <string name="screenshot_protection">Bloquer les captures d\'écran et l\'aperçu des applications récentes</string>
     <string name="screenshot_protection_description">Masque le contenu des notes dans les captures d\'écran et l\'écran des applications récentes. Redémarrez l\'écran de l\'éditeur pour que le changement prenne effet.</string>

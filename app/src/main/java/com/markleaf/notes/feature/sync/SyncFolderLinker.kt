@@ -68,12 +68,25 @@ fun rememberSyncFolderLinker(
                     titleSource = appSettings.noteTitleSource
                 )
             }
-            val brought = result.imported.created + result.imported.updated
-            Toast.makeText(
-                context,
-                context.getString(R.string.sync_linked_format, result.seeded, brought),
-                Toast.LENGTH_LONG
-            ).show()
+            val imported = result.imported
+            val brought = imported.created + imported.updated
+            // A conflict copy and an unreadable file are both things that
+            // happened to the user's folder, and neither is an arrival. Folding
+            // them into "brought in" would overstate the import; dropping them
+            // would let the toast report a clean link over a file it could not
+            // read at all.
+            val message = if (imported.conflicts > 0 || imported.errors > 0) {
+                context.getString(
+                    R.string.sync_linked_with_problems_format,
+                    result.seeded,
+                    brought,
+                    imported.conflicts,
+                    imported.errors
+                )
+            } else {
+                context.getString(R.string.sync_linked_format, result.seeded, brought)
+            }
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
         }
     }
 

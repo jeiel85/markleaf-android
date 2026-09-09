@@ -285,6 +285,7 @@
     <string name="sync_link_import_frontmatter_note">Markleaf también escribirá una pequeña cabecera «---» en cada uno. Para dejar tus archivos como texto plano, cancela y ajusta antes %1$s a «%2$s».</string>
     <string name="sync_link_import_confirm">Vincular e importar</string>
     <string name="sync_linked_format">Vinculada — %1$d notas escritas, %2$d importadas.</string>
+    <string name="sync_linked_with_problems_format">Vinculada — %1$d notas escritas, %2$d importadas, %3$d conservadas como duplicados (conflicto), %4$d ilegibles.</string>
     <string name="sync_stopped">Sincronización desactivada.</string>
     <string name="screenshot_protection">Bloquear capturas y vista previa de Recientes</string>
     <string name="screenshot_protection_description">Oculta el contenido de las notas en capturas de pantalla y en la vista de aplicaciones recientes. Reabre el editor para aplicar el cambio.</string>

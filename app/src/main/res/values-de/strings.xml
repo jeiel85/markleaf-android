@@ -285,6 +285,7 @@
     <string name="sync_link_import_frontmatter_note">Markleaf schreibt außerdem einen kleinen „---“-Kopf in jede Datei. Wenn deine Dateien reiner Text bleiben sollen, brich ab und stelle %1$s zuerst auf „%2$s“.</string>
     <string name="sync_link_import_confirm">Verknüpfen und importieren</string>
     <string name="sync_linked_format">Verknüpft — %1$d Notizen geschrieben, %2$d eingelesen.</string>
+    <string name="sync_linked_with_problems_format">Verknüpft — %1$d Notizen geschrieben, %2$d eingelesen, %3$d als Duplikat behalten (Konflikt), %4$d nicht lesbar.</string>
     <string name="sync_stopped">Synchronisierung deaktiviert.</string>
     <string name="screenshot_protection">Screenshots und Vorschau in „Zuletzt verwendet“ blockieren</string>
     <string name="screenshot_protection_description">Verbirgt Notizinhalte in Screenshots und auf dem „Zuletzt verwendet“-Bildschirm. Editor neu öffnen, damit die Änderung wirksam wird.</string>

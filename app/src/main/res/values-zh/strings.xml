@@ -282,6 +282,7 @@
     <string name="sync_link_import_frontmatter_note">默认情况下还会在每个文件顶部写入一小段“---”头信息。若想让文件保持纯文本，请先取消并将%1$s设为“%2$s”。</string>
     <string name="sync_link_import_confirm">关联并导入</string>
     <string name="sync_linked_format">已关联 — 写出 %1$d 条笔记，读入 %2$d 条。</string>
+    <string name="sync_linked_with_problems_format">已关联 — 写出 %1$d 条笔记，读入 %2$d 条，%3$d 条保留为副本（冲突），%4$d 条无法读取。</string>
     <string name="sync_stopped">同步已关闭。</string>
     <string name="screenshot_protection">禁止截屏和最近任务预览</string>
     <string name="screenshot_protection_description">在截屏和最近任务界面中隐藏笔记内容。重新打开编辑器界面后更改才会生效。</string>

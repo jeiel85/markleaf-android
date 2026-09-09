@@ -276,6 +276,7 @@
     <string name="sync_link_import_frontmatter_note">既定では各ファイルの先頭に小さな「---」ヘッダーも書き込みます。ファイルをプレーンテキストのままにしたい場合は、キャンセルして %1$s を「%2$s」に変更してください。</string>
     <string name="sync_link_import_confirm">リンクして取り込む</string>
     <string name="sync_linked_format">リンクしました — %1$d 件を書き出し、%2$d 件を取り込みました。</string>
+    <string name="sync_linked_with_problems_format">リンクしました — %1$d 件を書き出し、%2$d 件を取り込み、%3$d 件は重複として残し（競合）、%4$d 件は読み取れませんでした。</string>
     <string name="sync_stopped">同期を停止しました。</string>
     <string name="screenshot_protection">スクリーンショットと最近使ったアプリのプレビューを禁止</string>
     <string name="screenshot_protection_description">スクリーンショットや最近使ったアプリ画面でノート内容を非表示にします。変更を反映するにはエディタを開き直してください。</string>

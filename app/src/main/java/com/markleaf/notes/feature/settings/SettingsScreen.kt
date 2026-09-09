@@ -699,9 +699,26 @@ fun SettingsScreen(
                         metadataMode = appSettings.syncMetadataMode,
                         metadataBusy = metadataSwitchBusy,
                         onMetadataModeChange = { mode ->
-                            val uri = appSettings.syncFolderUriOrNull()
-                                ?: return@SyncSection
                             if (mode == appSettings.syncMetadataMode) return@SyncSection
+                            val uri = appSettings.syncFolderUriOrNull()
+                            if (uri == null) {
+                                // No folder yet: no files carry a header and no
+                                // index exists, so there is nothing to migrate
+                                // and the setting is the whole change. This is
+                                // the cheap moment to choose, and the only one
+                                // that costs nothing.
+                                scope.launch {
+                                    // Sidecar mode needs a device id to name the
+                                    // index it owns; without one mirrorMetadata()
+                                    // falls back to Frontmatter and the choice
+                                    // would be silently undone at link time.
+                                    if (mode == SyncMetadataMode.SIDECAR) {
+                                        settingsRepository.getOrCreateSyncDeviceId()
+                                    }
+                                    settingsRepository.setSyncMetadataMode(mode)
+                                }
+                                return@SyncSection
+                            }
                             scope.launch {
                                 metadataSwitchBusy = true
                                 // The two directions flip the setting at
@@ -994,7 +1011,12 @@ internal fun SyncSection(
                 }
             }
         }
-        if (!folderUri.isNullOrBlank()) {
+        // Rendered whether or not a folder is linked. It used to appear only
+        // after linking, which put the choice one step *past* the moment it is
+        // free: the first link is what writes headers into the user's files, and
+        // the dialog that offers to stop it told them to change a setting that
+        // was not on the screen yet (#372 review).
+        run {
             Spacer(Modifier.height(16.dp))
             Text(
                 text = stringResource(R.string.sync_metadata_mode),

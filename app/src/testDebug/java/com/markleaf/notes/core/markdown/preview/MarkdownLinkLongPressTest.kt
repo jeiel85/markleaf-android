@@ -149,6 +149,47 @@ class MarkdownLinkLongPressTest {
         assertNull(ShadowToast.getTextOfLatestToast())
     }
 
+    /**
+     * Sliding off a link is not a long press on it. Nothing else would say so
+     * either: a sideways drag is not a scroll the vertical list would claim, so
+     * without a distance check of its own the address was still copied once the
+     * timeout came round, wherever the finger had ended up.
+     */
+    @Test
+    fun pressThatSlidesOffTheLink_copiesNothing() {
+        renderPreview("[the docs](https://markleaf.app/docs) and words after it")
+
+        composeRule.onNodeWithText("the docs and words after it").performTouchInput {
+            val start = centerLeft.copy(x = 12f)
+            down(start)
+            moveTo(start + Offset(viewConfiguration.touchSlop * 4, 0f), delayMillis = 50)
+            advanceEventTime(viewConfiguration.longPressTimeoutMillis)
+            up()
+        }
+
+        assertNull(clipboardText())
+    }
+
+    /**
+     * A press released before the platform's own long-press threshold is a tap,
+     * however slow. Deciding on a shortened threshold made the 400-499ms band
+     * copy the address out from under a tap that Android still called a tap.
+     */
+    @Test
+    fun slowTapUnderTheThreshold_opensTheLinkInstead() {
+        renderPreview("[the docs](https://markleaf.app/docs)")
+
+        composeRule.onNodeWithText("the docs").performTouchInput {
+            val target = centerLeft.copy(x = 12f)
+            down(target)
+            advanceEventTime(viewConfiguration.longPressTimeoutMillis - 50)
+            up()
+        }
+
+        assertNull(clipboardText())
+        assertEquals(Intent.ACTION_VIEW, startedActivity()?.action)
+    }
+
     /** A tap still opens the link — the long-press handler must not eat it. */
     @Test
     fun tappingLink_stillOpensIt() {

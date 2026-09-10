@@ -666,7 +666,11 @@ private fun Modifier.linkPressGestures(
             // scroll the preview at all.
             var longPressed = false
             try {
-                withTimeout(viewConfiguration.longPressTimeoutMillis * 4 / 5) {
+                // The platform's own threshold, not a shortened one. Deciding
+                // early would make a slow tap — released after 400ms, say, but
+                // before Android calls it a long press — copy the address
+                // instead of opening the link.
+                withTimeout(viewConfiguration.longPressTimeoutMillis) {
                     while (true) {
                         val event = awaitPointerEvent()
                         val change = event.changes.firstOrNull { it.id == down.id }
@@ -674,12 +678,23 @@ private fun Modifier.linkPressGestures(
                         // Lifted before the timeout: a tap, which belongs to
                         // the LinkAnnotation's own click listener.
                         if (!change.pressed) return@withTimeout
-                        // Movement that someone else has claimed means the
-                        // press became a scroll. Only movement counts: the
-                        // press itself arrives here already consumed, because
-                        // the link's tap detector — inside this Text, so ahead
-                        // of this node on the Main pass — consumes every down
-                        // it sees.
+                        // A finger that has travelled is no longer resting on
+                        // the link, whether or not anything else claimed the
+                        // movement — sliding off a link sideways is not a
+                        // vertical scroll, so nothing would consume it, and
+                        // without this the address would still be copied when
+                        // the timeout came round.
+                        if ((change.position - down.position).getDistance() >
+                            viewConfiguration.touchSlop
+                        ) {
+                            return@withTimeout
+                        }
+                        // Someone else claiming the movement means the press
+                        // became a scroll. Only movement counts: the press
+                        // itself arrives here already consumed, because the
+                        // link's tap detector — inside this Text, so ahead of
+                        // this node on the Main pass — consumes every down it
+                        // sees.
                         if (change.positionChanged() && change.isConsumed) {
                             return@withTimeout
                         }

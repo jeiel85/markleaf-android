@@ -1,0 +1,6 @@
+Die Vorschau ist keine Sackgasse mehr für Text, den du mitnehmen willst.
+
+- Text in der Vorschau auswählen und kopieren. Für einen einzelnen Satz musst du nicht mehr zurück in den Editor und die Tastatur hochholen.
+- Lange auf einen Link tippen kopiert seine Adresse. Ein kurzer Tipp öffnet ihn weiterhin, und wer auf einem Link zu ziehen beginnt, scrollt weiterhin.
+
+Beides geht auf einen einzigen Hinweis zurück. Danke, @Bedz01.

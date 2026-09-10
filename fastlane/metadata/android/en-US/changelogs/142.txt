@@ -1,0 +1,6 @@
+Preview is no longer a dead end for text you want to keep.
+
+- Select text in Preview and copy it. Copying a sentence no longer means switching back to the editor and putting the keyboard up.
+- Long-press a link to copy its address. Tapping still opens it, and a drag that starts on a link still scrolls the note.
+
+Both came from one report. Thanks, @Bedz01.

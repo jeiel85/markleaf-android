@@ -421,4 +421,7 @@
     <string name="conflict_delete_confirm_desc">This conflict copy will be permanently deleted.</string>
     <string name="conflict_note_updated_format">Updated: %1$s</string>
 
+    <!-- Preview mode -->
+    <string name="preview_link_address_copied">Link address copied</string>
+
 </resources>

@@ -408,4 +408,7 @@
     <string name="conflict_delete_confirm_desc">此冲突副本将被永久删除。</string>
     <string name="conflict_note_updated_format">更新时间：%1$s</string>
 
+    <!-- Preview mode -->
+    <string name="preview_link_address_copied">已复制链接地址</string>
+
 </resources>

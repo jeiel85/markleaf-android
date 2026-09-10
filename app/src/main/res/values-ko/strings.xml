@@ -402,4 +402,7 @@
     <string name="conflict_delete_confirm_desc">이 충돌 사본은 영구히 삭제되며 복구할 수 없습니다.</string>
     <string name="conflict_note_updated_format">수정: %1$s</string>
 
+    <!-- Preview mode -->
+    <string name="preview_link_address_copied">링크 주소를 복사했습니다</string>
+
 </resources>

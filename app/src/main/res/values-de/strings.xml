@@ -410,4 +410,8 @@
     <string name="conflict_delete_confirm_title">Konfliktkopie löschen?</string>
     <string name="conflict_delete_confirm_desc">Diese Konfliktkopie wird dauerhaft gelöscht.</string>
     <string name="conflict_note_updated_format">Aktualisiert: %1$s</string>
+
+    <!-- Preview mode -->
+    <string name="preview_link_address_copied">Linkadresse kopiert</string>
+
 </resources>

@@ -411,4 +411,7 @@
     <string name="conflict_delete_confirm_desc">Cette copie de conflit sera définitivement supprimée.</string>
     <string name="conflict_note_updated_format">Modifiée : %1$s</string>
 
+    <!-- Preview mode -->
+    <string name="preview_link_address_copied">Adresse du lien copiée</string>
+
 </resources>

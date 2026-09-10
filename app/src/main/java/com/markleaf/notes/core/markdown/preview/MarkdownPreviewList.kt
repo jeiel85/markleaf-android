@@ -1,8 +1,12 @@
 package com.markleaf.notes.core.markdown.preview
 
+import android.os.Build
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -16,10 +20,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.selection.DisableSelection
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -29,13 +37,25 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.positionChanged
+import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationException
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
@@ -144,22 +164,51 @@ fun MarkdownPreviewList(
     val scaledLines = remember(lines, fontScale) {
         if (fontScale == 1f) lines else lines.map { it.copy(fontScale = fontScale) }
     }
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        state = listState,
-        contentPadding = contentPadding
-    ) {
-        itemsIndexed(scaledLines) { index, line ->
-            PreviewLineRenderer(
-                line = line,
-                // Only a block with something above it needs separating from
-                // it; see [headingTop].
-                isFirstBlock = index == 0,
-                onWikilinkClick = onWikilinkClick,
-                onImageLongPress = onImageLongPress,
-                onFootnoteRefClick = onFootnoteRefClick,
-                onToggleTask = onToggleTask
-            )
+    // Preview text is selectable (#386). Before this, copying a sentence out of
+    // a rendered note meant switching back to the editor and bringing the
+    // keyboard up for it. A long press starts a selection; the taps the preview
+    // already handles — links, wikilinks, checkbox markers — are untouched,
+    // since none of them begin with a long press.
+    //
+    // A long press on a *link* is the one collision, since that copies the
+    // address: the same press is a long press to selection as well, and
+    // selection cannot be called off once it starts — only restarted.
+    // Rebuilding the container under a new epoch is that restart. It is also
+    // why [linkPressGestures] consumes nothing until it is certain rather than
+    // claiming the press early: a consumed pointer reads as a cancelled
+    // gesture to the scrolling container too, which left a drag that began on
+    // a link unable to scroll at all. `listState` lives outside the key, so the
+    // scroll position survives the rebuild.
+    //
+    // The lazy-list caveat that comes with selection: it only spans the rows
+    // that are currently composed, so dragging far past what the viewport holds
+    // drops the part that scrolled away. That is how selection behaves in any
+    // LazyColumn, and the alternative — composing the whole note at once — is
+    // the cost this preview exists to avoid.
+    var selectionEpoch by remember { mutableIntStateOf(0) }
+    val resetSelection: () -> Unit = remember { { selectionEpoch++ } }
+    CompositionLocalProvider(LocalPreviewSelectionReset provides resetSelection) {
+        key(selectionEpoch) {
+            SelectionContainer(modifier = modifier.fillMaxSize()) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    state = listState,
+                    contentPadding = contentPadding
+                ) {
+                    itemsIndexed(scaledLines) { index, line ->
+                        PreviewLineRenderer(
+                            line = line,
+                            // Only a block with something above it needs
+                            // separating from it; see [headingTop].
+                            isFirstBlock = index == 0,
+                            onWikilinkClick = onWikilinkClick,
+                            onImageLongPress = onImageLongPress,
+                            onFootnoteRefClick = onFootnoteRefClick,
+                            onToggleTask = onToggleTask
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -381,13 +430,19 @@ internal fun InlineMarkdownText(
         fontScale = line.fontScale
     )
     val baseStyle = MaterialTheme.typography.bodyLarge
+    val layout = remember { TextLayoutHolder() }
     // Links are now embedded as LinkAnnotations in `annotated`, so a plain Text
     // handles styling, clicks, and accessibility — no offset-mapped onClick.
+    // The layout result is kept because copying a link's address on long press
+    // has to map a touch back to a text offset (#386).
     Text(
         text = annotated,
         style = (if (line.fontScale == 1f) baseStyle else baseStyle.scaledBy(line.fontScale))
             .copy(color = color),
-        modifier = Modifier.padding(vertical = verticalPadding)
+        onTextLayout = { layout.value = it },
+        modifier = Modifier
+            .padding(vertical = verticalPadding)
+            .linkPressGestures(annotated, layout)
     )
 }
 
@@ -517,7 +572,18 @@ private fun inlineAnnotatedString(
                             linkInteractionListener = { openExternalLink(context, href) }
                         )
                     ) {
-                        append(segment.text)
+                        if (href.isBlank()) {
+                            append(segment.text)
+                        } else {
+                            // Inside the LinkAnnotation the address is reachable
+                            // only from the click listener's closure, and the
+                            // long press that copies it (#386) has to find it by
+                            // text offset instead — so it also rides along as a
+                            // plain string annotation.
+                            pushStringAnnotation(tag = LINK_HREF_TAG, annotation = href)
+                            append(segment.text)
+                            pop()
+                        }
                     }
                 }
             }
@@ -527,6 +593,165 @@ private fun inlineAnnotatedString(
 
 private const val WIKILINK_TAG = "wikilink"
 private const val LINK_TAG = "link"
+
+/**
+ * Carries a link's address alongside its [LinkAnnotation] so [hrefAt] can
+ * resolve the address under a long press (#386).
+ */
+private const val LINK_HREF_TAG = "link_href"
+
+/**
+ * Lets a link long press reach the [SelectionContainer] wrapping the whole
+ * preview, which is several composables above the row that handled the press.
+ * Passing it down as a parameter would thread one callback through five
+ * signatures that have no other reason to know about selection.
+ */
+private val LocalPreviewSelectionReset = compositionLocalOf<() -> Unit> { {} }
+
+/**
+ * Holds the latest [TextLayoutResult] for a preview row without making it
+ * state. The long-press gesture reads it only once a press arrives, and a row
+ * that recomposed on every layout pass would be a real cost in a note that
+ * renders hundreds of them.
+ */
+private class TextLayoutHolder {
+    var value: TextLayoutResult? = null
+}
+
+/**
+ * Owns the press on a link: a tap opens it, a long press copies its address to
+ * the clipboard (#386). The preview shows a link's label and never its target,
+ * so until now the address was reachable only by leaving preview and reading
+ * the raw Markdown.
+ *
+ * Both halves have to live here together. The press is claimed on the Initial
+ * pass, before the two handlers that sit *inside* this Text — the selection
+ * detector and the LinkAnnotation's own clickable — get to look at it, because
+ * neither can be called off later: a long press that only raced them ended up
+ * copying the address while the browser opened over the note and selection
+ * handles rose over the link. Claiming it means the tap has to be answered here
+ * as well, since the LinkAnnotation will no longer see one. Its listener stays
+ * for the accessibility path, which never goes through this gesture.
+ *
+ * Away from a link nothing is consumed, so ordinary text keeps the selection
+ * this preview now offers, and a drag that starts on a link still scrolls: the
+ * scrolling container consumes the movement, which reads here as a cancelled
+ * press.
+ */
+@Composable
+private fun Modifier.linkPressGestures(
+    annotated: AnnotatedString,
+    layout: TextLayoutHolder
+): Modifier {
+    // Most rows carry no link; those pay for no pointer handler at all.
+    if (annotated.getStringAnnotations(LINK_HREF_TAG, 0, annotated.length).isEmpty()) {
+        return this
+    }
+    val clipboard = LocalClipboardManager.current
+    val context = LocalContext.current
+    val copiedMessage = stringResource(R.string.preview_link_address_copied)
+    val onAddressCopied = LocalPreviewSelectionReset.current
+    return this.pointerInput(annotated) {
+        awaitEachGesture {
+            val down = awaitFirstDown(
+                requireUnconsumed = false,
+                pass = PointerEventPass.Initial
+            )
+            val href = hrefAt(annotated, layout.value, down.position)
+                ?: return@awaitEachGesture
+            // Nothing is consumed until the long press is certain. Consuming
+            // sooner reaches further than intended: the scrolling container
+            // reads a consumed pointer as its gesture being called off, so an
+            // early claim here left a drag that started on a link unable to
+            // scroll the preview at all.
+            var longPressed = false
+            try {
+                // The platform's own threshold, not a shortened one. Deciding
+                // early would make a slow tap — released after 400ms, say, but
+                // before Android calls it a long press — copy the address
+                // instead of opening the link.
+                withTimeout(viewConfiguration.longPressTimeoutMillis) {
+                    while (true) {
+                        val event = awaitPointerEvent()
+                        val change = event.changes.firstOrNull { it.id == down.id }
+                            ?: return@withTimeout
+                        // Lifted before the timeout: a tap, which belongs to
+                        // the LinkAnnotation's own click listener.
+                        if (!change.pressed) return@withTimeout
+                        // A finger that has travelled is no longer resting on
+                        // the link, whether or not anything else claimed the
+                        // movement — sliding off a link sideways is not a
+                        // vertical scroll, so nothing would consume it, and
+                        // without this the address would still be copied when
+                        // the timeout came round.
+                        if ((change.position - down.position).getDistance() >
+                            viewConfiguration.touchSlop
+                        ) {
+                            return@withTimeout
+                        }
+                        // Someone else claiming the movement means the press
+                        // became a scroll. Only movement counts: the press
+                        // itself arrives here already consumed, because the
+                        // link's tap detector — inside this Text, so ahead of
+                        // this node on the Main pass — consumes every down it
+                        // sees.
+                        if (change.positionChanged() && change.isConsumed) {
+                            return@withTimeout
+                        }
+                    }
+                }
+            } catch (_: PointerEventTimeoutCancellationException) {
+                longPressed = true
+            }
+            if (!longPressed) return@awaitEachGesture
+            clipboard.setText(AnnotatedString(href))
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                // Android 13 and up shows its own clipboard confirmation, and a
+                // toast on top of that says the same thing twice.
+                Toast.makeText(context, copiedMessage, Toast.LENGTH_SHORT).show()
+            }
+            onAddressCopied()
+            // From here the press is this gesture's, and it is claimed on the
+            // Initial pass: the LinkAnnotation's own click handling lives
+            // *inside* this Text, so on the Main pass it would see the release
+            // first and open the link on the way out of a press meant to copy.
+            do {
+                val event = awaitPointerEvent(PointerEventPass.Initial)
+                event.changes.forEach { it.consume() }
+            } while (event.changes.any { it.pressed })
+        }
+    }
+}
+
+/**
+ * The link address under [position] in the laid-out text, or null when the
+ * point falls outside the text or onto a stretch that is not a link.
+ */
+private fun hrefAt(
+    annotated: AnnotatedString,
+    layout: TextLayoutResult?,
+    position: Offset
+): String? {
+    val result = layout ?: return null
+    if (position.y < 0f || position.y > result.size.height.toFloat()) return null
+    val line = result.getLineForVerticalPosition(position.y)
+    // Without this, a press past the end of a short line would be pulled back
+    // onto that line's last character by getOffsetForPosition.
+    if (position.x < result.getLineLeft(line) || position.x > result.getLineRight(line)) {
+        return null
+    }
+    // getOffsetForPosition returns a *cursor* offset, rounding to whichever side
+    // of the glyph is nearer, so the character actually under the finger is
+    // whichever of the two candidates has the press inside its box.
+    val cursor = result.getOffsetForPosition(position)
+    val index = intArrayOf(cursor, cursor - 1).firstOrNull { candidate ->
+        candidate >= 0 && candidate < annotated.length &&
+            result.getBoundingBox(candidate).let {
+                position.x >= it.left && position.x <= it.right
+            }
+    } ?: return null
+    return annotated.getStringAnnotations(LINK_HREF_TAG, index, index).firstOrNull()?.item
+}
 private const val FOOTNOTE_REF_TAG = "footnote_ref"
 private const val TASK_MARKER_TAG = "task_marker"
 
@@ -782,6 +1007,7 @@ private fun TableRow(
                     onFootnoteRefClick = onFootnoteRefClick
                 )
             }
+            val layout = remember { TextLayoutHolder() }
             Text(
                 text = content,
                 style = MaterialTheme.typography.bodyMedium,
@@ -792,9 +1018,13 @@ private fun TableRow(
                     TableAlignment.CENTER -> androidx.compose.ui.text.style.TextAlign.Center
                     TableAlignment.RIGHT -> androidx.compose.ui.text.style.TextAlign.End
                 },
+                onTextLayout = { layout.value = it },
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 10.dp)
+                    // A link in a table cell copies its address like any other
+                    // (#386), same as it became tappable like any other (#197).
+                    .linkPressGestures(content, layout)
             )
         }
     }
@@ -830,18 +1060,23 @@ private fun AttachmentImage(
         AttachmentManager.resolveFile(context, destination)
     }
     if (resolved != null) {
-        AsyncImage(
-            model = ImageRequest.Builder(context).data(resolved).build(),
-            contentDescription = line.text.ifEmpty { destination },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .combinedClickable(
-                    onClick = {},
-                    onLongClick = { onLongPress(destination, line.text) }
-                )
-        )
+        // Opted out of the preview's selection (#386): there is no text here to
+        // select, and the long press this image already owns — editing its alt
+        // text — must not have to win a race against the selection gesture.
+        DisableSelection {
+            AsyncImage(
+                model = ImageRequest.Builder(context).data(resolved).build(),
+                contentDescription = line.text.ifEmpty { destination },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .combinedClickable(
+                        onClick = {},
+                        onLongClick = { onLongPress(destination, line.text) }
+                    )
+            )
+        }
     } else {
         Text(
             text = "![${line.text}]($destination)",

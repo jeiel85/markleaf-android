@@ -430,4 +430,7 @@
     <string name="conflict_delete_confirm_desc">Ova sukobljena kopija bit će trajno izbrisana.</string>
     <string name="conflict_note_updated_format">Ažurirano: %1$s</string>
 
+    <!-- Preview mode -->
+    <string name="preview_link_address_copied">Adresa poveznice kopirana</string>
+
 </resources>

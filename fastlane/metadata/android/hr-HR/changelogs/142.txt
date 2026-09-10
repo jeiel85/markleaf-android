@@ -1,0 +1,6 @@
+Pretpregled više nije slijepa ulica za tekst koji želiš ponijeti.
+
+- Odaberi tekst u pretpregledu i kopiraj ga. Za jednu rečenicu više se ne moraš vraćati u uređivač i dizati tipkovnicu.
+- Dugi pritisak na poveznicu kopira njezinu adresu. Kratki dodir je i dalje otvara, a povlačenje započeto na poveznici i dalje pomiče bilješku.
+
+Oboje je proizašlo iz jedne prijave. Hvala, @Bedz01.

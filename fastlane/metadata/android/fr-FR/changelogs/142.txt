@@ -1,0 +1,6 @@
+L'aperçu n'est plus une impasse pour le texte que vous voulez garder.
+
+- Sélectionnez le texte dans l'aperçu et copiez-le. Copier une phrase n'oblige plus à revenir à l'éditeur et à faire apparaître le clavier.
+- Appuyez longuement sur un lien pour copier son adresse. Un appui bref l'ouvre toujours, et un glissement commencé sur un lien fait toujours défiler la note.
+
+Les deux viennent d'un même signalement. Merci, @Bedz01.

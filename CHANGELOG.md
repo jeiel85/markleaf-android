@@ -4,6 +4,14 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.39.0 - Copying out of the page you are reading - 2026-09-11
+
+Preview mode was a dead end for anything you wanted to keep. Both halves of this came from one report. No permission or storage-format changes.
+
+### Added
+- **Preview text selects and copies ([#386](https://github.com/jeiel85/markleaf-android/issues/386)).** The rendered view used to be untouchable, so copying a sentence out of a note meant switching back to the editor and putting the keyboard up for it. Long-press any text in Preview to select it, then use the usual Copy toolbar. Reported by [@Bedz01](https://github.com/Bedz01).
+- **Long-press a link to copy its address ([#386](https://github.com/jeiel85/markleaf-android/issues/386)).** Preview shows a link's label and never its target, so the address was reachable only by going back and reading the raw Markdown. A long press on a link now puts its address on the clipboard. Tapping still opens the link, and a drag that starts on one still scrolls the note. Reported by [@Bedz01](https://github.com/Bedz01).
+
 ## v2.38.0 - Linking a folder reads it - 2026-09-10
 
 Choosing a sync folder now takes in the files that are already in it, instead of only writing your notes out.

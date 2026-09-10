@@ -1,0 +1,6 @@
+La vista previa ya no es un callejón sin salida para el texto que quieres conservar.
+
+- Selecciona texto en la vista previa y cópialo. Copiar una frase ya no obliga a volver al editor y sacar el teclado.
+- Mantén pulsado un enlace para copiar su dirección. Al tocarlo sigue abriéndose, y si arrastras desde un enlace la nota sigue desplazándose.
+
+Ambas cosas salieron de un mismo informe. Gracias, @Bedz01.

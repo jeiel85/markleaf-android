@@ -1,0 +1,7 @@
+Tablice i istaknuti okviri sada su u ploči za oblikovanje.
+
+- Ploča iznad tipkovnice dobiva dva oblika koja su joj nedostajala: tablice i > [!NOTE] istaknute okvire. Umetanje više ne znači ručno tipkanje Markdowna.
+- Tablica se umeće kao vlastiti blok, pa se prikazuje kao tablica i kad gumb pritisneš usred odlomka.
+- Pritisni Istaknuti okvir dok je tekst odabran i taj tekst postaje okvir.
+
+Hvala, @hawk1335.

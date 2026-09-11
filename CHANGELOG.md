@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.40.0 - Tables and callouts without typing the syntax - 2026-09-11
+
+Two formats the app already understood were reachable only by a slash command. They are in the formatting panel now. No permission or storage-format changes.
+
+### Added
+- **Tables and callouts in the formatting panel ([#390](https://github.com/jeiel85/markleaf-android/issues/390)).** The sample notes show tables and `> [!NOTE]` callouts, and Preview has always rendered both — but the panel above the keyboard stopped at code blocks, dividers and images, so inserting either meant typing the Markdown by hand or knowing that typing `/` opens a quick-insert menu. Both now sit in the panel's **Blocks and media** group. A table goes in as its own block, so it renders as a table even when you tap the button in the middle of a paragraph, and tapping **Callout** with text selected turns that text into the callout instead of inserting an empty one. Reported by [@hawk1335](https://github.com/hawk1335).
+
 ## v2.39.0 - Copying out of the page you are reading - 2026-09-11
 
 Preview mode was a dead end for anything you wanted to keep. Both halves of this came from one report. No permission or storage-format changes.

@@ -1,0 +1,7 @@
+Tabellen und Hinweisblöcke stehen jetzt in der Formatierungsleiste.
+
+- Die Leiste über der Tastatur kennt zwei Formate mehr: Tabellen und > [!NOTE] Hinweisblöcke. Beide einzufügen heißt nicht mehr, Markdown von Hand zu tippen.
+- Eine Tabelle wird als eigener Block eingefügt und erscheint auch dann als Tabelle, wenn du mitten im Absatz tippst.
+- Mit markiertem Text wird aus diesem Text der Hinweisblock.
+
+Danke, @hawk1335.

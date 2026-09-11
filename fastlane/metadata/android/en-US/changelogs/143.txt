@@ -1,0 +1,7 @@
+Tables and callouts are now in the formatting panel.
+
+- The panel above the keyboard reaches two formats it used to leave out: tables and > [!NOTE] callouts. Inserting either no longer means typing the Markdown by hand.
+- A table goes in as its own block, so it renders as a table even when you tap the button in the middle of a paragraph.
+- Tap Callout with text selected and that text becomes the callout.
+
+Thanks, @hawk1335.

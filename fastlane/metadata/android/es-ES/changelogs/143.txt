@@ -1,0 +1,7 @@
+Las tablas y los avisos ya están en el panel de formato.
+
+- El panel sobre el teclado suma dos formatos que le faltaban: tablas y avisos > [!NOTE]. Insertar cualquiera de los dos ya no obliga a escribir el Markdown a mano.
+- La tabla se inserta como un bloque propio, así que se muestra como tabla aunque pulses el botón en mitad de un párrafo.
+- Pulsa Aviso con texto seleccionado y ese texto se convierte en el aviso.
+
+Gracias, @hawk1335.

@@ -1,0 +1,7 @@
+Les tableaux et les encadrés sont maintenant dans le panneau de mise en forme.
+
+- Le panneau au-dessus du clavier gagne deux formats : les tableaux et les encadrés > [!NOTE]. Les insérer n'oblige plus à taper le Markdown à la main.
+- Un tableau est inséré comme un bloc à part, il s'affiche en tableau même au milieu d'un paragraphe.
+- Appuyez sur Encadré avec du texte sélectionné : ce texte devient l'encadré.
+
+Merci, @hawk1335.

@@ -271,6 +271,106 @@ class MarkdownEditActionsTest {
     }
 
     @Test
+    fun table_insertsSkeletonAsItsOwnBlockAndCaretsTheFirstHeaderCell() {
+        val result = MarkdownEditActions.table(
+            TextFieldValue("hello", selection = TextRange(5))
+        )
+
+        assertEquals(
+            "hello\n\n| Column 1 | Column 2 |\n| --- | --- |\n|  |  |",
+            result.text
+        )
+        // A GFM table cannot interrupt a paragraph, so the blank line is what
+        // makes this render as a table at all rather than as literal pipes.
+        assertEquals(TextRange(9), result.selection)
+    }
+
+    @Test
+    fun table_insertsAfterTheLineRatherThanSplittingIt() {
+        val result = MarkdownEditActions.table(
+            TextFieldValue("hello world", selection = TextRange(5))
+        )
+
+        assertTrue(result.text.startsWith("hello world\n\n|"))
+    }
+
+    @Test
+    fun table_keepsFollowingTextOutOfTheTable() {
+        val result = MarkdownEditActions.table(
+            TextFieldValue("intro\nafter", selection = TextRange(2))
+        )
+
+        // Without the blank line after it, `after` is read as another row.
+        assertTrue(result.text.endsWith("|  |  |\n\nafter"))
+    }
+
+    @Test
+    fun table_addsNoBlankLinesInAnEmptyNote() {
+        val result = MarkdownEditActions.table(
+            TextFieldValue("", selection = TextRange(0))
+        )
+
+        assertEquals(MarkdownEditActions.TABLE_TEMPLATE, result.text)
+        assertEquals(TextRange(MarkdownEditActions.TABLE_CARET_OFFSET), result.selection)
+    }
+
+    @Test
+    fun callout_insertsHeadAndAnEmptyBodyLine() {
+        val result = MarkdownEditActions.callout(
+            TextFieldValue("", selection = TextRange(0))
+        )
+
+        assertEquals("> [!NOTE]\n> ", result.text)
+        assertEquals(TextRange(12), result.selection)
+    }
+
+    @Test
+    fun callout_separatesItselfFromTheParagraphAbove() {
+        val result = MarkdownEditActions.callout(
+            TextFieldValue("hello", selection = TextRange(5))
+        )
+
+        assertEquals("hello\n\n> [!NOTE]\n> ", result.text)
+        assertEquals(TextRange(19), result.selection)
+    }
+
+    @Test
+    fun callout_wrapsTheSelectedLines() {
+        val result = MarkdownEditActions.callout(
+            TextFieldValue("one\ntwo", selection = TextRange(0, 7))
+        )
+
+        assertEquals("> [!NOTE]\n> one\n> two", result.text)
+        assertEquals(TextRange(0, 21), result.selection)
+    }
+
+    @Test
+    fun callout_wrapExpandsAPartialSelectionToWholeLines() {
+        val result = MarkdownEditActions.callout(
+            TextFieldValue("one\ntwo", selection = TextRange(1, 5))
+        )
+
+        // A selection that starts mid-word must not leave `o` outside the quote.
+        assertEquals("> [!NOTE]\n> one\n> two", result.text)
+    }
+
+    @Test
+    fun callout_leavesAnExistingCalloutAloneRatherThanNestingIt() {
+        val value = TextFieldValue("> [!NOTE]\n> body", selection = TextRange(0, 16))
+
+        assertEquals(value, MarkdownEditActions.callout(value))
+    }
+
+    @Test
+    fun callout_insertsEmptyBlockWhenTheSelectionIsBlank() {
+        val result = MarkdownEditActions.callout(
+            TextFieldValue("   ", selection = TextRange(0, 3))
+        )
+
+        assertTrue(result.text.endsWith("> [!NOTE]\n> "))
+    }
+
+    @Test
     fun autoContinuation_continuesBulletList() {
         val before = TextFieldValue("- one", selection = TextRange(5))
         val typed = TextFieldValue("- one\n", selection = TextRange(6))

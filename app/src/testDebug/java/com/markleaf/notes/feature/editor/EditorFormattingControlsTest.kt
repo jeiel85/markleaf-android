@@ -90,6 +90,31 @@ class EditorFormattingControlsTest {
         assertEquals(false, expanded.value)
     }
 
+    /**
+     * Input: the expanded panel. Output: the table and callout rows are there
+     * and dispatch their actions.
+     *
+     * Before #390 both were reachable only by typing `/`, which is a shape a
+     * beginner has to already know to look for — the panel is where someone who
+     * does not know the syntax goes.
+     */
+    @Test
+    fun panelOffersTableAndCallout() {
+        val expanded = mutableStateOf(true)
+        var picked: EditorFormattingAction? = null
+        render(
+            state = { EditorFormattingUiState(expanded = expanded.value) },
+            onExpandedChange = { expanded.value = it },
+            onAction = { picked = it }
+        )
+
+        composeRule.onNodeWithText("Callout").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Table").performScrollTo().performClick()
+
+        assertEquals(EditorFormattingAction.TABLE, picked)
+        assertEquals(false, expanded.value)
+    }
+
     @Test
     fun keyboardOpenMovesFocusToFirstPanelAction() {
         val expanded = mutableStateOf(false)

@@ -32,8 +32,10 @@ import androidx.compose.material.icons.filled.FormatQuote
 import androidx.compose.material.icons.filled.FormatStrikethrough
 import androidx.compose.material.icons.filled.HorizontalRule
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.TableChart
 import androidx.compose.material.icons.filled.Title
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -540,6 +542,12 @@ private fun formattingGroups(): List<FormattingGroup> = listOf(
         stringResource(R.string.formatting_block_media),
         listOf(
             FormattingItem(EditorFormattingAction.CODE_BLOCK, stringResource(R.string.code_block), Icons.Default.DataObject),
+            // Tables and callouts were reachable only by typing `/` until #390,
+            // which is a shape you have to already know to look for. They reuse
+            // the quick-insert labels on purpose: one construct must not have
+            // two names depending on which door you came through.
+            FormattingItem(EditorFormattingAction.TABLE, stringResource(R.string.quick_insert_table), Icons.Default.TableChart),
+            FormattingItem(EditorFormattingAction.CALLOUT, stringResource(R.string.quick_insert_callout), Icons.Default.Info),
             FormattingItem(EditorFormattingAction.DIVIDER, stringResource(R.string.horizontal_rule), Icons.Default.HorizontalRule),
             FormattingItem(EditorFormattingAction.IMAGE, stringResource(R.string.insert_image), Icons.Default.Image)
         )

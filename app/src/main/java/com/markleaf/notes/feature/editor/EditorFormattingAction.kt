@@ -21,6 +21,8 @@ internal enum class EditorFormattingAction {
     CHECKLIST,
     QUOTE,
     CODE_BLOCK,
+    TABLE,
+    CALLOUT,
     DIVIDER,
     IMAGE
 }
@@ -71,6 +73,8 @@ internal fun EditorFormattingAction.applyTo(value: TextFieldValue): EditorFormat
     EditorFormattingAction.CHECKLIST -> EditorFormattingResult.Edited(MarkdownEditActions.checkbox(value))
     EditorFormattingAction.QUOTE -> EditorFormattingResult.Edited(MarkdownEditActions.blockquote(value))
     EditorFormattingAction.CODE_BLOCK -> EditorFormattingResult.Edited(MarkdownEditActions.codeBlock(value))
+    EditorFormattingAction.TABLE -> EditorFormattingResult.Edited(MarkdownEditActions.table(value))
+    EditorFormattingAction.CALLOUT -> EditorFormattingResult.Edited(MarkdownEditActions.callout(value))
     EditorFormattingAction.DIVIDER -> EditorFormattingResult.Edited(MarkdownEditActions.horizontalRule(value))
     EditorFormattingAction.IMAGE -> EditorFormattingResult.PickImage
 }

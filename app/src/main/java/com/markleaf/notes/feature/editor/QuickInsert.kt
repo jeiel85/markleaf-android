@@ -2,6 +2,7 @@ package com.markleaf.notes.feature.editor
 
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import com.markleaf.notes.core.markdown.MarkdownEditActions
 import java.time.LocalDate
 import java.util.Locale
 
@@ -120,11 +121,13 @@ private fun insertionFor(
     QuickInsertCommand.QUOTE -> QuickInsertion("> ")
     QuickInsertCommand.CODE_BLOCK -> QuickInsertion("```\n\n```\n", caretOffset = 4)
     QuickInsertCommand.DIVIDER -> QuickInsertion("---\n")
+    // Both templates live in MarkdownEditActions, which the formatting panel
+    // inserts from too — the same construct behind two doors (#390).
     QuickInsertCommand.TABLE -> QuickInsertion(
-        "| Column 1 | Column 2 |\n| --- | --- |\n|  |  |",
-        caretOffset = 2
+        MarkdownEditActions.TABLE_TEMPLATE,
+        caretOffset = MarkdownEditActions.TABLE_CARET_OFFSET
     )
-    QuickInsertCommand.CALLOUT -> QuickInsertion("> [!NOTE]\n> ")
+    QuickInsertCommand.CALLOUT -> QuickInsertion(MarkdownEditActions.CALLOUT_TEMPLATE)
     QuickInsertCommand.WIKILINK -> QuickInsertion("[[]]", caretOffset = 2)
     QuickInsertCommand.IMAGE -> QuickInsertion("")
     QuickInsertCommand.DATE -> QuickInsertion(today.toString())

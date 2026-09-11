@@ -4,11 +4,30 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 
 object MarkdownEditActions {
+    /**
+     * The two-column GFM table skeleton, and the caret offset that lands inside
+     * its first header cell (right after `| `).
+     *
+     * Shared with the `/table` quick-insert command rather than written twice:
+     * the panel row and the slash command are two doors onto the same
+     * construct, and a user who learns the shape through one and then uses the
+     * other must not get a different table.
+     */
+    const val TABLE_TEMPLATE = "| Column 1 | Column 2 |\n| --- | --- |\n|  |  |"
+    const val TABLE_CARET_OFFSET = 2
+
+    /** The callout head, and the head plus an empty body line for insertion. */
+    const val CALLOUT_HEAD = "> [!NOTE]"
+    const val CALLOUT_TEMPLATE = CALLOUT_HEAD + "\n> "
+
     private val headingPattern = Regex("""^(#{1,6})\s+""")
     private val bulletPattern = Regex("""^([-*+])\s+""")
     private val orderedPattern = Regex("""^(\d+)\.\s+""")
     private val blockquotePattern = Regex("""^(>+)\s+""")
     private val checkboxPattern = Regex("""^(\s*[-*+]) \[([ xX])]""")
+
+    /** A `> [!NOTE]` head on its own line — see [callout]. */
+    private val calloutHeadPattern = Regex("""^\s*>\s*\[![A-Za-z]+]""", RegexOption.MULTILINE)
 
     fun bold(value: TextFieldValue): TextFieldValue =
         wrapSelection(value, "**", "**", "bold")
@@ -182,6 +201,78 @@ object MarkdownEditActions {
         return value.copy(text = updated, selection = TextRange(cursor + insertion.length))
     }
 
+    /**
+     * Insert a two-column GFM table below the line the caret is on.
+     *
+     * Input: the field value, caret anywhere. Output: the value with
+     * [TABLE_TEMPLATE] inserted as its own block, caret inside the first header
+     * cell so the first thing typed names a column.
+     *
+     * Why its own block, with a blank line: a GFM table cannot interrupt a
+     * paragraph, so a skeleton appended straight under a line of prose renders
+     * as literal pipes — the exact failure a beginner reaching for this button
+     * has no way to diagnose. `/table` never met it because that command always
+     * runs on a line holding nothing but the query; a panel tap can land
+     * mid-sentence, so the insertion point is the end of the caret's line
+     * rather than the caret itself, and the separating newlines are computed
+     * from what is actually there.
+     */
+    fun table(value: TextFieldValue): TextFieldValue {
+        val at = blockInsertPoint(value)
+        val leading = blockLeading(value.text, at)
+        val trailing = blockTrailing(value.text, at)
+        val insertion = leading + TABLE_TEMPLATE + trailing
+        val updated = value.text.substring(0, at) + insertion + value.text.substring(at)
+        return value.copy(
+            text = updated,
+            selection = TextRange(at + leading.length + TABLE_CARET_OFFSET)
+        )
+    }
+
+    /**
+     * Insert a `> [!NOTE]` callout, or turn the selected lines into one.
+     *
+     * Input: the field value. Output: with a selection, the selected lines
+     * wrapped in a callout and left selected; without one, an empty callout as
+     * its own block with the caret on its body line.
+     *
+     * Why the selection case exists at all: "I wrote this paragraph, make it a
+     * note" is the way the construct is reached in practice, and the
+     * alternative — dropping an empty callout after the selection and leaving
+     * the user to re-type the text — is worse than doing nothing. The block
+     * separation is the same rule [table] uses and for the same reason: a
+     * blockquote glued to the line above is swallowed into that paragraph.
+     */
+    fun callout(value: TextFieldValue): TextFieldValue {
+        val (blockStart, blockEnd) = selectionLineRange(value)
+        val block = value.text.substring(blockStart, blockEnd)
+        if (!value.selection.collapsed && block.isNotBlank()) {
+            // Wrapping a callout in a callout is a mis-tap every time, and the
+            // `> > [!NOTE]` it would produce is exactly the broken syntax a
+            // beginner cannot unpick. Leave the text alone instead.
+            if (calloutHeadPattern.containsMatchIn(block)) return value
+            val quoted = block.split("\n").joinToString("\n") { line -> "> $line" }
+            val leading = blockLeading(value.text, blockStart)
+            val trailing = blockTrailing(value.text, blockEnd)
+            val body = CALLOUT_HEAD + "\n" + quoted
+            val updated = value.text.substring(0, blockStart) +
+                leading + body + trailing +
+                value.text.substring(blockEnd)
+            val start = blockStart + leading.length
+            return value.copy(text = updated, selection = TextRange(start, start + body.length))
+        }
+
+        val at = blockInsertPoint(value)
+        val leading = blockLeading(value.text, at)
+        val trailing = blockTrailing(value.text, at)
+        val insertion = leading + CALLOUT_TEMPLATE + trailing
+        val updated = value.text.substring(0, at) + insertion + value.text.substring(at)
+        return value.copy(
+            text = updated,
+            selection = TextRange(at + leading.length + CALLOUT_TEMPLATE.length)
+        )
+    }
+
     /** Wrap selection in a fenced code block, or insert an empty one. */
     fun codeBlock(value: TextFieldValue): TextFieldValue {
         val selected = selectedText(value)
@@ -304,15 +395,88 @@ object MarkdownEditActions {
         return lineStart to value.text.substring(lineStart, lineEnd)
     }
 
+    /**
+     * The whole-line span a selection (or caret) touches.
+     *
+     * Input: the field value. Output: (start of the first line touched, end of
+     * the last).
+     *
+     * An exclusive endpoint sitting at column 0 belongs to the line that just
+     * ended, not the one starting there: selecting `one\n` in `one\ntwo` used to
+     * expand to cover `two`, which the user never selected, so Callout quoted a
+     * line that was not in the selection and Tab indented it. Found by the
+     * Codex review on #390.
+     */
     private fun selectionLineRange(value: TextFieldValue): Pair<Int, Int> {
         val text = value.text
         val selStart = value.selection.min.coerceIn(0, text.length)
-        val selEnd = value.selection.max.coerceIn(0, text.length)
+        var selEnd = value.selection.max.coerceIn(0, text.length)
+        if (selEnd > selStart && text.getOrNull(selEnd - 1) == '\n') selEnd--
         val blockStart = text.lastIndexOf('\n', (selStart - 1).coerceAtLeast(0))
             .let { if (it == -1) 0 else it + 1 }
         val nextNewline = text.indexOf('\n', selEnd)
         val blockEnd = if (nextNewline == -1) text.length else nextNewline
         return blockStart to blockEnd
+    }
+
+    /**
+     * Where a block-level construct should be inserted for the current caret:
+     * the end of the line it sits on, or the end of the selection's last line.
+     *
+     * Inserting at the caret would split a word in half; a block belongs after
+     * the line, not inside it.
+     *
+     * The exception is a line holding nothing but spaces or tabs. [blockLeading]
+     * reads through that whitespace to decide the separator, so inserting after
+     * it would leave the indentation in front of the template — and four spaces
+     * or one tab turn the table or callout into an indented code block, which
+     * is not the construct the button promises. Insert where the indentation
+     * starts instead, and it ends up harmlessly after the block. Found by the
+     * Codex review on #390.
+     */
+    private fun blockInsertPoint(value: TextFieldValue): Int {
+        val end = selectionLineRange(value).second
+        // `end == 0` means the caret is on an empty first line of a note that
+        // opens with a newline. Deriving lineStart from `end - 1` there lands
+        // past `end` and the substring below throws, so short-circuit it.
+        val lineStart = if (end == 0) {
+            0
+        } else {
+            value.text.lastIndexOf('\n', end - 1).let { if (it == -1) 0 else it + 1 }
+        }
+        return if (value.text.substring(lineStart, end).isBlank()) lineStart else end
+    }
+
+    /**
+     * Newlines needed before [at] so a block starting there begins a new block.
+     *
+     * Trailing spaces and tabs are ignored when looking backwards, because a
+     * line of nothing but whitespace is a blank line to Markdown and should not
+     * earn an extra one.
+     */
+    private fun blockLeading(text: String, at: Int): String {
+        val before = text.substring(0, at.coerceIn(0, text.length)).trimEnd(' ', '\t')
+        return when {
+            before.isEmpty() -> ""
+            before.endsWith("\n\n") -> ""
+            before.endsWith("\n") -> "\n"
+            else -> "\n\n"
+        }
+    }
+
+    /**
+     * Newlines needed after [at] so whatever follows is not absorbed by the
+     * block just inserted — a plain line under a table row is read as another
+     * row, and under a blockquote as more of the quote.
+     */
+    private fun blockTrailing(text: String, at: Int): String {
+        val after = text.substring(at.coerceIn(0, text.length))
+        return when {
+            after.isEmpty() -> ""
+            after.startsWith("\n\n") -> ""
+            after.startsWith("\n") -> "\n"
+            else -> "\n\n"
+        }
     }
 
     fun findWordAtCursor(text: String, cursor: Int): TextRange {

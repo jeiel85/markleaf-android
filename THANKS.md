@@ -45,6 +45,7 @@ Listed by first report.
 | [@iamgitcat](https://github.com/iamgitcat) | [#360](https://github.com/jeiel85/markleaf-android/issues/360) |
 | [@canllaith](https://github.com/canllaith) | [#370](https://github.com/jeiel85/markleaf-android/issues/370) |
 | [@Bedz01](https://github.com/Bedz01) | [#386](https://github.com/jeiel85/markleaf-android/issues/386) |
+| [@hawk1335](https://github.com/hawk1335) | [#390](https://github.com/jeiel85/markleaf-android/issues/390) |
 
 Not every request here was accepted — a couple were declined, and saying no to a
 thoughtful suggestion is its own kind of debt. Being told what you want from the

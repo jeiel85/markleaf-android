@@ -2,6 +2,7 @@ package com.markleaf.notes.feature.editor
 
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import com.markleaf.notes.core.markdown.MarkdownEditActions
 import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -103,6 +104,32 @@ class QuickInsertTest {
             assertEquals(case.command.name, case.text, result.text)
             assertEquals(case.command.name, TextRange(case.caret), result.selection)
         }
+    }
+
+    /**
+     * Input: an empty note, and a `/` query. Output: both doors onto the table
+     * and the callout produce byte-identical text and caret.
+     *
+     * The `/` menu and the formatting panel (#390) insert the same two
+     * constructs. Someone who learns the shape through one door and reaches for
+     * the other must not get a different table, so the agreement is pinned here
+     * rather than left to the shared constants staying shared.
+     */
+    @Test
+    fun tableAndCalloutAgreeWithTheFormattingPanel() {
+        val empty = TextFieldValue("", selection = TextRange(0))
+        val slash = TextFieldValue("/", selection = TextRange(1))
+        val query = checkNotNull(detectQuickInsertQuery(slash))
+
+        val slashTable = applyQuickInsertCommand(slash, query, QuickInsertCommand.TABLE)
+        val panelTable = MarkdownEditActions.table(empty)
+        assertEquals(slashTable.text, panelTable.text)
+        assertEquals(slashTable.selection, panelTable.selection)
+
+        val slashCallout = applyQuickInsertCommand(slash, query, QuickInsertCommand.CALLOUT)
+        val panelCallout = MarkdownEditActions.callout(empty)
+        assertEquals(slashCallout.text, panelCallout.text)
+        assertEquals(slashCallout.selection, panelCallout.selection)
     }
 
     private data class Case(

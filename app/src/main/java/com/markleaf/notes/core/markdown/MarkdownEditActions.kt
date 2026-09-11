@@ -395,10 +395,23 @@ object MarkdownEditActions {
         return lineStart to value.text.substring(lineStart, lineEnd)
     }
 
+    /**
+     * The whole-line span a selection (or caret) touches.
+     *
+     * Input: the field value. Output: (start of the first line touched, end of
+     * the last).
+     *
+     * An exclusive endpoint sitting at column 0 belongs to the line that just
+     * ended, not the one starting there: selecting `one\n` in `one\ntwo` used to
+     * expand to cover `two`, which the user never selected, so Callout quoted a
+     * line that was not in the selection and Tab indented it. Found by the
+     * Codex review on #390.
+     */
     private fun selectionLineRange(value: TextFieldValue): Pair<Int, Int> {
         val text = value.text
         val selStart = value.selection.min.coerceIn(0, text.length)
-        val selEnd = value.selection.max.coerceIn(0, text.length)
+        var selEnd = value.selection.max.coerceIn(0, text.length)
+        if (selEnd > selStart && text.getOrNull(selEnd - 1) == '\n') selEnd--
         val blockStart = text.lastIndexOf('\n', (selStart - 1).coerceAtLeast(0))
             .let { if (it == -1) 0 else it + 1 }
         val nextNewline = text.indexOf('\n', selEnd)
@@ -412,8 +425,27 @@ object MarkdownEditActions {
      *
      * Inserting at the caret would split a word in half; a block belongs after
      * the line, not inside it.
+     *
+     * The exception is a line holding nothing but spaces or tabs. [blockLeading]
+     * reads through that whitespace to decide the separator, so inserting after
+     * it would leave the indentation in front of the template — and four spaces
+     * or one tab turn the table or callout into an indented code block, which
+     * is not the construct the button promises. Insert where the indentation
+     * starts instead, and it ends up harmlessly after the block. Found by the
+     * Codex review on #390.
      */
-    private fun blockInsertPoint(value: TextFieldValue): Int = selectionLineRange(value).second
+    private fun blockInsertPoint(value: TextFieldValue): Int {
+        val end = selectionLineRange(value).second
+        // `end == 0` means the caret is on an empty first line of a note that
+        // opens with a newline. Deriving lineStart from `end - 1` there lands
+        // past `end` and the substring below throws, so short-circuit it.
+        val lineStart = if (end == 0) {
+            0
+        } else {
+            value.text.lastIndexOf('\n', end - 1).let { if (it == -1) 0 else it + 1 }
+        }
+        return if (value.text.substring(lineStart, end).isBlank()) lineStart else end
+    }
 
     /**
      * Newlines needed before [at] so a block starting there begins a new block.

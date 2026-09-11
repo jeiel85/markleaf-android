@@ -367,7 +367,69 @@ class MarkdownEditActionsTest {
             TextFieldValue("   ", selection = TextRange(0, 3))
         )
 
-        assertTrue(result.text.endsWith("> [!NOTE]\n> "))
+        assertTrue(result.text.startsWith("> [!NOTE]\n> "))
+    }
+
+    @Test
+    fun callout_leavesNoIndentationInFrontOfTheHead() {
+        // Four spaces in front of it would make the head an indented code
+        // block rather than a callout — from the Codex review on #390.
+        val result = MarkdownEditActions.callout(
+            TextFieldValue("    ", selection = TextRange(4))
+        )
+
+        assertTrue(result.text.startsWith("> [!NOTE]\n> "))
+    }
+
+    @Test
+    fun table_leavesNoIndentationInFrontOfTheHeaderRow() {
+        val result = MarkdownEditActions.table(
+            TextFieldValue("a\n\n    ", selection = TextRange(7))
+        )
+
+        assertTrue(result.text.startsWith("a\n\n| Column 1 |"))
+        assertEquals(TextRange(5), result.selection)
+    }
+
+    @Test
+    fun table_leavesNoTabInFrontOfTheHeaderRow() {
+        val result = MarkdownEditActions.table(
+            TextFieldValue("\t", selection = TextRange(1))
+        )
+
+        assertTrue(result.text.startsWith("| Column 1 |"))
+    }
+
+    @Test
+    fun table_handlesACaretOnAnEmptyFirstLine() {
+        // A note that opens with a newline: the insertion point is 0, which is
+        // where the line-start arithmetic used to run off the front.
+        val result = MarkdownEditActions.table(
+            TextFieldValue("\nafter", selection = TextRange(0))
+        )
+
+        assertTrue(result.text.startsWith("| Column 1 |"))
+        assertTrue(result.text.endsWith("\n\nafter"))
+    }
+
+    @Test
+    fun callout_stopsAtAnExclusiveEndpointOnTheNextLine() {
+        // `one\n` selected: `two` was never in the selection and must not be
+        // quoted — from the Codex review on #390.
+        val result = MarkdownEditActions.callout(
+            TextFieldValue("one\ntwo", selection = TextRange(0, 4))
+        )
+
+        assertEquals("> [!NOTE]\n> one\n\ntwo", result.text)
+    }
+
+    @Test
+    fun indent_stopsAtAnExclusiveEndpointOnTheNextLine() {
+        val result = MarkdownEditActions.indent(
+            TextFieldValue("a\nb", selection = TextRange(0, 2))
+        )
+
+        assertEquals("  a\nb", result.text)
     }
 
     @Test

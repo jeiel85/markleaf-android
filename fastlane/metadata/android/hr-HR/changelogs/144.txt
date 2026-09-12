@@ -1,0 +1,6 @@
+Vaši prijelomi retka ostaju ondje gdje ste ih stavili.
+
+- Jedan prijelom retka unutar odlomka u pretpregledu ostaje prijelom retka umjesto da postane razmak. Prazan redak i dalje započinje novi odlomak.
+- Widget Material You više ne čita postavku teme obrnuto: uz Svijetlo widget je ispadao tamniji nego uz Tamno.
+
+Hvala, @ray4423.

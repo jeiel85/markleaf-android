@@ -1,0 +1,6 @@
+Ihre Zeilenumbrüche bleiben, wo Sie sie gesetzt haben.
+
+- Ein einzelner Zeilenumbruch in einem Absatz bleibt in der Vorschau ein Zeilenumbruch, statt zu einem Leerzeichen zu werden. Eine Leerzeile beginnt weiterhin einen neuen Absatz.
+- Das Material-You-Widget liest die Theme-Einstellung nicht mehr verkehrt herum: Hell ergab ein dunkleres Widget als Dunkel.
+
+Danke, @ray4423.

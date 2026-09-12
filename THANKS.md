@@ -41,7 +41,7 @@ Listed by first report.
 | [@ElizabethWega](https://github.com/ElizabethWega) | [#283](https://github.com/jeiel85/markleaf-android/issues/283), [#298](https://github.com/jeiel85/markleaf-android/issues/298) |
 | [@unrealsswag](https://github.com/unrealsswag) | [#325](https://github.com/jeiel85/markleaf-android/issues/325) |
 | [@gamersat678](https://github.com/gamersat678) | [#345](https://github.com/jeiel85/markleaf-android/issues/345), [#346](https://github.com/jeiel85/markleaf-android/issues/346), [#354](https://github.com/jeiel85/markleaf-android/issues/354) |
-| [@ray4423](https://github.com/ray4423) | [#351](https://github.com/jeiel85/markleaf-android/issues/351), [#363](https://github.com/jeiel85/markleaf-android/issues/363), [#375](https://github.com/jeiel85/markleaf-android/issues/375) |
+| [@ray4423](https://github.com/ray4423) | [#351](https://github.com/jeiel85/markleaf-android/issues/351), [#363](https://github.com/jeiel85/markleaf-android/issues/363), [#375](https://github.com/jeiel85/markleaf-android/issues/375), [#394](https://github.com/jeiel85/markleaf-android/issues/394) |
 | [@iamgitcat](https://github.com/iamgitcat) | [#360](https://github.com/jeiel85/markleaf-android/issues/360) |
 | [@canllaith](https://github.com/canllaith) | [#370](https://github.com/jeiel85/markleaf-android/issues/370) |
 | [@Bedz01](https://github.com/Bedz01) | [#386](https://github.com/jeiel85/markleaf-android/issues/386) |

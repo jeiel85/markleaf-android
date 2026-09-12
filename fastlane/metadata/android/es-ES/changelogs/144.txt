@@ -1,0 +1,6 @@
+Tus saltos de línea se quedan donde los pusiste.
+
+- Un salto de línea simple dentro de un párrafo se mantiene como salto de línea en la vista previa en lugar de convertirse en un espacio. Una línea en blanco sigue empezando un párrafo nuevo.
+- El widget Material You ya no lee al revés el ajuste de Tema: con Claro el widget salía más oscuro que con Oscuro.
+
+Gracias, @ray4423.

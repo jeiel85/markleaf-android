@@ -549,6 +549,13 @@ internal object CommonMarkPreviewAdapter {
                 sb.append(text.literal)
             }
 
+            // A space here even though the rendered segments now break the line
+            // (#394), and deliberately so: this string is the *flat* form of a
+            // block. It is what the outline lists a heading by, what a link's
+            // label collapses to, and what a table cell holds — all places a
+            // newline would either be dropped or break a single-line layout.
+            // `PreviewLine.segments` is what the preview draws; `text` is what
+            // everything else reads it as.
             override fun visit(softLineBreak: SoftLineBreak) {
                 sb.append(' ')
             }
@@ -597,7 +604,25 @@ internal object CommonMarkPreviewAdapter {
                         href = link.destination
                     )
                 }
-                is SoftLineBreak -> out += PreviewInlineSegment(" ", default)
+                // A single newline inside a paragraph breaks the line here,
+                // where CommonMark folds it into a space (#394). The spec is
+                // written for documents that are typeset after the fact; this
+                // is a notes app whose editor shows the raw text, so a line the
+                // author broke and then sees rejoined in preview reads as the
+                // preview losing it. It is also worst exactly where it is least
+                // expected: between CJK characters the inserted space is a
+                // visible gap inside a sentence.
+                //
+                // Trailing two spaces still produce a HardLineBreak, which has
+                // always broken the line — the two now agree instead of
+                // disagreeing, and a blank line still starts a new paragraph
+                // with the wider spacing that carries.
+                //
+                // The preview's own callouts have rendered one row per source
+                // line since they were added (`CalloutBox` splits on "\n"), so
+                // this brings the rest of the preview to what that half of it
+                // already did.
+                is SoftLineBreak -> out += PreviewInlineSegment("\n", default)
                 is HardLineBreak -> out += PreviewInlineSegment("\n", default)
                 is TaskListItemMarker -> { /* checkbox marker styled at line level */ }
                 else -> appendInlineSegments(child, out, default)

@@ -353,6 +353,10 @@ class MarkdownPreviewSnapshotTest {
      * than the gap between two lines of one paragraph, and a heading needs air
      * above it — except at the very top, where there is nothing to separate it
      * from.
+     *
+     * The first paragraph is one long source line on purpose — it is here to
+     * wrap, and since #394 a source line that was broken by hand stays broken,
+     * which would have made this golden about line breaks instead of rhythm.
      */
     @Test
     fun paragraph_rhythm_light() = snapshot("paragraph_rhythm_light", darkTheme = false) {
@@ -360,14 +364,44 @@ class MarkdownPreviewSnapshotTest {
             """
             # Heading one
 
-            First paragraph, long enough that it wraps onto a second line in
-            the snapshot canvas.
+            First paragraph, long enough that it wraps onto a second line in the snapshot canvas.
 
             Second paragraph, which must read as separate from the first.
 
             ## Heading two
 
             Another paragraph.
+            """.trimIndent()
+        )
+    }
+
+    /**
+     * Regression net for #394: a line the author broke stays broken. Every one
+     * of these three rows was a single flowing line before — a paragraph, a
+     * bullet, and a quote each folded their newlines into spaces — so the
+     * golden is the difference between "the preview keeps my layout" and "the
+     * preview rejoins it".
+     *
+     * The Korean row is here because it is where the old behaviour was worst:
+     * no space belongs between those characters, so the folded newline showed
+     * up as a gap in the middle of a sentence rather than as ordinary spacing.
+     */
+    @Test
+    fun line_breaks_light() = snapshot("line_breaks_light", darkTheme = false) {
+        Renders(
+            """
+            first line
+            second line
+            third line
+
+            - bullet first
+              bullet second
+
+            > quote first
+            > quote second
+
+            한 줄을 쓰고
+            다음 줄을 씁니다
             """.trimIndent()
         )
     }

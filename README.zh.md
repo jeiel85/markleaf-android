@@ -127,7 +127,7 @@ Markleaf 遵循当下的 Android 开发标准，采用现代且易于维护的�
 - **UI**：[Jetpack Compose](https://developer.android.com/jetpack/compose) + Material 3 + Material You 动态取色
 - **架构**：简洁的分层划分（core / data / domain / feature / ui）+ Repository 模式
 - **数据库**：[Room](https://developer.android.com/training/data-storage/room) — 基于 SQLite 的本地持久化，使用 FTS4 虚拟表实现全文搜索
-- **Markdown 解析器**：[commonmark-java](https://github.com/commonmark/commonmark-java)（CommonMark 0.30 + GFM 扩展：表格、删除线、任务列表、脚注、YAML frontmatter）
+- **Markdown 解析器**：[commonmark-java](https://github.com/commonmark/commonmark-java)（CommonMark 0.30 + GFM 扩展：表格、删除线、任务列表、脚注、YAML frontmatter；预览将单个换行显示为换行而非空格）
 - **异步**：[Kotlin 协程](https://kotlinlang.org/docs/coroutines-overview.html) 与 [Flow](https://kotlinlang.org/docs/flow.html)
 - **Storage Access Framework（SAF）** — 文件夹镜像同步与图片附件
 - **图片加载**：[Coil](https://coil-kt.github.io/coil/) — 对 F-Droid 友好的 Apache 2.0 许可

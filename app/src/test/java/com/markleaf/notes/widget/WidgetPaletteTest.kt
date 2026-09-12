@@ -96,7 +96,7 @@ class WidgetPaletteTest {
             context.getColor(android.R.color.system_accent1_600),
             colors.notNight.background
         )
-        assertEquals(context.getColor(android.R.color.system_accent1_200), colors.night.background)
+        assertEquals(context.getColor(android.R.color.system_accent1_700), colors.night.background)
     }
 
     /**
@@ -113,13 +113,78 @@ class WidgetPaletteTest {
         val dark = requireNotNull(WidgetPalette.colors(context))
 
         assertEquals(dark.notNight, dark.night)
-        assertEquals(context.getColor(android.R.color.system_accent1_200), dark.notNight.background)
+        assertEquals(context.getColor(android.R.color.system_accent1_700), dark.notNight.background)
 
         WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.LIGHT)
         val light = requireNotNull(WidgetPalette.colors(context))
 
         assertEquals(light.notNight, light.night)
         assertEquals(context.getColor(android.R.color.system_accent1_600), light.notNight.background)
+    }
+
+    /**
+     * The defect reported on top of #375, and the one assertion that would have
+     * caught it: Theme = Light handed back the *darker* of the two surfaces.
+     *
+     * It came from taking the dark scheme's `primary` for night — tone 80
+     * against tone 20 — while day took the light scheme's, tone 40 against
+     * white. `primary` is meant to be drawn *on* a surface rather than to be
+     * one, so it inverts its lightness between the schemes, and the widget
+     * inverted with it. Stated as an ordering rather than as two resource ids
+     * because the ordering is the thing a reader on their home screen can see;
+     * the ids above pin which colours satisfy it today.
+     */
+    @Test
+    fun `the night surface is the darker of the two`() {
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM)
+
+        val colors = requireNotNull(WidgetPalette.colors(context))
+
+        assertTrue(
+            "night background must not be lighter than the day one",
+            luminance(colors.night.background) < luminance(colors.notNight.background)
+        )
+    }
+
+    /**
+     * Each surface is a pair, and the pair has to be legible: a widget is read
+     * at a glance from a home screen, over whatever wallpaper it sits on.
+     * 4.5:1 is WCAG AA for body text, which the excerpt row is.
+     */
+    @Test
+    fun `both surfaces carry readable text`() {
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM)
+
+        val colors = requireNotNull(WidgetPalette.colors(context))
+
+        listOf("day" to colors.notNight, "night" to colors.night).forEach { (name, surface) ->
+            val ratio = contrastRatio(surface.onBackground, surface.background)
+            assertTrue("$name contrast was $ratio, below 4.5:1", ratio >= 4.5)
+        }
+    }
+
+    /**
+     * WCAG relative luminance, spelled out here rather than taken from
+     * `androidx.core.graphics.ColorUtils`: that arrives on the test classpath
+     * only transitively, and a test that pins a colour rule should not be the
+     * thing that breaks when an unrelated dependency reshuffles.
+     */
+    private fun luminance(@androidx.annotation.ColorInt color: Int): Double {
+        fun channel(shifted: Int): Double {
+            val c = ((color shr shifted) and 0xFF) / 255.0
+            return if (c <= 0.03928) c / 12.92 else Math.pow((c + 0.055) / 1.055, 2.4)
+        }
+        return 0.2126 * channel(16) + 0.7152 * channel(8) + 0.0722 * channel(0)
+    }
+
+    /** Both arguments must be opaque — every colour in [WidgetSurface] is. */
+    private fun contrastRatio(
+        @androidx.annotation.ColorInt foreground: Int,
+        @androidx.annotation.ColorInt background: Int
+    ): Double {
+        val a = luminance(foreground)
+        val b = luminance(background)
+        return (maxOf(a, b) + 0.05) / (minOf(a, b) + 0.05)
     }
 
     /**

@@ -127,7 +127,7 @@ Markleaf folgt aktuellen Android-Entwicklungsstandards mit einem modernen, wartb
 - **UI**: [Jetpack Compose](https://developer.android.com/jetpack/compose) + Material 3 + Material You Dynamic Color
 - **Architektur**: einfache Schichtentrennung (core / data / domain / feature / ui) + Repository-Muster
 - **Datenbank**: [Room](https://developer.android.com/training/data-storage/room) – SQLite-basierte lokale Persistenz, FTS4-Virtual-Tables für Volltextsuche
-- **Markdown-Parser**: [commonmark-java](https://github.com/commonmark/commonmark-java) (CommonMark 0.30 + GFM-Erweiterungen: Tabellen, Durchgestrichen, Task-Lists, Fußnoten, YAML-Frontmatter)
+- **Markdown-Parser**: [commonmark-java](https://github.com/commonmark/commonmark-java) (CommonMark 0.30 + GFM-Erweiterungen: Tabellen, Durchgestrichen, Task-Lists, Fußnoten, YAML-Frontmatter; die Vorschau stellt einen einzelnen Zeilenumbruch als Zeilenumbruch statt als Leerzeichen dar)
 - **Asynchron**: [Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html) & [Flow](https://kotlinlang.org/docs/flow.html)
 - **Storage Access Framework (SAF)** – Ordner-Spiegel-Sync + Bildanhänge
 - **Bildladen**: [Coil](https://coil-kt.github.io/coil/) – F-Droid-freundlich, Apache 2.0

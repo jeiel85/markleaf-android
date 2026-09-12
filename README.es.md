@@ -127,7 +127,7 @@ Markleaf sigue los estándares actuales de desarrollo Android con un stack moder
 - **UI**: [Jetpack Compose](https://developer.android.com/jetpack/compose) + Material 3 + color dinámico Material You
 - **Arquitectura**: separación simple por capas (core / data / domain / feature / ui) + patrón Repository
 - **Base de datos**: [Room](https://developer.android.com/training/data-storage/room) — persistencia local respaldada por SQLite, tablas virtuales FTS4 para búsqueda de texto completo
-- **Analizador de Markdown**: [commonmark-java](https://github.com/commonmark/commonmark-java) (CommonMark 0.30 + extensiones GFM: tablas, tachado, listas de tareas, notas al pie, YAML frontmatter)
+- **Analizador de Markdown**: [commonmark-java](https://github.com/commonmark/commonmark-java) (CommonMark 0.30 + extensiones GFM: tablas, tachado, listas de tareas, notas al pie, YAML frontmatter; la vista previa muestra un salto de línea simple como salto de línea y no como espacio)
 - **Asincronía**: [Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html) y [Flow](https://kotlinlang.org/docs/flow.html)
 - **Storage Access Framework (SAF)** — sincronización por carpeta espejo + adjuntos de imagen
 - **Carga de imágenes**: [Coil](https://coil-kt.github.io/coil/) — Apache 2.0, compatible con F-Droid

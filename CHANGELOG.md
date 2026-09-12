@@ -4,6 +4,16 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.41.0 - The lines you typed stay where you put them - 2026-09-12
+
+Preview rejoined lines you had broken by hand, and the Material You widget read the Theme setting backwards. Both came from one report. No permission or storage-format changes.
+
+### Changed
+- **A line break you typed stays a line break in Preview ([#394](https://github.com/jeiel85/markleaf-android/issues/394)).** Markdown's own rule is that a single newline inside a paragraph is only a space, so a note written as several short lines came back as one flowing paragraph the moment you opened Preview. That rule is written for documents that get typeset afterwards; here the editor beside Preview shows exactly what you typed, so the line you broke was visibly gone. It is worst in Korean, Japanese and Chinese, where no space belongs between the characters at all and the join arrived as a gap in the middle of a sentence. A blank line still starts a new paragraph, with the wider gap it has always had, and headings still appear on one line in the outline. Reported by [@ray4423](https://github.com/ray4423).
+
+### Fixed
+- **The Material You widget no longer reads the Theme setting backwards ([#394](https://github.com/jeiel85/markleaf-android/issues/394), follow-up to [#375](https://github.com/jeiel85/markleaf-android/issues/375)).** Setting Theme to **Light** painted the widget darker than **Dark** did. The night colour came from the wrong end of the wallpaper palette — a pale accent where a deep one belonged — so the two swapped places on the home screen. Light is unchanged, and dark is now the darker of the two, as the setting says. Markleaf Green widgets are unaffected, and Material You still needs Android 12. Reported by [@ray4423](https://github.com/ray4423).
+
 ## v2.40.0 - Tables and callouts without typing the syntax - 2026-09-11
 
 Two formats the app already understood were reachable only by a slash command. They are in the formatting panel now. No permission or storage-format changes.

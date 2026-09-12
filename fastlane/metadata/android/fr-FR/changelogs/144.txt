@@ -1,0 +1,6 @@
+Vos sauts de ligne restent là où vous les avez mis.
+
+- Un saut de ligne simple dans un paragraphe reste un saut de ligne dans l'aperçu au lieu de devenir une espace. Une ligne vide commence toujours un nouveau paragraphe.
+- Le widget Material You ne lit plus le réglage Thème à l'envers : Clair donnait un widget plus sombre que Sombre.
+
+Merci, @ray4423.

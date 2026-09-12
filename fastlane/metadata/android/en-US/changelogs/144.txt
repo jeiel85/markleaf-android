@@ -1,0 +1,6 @@
+Your line breaks stay where you put them.
+
+- A single line break inside a paragraph now stays a line break in Preview instead of turning into a space. A blank line still starts a new paragraph.
+- The Material You widget no longer reads the Theme setting backwards: Light was painting the widget darker than Dark did.
+
+Thanks, @ray4423.

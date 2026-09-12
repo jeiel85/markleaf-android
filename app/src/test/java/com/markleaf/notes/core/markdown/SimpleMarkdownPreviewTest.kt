@@ -420,4 +420,66 @@ class SimpleMarkdownPreviewTest {
         assertEquals("real task", check.text)
         assertEquals(4, check.sourceLine)
     }
+
+    /**
+     * A single newline inside a paragraph is a line break in preview (#394).
+     *
+     * CommonMark folds it into a space, which is right for a document that is
+     * typeset after the fact and wrong here: the editor shows the raw text, so
+     * a line the author broke and then sees rejoined reads as the preview
+     * losing it. Between CJK characters the inserted space is a visible gap in
+     * the middle of a sentence, which is how it was reported.
+     */
+    @Test
+    fun parse_breaksTheLineOnASingleNewline() {
+        val lines = SimpleMarkdownPreview.parse("first line\nsecond line")
+
+        assertEquals(1, lines.size)
+        assertEquals(PreviewLineType.BODY, lines[0].type)
+        assertEquals("first line\nsecond line", lines[0].segments.joinToString("") { it.text })
+    }
+
+    /**
+     * The flat `text` is unchanged, and that is the point of it being separate:
+     * the outline lists a heading by it and a table cell holds one, both of
+     * which a newline would break. `segments` is what the preview draws.
+     */
+    @Test
+    fun parse_flatTextStillJoinsALineBreakWithASpace() {
+        val lines = SimpleMarkdownPreview.parse("first line\nsecond line")
+
+        assertEquals("first line second line", lines[0].text)
+    }
+
+    /** A list item's own lines break too — it reaches segments by its own path. */
+    @Test
+    fun parse_breaksTheLineInsideAListItem() {
+        val lines = SimpleMarkdownPreview.parse("- first\n  second")
+
+        assertEquals(1, lines.size)
+        assertEquals(PreviewLineType.BULLET, lines[0].type)
+        assertEquals("first\nsecond", lines[0].segments.joinToString("") { it.text })
+    }
+
+    /** The break carries the style around it rather than resetting to plain. */
+    @Test
+    fun parse_breaksTheLineBetweenStyledRuns() {
+        val lines = SimpleMarkdownPreview.parse("**bold line\nstill bold**")
+
+        val bold = lines[0].segments.single { it.type == PreviewInlineType.BOLD }
+        assertEquals("bold line\nstill bold", bold.text)
+    }
+
+    /**
+     * A blank line is still a paragraph break, not the same thing: the renderer
+     * spaces two paragraphs further apart than two lines of one (#340).
+     */
+    @Test
+    fun parse_stillSeparatesParagraphsOnABlankLine() {
+        val lines = SimpleMarkdownPreview.parse("first line\n\nsecond line")
+
+        assertEquals(2, lines.size)
+        assertEquals("first line", lines[0].text)
+        assertEquals("second line", lines[1].text)
+    }
 }

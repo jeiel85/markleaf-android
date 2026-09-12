@@ -127,7 +127,7 @@ Markleaf는 최신 Android 개발 표준을 준수하며, 유지보수가 용이
 - **UI**: [Jetpack Compose](https://developer.android.com/jetpack/compose) + Material 3 + Material You 다이내믹 컬러
 - **Architecture**: 단순한 레이어 분리 (core / data / domain / feature / ui) + Repository 패턴
 - **Database**: [Room](https://developer.android.com/training/data-storage/room) — SQLite 기반 로컬 퍼시스턴스, FTS4 가상 테이블로 전문 검색
-- **Markdown 파서**: [commonmark-java](https://github.com/commonmark/commonmark-java) (CommonMark 0.30 + GFM 확장: 표, 취소선, task lists, 각주, YAML frontmatter)
+- **Markdown 파서**: [commonmark-java](https://github.com/commonmark/commonmark-java) (CommonMark 0.30 + GFM 확장: 표, 취소선, task lists, 각주, YAML frontmatter; 미리보기는 단일 개행을 공백이 아닌 줄바꿈으로 표시)
 - **Asynchronous**: [Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html) & [Flow](https://kotlinlang.org/docs/flow.html)
 - **Storage Access Framework (SAF)** — 폴더 미러 동기화 + 이미지 첨부
 - **이미지 로딩**: [Coil](https://coil-kt.github.io/coil/) — F-Droid 친화적 Apache 2.0

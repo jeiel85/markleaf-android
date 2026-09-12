@@ -127,7 +127,7 @@ Markleaf slijedi aktualne standarde razvoja za Android s modernim stogom koji se
 - **Sučelje**: [Jetpack Compose](https://developer.android.com/jetpack/compose) + Material 3 + Material You dinamičke boje
 - **Arhitektura**: jednostavno slojevito razdvajanje (core / data / domain / feature / ui) + Repository obrazac
 - **Baza podataka**: [Room](https://developer.android.com/training/data-storage/room) — lokalna pohrana na SQLite-u, FTS4 virtualne tablice za pretraživanje punog teksta
-- **Markdown parser**: [commonmark-java](https://github.com/commonmark/commonmark-java) (CommonMark 0.30 + GFM proširenja: tablice, precrtavanje, popisi zadataka, fusnote, YAML frontmatter)
+- **Markdown parser**: [commonmark-java](https://github.com/commonmark/commonmark-java) (CommonMark 0.30 + GFM proširenja: tablice, precrtavanje, popisi zadataka, fusnote, YAML frontmatter; pretpregled prikazuje jedan prijelom retka kao prijelom retka, a ne kao razmak)
 - **Asinkronost**: [Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html) i [Flow](https://kotlinlang.org/docs/flow.html)
 - **Storage Access Framework (SAF)** — zrcaljenje mape i prilozi slika
 - **Učitavanje slika**: [Coil](https://coil-kt.github.io/coil/) — Apache 2.0, prihvatljivo za F-Droid

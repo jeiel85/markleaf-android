@@ -63,14 +63,26 @@ object WidgetPalette {
      * `UiModeManager.setApplicationNightMode` (#354) at a moment this code does
      * not control, and the answer would be frozen into the pushed views anyway.
      *
-     * The surfaces themselves are the same roles the app's top bar uses, so a
-     * widget and the app it opens are the same colour — `dynamicLightColorScheme`'s
-     * `primary` is tone 40 (`system_accent1_600`) against white, and the dark
-     * scheme's is tone 80 (`system_accent1_200`) against tone 20. Taking the
-     * pair rather than a background alone is what keeps the text readable on it:
-     * those two are the ones Material guarantees a contrast ratio for, and the
-     * layouts' `?android:attr/textColorPrimaryInverse` would resolve against the
+     * The surfaces themselves are a *filled accent card* in each night mode,
+     * which is what the green layout already is — `#FF4CAF50` with white text,
+     * the same card whether the phone is light or dark. Taking a pair rather
+     * than a background alone is what keeps the text readable on it: each is a
+     * role pair Material guarantees a contrast ratio for, and the layouts'
+     * `?android:attr/textColorPrimaryInverse` would resolve against the
      * *launcher's* theme, which knows nothing about the wallpaper accent.
+     *
+     * Which pair, per mode, is the correction in #394. Light is
+     * `dynamicLightColorScheme`'s `primary` / `onPrimary` — tone 40
+     * (`system_accent1_600`) against white — and dark is
+     * `dynamicDarkColorScheme`'s `primaryContainer` / `onPrimaryContainer` —
+     * tone 30 (`system_accent1_700`) against tone 90. Dark used to take the
+     * dark scheme's `primary` instead, tone 80 against tone 20, and that is
+     * *paler* than the light mode's tone 40: a user who set Theme = Light got
+     * the darker widget of the two and reported it as the setting being
+     * inverted (#375). `primary` inverts its lightness between the two schemes
+     * because it is meant to be drawn *on* a surface, not to be one. The
+     * container roles are the filled-surface pair, and they keep the order the
+     * setting names — light mode lighter than dark mode.
      */
     @RequiresApi(Build.VERSION_CODES.S)
     private fun dynamicColors(context: Context): WidgetColors {
@@ -79,8 +91,8 @@ object WidgetPalette {
             onBackground = context.getColor(android.R.color.system_accent1_0)
         )
         val dark = WidgetSurface(
-            background = context.getColor(android.R.color.system_accent1_200),
-            onBackground = context.getColor(android.R.color.system_accent1_800)
+            background = context.getColor(android.R.color.system_accent1_700),
+            onBackground = context.getColor(android.R.color.system_accent1_100)
         )
         return when (WidgetPaletteStore.themeMode(context)) {
             ThemeMode.SYSTEM -> WidgetColors(notNight = light, night = dark)

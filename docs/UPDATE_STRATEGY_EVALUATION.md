@@ -20,8 +20,12 @@
   업데이터"는 성립하지 않는다.
 - Status: **설계 확정, 구현 보류.** `.agent/tasks.md` Phase 34로 등록.
 - **AGENT_SPEC 관문은 통과했다(2026-09-13).** `docs/AGENT_SPEC.md` §15.1·§15.6이 개정되고
-  §15.9가 신설되어 같은 PR에 담겼다. 남은 선행 조건은 fdroiddata 레시피 MR(P0)이며,
-  그것이 머지되기 전에는 플레이버를 담은 릴리스 태그를 밀지 않는다.
+  §15.9가 신설되어 같은 PR에 담겼다.
+- **정정(2026-09-13): "MR 머지 전에는 태그를 밀지 않는다"는 지킬 수 없는 순서다.** Builds
+  항목은 `commit: vX.Y.Z`를 필요로 하고 `check apk`는 `Binaries:` URL을 내려받으므로, 태그와
+  Release가 없으면 MR의 CI가 돌지 않는다. 올바른 순서는 **릴리스와 MR을 한 작업으로 묶고 그
+  사이의 지연을 감수하는 것**이다 — 그 사이 F-Droid는 새 버전을 발행하지 않을 뿐, 기존 설치는
+  멀쩡하다. 절차는 `docs/FDROID_SUBMISSION.md`의 "Phase 34" 절에 있다.
 
 ## 확인된 제약
 
@@ -149,11 +153,16 @@ grep -rln "app-release\|assembleDebug\|app-debug\|verifyRoborazziDebug\|lintRele
 만드는지 추측으로 일괄 치환하면 CI가 조용히 다른 것을 빌드한다.
 
 ### 선행 조건 P0 — fdroiddata 레시피
-`gradle: - yes`는 플레이버가 생기면 어느 변형을 빌드해야 하는지 말하지 않는다. 업스트림
-fdroiddata에 `store` 변형을 빌드하도록 고치는 MR이 **먼저 머지되어야** 한다. 이 저장소의
-`metadata/com.markleaf.notes.yml`은 v2.23.0에서 멈춘 참고 사본이라 여기만 고쳐도 효과가
-없다. MR이 머지되기 전에 플레이버를 담은 태그를 밀면 그 버전은 F-Droid에서 발행되지 않는다
-(위 인용).
+`gradle: - yes`는 플레이버가 생겨도 조용히 실패하지 않는다. F-Droid 문서가 적듯 **"'yes'는
+모든 플레이버를 각각 빌드한다"** — 즉 `INTERNET`을 선언하는 `github`까지 빌드하라는 뜻이 된다.
+업스트림 fdroiddata의 해당 버전 Builds 항목이 `gradle: - store`로 바뀌어야 한다. 이 저장소의
+`metadata/com.markleaf.notes.yml`은 v2.23.0에서 멈춘 참고 사본이라 여기만 고쳐도 효과가 없다.
+
+**순서 주의(정정).** 이 MR은 태그보다 먼저 머지될 수 없다 — Builds 항목이 `commit: vX.Y.Z`를
+요구하고 `check apk`가 Release 자산을 내려받기 때문에, 태그 전에는 MR의 CI가 돌지 않는다.
+릴리스와 MR을 한 작업으로 묶고, 머지될 때까지 F-Droid가 새 버전을 발행하지 않는 지연을
+감수한다. 재현 빌드 구성상 불일치의 결과는 **미발행**이지 사이드로드 빌드의 배포가 아니다.
+자세한 절차와 MR 본문 초안은 `docs/FDROID_SUBMISSION.md`의 "Phase 34" 절에 있다.
 
 ### Release 자산
 - `markleaf-vX.Y.Z.apk` = **store** 빌드. F-Droid가 검증하고 재배포하는 파일이므로 이름과
@@ -271,7 +280,8 @@ Gradle 속성 게이트 `-Pmarkleaf.updater=true`로 매니페스트 `srcFile`�
 - 채널 분리는 productFlavor `store` / `github`로 한다(D073).
 - 1차 구현 범위는 B단계. C단계는 B가 안정된 뒤 같은 플레이버 안에서 확장한다.
 - store / F-Droid / Play 산출물에는 INTERNET 권한도 업데이터 코드도 들어가지 않는다.
-- fdroiddata 레시피 MR이 머지되기 전에는 플레이버를 담은 릴리스 태그를 밀지 않는다.
+- fdroiddata 레시피 MR은 릴리스와 한 작업으로 묶는다(태그 → 즉시 MR). 머지 전까지 F-Droid가
+  새 버전을 발행하지 않는 지연은 알고 감수한다 — 태그를 무기한 미루는 것은 방법이 아니다.
 
 ## References
 - Google Play Device and Network Abuse policy —

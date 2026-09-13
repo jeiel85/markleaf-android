@@ -1168,9 +1168,14 @@ Why:
 
 Implications:
 
-- **fdroiddata 레시피 MR이 선행 조건이다.** `gradle: - yes`는 플레이버가 생기면 어느 변형을
-  빌드할지 말하지 않는다. 업스트림에서 `store` 변형을 빌드하도록 고쳐 머지되기 전에는
-  플레이버를 담은 릴리스 태그를 밀지 않는다. 이 저장소의 `metadata/com.markleaf.notes.yml`은
+- **fdroiddata 레시피 MR이 선행 조건이다.** F-Droid 문서는 `gradle:`의 `yes`가 "모든
+  플레이버를 각각 빌드한다"고 적는다 — 조용히 실패하는 것이 아니라 `INTERNET`을 선언하는
+  `github`까지 빌드하라는 뜻이 된다. 해당 버전 항목이 `gradle: - store`가 되어야 한다.
+  **정정(2026-09-13): 이 MR을 태그보다 먼저 머지시킬 수는 없다.** Builds 항목이
+  `commit: vX.Y.Z`를 요구하고 `check apk`가 Release 자산을 내려받으므로 태그 전에는 MR의
+  CI가 돌지 않는다. 릴리스와 MR을 한 작업으로 묶고, 머지 전까지 F-Droid가 새 버전을 발행하지
+  않는 지연을 감수한다 — 재현 빌드에서 불일치의 결과는 미발행이지 사이드로드 빌드의 배포가
+  아니다. 절차와 MR 초안은 `docs/FDROID_SUBMISSION.md`의 "Phase 34" 절. 이 저장소의 `metadata/com.markleaf.notes.yml`은
   v2.23.0에서 멈춘 참고 사본이라 여기만 고쳐도 효과가 없다.
 - Release 자산은 `markleaf-vX.Y.Z.apk`(store, F-Droid 검증 대상)와
   `markleaf-vX.Y.Z-sideload.apk`(github)로 나뉜다. 자산 목록 세 곳의 복사본은
@@ -1200,8 +1205,7 @@ Implications:
   "INTERNET 권한 0(스토어 배포 산출물)"으로 분리하고, §15.6 표를 같은 기준으로 고치고,
   §15.9를 신설해 예외 범위를 못박았다(산출물 분리 / 나가는 데이터 0 / 기본 꺼짐 /
   재현 빌드·Play 정책 보호 / 확장 금지). MVP era 문장인 §6.3과 §8에는 오독 방지 포인터만
-  달았다. **남은 선행 조건은 fdroiddata 레시피 MR(P0)이다** — 그것이 머지되기 전에는
-  플레이버를 담은 릴리스 태그를 밀지 않는다.
+  달았다. **남은 선행 조건은 fdroiddata 레시피 MR(P0)이다.**
 - **`AGENTS.md`의 INTERNET 금지 규칙은 코드보다 먼저 개정한다.** 규칙과 코드가 어긋난 상태로
   커밋이 들어가면 다음 루프가 어느 쪽을 믿어야 할지 알 수 없다. `NOCLOUD_CERTIFICATION.md`와
   `NETWORK_FEATURE_NECESSITY_EVALUATION.md`(재검토 조건 4번이 바로 이 경로다)도 같은 커밋에서

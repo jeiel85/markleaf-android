@@ -176,6 +176,10 @@ jobs:
           # 게이트를 켠 빌드가 컴파일되는지도 알 수 없다. 실제로 한 번 빌드해서 확인한다.
           ./gradlew :app:assembleDebug -Pmarkleaf.updater=true
 
+          # 업데이터 단위 테스트는 게이트 뒤(`src/sideloadTest/java`)에 있으므로 위의 `Run tests`
+          # 스텝에서는 컴파일조차 되지 않는다. 여기가 그것들이 실제로 도는 유일한 자리다.
+          ./gradlew :app:testDebugUnitTest -Pmarkleaf.updater=true
+
   # 앱이 실제로 뜨는지만 본다. **의도적으로 비필수(continue-on-error)로 남긴다.**
   # #277 이 `adb install`/`pm path` 경합을 고쳐 한동안 안정적이었으나, 2026-08-05
   # 하루에 여덟 런 중 두 런이 실패했다 — 앱 코드가 동일하거나 문서만 바뀐 변경에서,

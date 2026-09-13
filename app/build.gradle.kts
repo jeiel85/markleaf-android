@@ -76,6 +76,11 @@ android {
         // 이 방식의 유일한 실패 양식이고, `SideloadManifestParityTest`가 그것을 막는다.
         sourceSets.getByName("main").manifest.srcFile("src/main/AndroidManifest-sideload.xml")
         sourceSets.getByName("main").java.srcDir("src/sideload/java")
+
+        // 업데이터 테스트도 같은 게이트 뒤에 둔다. `src/test`는 `main`에 대해 컴파일되므로,
+        // 게이트가 꺼진 빌드에서는 대상 클래스가 존재하지 않아 테스트가 컴파일될 수 없다.
+        // CI는 이 스텝을 `-Pmarkleaf.updater=true`로 한 번 돌려 이 테스트들을 실행한다.
+        sourceSets.getByName("test").java.srcDir("src/sideloadTest/java")
     }
 
     defaultConfig {

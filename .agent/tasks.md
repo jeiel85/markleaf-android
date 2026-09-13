@@ -150,8 +150,9 @@
 store / F-Droid / Play 산출물에는 INTERNET 권한도 업데이터 코드도 들어가지 않습니다
 (D073, `docs/UPDATE_STRATEGY_EVALUATION.md`).
 
+- [ ] `docs/AGENT_SPEC.md` §15.1·§15.6("INTERNET 권한 영구 금지") 개정안을 사람에게 올려 명시적 승인 받기 (관문 — `AGENTS.md` Stop Conditions상 승인 전에는 아래 항목 전부 중단)
 - [ ] fdroiddata 레시피 MR 선행 — `store` 변형을 빌드하도록 업스트림 수정·머지 (P0, 이것 없이 태그 금지)
-- [ ] `AGENTS.md` INTERNET 규칙과 `NOCLOUD_CERTIFICATION.md`·`NETWORK_FEATURE_NECESSITY_EVALUATION.md` 선행 개정
+- [ ] `AGENTS.md` INTERNET 규칙·Stop Conditions와 `NOCLOUD_CERTIFICATION.md`·`NETWORK_FEATURE_NECESSITY_EVALUATION.md` 선행 개정
 - [ ] productFlavor `store` / `github` 도입 및 `./gradlew tasks`로 확인한 실제 변형 작업 이름으로 CI·스크립트·문서 수정
 - [ ] 릴리스 워크플로가 `docs/update.json`을 갱신하고 sideload 자산을 추가로 올리도록 확장
 - [ ] `versionCode` 정수 비교 업데이트 확인 로직 + 하루 1회·조용한 실패·단위 테스트

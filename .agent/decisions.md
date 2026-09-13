@@ -1189,6 +1189,13 @@ Implications:
   `2.9.0` > `2.10.0`을 만든다.
 - 토글은 기본 OFF이고, 켤 때 F-Droid의 검사를 우회하는 경로라는 점을 같은 화면에서 설명한다.
   알림 채널은 쓰지 않는다 — `POST_NOTIFICATIONS`를 추가할 이유가 없다.
+- **`docs/AGENT_SPEC.md`가 관문이다.** `AGENTS.md`가 그 문서를 source of truth로 지정하고,
+  §15.6은 "INTERNET 권한 영구 금지", §15.1은 "우리 백엔드 0, INTERNET 권한 0"이라고 적는다.
+  게다가 `AGENTS.md` Stop Conditions는 "네트워크 권한을 요구하는 task"와 "AGENT_SPEC과
+  충돌하는 task" 둘 다에서 중단 후 보고를 요구한다. 이 결정이 확정됐다는 사실만으로는
+  Phase 34가 시작되지 않는다 — §15.1·§15.6을 "스토어 배포 산출물에 영구 금지 /
+  사이드로드 플레이버는 명시적 예외"로 개정하고 그 개정이 사람에게 명시적으로 승인되어야
+  한다. 이 결정은 그 승인을 대신하지 않는다.
 - **`AGENTS.md`의 INTERNET 금지 규칙은 코드보다 먼저 개정한다.** 규칙과 코드가 어긋난 상태로
   커밋이 들어가면 다음 루프가 어느 쪽을 믿어야 할지 알 수 없다. `NOCLOUD_CERTIFICATION.md`와
   `NETWORK_FEATURE_NECESSITY_EVALUATION.md`(재검토 조건 4번이 바로 이 경로다)도 같은 커밋에서

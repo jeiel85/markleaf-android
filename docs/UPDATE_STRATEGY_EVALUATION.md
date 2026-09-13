@@ -18,7 +18,9 @@
   다시 빌드한 APK가 일치해야 그 버전이 발행된다. 두 채널이 **같은 파일 하나**를 공유하므로,
   자산 이름을 나누고 업스트림 fdroiddata 레시피를 함께 고치지 않으면 "GitHub APK에만
   업데이터"는 성립하지 않는다.
-- Status: **설계 확정, 구현 보류.** `.agent/tasks.md` Phase 34로 등록.
+- Status: **설계 확정, 구현 보류.** `.agent/tasks.md` Phase 34로 등록. 구현 착수에는
+  `docs/AGENT_SPEC.md` §15.1·§15.6("INTERNET 권한 영구 금지") 개정을 사람이 명시적으로
+  승인하는 절차가 선행한다 — `AGENTS.md` Stop Conditions가 그것을 요구한다.
 
 ## 확인된 제약
 
@@ -181,6 +183,7 @@ Gradle 속성 게이트 `-Pmarkleaf.updater=true`로 매니페스트 `srcFile`�
   "versionCode": 145,
   "versionName": "2.42.0",
   "apkUrl": "https://github.com/.../markleaf-v2.42.0-sideload.apk",
+  "apkSizeBytes": 2831155,
   "sha256": "…",
   "minSdk": 26,
   "releaseNotesUrl": "https://github.com/.../releases/tag/v2.42.0",
@@ -190,6 +193,11 @@ Gradle 속성 게이트 `-Pmarkleaf.updater=true`로 매니페스트 `srcFile`�
 
 - 비교는 `versionName` 문자열이 아니라 `BuildConfig.VERSION_CODE` 정수로 한다. 문자열
   비교는 `2.9.0` > `2.10.0`을 만든다.
+- `apkSizeBytes`와 `sha256`은 릴리스 워크플로가 실제 자산에서 계산해 넣는다. 모달이 약속한
+  다운로드 크기를 이 필드 없이 채우려면 클라이언트가 리다이렉트되는 Release 자산에
+  `HEAD` 요청을 한 번 더 보내 `Content-Length`를 읽어야 하는데, B단계 클라이언트는 JSON
+  하나만 읽고 다운로드를 브라우저에 넘기는 설계다. 릴리스 시점에 아는 값을 런타임에 다시
+  물어볼 이유가 없다.
 - 의존성은 추가하지 않는다. `HttpsURLConnection` + `org.json`으로 충분하고, APK 크기와
   F-Droid 감사 표면을 늘리지 않는다. cleartext는 차단한다.
 - 확인은 하루 1회, 실패는 조용히 무시하고 다음 기회에 다시 시도한다. 업데이트 확인 실패를
@@ -230,9 +238,17 @@ Gradle 속성 게이트 `-Pmarkleaf.updater=true`로 매니페스트 `srcFile`�
 4. store 빌드에서 업데이트 설정 항목을 숨길지 안내로 남길지.
 
 ## 문서 파급 (코드 착수 시 함께 고칠 것)
-- `AGENTS.md` 비협상 규칙의 "INTERNET을 추가하지 않는다"를 어떤 산출물을 말하는지로 개정한다.
-  **코드보다 먼저 고친다** — 규칙과 코드가 어긋난 상태로 커밋이 들어가면 다음 루프가 어느
-  쪽을 믿어야 할지 알 수 없다.
+- **`docs/AGENT_SPEC.md`가 먼저다.** `AGENTS.md`가 그 문서를 source of truth로 지정하고,
+  그 문서의 §15.6은 "INTERNET 권한 영구 금지", §15.1은 "우리 백엔드 0, INTERNET 권한 0"이라고
+  적는다. 그리고 `AGENTS.md`의 Stop Conditions는 "task가 네트워크 권한을 요구하는 경우"와
+  "task가 `docs/AGENT_SPEC.md`와 충돌하는 경우" 둘 다에서 **중단 후 보고**를 요구한다.
+  즉 Phase 34는 이 설계가 확정된 것과 무관하게, AGENT_SPEC §15.1·§15.6을
+  "스토어 배포 산출물에 영구 금지 / 사이드로드 플레이버는 명시적 예외"로 개정하고 그 개정을
+  사람이 명시적으로 승인하기 전에는 **첫 항목부터 멈춘다.** 이것은 우회할 절차가 아니라
+  이 설계가 통과해야 하는 관문이다.
+- `AGENTS.md` 비협상 규칙의 "INTERNET을 추가하지 않는다"를 어떤 산출물을 말하는지로 개정하고,
+  Stop Conditions가 개정된 spec을 가리키게 한다. **코드보다 먼저 고친다** — 규칙과 코드가
+  어긋난 상태로 커밋이 들어가면 다음 루프가 어느 쪽을 믿어야 할지 알 수 없다.
 - `docs/NETWORK_FEATURE_NECESSITY_EVALUATION.md`: 재검토 표시(이 문서로의 포인터).
 - `docs/NOCLOUD_CERTIFICATION.md`: "No INTERNET Permission" 항목에 스토어 배포 빌드 기준임을
   명시.
@@ -244,6 +260,8 @@ Gradle 속성 게이트 `-Pmarkleaf.updater=true`로 매니페스트 `srcFile`�
 
 ## Decision
 - Status: **설계 확정, 구현 보류.** `.agent/tasks.md` Phase 34.
+- **`docs/AGENT_SPEC.md` §15.1·§15.6 개정과 그 개정의 명시적 승인이 구현의 선행 조건이다.**
+  승인 없이는 Phase 34 첫 항목에서 `AGENTS.md` Stop Conditions에 걸려 멈춘다.
 - 채널 분리는 productFlavor `store` / `github`로 한다(D073).
 - 1차 구현 범위는 B단계. C단계는 B가 안정된 뒤 같은 플레이버 안에서 확장한다.
 - store / F-Droid / Play 산출물에는 INTERNET 권한도 업데이터 코드도 들어가지 않는다.

@@ -34,6 +34,19 @@ internal class UpdatePreferences(context: Context) {
         prefs.edit().putLong(KEY_LAST_CHECKED_AT, at).apply()
     }
 
+    /**
+     * 마지막으로 받아온 `update.json` 원문. 확인은 하루 1회지만 배너는 그 사이에도 떠 있어야
+     * 하므로, 네트워크를 다시 타지 않고 같은 판단을 재현할 수 있게 원문을 그대로 둔다.
+     *
+     * **온전하게 파싱된 원문만 저장한다.** 깨진 응답을 캐시하면 다음 하루 동안 매 실행에서
+     * 같은 쓰레기를 파싱하고 버리게 된다.
+     */
+    fun cachedManifest(): String? = prefs.getString(KEY_CACHED_MANIFEST, null)
+
+    fun setCachedManifest(raw: String) {
+        prefs.edit().putString(KEY_CACHED_MANIFEST, raw).apply()
+    }
+
     /** 사용자가 "이 버전 건너뛰기"를 누른 versionCode. 없으면 0. */
     fun skippedVersionCode(): Int = prefs.getInt(KEY_SKIPPED_VERSION_CODE, 0)
 
@@ -46,5 +59,6 @@ internal class UpdatePreferences(context: Context) {
         const val KEY_ENABLED = "enabled"
         const val KEY_LAST_CHECKED_AT = "last_checked_at"
         const val KEY_SKIPPED_VERSION_CODE = "skipped_version_code"
+        const val KEY_CACHED_MANIFEST = "cached_manifest"
     }
 }

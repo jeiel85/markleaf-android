@@ -88,6 +88,7 @@ import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.NotesLayout
 import com.markleaf.notes.data.settings.NotesSortMode
+import com.markleaf.notes.update.UpdateSurface
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.data.sync.mirrorMetadata
@@ -481,6 +482,11 @@ fun NotesListScreen(
                         .fillMaxSize()
                         .padding(paddingValues)
                 ) {
+                    // 사이드로드 빌드에서 새 버전이 있을 때만 한 줄이 생긴다. 스토어 빌드가 얻는
+                    // 구현은 아무것도 그리지 않는 스텁이다(D074, docs/AGENT_SPEC.md §15.9).
+                    item(key = "update-banner") {
+                        UpdateSurface.Banner(Modifier.padding(horizontal = 12.dp, vertical = 4.dp))
+                    }
                     sections.forEach { section ->
                         if (section.titleResId != null) {
                             item(key = "header-${section.titleResId}") {
@@ -519,6 +525,9 @@ fun NotesListScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    item(key = "update-banner", span = { GridItemSpan(maxLineSpan) }) {
+                        UpdateSurface.Banner(Modifier.padding(vertical = 4.dp))
+                    }
                     sections.forEach { section ->
                         if (section.titleResId != null) {
                             item(

@@ -294,6 +294,12 @@
     <string name="application_id_format">Application ID %1$s</string>
     <string name="update_check_title">Nach Updates suchen</string>
     <string name="update_check_description">Einmal täglich nach einer neuen Version suchen und bei Bedarf ein Banner anzeigen. Downloads kommen von GitHub Releases und umgehen die Prüfungen von F-Droid.</string>
+    <string name="update_banner_text">Version %1$s ist verfügbar</string>
+    <string name="update_dialog_title">Update verfügbar</string>
+    <string name="update_dialog_body">Version %1$s · %2$s. Der Download öffnet sich im Browser und stammt von GitHub Releases.</string>
+    <string name="update_action_open">Download öffnen</string>
+    <string name="update_action_skip">Diese Version überspringen</string>
+    <string name="update_action_release_notes">Versionshinweise</string>
 
     <string name="settings_open_source">Open Source</string>
     <string name="oss_license_label">Lizenz</string>

@@ -21,7 +21,7 @@ internal class UpdateChecker(
 
     /**
      * Input : 없음 (URL은 생성자 고정)
-     * Output: 온전한 [UpdateManifest], 또는 무엇이 잘못되든 `null`
+     * Output: 응답 본문 문자열, 또는 무엇이 잘못되든 `null`
      *
      * 핵심 로직: **모든 실패는 null이다.** 사용자가 요청한 적 없는 배경 확인이므로, 오프라인·DNS
      * 실패·타임아웃·5xx·깨진 본문이 전부 "이번엔 조용히 넘어간다"로 수렴한다. 확인 실패를 알리는
@@ -29,8 +29,11 @@ internal class UpdateChecker(
      *
      * 본문 길이를 제한하는 이유: 이 JSON은 몇백 바이트다. 그보다 크면 우리가 올린 파일이 아니며,
      * 응답이 끝나지 않는 연결에 메모리를 내주지 않는다.
+     *
+     * 파싱하지 않고 원문을 돌려주는 이유: 확인은 하루 1회지만 배너는 그 사이에도 떠 있어야 한다.
+     * 원문을 그대로 캐시해 두면 다음 실행에서 네트워크 없이 같은 판단을 다시 할 수 있다.
      */
-    fun fetch(): UpdateManifest? {
+    fun fetchRaw(): String? {
         var connection: HttpURLConnection? = null
         return try {
             connection = (URL(manifestUrl).openConnection() as HttpsURLConnection).apply {
@@ -42,7 +45,7 @@ internal class UpdateChecker(
             if (connection.responseCode != HttpURLConnection.HTTP_OK) {
                 null
             } else {
-                UpdateManifestParser.parse(connection.readBodyWithin(MAX_BODY_BYTES))
+                connection.readBodyWithin(MAX_BODY_BYTES)
             }
         } catch (_: Exception) {
             null

@@ -285,6 +285,12 @@
     <string name="application_id_format">アプリケーション ID %1$s</string>
     <string name="update_check_title">アップデートを確認</string>
     <string name="update_check_description">1 日 1 回、新しいバージョンがあるか確認し、見つかったらバナーでお知らせします。ダウンロードは GitHub Releases から行われ、F-Droid の検証は通りません。</string>
+    <string name="update_banner_text">新しいバージョン %1$s が利用できます</string>
+    <string name="update_dialog_title">アップデートがあります</string>
+    <string name="update_dialog_body">バージョン %1$s · %2$s。ダウンロードはブラウザーで開き、GitHub Releases から提供されます。</string>
+    <string name="update_action_open">ダウンロードを開く</string>
+    <string name="update_action_skip">このバージョンをスキップ</string>
+    <string name="update_action_release_notes">リリースノート</string>
 
     <string name="settings_open_source">オープンソース</string>
     <string name="oss_license_label">ライセンス</string>

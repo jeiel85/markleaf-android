@@ -291,6 +291,12 @@
     <string name="application_id_format">应用 ID %1$s</string>
     <string name="update_check_title">检查更新</string>
     <string name="update_check_description">每天检查一次是否有新版本，有则显示横幅提示。下载来自 GitHub Releases，不经过 F-Droid 的校验。</string>
+    <string name="update_banner_text">新版本 %1$s 可用</string>
+    <string name="update_dialog_title">有可用更新</string>
+    <string name="update_dialog_body">版本 %1$s · %2$s。下载将在浏览器中打开，来自 GitHub Releases。</string>
+    <string name="update_action_open">打开下载</string>
+    <string name="update_action_skip">跳过此版本</string>
+    <string name="update_action_release_notes">发行说明</string>
 
     <string name="settings_open_source">开源</string>
     <string name="oss_license_label">许可证</string>

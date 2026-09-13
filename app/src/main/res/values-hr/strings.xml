@@ -313,6 +313,12 @@
     <string name="application_id_format">ID aplikacije %1$s</string>
     <string name="update_check_title">Provjeri ažuriranja</string>
     <string name="update_check_description">Jednom dnevno provjeri postoji li nova verzija i prikaži obavijest kada je ima. Preuzimanja dolaze s GitHub Releasesa i zaobilaze F-Droidove provjere.</string>
+    <string name="update_banner_text">Dostupna je verzija %1$s</string>
+    <string name="update_dialog_title">Dostupno ažuriranje</string>
+    <string name="update_dialog_body">Verzija %1$s · %2$s. Preuzimanje se otvara u pregledniku i dolazi s GitHub Releasesa.</string>
+    <string name="update_action_open">Otvori preuzimanje</string>
+    <string name="update_action_skip">Preskoči ovu verziju</string>
+    <string name="update_action_release_notes">Bilješke o izdanju</string>
 
     <string name="settings_open_source">Otvoreni kod</string>
     <string name="oss_license_label">Licencija</string>

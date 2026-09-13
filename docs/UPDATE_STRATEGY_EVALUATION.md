@@ -18,9 +18,10 @@
   다시 빌드한 APK가 일치해야 그 버전이 발행된다. 두 채널이 **같은 파일 하나**를 공유하므로,
   자산 이름을 나누고 업스트림 fdroiddata 레시피를 함께 고치지 않으면 "GitHub APK에만
   업데이터"는 성립하지 않는다.
-- Status: **설계 확정, 구현 보류.** `.agent/tasks.md` Phase 34로 등록. 구현 착수에는
-  `docs/AGENT_SPEC.md` §15.1·§15.6("INTERNET 권한 영구 금지") 개정을 사람이 명시적으로
-  승인하는 절차가 선행한다 — `AGENTS.md` Stop Conditions가 그것을 요구한다.
+- Status: **설계 확정, 구현 보류.** `.agent/tasks.md` Phase 34로 등록.
+- **AGENT_SPEC 관문은 통과했다(2026-09-13).** `docs/AGENT_SPEC.md` §15.1·§15.6이 개정되고
+  §15.9가 신설되어 같은 PR에 담겼다. 남은 선행 조건은 fdroiddata 레시피 MR(P0)이며,
+  그것이 머지되기 전에는 플레이버를 담은 릴리스 태그를 밀지 않는다.
 
 ## 확인된 제약
 
@@ -238,14 +239,18 @@ Gradle 속성 게이트 `-Pmarkleaf.updater=true`로 매니페스트 `srcFile`�
 4. store 빌드에서 업데이트 설정 항목을 숨길지 안내로 남길지.
 
 ## 문서 파급 (코드 착수 시 함께 고칠 것)
-- **`docs/AGENT_SPEC.md`가 먼저다.** `AGENTS.md`가 그 문서를 source of truth로 지정하고,
-  그 문서의 §15.6은 "INTERNET 권한 영구 금지", §15.1은 "우리 백엔드 0, INTERNET 권한 0"이라고
-  적는다. 그리고 `AGENTS.md`의 Stop Conditions는 "task가 네트워크 권한을 요구하는 경우"와
-  "task가 `docs/AGENT_SPEC.md`와 충돌하는 경우" 둘 다에서 **중단 후 보고**를 요구한다.
-  즉 Phase 34는 이 설계가 확정된 것과 무관하게, AGENT_SPEC §15.1·§15.6을
-  "스토어 배포 산출물에 영구 금지 / 사이드로드 플레이버는 명시적 예외"로 개정하고 그 개정을
-  사람이 명시적으로 승인하기 전에는 **첫 항목부터 멈춘다.** 이것은 우회할 절차가 아니라
-  이 설계가 통과해야 하는 관문이다.
+- **`docs/AGENT_SPEC.md` — 완료(2026-09-13).** 이것이 첫 관문이었다. `AGENTS.md`가 그 문서를
+  source of truth로 지정하고, §15.6은 "INTERNET 권한 영구 금지", §15.1은 "우리 백엔드 0,
+  INTERNET 권한 0"이라고 적었다. 게다가 `AGENTS.md` Stop Conditions는 "task가 네트워크 권한을
+  요구하는 경우"와 "task가 `docs/AGENT_SPEC.md`와 충돌하는 경우" 둘 다에서 **중단 후 보고**를
+  요구한다. 즉 이 설계가 확정된 것만으로는 Phase 34가 시작될 수 없었고, 우회할 절차가 아니라
+  통과해야 하는 관문이었다. 승인을 받아 다음과 같이 개정했다.
+  - §15.1: 한 줄을 둘로 나눴다 — "백엔드 0 · 노트 데이터 전송 0"은 **모든 빌드**에 예외 없이,
+    "INTERNET 권한 0"은 **스토어 배포 산출물** 기준으로.
+  - §15.6: 가치관 표의 §2.2 행을 같은 기준으로 고쳤다.
+  - §15.9(신설): 예외 범위를 못박았다 — 산출물 분리 / 나가는 데이터 0 / 기본 꺼짐 /
+    재현 빌드·Play 정책 보호 / 동기화·계정·API로의 확장 금지.
+  - §6.3, §8(MVP era 문장): 오독 방지 포인터만 달고 문장 자체는 두었다.
 - `AGENTS.md` 비협상 규칙의 "INTERNET을 추가하지 않는다"를 어떤 산출물을 말하는지로 개정하고,
   Stop Conditions가 개정된 spec을 가리키게 한다. **코드보다 먼저 고친다** — 규칙과 코드가
   어긋난 상태로 커밋이 들어가면 다음 루프가 어느 쪽을 믿어야 할지 알 수 없다.
@@ -260,8 +265,9 @@ Gradle 속성 게이트 `-Pmarkleaf.updater=true`로 매니페스트 `srcFile`�
 
 ## Decision
 - Status: **설계 확정, 구현 보류.** `.agent/tasks.md` Phase 34.
-- **`docs/AGENT_SPEC.md` §15.1·§15.6 개정과 그 개정의 명시적 승인이 구현의 선행 조건이다.**
-  승인 없이는 Phase 34 첫 항목에서 `AGENTS.md` Stop Conditions에 걸려 멈춘다.
+- **`docs/AGENT_SPEC.md` §15.1·§15.6 개정과 그 개정의 명시적 승인이 구현의 선행 조건이었다.**
+  2026-09-13에 승인되어 §15.9가 신설됐고, 이 PR이 그 개정을 함께 담는다. 승인이 없었다면
+  Phase 34 첫 항목에서 `AGENTS.md` Stop Conditions에 걸려 멈췄을 것이다.
 - 채널 분리는 productFlavor `store` / `github`로 한다(D073).
 - 1차 구현 범위는 B단계. C단계는 B가 안정된 뒤 같은 플레이버 안에서 확장한다.
 - store / F-Droid / Play 산출물에는 INTERNET 권한도 업데이터 코드도 들어가지 않는다.

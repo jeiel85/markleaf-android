@@ -144,6 +144,23 @@
 
 ---
 
+## Phase 34 - Sideload Update Channel (Planned, after Phase 33)
+
+목적: 사이드로드 사용자가 새 버전을 놓치지 않게 앱이 직접 확인해 배너/모달로 알립니다.
+store / F-Droid / Play 산출물에는 INTERNET 권한도 업데이터 코드도 들어가지 않습니다
+(D073, `docs/UPDATE_STRATEGY_EVALUATION.md`).
+
+- [ ] fdroiddata 레시피 MR 선행 — `store` 변형을 빌드하도록 업스트림 수정·머지 (P0, 이것 없이 태그 금지)
+- [ ] `AGENTS.md` INTERNET 규칙과 `NOCLOUD_CERTIFICATION.md`·`NETWORK_FEATURE_NECESSITY_EVALUATION.md` 선행 개정
+- [ ] productFlavor `store` / `github` 도입 및 `./gradlew tasks`로 확인한 실제 변형 작업 이름으로 CI·스크립트·문서 수정
+- [ ] 릴리스 워크플로가 `docs/update.json`을 갱신하고 sideload 자산을 추가로 올리도록 확장
+- [ ] `versionCode` 정수 비교 업데이트 확인 로직 + 하루 1회·조용한 실패·단위 테스트
+- [ ] 기본 OFF 토글과 F-Droid 검사 우회 설명, 배너·모달·이 버전 건너뛰기 UX 구현
+- [ ] README 8개·privacy 8개·starter_notes 8개 로케일의 no-INTERNET 문장에 sideload 예외 반영
+- [ ] (다음 단계) 앱 내 다운로드 + SHA-256 대조 + `PackageInstaller` 설치 확인 팝업
+
+---
+
 ## Phase 28 - Public GitLab Releases (Done)
 
 - [x] Publish the GitLab mirror as a public repository

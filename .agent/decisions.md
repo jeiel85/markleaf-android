@@ -1214,6 +1214,54 @@ Implications:
   무수정에 작업 이름도 그대로지만 같은 변형 이름이 내용이 다른 두 결과물을 만든다.
   `docs/UPDATE_STRATEGY_EVALUATION.md`의 "더 싼 대안"에 남겨 두었다.
 
+### D074 - The Sideload Split Is A Gradle Property, Not A Product Flavour
+
+D073의 채널 분리 **수단**을 productFlavor에서 Gradle 속성 게이트로 바꾼다. 분리가 보장하는
+내용(스토어 산출물에 INTERNET 권한도 업데이터 코드도 없음)은 D073 그대로이고, 그것을 만드는
+방법만 바뀐다.
+
+```kotlin
+val sideloadUpdater = providers.gradleProperty("markleaf.updater")
+    .map(String::toBoolean).orElse(false).get()
+
+if (sideloadUpdater) {
+    sourceSets.getByName("main").manifest.srcFile("src/main/AndroidManifest-sideload.xml")
+    sourceSets.getByName("main").java.srcDir("src/sideload/java")
+}
+```
+
+Why:
+- **fdroiddata 조율이 통째로 사라진다.** 플레이버를 쓰면 F-Droid 문서대로 `gradle:`의 `yes`가
+  "모든 플레이버를 각각 빌드"하므로 레시피를 `gradle: - store`로 고치는 MR이 P0가 된다.
+  게다가 그 MR은 태그보다 먼저 머지될 수 없다 — Builds 항목이 `commit: vX.Y.Z`를 요구하고
+  `check apk`가 Release 자산을 내려받기 때문이다. 즉 릴리스마다 업스트림 조율과 미발행
+  지연이 붙는다. 속성 게이트는 F-Droid가 속성 없이 빌드하므로 `gradle: - yes`가 계속 맞고,
+  업스트림을 한 줄도 건드리지 않는다.
+- **작업 이름 167줄이 움직이지 않는다.** 플레이버는 `assembleRelease` 같은 이름을 변형 한정
+  이름으로 바꾸고, 이 저장소는 변형 없는 이름을 18개 파일 167줄에서 참조한다(2026-09-13 기준).
+  속성 게이트는 변형을 만들지 않는다.
+- **실제로 되는지 확인하고 채택했다.** `:app:processDebugMainManifest`를 두 번 돌려 병합된
+  매니페스트를 대조했다 — 속성 없이 `INTERNET` 0건, `-Pmarkleaf.updater=true`로 1건
+  (출처 `AndroidManifest-sideload.xml`). 비표준 기법이라 문서로만 정하지 않았다.
+- 플레이버가 나은 점은 AGP 표준 기법이라는 것 하나뿐이고, 위 두 비용보다 크지 않다고 봤다.
+
+Implications:
+
+- **매니페스트 사본 두 개가 이 방식의 유일한 실패 양식이다.** `srcFile`은 소스 세트당
+  매니페스트 하나를 교체하므로 전체 사본이 필요하고, 사본이 조용히 낡으면 사이드로드 빌드가
+  본 빌드와 다른 매니페스트로 나간다. **두 파일이 `INTERNET` 한 줄만 다르다는 것을 검사로
+  고정한 뒤에** 기능 코드를 올린다 — `ResourceParityTest`·`verify-locales.ps1`이 같은 종류의
+  표류를 막는 방식과 형식을 맞춘다.
+- **릴리스 워크플로는 store를 먼저 빌드해 옮긴 뒤 사이드로드를 빌드해야 한다.** 플레이버와
+  달리 두 빌드가 같은 `app/build/outputs/apk/release/app-release.apk`에 쓰므로 나중 것이
+  먼저 것을 덮는다. 순서를 뒤집으면 F-Droid가 검증할 자산이 사이드로드 빌드가 된다.
+- 업데이터 구현은 `app/src/sideload/java/`에만 둔다. `main`에 두고 런타임 플래그로 끄면 R8이
+  지워도 소스 감사에서는 보인다 — 리뷰어와 privacy 문서 독자가 확인하는 것은 소스다.
+- `sourceSets.main.java.srcDir` 게이트가 컴파일까지 되는지는 아직 확인하지 않았다. 매니페스트
+  쪽만 실측했으므로, 구현의 첫 항목은 이 확인이다.
+- D073은 **폐기되지 않는다.** 왜 분리가 필요한지(제품 약속 세 곳, Play 정책, F-Droid 재현
+  빌드)와 AGENT_SPEC 관문은 그대로 유효하다. 이 결정은 그 중 수단 한 가지만 대체한다.
+
 ---
 
 ## Resolved (Pending → Confirmed)

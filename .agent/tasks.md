@@ -148,13 +148,15 @@
 
 목적: 사이드로드 사용자가 새 버전을 놓치지 않게 앱이 직접 확인해 배너/모달로 알립니다.
 store / F-Droid / Play 산출물에는 INTERNET 권한도 업데이터 코드도 들어가지 않습니다
-(D073, `docs/UPDATE_STRATEGY_EVALUATION.md`).
+(D073·D074, `docs/UPDATE_STRATEGY_EVALUATION.md`). 채널 분리 수단은 productFlavor가 아니라
+Gradle 속성 게이트입니다 — fdroiddata 레시피 MR은 필요 없습니다(D074).
 
-- [x] `docs/AGENT_SPEC.md` §15.1·§15.6("INTERNET 권한 영구 금지") 개정안을 사람에게 올려 명시적 승인 받기 — 2026-09-13 승인, §15.9 신설로 PR #397에 포함. **아래 항목은 여전히 fdroiddata MR(P0)이 먼저다.**
-- [ ] fdroiddata 레시피 MR — 해당 버전 Builds 항목을 `gradle: - store`로 (P0). 태그보다 먼저 머지할 수 없으므로 **릴리스와 한 작업으로 묶고** 머지까지 F-Droid 미발행 지연을 감수한다. 초안: `docs/FDROID_SUBMISSION.md` "Phase 34"
+- [x] `docs/AGENT_SPEC.md` §15.1·§15.6("INTERNET 권한 영구 금지") 개정안을 사람에게 올려 명시적 승인 받기 — 2026-09-13 승인, §15.9 신설로 PR #397에 포함
+- [ ] `sourceSets.main.java.srcDir` 게이트가 컴파일까지 동작하는지 확인 (매니페스트 전환은 2026-09-13 실측 완료)
+- [ ] 사이드로드 매니페스트 사본이 본 매니페스트와 `INTERNET` 한 줄만 다르다는 것을 고정하는 검사 추가 (이 방식의 유일한 실패 양식)
 - [ ] `AGENTS.md` INTERNET 규칙·Stop Conditions와 `NOCLOUD_CERTIFICATION.md`·`NETWORK_FEATURE_NECESSITY_EVALUATION.md` 선행 개정
-- [ ] productFlavor `store` / `github` 도입 및 `./gradlew tasks`로 확인한 실제 변형 작업 이름으로 CI·스크립트·문서 수정
-- [ ] 릴리스 워크플로가 `docs/update.json`을 갱신하고 sideload 자산을 추가로 올리도록 확장
+- [ ] 속성 게이트 도입 — `markleaf.updater` 속성, 사이드로드 매니페스트, `src/sideload/java`, `BuildConfig.UPDATER`
+- [ ] 릴리스 워크플로 확장 — store를 먼저 빌드해 옮긴 뒤 사이드로드 빌드(같은 출력 경로를 공유), `docs/update.json` 갱신, 자산 목록 3곳 동기화
 - [ ] `versionCode` 정수 비교 업데이트 확인 로직 + 하루 1회·조용한 실패·단위 테스트
 - [ ] 기본 OFF 토글과 F-Droid 검사 우회 설명, 배너·모달·이 버전 건너뛰기 UX 구현
 - [ ] README 8개·privacy 8개·starter_notes 8개 로케일의 no-INTERNET 문장에 sideload 예외 반영

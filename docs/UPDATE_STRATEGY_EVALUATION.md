@@ -11,21 +11,22 @@
 ## Conclusion
 - 3단계로 나뉜다. **B단계(확인 + 배너/모달 + 브라우저 위임)까지는 낮은 위험으로 가능**하고,
   C단계(앱 내 다운로드 + `PackageInstaller`)도 가능하지만 선행 조건이 많다.
-- 배포 채널은 productFlavor `store` / `github`로 나눈다. 어떤 경우에도 F-Droid·Play로
-  나가는 산출물에는 INTERNET 권한과 업데이터 코드가 들어가지 않는다.
+- 배포 채널은 **Gradle 속성 게이트**(`-Pmarkleaf.updater=true`)로 나눈다. 속성을 주지 않으면
+  지금과 완전히 동일한 빌드이고, F-Droid·Play는 속성을 모르므로 자동으로 store 산출물을 만든다.
+  어떤 경우에도 그 산출물에는 INTERNET 권한과 업데이터 코드가 들어가지 않는다.
+  (2026-09-13에 productFlavor에서 전환 — D074. 근거는 "왜 플레이버를 버렸나", 동작은 실측 확인.)
 - **가장 큰 제약은 Play 정책이 아니라 F-Droid 재현 빌드다.** 이 앱은 `Binaries:` +
   `AllowedAPKSigningKeys`로 등록되어 있어서 GitHub Release의 APK와 F-Droid가 소스에서
-  다시 빌드한 APK가 일치해야 그 버전이 발행된다. 두 채널이 **같은 파일 하나**를 공유하므로,
-  자산 이름을 나누고 업스트림 fdroiddata 레시피를 함께 고치지 않으면 "GitHub APK에만
-  업데이터"는 성립하지 않는다.
+  다시 빌드한 APK가 일치해야 그 버전이 발행된다. 두 채널이 **같은 파일 하나**를 공유하므로
+  사이드로드 산출물은 다른 이름의 자산으로 나가야 한다. 속성 게이트에서는 F-Droid가 속성 없이
+  빌드하면 그대로 store 산출물이 나오므로 **업스트림 레시피는 손대지 않는다.**
 - Status: **설계 확정, 구현 보류.** `.agent/tasks.md` Phase 34로 등록.
 - **AGENT_SPEC 관문은 통과했다(2026-09-13).** `docs/AGENT_SPEC.md` §15.1·§15.6이 개정되고
   §15.9가 신설되어 같은 PR에 담겼다.
-- **정정(2026-09-13): "MR 머지 전에는 태그를 밀지 않는다"는 지킬 수 없는 순서다.** Builds
-  항목은 `commit: vX.Y.Z`를 필요로 하고 `check apk`는 `Binaries:` URL을 내려받으므로, 태그와
-  Release가 없으면 MR의 CI가 돌지 않는다. 올바른 순서는 **릴리스와 MR을 한 작업으로 묶고 그
-  사이의 지연을 감수하는 것**이다 — 그 사이 F-Droid는 새 버전을 발행하지 않을 뿐, 기존 설치는
-  멀쩡하다. 절차는 `docs/FDROID_SUBMISSION.md`의 "Phase 34" 절에 있다.
+- **fdroiddata MR은 더 이상 필요 없다(2026-09-13, D074).** 플레이버를 쓸 때는 레시피 MR이
+  P0였고, 그 MR은 태그보다 먼저 머지될 수도 없어 릴리스마다 조율과 미발행 지연이 생겼다.
+  속성 게이트에서는 `gradle: - yes`가 계속 맞으므로 그 선행 조건 자체가 사라진다. 경위는
+  `docs/FDROID_SUBMISSION.md`의 "Phase 34" 절에 남겨 두었다.
 
 ## 확인된 제약
 
@@ -43,7 +44,7 @@
   5개를 적어 두었고, 그 중 4번이 "F-Droid-compatible flavor strategy if needed"다.
   이 문서는 그 조건을 따라 같은 결정을 다시 여는 것이다.
 
-### 2. Google Play 정책 — store 플레이버에 업데이터가 없어야 하는 이유
+### 2. Google Play 정책 — store 산출물에 업데이터가 없어야 하는 이유
 Play의 Device and Network Abuse 정책은 두 문장을 명시한다.
 
 > "An app distributed via Google Play may not modify, replace, or update itself using any
@@ -104,7 +105,7 @@ F-Droid 문서는 이 구성의 동작을 이렇게 적는다.
 | 배너/모달 | **불가** (새 버전이 있는지 앱이 모름) | 가능 | 가능 |
 | 다운로드 | 브라우저 | 브라우저 | 앱 |
 | 시스템 설치 팝업 | 브라우저가 유발 | 브라우저가 유발 | 앱이 유발 (원하던 그림) |
-| Play 정책 위험 | 없음 | store 플레이버에 없으면 없음 | store 플레이버에 없으면 없음 |
+| Play 정책 위험 | 없음 | store 산출물에 없으면 없음 | store 산출물에 없으면 없음 |
 | 실패 모드 | 없음 | 확인 실패 = 조용히 무시 | 부분 다운로드·해시 불일치·설치 거부 복구 필요 |
 | 문서 파급 | 없음 | sideload 예외 문장 (아래 목록) | B와 동일 |
 
@@ -118,27 +119,67 @@ B가 체감 가치의 대부분을 가져간다. 사용자가 아무것도 안 �
 해당하지 않는다.
 
 C는 다운로드 진행률과 실패 복구를 앱이 책임지는 대신 검증·복구 코드를 모두 우리가 진다.
-B가 실사용에서 안정된 뒤 같은 플레이버 안에서 확장한다.
+B가 실사용에서 안정된 뒤 같은 게이트 안에서 확장한다.
 
-## 채널 분리 설계 (productFlavor)
+## 채널 분리 설계 (Gradle 속성 게이트)
 
-```text
-flavorDimension "distribution"
-  store   (기본)  권한 추가 없음, 업데이터 코드 없음  → F-Droid / Play / 재현 빌드 대상
-  github          INTERNET + 업데이터                → 사이드로드 전용 자산
+2026-09-13에 productFlavor에서 **Gradle 속성 게이트로 전환**했다. 근거는 아래 "왜 플레이버를
+버렸나". 기법은 이 저장소에서 **실제로 돌려서 확인했다**(아래 "검증 결과").
+
+```kotlin
+// app/build.gradle.kts
+val sideloadUpdater = providers.gradleProperty("markleaf.updater")
+    .map(String::toBoolean).orElse(false).get()
+
+android {
+    if (sideloadUpdater) {
+        sourceSets.getByName("main").manifest.srcFile("src/main/AndroidManifest-sideload.xml")
+        // 업데이터 구현도 같은 게이트로만 들어온다
+        sourceSets.getByName("main").java.srcDir("src/sideload/java")
+    }
+    defaultConfig {
+        buildConfigField("boolean", "UPDATER", "$sideloadUpdater")
+    }
+}
 ```
 
-- 소스 배치: `app/src/github/AndroidManifest.xml`이 INTERNET을 선언하고,
-  `app/src/github/java/.../update/`에 구현을 둔다. 공통 UI가 참조하는 이음매 하나
-  (예: `UpdateChannel` 인터페이스 + `store`의 no-op 구현)만 플레이버별로 제공한다.
-  업데이터 본체를 `main`에 두고 플래그로 끄면 R8이 지워도 **소스 감사에서는 보인다** —
-  F-Droid 리뷰어와 privacy 문서를 읽는 사람이 확인하는 것은 소스다.
-- 검증은 `store`를 기준 변형으로 삼는다. Roborazzi 골든과 계측 테스트를 양쪽 플레이버에
-  중복시키지 않고, `github`에는 업데이터 단위 테스트만 추가한다.
+- 속성을 주지 않으면 **지금과 완전히 동일한 빌드**다. F-Droid와 Play는 속성을 모르므로
+  자동으로 store 산출물을 만든다.
+- 업데이터 구현은 `app/src/sideload/java/`에만 둔다. `main`에 두고 런타임 플래그로 끄면
+  R8이 지워도 **소스 감사에서는 보인다** — F-Droid 리뷰어와 privacy 문서를 읽는 사람이
+  확인하는 것은 소스다.
+- `BuildConfig.UPDATER`는 store 빌드에서 `false`이므로 공통 UI가 분기에 쓸 수 있다.
 
-### 비용 (정직하게)
-플레이버가 생기면 Gradle 작업 이름과 출력 경로가 변형 한정 이름으로 바뀐다. 지금 저장소는
-변형 없는 이름을 여러 곳에서 참조한다.
+### 검증 결과 (2026-09-13, 이 저장소에서 실측)
+`:app:processDebugMainManifest`를 두 번 돌려 병합된 매니페스트를 대조했다.
+
+| 실행 | 병합 매니페스트의 `android.permission.INTERNET` |
+|---|---|
+| `./gradlew :app:processDebugMainManifest` | **0건** |
+| `./gradlew :app:processDebugMainManifest -Pmarkleaf.updater=true` | **1건** (출처 `AndroidManifest-sideload.xml`) |
+
+매니페스트 전환은 이렇게 확인됐다. **`java.srcDir` 쪽은 아직 컴파일까지 확인하지 않았다** —
+구현 착수 시 첫 항목으로 확인한다.
+
+### 알고 받아들이는 대가 — 매니페스트 사본 두 개
+`srcFile`은 소스 세트당 매니페스트 하나를 **교체**하므로, 사이드로드용 전체 사본이 필요하다.
+사본이 조용히 낡으면 사이드로드 빌드가 본 빌드와 다른 매니페스트로 나간다.
+
+대응: **두 파일이 `INTERNET` 한 줄만 다르다는 것을 검사로 고정한다.** 이 저장소가 이미
+`ResourceParityTest`·`verify-locales.ps1`로 같은 종류의 표류를 막고 있으므로 형식을 맞춘다.
+검사 없이 사본을 두는 것은 이 방식의 유일한 실패 양식이다.
+
+### 왜 플레이버를 버렸나 (기록)
+플레이버도 같은 분리를 주지만 두 가지 비용이 붙었고, 둘 다 이 프로젝트에서는 무겁다.
+
+1. **업스트림 조율.** F-Droid 문서는 `gradle:`의 `yes`가 "모든 플레이버를 각각 빌드한다"고
+   적으므로, 플레이버가 생기면 fdroiddata 레시피를 `gradle: - store`로 고치는 MR이 필요하다.
+   게다가 그 MR은 태그보다 먼저 머지될 수 없어(Builds 항목이 `commit: vX.Y.Z`를 요구하고
+   `check apk`가 Release 자산을 내려받는다) 릴리스마다 조율과 미발행 지연이 생긴다.
+   속성 게이트는 `gradle: - yes`가 계속 맞으므로 **fdroiddata를 아예 건드리지 않는다.**
+2. **작업 이름 파급.** 플레이버는 `assembleRelease` 같은 이름을 변형 한정으로 바꾼다. 아래
+   명령으로 센 2026-09-13 기준 **18개 파일 167줄**이 변형 없는 이름을 참조한다. 속성 게이트는
+   변형을 만들지 않으므로 한 줄도 움직이지 않는다.
 
 ```bash
 grep -rln "app-release\|assembleDebug\|app-debug\|verifyRoborazziDebug\|lintRelease\|bundleRelease" \
@@ -146,38 +187,19 @@ grep -rln "app-release\|assembleDebug\|app-debug\|verifyRoborazziDebug\|lintRele
   | grep -v "HISTORY.md\|CHANGELOG"
 ```
 
-2026-09-13 기준 18개 파일 167줄이 걸린다(`.github/workflows/android-build.yml`,
-`.gitlab-ci.yml`, `.github/scripts/launch-smoke.sh`, `scripts/verify-release-export.ps1`,
-`AGENTS.md`, `docs/RELEASE.md`, `docs/ROADMAP.md` 등). **실제로 생성되는 작업 이름은
-플레이버를 추가한 뒤 `./gradlew tasks`로 확인해서 고친다** — AGP가 어떤 변형 한정 이름을
-만드는지 추측으로 일괄 치환하면 CI가 조용히 다른 것을 빌드한다.
+플레이버가 더 나은 점은 AGP 표준 기법이라는 것 하나다. 그 값이 위 두 비용보다 크지 않다고
+판단했다. 되돌릴 근거가 생기면 이 절이 그 판단의 기록이다.
 
-### 선행 조건 P0 — fdroiddata 레시피
-`gradle: - yes`는 플레이버가 생겨도 조용히 실패하지 않는다. F-Droid 문서가 적듯 **"'yes'는
-모든 플레이버를 각각 빌드한다"** — 즉 `INTERNET`을 선언하는 `github`까지 빌드하라는 뜻이 된다.
-업스트림 fdroiddata의 해당 버전 Builds 항목이 `gradle: - store`로 바뀌어야 한다. 이 저장소의
-`metadata/com.markleaf.notes.yml`은 v2.23.0에서 멈춘 참고 사본이라 여기만 고쳐도 효과가 없다.
-
-**순서 주의(정정).** 이 MR은 태그보다 먼저 머지될 수 없다 — Builds 항목이 `commit: vX.Y.Z`를
-요구하고 `check apk`가 Release 자산을 내려받기 때문에, 태그 전에는 MR의 CI가 돌지 않는다.
-릴리스와 MR을 한 작업으로 묶고, 머지될 때까지 F-Droid가 새 버전을 발행하지 않는 지연을
-감수한다. 재현 빌드 구성상 불일치의 결과는 **미발행**이지 사이드로드 빌드의 배포가 아니다.
-자세한 절차와 MR 본문 초안은 `docs/FDROID_SUBMISSION.md`의 "Phase 34" 절에 있다.
-
-### Release 자산
-- `markleaf-vX.Y.Z.apk` = **store** 빌드. F-Droid가 검증하고 재배포하는 파일이므로 이름과
-  내용 규칙을 바꾸지 않는다.
-- `markleaf-vX.Y.Z-sideload.apk` = **github** 빌드. F-Droid는 `Binaries:`가 가리키는
-  파일만 보므로 이 자산의 존재 자체는 검증에 영향이 없다(MR 리뷰에서 확인할 항목).
+### Release 자산과 CI 주의점
+- `markleaf-vX.Y.Z.apk` = **속성 없이** 빌드한 store 산출물. F-Droid가 검증하고 재배포하는
+  파일이므로 이름과 내용 규칙을 바꾸지 않는다.
+- `markleaf-vX.Y.Z-sideload.apk` = `-Pmarkleaf.updater=true`로 빌드한 산출물.
+- **같은 출력 경로를 쓴다는 것이 함정이다.** 플레이버와 달리 두 빌드 모두
+  `app/build/outputs/apk/release/app-release.apk`에 쓰므로, 두 번째 빌드가 첫 번째를 덮는다.
+  릴리스 워크플로는 **store APK를 먼저 빌드해 다른 이름으로 옮긴 뒤** 사이드로드 빌드를
+  돌려야 한다. 순서를 뒤집으면 F-Droid가 검증할 자산이 사이드로드 빌드가 된다.
 - 자산 목록은 세 곳에 복사되어 있고 `scripts/verify-release-assets.ps1`이 대조한다(D072).
   셋을 함께 고쳐야 한다.
-
-## 더 싼 대안 (기록용)
-Gradle 속성 게이트 `-Pmarkleaf.updater=true`로 매니페스트 `srcFile`과 소스 디렉터리를
-바꾸는 방법이 있다. fdroiddata 레시피를 고치지 않아도 되고(`gradle: - yes`가 그대로 store
-빌드를 만든다) 위 167줄이 하나도 움직이지 않는다. 대가는 같은 변형 이름이 내용이 다른 두
-결과물을 만든다는 점, 그리고 AGP 표준 기법이 아니라는 점이다. 플레이버 도입 비용이 실제로
-커지면 이쪽으로 후퇴할 수 있게 남겨 둔다.
 
 ## 업데이트 메타데이터 소스
 - 권장: GitHub Pages의 정적 JSON(`docs/update.json`)을 릴리스 워크플로가 갱신한다.
@@ -239,13 +261,15 @@ Gradle 속성 게이트 `-Pmarkleaf.updater=true`로 매니페스트 `srcFile`�
 - 실패 복구: 부분 다운로드 삭제, 재시도 상한, 그리고 최종 수단으로 브라우저 링크 제시.
 
 ## Open questions
-1. `store`와 `github`가 같은 versionCode를 갖는데, 한 채널에서 다른 채널 APK로 넘어갈 때
-   (같은 versionCode, 다른 내용) 재설치가 허용되는지 실기기 확인이 필요하다. 다운그레이드가
-   아니므로 통과할 것으로 보지만 확인 전에는 단정하지 않는다.
-2. sideload 자산이 하나 더 붙는 것을 F-Droid가 문제로 보는지 — `Binaries:`가 가리키는 파일만
-   검증하므로 무해할 것으로 보지만 fdroiddata MR 리뷰에서 확인한다.
-3. 배너를 노트 목록 상단에 두는 것이 Phase 31(Smart Library)의 정보 구조와 충돌하는지.
-4. store 빌드에서 업데이트 설정 항목을 숨길지 안내로 남길지.
+1. store 산출물과 사이드로드 산출물이 같은 versionCode를 갖는데, 한 채널에서 다른 채널 APK로
+   넘어갈 때(같은 versionCode, 다른 내용) 재설치가 허용되는지 실기기 확인이 필요하다.
+   다운그레이드가 아니므로 통과할 것으로 보지만 확인 전에는 단정하지 않는다.
+2. sideload 자산이 Release에 하나 더 붙는 것이 F-Droid 검증에 영향을 주는지 — `Binaries:`가
+   가리키는 파일만 내려받아 대조하므로 무해할 것으로 보지만 첫 릴리스의 발행 여부로 확인한다.
+3. **`sourceSets.main.java.srcDir` 게이트가 컴파일까지 정상 동작하는지** — 매니페스트 전환은
+   실측했지만 소스 디렉터리 쪽은 아직 확인하지 않았다. 구현 첫 항목이다.
+4. 배너를 노트 목록 상단에 두는 것이 Phase 31(Smart Library)의 정보 구조와 충돌하는지.
+5. store 빌드에서 업데이트 설정 항목을 숨길지 안내로 남길지.
 
 ## 문서 파급 (코드 착수 시 함께 고칠 것)
 - **`docs/AGENT_SPEC.md` — 완료(2026-09-13).** 이것이 첫 관문이었다. `AGENTS.md`가 그 문서를
@@ -268,7 +292,8 @@ Gradle 속성 게이트 `-Pmarkleaf.updater=true`로 매니페스트 `srcFile`�
   명시.
 - `docs/PRIVACY.md`, `docs/privacy.*.html` 8개, `README*.md` 8개: sideload 빌드 예외 문장.
 - `app/src/main/res/raw*/starter_notes.md` 8개 로케일의 해당 문장.
-- `docs/RELEASE.md`: 자산 2개 → 3개, 플레이버 작업 이름.
+- `docs/RELEASE.md`: 자산 2개 → 3개, 그리고 **store 빌드를 먼저 만들어 옮긴 뒤 사이드로드
+  빌드를 돌리는 순서**(같은 출력 경로를 공유하므로).
 - `.github/workflows/android-build.yml`, `scripts/verify-release-assets.ps1`,
   `.github/scripts/launch-smoke.sh`.
 
@@ -277,11 +302,12 @@ Gradle 속성 게이트 `-Pmarkleaf.updater=true`로 매니페스트 `srcFile`�
 - **`docs/AGENT_SPEC.md` §15.1·§15.6 개정과 그 개정의 명시적 승인이 구현의 선행 조건이었다.**
   2026-09-13에 승인되어 §15.9가 신설됐고, 이 PR이 그 개정을 함께 담는다. 승인이 없었다면
   Phase 34 첫 항목에서 `AGENTS.md` Stop Conditions에 걸려 멈췄을 것이다.
-- 채널 분리는 productFlavor `store` / `github`로 한다(D073).
-- 1차 구현 범위는 B단계. C단계는 B가 안정된 뒤 같은 플레이버 안에서 확장한다.
+- 채널 분리는 **Gradle 속성 게이트**로 한다(D074가 D073의 플레이버 결정을 대체).
+- 1차 구현 범위는 B단계. C단계는 B가 안정된 뒤 같은 게이트 안에서 확장한다.
 - store / F-Droid / Play 산출물에는 INTERNET 권한도 업데이터 코드도 들어가지 않는다.
-- fdroiddata 레시피 MR은 릴리스와 한 작업으로 묶는다(태그 → 즉시 MR). 머지 전까지 F-Droid가
-  새 버전을 발행하지 않는 지연은 알고 감수한다 — 태그를 무기한 미루는 것은 방법이 아니다.
+- **fdroiddata 레시피는 손대지 않는다.** `gradle: - yes`가 계속 맞다.
+- 매니페스트 사본 두 개가 이 방식의 유일한 실패 양식이므로, `INTERNET` 한 줄만 다르다는 것을
+  검사로 고정한 뒤에 기능 코드를 올린다.
 
 ## References
 - Google Play Device and Network Abuse policy —

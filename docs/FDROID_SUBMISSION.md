@@ -116,124 +116,55 @@ F-Droid reviewer merge.
 
 ## Notes for reviewers
 
-Markleaf is intentionally local-first. **The artefact F-Droid distributes (the
-`store` flavour) declares no INTERNET permission**, and no build of Markleaf
-contacts a Markleaf server — there is none. User data can leave the device only through
+Markleaf is intentionally local-first. **The artefact F-Droid distributes — the one this
+recipe builds — declares no INTERNET permission**, and no build of Markleaf
+contacts a Markleaf server; there is none. User data can leave the device only through
 explicit Android OS-mediated actions such as Markdown export, Android share
 sheet, external link opening, or a user-selected Storage Access Framework
 folder.
 
-## Phase 34 — the `store` flavour recipe MR (draft, not submitted)
+## Phase 34 — no recipe change is needed (D074)
 
-This section is the P0 prerequisite recorded in D073 and
-`docs/UPDATE_STRATEGY_EVALUATION.md`: once the app gains productFlavors
-`store` / `github`, the upstream recipe must name the flavour.
+**Superseded 2026-09-13.** This section previously held a draft MR changing the upstream
+recipe to `gradle: - store`, because the plan was to split channels with product flavours.
+The project switched to a Gradle property gate (D074), and that removes the need for any
+fdroiddata change at all. The reasoning is kept because it is what ruled the flavour route
+out.
 
-### Why it is required (primary source)
+### Why the flavour route needed an MR
 
-F-Droid's Build Metadata Reference says of the `gradle:` field:
+F-Droid's Build Metadata Reference says of `gradle:`:
 
-> "Build with Gradle instead of Ant, specifying what flavours to use. Flavours
-> are case sensitive since the path to the output APK is as well."
+> "If only one flavour is given and it is 'yes', no flavour will be used. Note that for
+> projects with flavours, you must specify at least one valid flavour since 'yes' will build
+> all of them separately."
 
-> "If only one flavour is given and it is 'yes', no flavour will be used. Note
-> that for projects with flavours, you must specify at least one valid flavour
-> since 'yes' will build all of them separately."
+So with flavours in place, leaving `gradle: - yes` would not fail loudly — it would ask
+F-Droid to build *every* flavour, including the one declaring `INTERNET`. The entry would
+have had to become `gradle: - store`.
 
-So leaving `gradle: - yes` after flavours land does **not** fail loudly — it asks
-F-Droid to build *every* flavour, including `github` (the one that declares
-`INTERNET`). The reference also states the task becomes `assemble<flavours>Release`,
-i.e. `assembleStoreRelease` for us.
+Worse, that MR could not have been merged before the release tag: a Builds entry needs
+`commit: vX.Y.Z`, and `check apk` downloads the `Binaries:` URL, so neither exists until the
+GitHub Release is published. Every flavour-carrying release would have meant an upstream MR
+plus a window where F-Droid publishes nothing.
 
-The consequence is bounded but real. With `Binaries:` + `AllowedAPKSigningKeys`,
-F-Droid publishes our APK only when it matches the one it built; a mismatch means
-**that version is not published at all**. So the failure mode is a silently stalled
-F-Droid update, not F-Droid shipping the sideload build.
+### Why the property gate needs none
 
-### The metadata change
+F-Droid builds from source without passing `-Pmarkleaf.updater=true`, so it produces exactly
+the store artefact it produces today. No flavour exists, `assembleRelease` keeps its name and
+output path, and `gradle: - yes` stays correct. `Binaries:`, `AllowedAPKSigningKeys` and
+`subdir: app` are unchanged.
 
-In the upstream `fdroiddata` repository, file `metadata/com.markleaf.notes.yml`.
-The `Binaries:` line does **not** change — `markleaf-v%v.apk` stays the name of the
-`store` artefact, and the sideload artefact ships under a different name that
-F-Droid never looks at.
+Verified on this repository on 2026-09-13 by running `:app:processDebugMainManifest` twice:
+the merged manifest carries **no** `android.permission.INTERNET` without the property and
+**one** with it.
 
-```diff
-   - versionName: X.Y.Z
-     versionCode: NNN
-     commit: vX.Y.Z
-     subdir: app
-     gradle:
--      - yes
-+      - store
-```
+### What still has to hold at release time
 
-Only the entry for the first flavour-carrying release changes. **Earlier entries
-stay `yes`** — those versions genuinely had no flavours, and rewriting their recipe
-would break the record of how they were built.
-
-The copy of this file at `metadata/com.markleaf.notes.yml` in *this* repository is
-a stale reference snapshot (it stops at v2.23.0). Editing it changes nothing
-upstream, so it is deliberately left alone.
-
-### Ordering — the MR cannot precede the tag
-
-`docs/UPDATE_STRATEGY_EVALUATION.md` and D073 first said "don't push a
-flavour-carrying release tag until the MR is merged." **That is not achievable**,
-and the correction matters more than the original instruction:
-
-- A Builds entry needs `commit: vX.Y.Z`. Before the tag exists there is nothing to
-  check out, so the MR's own `fdroid build` job cannot run.
-- `check apk` downloads the `Binaries:` URL, which only exists once the GitHub
-  Release is published.
-
-An MR opened before the release is therefore unverifiable, and F-Droid reviewers
-merge on green pipelines. The workable sequence is:
-
-1. Cut the flavour-carrying release and publish the GitHub Release as usual.
-2. Open the fdroiddata MR for that version's entry immediately, with
-   `gradle: - store`.
-3. Until it merges, F-Droid publishes nothing new. Users stay on the previous
-   version — a delay, not a broken install.
-
-The real rule is therefore: **the release and the MR are one operation, and the
-delay window is accepted knowingly** — not "tag only after merge."
-
-### MR description draft
-
-> **Markleaf (com.markleaf.notes): build the `store` flavour**
->
-> Markleaf vX.Y.Z introduces two product flavours:
->
-> - `store` — what F-Droid and Google Play distribute. Identical permissions to
->   every previous release: the app declares no `INTERNET` permission.
-> - `github` — sideload-only. It adds `INTERNET` for an opt-in update check
->   (default off) against a static JSON file, and is published under a separate
->   release asset name that this recipe never references.
->
-> Because `gradle: - yes` builds every flavour separately, this entry names
-> `store` explicitly. `Binaries:` is unchanged: `markleaf-v%v.apk` is still the
-> `store` artefact, so reproducible-build verification continues to compare the
-> same thing it always has.
->
-> The app's local-first guarantees are unchanged for the artefact F-Droid ships:
-> no `INTERNET` permission, no analytics, no crash reporting, no Markleaf server.
-> The upstream spec records this split in `docs/AGENT_SPEC.md` §15.1 and §15.9,
-> and the reasoning in `docs/UPDATE_STRATEGY_EVALUATION.md`.
-
-### Checklist before submitting
-
-- [ ] The release is tagged and the GitHub Release carries `markleaf-vX.Y.Z.apk`
-      built from the **`store`** flavour.
-- [ ] Locally: `./gradlew :app:assembleStoreRelease` produces the published APK,
-      and the `github` flavour is not part of that artefact.
-- [ ] `aapt dump permissions` (or equivalent) on the published APK shows no
-      `android.permission.INTERNET`.
-- [ ] MR pipeline green — in particular `fdroid build` (it must locate the APK
-      under the flavour-specific output path, which is where `subdir: app` mattered
-      before) and `check apk`.
-- [ ] After the *next* release, confirm the auto-added Builds entry inherited
-      `gradle: - store`. **Whether `AutoUpdateMode: Version` copies fields from the
-      previous entry is not documented in the pages consulted here**, so this is
-      verified by observation rather than assumed — if it does not inherit, every
-      future release needs the same one-line MR and that cost belongs in the
-      decision.
+- `markleaf-vX.Y.Z.apk` — the asset `Binaries:` points at — must be built **without** the
+  property. Both builds write to `app/build/outputs/apk/release/app-release.apk`, so the
+  release workflow must build the store APK first and move it aside before building the
+  sideload APK. Reversing the order would publish the sideload build as the F-Droid-verified
+  artefact.
+- `aapt dump permissions` on the published APK must show no `android.permission.INTERNET`.
+- The sideload APK ships under a separate asset name that this recipe never references.

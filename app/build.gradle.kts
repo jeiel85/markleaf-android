@@ -54,9 +54,29 @@ if (requireReleaseSigning && !rootProject.file(releaseStoreFile!!).exists()) {
     throw GradleException("Release signing is required, but the keystore file does not exist: $releaseStoreFile")
 }
 
+// 사이드로드 전용 업데이트 확인을 켜는 유일한 스위치다(D074, `docs/AGENT_SPEC.md` §15.9).
+// 속성을 주지 않으면 스토어 배포 산출물과 완전히 같은 빌드가 나온다 — F-Droid와 Play는
+// 이 속성을 모르므로 자동으로 그쪽을 만든다. 그래서 fdroiddata 레시피의 `gradle: - yes`가
+// 계속 맞고, 플레이버와 달리 변형 한정 작업 이름도 생기지 않는다.
+val sideloadUpdater = providers.gradleProperty("markleaf.updater")
+    .map(String::toBoolean)
+    .orElse(false)
+    .get()
+
 android {
     namespace = "com.markleaf.notes"
     compileSdk = 35
+
+    // 게이트는 여기 한 곳뿐이다. 업데이터의 권한도 코드도 이 블록 밖에는 존재하지 않으므로,
+    // 스토어 빌드에서 "꺼져 있는" 것이 아니라 **들어가지 않는다**. 런타임 플래그로 끄는 방식은
+    // R8이 지워도 소스 감사에서는 보이고, F-Droid 리뷰어와 privacy 문서 독자가 확인하는 것은
+    // 소스다.
+    if (sideloadUpdater) {
+        // `srcFile`은 병합이 아니라 교체라서 매니페스트 전체 사본이 필요하다. 사본이 낡는 것이
+        // 이 방식의 유일한 실패 양식이고, `SideloadManifestParityTest`가 그것을 막는다.
+        sourceSets.getByName("main").manifest.srcFile("src/main/AndroidManifest-sideload.xml")
+        sourceSets.getByName("main").java.srcDir("src/sideload/java")
+    }
 
     defaultConfig {
         applicationId = "com.markleaf.notes"
@@ -65,6 +85,10 @@ android {
         versionCode = 144
         versionName = "2.41.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // 공통 UI가 업데이트 항목을 보여줄지 판단하는 값. 스토어 빌드에서는 항상 false이고,
+        // 그 빌드에는 참을 만들 코드 자체가 없다.
+        buildConfigField("boolean", "UPDATER", sideloadUpdater.toString())
     }
 
     // AGP injects a "Dependency metadata" APK signing block by default. It

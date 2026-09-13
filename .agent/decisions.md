@@ -1141,6 +1141,69 @@ Implications:
 - API 31 미만에서는 `system_accent1_*`가 없으므로 override를 하지 않는다.
   `MarkleafTheme`가 같은 조건으로 green scheme에 fallback 하는 것과 맞춘다.
 
+### D073 - The Sideload Update Channel Is A Flavor, Never The Store Build
+
+앱 내 업데이트 확인·안내는 productFlavor `github`에만 들어간다. `store` 플레이버(F-Droid,
+Play, 재현 빌드 대상)에는 `android.permission.INTERNET`도 업데이터 코드도 들어가지 않는다.
+1차 범위는 확인 + 배너/모달 + 브라우저 위임이고, 앱 내 다운로드와 `PackageInstaller`는 그
+다음이다. 설계는 `docs/UPDATE_STRATEGY_EVALUATION.md`에 있고 구현은 Phase 34로 보류한다.
+
+Why:
+- **"INTERNET 권한 없음"은 문서 한 줄이 아니라 세 곳에 있는 제품 약속이다.** README 8개
+  언어, `docs/privacy.*.html` 8개, 그리고 앱이 첫 실행에 심는 `starter_notes.md` 8개
+  로케일이 같은 문장을 말한다. 단일 빌드에 권한을 넣으면 이 전부가 한꺼번에 거짓이 된다.
+  플레이버 분리는 편의가 아니라 그 약속을 지키는 최소 조건이다.
+- **F-Droid 재현 빌드가 설계를 결정했다.** `Binaries:` + `AllowedAPKSigningKeys` 구성에서
+  F-Droid가 사용자에게 주는 파일은 우리가 Release에 올린 그 APK 자체이고, 소스 재빌드와
+  일치하지 않으면 그 버전은 발행되지 않는다. 즉 두 채널이 같은 파일 하나를 공유하므로
+  "GitHub APK에만 업데이터"는 자산 이름을 나누지 않는 한 성립하지 않는다. 이걸 모른 채
+  플레이버만 추가하면 F-Droid 업데이트가 조용히 멈춘다.
+- **Play는 포기가 아니라 보류다(D072).** Play 정책은 "may not modify, replace, or update
+  itself using any method other than Google Play's update mechanism"이라고 적는다. 업로드가
+  재개되는 시점에 위반 상태인 산출물을 만들어 두지 않는다.
+- **F-Droid 포함 정책은 옵트인이면 허용한다** — 금지가 아니라 조건이다. 그래도 F-Droid
+  배포본에 넣지 않는 쪽을 택한 이유는 정책이 아니라 위 첫 번째 근거다.
+- Play Core In-App Updates(`AppUpdateManager`)는 후보가 아니다. 비공개 SDK 금지 규칙에
+  걸리고, Play 경로 자체가 멈춰 있어 얻을 것이 없다.
+
+Implications:
+
+- **fdroiddata 레시피 MR이 선행 조건이다.** `gradle: - yes`는 플레이버가 생기면 어느 변형을
+  빌드할지 말하지 않는다. 업스트림에서 `store` 변형을 빌드하도록 고쳐 머지되기 전에는
+  플레이버를 담은 릴리스 태그를 밀지 않는다. 이 저장소의 `metadata/com.markleaf.notes.yml`은
+  v2.23.0에서 멈춘 참고 사본이라 여기만 고쳐도 효과가 없다.
+- Release 자산은 `markleaf-vX.Y.Z.apk`(store, F-Droid 검증 대상)와
+  `markleaf-vX.Y.Z-sideload.apk`(github)로 나뉜다. 자산 목록 세 곳의 복사본은
+  `scripts/verify-release-assets.ps1`이 계속 대조하므로 함께 고친다(D072).
+- 업데이터 본체는 `main`이 아니라 `app/src/github/`에 둔다. `main`에 두고 플래그로 끄면
+  R8이 지워도 소스 감사에서는 보이고, F-Droid 리뷰어와 privacy 문서를 읽는 사람이 확인하는
+  것은 소스다.
+- 변형이 생기면 Gradle 작업 이름과 출력 경로가 바뀐다. 변형 없는 이름(`app-release.apk`,
+  `assembleDebug`, `verifyRoborazziDebug`, `lintRelease` 등)은 2026-09-13 기준 18개 파일
+  167줄이 참조한다. **추측으로 일괄 치환하지 않고** 플레이버 추가 후 `./gradlew tasks`로
+  실제 생성되는 이름을 확인해서 고친다.
+- 업데이트 정보는 `api.github.com`이 아니라 GitHub Pages의 정적 JSON에서 읽는다. 비인증
+  REST 요청 한도는 시간당 60건이고 그 한도는 앱이 아니라 **IP에** 붙으므로, 통신사 NAT 뒤에서는
+  남이 소모한 한도에 우리 확인이 막힌다.
+- 새 버전 판정은 `BuildConfig.VERSION_CODE` 정수 비교다. `versionName` 문자열 비교는
+  `2.9.0` > `2.10.0`을 만든다.
+- 토글은 기본 OFF이고, 켤 때 F-Droid의 검사를 우회하는 경로라는 점을 같은 화면에서 설명한다.
+  알림 채널은 쓰지 않는다 — `POST_NOTIFICATIONS`를 추가할 이유가 없다.
+- **`docs/AGENT_SPEC.md`가 관문이다.** `AGENTS.md`가 그 문서를 source of truth로 지정하고,
+  §15.6은 "INTERNET 권한 영구 금지", §15.1은 "우리 백엔드 0, INTERNET 권한 0"이라고 적는다.
+  게다가 `AGENTS.md` Stop Conditions는 "네트워크 권한을 요구하는 task"와 "AGENT_SPEC과
+  충돌하는 task" 둘 다에서 중단 후 보고를 요구한다. 이 결정이 확정됐다는 사실만으로는
+  Phase 34가 시작되지 않는다 — §15.1·§15.6을 "스토어 배포 산출물에 영구 금지 /
+  사이드로드 플레이버는 명시적 예외"로 개정하고 그 개정이 사람에게 명시적으로 승인되어야
+  한다. 이 결정은 그 승인을 대신하지 않는다.
+- **`AGENTS.md`의 INTERNET 금지 규칙은 코드보다 먼저 개정한다.** 규칙과 코드가 어긋난 상태로
+  커밋이 들어가면 다음 루프가 어느 쪽을 믿어야 할지 알 수 없다. `NOCLOUD_CERTIFICATION.md`와
+  `NETWORK_FEATURE_NECESSITY_EVALUATION.md`(재검토 조건 4번이 바로 이 경로다)도 같은 커밋에서
+  갱신한다.
+- 플레이버 도입 비용이 실제로 커지면 Gradle 속성 게이트로 후퇴할 수 있다. 그쪽은 fdroiddata
+  무수정에 작업 이름도 그대로지만 같은 변형 이름이 내용이 다른 두 결과물을 만든다.
+  `docs/UPDATE_STRATEGY_EVALUATION.md`의 "더 싼 대안"에 남겨 두었다.
+
 ---
 
 ## Resolved (Pending → Confirmed)

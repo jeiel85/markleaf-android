@@ -18,7 +18,11 @@ Markleaf is certified as a **100% No-Cloud Application**. This certification ver
 ## Certification Criteria
 
 ### 1. Network Independence
-- [x] **No INTERNET Permission**: The application does not declare `android.permission.INTERNET` in its manifest
+- [x] **No INTERNET Permission**: The artefact distributed through F-Droid and Google Play does
+      not declare `android.permission.INTERNET` in its manifest. A sideload-only build, produced
+      only when the `markleaf.updater` Gradle property is passed, adds it for an opt-in update
+      check that transfers no user data (`docs/AGENT_SPEC.md` §15.9, D073·D074). Store builds are
+      unaffected.
 - [x] **No Network Operations**: Markleaf itself performs no network requests
 - [x] **No Server Communication**: No first-party Markleaf server exists
 - [x] **External links delegated to OS**: Tapping a URL inside a note hands off to the user's default browser via `ACTION_VIEW`; Markleaf does not fetch the URL itself

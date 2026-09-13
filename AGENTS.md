@@ -29,7 +29,10 @@ com.markleaf.notes
 다음 규칙은 MVP에서 절대 어기지 않습니다.
 
 - Android `applicationId`는 반드시 `com.markleaf.notes`를 사용한다. 출시되는 모든 빌드(release·benchmark)가 이 id를 그대로 쓴다는 뜻이다. debug 빌드만 `applicationIdSuffix = ".debug"`로 `com.markleaf.notes.debug`가 되며(#319), 이는 설치된 실사용 앱을 지우지 않고 검증하기 위한 것이다 — `defaultConfig.applicationId`는 바뀌지 않는다. 따라서 코드·스크립트는 application id를 문자열로 박지 말고 `BuildConfig.APPLICATION_ID`·`context.packageName`·`${applicationId}`로 파생시킨다.
-- MVP에서는 `android.permission.INTERNET`을 추가하지 않는다.
+- **스토어 배포 산출물**(F-Droid·Play)에는 `android.permission.INTERNET`을 추가하지 않는다.
+  속성 게이트 뒤의 사이드로드 전용 빌드만 예외이며, 그 범위는 `docs/AGENT_SPEC.md` §15.9가
+  규정한다(D073·D074, 2026-09-13 승인). 노트·태그·첨부·메타데이터가 기기를 떠나지 않는다는
+  원칙은 **어떤 빌드에서도 예외가 없다.**
 - MVP에서는 API 연동을 추가하지 않는다.
 - MVP에서는 로그인/계정 기능을 추가하지 않는다.
 - MVP에서는 분석, 광고, 추적 기능을 추가하지 않는다.
@@ -262,7 +265,8 @@ GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
 다음 상황에서는 임의로 진행하지 말고 중단 후 보고한다.
 
 - task가 API 연동을 요구하는 경우
-- task가 네트워크 권한을 요구하는 경우
+- task가 네트워크 권한을 요구하는 경우 — 단 `docs/AGENT_SPEC.md` §15.9가 규정한 사이드로드
+  업데이트 확인은 이미 승인된 예외다(D073·D074). 그 범위를 넘는 것은 여전히 중단 대상이다.
 - task가 proprietary SDK를 요구하는 경우
 - task가 `docs/AGENT_SPEC.md`와 충돌하는 경우
 - Gradle/Android 설정이 현재 환경에서 확인 불가능한 경우

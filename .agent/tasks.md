@@ -152,9 +152,9 @@ store / F-Droid / Play 산출물에는 INTERNET 권한도 업데이터 코드도
 Gradle 속성 게이트입니다 — fdroiddata 레시피 MR은 필요 없습니다(D074).
 
 - [x] `docs/AGENT_SPEC.md` §15.1·§15.6("INTERNET 권한 영구 금지") 개정안을 사람에게 올려 명시적 승인 받기 — 2026-09-13 승인, §15.9 신설로 PR #397에 포함
-- [ ] `sourceSets.main.java.srcDir` 게이트가 컴파일까지 동작하는지 확인 (매니페스트 전환은 2026-09-13 실측 완료)
-- [ ] 사이드로드 매니페스트 사본이 본 매니페스트와 `INTERNET` 한 줄만 다르다는 것을 고정하는 검사 추가 (이 방식의 유일한 실패 양식)
-- [ ] `AGENTS.md` INTERNET 규칙·Stop Conditions와 `NOCLOUD_CERTIFICATION.md`·`NETWORK_FEATURE_NECESSITY_EVALUATION.md` 선행 개정
+- [ ] `sourceSets.main.java.srcDir` 게이트 **컴파일 확인은 CI 몫** — 등록/제외는 `:app:sourceSets`로 실측 완료(속성 없이 `[src/main/java]`, 속성 주면 `[src/main/java, src/sideload/java]`). 웹 세션 컨테이너에는 Android SDK가 없어 `compileDebugKotlin`이 `SDK location not found`로 멈춘다. 게이트가 실제로 들어가는 커밋의 CI에서 확인한다
+- [x] 사이드로드 매니페스트 사본이 본 매니페스트와 `INTERNET` 한 줄만 다르다는 것을 고정하는 검사 추가 — `SideloadManifestParityTest` 2건(사본 표류 + 스토어 매니페스트에 INTERNET 없음). 사본은 손으로 베끼지 않고 본 매니페스트에서 생성했고, 불변식을 데이터로 먼저 확인함(116줄 → 117줄, INTERNET 1줄)
+- [x] `AGENTS.md` INTERNET 규칙·Stop Conditions와 `NOCLOUD_CERTIFICATION.md`·`NETWORK_FEATURE_NECESSITY_EVALUATION.md` 선행 개정 — 규칙이 코드보다 먼저 들어가야 다음 루프가 스스로 멈추지 않는다
 - [ ] 속성 게이트 도입 — `markleaf.updater` 속성, 사이드로드 매니페스트, `src/sideload/java`, `BuildConfig.UPDATER`
 - [ ] 릴리스 워크플로 확장 — store를 먼저 빌드해 옮긴 뒤 사이드로드 빌드(같은 출력 경로를 공유), `docs/update.json` 갱신, 자산 목록 3곳 동기화
 - [ ] `versionCode` 정수 비교 업데이트 확인 로직 + 하루 1회·조용한 실패·단위 테스트

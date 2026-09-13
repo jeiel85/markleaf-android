@@ -37,5 +37,6 @@ if needed`)을 따라 업데이트 확인 기능 하나만 다시 열었다. 결
 
 - 위 결정은 **그대로 유효하다.** cloud sync / remote backup / AI 헬퍼는 여전히 보류다.
 - 바뀌는 것은 `android.permission.INTERNET`을 "어느 산출물에서" 제외하는지의 범위다.
-  store · F-Droid · Play 산출물에서는 계속 제외하고, 사이드로드 전용 `github` 플레이버만
-  예외가 된다. 구현은 Phase 34로 보류되어 있어 현재 코드에는 아직 적용되지 않았다.
+  store · F-Droid · Play 산출물에서는 계속 제외하고, `markleaf.updater` 속성을 준 사이드로드
+  전용 빌드만 예외가 된다(D074 — 처음 정한 productFlavor 대신 Gradle 속성 게이트).
+  구현은 Phase 34이며 현재 앱 코드에는 아직 적용되지 않았다.

@@ -283,6 +283,8 @@
     <string name="settings_app">앱</string>
     <string name="version_format">버전 %1$s</string>
     <string name="application_id_format">애플리케이션 ID %1$s</string>
+    <string name="update_check_title">업데이트 확인</string>
+    <string name="update_check_description">하루에 한 번 새 버전이 있는지 확인하고, 있으면 배너로 알립니다. 내려받기는 GitHub Releases에서 이뤄지며 F-Droid의 검증을 거치지 않습니다.</string>
 
     <string name="settings_open_source">오픈소스</string>
     <string name="oss_license_label">라이선스</string>

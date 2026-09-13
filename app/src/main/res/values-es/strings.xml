@@ -292,6 +292,8 @@
     <string name="settings_app">Aplicación</string>
     <string name="version_format">Versión %1$s</string>
     <string name="application_id_format">ID de aplicación %1$s</string>
+    <string name="update_check_title">Buscar actualizaciones</string>
+    <string name="update_check_description">Comprobar una vez al día si hay una versión nueva y mostrar un aviso cuando la haya. Las descargas vienen de GitHub Releases y omiten las comprobaciones de F-Droid.</string>
 
     <!-- Widget -->
     <string name="quick_note_widget_label">Nota rápida</string>

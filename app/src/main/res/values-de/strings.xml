@@ -292,6 +292,8 @@
     <string name="settings_app">App</string>
     <string name="version_format">Version %1$s</string>
     <string name="application_id_format">Application ID %1$s</string>
+    <string name="update_check_title">Nach Updates suchen</string>
+    <string name="update_check_description">Einmal täglich nach einer neuen Version suchen und bei Bedarf ein Banner anzeigen. Downloads kommen von GitHub Releases und umgehen die Prüfungen von F-Droid.</string>
 
     <string name="settings_open_source">Open Source</string>
     <string name="oss_license_label">Lizenz</string>

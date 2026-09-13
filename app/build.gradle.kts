@@ -75,13 +75,23 @@ android {
         // `srcFile`은 병합이 아니라 교체라서 매니페스트 전체 사본이 필요하다. 사본이 낡는 것이
         // 이 방식의 유일한 실패 양식이고, `SideloadManifestParityTest`가 그것을 막는다.
         sourceSets.getByName("main").manifest.srcFile("src/main/AndroidManifest-sideload.xml")
-        sourceSets.getByName("main").java.srcDir("src/sideload/java")
 
         // 업데이터 테스트도 같은 게이트 뒤에 둔다. `src/test`는 `main`에 대해 컴파일되므로,
         // 게이트가 꺼진 빌드에서는 대상 클래스가 존재하지 않아 테스트가 컴파일될 수 없다.
         // CI는 이 스텝을 `-Pmarkleaf.updater=true`로 한 번 돌려 이 테스트들을 실행한다.
         sourceSets.getByName("test").java.srcDir("src/sideloadTest/java")
     }
+
+    // 두 디렉터리는 **서로 배타적**이며, 공통 UI가 부르는 `UpdateSurface` 하나를 같은 FQN으로
+    // 제공한다. 스토어 빌드는 아무것도 그리지 않는 스텁을, 사이드로드 빌드는 실제 구현을 얻는다.
+    //
+    // 왜 스텁이 필요한가: 설정 화면은 `main`에 있고 `main`은 게이트 뒤의 클래스를 참조할 수 없다.
+    // 런타임 플래그 하나로 끄는 방식은 업데이터 코드를 `main`에 두게 되므로 §15.9가 약속한
+    // "스토어 산출물에는 업데이터 코드가 들어가지 않는다"가 깨진다. 스텁은 업데이터 코드가 아니라
+    // 빈 이음매이고, 스토어 빌드가 얻는 것은 그 빈 함수뿐이다.
+    sourceSets.getByName("main").java.srcDir(
+        if (sideloadUpdater) "src/sideload/java" else "src/storeStub/java"
+    )
 
     defaultConfig {
         applicationId = "com.markleaf.notes"

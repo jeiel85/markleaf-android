@@ -158,7 +158,8 @@ Gradle 속성 게이트입니다 — fdroiddata 레시피 MR은 필요 없습니
 - [x] 속성 게이트 도입 — `markleaf.updater` 속성, 매니페스트 `srcFile` 전환, `src/sideload/java` 등록, `BuildConfig.UPDATER`. 양방향을 실측 확인(store 0건 / sideload 1건)하고, CI에 같은 검사를 hard gate로 추가했다
 - [ ] 릴리스 워크플로 확장 — store를 먼저 빌드해 옮긴 뒤 사이드로드 빌드(같은 출력 경로를 공유), `docs/update.json` 갱신, 자산 목록 3곳 동기화
 - [x] `versionCode` 정수 비교 업데이트 확인 로직 + 하루 1회·조용한 실패·단위 테스트 — `UpdateManifest`/`UpdateManifestParser`, `UpdateDecision`, `UpdateChecker`. 테스트도 게이트 뒤(`src/sideloadTest/java`)에 두고 CI가 `-Pmarkleaf.updater=true`로 실행한다(소스 세트 등록은 실측 확인, 실행은 SDK가 있는 CI가 처음)
-- [ ] 기본 OFF 토글과 F-Droid 검사 우회 설명, 배너·모달·이 버전 건너뛰기 UX 구현
+- [x] 기본 OFF 토글과 F-Droid 검사 우회 설명 — `UpdateSurface` 이음매(`src/storeStub` ↔ `src/sideload` 배타 컴파일), `UpdatePreferences`, 설정 앱 섹션의 행 하나. 문자열 2개를 8개 로케일에 추가하고 키 parity·비영어 검사를 로컬에서 통과시킴
+- [ ] 배너·모달·이 버전 건너뛰기 UX 구현 (7번의 나머지) — `UpdateSurface`에 배너 진입점 추가, `UpdateDecision`·`UpdateChecker`를 실제로 호출, 건너뛴 버전 저장
 - [ ] README 8개·privacy 8개·starter_notes 8개 로케일의 no-INTERNET 문장에 sideload 예외 반영
 - [ ] (다음 단계) 앱 내 다운로드 + SHA-256 대조 + `PackageInstaller` 설치 확인 팝업
 

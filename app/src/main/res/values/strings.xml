@@ -302,6 +302,8 @@
     <string name="settings_app">App</string>
     <string name="version_format">Version %1$s</string>
     <string name="application_id_format">Application ID %1$s</string>
+    <string name="update_check_title">Check for updates</string>
+    <string name="update_check_description">Look for a new version once a day and show a banner when one is available. Downloads come from GitHub Releases and skip F-Droid\'s checks.</string>
 
     <string name="settings_open_source">Open source</string>
     <string name="oss_license_label">License</string>

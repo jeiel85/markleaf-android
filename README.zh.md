@@ -168,7 +168,7 @@ com.markleaf.notes
 > **Google Play 更新目前处于暂停状态。** 在个人开发者的韩国营业执照政策要求解决之前，新版本不会推送到 Play 商店。要获取当前版本，请使用 **GitHub Releases**。当 F-Droid 的构建跟上后，它仍是推荐的更新渠道。（如果你已从 Play 商店安装，应用会继续正常使用。）
 
 - **F-Droid** *（推荐，可自动更新）*：[F-Droid 上的 Markleaf](https://f-droid.org/packages/com.markleaf.notes/) — 在 F-Droid 客户端中搜索，或通过上面的链接安装。它的目录可能晚于 GitHub 发布；如果暂时还没有显示当前版本，请使用下面的 GitHub Releases。它使用相同的签名密钥（SHA-256 `0be97352…f91a`），因此即使你先侧载了 GitHub 的 APK，后续更新也能无缝衔接。
-- **直接安装 APK**：从 [GitHub v2.42.0 发布页](https://github.com/jeiel85/markleaf-android/releases/tag/v2.42.0) 下载 APK，然后在你的 Android 设备上运行。
+- **直接安装 APK**：[GitHub v2.42.0 发布页](https://github.com/jeiel85/markleaf-android/releases/tag/v2.42.0) 附带两个 APK——`markleaf-v2.42.0.apk` 与 F-Droid/Play 上的版本相同（无自动更新、无额外权限），`markleaf-v2.42.0-sideload.apk` 则开启了应用内更新检查（新增 `INTERNET` 和 `REQUEST_INSTALL_PACKAGES` 权限）。想要应用内更新就下载 sideload 版，然后在你的 Android 设备上运行安装——两者使用相同的签名密钥，之后互相切换会被当作正常更新，而不是重新安装。
 - **Google Play**：[Google Play 上的 Markleaf](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **更新已暂停**（见上方说明）。如果你已经安装，它会继续可用；当前版本请用 GitHub Releases，或等 F-Droid 上架后使用 F-Droid。
 
 ### 从源码构建

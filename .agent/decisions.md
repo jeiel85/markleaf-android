@@ -1393,6 +1393,28 @@ Implications:
   `UpdateChecker`와 같은 이유로 단위 테스트가 없다 — Android 프레임워크·네트워크 I/O를
   이 환경에서 흉내 내 검증할 방법이 마땅치 않다.
 
+> **갱신(2026-09-14, 머지 전 리뷰).** CI가 잡을 수 없는 종류의 버그를 코드 리뷰로 발견해
+> 머지 전에 고쳤다. `UpdateDialog`의 `LaunchedEffect(downloadEpoch)`는
+> `UpdateDownloader.download()`/`UpdateInstaller.install()`이라는 취소 체크포인트 없는
+> 순수 블로킹 함수를 `withContext(Dispatchers.IO)` 안에서 부른다 — 코루틴 취소는 협조적이라,
+> Downloading 상태에서 "닫기"를 눌러 다이얼로그가 컴포지션을 벗어나도 이미 시작한 네트워크
+> 읽기나 `session.commit()`은 실제로 멈추지 않고 끝까지 실행됐다. 원래 주석은 "닫기 = 취소"라고
+> 적었지만 사실이 아니었다. 더 나쁜 파생: 그 상태로 사용자가 배너를 다시 눌러 재시도하면,
+> 같은 캐시 파일 경로(`cacheDir/updates/update.apk`)를 겨냥한 두 번째 흐름이 동시에 돌면서
+> 첫 흐름의 SHA-256 검증과 `UpdateInstaller.install()`의 파일 읽기 사이에 내용이 바뀌는
+> TOCTOU 경합이 이론상 가능했다 — 이 절 자신이 "1차 방어"라고 부르는 바로 그 검증을 흔드는
+> 결함이었다.
+>
+> 고친 방식은 재시도가 아니라 **재진입 자체를 없애는 것**이다: `Downloading` 상태에서는
+> `AlertDialog`의 `DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)`로
+> 뒤로가기·바깥 탭을 막고, `dismissButton`도 그 상태에서는 그리지 않는다 — 닫을 방법이 하나도
+> 남지 않으므로 "닫았는데 팝업이 뜬다"는 혼란도, 두 흐름이 겹칠 창도 원천적으로 없다. 그 위에
+> `UpdateSurface` 객체 수준의 `AtomicBoolean` 재진입 가드(`downloadInProgress`)를 두 번째
+> 방어선으로 얹었다 — 위 UI 차단에만 기대지 않는다. `PackageInstaller`/`UpdateDownloader` 쪽을
+> "진짜로 취소 가능하게" 만드는 방법(주기적 `ensureActive()` 체크, 취소 시 `connection.disconnect()`
+> 호출)도 검토했지만, 블로킹 I/O 구조 자체를 바꾸는 더 큰 수술이라 이 환경(Android SDK 없음)에서
+> 컴파일 확인 없이 손대기엔 위험이 크다고 판단해 최소 변경을 골랐다.
+
 ---
 
 ## Resolved (Pending → Confirmed)

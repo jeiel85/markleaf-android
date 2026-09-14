@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import com.markleaf.notes.BuildConfig
 import com.markleaf.notes.R
 import com.markleaf.notes.feature.settings.SettingsSwitchRow
@@ -43,6 +44,7 @@ import com.markleaf.notes.util.HapticFeedback
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * 사이드로드 빌드가 얻는 이음매. `src/storeStub/java`의 같은 이름 파일과 **배타적으로**
@@ -146,6 +148,12 @@ internal object UpdateSurface {
      */
     private enum class DownloadFlowState { Offer, NeedsInstallPermission, Downloading, Failed }
 
+    // 프로세스 전체에서 하나만 도는 다운로드/설치를 보장하는 재진입 가드. `UpdateDialog`가
+    // 닫혔다 다시 열려도(이론상으로도) 같은 캐시 파일 경로(`DOWNLOAD_FILE_NAME`)를 두 흐름이
+    // 동시에 쓰는 경합이 생기지 않게 한다 — 아래 `canDismiss`가 애초에 그 경로를 차단하지만,
+    // 이 가드는 그 차단에 기대지 않는 두 번째 방어선이다.
+    private val downloadInProgress = AtomicBoolean(false)
+
     @Composable
     private fun UpdateDialog(
         manifest: UpdateManifest,
@@ -160,12 +168,17 @@ internal object UpdateSurface {
         var downloadEpoch by remember(manifest) { mutableIntStateOf(0) }
 
         fun startDownload() {
+            // compareAndSet이 false를 반환하면 이미 다른 흐름이 돌고 있다는 뜻 — 조용히
+            // 무시한다. 정상 경로에서는 canDismiss가 그 상태로의 재진입 자체를 막으므로
+            // 여기 걸릴 일이 없어야 하지만, 그 가정이 깨지더라도 파일 경합만은 막는다.
+            if (!downloadInProgress.compareAndSet(false, true)) return
             // 매번 다시 묻는다 — Settings에서 돌아온 뒤 다시 확인하는 것과 같은 이유로,
             // 사용자가 그사이 권한을 바꿨을 수도 있는 사실을 이 함수가 직접 안다고 가정하지 않는다.
             flowState = if (context.packageManager.canRequestPackageInstalls()) {
                 downloadEpoch++
                 DownloadFlowState.Downloading
             } else {
+                downloadInProgress.set(false)
                 DownloadFlowState.NeedsInstallPermission
             }
         }
@@ -181,20 +194,40 @@ internal object UpdateSurface {
 
         LaunchedEffect(downloadEpoch) {
             if (downloadEpoch == 0) return@LaunchedEffect
-            val destination = File(File(context.cacheDir, DOWNLOAD_DIR).apply { mkdirs() }, DOWNLOAD_FILE_NAME)
-            val installed = withContext(Dispatchers.IO) {
-                when (val result = UpdateDownloader().download(manifest.apkUrl, destination, manifest.sha256)) {
-                    is UpdateDownloader.Result.Success -> UpdateInstaller.install(context, result.file)
-                    UpdateDownloader.Result.Failed -> false
+            try {
+                val destination =
+                    File(File(context.cacheDir, DOWNLOAD_DIR).apply { mkdirs() }, DOWNLOAD_FILE_NAME)
+                val installed = withContext(Dispatchers.IO) {
+                    when (val result = UpdateDownloader().download(manifest.apkUrl, destination, manifest.sha256)) {
+                        is UpdateDownloader.Result.Success -> UpdateInstaller.install(context, result.file)
+                        UpdateDownloader.Result.Failed -> false
+                    }
                 }
+                // 성공하면 이 모달이 더 할 일이 없다 — 설치 확인 팝업은 시스템이 띄운다. 실패하면
+                // "다시 시도"와 "브라우저에서 열기" 중 고르게 한다(디자인 문서의 "실패 복구").
+                if (installed) onDismiss() else flowState = DownloadFlowState.Failed
+            } finally {
+                // `UpdateDownloader.download()`/`UpdateInstaller.install()`은 취소 체크포인트가
+                // 없는 순수 블로킹 함수라, 이 LaunchedEffect가 취소돼도 둘 다 이미 시작했다면
+                // 끝까지 실행된 뒤에야 여기 도달한다 — 그래서 가드 해제를 finally에 둬도
+                // "아직 실행 중인데 풀렸다"는 일이 없다.
+                downloadInProgress.set(false)
             }
-            // 성공하면 이 모달이 더 할 일이 없다 — 설치 확인 팝업은 시스템이 띄운다. 실패하면
-            // "다시 시도"와 "브라우저에서 열기" 중 고르게 한다(디자인 문서의 "실패 복구").
-            if (installed) onDismiss() else flowState = DownloadFlowState.Failed
         }
+
+        // Downloading 동안은 닫을 방법을 아예 주지 않는다. 이 상태에서 시작된 네트워크 읽기나
+        // `PackageInstaller.session.commit()`은 취소 체크포인트가 없는 블로킹 호출이라 다이얼로그를
+        // 나가도 실제로는 멈추지 않는다 — "닫았다"고 믿었는데 잠시 뒤 설치 확인 팝업이 뜨는 혼란과,
+        // 그 틈에 재시도가 같은 캐시 파일을 다시 써서 생기는 경합(위 `downloadInProgress` 참조)을
+        // 애초에 만들지 않는 편이 낫다.
+        val canDismiss = flowState != DownloadFlowState.Downloading
 
         AlertDialog(
             onDismissRequest = onDismiss,
+            properties = DialogProperties(
+                dismissOnBackPress = canDismiss,
+                dismissOnClickOutside = canDismiss,
+            ),
             title = { Text(stringResource(R.string.update_dialog_title)) },
             text = {
                 when (flowState) {
@@ -260,8 +293,8 @@ internal object UpdateSurface {
                     ) {
                         Text(stringResource(R.string.update_action_open_settings))
                     }
-                    // 내려받는 동안은 누를 만한 주 동작이 없다 — 기다리거나 닫는 것뿐이고,
-                    // 닫기는 dismissButton이 항상 맡는다.
+                    // 내려받는 동안은 누를 만한 주 동작이 없다 — 이 상태에서는 애초에 닫을
+                    // 방법도 없다(위 `canDismiss` 참조), 기다리는 것 외엔 할 게 없다.
                     DownloadFlowState.Downloading -> Unit
                     DownloadFlowState.Failed -> TextButton(onClick = ::startDownload) {
                         Text(stringResource(R.string.update_action_retry))
@@ -269,10 +302,13 @@ internal object UpdateSurface {
                 }
             },
             dismissButton = {
-                // 모든 상태에서 항상 보인다 — 내려받는 중에 닫으면 이 컴포저블이 컴포지션을
-                // 벗어나면서 위 LaunchedEffect가 취소된다. 그것이 곧 "다운로드 취소"다.
-                TextButton(onClick = onDismiss) {
-                    Text(stringResource(R.string.close))
+                // Downloading 상태에서는 위 `canDismiss`가 뒤로가기·바깥 탭을 이미 막았고,
+                // 이 버튼도 같은 이유로 아예 그리지 않는다 — 닫을 방법이 하나라도 남아 있으면
+                // 안 된다.
+                if (canDismiss) {
+                    TextButton(onClick = onDismiss) {
+                        Text(stringResource(R.string.close))
+                    }
                 }
             },
         )

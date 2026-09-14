@@ -1,6 +1,7 @@
 package com.markleaf.notes.navigation
 
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ActivityScenario
@@ -71,7 +72,7 @@ class NavigateAfterSuspendTest {
         composeTestRule
             .onNodeWithContentDescription(context.getString(R.string.add_note))
             .performClick()
-        composeTestRule.waitForIdle()
+        awaitEditor()
         scenario.finish(database)
     }
 
@@ -83,11 +84,50 @@ class NavigateAfterSuspendTest {
         composeTestRule
             .onNodeWithContentDescription(context.getString(R.string.add_note))
             .performClick()
-        composeTestRule.waitForIdle()
+        awaitEditor()
         composeTestRule
             .onNodeWithContentDescription(context.getString(R.string.back))
             .performClick()
         composeTestRule.waitForIdle()
         scenario.finish(database)
+    }
+
+    /**
+     * Waits for the editor to actually be on screen after the FAB.
+     *
+     * Input: nothing. Output: returns once the editor's Back control exists, or
+     * fails the test by timeout.
+     *
+     * Why a wait rather than `waitForIdle()`, which is what stood here: the tap
+     * starts `createNote()`, which *suspends into Room*, and the navigation
+     * happens when that resumes. While Room is working there is nothing for
+     * Compose to recompose, so the tree is idle and `waitForIdle()` returns —
+     * before the editor exists. The test then looked for 'Back' on the note list
+     * and failed with "Expected exactly '1' node ... ContentDescription =
+     * 'Back'". It was seen three times, each on a commit that could not have
+     * caused it — twice on release commits whose only app-code change was
+     * versionCode/versionName (#262, #374, #399) — because whether the race is
+     * lost depends on how busy the runner is, not on the diff.
+     *
+     * The editor's arrival is also this test's premise, not incidental: it is
+     * the navigation after the suspend that #235 was about, so waiting for it
+     * makes both tests assert they got there instead of hoping.
+     */
+    private fun awaitEditor() {
+        composeTestRule.waitUntil(EDITOR_TIMEOUT_MS) {
+            composeTestRule
+                .onAllNodesWithContentDescription(context.getString(R.string.back))
+                .fetchSemanticsNodes()
+                .isNotEmpty()
+        }
+    }
+
+    private companion object {
+        /**
+         * Generous on purpose: this bounds a Room round-trip plus a navigation
+         * on a shared CI emulator, and a timeout here is a test failure rather
+         * than a slow pass, so the cost of being wrong is asymmetric.
+         */
+        const val EDITOR_TIMEOUT_MS = 10_000L
     }
 }

@@ -547,14 +547,17 @@ jobs:
           # 첫 태그 시도) `test`가 조용히 실패해 원인을 알 수 없었다. 형제 스텝들
           # (서명 인증서 검증)이 이미 하는 것처럼, 추출값을 판정 전에 그대로 찍는다.
           # 전체를 찍는 이유: VERSION_CODE/VERSION_NAME은 `package:` 줄에서, MIN_SDK는
-          # 별도의 `sdkVersion:` 줄에서 파싱한다 — 하나만 찍으면 셋 중 어느 게 실패
+          # 별도의 `minSdkVersion:` 줄에서 파싱한다 — 하나만 찍으면 셋 중 어느 게 실패
           # 원인인지에 따라 또 한 번 태그를 낭비할 수 있다.
           printf 'BADGING (full):\n%s\n' "$BADGING"
           # 앞의 공백까지 패턴에 넣는 이유: 같은 줄에 `platformBuildVersionCode` 처럼 끝이
           # 같은 필드가 함께 오고, 앞을 열어 두면 greedy 매칭이 그쪽을 집을 수 있다.
           VERSION_CODE="$(printf '%s\n' "$BADGING" | grep -o "[[:space:]]versionCode='[0-9]*'" | head -n 1 | tr -dc '0-9' || true)"
           VERSION_NAME="$(printf '%s\n' "$BADGING" | grep -o "[[:space:]]versionName='[^']*'" | head -n 1 | sed "s/.*='//; s/'$//" || true)"
-          MIN_SDK="$(printf '%s\n' "$BADGING" | grep -o "^sdkVersion:'[0-9]*'" | head -n 1 | tr -dc '0-9' || true)"
+          # v2.42.0 첫 태그 시도(run #896)가 여기서 조용히 실패한 원인: aapt2 dump badging은
+          # `sdkVersion:`이 아니라 `minSdkVersion:'26'`으로 찍는다(aapt v1과 다른 필드명).
+          # `^sdkVersion:`로 찾으면 항상 빈 문자열이 되어 뒤의 `test -n "$MIN_SDK"`가 실패한다.
+          MIN_SDK="$(printf '%s\n' "$BADGING" | grep -o "^minSdkVersion:'[0-9]*'" | head -n 1 | tr -dc '0-9' || true)"
           printf 'VERSION_CODE=%s\n' "$VERSION_CODE"
           printf 'VERSION_NAME=%s\n' "$VERSION_NAME"
           printf 'MIN_SDK=%s\n' "$MIN_SDK"

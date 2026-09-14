@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Policy - Markleaf</title>
-    <meta name="description" content="Markleaf privacy policy. Markleaf is a local-first Markdown note app that runs with no INTERNET permission, account, analytics, ads, or tracking.">
+    <meta name="description" content="Markleaf privacy policy. Markleaf is a local-first Markdown note app with no account, analytics, ads, or tracking. The store builds declare no INTERNET permission.">
     <link rel="canonical" href="https://jeiel85.github.io/markleaf-android/privacy.html">
     <link rel="alternate" hreflang="en" href="https://jeiel85.github.io/markleaf-android/privacy.html">
     <link rel="alternate" hreflang="ko" href="https://jeiel85.github.io/markleaf-android/privacy.ko.html">
@@ -51,7 +51,7 @@
             <p class="updated">Last updated: May 26, 2026 · Applies to Markleaf Android v2.x</p>
 
             <h2>Core principle</h2>
-            <p>Markleaf is a local-first Markdown note app. Markleaf itself has no <code>android.permission.INTERNET</code> permission, runs no server of its own, and never automatically uploads notes, tags, attachments, or metadata to any external server.</p>
+            <p>Markleaf is a local-first Markdown note app. It runs no server of its own and never uploads notes, tags, attachments, or metadata to any external server. The builds distributed through F-Droid and Google Play declare no <code>android.permission.INTERNET</code> permission at all; the sideload build on GitHub Releases declares it for one purpose only, described under <a class="text-link" href="#network">Network</a>.</p>
 
             <h2>Information Markleaf does not collect</h2>
             <ul>
@@ -63,9 +63,24 @@
             </ul>
             <p>It also contains no analytics, ads, tracking, remote configuration, Firebase, or closed-source crash-reporting SDKs.</p>
 
-            <h2>Network</h2>
-            <p>Markleaf declares no internet permission.</p>
-            <pre>android.permission.INTERNET   none</pre>
+            <h2 id="network">Network</h2>
+            <p>This depends on where you got the app. In both cases, <strong>none of your note data is ever sent.</strong></p>
+            <ul>
+                <li><strong>F-Droid and Google Play</strong> — no <code>android.permission.INTERNET</code>, and no network activity whatsoever.</li>
+                <li><strong>GitHub Releases (sideload)</strong> — declares the permission for exactly one thing: an update check that is off unless you turn it on.</li>
+            </ul>
+            <pre>F-Droid / Google Play   android.permission.INTERNET   none
+GitHub Releases         android.permission.INTERNET   update check only</pre>
+
+            <h3>The update check in the sideload build</h3>
+            <ul>
+                <li><strong>Off by default.</strong> Nothing happens until you switch it on in Settings.</li>
+                <li>Once a day it makes a single GET for one static JSON file describing the newest release. A failed check is ignored silently.</li>
+                <li>The request carries that URL and standard HTTP headers. No query string, no cookie, no account.</li>
+                <li><strong>No note bodies, titles, tags, attachments, file names, metadata, device identifiers, or usage data are sent.</strong> That holds in every build, without exception.</li>
+                <li>When a new version exists, the download is handed to your browser. The app neither downloads nor installs anything itself.</li>
+                <li>The store builds contain neither the permission nor the code for this — not disabled, simply not built in.</li>
+            </ul>
 
             <h2>Where data is stored</h2>
             <ul>
@@ -89,7 +104,7 @@
             <p>Whether a SAF folder is synced by an external sync client such as Drive, Dropbox, OneDrive, Syncthing, or a NAS mount is the responsibility of that external app. Markleaf does not perform that sync itself.</p>
 
             <h2>Permissions</h2>
-            <p>The only runtime-style permission Markleaf declares is <code>android.permission.VIBRATE</code> for haptic feedback. It declares no location, microphone, camera, contacts, notification, external-storage read, media read, or network permissions.</p>
+            <p>The only runtime-style permission Markleaf declares is <code>android.permission.VIBRATE</code> for haptic feedback. No build declares location, microphone, camera, contacts, notification, external-storage read, or media read permissions. <code>android.permission.INTERNET</code> is absent from the F-Droid and Google Play builds and present only in the sideload build, for the update check described under <a class="text-link" href="#network">Network</a>.</p>
 
             <h2>Contact</h2>
             <p>For questions or security/privacy reports, please reach out via <a class="text-link" href="https://github.com/jeiel85/markleaf-android/issues">GitHub Issues</a>.</p>

@@ -127,7 +127,7 @@ Markleaf ne zahtijeva vlastiti oblak. Umjesto toga možete odabrati mapu i prepu
 - Markleaf zapisuje svaku bilješku kao Markdown datoteku.
 - Frontmatter održava stabilni `markleaf_id`.
 - Priložene datoteke ostaju uz zrcaljene bilješke.
-- Aplikacija i dalje ne zahtijeva dozvolu za INTERNET.
+- Markleaf nikada ne šalje vaše bilješke — sinkronizacija je posao vašeg alata, a ne aplikacije.
 
 ## Zašto je to važno
 

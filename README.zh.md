@@ -59,7 +59,7 @@
 
 ## 🍃 Markleaf 是什么？
 
-**Markleaf** 是一款 Android Markdown 笔记应用，它刻意剥离多余的东西，让你只专注于两件事：记录和整理。数据只保存在你的设备上，标准 Markdown 格式则保证了完整的所有权与可迁移性。就连同步也只通过 *你自己选择的文件夹* 进行 — Markleaf 本身从不联网。
+**Markleaf** 是一款 Android Markdown 笔记应用，它刻意剥离多余的东西，让你只专注于两件事：记录和整理。数据只保存在你的设备上，标准 Markdown 格式则保证了完整的所有权与可迁移性。就连同步也只通过 *你自己选择的文件夹* 进行 — Markleaf 自身从不进行同步或上传。
 
 [**查看品牌页面**](https://jeiel85.github.io/markleaf-android/index.zh.html) · [当前版本：v2.41.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.41.0) · [隐私政策](https://jeiel85.github.io/markleaf-android/privacy.zh.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
@@ -88,7 +88,7 @@
 - **置顶 / 归档 / 回收站** — 永久删除前，回收站会再确认一次
 
 ### 同步与导出（No-Cloud 原则）
-- **文件夹镜像同步** — 把每篇笔记以 **标题命名** 的 `.md` / `.txt` 文件镜像到你通过 SAF 选择的文件夹（Drive/Dropbox/Syncthing/OneDrive/NAS 等）；重命名笔记后文件名也会跟着变。Markleaf 自身始终离线，同步交给 *负责同步那个文件夹的外部应用*
+- **文件夹镜像同步** — 把每篇笔记以 **标题命名** 的 `.md` / `.txt` 文件镜像到你通过 SAF 选择的文件夹（Drive/Dropbox/Syncthing/OneDrive/NAS 等）；重命名笔记后文件名也会跟着变。Markleaf 自身从不进行同步，同步交给 *负责同步那个文件夹的外部应用*
 - **打开 `.md` / `.txt` 文件阅读** — 使用 ⋮ 菜单中的 *打开文件…*，或在文件管理器中点击文件，即以渲染后的只读方式打开；在你点击 *保存为笔记* 之前不会创建任何笔记（保存时若没有标题则用文件名作为标题）。从其他应用分享过来的文件仍会立即导入。同步进来的笔记中的标签会被立即识别
 - **将单篇 / 全部笔记导出为 `.md`**
 - **通过系统分享面板发送**
@@ -191,14 +191,16 @@ Markleaf 的缺陷修复大多始于别人的一份报告。写下这些报告�
 
 ## 🔒 No-Cloud by design
 
-Markleaf 自身从不访问网络。你的数据是否离开设备，*完全由你决定*。
+Markleaf 没有自己的后端，你的笔记也不会自行离开设备。你的数据是否离开设备，*完全由你决定*。
 
-- ✅ **没有** 声明 `android.permission.INTERNET` — Markleaf 自身不发起任何网络请求
+- ✅ 应用市场版本（F-Droid、Google Play）**没有** 声明 `android.permission.INTERNET` — 它们不发起任何网络请求
 - ✅ **没有** Markleaf 服务器 / 后端
 - ✅ **没有** 分析 / 广告 / 跟踪 / 闭源 SDK
 - ✅ `android:allowBackup="false"` — Markleaf 的数据被排除在 Android 自动备份 / 设备迁移之外
 - ✅ 只有当 *你* 导出、分享、打开外部链接或选择 SAF 文件夹时，数据才会经由系统路径移动
 - ✅ 完全开源，任何人都可依据 Apache 2.0 审查
+
+**只有一个例外。** [GitHub Releases](https://github.com/jeiel85/markleaf-android/releases/latest) 上的 APK 声明了 `INTERNET` 权限，用途仅一项：**默认关闭、需你主动开启** 的更新检查（只读取一个静态 JSON 文件）。F-Droid 和 Google Play 版本既没有该权限也没有该代码 — 不是被禁用，而是**根本不存在**。**任何版本都不会发送笔记、标签、附件、元数据、标识符或使用记录。** 这条界线写在 [`docs/AGENT_SPEC.md` §15.9](docs/AGENT_SPEC.md)。
 
 “绝不离开你的设备”具体是如何做到的，记录在 [隐私政策](docs/PRIVACY.md) 和 [No-Cloud 认证](docs/NOCLOUD_CERTIFICATION.md) 中。
 

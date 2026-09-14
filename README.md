@@ -59,7 +59,7 @@
 
 ## 🍃 What is Markleaf?
 
-**Markleaf** is an Android Markdown note app designed to strip away the clutter so you can focus on just two things: capturing and organizing. Your data is stored only on your device, and standard Markdown guarantees full ownership and portability. Even sync happens only through *a folder you choose* — Markleaf itself never goes online.
+**Markleaf** is an Android Markdown note app designed to strip away the clutter so you can focus on just two things: capturing and organizing. Your data is stored only on your device, and standard Markdown guarantees full ownership and portability. Even sync happens only through *a folder you choose* — Markleaf never syncs or uploads anything itself.
 
 [**View the branding page**](https://jeiel85.github.io/markleaf-android/) · [Current version: v2.41.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.41.0) · [Privacy Policy](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
@@ -88,7 +88,7 @@
 - **Pin / archive / trash** — trash asks once more before permanent deletion
 
 ### Sync & Export (No-Cloud principle)
-- **Folder mirror sync** — mirrors each note as a **title-named** `.md` / `.txt` file to a folder you pick via SAF (Drive/Dropbox/Syncthing/OneDrive/NAS, etc.); rename a note and its file follows. Markleaf itself stays offline; sync is delegated to *whatever external app syncs that folder*
+- **Folder mirror sync** — mirrors each note as a **title-named** `.md` / `.txt` file to a folder you pick via SAF (Drive/Dropbox/Syncthing/OneDrive/NAS, etc.); rename a note and its file follows. Markleaf never syncs anything itself; it is delegated to *whatever external app syncs that folder*
 - **Open a `.md` / `.txt` file to read it** — *Open file…* in the ⋮ menu, or a tap in your file manager, opens the file rendered and read-only; nothing joins your notes until you tap *Save as note* (the file name becomes the title when there's no heading). Sharing a file into Markleaf from another app still imports it straight away. Tags in synced-in notes are recognized right away
 - **Export individual / all notes as `.md`**
 - **Send via the system share sheet**
@@ -191,14 +191,16 @@ Markleaf's bug fixes mostly begin as somebody else's report. The people who wrot
 
 ## 🔒 No-Cloud by design
 
-Markleaf itself never goes to the network. Whether your data leaves the device is *entirely your choice*.
+Markleaf has no backend, and none of your notes ever leave the device on their own. Whether your data leaves the device is *entirely your choice*.
 
-- ✅ **No** `android.permission.INTERNET` declared — Markleaf makes no network requests itself
+- ✅ **No** `android.permission.INTERNET` in the store builds (F-Droid, Google Play) — they make no network requests at all
 - ✅ **No** Markleaf server / backend
 - ✅ **No** analytics / ads / tracking / closed-source SDKs
 - ✅ `android:allowBackup="false"` — Markleaf data is excluded from Android auto-backup / device transfer
 - ✅ Data only ever moves through OS paths when *you* export, share, open an external link, or pick a SAF folder
 - ✅ Fully open source, auditable by anyone under Apache 2.0
+
+**One exception, and only one.** The APK on [GitHub Releases](https://github.com/jeiel85/markleaf-android/releases/latest) declares `INTERNET` for an **opt-in, off-by-default** update check that reads a single static JSON file and nothing else. The F-Droid and Google Play builds contain neither that permission nor that code — not disabled, absent. **No notes, tags, attachments, metadata, identifiers or usage data are sent in any build.** The boundary is written down in [`docs/AGENT_SPEC.md` §15.9](docs/AGENT_SPEC.md).
 
 How "never leaves your device" works exactly is documented in the [Privacy Policy](docs/PRIVACY.md) and the [No-Cloud Certification](docs/NOCLOUD_CERTIFICATION.md).
 

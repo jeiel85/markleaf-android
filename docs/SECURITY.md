@@ -4,9 +4,10 @@
 
 ## Scope
 
-Markleaf는 자체 네트워크 트래픽이 없는 로컬 우선 앱이다.
+Markleaf는 노트 데이터를 전송하지 않는 로컬 우선 앱이다.
 
-- Markleaf 자체에는 `android.permission.INTERNET` 이 없다.
+- 스토어 배포본(F-Droid, Google Play)에는 `android.permission.INTERNET` 이 없다.
+- GitHub Releases의 사이드로드 배포본은 이 권한을 선언한다. 용도는 기본 꺼짐 옵트인 업데이트 확인 하나뿐이고, 정적 JSON 하나를 GET 한다(D073·D074·D075, `docs/AGENT_SPEC.md` §15.9). 노트·태그·첨부·메타데이터·식별자·사용 기록은 **어느 빌드에서도** 전송되지 않는다.
 - Markleaf는 자체 백엔드 서버가 없다.
 - 사용자의 노트는 사용자의 명시적 export/share/외부 링크 열기/사용자 선택 폴더 미러 동기화 전까지 기기 밖으로 나가지 않는다.
 

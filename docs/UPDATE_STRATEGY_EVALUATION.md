@@ -314,7 +314,11 @@ grep -rln "app-release\|assembleDebug\|app-debug\|verifyRoborazziDebug\|lintRele
 - `docs/NOCLOUD_CERTIFICATION.md`: "No INTERNET Permission" 항목에 스토어 배포 빌드 기준임을
   명시.
 - `docs/PRIVACY.md`, `docs/privacy.*.html` 8개, `README*.md` 8개: sideload 빌드 예외 문장.
-- `app/src/main/res/raw*/starter_notes.md` 8개 로케일의 해당 문장.
+- `app/src/main/res/raw*/starter_notes.md`의 해당 문장. **8개가 아니라 7개다** — zh는
+  `config/locales.tsv`에서 `starter no`라 영어 노트로 폴백한다(#294).
+- **`docs/index.*.html` 8개도 같이 고쳐야 한다.** 처음 이 목록을 쓸 때 빠뜨렸는데, 랜딩 페이지는
+  같은 화면에 "GitHub APK" 다운로드 버튼과 `android.permission.INTERNET = false`를 나란히 둔다 —
+  그 버튼이 주는 바로 그 파일에 대해 거짓인 자리다.
 - `docs/RELEASE.md`: 자산 2개 → 3개, 그리고 **store 빌드를 먼저 만들어 옮긴 뒤 사이드로드
   빌드를 돌리는 순서**(같은 출력 경로를 공유하므로).
 - `.github/workflows/android-build.yml`, `scripts/verify-release-assets.ps1`,

@@ -59,7 +59,7 @@
 
 ## 🍃 Što je Markleaf?
 
-**Markleaf** je Android aplikacija za Markdown bilješke osmišljena tako da ukloni nered kako biste se mogli usredotočiti na samo dvije stvari: bilježenje i organiziranje. Vaši se podaci pohranjuju isključivo na vašem uređaju, a standardni Markdown jamči potpuno vlasništvo i prenosivost. Čak se i sinkronizacija odvija samo kroz *mapu koju sami odaberete* — Markleaf sam nikada ne izlazi na mrežu.
+**Markleaf** je Android aplikacija za Markdown bilješke osmišljena tako da ukloni nered kako biste se mogli usredotočiti na samo dvije stvari: bilježenje i organiziranje. Vaši se podaci pohranjuju isključivo na vašem uređaju, a standardni Markdown jamči potpuno vlasništvo i prenosivost. Čak se i sinkronizacija odvija samo kroz *mapu koju sami odaberete* — Markleaf sam nikada ništa ne sinkronizira ni ne šalje.
 
 [**Pogledajte stranicu projekta**](https://jeiel85.github.io/markleaf-android/) · [Trenutačna verzija: v2.41.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.41.0) · [Pravila privatnosti](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
@@ -88,7 +88,7 @@
 - **Prikvačivanje / arhiviranje / smeće** — smeće pita još jednom prije trajnog brisanja
 
 ### Sinkronizacija i izvoz (načelo bez oblaka)
-- **Zrcaljenje mape** — zrcali svaku bilješku kao `.md` / `.txt` datoteku **nazvanu po naslovu** u mapu koju odaberete putem SAF-a (Drive/Dropbox/Syncthing/OneDrive/NAS itd.); preimenujte bilješku i njezina datoteka slijedi. Markleaf sam ostaje izvan mreže; sinkronizacija je prepuštena *bilo kojoj vanjskoj aplikaciji koja sinkronizira tu mapu*
+- **Zrcaljenje mape** — zrcali svaku bilješku kao `.md` / `.txt` datoteku **nazvanu po naslovu** u mapu koju odaberete putem SAF-a (Drive/Dropbox/Syncthing/OneDrive/NAS itd.); preimenujte bilješku i njezina datoteka slijedi. Markleaf sam nikada ne sinkronizira; sinkronizacija je prepuštena *bilo kojoj vanjskoj aplikaciji koja sinkronizira tu mapu*
 - **Otvorite `.md` / `.txt` datoteku i pročitajte je** — *Otvori datoteku…* u izborniku ⋮ ili dodir u upravitelju datoteka otvara datoteku prikazanu i samo za čitanje; ništa se ne pridružuje vašim bilješkama dok ne dodirnete *Spremi kao bilješku* (ime datoteke postaje naslov kad nema naslova u tekstu). Dijeljenje datoteke u Markleaf iz druge aplikacije i dalje je odmah uvozi. Oznake u sinkroniziranim bilješkama prepoznaju se odmah
 - **Izvoz pojedinačnih / svih bilješki kao `.md`**
 - **Slanje kroz sustavni izbornik za dijeljenje**
@@ -191,14 +191,16 @@ Markleafovi popravci grešaka najčešće počinju kao nečija tuđa prijava. Lj
 
 ## 🔒 Bez oblaka po dizajnu
 
-Markleaf sam nikada ne izlazi na mrežu. Hoće li vaši podaci napustiti uređaj, *u potpunosti je vaš izbor*.
+Markleaf nema vlastitu pozadinsku uslugu i vaše bilješke nikada same ne napuštaju uređaj. Hoće li vaši podaci napustiti uređaj, *u potpunosti je vaš izbor*.
 
-- ✅ **Bez** deklarirane dozvole `android.permission.INTERNET` — Markleaf sam ne šalje mrežne zahtjeve
+- ✅ Izdanja za trgovine (F-Droid, Google Play) **bez** deklarirane dozvole `android.permission.INTERNET` — ne šalju nikakve mrežne zahtjeve
 - ✅ **Bez** Markleaf poslužitelja / pozadinske usluge
 - ✅ **Bez** analitike / oglasa / praćenja / SDK-ova zatvorenog koda
 - ✅ `android:allowBackup="false"` — Markleafovi podaci izuzeti su iz Androidova automatskog sigurnosnog kopiranja i prijenosa na novi uređaj
 - ✅ Podaci se kreću samo kroz putove operacijskog sustava kad *vi* izvezete, podijelite, otvorite vanjsku poveznicu ili odaberete SAF mapu
 - ✅ Potpuno otvoren kod, svatko ga može provjeriti pod licencom Apache 2.0
+
+**Postoji samo jedna iznimka.** APK na [GitHub Releasesu](https://github.com/jeiel85/markleaf-android/releases/latest) deklarira dozvolu `INTERNET` i to samo za jedno: provjeru ažuriranja koja je **prema zadanome isključena i uključujete je sami**, a čita jednu jedinu statičku JSON datoteku. Izdanja za F-Droid i Google Play ne sadrže ni tu dozvolu ni taj kod — nisu onemogućeni, nego ih **uopće nema**. **Nijedno izdanje ne šalje bilješke, oznake, privitke, metapodatke, identifikatore ni podatke o korištenju.** Granica je zapisana u [`docs/AGENT_SPEC.md` §15.9](docs/AGENT_SPEC.md).
 
 Kako točno funkcionira „nikad ne napušta vaš uređaj” dokumentirano je u [Pravilima privatnosti](docs/PRIVACY.md) i [Potvrdi o radu bez oblaka](docs/NOCLOUD_CERTIFICATION.md).
 

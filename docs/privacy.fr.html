@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Politique de confidentialité - Markleaf</title>
-    <meta name="description" content="Politique de confidentialité de Markleaf. Markleaf est une application de notes Markdown local-first qui fonctionne sans permission INTERNET, compte, analyse, publicité ni suivi.">
+    <meta name="description" content="Politique de confidentialité de Markleaf. Markleaf est une application de notes Markdown local-first sans compte, analyse, publicité ni suivi ; les versions des boutiques ne déclarent aucune permission INTERNET.">
     <link rel="canonical" href="https://jeiel85.github.io/markleaf-android/privacy.fr.html">
     <link rel="alternate" hreflang="en" href="https://jeiel85.github.io/markleaf-android/privacy.html">
     <link rel="alternate" hreflang="ko" href="https://jeiel85.github.io/markleaf-android/privacy.ko.html">
@@ -51,7 +51,7 @@
             <p class="updated">Dernière mise à jour : 26 mai 2026 · S'applique à Markleaf Android v2.x</p>
 
             <h2>Principe fondamental</h2>
-            <p>Markleaf est une application de notes Markdown local-first. Markleaf lui-même n'a pas la permission <code>android.permission.INTERNET</code>, n'exploite aucun serveur propre, et ne télécharge jamais automatiquement de notes, étiquettes, pièces jointes ou métadonnées vers un serveur externe.</p>
+            <p>Markleaf est une application de notes Markdown local-first. Elle n'exploite aucun serveur propre et n'envoie jamais de notes, étiquettes, pièces jointes ou métadonnées vers un serveur externe. Les versions distribuées par F-Droid et Google Play n'ont aucune permission <code>android.permission.INTERNET</code> ; la version sideload publiée sur GitHub Releases la déclare pour un seul usage, décrit à la section <a class="text-link" href="#network">Réseau</a>.</p>
 
             <h2>Informations que Markleaf ne collecte pas</h2>
             <ul>
@@ -63,9 +63,24 @@
             </ul>
             <p>Elle ne contient pas non plus d'analyse, de publicité, de suivi, de configuration à distance, de Firebase, ni de SDK de rapport de plantage à code source fermé.</p>
 
-            <h2>Réseau</h2>
-            <p>Markleaf ne déclare aucune permission internet.</p>
-            <pre>android.permission.INTERNET   aucune</pre>
+            <h2 id="network">Réseau</h2>
+            <p>Cela dépend d'où vous avez obtenu l'application. <strong>Dans les deux cas, aucune donnée de vos notes n'est jamais envoyée.</strong></p>
+            <ul>
+                <li><strong>F-Droid et Google Play</strong> — aucune permission <code>android.permission.INTERNET</code>, et aucune activité réseau.</li>
+                <li><strong>GitHub Releases (sideload)</strong> — déclare la permission pour une seule chose : une vérification de mise à jour qui ne fonctionne que si vous l'activez.</li>
+            </ul>
+            <pre>F-Droid / Google Play   android.permission.INTERNET   aucune
+GitHub Releases         android.permission.INTERNET   vérification de mise à jour uniquement</pre>
+
+            <h3>La vérification de mise à jour dans la version sideload</h3>
+            <ul>
+                <li><strong>Désactivée par défaut.</strong> Rien ne se produit tant que vous ne l'activez pas dans les réglages.</li>
+                <li>Une fois par jour, une seule requête GET vers un fichier JSON statique décrivant la dernière version. Un échec est ignoré en silence.</li>
+                <li>La requête ne transporte que cette URL et des en-têtes HTTP standard. Pas de chaîne de requête, pas de cookie, pas de compte.</li>
+                <li><strong>Ni le contenu des notes, ni les titres, étiquettes, pièces jointes, noms de fichiers, métadonnées, identifiants d'appareil ou données d'usage ne sont envoyés.</strong> Cela vaut sans exception dans toutes les versions.</li>
+                <li>S'il existe une nouvelle version, le téléchargement est confié à votre navigateur. L'application ne télécharge ni n'installe rien elle-même.</li>
+                <li>Les versions des boutiques ne contiennent ni la permission ni le code correspondant — non pas désactivés, mais tout simplement absents.</li>
+            </ul>
 
             <h2>Où sont stockées les données</h2>
             <ul>
@@ -89,7 +104,7 @@
             <p>La synchronisation d'un dossier SAF par un client de synchronisation externe comme Drive, Dropbox, OneDrive, Syncthing ou un montage NAS relève de la responsabilité de cette application externe. Markleaf n'effectue pas cette synchronisation lui-même.</p>
 
             <h2>Autorisations</h2>
-            <p>La seule permission de type runtime que déclare Markleaf est <code>android.permission.VIBRATE</code> pour le retour haptique. Elle ne déclare aucune permission de localisation, microphone, appareil photo, contacts, notifications, lecture du stockage externe, lecture des médias ou réseau.</p>
+            <p>La seule permission de type runtime que déclare Markleaf est <code>android.permission.VIBRATE</code> pour le retour haptique. Aucune version ne déclare de permission de localisation, microphone, appareil photo, contacts, notifications, lecture du stockage externe ou lecture des médias. <code>android.permission.INTERNET</code> est absente des versions F-Droid et Google Play et présente uniquement dans la version sideload, pour la vérification de mise à jour décrite à la section <a class="text-link" href="#network">Réseau</a>.</p>
 
             <h2>Contact</h2>
             <p>Pour toute question ou signalement de sécurité/confidentialité, contactez-nous via <a class="text-link" href="https://github.com/jeiel85/markleaf-android/issues">GitHub Issues</a>.</p>

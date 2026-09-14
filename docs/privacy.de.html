@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Datenschutzerklärung - Markleaf</title>
-    <meta name="description" content="Datenschutzerklärung von Markleaf. Markleaf ist eine local-first Markdown-Notiz-App, die ohne INTERNET-Berechtigung, Konto, Analyse, Werbung oder Tracking auskommt.">
+    <meta name="description" content="Datenschutzerklärung von Markleaf. Markleaf ist eine local-first Markdown-Notiz-App ohne Konto, Analyse, Werbung oder Tracking; die Store-Builds deklarieren keine INTERNET-Berechtigung.">
     <link rel="canonical" href="https://jeiel85.github.io/markleaf-android/privacy.de.html">
     <link rel="alternate" hreflang="en" href="https://jeiel85.github.io/markleaf-android/privacy.html">
     <link rel="alternate" hreflang="ko" href="https://jeiel85.github.io/markleaf-android/privacy.ko.html">
@@ -51,7 +51,7 @@
             <p class="updated">Zuletzt aktualisiert: 26. Mai 2026 · Gilt für Markleaf Android v2.x</p>
 
             <h2>Kernprinzip</h2>
-            <p>Markleaf ist eine local-first Markdown-Notiz-App. Markleaf selbst besitzt keine <code>android.permission.INTERNET</code>-Berechtigung, betreibt keinen eigenen Server und lädt Notizen, Tags, Anhänge oder Metadaten niemals automatisch auf einen externen Server hoch.</p>
+            <p>Markleaf ist eine local-first Markdown-Notiz-App. Sie betreibt keinen eigenen Server und lädt Notizen, Tags, Anhänge oder Metadaten niemals auf einen externen Server hoch. Die über F-Droid und Google Play verteilten Builds besitzen überhaupt keine <code>android.permission.INTERNET</code>-Berechtigung; der Sideload-Build auf GitHub Releases deklariert sie für genau einen Zweck, beschrieben unter <a class="text-link" href="#network">Netzwerk</a>.</p>
 
             <h2>Informationen, die Markleaf nicht erfasst</h2>
             <ul>
@@ -63,9 +63,24 @@
             </ul>
             <p>Markleaf enthält außerdem keine Analyse-, Werbe-, Tracking-, Remote-Config-, Firebase- oder Closed-Source-Absturzbericht-SDKs.</p>
 
-            <h2>Netzwerk</h2>
-            <p>Markleaf deklariert keine Internet-Berechtigung.</p>
-            <pre>android.permission.INTERNET   keine</pre>
+            <h2 id="network">Netzwerk</h2>
+            <p>Das hängt davon ab, woher du die App hast. <strong>In beiden Fällen werden keinerlei Notizdaten gesendet.</strong></p>
+            <ul>
+                <li><strong>F-Droid und Google Play</strong> — keine <code>android.permission.INTERNET</code>-Berechtigung und überhaupt keine Netzwerkaktivität.</li>
+                <li><strong>GitHub Releases (Sideload)</strong> — deklariert die Berechtigung für genau eine Sache: eine Update-Prüfung, die nur läuft, wenn du sie einschaltest.</li>
+            </ul>
+            <pre>F-Droid / Google Play   android.permission.INTERNET   keine
+GitHub Releases         android.permission.INTERNET   nur Update-Prüfung</pre>
+
+            <h3>Die Update-Prüfung im Sideload-Build</h3>
+            <ul>
+                <li><strong>Standardmäßig aus.</strong> Es passiert nichts, bis du sie in den Einstellungen einschaltest.</li>
+                <li>Einmal täglich ein einziges GET auf eine statische JSON-Datei, die die neueste Version beschreibt. Eine fehlgeschlagene Prüfung wird stillschweigend übergangen.</li>
+                <li>Die Anfrage enthält nur diese URL und übliche HTTP-Header. Kein Query-String, kein Cookie, kein Konto.</li>
+                <li><strong>Notizinhalte, Titel, Tags, Anhänge, Dateinamen, Metadaten, Gerätekennungen und Nutzungsdaten werden nicht gesendet.</strong> Das gilt ausnahmslos in jedem Build.</li>
+                <li>Gibt es eine neue Version, wird der Download an deinen Browser übergeben. Die App lädt und installiert selbst nichts.</li>
+                <li>Die Store-Builds enthalten weder die Berechtigung noch den Code dafür — nicht deaktiviert, sondern gar nicht erst eingebaut.</li>
+            </ul>
 
             <h2>Wo Daten gespeichert werden</h2>
             <ul>
@@ -89,7 +104,7 @@
             <p>Ob ein SAF-Ordner von einem externen Sync-Client wie Drive, Dropbox, OneDrive, Syncthing oder einem NAS-Mount synchronisiert wird, liegt in der Verantwortung dieser externen App. Markleaf führt diese Synchronisierung nicht selbst durch.</p>
 
             <h2>Berechtigungen</h2>
-            <p>Die einzige Berechtigung mit Laufzeitcharakter, die Markleaf deklariert, ist <code>android.permission.VIBRATE</code> für haptisches Feedback. Die App deklariert keine Berechtigungen für Standort, Mikrofon, Kamera, Kontakte, Benachrichtigungen, Lesen des externen Speichers, Lesen von Medien oder Netzwerk.</p>
+            <p>Die einzige Berechtigung mit Laufzeitcharakter, die Markleaf deklariert, ist <code>android.permission.VIBRATE</code> für haptisches Feedback. Kein Build deklariert Berechtigungen für Standort, Mikrofon, Kamera, Kontakte, Benachrichtigungen, Lesen des externen Speichers oder Lesen von Medien. <code>android.permission.INTERNET</code> fehlt in den F-Droid- und Google-Play-Builds und ist nur im Sideload-Build vorhanden, für die unter <a class="text-link" href="#network">Netzwerk</a> beschriebene Update-Prüfung.</p>
 
             <h2>Kontakt</h2>
             <p>Bei Fragen oder Sicherheits-/Datenschutzmeldungen wende dich bitte über <a class="text-link" href="https://github.com/jeiel85/markleaf-android/issues">GitHub Issues</a> an uns.</p>

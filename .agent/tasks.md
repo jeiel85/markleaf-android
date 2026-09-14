@@ -160,7 +160,7 @@ Gradle 속성 게이트입니다 — fdroiddata 레시피 MR은 필요 없습니
 - [x] `versionCode` 정수 비교 업데이트 확인 로직 + 하루 1회·조용한 실패·단위 테스트 — `UpdateManifest`/`UpdateManifestParser`, `UpdateDecision`, `UpdateChecker`. 테스트도 게이트 뒤(`src/sideloadTest/java`)에 두고 CI가 `-Pmarkleaf.updater=true`로 실행한다(소스 세트 등록은 실측 확인, 실행은 SDK가 있는 CI가 처음)
 - [x] 기본 OFF 토글과 F-Droid 검사 우회 설명 — `UpdateSurface` 이음매(`src/storeStub` ↔ `src/sideload` 배타 컴파일), `UpdatePreferences`, 설정 앱 섹션의 행 하나. 문자열 2개를 8개 로케일에 추가하고 키 parity·비영어 검사를 로컬에서 통과시킴
 - [x] 배너·모달·이 버전 건너뛰기 UX 구현 (7번의 나머지) — `UpdateSurface.Banner`가 목록 LIST·GRID 맨 위에 붙고, 모달에서 내려받기·릴리스 노트·건너뛰기를 고른다. 확인 결과 원문을 캐시해 하루 1회 확인과 상시 배너를 함께 만족시킨다. 문자열 6개를 8개 로케일에 추가
-- [ ] README 8개·privacy 8개·starter_notes 8개 로케일의 no-INTERNET 문장에 sideload 예외 반영
+- [x] 사용자 대상 no-INTERNET 문장에 sideload 예외 반영 — README 8개, `docs/privacy.*.html` 8개, `docs/PRIVACY.md`, `starter_notes.md` **7개**(zh는 `config/locales.tsv`에서 의도적으로 `starter no`), 그리고 **랜딩 페이지 8개**와 `docs/SECURITY.md`. 랜딩은 원래 목록에 없었지만 같은 화면에서 "GitHub APK" 버튼 옆에 `android.permission.INTERNET = false`를 띄우고 있었다 — 그 버튼이 주는 바로 그 파일에 대해 거짓이다. starter_notes는 앱 안에 들어가 사이드로드 빌드에도 실리므로, 채널 용어를 쓰지 않고 **어느 빌드에서도 참인 약속**("노트를 업로드하지 않는다")으로 바꿨다. 정확한 권한 표기는 README와 개인정보 처리방침이 맡는다. 감사를 세 번 돌렸고 앞의 두 번이 각각 소문자 `internet`(README 서문·기능 목록 8개)과 `og:description` 8개를 놓쳤다 — 대문자 `INTERNET`만 찾으면 안 된다. 로컬에서 랜딩 오버플로 게이트(16페이지 × 6폭, 320~1280px)를 실제로 돌려 통과시켰고, HTML well-formed와 노트 구분자 수(6)도 확인했다. v2.7 로드맵 줄의 "still no INTERNET"은 그대로 둔다 — 그 마일스톤을 정확히 기술한 과거 기록이고, 현재형 주장은 바로 위 No-Cloud 절이 맡는다
 - [ ] (다음 단계) 앱 내 다운로드 + SHA-256 대조 + `PackageInstaller` 설치 확인 팝업
 
 ---

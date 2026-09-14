@@ -127,7 +127,7 @@ Markleaf n'a pas besoin de son propre cloud. Vous choisissez un dossier, puis An
 - Markleaf ecrit chaque note comme fichier Markdown.
 - Le frontmatter garde le `markleaf_id` stable.
 - Les pieces jointes restent a cote des notes miroir.
-- L'app ne declare toujours aucune permission INTERNET.
+- Markleaf n'envoie jamais vos notes — la synchronisation est le travail de votre outil, pas de l'app.
 
 ## Pourquoi c'est important
 

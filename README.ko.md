@@ -59,7 +59,7 @@
 
 ## 🍃 Markleaf란?
 
-**Markleaf**는 군더더기를 덜어내고 오직 '기록'과 '정리'에만 집중할 수 있도록 설계된 Android Markdown 메모 앱입니다. 당신의 데이터는 오직 당신의 기기에만 저장되며, 표준 Markdown 형식을 사용하여 데이터의 소유권과 이식성을 완벽히 보장합니다. 동기화도 *당신이 선택한 폴더* 를 통해서만 일어납니다 — Markleaf 자체는 인터넷에 나가지 않습니다.
+**Markleaf**는 군더더기를 덜어내고 오직 '기록'과 '정리'에만 집중할 수 있도록 설계된 Android Markdown 메모 앱입니다. 당신의 데이터는 오직 당신의 기기에만 저장되며, 표준 Markdown 형식을 사용하여 데이터의 소유권과 이식성을 완벽히 보장합니다. 동기화도 *당신이 선택한 폴더* 를 통해서만 일어납니다 — Markleaf가 직접 동기화하거나 업로드하는 일은 없습니다.
 
 [**브랜딩 페이지 보기**](https://jeiel85.github.io/markleaf-android/) · [현재 버전: v2.41.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.41.0) · [Privacy Policy](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
@@ -88,7 +88,7 @@
 - **핀 / 아카이브 / 휴지통** — 휴지통은 영구 삭제 전에 한 번 더 묻습니다
 
 ### 동기화 & 내보내기 (No-Cloud 원칙)
-- **폴더 미러 동기화** — SAF로 사용자가 선택한 폴더(Drive/Dropbox/Syncthing/OneDrive/NAS 등)에 각 노트를 **노트 제목 이름의** `.md` / `.txt` 파일로 미러링(제목을 바꾸면 폴더 안 파일명도 따라 변경). Markleaf 자체는 인터넷에 안 나가고, 동기화는 *외부 앱이 그 폴더를 동기화하는 방식* 으로 위임
+- **폴더 미러 동기화** — SAF로 사용자가 선택한 폴더(Drive/Dropbox/Syncthing/OneDrive/NAS 등)에 각 노트를 **노트 제목 이름의** `.md` / `.txt` 파일로 미러링(제목을 바꾸면 폴더 안 파일명도 따라 변경). Markleaf가 직접 동기화하지는 않고, *외부 앱이 그 폴더를 동기화하는 방식* 으로 위임
 - **`.md` / `.txt` 파일 열어서 읽기** — ⋮ 메뉴의 *파일 열기…* 를 쓰거나 파일 관리자에서 파일을 탭하면, 렌더링된 읽기 전용 화면으로 열립니다. *노트로 저장* 을 누를 때까지 노트는 만들어지지 않습니다(저장 시 제목 머리말이 없으면 파일 이름이 제목). 다른 앱에서 공유해 보낸 파일은 예전처럼 곧바로 노트로 가져옵니다. 동기화로 들어온 노트의 태그도 곧바로 인식
 - **개별 / 전체 노트 `.md` 내보내기**
 - **시스템 공유 시트로 보내기**
@@ -191,14 +191,16 @@ Markleaf의 버그 수정은 대부분 누군가의 제보에서 시작합니다
 
 ## 🔒 No-Cloud by design
 
-Markleaf 자체는 절대로 네트워크에 나가지 않습니다. 데이터를 기기 밖으로 보낼지 여부는 *전적으로 당신의 선택* 입니다.
+Markleaf는 자체 백엔드가 없으며, 노트가 저절로 기기를 떠나는 일은 없습니다. 데이터를 기기 밖으로 보낼지 여부는 *전적으로 당신의 선택* 입니다.
 
-- ✅ `android.permission.INTERNET` 권한 **선언 없음** — Markleaf는 네트워크 요청을 직접 수행하지 않습니다
+- ✅ 스토어 빌드(F-Droid, Google Play)에는 `android.permission.INTERNET` 권한 **선언 없음** — 네트워크 요청을 아예 하지 않습니다
 - ✅ Markleaf 자체 서버 / 자체 백엔드 **없음**
 - ✅ 분석 / 광고 / 추적 / 폐쇄형 SDK **없음**
 - ✅ `android:allowBackup="false"` — Android 자동 백업 / 기기 간 전송에서 Markleaf 데이터 제외
 - ✅ 사용자가 직접 export, share, 외부 링크 열기, SAF 폴더 선택을 수행할 때만 OS 경로를 통해 데이터가 이동
 - ✅ 완전한 오픈소스, Apache 2.0 라이선스로 누구나 감사 가능
+
+**예외는 딱 하나입니다.** [GitHub Releases](https://github.com/jeiel85/markleaf-android/releases/latest)의 APK는 `INTERNET` 권한을 선언하며, 그 용도는 **기본으로 꺼져 있는 옵트인 업데이트 확인** 하나뿐입니다(정적 JSON 파일 하나를 읽습니다). F-Droid·Google Play 빌드에는 그 권한도 그 코드도 — 꺼져 있는 것이 아니라 — **아예 들어 있지 않습니다.** **어느 빌드에서도 노트·태그·첨부·메타데이터·식별자·사용 기록은 전송되지 않습니다.** 이 경계는 [`docs/AGENT_SPEC.md` §15.9](docs/AGENT_SPEC.md)에 적혀 있습니다.
 
 "never leaves your device" 가 어떻게 정확히 작동하는지는 [Privacy Policy](docs/PRIVACY.md) 와 [No-Cloud Certification](docs/NOCLOUD_CERTIFICATION.md) 에 정리되어 있습니다.
 

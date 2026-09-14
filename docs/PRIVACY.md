@@ -7,7 +7,8 @@ MVP 초안 문구는 폐기되었습니다.
 
 Markleaf는 로컬 우선 노트 앱입니다.
 
-- Markleaf 자체에는 `android.permission.INTERNET` 권한이 없습니다.
+- 스토어 배포본(F-Droid, Google Play)에는 `android.permission.INTERNET` 권한이 없습니다.
+- GitHub Releases의 사이드로드 APK는 이 권한을 선언하지만, 용도는 **기본으로 꺼져 있는 옵트인 업데이트 확인** 하나뿐입니다. 자세한 내용은 아래 [네트워크](#네트워크) 절에 있습니다.
 - Markleaf는 자체 서버를 운영하지 않으며, 노트/태그/첨부/메타데이터를 자동으로 어떤 외부 서버에도 업로드하지 않습니다.
 - 사용자의 노트는 사용자가 직접 export, share, 외부 링크 열기, 또는 외부 앱이 동기화하는 폴더를 동기화 대상으로 선택하기 전까지 기기 안에 남습니다.
 
@@ -27,17 +28,31 @@ Markleaf에는 분석, 광고, 추적, 원격 설정, 폐쇄형 SDK가 포함되
 
 ## 네트워크
 
-Markleaf는 `android.permission.INTERNET` 권한을 사용하지 않습니다.
+배포 채널에 따라 다르며, **어느 쪽이든 노트 데이터는 전송되지 않습니다.**
 
-```text
-android.permission.INTERNET   ← Markleaf manifest에 없음
-```
+| 배포본 | `android.permission.INTERNET` | 앱이 하는 네트워크 동작 |
+|---|---|---|
+| F-Droid, Google Play | **없음** | 없음 |
+| GitHub Releases (사이드로드) | 있음 | 정적 JSON 파일 하나에 대한 GET 한 번 (업데이트 확인) |
 
-설치된 APK가 실제로 인터넷 권한을 요청하지 않는지는 다음 명령으로 검증할 수 있습니다.
+스토어 배포본의 매니페스트에 권한이 없는지는 소스에서 직접 확인할 수 있습니다.
 
 ```bash
-rg "android.permission.INTERNET" -n app/src
+rg "android.permission.INTERNET" -n app/src/main/AndroidManifest.xml   # 결과 없음
 ```
+
+사이드로드 APK의 권한은 `app/src/main/AndroidManifest-sideload.xml`에서만 옵니다. 이 사본은 본 매니페스트와 `INTERNET` **한 줄만** 달라야 하며, 그 사실은 문서가 아니라 CI 검사(`SideloadManifestParityTest`)가 지킵니다.
+
+### 사이드로드 빌드의 업데이트 확인
+
+- **기본값은 꺼짐입니다.** 설정에서 직접 켜야 동작합니다.
+- 켜면 하루에 한 번, 릴리스 정보가 담긴 **정적 JSON 파일 하나**를 GET 합니다. 확인 실패는 조용히 무시됩니다.
+- 요청에 붙는 것은 그 URL과 표준 HTTP 헤더뿐입니다. 쿼리스트링도 쿠키도 계정도 없습니다.
+- **노트 본문·제목·태그·첨부·파일명·메타데이터·기기 식별자·사용 기록은 전송되지 않습니다.** 이 항목은 배포 채널과 무관하게 예외가 없습니다.
+- 새 버전을 알리면 다운로드는 **기기의 브라우저에 넘깁니다.** 앱이 직접 내려받거나 설치하지 않습니다.
+- 스토어 배포본에는 이 기능의 **권한도 코드도 들어 있지 않습니다.** 꺼져 있는 것이 아니라 빌드에 포함되지 않습니다.
+
+이 예외의 범위는 [`AGENT_SPEC.md` §15.9](AGENT_SPEC.md)에 규정되어 있으며, 동기화·계정·원격 API로의 확장은 금지되어 있습니다.
 
 ## 데이터 저장 위치
 
@@ -77,9 +92,8 @@ Markleaf는 Android 자동 백업(Android Auto Backup) 및 기기 간 전송(Dev
 |------|------|
 | `android.permission.VIBRATE` | 일부 인터랙션에서 햅틱 피드백 제공 |
 
-다음 권한은 **선언되어 있지 않습니다**.
+다음 권한은 **어느 배포본에도 선언되어 있지 않습니다**.
 
-- `android.permission.INTERNET`
 - `android.permission.ACCESS_NETWORK_STATE`
 - `android.permission.ACCESS_WIFI_STATE`
 - `android.permission.POST_NOTIFICATIONS`
@@ -87,6 +101,8 @@ Markleaf는 Android 자동 백업(Android Auto Backup) 및 기기 간 전송(Dev
 - `android.permission.READ_MEDIA_IMAGES`
 - `android.permission.READ_MEDIA_VIDEO`
 - 위치, 마이크, 카메라, 연락처 권한
+
+`android.permission.INTERNET`은 **스토어 배포본(F-Droid, Google Play)에 선언되어 있지 않습니다.** GitHub Releases의 사이드로드 APK에만 있으며 용도는 위 [네트워크](#네트워크) 절의 업데이트 확인 하나뿐입니다.
 
 ## 향후 변경
 

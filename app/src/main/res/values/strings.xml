@@ -314,7 +314,7 @@
     <string name="update_permission_required_body">Markleaf needs permission to install app updates. Continue to Settings, allow it, then come back here.</string>
     <string name="update_action_open_settings">Open settings</string>
     <string name="update_downloading">Downloading the update…</string>
-    <string name="update_download_failed_body">Couldn't finish the download. Try again, or open it in your browser instead.</string>
+    <string name="update_download_failed_body">Couldn\'t finish the download. Try again, or open it in your browser instead.</string>
     <string name="update_action_retry">Try again</string>
 
     <string name="settings_open_source">Open source</string>

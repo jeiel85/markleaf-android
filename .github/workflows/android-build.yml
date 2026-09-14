@@ -412,6 +412,10 @@ jobs:
             APK="$(python3 -c 'import glob, os, sys; paths = sorted(p for p in glob.glob("app/build/**/*.apk", recursive=True) if "release" in os.path.basename(p).lower() or "/release/" in p.replace("\\", "/").lower()); print(paths[0] if paths else ""); sys.exit(0 if paths else 1)')"
           fi
           test -f "$APK"
+          # 아래 스텝들이 같은 경로를 다시 찾아내지 않게 여기서 한 번만 정한다. 사이드로드
+          # 빌드가 이 파일을 덮어쓰기 때문에, "어느 파일이 store 산출물이었는가"는 덮어쓰기
+          # 전에 확정해 두어야 하는 사실이다.
+          printf 'STORE_APK=%s\n' "$APK" >> "$GITHUB_ENV"
           APKSIGNER="$ANDROID_HOME/build-tools/$(ls -1 "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)/apksigner"
           "$APKSIGNER" verify --print-certs "$APK" > signing-report.txt
           cat signing-report.txt
@@ -422,21 +426,21 @@ jobs:
           test -n "$ACTUAL_SHA256"
           test "$ACTUAL_SHA256" = "$EXPECTED_SHA256"
 
-      - name: Prepare release asset
+      # **사이드로드 빌드는 store 빌드와 같은 출력 경로에 쓴다.** 채널을 가르는 것이
+      # 플레이버가 아니라 Gradle 속성이기 때문이다(D074) — 변형이 생기지 않으므로 두 빌드가
+      # 모두 `app/build/outputs/apk/release/app-release.apk`와 같은 `mapping.txt`를 만든다.
+      # 그래서 store 산출물을 먼저 꺼내 두고 사이드로드 빌드는 그 뒤에 돌린다. 순서를
+      # 뒤집으면 F-Droid가 재현 빌드로 대조할 `markleaf-vX.Y.Z.apk`가 사이드로드 빌드가
+      # 되고, 그 결과는 잘못된 발행이 아니라 **미발행**이다(불일치 = 배포 중단).
+      - name: Stash the store release outputs
         run: |
-          APK="app/build/outputs/apk/release/app-release.apk"
-          if [ ! -f "$APK" ]; then
-            APK="$(python3 -c 'import glob, os, sys; paths = sorted(p for p in glob.glob("app/build/**/*.apk", recursive=True) if "release" in os.path.basename(p).lower() or "/release/" in p.replace("\\", "/").lower()); print(paths[0] if paths else ""); sys.exit(0 if paths else 1)')"
-          fi
-          test -f "$APK"
-          cp "$APK" "markleaf-${GITHUB_REF_NAME}.apk"
-          test -s "markleaf-${GITHUB_REF_NAME}.apk"
-          ls -lh "markleaf-${GITHUB_REF_NAME}.apk"
-          MAPPING="app/build/outputs/mapping/release/mapping.txt"
-          test -f "$MAPPING"
-          cp "$MAPPING" "markleaf-${GITHUB_REF_NAME}.mapping.txt"
-          test -s "markleaf-${GITHUB_REF_NAME}.mapping.txt"
-          ls -lh "markleaf-${GITHUB_REF_NAME}.mapping.txt"
+          set -euo pipefail
+          mkdir -p staging
+          cp "$STORE_APK" staging/store.apk
+          cp app/build/outputs/mapping/release/mapping.txt staging/store-mapping.txt
+          test -s staging/store.apk
+          test -s staging/store-mapping.txt
+          ls -lh staging/store.apk staging/store-mapping.txt
 
       - name: Verify Play Console AAB exists
         if: vars.MARKLEAF_PLAY_AAB == 'true'
@@ -474,6 +478,136 @@ jobs:
           # 다른 산출물과 같은 자리에서 바로 집을 수 있다는 편의로 남기고,
           # 30일이면 그 용도에는 충분하다.
           retention-days: 30
+
+      # 여기서부터 사이드로드 채널이다. 위의 store 산출물 검증·스테이징·아티팩트 업로드가
+      # 전부 끝난 뒤여야 한다 — 이 빌드가 `app/build/outputs/` 안의 같은 파일들을 덮어쓴다.
+      - name: Build the signed sideload APK
+        env:
+          MARKLEAF_RELEASE_STORE_FILE: release/markleaf-release.p12
+          MARKLEAF_RELEASE_STORE_PASSWORD: ${{ secrets.MARKLEAF_RELEASE_STORE_PASSWORD }}
+          MARKLEAF_RELEASE_KEY_ALIAS: ${{ secrets.MARKLEAF_RELEASE_KEY_ALIAS }}
+          MARKLEAF_RELEASE_KEY_PASSWORD: ${{ secrets.MARKLEAF_RELEASE_KEY_PASSWORD }}
+          ORG_GRADLE_PROJECT_markleaf.requireReleaseSigning: "true"
+        run: ./gradlew :app:assembleRelease -Pmarkleaf.updater=true
+
+      # 게이트가 실제로 갈라졌는지를 **나가는 파일에서** 확인한다. 빌드 스크립트를 읽어
+      # 확인하는 것은 의도의 확인이고, 여기서 필요한 것은 사실의 확인이다: 이 스텝을
+      # 통과한 두 파일이 그대로 GitHub Release에 붙는다.
+      #
+      # 인증서도 같아야 한다. 다르면 사이드로드 APK는 기존 설치를 업데이트하지 못하고
+      # Android가 설치를 거부한다 — 업데이트 기능을 위해 만든 산출물이 업데이트를 막는다.
+      - name: Verify the sideload APK (certificate + the permission split)
+        run: |
+          set -euo pipefail
+          SIDELOAD_APK="app/build/outputs/apk/release/app-release.apk"
+          test -f "$SIDELOAD_APK"
+          BUILD_TOOLS="$ANDROID_HOME/build-tools/$(ls -1 "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)"
+          "$BUILD_TOOLS/apksigner" verify --print-certs "$SIDELOAD_APK" > sideload-signing-report.txt
+          cat sideload-signing-report.txt
+          ACTUAL_SHA256="$(awk -F': ' '/certificate SHA-256 digest/ { print tolower($3); exit }' sideload-signing-report.txt)"
+          EXPECTED_SHA256="$(printf '%s' "$MARKLEAF_RELEASE_CERT_SHA256" | tr 'A-F' 'a-f')"
+          printf 'ACTUAL_SHA256=%s\n' "$ACTUAL_SHA256"
+          printf 'EXPECTED_SHA256=%s\n' "$EXPECTED_SHA256"
+          test -n "$ACTUAL_SHA256"
+          test "$ACTUAL_SHA256" = "$EXPECTED_SHA256"
+          # 덤프를 파일로 먼저 받는 이유: 파이프로 바로 `grep -c` 하면 aapt2 가 실패했을 때도
+          # grep 이 빈 입력에 대해 "0" 을 내놓아 **store 쪽 단언이 거짓으로 통과한다.**
+          # 여기서 검사가 통과했다는 것은 "INTERNET 이 없다"여야지 "확인하지 못했다"이면 안 된다.
+          "$BUILD_TOOLS/aapt2" dump permissions staging/store.apk > store-permissions.txt
+          "$BUILD_TOOLS/aapt2" dump permissions "$SIDELOAD_APK" > sideload-permissions.txt
+          cat store-permissions.txt sideload-permissions.txt
+          # 덤프가 실제로 권한을 읽었다는 증거. 두 APK 모두 VIBRATE 를 선언하므로, 이 줄이
+          # 없으면 덤프가 비었거나 우리가 읽는 형식이 바뀐 것이다.
+          grep -q 'android.permission.VIBRATE' store-permissions.txt
+          grep -q 'android.permission.VIBRATE' sideload-permissions.txt
+          STORE_INTERNET="$(grep -c 'android.permission.INTERNET' store-permissions.txt || true)"
+          SIDELOAD_INTERNET="$(grep -c 'android.permission.INTERNET' sideload-permissions.txt || true)"
+          printf 'store INTERNET=%s / sideload INTERNET=%s\n' "$STORE_INTERNET" "$SIDELOAD_INTERNET"
+          test "$STORE_INTERNET" = "0"
+          test "$SIDELOAD_INTERNET" = "1"
+          cp "$SIDELOAD_APK" staging/sideload.apk
+          cp app/build/outputs/mapping/release/mapping.txt staging/sideload-mapping.txt
+          test -s staging/sideload.apk
+          test -s staging/sideload-mapping.txt
+
+      # 사이드로드 업데이트 확인이 읽는 정적 JSON. **값은 전부 방금 만든 산출물에서 뽑는다** —
+      # 버전은 APK의 badging에서, 크기와 해시는 실제로 붙일 파일에서. 같은 값을 빌드 스크립트나
+      # 태그 이름에서 다시 적으면 그 사본이 언젠가 산출물과 어긋나고, 어긋난 manifest는
+      # 사용자에게 "업데이트가 있다고 했는데 설치가 안 된다"로 나타난다.
+      #
+      # Release 자산으로 붙이는 이유는 D075에 적었다. 요약하면 `main`이 보호 브랜치라 태그 런이
+      # `docs/`에 커밋을 밀 수 없어서, GitHub Pages 경로는 릴리스마다 사람이 PR을 하나 머지해야
+      # 성립한다 — D072가 없애려던 바로 그 "사람이 기억해야만 도는 단계"다.
+      - name: Write the sideload update manifest
+        run: |
+          set -euo pipefail
+          BUILD_TOOLS="$ANDROID_HOME/build-tools/$(ls -1 "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)"
+          BADGING="$("$BUILD_TOOLS/aapt2" dump badging staging/sideload.apk)"
+          # 앞의 공백까지 패턴에 넣는 이유: 같은 줄에 `platformBuildVersionCode` 처럼 끝이
+          # 같은 필드가 함께 오고, 앞을 열어 두면 greedy 매칭이 그쪽을 집을 수 있다.
+          VERSION_CODE="$(printf '%s\n' "$BADGING" | grep -o "[[:space:]]versionCode='[0-9]*'" | head -n 1 | tr -dc '0-9' || true)"
+          VERSION_NAME="$(printf '%s\n' "$BADGING" | grep -o "[[:space:]]versionName='[^']*'" | head -n 1 | sed "s/.*='//; s/'$//" || true)"
+          MIN_SDK="$(printf '%s\n' "$BADGING" | grep -o "^sdkVersion:'[0-9]*'" | head -n 1 | tr -dc '0-9' || true)"
+          test -n "$VERSION_CODE"
+          test -n "$VERSION_NAME"
+          test -n "$MIN_SDK"
+          # 태그와 APK가 같은 버전을 말하는지 여기서 막는다. 어긋난 채로 발행되면 앱은 새
+          # 버전이라며 배너를 띄운 뒤 이미 깔린 것과 같은 versionCode를 내려받게 한다.
+          test "$VERSION_NAME" = "${GITHUB_REF_NAME#v}"
+          export MANIFEST_VERSION_CODE="$VERSION_CODE"
+          export MANIFEST_VERSION_NAME="$VERSION_NAME"
+          export MANIFEST_MIN_SDK="$MIN_SDK"
+          MANIFEST_SIZE="$(stat -c %s staging/sideload.apk)"
+          MANIFEST_SHA256="$(sha256sum staging/sideload.apk | awk '{ print $1 }')"
+          export MANIFEST_SIZE MANIFEST_SHA256
+          export MANIFEST_APK_URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}/markleaf-${GITHUB_REF_NAME}-sideload.apk"
+          export MANIFEST_NOTES_URL="https://github.com/${GITHUB_REPOSITORY}/releases/tag/${GITHUB_REF_NAME}"
+          python3 - > staging/update.json <<'PY'
+          import json, os
+
+          print(json.dumps({
+              "versionCode": int(os.environ["MANIFEST_VERSION_CODE"]),
+              "versionName": os.environ["MANIFEST_VERSION_NAME"],
+              "apkUrl": os.environ["MANIFEST_APK_URL"],
+              "apkSizeBytes": int(os.environ["MANIFEST_SIZE"]),
+              "sha256": os.environ["MANIFEST_SHA256"],
+              "minSdk": int(os.environ["MANIFEST_MIN_SDK"]),
+              "releaseNotesUrl": os.environ["MANIFEST_NOTES_URL"],
+          }, indent=2))
+          PY
+          cat staging/update.json
+          # 앱의 파서가 거부하는 값이 하나라도 있으면 배너는 영원히 뜨지 않고, 그 실패는
+          # 조용하다(`UpdateManifestParser`는 의심스러우면 null이다). 그러니 발행 전에 같은
+          # 규칙을 여기서 한 번 돌린다.
+          python3 -c "
+          import json, sys
+          d = json.load(open('staging/update.json'))
+          assert d['versionCode'] > 0, d
+          assert d['versionName'].strip(), d
+          assert d['apkUrl'].startswith('https://'), d
+          assert d['apkSizeBytes'] > 0, d
+          assert len(d['sha256']) == 64, d
+          assert d['minSdk'] > 0, d
+          assert d['releaseNotesUrl'].startswith('https://'), d
+          "
+
+      # 자산 목록의 세 복사본 중 하나다. `scripts/verify-release-assets.ps1`이 이 스텝의
+      # `cp` 대상과 아래 `gh release create` 인자와 문서 마커를 대조하므로, 목록을 바꿀 때는
+      # 셋을 함께 고쳐야 한다(D062·D064·D072).
+      - name: Prepare release asset
+        run: |
+          set -euo pipefail
+          cp staging/store.apk "markleaf-${GITHUB_REF_NAME}.apk"
+          cp staging/store-mapping.txt "markleaf-${GITHUB_REF_NAME}.mapping.txt"
+          cp staging/sideload.apk "markleaf-${GITHUB_REF_NAME}-sideload.apk"
+          cp staging/sideload-mapping.txt "markleaf-${GITHUB_REF_NAME}-sideload.mapping.txt"
+          cp staging/update.json update.json
+          test -s "markleaf-${GITHUB_REF_NAME}.apk"
+          test -s "markleaf-${GITHUB_REF_NAME}.mapping.txt"
+          test -s "markleaf-${GITHUB_REF_NAME}-sideload.apk"
+          test -s "markleaf-${GITHUB_REF_NAME}-sideload.mapping.txt"
+          test -s update.json
+          ls -lh "markleaf-${GITHUB_REF_NAME}.apk" "markleaf-${GITHUB_REF_NAME}.mapping.txt" "markleaf-${GITHUB_REF_NAME}-sideload.apk" "markleaf-${GITHUB_REF_NAME}-sideload.mapping.txt" update.json
 
       - name: Prepare release notes
         run: |
@@ -514,6 +648,9 @@ jobs:
           gh release create "$GITHUB_REF_NAME" \
             "markleaf-${GITHUB_REF_NAME}.apk" \
             "markleaf-${GITHUB_REF_NAME}.mapping.txt" \
+            "markleaf-${GITHUB_REF_NAME}-sideload.apk" \
+            "markleaf-${GITHUB_REF_NAME}-sideload.mapping.txt" \
+            "update.json" \
             --repo "$GITHUB_REPOSITORY" \
             --title "$(cat release-title.txt)" \
             --notes-file release-notes.md
@@ -540,12 +677,12 @@ jobs:
       #   * re-issue GITLAB_TOKEN with the `api` scope (then this works), or
       #   * unset GITLAB_RELEASE_MIRROR (then both steps skip, as before).
       #
-      # assembleRelease already ran above; this re-runs it as a dependency and
-      # finds it up to date, then copies the outputs out under their versioned
-      # names alongside the six-locale notes. bundleRelease no longer runs above
-      # unless MARKLEAF_PLAY_AAB is set (D072), so when this step is revived it
-      # builds the AAB itself — slower on the first tag after the revival, and
-      # correct either way.
+      # assembleRelease 이 위에서 두 번 돌았고 마지막이 사이드로드 버전이므로(D074), 속성 없이
+      # 도는 이 스텝은 store 구성을 **다시 빌드한다** — 게이트가 소스 세트를 바꾸므로
+      # Gradle 이 up-to-date 로 보지 않는다. 그게 올바른 동작이다: 이 스텝이 내보내는 것은
+      # store 산출물이지 사이드로드 빌드가 아니다. bundleRelease 는 MARKLEAF_PLAY_AAB 가
+      # 설정되지 않으면 위에서 돌지 않으므로(D072), 이 스텝을 되살리면 AAB 는 여기서
+      # 직접 만든다 — 부활 직후 첫 태그가 느리고, 결과는 어느 쪽이든 맞다.
       - name: Export versioned release artifacts
         if: vars.GITLAB_RELEASE_MIRROR == 'true'
         env:

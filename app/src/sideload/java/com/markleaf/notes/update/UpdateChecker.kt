@@ -11,9 +11,12 @@ import javax.net.ssl.HttpsURLConnection
  * (`docs/AGENT_SPEC.md` §15.9). 요청에 붙는 것은 URL과 표준 헤더뿐이고, 쿼리스트링도
  * 쿠키도 붙이지 않는다.
  *
- * `api.github.com` 대신 GitHub Pages의 정적 파일을 읽는 이유: GitHub의 비인증 REST 한도는
- * 시간당 60건인데 그 한도가 앱이 아니라 **IP에** 붙는다. 통신사 NAT 뒤에서는 남이 쓴 한도에
- * 우리 확인이 막힌다.
+ * `api.github.com`을 부르지 않는 이유: GitHub의 비인증 REST 한도는 시간당 60건인데 그 한도가
+ * 앱이 아니라 **IP에** 붙는다. 통신사 NAT 뒤에서는 남이 쓴 한도에 우리 확인이 막힌다. 우리가
+ * 읽는 것은 REST API가 아니라 릴리스 자산 하나이고, 스키마도 우리가 통제한다.
+ *
+ * 그 자산을 GitHub Pages(`docs/update.json`)가 아니라 Release에 두는 이유는 D075다. 요약하면
+ * `main`이 보호 브랜치라 태그 런이 `docs/`에 커밋을 밀 수 없다.
  */
 internal class UpdateChecker(
     private val manifestUrl: String = DEFAULT_MANIFEST_URL,
@@ -62,7 +65,15 @@ internal class UpdateChecker(
         }
 
     internal companion object {
-        const val DEFAULT_MANIFEST_URL = "https://jeiel85.github.io/markleaf-android/update.json"
+        /**
+         * `releases/latest/download/<자산 이름>`은 **가장 최근 릴리스의** 같은 이름 자산으로
+         * 302를 돌려주는 고정 주소다. 그래서 이 상수는 버전이 올라가도 그대로다 —
+         * 앱에 박힌 주소를 릴리스마다 고쳐야 한다면 그 자체가 다음 사고다.
+         *
+         * `HttpURLConnection`은 https → https 리다이렉트를 기본으로 따라간다.
+         */
+        const val DEFAULT_MANIFEST_URL =
+            "https://github.com/jeiel85/markleaf-android/releases/latest/download/update.json"
         private const val TIMEOUT_MILLIS = 10_000
         private const val MAX_BODY_BYTES = 64 * 1024
     }

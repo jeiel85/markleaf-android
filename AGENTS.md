@@ -192,10 +192,13 @@ GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
    이 변경의 목적이다. `vX.Y.Z` 태그는 **GitHub에만**
    푸시한다 — GitLab 태그 푸시는 D068에서 뺐다(GitLab은 v2.32.4에 얼어붙은 스냅샷이라,
    태그를 밀면 그쪽 `main`에서 도달하지 못하는 커밋을 가리키게 된다).
-   **릴리스 자산이 붙는 곳은 GitHub 하나뿐이다** — GitHub Release는 APK와 mapping
-   두 개를 담고(mapping을 자산으로 되돌린 이유는 D072, AAB 제외는 D062),
-   **GitLab은 아무것도 미러하지 않는다**(D066 → D067·D068).
-   <!-- release-assets: markleaf-vX.Y.Z.apk, markleaf-vX.Y.Z.mapping.txt -->
+   **릴리스 자산이 붙는 곳은 GitHub 하나뿐이다** — GitHub Release는 자산 다섯 개를 담고
+   (store APK·store mapping·사이드로드 APK·사이드로드 mapping·`update.json`;
+   mapping을 자산으로 되돌린 이유는 D072, 사이드로드 세 개가 붙은 이유는 D075,
+   AAB 제외는 D062), **GitLab은 아무것도 미러하지 않는다**(D066 → D067·D068).
+   **store APK를 먼저 빌드해 옮긴 뒤 사이드로드를 빌드한다** — 둘이 같은 출력 경로를
+   쓰므로 순서를 뒤집으면 F-Droid가 대조할 자산이 사이드로드 빌드가 된다(D074).
+   <!-- release-assets: markleaf-vX.Y.Z.apk, markleaf-vX.Y.Z.mapping.txt, markleaf-vX.Y.Z-sideload.apk, markleaf-vX.Y.Z-sideload.mapping.txt, update.json -->
    위 마커는 `scripts/verify-release-assets.ps1`이 읽어 워크플로의 실제
    `gh release create` 인자와 대조한다. 목록을 바꾸려면 세 복사본(워크플로,
    스테이징 스텝, 이 마커)을 함께 고쳐야 하며 그렇지 않으면 PR CI가 실패한다.

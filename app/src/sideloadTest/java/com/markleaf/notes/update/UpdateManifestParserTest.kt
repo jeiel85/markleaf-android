@@ -10,7 +10,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * `docs/update.json` 파싱 규칙.
+ * GitHub Release 의 `update.json` 자산을 읽는 파싱 규칙(D075).
  *
  * Robolectric인 이유는 `SidecarIndexTest`와 같다 — 파서가 `org.json`을 쓰는데 단위 테스트용
  * `android.jar`는 그것을 스텁으로만 제공한다.

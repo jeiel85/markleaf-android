@@ -1270,6 +1270,59 @@ Implications:
 - D073은 **폐기되지 않는다.** 왜 분리가 필요한지(제품 약속 세 곳, Play 정책, F-Droid 재현
   빌드)와 AGENT_SPEC 관문은 그대로 유효하다. 이 결정은 그 중 수단 한 가지만 대체한다.
 
+### D075 - The Update Manifest Ships As A Release Asset, Not On GitHub Pages
+
+사이드로드 업데이트 확인이 읽는 JSON은 `docs/update.json`(GitHub Pages)이 아니라 태그 런이
+GitHub Release에 붙이는 `update.json` 자산이다. 앱이 읽는 주소는 버전이 올라가도 바뀌지 않는
+`https://github.com/jeiel85/markleaf-android/releases/latest/download/update.json` 하나다.
+
+`docs/UPDATE_STRATEGY_EVALUATION.md`가 적었던 Pages 경로를 **대체한다.** 그 설계가 틀렸다기보다
+성립 조건을 하나 빠뜨렸다.
+
+Why:
+- **`main`이 보호 브랜치라 태그 런이 `docs/`에 커밋을 밀 수 없다.** Pages는 `main`의 `docs/`를
+  서빙하므로(`docs/privacy.html` → `jeiel85.github.io/markleaf-android/privacy.html`),
+  Pages 경로는 릴리스마다 워크플로가 `main`에 커밋을 하나 얹어야 성립한다. 이 저장소는
+  모든 변경이 PR 머지로 들어오고(`AGENTS.md`), 2026-09-14 기준 `main`은 protected 다
+  (GitHub API 확인). 남는 선택은 릴리스마다 사람이 PR 하나를 머지하는 것인데, 그것은
+  **D072가 없애려던 바로 그 실패 양식**이다 — "사람이 기억해야만 도는 단계는 실제로 잊힌다"
+  (v2.27.2~v2.29.0 여섯 릴리스, #247). 그동안 사이드로드 사용자는 새 버전을 보지 못한다.
+- **한 번의 `gh release create`로 원자적으로 끝난다.** APK·매핑·manifest가 같은 명령으로
+  올라가므로 "자산은 있는데 manifest가 아직 안 갔다" 또는 그 반대인 창이 없다. Pages 경로는
+  두 시스템의 발행 시점이 다르므로 그 창이 항상 존재한다.
+- **`api.github.com`을 쓰지 않는다는 원래 근거는 그대로다.** 비인증 REST 한도 60건/시간은
+  `api.github.com` 요청에 대한 것이고 그 한도가 IP에 붙는다는 것이 Pages를 고른 이유였는데,
+  `releases/latest/download/`는 REST API 경로가 아니라 브라우저가 쓰는 것과 같은 다운로드
+  경로다. 정적 JSON이고 스키마를 우리가 통제한다는 점도 같다.
+- **동작을 실측했다(2026-09-14).** `releases/latest/download/markleaf-v2.41.0.apk`가 302로
+  `releases/download/v2.41.0/...`을 가리키고, 리다이렉트 2회 뒤 200/206으로 끝난다. 전 구간
+  https 이므로 `HttpURLConnection`의 기본 리다이렉트 추적이 그대로 동작한다.
+
+Implications:
+
+- 자산이 2개에서 **5개**가 된다: store APK, store mapping, 사이드로드 APK, 사이드로드 mapping,
+  `update.json`. 목록의 세 복사본(`gh release create` 인자, `Prepare release asset`의 `cp`
+  대상, 문서 마커 3곳)은 `scripts/verify-release-assets.ps1`이 계속 대조한다(D062·D064·D072).
+- **사이드로드 mapping을 붙이는 것은 D072 자신의 근거를 따른 것이다.** D072는 mapping을 자산으로
+  되돌리며 "사이드로드 크래시 역난독화는 이 파일이 유일한 수단"이라고 적었다. 채널이 갈라진
+  뒤로 store mapping은 사이드로드 사용자가 실행하는 코드를 역난독화하지 못한다 — 틀린 심볼을
+  조용히 내놓는다. 대가는 태그마다 ~47 MB 파일이 하나 더 붙는 것이다(v2.41.0 기준 mapping
+  46.7 MB, APK 3.06 MB).
+- `update.json`의 값은 **전부 방금 만든 산출물에서 뽑는다.** 버전은 APK의 `aapt2 dump badging`,
+  크기와 SHA-256은 실제로 붙일 파일. 같은 값을 빌드 스크립트나 태그 이름에서 다시 적으면 그
+  사본이 언젠가 어긋나고, 어긋난 manifest는 "업데이트가 있다는데 설치가 안 된다"로 나타난다.
+  태그와 APK의 `versionName`이 다르면 워크플로가 발행 전에 멈춘다.
+- 게이트가 실제로 갈라졌는지는 **나가는 파일에서** 확인한다. `aapt2 dump permissions`로 store
+  APK에 `INTERNET` 0건, 사이드로드 APK에 1건. 빌드 스크립트를 읽는 것은 의도의 확인이고,
+  여기서 필요한 것은 사실의 확인이다.
+- 두 APK는 **같은 인증서**여야 하며 워크플로가 대조한다. 다르면 사이드로드 APK는 기존 설치를
+  업데이트하지 못한다 — 업데이트를 위해 만든 산출물이 업데이트를 막는 결과가 된다.
+- F-Droid는 영향을 받지 않는다. `metadata/com.markleaf.notes.yml`의 `Binaries:`가
+  `markleaf-v%v.apk`라는 **정확한 이름**을 가리키므로 새 자산 4개는 그 대조 대상이 아니고,
+  `gradle: - yes`도 그대로다(D074).
+- `docs/update.json`은 만들지 않는다. 만들어 두면 Pages에 낡은 사본이 남아, 앱이 읽지 않는
+  파일이 릴리스마다 조용히 뒤처진다.
+
 ---
 
 ## Resolved (Pending → Confirmed)

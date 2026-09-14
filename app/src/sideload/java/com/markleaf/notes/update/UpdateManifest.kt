@@ -3,8 +3,9 @@ package com.markleaf.notes.update
 import org.json.JSONObject
 
 /**
- * `docs/update.json`이 싣는 내용. 릴리스 워크플로가 실제 자산에서 계산해 넣는다
- * (`docs/UPDATE_STRATEGY_EVALUATION.md`).
+ * GitHub Release 의 `update.json` 자산이 싣는 내용. 릴리스 워크플로가 방금 만든 산출물에서
+ * 직접 뽑아 넣는다 — 버전은 APK 의 badging 에서, 크기와 해시는 붙일 파일 자체에서
+ * (D075, `docs/UPDATE_STRATEGY_EVALUATION.md`).
  *
  * 이 파일은 게이트 뒤(`src/sideload/java`)에만 있으므로 스토어 산출물에는 존재하지 않는다
  * (D074, `docs/AGENT_SPEC.md` §15.9).
@@ -22,7 +23,7 @@ internal data class UpdateManifest(
 internal object UpdateManifestParser {
 
     /**
-     * Input : `docs/update.json`의 본문 문자열
+     * Input : `update.json` 자산의 본문 문자열
      * Output: 온전한 [UpdateManifest], 또는 조금이라도 이상하면 `null`
      *
      * 핵심 로직: **의심스러우면 null이다.** 업데이트 확인은 사용자가 요청한 적 없는 배경 작업이고,

@@ -199,29 +199,48 @@ grep -rln "app-release\|assembleDebug\|app-debug\|verifyRoborazziDebug\|lintRele
   릴리스 워크플로는 **store APK를 먼저 빌드해 다른 이름으로 옮긴 뒤** 사이드로드 빌드를
   돌려야 한다. 순서를 뒤집으면 F-Droid가 검증할 자산이 사이드로드 빌드가 된다.
 - 자산 목록은 세 곳에 복사되어 있고 `scripts/verify-release-assets.ps1`이 대조한다(D072).
-  셋을 함께 고쳐야 한다.
+  셋을 함께 고쳐야 한다. **구현 결과 자산은 2개에서 5개가 됐다**(D075): store APK·store
+  mapping·사이드로드 APK·사이드로드 mapping·`update.json`.
+- **사이드로드 mapping도 붙인다.** D072가 mapping을 자산으로 되돌린 근거가 "사이드로드 크래시
+  역난독화는 이 파일이 유일한 수단"이었는데, 채널이 갈라진 뒤로 store mapping은 사이드로드
+  사용자가 실행하는 코드를 역난독화하지 못하고 **틀린 심볼을 조용히 내놓는다.**
+- 게이트가 실제로 갈라졌는지는 나가는 파일에서 확인한다 — `aapt2 dump permissions`로 store
+  APK에 `INTERNET` 0건, 사이드로드 APK에 1건. 두 APK의 서명 인증서가 같은지도 대조한다.
+  다르면 사이드로드 APK가 기존 설치를 업데이트하지 못한다.
 
 ## 업데이트 메타데이터 소스
-- 권장: GitHub Pages의 정적 JSON(`docs/update.json`)을 릴리스 워크플로가 갱신한다.
+
+> **정정(2026-09-14, D075): GitHub Pages 경로는 성립하지 않아 Release 자산으로 바꿨다.**
+> Pages는 `main`의 `docs/`를 서빙하는데 `main`은 보호 브랜치라 태그 런이 거기에 커밋을 밀 수
+> 없다. 남는 방법은 릴리스마다 사람이 PR 하나를 머지하는 것이고, 그것은 D072가 없애려던
+> "사람이 기억해야만 도는 단계"다. 아래 문단의 `docs/update.json`은
+> `https://github.com/jeiel85/markleaf-android/releases/latest/download/update.json`으로
+> 읽는다 — 태그 런의 `gh release create` 하나로 APK·mapping과 함께 원자적으로 올라간다.
+
+- 릴리스 워크플로가 만드는 정적 JSON 하나를 읽는다.
 - `api.github.com`을 직접 부르지 않는 이유: GitHub 문서는 "The primary rate limit for
   unauthenticated requests is 60 requests per hour"이며 "Unauthenticated requests are
   associated with the originating IP address"라고 적는다. 통신사 NAT 뒤에서는 앱이 아니라
-  **같은 IP를 쓰는 남들**이 한도를 소모한다. 정적 JSON은 한도가 없고 스키마를 우리가 통제하며
-  응답이 작다.
-- 스키마 초안:
+  **같은 IP를 쓰는 남들**이 한도를 소모한다. `releases/latest/download/`는 그 REST API 경로가
+  아니라 브라우저가 쓰는 것과 같은 다운로드 경로이고, 스키마를 우리가 통제하며 응답이 작다는
+  점도 같다. 2026-09-14에 실측했다 — 302 두 번 뒤 200으로 끝나고 전 구간 https 다.
+- 스키마(구현된 그대로. `UpdateManifestParser`가 이 일곱 키를 **전부** 요구하고, 하나라도
+  빠지거나 타입이 다르면 통째로 null 이다):
 
 ```json
 {
   "versionCode": 145,
   "versionName": "2.42.0",
-  "apkUrl": "https://github.com/.../markleaf-v2.42.0-sideload.apk",
+  "apkUrl": "https://github.com/jeiel85/markleaf-android/releases/download/v2.42.0/markleaf-v2.42.0-sideload.apk",
   "apkSizeBytes": 2831155,
-  "sha256": "…",
+  "sha256": "0be9…",
   "minSdk": 26,
-  "releaseNotesUrl": "https://github.com/.../releases/tag/v2.42.0",
-  "publishedAt": "2026-09-20T00:00:00Z"
+  "releaseNotesUrl": "https://github.com/jeiel85/markleaf-android/releases/tag/v2.42.0"
 }
 ```
+
+  초안에 있던 `publishedAt`은 넣지 않았다. 모달이 공개일을 보여주지 않게 정리됐고, 읽지 않는
+  필드를 스키마에 남기면 다음 사람이 그것을 계약으로 읽는다.
 
 - 비교는 `versionName` 문자열이 아니라 `BuildConfig.VERSION_CODE` 정수로 한다. 문자열
   비교는 `2.9.0` > `2.10.0`을 만든다.
@@ -241,8 +260,10 @@ grep -rln "app-release\|assembleDebug\|app-debug\|verifyRoborazziDebug\|lintRele
 - 배너: 노트 목록 상단 한 줄, 눌러서 모달을 열고 거기서 "이 버전 건너뛰기"를 고른다.
   **노트가 하나도 없는 빈 화면에는 띄우지 않는다** — 그 화면은 방금 설치한 사람이 보는 첫
   화면이고, 막 깐 앱이 업데이트를 권하는 것은 첫인상으로도 사실로도 어색하다.
-- 모달: 버전·공개일·다운로드 크기와 릴리스 노트 링크. 로컬 `CHANGELOG.md`가 아니라 JSON의
+- 모달: 버전·다운로드 크기와 릴리스 노트 링크. 로컬 `CHANGELOG.md`가 아니라 JSON의
   `releaseNotesUrl`을 쓴다 — 설치된 앱에 들어 있는 changelog는 **새 버전의** 내용을 모른다.
+  (초안에 있던 공개일은 구현에서 뺐다. 사용자가 그 날짜로 내리는 결정이 없고, 그 한 필드를
+  위해 스키마와 8개 로케일 문자열을 늘릴 값어치가 없다.)
 - 앱 시작 화면을 모달로 막지 않는다. 확인은 백그라운드, 표시는 목록 화면에서만.
 - 알림은 쓰지 않는다. `POST_NOTIFICATIONS` 권한을 추가할 이유가 없다.
 - store 빌드에서 이 항목을 아예 숨길지, "F-Droid에서 업데이트됩니다" 안내로 남길지는

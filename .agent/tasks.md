@@ -156,7 +156,7 @@ Gradle 속성 게이트입니다 — fdroiddata 레시피 MR은 필요 없습니
 - [x] 사이드로드 매니페스트 사본이 본 매니페스트와 `INTERNET` 한 줄만 다르다는 것을 고정하는 검사 추가 — `SideloadManifestParityTest` 2건(사본 표류 + 스토어 매니페스트에 INTERNET 없음). 사본은 손으로 베끼지 않고 본 매니페스트에서 생성했고, 불변식을 데이터로 먼저 확인함(116줄 → 117줄, INTERNET 1줄)
 - [x] `AGENTS.md` INTERNET 규칙·Stop Conditions와 `NOCLOUD_CERTIFICATION.md`·`NETWORK_FEATURE_NECESSITY_EVALUATION.md` 선행 개정 — 규칙이 코드보다 먼저 들어가야 다음 루프가 스스로 멈추지 않는다
 - [x] 속성 게이트 도입 — `markleaf.updater` 속성, 매니페스트 `srcFile` 전환, `src/sideload/java` 등록, `BuildConfig.UPDATER`. 양방향을 실측 확인(store 0건 / sideload 1건)하고, CI에 같은 검사를 hard gate로 추가했다
-- [ ] 릴리스 워크플로 확장 — store를 먼저 빌드해 옮긴 뒤 사이드로드 빌드(같은 출력 경로를 공유), `docs/update.json` 갱신, 자산 목록 3곳 동기화
+- [x] 릴리스 워크플로 확장 — store를 먼저 빌드해 `staging/`으로 옮긴 뒤 사이드로드 빌드(같은 출력 경로를 공유), `update.json` 생성, 자산 목록 3곳 동기화(2개 → 5개). **manifest 위치를 Pages에서 Release 자산으로 바꿨다(D075)** — `main`이 보호 브랜치라 태그 런이 `docs/`에 커밋을 밀 수 없고, Pages 경로는 릴리스마다 사람이 PR을 머지해야 성립한다. 발행 전에 두 APK의 인증서 동일성·`INTERNET` 0/1 분리·태그와 `versionName` 일치를 막아 둔다
 - [x] `versionCode` 정수 비교 업데이트 확인 로직 + 하루 1회·조용한 실패·단위 테스트 — `UpdateManifest`/`UpdateManifestParser`, `UpdateDecision`, `UpdateChecker`. 테스트도 게이트 뒤(`src/sideloadTest/java`)에 두고 CI가 `-Pmarkleaf.updater=true`로 실행한다(소스 세트 등록은 실측 확인, 실행은 SDK가 있는 CI가 처음)
 - [x] 기본 OFF 토글과 F-Droid 검사 우회 설명 — `UpdateSurface` 이음매(`src/storeStub` ↔ `src/sideload` 배타 컴파일), `UpdatePreferences`, 설정 앱 섹션의 행 하나. 문자열 2개를 8개 로케일에 추가하고 키 parity·비영어 검사를 로컬에서 통과시킴
 - [x] 배너·모달·이 버전 건너뛰기 UX 구현 (7번의 나머지) — `UpdateSurface.Banner`가 목록 LIST·GRID 맨 위에 붙고, 모달에서 내려받기·릴리스 노트·건너뛰기를 고른다. 확인 결과 원문을 캐시해 하루 1회 확인과 상시 배너를 함께 만족시킨다. 문자열 6개를 8개 로케일에 추가

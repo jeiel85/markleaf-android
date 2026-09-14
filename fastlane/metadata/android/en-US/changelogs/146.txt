@@ -1,0 +1,1 @@
+No visible change in this build — same screens, same behaviour as before. A separate build, distributed only on GitHub, can now check for, download, and install its own updates. That feature and its two new permissions live only in that build, never in this Play/F-Droid one.

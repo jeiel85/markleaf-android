@@ -1,0 +1,1 @@
+Aucun changement visible dans cette version — mêmes écrans, même comportement qu'avant. Une version distincte, distribuée uniquement sur GitHub, peut désormais rechercher, télécharger et installer ses propres mises à jour. Cette fonctionnalité et ses deux nouvelles permissions n'existent que dans cette version-là, jamais dans cette version Play/F-Droid.

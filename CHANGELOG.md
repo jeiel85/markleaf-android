@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.42.0 - The sideload build can update itself now - 2026-09-14
+
+This only changes the sideload APK. Store and F-Droid builds carry no new code and no new permission — nothing about them changes with this release.
+
+### Added
+- **The sideload build can check for, download, and install updates without leaving the app (#397).** Turn it on in Settings → App — off by default. When a newer sideload release exists, a banner appears above your notes; tap it, then tap to download, and the app fetches the APK, checks its SHA-256 against the value published with the release, and hands off to Android's own install-confirmation screen. Markleaf never installs anything itself — that screen, and your tap on it, is the only thing that ever installs a new version. If the download or the check fails, you can retry or fall back to opening the release in your browser, same as before this release. This adds two permissions to the sideload APK only, `INTERNET` and `REQUEST_INSTALL_PACKAGES`; the store and F-Droid builds have neither, and this feature does not exist in their code at all.
+
 ## v2.41.1 - The keyboard sits under the note again - 2026-09-14
 
 A band of empty screen stood between the keyboard and the note while you were editing. No permission or storage-format changes.

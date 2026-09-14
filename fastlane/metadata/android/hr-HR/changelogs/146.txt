@@ -1,0 +1,1 @@
+Nema vidljivih promjena u ovoj inačici — isti zasloni, isto ponašanje kao prije. Zasebna inačica, dostupna samo na GitHubu, sada može sama provjeriti, preuzeti i instalirati ažuriranja. Ta značajka i njezina dva nova dopuštenja postoje samo u toj inačici, nikad u ovoj Play/F-Droid inačici.

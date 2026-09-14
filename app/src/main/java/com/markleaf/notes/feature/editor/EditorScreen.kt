@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -903,10 +904,24 @@ fun EditorScreen(
                 // BasicTextField's built-in cursor bring-into-view can keep the caret
                 // above the keyboard. Without it, enableEdgeToEdge() lets the IME draw
                 // over the last lines and they stay hidden (#136).
+                //
+                // consumeWindowInsets(paddingValues) is what stops that from becoming a
+                // gap (#398). Insets are distances from the window edge, so two bottom
+                // insets overlap rather than stack — which is why the framework's own
+                // safeDrawing unions systemBars with ime and takes the *larger* of the
+                // two. Scaffold hands us the navigation-bar inset in paddingValues but
+                // does not mark it consumed, and plain Modifier.padding does not mark
+                // it either, so imePadding() below would add the whole IME height on
+                // top of it: navBar + ime instead of max(navBar, ime), leaving exactly
+                // one navigation bar of dead space above the keyboard. Consuming it
+                // here means imePadding() adds only (ime - navBar), so the sum is the
+                // max the framework intends. With the keyboard down ime is 0 and the
+                // navigation-bar padding from paddingValues stands on its own.
                 Column(
                     Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
+                        .consumeWindowInsets(paddingValues)
                         .imePadding()
                         .padding(horizontal = 20.dp, vertical = 12.dp)
                         // Undo is bound here rather than on the text field so it

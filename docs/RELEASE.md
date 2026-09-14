@@ -613,12 +613,24 @@ tag pipelines can read the signing variables. Never expose these variables to
 branch or merge-request jobs.
 
 On tag pushes matching `v*`, GitHub Actions runs tests, builds the signed
-release APK, and creates a GitHub Release with **two** assets attached:
+release APK **twice** — once for the store channel and once for the sideload
+channel — and creates a GitHub Release with **five** assets attached:
 
-<!-- release-assets: markleaf-vX.Y.Z.apk, markleaf-vX.Y.Z.mapping.txt -->
+<!-- release-assets: markleaf-vX.Y.Z.apk, markleaf-vX.Y.Z.mapping.txt, markleaf-vX.Y.Z-sideload.apk, markleaf-vX.Y.Z-sideload.mapping.txt, update.json -->
 
-- `markleaf-vX.Y.Z.apk` — signed, R8-shrunk APK for sideload installs and the Releases mirror
-- `markleaf-vX.Y.Z.mapping.txt` — R8 mapping for deobfuscating crash reports from that build
+- `markleaf-vX.Y.Z.apk` — signed, R8-shrunk **store** APK. This is the file F-Droid rebuilds
+  from source and compares against, so its name and contents are fixed by `Binaries:` in
+  `metadata/com.markleaf.notes.yml`. No `INTERNET` permission, no updater code.
+- `markleaf-vX.Y.Z.mapping.txt` — R8 mapping for the store APK
+- `markleaf-vX.Y.Z-sideload.apk` — the same app built with `-Pmarkleaf.updater=true` (D074).
+  Declares `INTERNET` and carries the opt-in update check. Same signing certificate as the
+  store APK, so it installs over an existing install and vice versa.
+- `markleaf-vX.Y.Z-sideload.mapping.txt` — R8 mapping for the sideload APK. Separate because
+  the two APKs are separate R8 runs: the store mapping resolves sideload stack traces to the
+  **wrong** symbols, silently (D075).
+- `update.json` — what the sideload update check reads, at the fixed URL
+  `https://github.com/jeiel85/markleaf-android/releases/latest/download/update.json`. Every
+  value in it is read back out of the artifacts this run just built (D075).
 
 The comment above is not decoration. `scripts/verify-release-assets.ps1` reads
 it and fails the `build` job if it disagrees with the arguments the workflow
@@ -626,7 +638,7 @@ actually passes to `gh release create` — this list drifted twice while D062 an
 D064 shrank it, and nothing failed either time. Change the list and you change
 all three copies together, or CI says so.
 
-<!-- release-assets: markleaf-vX.Y.Z.apk, markleaf-vX.Y.Z.mapping.txt -->
+<!-- release-assets: markleaf-vX.Y.Z.apk, markleaf-vX.Y.Z.mapping.txt, markleaf-vX.Y.Z-sideload.apk, markleaf-vX.Y.Z-sideload.mapping.txt, update.json -->
 
 The mapping is attached because the Release is now where it permanently lives
 (D072). It used to reach `D:\Build` through the local `exportReleaseToBuildDrive`
@@ -644,9 +656,25 @@ mirror. An `.aab` cannot be sideloaded, so it was never a Release asset anyway
 (D062).
 
 The release job fails before publishing if the keystore secret is missing, if
-the APK certificate SHA-256 digest differs from the fixed production
-certificate, or if the APK or mapping file is missing from the build outputs —
-and, when `MARKLEAF_PLAY_AAB` is set, the AAB as well.
+either APK's certificate SHA-256 digest differs from the fixed production
+certificate, if an APK or mapping file is missing from the build outputs, if the
+`INTERNET` split between the two APKs is not 0/1, or if the sideload APK's
+`versionName` disagrees with the tag — and, when `MARKLEAF_PLAY_AAB` is set, the
+AAB as well. Every one of those is checked before `gh release create` runs, so a
+failure leaves no half-published release behind.
+
+### Build order is load-bearing
+
+The two APKs are not flavours, so **both builds write
+`app/build/outputs/apk/release/app-release.apk` and the same `mapping.txt`** (D074). The tag
+job therefore builds the store APK first, verifies and copies it into `staging/`, and only
+then runs `assembleRelease -Pmarkleaf.updater=true`. Reverse that and the file F-Droid
+verifies as `markleaf-vX.Y.Z.apk` is the sideload build — and a reproducible-build mismatch
+means F-Droid publishes **nothing** for that version.
+
+Two checks pin this down before anything is published: `aapt2 dump permissions` must report
+`INTERNET` zero times in the store APK and exactly once in the sideload APK, and both APKs
+must carry the production certificate.
 
 ## GitLab Release Assets
 

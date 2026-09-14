@@ -289,6 +289,20 @@
     <string name="settings_app">应用</string>
     <string name="version_format">版本 %1$s</string>
     <string name="application_id_format">应用 ID %1$s</string>
+    <string name="update_check_title">检查更新</string>
+    <string name="update_check_description">每天检查一次是否有新版本，有则显示横幅提示。下载来自 GitHub Releases，不经过 F-Droid 的校验。</string>
+    <string name="update_banner_text">新版本 %1$s 可用</string>
+    <string name="update_dialog_title">有可用更新</string>
+    <string name="update_dialog_body">版本 %1$s · %2$s，来自 GitHub Releases。</string>
+    <string name="update_action_open">下载并安装</string>
+    <string name="update_action_skip">跳过此版本</string>
+    <string name="update_action_open_in_browser">改用浏览器打开</string>
+    <string name="update_permission_required_body">Markleaf 需要权限才能安装应用更新。请前往设置授权，然后返回这里。</string>
+    <string name="update_action_open_settings">打开设置</string>
+    <string name="update_downloading">正在下载更新…</string>
+    <string name="update_download_failed_body">下载未能完成。可以重试，或改用浏览器打开。</string>
+    <string name="update_action_retry">重试</string>
+    <string name="update_action_release_notes">发行说明</string>
 
     <string name="settings_open_source">开源</string>
     <string name="oss_license_label">许可证</string>

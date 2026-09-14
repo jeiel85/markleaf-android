@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <application
+        android:allowBackup="false"
+        android:enableOnBackInvokedCallback="true"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Markleaf">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Markleaf">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+            <!-- Receive a shared markdown file (#139). text/plain is handled
+                 above; these cover apps that share .md with a markdown MIME. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/markdown" />
+                <data android:mimeType="text/x-markdown" />
+            </intent-filter>
+            <!-- Open a markdown / text file tapped in a file manager (#139).
+                 The content: and file: schemes are listed explicitly (rather
+                 than relying on the implicit scheme match a mimeType-only
+                 <data> would give) so lint doesn't read this as an incomplete
+                 web-link filter. text/plain is included because many file
+                 managers report .md files as text/plain. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="text/markdown" />
+                <data android:mimeType="text/x-markdown" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- Labelled explicitly: without it both widgets fall back to the app
+             name and the picker offers "Markleaf" twice. `quick_note_widget_label`
+             existed unused until the second widget made the pair ambiguous. -->
+        <receiver
+            android:name=".widget.QuickNoteWidget"
+            android:label="@string/quick_note_widget_label"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/quick_note_widget_info" />
+        </receiver>
+
+        <service
+            android:name=".widget.QuickNoteWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS"
+            android:exported="false" />
+
+        <!-- One chosen note's text on the home screen (#351). Separate from the
+             recent-notes widget above; both can be placed. -->
+        <receiver
+            android:name=".widget.SingleNoteWidget"
+            android:label="@string/single_note_widget_label"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/single_note_widget_info" />
+        </receiver>
+
+        <!-- Feeds the scrolling body of the single-note widget (#371). One
+             factory per placed widget, unlike the recent-notes service above. -->
+        <service
+            android:name=".widget.SingleNoteWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS"
+            android:exported="false" />
+
+        <!-- Launched by the launcher when the widget is placed, and again for the
+             reconfigure action on Android 12+. exported because the launcher, not
+             the app, starts it. -->
+        <activity
+            android:name=".widget.SingleNoteWidgetConfigureActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Markleaf">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
+        <!-- PackageInstaller 세션이 STATUS_PENDING_USER_ACTION을 콜백으로 돌려줄 때만
+             불린다(D073, C단계). intent-filter가 없는 이유: UpdateInstaller가 이 컴포넌트를
+             명시적 Intent로만 가리키고, 시스템 액션 문자열로 호출되는 일이 없다. -->
+        <receiver
+            android:name=".update.UpdateInstallReceiver"
+            android:exported="false" />
+    </application>
+
+</manifest>

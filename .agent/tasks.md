@@ -144,6 +144,27 @@
 
 ---
 
+## Phase 34 - Sideload Update Channel (Planned, after Phase 33)
+
+목적: 사이드로드 사용자가 새 버전을 놓치지 않게 앱이 직접 확인해 배너/모달로 알립니다.
+store / F-Droid / Play 산출물에는 INTERNET 권한도 업데이터 코드도 들어가지 않습니다
+(D073·D074, `docs/UPDATE_STRATEGY_EVALUATION.md`). 채널 분리 수단은 productFlavor가 아니라
+Gradle 속성 게이트입니다 — fdroiddata 레시피 MR은 필요 없습니다(D074).
+
+- [x] `docs/AGENT_SPEC.md` §15.1·§15.6("INTERNET 권한 영구 금지") 개정안을 사람에게 올려 명시적 승인 받기 — 2026-09-13 승인, §15.9 신설로 PR #397에 포함
+- [x] `sourceSets.main.java.srcDir` 게이트 확인 — 등록/제외는 `:app:sourceSets`로 실측(속성 없이 `[src/main/java]`, 속성 주면 둘 다), 컴파일은 CI의 새 스텝이 `assembleDebug -Pmarkleaf.updater=true`로 돌린다. 다만 `src/sideload/java`는 아직 비어 있으므로 **소스 기여분이 실제로 컴파일되는 것은 6·7번에서 코드가 들어갈 때**다. 웹 세션 컨테이너에는 Android SDK가 없어 여기서는 컴파일을 돌릴 수 없다
+- [x] 사이드로드 매니페스트 사본이 본 매니페스트와 `INTERNET` 한 줄만 다르다는 것을 고정하는 검사 추가 — `SideloadManifestParityTest` 2건(사본 표류 + 스토어 매니페스트에 INTERNET 없음). 사본은 손으로 베끼지 않고 본 매니페스트에서 생성했고, 불변식을 데이터로 먼저 확인함(116줄 → 117줄, INTERNET 1줄)
+- [x] `AGENTS.md` INTERNET 규칙·Stop Conditions와 `NOCLOUD_CERTIFICATION.md`·`NETWORK_FEATURE_NECESSITY_EVALUATION.md` 선행 개정 — 규칙이 코드보다 먼저 들어가야 다음 루프가 스스로 멈추지 않는다
+- [x] 속성 게이트 도입 — `markleaf.updater` 속성, 매니페스트 `srcFile` 전환, `src/sideload/java` 등록, `BuildConfig.UPDATER`. 양방향을 실측 확인(store 0건 / sideload 1건)하고, CI에 같은 검사를 hard gate로 추가했다
+- [x] 릴리스 워크플로 확장 — store를 먼저 빌드해 `staging/`으로 옮긴 뒤 사이드로드 빌드(같은 출력 경로를 공유), `update.json` 생성, 자산 목록 3곳 동기화(2개 → 5개). **manifest 위치를 Pages에서 Release 자산으로 바꿨다(D075)** — `main`이 보호 브랜치라 태그 런이 `docs/`에 커밋을 밀 수 없고, Pages 경로는 릴리스마다 사람이 PR을 머지해야 성립한다. 발행 전에 두 APK의 인증서 동일성·`INTERNET` 0/1 분리·태그와 `versionName` 일치를 막아 둔다
+- [x] `versionCode` 정수 비교 업데이트 확인 로직 + 하루 1회·조용한 실패·단위 테스트 — `UpdateManifest`/`UpdateManifestParser`, `UpdateDecision`, `UpdateChecker`. 테스트도 게이트 뒤(`src/sideloadTest/java`)에 두고 CI가 `-Pmarkleaf.updater=true`로 실행한다(소스 세트 등록은 실측 확인, 실행은 SDK가 있는 CI가 처음)
+- [x] 기본 OFF 토글과 F-Droid 검사 우회 설명 — `UpdateSurface` 이음매(`src/storeStub` ↔ `src/sideload` 배타 컴파일), `UpdatePreferences`, 설정 앱 섹션의 행 하나. 문자열 2개를 8개 로케일에 추가하고 키 parity·비영어 검사를 로컬에서 통과시킴
+- [x] 배너·모달·이 버전 건너뛰기 UX 구현 (7번의 나머지) — `UpdateSurface.Banner`가 목록 LIST·GRID 맨 위에 붙고, 모달에서 내려받기·릴리스 노트·건너뛰기를 고른다. 확인 결과 원문을 캐시해 하루 1회 확인과 상시 배너를 함께 만족시킨다. 문자열 6개를 8개 로케일에 추가
+- [x] 사용자 대상 no-INTERNET 문장에 sideload 예외 반영 — README 8개, `docs/privacy.*.html` 8개, `docs/PRIVACY.md`, `starter_notes.md` **7개**(zh는 `config/locales.tsv`에서 의도적으로 `starter no`), 그리고 **랜딩 페이지 8개**와 `docs/SECURITY.md`. 랜딩은 원래 목록에 없었지만 같은 화면에서 "GitHub APK" 버튼 옆에 `android.permission.INTERNET = false`를 띄우고 있었다 — 그 버튼이 주는 바로 그 파일에 대해 거짓이다. starter_notes는 앱 안에 들어가 사이드로드 빌드에도 실리므로, 채널 용어를 쓰지 않고 **어느 빌드에서도 참인 약속**("노트를 업로드하지 않는다")으로 바꿨다. 정확한 권한 표기는 README와 개인정보 처리방침이 맡는다. 감사를 세 번 돌렸고 앞의 두 번이 각각 소문자 `internet`(README 서문·기능 목록 8개)과 `og:description` 8개를 놓쳤다 — 대문자 `INTERNET`만 찾으면 안 된다. 로컬에서 랜딩 오버플로 게이트(16페이지 × 6폭, 320~1280px)를 실제로 돌려 통과시켰고, HTML well-formed와 노트 구분자 수(6)도 확인했다. v2.7 로드맵 줄의 "still no INTERNET"은 그대로 둔다 — 그 마일스톤을 정확히 기술한 과거 기록이고, 현재형 주장은 바로 위 No-Cloud 절이 맡는다
+- [x] 앱 내 다운로드 + SHA-256 대조 + `PackageInstaller` 설치 확인 팝업 — `UpdateDownloader`(재시도 3회, 실패 시 삭제), `Sha256`(순수 JVM, 단위 테스트 있음), `UpdateInstaller` + `UpdateInstallReceiver`(`STATUS_PENDING_USER_ACTION`을 받아 시스템 팝업을 띄움). `REQUEST_INSTALL_PACKAGES` 권한과 리시버 선언이 사이드로드 매니페스트에 추가되면서 `SideloadManifestParityTest`를 "한 줄만 다르다"에서 "알려진 블록만 뺐을 때 완전히 같다"로 일반화했다. **B단계가 실사용 검증을 거치기 전에 같은 PR에서 이어 구현했다** — 원래 계획은 "C단계는 B가 안정된 뒤"였다. 상세는 D076
+
+---
+
 ## Phase 28 - Public GitLab Releases (Done)
 
 - [x] Publish the GitLab mirror as a public repository

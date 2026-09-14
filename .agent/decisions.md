@@ -1141,6 +1141,280 @@ Implications:
 - API 31 미만에서는 `system_accent1_*`가 없으므로 override를 하지 않는다.
   `MarkleafTheme`가 같은 조건으로 green scheme에 fallback 하는 것과 맞춘다.
 
+### D073 - The Sideload Update Channel Is A Flavor, Never The Store Build
+
+앱 내 업데이트 확인·안내는 productFlavor `github`에만 들어간다. `store` 플레이버(F-Droid,
+Play, 재현 빌드 대상)에는 `android.permission.INTERNET`도 업데이터 코드도 들어가지 않는다.
+1차 범위는 확인 + 배너/모달 + 브라우저 위임이고, 앱 내 다운로드와 `PackageInstaller`는 그
+다음이다. 설계는 `docs/UPDATE_STRATEGY_EVALUATION.md`에 있고 구현은 Phase 34로 보류한다.
+
+Why:
+- **"INTERNET 권한 없음"은 문서 한 줄이 아니라 세 곳에 있는 제품 약속이다.** README 8개
+  언어, `docs/privacy.*.html` 8개, 그리고 앱이 첫 실행에 심는 `starter_notes.md` 8개
+  로케일이 같은 문장을 말한다. 단일 빌드에 권한을 넣으면 이 전부가 한꺼번에 거짓이 된다.
+  플레이버 분리는 편의가 아니라 그 약속을 지키는 최소 조건이다.
+- **F-Droid 재현 빌드가 설계를 결정했다.** `Binaries:` + `AllowedAPKSigningKeys` 구성에서
+  F-Droid가 사용자에게 주는 파일은 우리가 Release에 올린 그 APK 자체이고, 소스 재빌드와
+  일치하지 않으면 그 버전은 발행되지 않는다. 즉 두 채널이 같은 파일 하나를 공유하므로
+  "GitHub APK에만 업데이터"는 자산 이름을 나누지 않는 한 성립하지 않는다. 이걸 모른 채
+  플레이버만 추가하면 F-Droid 업데이트가 조용히 멈춘다.
+- **Play는 포기가 아니라 보류다(D072).** Play 정책은 "may not modify, replace, or update
+  itself using any method other than Google Play's update mechanism"이라고 적는다. 업로드가
+  재개되는 시점에 위반 상태인 산출물을 만들어 두지 않는다.
+- **F-Droid 포함 정책은 옵트인이면 허용한다** — 금지가 아니라 조건이다. 그래도 F-Droid
+  배포본에 넣지 않는 쪽을 택한 이유는 정책이 아니라 위 첫 번째 근거다.
+- Play Core In-App Updates(`AppUpdateManager`)는 후보가 아니다. 비공개 SDK 금지 규칙에
+  걸리고, Play 경로 자체가 멈춰 있어 얻을 것이 없다.
+
+Implications:
+
+- **fdroiddata 레시피 MR이 선행 조건이다.** F-Droid 문서는 `gradle:`의 `yes`가 "모든
+  플레이버를 각각 빌드한다"고 적는다 — 조용히 실패하는 것이 아니라 `INTERNET`을 선언하는
+  `github`까지 빌드하라는 뜻이 된다. 해당 버전 항목이 `gradle: - store`가 되어야 한다.
+  **정정(2026-09-13): 이 MR을 태그보다 먼저 머지시킬 수는 없다.** Builds 항목이
+  `commit: vX.Y.Z`를 요구하고 `check apk`가 Release 자산을 내려받으므로 태그 전에는 MR의
+  CI가 돌지 않는다. 릴리스와 MR을 한 작업으로 묶고, 머지 전까지 F-Droid가 새 버전을 발행하지
+  않는 지연을 감수한다 — 재현 빌드에서 불일치의 결과는 미발행이지 사이드로드 빌드의 배포가
+  아니다. 절차와 MR 초안은 `docs/FDROID_SUBMISSION.md`의 "Phase 34" 절. 이 저장소의 `metadata/com.markleaf.notes.yml`은
+  v2.23.0에서 멈춘 참고 사본이라 여기만 고쳐도 효과가 없다.
+- Release 자산은 `markleaf-vX.Y.Z.apk`(store, F-Droid 검증 대상)와
+  `markleaf-vX.Y.Z-sideload.apk`(github)로 나뉜다. 자산 목록 세 곳의 복사본은
+  `scripts/verify-release-assets.ps1`이 계속 대조하므로 함께 고친다(D072).
+- 업데이터 본체는 `main`이 아니라 `app/src/github/`에 둔다. `main`에 두고 플래그로 끄면
+  R8이 지워도 소스 감사에서는 보이고, F-Droid 리뷰어와 privacy 문서를 읽는 사람이 확인하는
+  것은 소스다.
+- 변형이 생기면 Gradle 작업 이름과 출력 경로가 바뀐다. 변형 없는 이름(`app-release.apk`,
+  `assembleDebug`, `verifyRoborazziDebug`, `lintRelease` 등)은 2026-09-13 기준 18개 파일
+  167줄이 참조한다. **추측으로 일괄 치환하지 않고** 플레이버 추가 후 `./gradlew tasks`로
+  실제 생성되는 이름을 확인해서 고친다.
+- 업데이트 정보는 `api.github.com`이 아니라 GitHub Pages의 정적 JSON에서 읽는다. 비인증
+  REST 요청 한도는 시간당 60건이고 그 한도는 앱이 아니라 **IP에** 붙으므로, 통신사 NAT 뒤에서는
+  남이 소모한 한도에 우리 확인이 막힌다.
+- 새 버전 판정은 `BuildConfig.VERSION_CODE` 정수 비교다. `versionName` 문자열 비교는
+  `2.9.0` > `2.10.0`을 만든다.
+- 토글은 기본 OFF이고, 켤 때 F-Droid의 검사를 우회하는 경로라는 점을 같은 화면에서 설명한다.
+  알림 채널은 쓰지 않는다 — `POST_NOTIFICATIONS`를 추가할 이유가 없다.
+- **`docs/AGENT_SPEC.md`가 관문이다.** `AGENTS.md`가 그 문서를 source of truth로 지정하고,
+  §15.6은 "INTERNET 권한 영구 금지", §15.1은 "우리 백엔드 0, INTERNET 권한 0"이라고 적는다.
+  게다가 `AGENTS.md` Stop Conditions는 "네트워크 권한을 요구하는 task"와 "AGENT_SPEC과
+  충돌하는 task" 둘 다에서 중단 후 보고를 요구한다. 이 결정이 확정됐다는 사실만으로는
+  Phase 34가 시작되지 않는다 — §15.1·§15.6을 "스토어 배포 산출물에 영구 금지 /
+  사이드로드 플레이버는 명시적 예외"로 개정하고 그 개정이 사람에게 명시적으로 승인되어야
+  한다. 이 결정은 그 승인을 대신하지 않는다.
+  **2026-09-13에 승인되어 관문이 열렸다.** §15.1의 한 줄을 "백엔드 0·데이터 전송 0(모든 빌드)"과
+  "INTERNET 권한 0(스토어 배포 산출물)"으로 분리하고, §15.6 표를 같은 기준으로 고치고,
+  §15.9를 신설해 예외 범위를 못박았다(산출물 분리 / 나가는 데이터 0 / 기본 꺼짐 /
+  재현 빌드·Play 정책 보호 / 확장 금지). MVP era 문장인 §6.3과 §8에는 오독 방지 포인터만
+  달았다. **남은 선행 조건은 fdroiddata 레시피 MR(P0)이다.**
+- **`AGENTS.md`의 INTERNET 금지 규칙은 코드보다 먼저 개정한다.** 규칙과 코드가 어긋난 상태로
+  커밋이 들어가면 다음 루프가 어느 쪽을 믿어야 할지 알 수 없다. `NOCLOUD_CERTIFICATION.md`와
+  `NETWORK_FEATURE_NECESSITY_EVALUATION.md`(재검토 조건 4번이 바로 이 경로다)도 같은 커밋에서
+  갱신한다.
+- 플레이버 도입 비용이 실제로 커지면 Gradle 속성 게이트로 후퇴할 수 있다. 그쪽은 fdroiddata
+  무수정에 작업 이름도 그대로지만 같은 변형 이름이 내용이 다른 두 결과물을 만든다.
+  `docs/UPDATE_STRATEGY_EVALUATION.md`의 "더 싼 대안"에 남겨 두었다.
+
+### D074 - The Sideload Split Is A Gradle Property, Not A Product Flavour
+
+D073의 채널 분리 **수단**을 productFlavor에서 Gradle 속성 게이트로 바꾼다. 분리가 보장하는
+내용(스토어 산출물에 INTERNET 권한도 업데이터 코드도 없음)은 D073 그대로이고, 그것을 만드는
+방법만 바뀐다.
+
+```kotlin
+val sideloadUpdater = providers.gradleProperty("markleaf.updater")
+    .map(String::toBoolean).orElse(false).get()
+
+if (sideloadUpdater) {
+    sourceSets.getByName("main").manifest.srcFile("src/main/AndroidManifest-sideload.xml")
+    sourceSets.getByName("main").java.srcDir("src/sideload/java")
+}
+```
+
+Why:
+- **fdroiddata 조율이 통째로 사라진다.** 플레이버를 쓰면 F-Droid 문서대로 `gradle:`의 `yes`가
+  "모든 플레이버를 각각 빌드"하므로 레시피를 `gradle: - store`로 고치는 MR이 P0가 된다.
+  게다가 그 MR은 태그보다 먼저 머지될 수 없다 — Builds 항목이 `commit: vX.Y.Z`를 요구하고
+  `check apk`가 Release 자산을 내려받기 때문이다. 즉 릴리스마다 업스트림 조율과 미발행
+  지연이 붙는다. 속성 게이트는 F-Droid가 속성 없이 빌드하므로 `gradle: - yes`가 계속 맞고,
+  업스트림을 한 줄도 건드리지 않는다.
+- **작업 이름 167줄이 움직이지 않는다.** 플레이버는 `assembleRelease` 같은 이름을 변형 한정
+  이름으로 바꾸고, 이 저장소는 변형 없는 이름을 18개 파일 167줄에서 참조한다(2026-09-13 기준).
+  속성 게이트는 변형을 만들지 않는다.
+- **실제로 되는지 확인하고 채택했다.** `:app:processDebugMainManifest`를 두 번 돌려 병합된
+  매니페스트를 대조했다 — 속성 없이 `INTERNET` 0건, `-Pmarkleaf.updater=true`로 1건
+  (출처 `AndroidManifest-sideload.xml`). 비표준 기법이라 문서로만 정하지 않았다.
+- 플레이버가 나은 점은 AGP 표준 기법이라는 것 하나뿐이고, 위 두 비용보다 크지 않다고 봤다.
+
+Implications:
+
+- **매니페스트 사본 두 개가 이 방식의 유일한 실패 양식이다.** `srcFile`은 소스 세트당
+  매니페스트 하나를 교체하므로 전체 사본이 필요하고, 사본이 조용히 낡으면 사이드로드 빌드가
+  본 빌드와 다른 매니페스트로 나간다. **두 파일이 `INTERNET` 한 줄만 다르다는 것을 검사로
+  고정한 뒤에** 기능 코드를 올린다 — `ResourceParityTest`·`verify-locales.ps1`이 같은 종류의
+  표류를 막는 방식과 형식을 맞춘다.
+- **릴리스 워크플로는 store를 먼저 빌드해 옮긴 뒤 사이드로드를 빌드해야 한다.** 플레이버와
+  달리 두 빌드가 같은 `app/build/outputs/apk/release/app-release.apk`에 쓰므로 나중 것이
+  먼저 것을 덮는다. 순서를 뒤집으면 F-Droid가 검증할 자산이 사이드로드 빌드가 된다.
+- 업데이터 구현은 `app/src/sideload/java/`에만 둔다. `main`에 두고 런타임 플래그로 끄면 R8이
+  지워도 소스 감사에서는 보인다 — 리뷰어와 privacy 문서 독자가 확인하는 것은 소스다.
+- **그래서 소스 디렉터리 게이트는 추가가 아니라 배타다.** 설정 화면은 `main`에 있고 `main`은
+  게이트 뒤의 클래스를 참조할 수 없으므로, 같은 FQN의 `UpdateSurface`를 양쪽이 제공한다 —
+  `src/storeStub/java`는 아무것도 그리지 않는 빈 함수, `src/sideload/java`는 실제 구현.
+  스토어 빌드가 얻는 것은 그 빈 함수뿐이고, 업데이터 코드도 INTERNET 권한도 들어가지 않는다.
+  스텁은 업데이터가 아니라 이음매이므로 §15.9가 말하는 "게이트 뒤의 소스"에 어긋나지 않는다.
+- 사용자에게 보이는 문자열은 게이트가 아니라 `main`의 `res`에 둔다. 스토어 빌드가 쓰이지 않는
+  문자열 두 개를 지니게 되지만, 그 대가로 `ResourceParityTest`와 `UntranslatedStringTest`라는
+  기존 번역 게이트가 그대로 적용된다. 권한도 코드도 아닌 문자열이므로 §15.9의 관심사가 아니다.
+- `sourceSets.main.java.srcDir` 게이트가 컴파일까지 되는지는 아직 확인하지 않았다. 매니페스트
+  쪽만 실측했으므로, 구현의 첫 항목은 이 확인이다.
+- D073은 **폐기되지 않는다.** 왜 분리가 필요한지(제품 약속 세 곳, Play 정책, F-Droid 재현
+  빌드)와 AGENT_SPEC 관문은 그대로 유효하다. 이 결정은 그 중 수단 한 가지만 대체한다.
+
+> **갱신(2026-09-14, C단계 구현·D076).** `sourceSets.main.java.srcDir` 게이트는 컴파일까지
+> 정상 동작함을 CI가 확인했다(위 "아직 확인하지 않았다" 항목 해소). 매니페스트 사본의 차이도
+> 이제 `INTERNET` 한 줄이 아니다 — `REQUEST_INSTALL_PACKAGES` 권한과 `UpdateInstallReceiver`
+> 선언이 더해졌다. `SideloadManifestParityTest`는 "한 줄만 다르다"는 단언에서 "알려진 블록만
+> 빼면 완전히 같다"는 단언으로 일반화됐고, 원칙(차이를 검사로 고정한다)은 그대로다.
+
+### D075 - The Update Manifest Ships As A Release Asset, Not On GitHub Pages
+
+사이드로드 업데이트 확인이 읽는 JSON은 `docs/update.json`(GitHub Pages)이 아니라 태그 런이
+GitHub Release에 붙이는 `update.json` 자산이다. 앱이 읽는 주소는 버전이 올라가도 바뀌지 않는
+`https://github.com/jeiel85/markleaf-android/releases/latest/download/update.json` 하나다.
+
+`docs/UPDATE_STRATEGY_EVALUATION.md`가 적었던 Pages 경로를 **대체한다.** 그 설계가 틀렸다기보다
+성립 조건을 하나 빠뜨렸다.
+
+Why:
+- **`main`이 보호 브랜치라 태그 런이 `docs/`에 커밋을 밀 수 없다.** Pages는 `main`의 `docs/`를
+  서빙하므로(`docs/privacy.html` → `jeiel85.github.io/markleaf-android/privacy.html`),
+  Pages 경로는 릴리스마다 워크플로가 `main`에 커밋을 하나 얹어야 성립한다. 이 저장소는
+  모든 변경이 PR 머지로 들어오고(`AGENTS.md`), 2026-09-14 기준 `main`은 protected 다
+  (GitHub API 확인). 남는 선택은 릴리스마다 사람이 PR 하나를 머지하는 것인데, 그것은
+  **D072가 없애려던 바로 그 실패 양식**이다 — "사람이 기억해야만 도는 단계는 실제로 잊힌다"
+  (v2.27.2~v2.29.0 여섯 릴리스, #247). 그동안 사이드로드 사용자는 새 버전을 보지 못한다.
+- **한 번의 `gh release create`로 원자적으로 끝난다.** APK·매핑·manifest가 같은 명령으로
+  올라가므로 "자산은 있는데 manifest가 아직 안 갔다" 또는 그 반대인 창이 없다. Pages 경로는
+  두 시스템의 발행 시점이 다르므로 그 창이 항상 존재한다.
+- **`api.github.com`을 쓰지 않는다는 원래 근거는 그대로다.** 비인증 REST 한도 60건/시간은
+  `api.github.com` 요청에 대한 것이고 그 한도가 IP에 붙는다는 것이 Pages를 고른 이유였는데,
+  `releases/latest/download/`는 REST API 경로가 아니라 브라우저가 쓰는 것과 같은 다운로드
+  경로다. 정적 JSON이고 스키마를 우리가 통제한다는 점도 같다.
+- **동작을 실측했다(2026-09-14).** `releases/latest/download/markleaf-v2.41.0.apk`가 302로
+  `releases/download/v2.41.0/...`을 가리키고, 리다이렉트 2회 뒤 200/206으로 끝난다. 전 구간
+  https 이므로 `HttpURLConnection`의 기본 리다이렉트 추적이 그대로 동작한다.
+
+Implications:
+
+- 자산이 2개에서 **5개**가 된다: store APK, store mapping, 사이드로드 APK, 사이드로드 mapping,
+  `update.json`. 목록의 세 복사본(`gh release create` 인자, `Prepare release asset`의 `cp`
+  대상, 문서 마커 3곳)은 `scripts/verify-release-assets.ps1`이 계속 대조한다(D062·D064·D072).
+- **사이드로드 mapping을 붙이는 것은 D072 자신의 근거를 따른 것이다.** D072는 mapping을 자산으로
+  되돌리며 "사이드로드 크래시 역난독화는 이 파일이 유일한 수단"이라고 적었다. 채널이 갈라진
+  뒤로 store mapping은 사이드로드 사용자가 실행하는 코드를 역난독화하지 못한다 — 틀린 심볼을
+  조용히 내놓는다. 대가는 태그마다 ~47 MB 파일이 하나 더 붙는 것이다(v2.41.0 기준 mapping
+  46.7 MB, APK 3.06 MB).
+- `update.json`의 값은 **전부 방금 만든 산출물에서 뽑는다.** 버전은 APK의 `aapt2 dump badging`,
+  크기와 SHA-256은 실제로 붙일 파일. 같은 값을 빌드 스크립트나 태그 이름에서 다시 적으면 그
+  사본이 언젠가 어긋나고, 어긋난 manifest는 "업데이트가 있다는데 설치가 안 된다"로 나타난다.
+  태그와 APK의 `versionName`이 다르면 워크플로가 발행 전에 멈춘다.
+- 게이트가 실제로 갈라졌는지는 **나가는 파일에서** 확인한다. `aapt2 dump permissions`로 store
+  APK에 `INTERNET` 0건, 사이드로드 APK에 1건. 빌드 스크립트를 읽는 것은 의도의 확인이고,
+  여기서 필요한 것은 사실의 확인이다.
+- 두 APK는 **같은 인증서**여야 하며 워크플로가 대조한다. 다르면 사이드로드 APK는 기존 설치를
+  업데이트하지 못한다 — 업데이트를 위해 만든 산출물이 업데이트를 막는 결과가 된다.
+- F-Droid는 영향을 받지 않는다. `metadata/com.markleaf.notes.yml`의 `Binaries:`가
+  `markleaf-v%v.apk`라는 **정확한 이름**을 가리키므로 새 자산 4개는 그 대조 대상이 아니고,
+  `gradle: - yes`도 그대로다(D074).
+- `docs/update.json`은 만들지 않는다. 만들어 두면 Pages에 낡은 사본이 남아, 앱이 읽지 않는
+  파일이 릴리스마다 조용히 뒤처진다.
+
+### D076 - The Sideload Update Downloads And Installs Itself, Verified By Hash Before The OS Signature Check
+
+Phase 34의 C단계. B단계(확인 → 배너·모달 → 브라우저 위임)에 이어, 사용자가 모달에서
+"다운로드 및 설치"를 탭하면 앱이 직접 APK를 받아 SHA-256을 대조하고 `PackageInstaller`
+세션에 넘긴다. 그 뒤 나오는 설치 확인 팝업은 Android 자체 화면이다 — 애초 요청("다운로드에서
+실행까지 해주면 안드로이드 자체에서 팝업으로 업데이트 여부를 선택")이 요구한 지점이 정확히
+여기다.
+
+이 절이 여는 새 권한은 `android.permission.REQUEST_INSTALL_PACKAGES` 하나이고, 사이드로드
+빌드에만 있다. §15.9의 "확장 금지" 문단은 처음부터 "사이드로드 빌드의 APK 다운로드·설치
+위임까지" 허용한다고 적어 두었으므로, 새 AGENT_SPEC 승인 관문은 필요 없었다.
+
+Why:
+- **`PackageInstaller` 세션, `ACTION_INSTALL_PACKAGE`가 아니다.** 후자는 API 29에서
+  deprecated고, 전자는 `STATUS_PENDING_USER_ACTION` 콜백으로 "지금 시스템 팝업을 띄워도
+  좋다"는 신호를 명시적으로 준다. 그 콜백을 받는 `UpdateInstallReceiver`는 intent-filter가
+  없다 — `UpdateInstaller`가 이 컴포넌트를 명시적 `Intent`로만 가리키므로 시스템 액션
+  문자열로 불릴 일이 없어서다.
+- **서명 사전 검증은 하지 않는다.** 다른 키로 서명된 APK는 결국 OS가
+  `INSTALL_FAILED_UPDATE_INCOMPATIBLE`로 거부한다(`docs/RELEASE.md`의 동일 인증서 설명).
+  `getPackageArchiveInfo`로 `signingInfo`를 미리 읽는 것도 가능하지만, 그 동작이
+  API 26~35에서 어떻게 채워지는지 이 환경(Android SDK 없음)에서 확인할 방법이 없었다.
+  잘못 구현한 사전 검증이 정상적인 키 교체 업데이트까지 막는 쪽이, 실패 지점이 조금
+  늦어지는 것보다 나쁘다고 봤다. SHA-256 대조를 1차 방어로 둔다.
+- **다운로드는 앱 캐시로 받는다.** 외부 저장소 권한을 요구할 이유가 없다. 하위 디렉터리를
+  두지 않고 그냥 캐시 파일로 다루는 이유는, Android의 "캐시 지우기"가 이 파일만 특별
+  취급할 이유가 없어서다.
+- **재시도 상한은 3회, 새로고침마다 처음부터 다시 받는다(이어받기 없음).** APK가 몇 MB뿐이라
+  이어받기의 복잡도(범위 요청, 부분 파일 검증)를 들일 값어치가 없었다. 실패가 3회를 넘기면
+  사용자에게 보여주고, "다시 시도"와 "브라우저에서 열기"(B단계와 같은 경로) 중 고르게 한다.
+- **진행률은 부정형 스피너로만 보여준다.** 퍼센트 숫자를 넣는 안도 검토했지만, 이 BOM의
+  Material3가 `LinearProgressIndicator`의 어느 오버로드(구식 `Float` 파라미터 vs 최신
+  람다 파라미터)를 제공하는지 이 환경에서 확인할 수 없었다. 이미 이 코드베이스에서 쓰이는
+  것으로 확인된(`FileViewerScreen.kt`) `CircularProgressIndicator()`만 써서 컴파일
+  실패 위험을 없앴다 — 의도적으로 낮춘 범위다.
+
+Implications:
+
+- **매니페스트 사본의 차이가 한 줄에서 두 블록으로 늘었다.** `REQUEST_INSTALL_PACKAGES`
+  권한 한 줄과 `UpdateInstallReceiver` 선언(주석 포함 7줄)이다. `SideloadManifestParityTest`를
+  "본 매니페스트 + INTERNET 한 줄"이라는 단언에서 "알려진 블록만 빼면 본 매니페스트와 완전히
+  같다"는 단언으로 일반화했다 — 블록이 없거나 두 번 나오면 실패하므로 빠뜨림과 중복 모두 여전히
+  잡는다.
+- **사이드로드 빌드의 네트워크 동작이 하나에서 둘로 늘었다.** 하루 1회 자동 GET(매니페스트
+  확인)과, 사용자가 설치를 탭했을 때만 도는 GET(업데이트 파일 자체). "정적 JSON 하나를 GET
+  한다"고 적었던 문서들이 전부 이 사실을 반영하도록 고쳤다 — `AGENT_SPEC.md` §15.9,
+  `docs/SECURITY.md`, `docs/PRIVACY.md`, `docs/privacy.*.html` 8개, `README*.md` 8개,
+  `docs/NOCLOUD_CERTIFICATION.md`, `UpdateChecker.kt`의 KDoc. 노트 데이터가 나가지 않는다는
+  원칙은 두 GET 모두에서 예외 없이 유지된다 — 바뀐 것은 "무엇을 받는가"이지 "무엇을 보내는가"가
+  아니다.
+- **B단계가 실사용 검증을 거치기 전에 같은 PR에서 이어 구현했다.** `docs/UPDATE_STRATEGY_EVALUATION.md`의
+  원래 계획은 "C단계는 B가 안정된 뒤 같은 게이트 안에서 확장한다"였다. 이 PR은 아직 머지되지
+  않았고, 사용자가 8번에 이어 C단계 착수를 직접 지시해 그 순서를 건너뛰었다. §15.9의 승인
+  범위 안에서 진행했지만, "실사용 후 확장"이라는 원래 신중책은 지켜지지 않았다는 사실을
+  남겨 둔다.
+- **이 세션의 컨테이너에는 Android SDK가 없어 `PackageInstaller` 세션·커밋·`PendingIntent`
+  콜백 시퀀스, `Intent.getParcelableExtra`의 API 33 분기, Compose 컴파일 자체를 실행해
+  확인할 방법이 없었다.** 공개 문서와 이 생태계에서 통용되는 예제 패턴을 따랐지만, 첫 실제
+  검증은 CI와 실기기다.
+- 새 순수 로직(`Sha256`)은 단위 테스트가 있다(`Sha256Test`, JDK `MessageDigest`만 써서
+  Robolectric 불필요). `UpdateDownloader`·`UpdateInstaller`·`UpdateInstallReceiver`는
+  `UpdateChecker`와 같은 이유로 단위 테스트가 없다 — Android 프레임워크·네트워크 I/O를
+  이 환경에서 흉내 내 검증할 방법이 마땅치 않다.
+
+> **갱신(2026-09-14, 머지 전 리뷰).** CI가 잡을 수 없는 종류의 버그를 코드 리뷰로 발견해
+> 머지 전에 고쳤다. `UpdateDialog`의 `LaunchedEffect(downloadEpoch)`는
+> `UpdateDownloader.download()`/`UpdateInstaller.install()`이라는 취소 체크포인트 없는
+> 순수 블로킹 함수를 `withContext(Dispatchers.IO)` 안에서 부른다 — 코루틴 취소는 협조적이라,
+> Downloading 상태에서 "닫기"를 눌러 다이얼로그가 컴포지션을 벗어나도 이미 시작한 네트워크
+> 읽기나 `session.commit()`은 실제로 멈추지 않고 끝까지 실행됐다. 원래 주석은 "닫기 = 취소"라고
+> 적었지만 사실이 아니었다. 더 나쁜 파생: 그 상태로 사용자가 배너를 다시 눌러 재시도하면,
+> 같은 캐시 파일 경로(`cacheDir/updates/update.apk`)를 겨냥한 두 번째 흐름이 동시에 돌면서
+> 첫 흐름의 SHA-256 검증과 `UpdateInstaller.install()`의 파일 읽기 사이에 내용이 바뀌는
+> TOCTOU 경합이 이론상 가능했다 — 이 절 자신이 "1차 방어"라고 부르는 바로 그 검증을 흔드는
+> 결함이었다.
+>
+> 고친 방식은 재시도가 아니라 **재진입 자체를 없애는 것**이다: `Downloading` 상태에서는
+> `AlertDialog`의 `DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)`로
+> 뒤로가기·바깥 탭을 막고, `dismissButton`도 그 상태에서는 그리지 않는다 — 닫을 방법이 하나도
+> 남지 않으므로 "닫았는데 팝업이 뜬다"는 혼란도, 두 흐름이 겹칠 창도 원천적으로 없다. 그 위에
+> `UpdateSurface` 객체 수준의 `AtomicBoolean` 재진입 가드(`downloadInProgress`)를 두 번째
+> 방어선으로 얹었다 — 위 UI 차단에만 기대지 않는다. `PackageInstaller`/`UpdateDownloader` 쪽을
+> "진짜로 취소 가능하게" 만드는 방법(주기적 `ensureActive()` 체크, 취소 시 `connection.disconnect()`
+> 호출)도 검토했지만, 블로킹 I/O 구조 자체를 바꾸는 더 큰 수술이라 이 환경(Android SDK 없음)에서
+> 컴파일 확인 없이 손대기엔 위험이 크다고 판단해 최소 변경을 골랐다.
+
 ---
 
 ## Resolved (Pending → Confirmed)

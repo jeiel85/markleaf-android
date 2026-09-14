@@ -354,6 +354,14 @@ footer a {
     padding: 1rem;
 }
 
+/* Permission constant names (e.g. android.permission.REQUEST_INSTALL_PACKAGES)
+   are one unbroken token with no spaces, so the browser has nowhere to wrap
+   them by default. Without this, one long enough constant overflows the
+   320px-wide phone layout instead of wrapping (#Phase 34 C-stage). */
+.content code {
+    overflow-wrap: anywhere;
+}
+
 .updated {
     color: var(--muted);
     font-size: 0.95rem;

@@ -82,6 +82,7 @@ import com.markleaf.notes.feature.lock.canUseBiometric
 import com.markleaf.notes.feature.sync.rememberSyncFolderLinker
 import com.markleaf.notes.ui.component.elapsedTimeLabel
 import com.markleaf.notes.util.ExportAllNotes
+import com.markleaf.notes.update.UpdateSurface
 import com.markleaf.notes.util.HapticFeedback
 import com.markleaf.notes.widget.WidgetRefresh
 import kotlinx.coroutines.Dispatchers
@@ -913,6 +914,9 @@ fun SettingsScreen(
                     SettingsSection(title = stringResource(R.string.settings_app)) {
                         SettingLine(stringResource(R.string.version_format, BuildConfig.VERSION_NAME))
                         SettingLine(stringResource(R.string.application_id_format, BuildConfig.APPLICATION_ID))
+                        // 사이드로드 빌드에서만 행이 생긴다. 스토어 빌드가 얻는 구현은
+                        // 아무것도 그리지 않는 스텁이다(D074, docs/AGENT_SPEC.md §15.9).
+                        UpdateSurface.SettingsRows()
                     }
                 }
             }
@@ -1236,7 +1240,7 @@ private fun SetPasscodeDialog(
 private const val MIN_PASSCODE_LENGTH = 4
 
 @Composable
-private fun SettingsSwitchRow(
+internal fun SettingsSwitchRow(
     title: String,
     description: String?,
     checked: Boolean,

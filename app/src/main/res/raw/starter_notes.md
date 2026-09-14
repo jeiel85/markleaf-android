@@ -127,7 +127,7 @@ Markleaf does not need its own cloud. Instead, you can choose a folder and let A
 - Markleaf writes each note as a Markdown file.
 - Frontmatter keeps the stable `markleaf_id`.
 - Attachments stay beside the mirrored notes.
-- The app still declares no INTERNET permission.
+- Markleaf never uploads your notes — the syncing is your tool's job, not the app's.
 
 ## Why it matters
 

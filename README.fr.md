@@ -59,7 +59,7 @@
 
 ## 🍃 Qu'est-ce que Markleaf ?
 
-**Markleaf** est une application Android de prise de notes Markdown conçue pour éliminer le superflu afin que vous puissiez vous concentrer sur seulement deux choses : capturer et organiser. Vos données sont stockées uniquement sur votre appareil, et le format Markdown standard garantit une propriété et une portabilité complètes. Même la synchronisation ne passe que par *un dossier que vous choisissez* — Markleaf lui-même ne se connecte jamais à internet.
+**Markleaf** est une application Android de prise de notes Markdown conçue pour éliminer le superflu afin que vous puissiez vous concentrer sur seulement deux choses : capturer et organiser. Vos données sont stockées uniquement sur votre appareil, et le format Markdown standard garantit une propriété et une portabilité complètes. Même la synchronisation ne passe que par *un dossier que vous choisissez* — Markleaf ne synchronise et n'envoie jamais rien de lui-même.
 
 [**Voir la page de branding**](https://jeiel85.github.io/markleaf-android/) · [Version actuelle : v2.41.1](https://github.com/jeiel85/markleaf-android/releases/tag/v2.41.1) · [Politique de confidentialité](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
@@ -88,7 +88,7 @@
 - **Épingler / archives / corbeille** — la corbeille redemande confirmation avant la suppression définitive
 
 ### Synchronisation et export (principe No-Cloud)
-- **Synchronisation en miroir de dossier** — reflète chaque note sous forme de fichier `.md` / `.txt` **nommé selon le titre** dans un dossier que vous choisissez via SAF (Drive/Dropbox/Syncthing/OneDrive/NAS, etc.) ; renommez une note et son fichier suit. Markleaf lui-même reste hors ligne ; la synchronisation est déléguée à *l'application externe qui synchronise ce dossier*
+- **Synchronisation en miroir de dossier** — reflète chaque note sous forme de fichier `.md` / `.txt` **nommé selon le titre** dans un dossier que vous choisissez via SAF (Drive/Dropbox/Syncthing/OneDrive/NAS, etc.) ; renommez une note et son fichier suit. Markleaf ne synchronise jamais lui-même ; la synchronisation est déléguée à *l'application externe qui synchronise ce dossier*
 - **Ouvrir un fichier `.md` / `.txt` pour le lire** — *Ouvrir un fichier…* dans le menu ⋮, ou un appui dans votre gestionnaire de fichiers, ouvre le fichier rendu et en lecture seule ; aucune note n'est créée tant que vous n'appuyez pas sur *Enregistrer comme note* (le nom du fichier devient le titre s'il n'y a pas de titre dans le texte). Un fichier partagé depuis une autre application est toujours importé immédiatement. Les étiquettes des notes importées par synchronisation sont reconnues immédiatement
 - **Export des notes individuelles ou de toutes les notes en `.md`**
 - **Envoi via la feuille de partage du système**
@@ -191,14 +191,16 @@ Les corrections de Markleaf commencent presque toujours par le signalement de qu
 
 ## 🔒 No-Cloud by design
 
-Markleaf lui-même ne se connecte jamais au réseau. Que vos données quittent l'appareil ou non est *entièrement votre choix*.
+Markleaf n'a aucun backend, et vos notes ne quittent jamais l'appareil d'elles-mêmes. Que vos données quittent l'appareil ou non est *entièrement votre choix*.
 
-- ✅ **Aucune** déclaration de `android.permission.INTERNET` — Markleaf n'effectue lui-même aucune requête réseau
+- ✅ **Aucune** déclaration de `android.permission.INTERNET` dans les versions des boutiques (F-Droid, Google Play) — elles n'effectuent aucune requête réseau
 - ✅ **Aucun** serveur / backend Markleaf
 - ✅ **Aucune** analyse / publicité / traçage / SDK à code source fermé
 - ✅ `android:allowBackup="false"` — les données de Markleaf sont exclues de la sauvegarde automatique Android et du transfert entre appareils
 - ✅ Les données ne circulent par les chemins du système que lorsque *vous* exportez, partagez, ouvrez un lien externe ou choisissez un dossier SAF
 - ✅ Entièrement open source, vérifiable par n'importe qui sous licence Apache 2.0
+
+**Une seule exception.** L'APK publié sur [GitHub Releases](https://github.com/jeiel85/markleaf-android/releases/latest) déclare deux permissions : `INTERNET` pour une vérification de mise à jour **désactivée par défaut, à activer explicitement**, et `REQUEST_INSTALL_PACKAGES` pour pouvoir installer la mise à jour choisie, une fois son SHA-256 vérifié. Les versions F-Droid et Google Play ne contiennent ni l'une de ces permissions ni le code correspondant — non pas désactivés, mais **absents**. **Aucune version, pour aucune de ces requêtes, n'envoie de notes, d'étiquettes, de pièces jointes, de métadonnées, d'identifiants ni de données d'usage.** Cette limite est consignée dans [`docs/AGENT_SPEC.md` §15.9](docs/AGENT_SPEC.md).
 
 Le fonctionnement exact de « never leaves your device » est documenté dans la [Politique de confidentialité](docs/PRIVACY.md) et la [No-Cloud Certification](docs/NOCLOUD_CERTIFICATION.md).
 

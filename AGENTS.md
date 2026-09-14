@@ -29,7 +29,10 @@ com.markleaf.notes
 다음 규칙은 MVP에서 절대 어기지 않습니다.
 
 - Android `applicationId`는 반드시 `com.markleaf.notes`를 사용한다. 출시되는 모든 빌드(release·benchmark)가 이 id를 그대로 쓴다는 뜻이다. debug 빌드만 `applicationIdSuffix = ".debug"`로 `com.markleaf.notes.debug`가 되며(#319), 이는 설치된 실사용 앱을 지우지 않고 검증하기 위한 것이다 — `defaultConfig.applicationId`는 바뀌지 않는다. 따라서 코드·스크립트는 application id를 문자열로 박지 말고 `BuildConfig.APPLICATION_ID`·`context.packageName`·`${applicationId}`로 파생시킨다.
-- MVP에서는 `android.permission.INTERNET`을 추가하지 않는다.
+- **스토어 배포 산출물**(F-Droid·Play)에는 `android.permission.INTERNET`을 추가하지 않는다.
+  속성 게이트 뒤의 사이드로드 전용 빌드만 예외이며, 그 범위는 `docs/AGENT_SPEC.md` §15.9가
+  규정한다(D073·D074, 2026-09-13 승인). 노트·태그·첨부·메타데이터가 기기를 떠나지 않는다는
+  원칙은 **어떤 빌드에서도 예외가 없다.**
 - MVP에서는 API 연동을 추가하지 않는다.
 - MVP에서는 로그인/계정 기능을 추가하지 않는다.
 - MVP에서는 분석, 광고, 추적 기능을 추가하지 않는다.
@@ -189,10 +192,13 @@ GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
    이 변경의 목적이다. `vX.Y.Z` 태그는 **GitHub에만**
    푸시한다 — GitLab 태그 푸시는 D068에서 뺐다(GitLab은 v2.32.4에 얼어붙은 스냅샷이라,
    태그를 밀면 그쪽 `main`에서 도달하지 못하는 커밋을 가리키게 된다).
-   **릴리스 자산이 붙는 곳은 GitHub 하나뿐이다** — GitHub Release는 APK와 mapping
-   두 개를 담고(mapping을 자산으로 되돌린 이유는 D072, AAB 제외는 D062),
-   **GitLab은 아무것도 미러하지 않는다**(D066 → D067·D068).
-   <!-- release-assets: markleaf-vX.Y.Z.apk, markleaf-vX.Y.Z.mapping.txt -->
+   **릴리스 자산이 붙는 곳은 GitHub 하나뿐이다** — GitHub Release는 자산 다섯 개를 담고
+   (store APK·store mapping·사이드로드 APK·사이드로드 mapping·`update.json`;
+   mapping을 자산으로 되돌린 이유는 D072, 사이드로드 세 개가 붙은 이유는 D075,
+   AAB 제외는 D062), **GitLab은 아무것도 미러하지 않는다**(D066 → D067·D068).
+   **store APK를 먼저 빌드해 옮긴 뒤 사이드로드를 빌드한다** — 둘이 같은 출력 경로를
+   쓰므로 순서를 뒤집으면 F-Droid가 대조할 자산이 사이드로드 빌드가 된다(D074).
+   <!-- release-assets: markleaf-vX.Y.Z.apk, markleaf-vX.Y.Z.mapping.txt, markleaf-vX.Y.Z-sideload.apk, markleaf-vX.Y.Z-sideload.mapping.txt, update.json -->
    위 마커는 `scripts/verify-release-assets.ps1`이 읽어 워크플로의 실제
    `gh release create` 인자와 대조한다. 목록을 바꾸려면 세 복사본(워크플로,
    스테이징 스텝, 이 마커)을 함께 고쳐야 하며 그렇지 않으면 PR CI가 실패한다.
@@ -262,7 +268,8 @@ GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
 다음 상황에서는 임의로 진행하지 말고 중단 후 보고한다.
 
 - task가 API 연동을 요구하는 경우
-- task가 네트워크 권한을 요구하는 경우
+- task가 네트워크 권한을 요구하는 경우 — 단 `docs/AGENT_SPEC.md` §15.9가 규정한 사이드로드
+  업데이트 확인은 이미 승인된 예외다(D073·D074). 그 범위를 넘는 것은 여전히 중단 대상이다.
 - task가 proprietary SDK를 요구하는 경우
 - task가 `docs/AGENT_SPEC.md`와 충돌하는 경우
 - Gradle/Android 설정이 현재 환경에서 확인 불가능한 경우

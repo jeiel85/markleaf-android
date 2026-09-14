@@ -292,6 +292,20 @@
     <string name="settings_app">App</string>
     <string name="version_format">Version %1$s</string>
     <string name="application_id_format">Application ID %1$s</string>
+    <string name="update_check_title">Nach Updates suchen</string>
+    <string name="update_check_description">Einmal täglich nach einer neuen Version suchen und bei Bedarf ein Banner anzeigen. Downloads kommen von GitHub Releases und umgehen die Prüfungen von F-Droid.</string>
+    <string name="update_banner_text">Version %1$s ist verfügbar</string>
+    <string name="update_dialog_title">Update verfügbar</string>
+    <string name="update_dialog_body">Version %1$s · %2$s, von GitHub Releases.</string>
+    <string name="update_action_open">Herunterladen und installieren</string>
+    <string name="update_action_skip">Diese Version überspringen</string>
+    <string name="update_action_open_in_browser">Stattdessen im Browser öffnen</string>
+    <string name="update_permission_required_body">Markleaf benötigt eine Berechtigung, um App-Updates zu installieren. Gehe zu den Einstellungen, erlaube es und komm dann hierher zurück.</string>
+    <string name="update_action_open_settings">Einstellungen öffnen</string>
+    <string name="update_downloading">Update wird heruntergeladen…</string>
+    <string name="update_download_failed_body">Der Download konnte nicht abgeschlossen werden. Versuche es erneut oder öffne ihn stattdessen im Browser.</string>
+    <string name="update_action_retry">Erneut versuchen</string>
+    <string name="update_action_release_notes">Versionshinweise</string>
 
     <string name="settings_open_source">Open Source</string>
     <string name="oss_license_label">Lizenz</string>

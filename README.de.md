@@ -59,7 +59,7 @@
 
 ## 🍃 Was ist Markleaf?
 
-**Markleaf** ist eine Android-Markdown-Notiz-App, die bewusst auf Ballast verzichtet, damit du dich auf zwei Dinge konzentrieren kannst: festhalten und ordnen. Deine Daten liegen ausschließlich auf deinem Gerät, und das standardisierte Markdown-Format garantiert volle Eigentümerschaft und Portabilität. Auch die Synchronisierung läuft nur über *einen von dir gewählten Ordner* – Markleaf selbst geht nie online.
+**Markleaf** ist eine Android-Markdown-Notiz-App, die bewusst auf Ballast verzichtet, damit du dich auf zwei Dinge konzentrieren kannst: festhalten und ordnen. Deine Daten liegen ausschließlich auf deinem Gerät, und das standardisierte Markdown-Format garantiert volle Eigentümerschaft und Portabilität. Auch die Synchronisierung läuft nur über *einen von dir gewählten Ordner* – Markleaf synchronisiert und lädt selbst nie etwas hoch.
 
 [**Branding-Seite ansehen**](https://jeiel85.github.io/markleaf-android/) · [Aktuelle Version: v2.41.1](https://github.com/jeiel85/markleaf-android/releases/tag/v2.41.1) · [Datenschutzerklärung](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
@@ -88,7 +88,7 @@
 - **Anheften / Archivieren / Papierkorb** – der Papierkorb fragt vor dem endgültigen Löschen noch einmal nach
 
 ### Sync & Export (No-Cloud-Prinzip)
-- **Ordner-Spiegel-Synchronisierung** – spiegelt jede Notiz als `.md`-Datei in einen per SAF gewählten Ordner (Drive/Dropbox/Syncthing/OneDrive/NAS usw.). Markleaf selbst bleibt offline; die Synchronisierung wird *der externen App überlassen, die diesen Ordner synchronisiert*
+- **Ordner-Spiegel-Synchronisierung** – spiegelt jede Notiz als `.md`-Datei in einen per SAF gewählten Ordner (Drive/Dropbox/Syncthing/OneDrive/NAS usw.). Markleaf synchronisiert selbst nie; die Synchronisierung wird *der externen App überlassen, die diesen Ordner synchronisiert*
 - **`.md` / `.txt`-Dateien zum Lesen öffnen** – *Datei öffnen…* im ⋮-Menü oder ein Tippen im Dateimanager öffnet die Datei gerendert und schreibgeschützt; eine Notiz entsteht erst mit *Als Notiz speichern* (ohne Überschrift wird der Dateiname zum Titel). Aus einer anderen App geteilte Dateien werden weiterhin sofort übernommen. Tags in per Sync übernommenen Notizen werden sofort erkannt
 - **Export einzelner / aller Notizen als `.md`**
 - **Senden über das System-Share-Sheet**
@@ -191,14 +191,16 @@ Markleafs Fehlerbehebungen beginnen meist als Bericht von jemand anderem. Die Me
 
 ## 🔒 No-Cloud by design
 
-Markleaf selbst geht nie ins Netzwerk. Ob deine Daten das Gerät verlassen, ist *ganz allein deine Entscheidung*.
+Markleaf hat kein eigenes Backend, und deine Notizen verlassen das Gerät nie von selbst. Ob deine Daten das Gerät verlassen, ist *ganz allein deine Entscheidung*.
 
-- ✅ **Keine** Deklaration von `android.permission.INTERNET` – Markleaf stellt selbst keine Netzwerkanfragen
+- ✅ **Keine** Deklaration von `android.permission.INTERNET` in den Store-Builds (F-Droid, Google Play) – sie stellen überhaupt keine Netzwerkanfragen
 - ✅ **Kein** eigener Markleaf-Server / -Backend
 - ✅ **Keine** Analyse / Werbung / Tracking / Closed-Source-SDKs
 - ✅ `android:allowBackup="false"` – Markleaf-Daten sind von Androids Auto-Backup / Geräteübertragung ausgeschlossen
 - ✅ Daten bewegen sich nur über OS-Pfade, wenn *du* exportierst, teilst, einen externen Link öffnest oder einen SAF-Ordner auswählst
 - ✅ Vollständig Open Source, von jedem unter Apache 2.0 prüfbar
+
+**Eine einzige Ausnahme.** Das APK auf [GitHub Releases](https://github.com/jeiel85/markleaf-android/releases/latest) deklariert zwei Berechtigungen – `INTERNET` für eine **standardmäßig ausgeschaltete, ausdrücklich zu aktivierende** Update-Prüfung, und `REQUEST_INSTALL_PACKAGES`, damit es das gewählte Update installieren kann, nachdem dessen SHA-256 geprüft wurde. Die Builds für F-Droid und Google Play enthalten weder eine dieser Berechtigungen noch den zugehörigen Code – nicht deaktiviert, sondern **gar nicht vorhanden**. **In keinem Build und bei keiner dieser Anfragen werden Notizen, Tags, Anhänge, Metadaten, Kennungen oder Nutzungsdaten gesendet.** Die Grenze ist in [`docs/AGENT_SPEC.md` §15.9](docs/AGENT_SPEC.md) festgehalten.
 
 Wie „never leaves your device“ genau funktioniert, ist in der [Datenschutzerklärung](docs/PRIVACY.md) und der [No-Cloud Certification](docs/NOCLOUD_CERTIFICATION.md) dokumentiert.
 

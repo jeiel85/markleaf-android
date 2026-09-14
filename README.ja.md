@@ -59,7 +59,7 @@
 
 ## 🍃 Markleaf とは?
 
-**Markleaf** は、余計なものをそぎ落とし「記録」と「整理」だけに集中できるよう設計された Android 向け Markdown メモアプリです。データは端末内にのみ保存され、標準 Markdown 形式によってデータの所有権と移植性が完全に保証されます。同期も *あなたが選んだフォルダ* を介してのみ行われ、Markleaf 自体はインターネットに接続しません。
+**Markleaf** は、余計なものをそぎ落とし「記録」と「整理」だけに集中できるよう設計された Android 向け Markdown メモアプリです。データは端末内にのみ保存され、標準 Markdown 形式によってデータの所有権と移植性が完全に保証されます。同期も *あなたが選んだフォルダ* を介してのみ行われ、Markleaf 自身が同期やアップロードを行うことはありません。
 
 [**ブランディングページを見る**](https://jeiel85.github.io/markleaf-android/) · [現在のバージョン: v2.41.1](https://github.com/jeiel85/markleaf-android/releases/tag/v2.41.1) · [プライバシーポリシー](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
@@ -88,7 +88,7 @@
 - **ピン / アーカイブ / ゴミ箱** — ゴミ箱は完全削除の前にもう一度確認します
 
 ### 同期 & エクスポート（No-Cloud 原則）
-- **フォルダミラー同期** — SAF で選んだフォルダ（Drive/Dropbox/Syncthing/OneDrive/NAS など）に各ノートを `.md` ファイルとしてミラーリング。Markleaf 自体はオフラインのままで、同期は *そのフォルダを同期する外部アプリ* に委ねます
+- **フォルダミラー同期** — SAF で選んだフォルダ（Drive/Dropbox/Syncthing/OneDrive/NAS など）に各ノートを `.md` ファイルとしてミラーリング。Markleaf 自身が同期することはなく、同期は *そのフォルダを同期する外部アプリ* に委ねます
 - **`.md` / `.txt` ファイルを開いて読む** — ⋮ メニューの *ファイルを開く…*、またはファイルマネージャーでのタップで、レンダリングされた読み取り専用画面として開きます。*ノートとして保存* を押すまでノートは作られません（保存時、見出しがなければファイル名がタイトルに）。他アプリから共有したファイルはこれまでどおりすぐに取り込みます。同期で入ってきたノートのタグもすぐに認識
 - **個別 / 全ノートの `.md` エクスポート**
 - **システムの共有シートで送信**
@@ -191,14 +191,16 @@ Markleaf のバグ修正は、その多くが誰かの報告から始まりま�
 
 ## 🔒 No-Cloud by design
 
-Markleaf 自体は決してネットワークに接続しません。データを端末の外へ送るかどうかは *完全にあなたの選択* です。
+Markleaf には独自のバックエンドがなく、ノートがひとりでに端末を出ることはありません。データを端末の外へ送るかどうかは *完全にあなたの選択* です。
 
-- ✅ `android.permission.INTERNET` 権限を **宣言していません** — Markleaf 自身はネットワークリクエストを行いません
+- ✅ ストア版（F-Droid、Google Play）は `android.permission.INTERNET` 権限を **宣言していません** — ネットワークリクエストを一切行いません
 - ✅ Markleaf 独自のサーバー / バックエンドは **ありません**
 - ✅ 分析 / 広告 / トラッキング / クローズドな SDK は **ありません**
 - ✅ `android:allowBackup="false"` — Android 自動バックアップ / 端末間転送から Markleaf のデータを除外
 - ✅ データが OS の経路を通って移動するのは、あなたがエクスポート・共有・外部リンクを開く・SAF フォルダを選択したときだけ
 - ✅ 完全なオープンソース、Apache 2.0 ライセンスで誰でも監査可能
+
+**例外はこれひとつだけです。** [GitHub Releases](https://github.com/jeiel85/markleaf-android/releases/latest) の APK は権限を2つ宣言します — `INTERNET` は **既定でオフのオプトイン式アップデート確認** 用、`REQUEST_INSTALL_PACKAGES` は SHA-256 まで照合したうえで選んだアップデートをインストールするためのものです。F-Droid・Google Play 版にはどちらの権限もコードも — 無効化されているのではなく — **そもそも含まれていません。** **どのビルドでも、これらどのリクエストでも、ノート・タグ・添付・メタデータ・識別子・利用履歴が送信されることはありません。** この境界線は [`docs/AGENT_SPEC.md` §15.9](docs/AGENT_SPEC.md) に記されています。
 
 「never leaves your device（端末から出ない）」が具体的にどう機能するかは、[プライバシーポリシー](docs/PRIVACY.md) と [No-Cloud Certification](docs/NOCLOUD_CERTIFICATION.md) にまとめられています。
 

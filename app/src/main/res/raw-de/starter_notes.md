@@ -127,7 +127,7 @@ Markleaf braucht keine eigene Cloud. Du waehlst einen Ordner, und Android oder d
 - Markleaf schreibt jede Notiz als Markdown-Datei.
 - Das Frontmatter behaelt die stabile `markleaf_id`.
 - Anhaenge bleiben neben den gespiegelten Notizen.
-- Die App deklariert weiterhin keine INTERNET-Berechtigung.
+- Markleaf lädt deine Notizen nie hoch — das Synchronisieren ist Sache deines Werkzeugs, nicht der App.
 
 ## Warum das wichtig ist
 

@@ -127,7 +127,7 @@ Markleaf no necesita una nube propia. Puedes elegir una carpeta y dejar que Andr
 - Markleaf escribe cada nota como archivo Markdown.
 - El frontmatter conserva el `markleaf_id` estable.
 - Los adjuntos permanecen junto a las notas reflejadas.
-- La app sigue sin declarar permiso INTERNET.
+- Markleaf nunca sube tus notas: sincronizar es tarea de tu herramienta, no de la app.
 
 ## Por qué importa
 

@@ -1,0 +1,1 @@
+Keine sichtbare Änderung in diesem Build — gleiche Bildschirme, gleiches Verhalten wie zuvor. Ein separater Build, der nur auf GitHub verteilt wird, kann jetzt selbst nach Updates suchen, sie herunterladen und installieren. Diese Funktion und ihre zwei neuen Berechtigungen gibt es nur in jenem Build, nie in diesem Play-/F-Droid-Build.

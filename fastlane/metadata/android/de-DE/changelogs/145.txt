@@ -1,0 +1,6 @@
+Die Tastatur sitzt wieder direkt unter der Notiz.
+
+- Im Bearbeitungsmodus ist der leere Streifen über der Tastatur verschwunden. Er war genau so hoch wie die Navigationsleiste: Der Editor ließ Platz für die Leiste und dann noch einmal für die Tastatur, die sie bereits verdeckt.
+- Sonst bleibt alles gleich — der Cursor bleibt beim Tippen über der Tastatur. Die Vorschau war nie betroffen.
+
+Danke, @stacsk.

@@ -1,0 +1,6 @@
+El teclado vuelve a quedar justo debajo de la nota.
+
+- En modo edición ha desaparecido la franja de pantalla vacía sobre el teclado. Medía exactamente lo que tu barra de navegación: el editor dejaba hueco para esa barra y otra vez para el teclado, que ya la tapa.
+- Lo demás no cambia: el cursor sigue quedando por encima del teclado al escribir, y con el teclado cerrado nada se mueve. La vista previa nunca se vio afectada.
+
+Gracias, @stacsk.

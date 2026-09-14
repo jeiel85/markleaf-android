@@ -1,0 +1,6 @@
+Tipkovnica je ponovno točno ispod bilješke.
+
+- U načinu uređivanja nestala je prazna traka iznad tipkovnice. Bila je visoka točno kao navigacijska traka: uređivač je ostavljao mjesta za nju, a potom još jednom za tipkovnicu, koja je ionako prekriva.
+- Ostalo se ne mijenja — pokazivač pri pisanju i dalje ostaje iznad tipkovnice. Pretpregled nikad nije bio zahvaćen.
+
+Hvala, @stacsk.

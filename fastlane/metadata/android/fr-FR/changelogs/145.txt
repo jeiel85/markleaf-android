@@ -1,0 +1,6 @@
+Le clavier se place à nouveau juste sous la note.
+
+- En mode édition, la bande vide au-dessus du clavier a disparu. Elle faisait la hauteur de votre barre de navigation : l'éditeur réservait la place de cette barre, puis encore celle du clavier, qui la recouvre déjà.
+- Rien d'autre ne change — le curseur reste au-dessus du clavier pendant la saisie. L'aperçu n'a jamais été concerné.
+
+Merci, @stacsk.

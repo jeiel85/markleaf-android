@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.41.1 - The keyboard sits under the note again - 2026-09-14
+
+A band of empty screen stood between the keyboard and the note while you were editing. No permission or storage-format changes.
+
+### Fixed
+- **The keyboard no longer leaves a gap above the note in edit mode ([#398](https://github.com/jeiel85/markleaf-android/issues/398)).** The strip of dead space was exactly as tall as your navigation bar, and that was the bug: the editor reserved room for the navigation bar and then again for the full height of the keyboard, when the keyboard already covers the navigation bar. Android's own rule is to take the larger of the two, never the sum. The body now sits directly above the keyboard, the caret still stays above it while you type, and nothing changes with the keyboard closed. Preview was never affected. Reported by [@stacsk](https://github.com/stacsk).
+
 ## v2.41.0 - The lines you typed stay where you put them - 2026-09-12
 
 Preview rejoined lines you had broken by hand, and the Material You widget read the Theme setting backwards. Both came from one report. No permission or storage-format changes.

@@ -1,0 +1,6 @@
+The keyboard sits under the note again.
+
+- In edit mode, a band of empty screen above the keyboard is gone. It was exactly as tall as your navigation bar: the editor left room for the navigation bar and then again for the keyboard, which already covers it.
+- Typing is unchanged otherwise — the caret still stays above the keyboard, and nothing moves with the keyboard closed. Preview was never affected.
+
+Thanks, @stacsk.

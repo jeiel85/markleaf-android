@@ -315,9 +315,15 @@
     <string name="update_check_description">Jednom dnevno provjeri postoji li nova verzija i prikaži obavijest kada je ima. Preuzimanja dolaze s GitHub Releasesa i zaobilaze F-Droidove provjere.</string>
     <string name="update_banner_text">Dostupna je verzija %1$s</string>
     <string name="update_dialog_title">Dostupno ažuriranje</string>
-    <string name="update_dialog_body">Verzija %1$s · %2$s. Preuzimanje se otvara u pregledniku i dolazi s GitHub Releasesa.</string>
-    <string name="update_action_open">Otvori preuzimanje</string>
+    <string name="update_dialog_body">Verzija %1$s · %2$s, s GitHub Releasesa.</string>
+    <string name="update_action_open">Preuzmi i instaliraj</string>
     <string name="update_action_skip">Preskoči ovu verziju</string>
+    <string name="update_action_open_in_browser">Umjesto toga otvori u pregledniku</string>
+    <string name="update_permission_required_body">Markleaf treba dozvolu za instaliranje ažuriranja aplikacije. Idite u Postavke, dopustite to, a zatim se vratite ovamo.</string>
+    <string name="update_action_open_settings">Otvori postavke</string>
+    <string name="update_downloading">Preuzimanje ažuriranja…</string>
+    <string name="update_download_failed_body">Preuzimanje nije uspjelo. Pokušajte ponovno ili ga otvorite u pregledniku.</string>
+    <string name="update_action_retry">Pokušaj ponovno</string>
     <string name="update_action_release_notes">Bilješke o izdanju</string>
 
     <string name="settings_open_source">Otvoreni kod</string>

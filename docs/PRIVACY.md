@@ -8,7 +8,7 @@ MVP 초안 문구는 폐기되었습니다.
 Markleaf는 로컬 우선 노트 앱입니다.
 
 - 스토어 배포본(F-Droid, Google Play)에는 `android.permission.INTERNET` 권한이 없습니다.
-- GitHub Releases의 사이드로드 APK는 이 권한을 선언하지만, 용도는 **기본으로 꺼져 있는 옵트인 업데이트 확인** 하나뿐입니다. 자세한 내용은 아래 [네트워크](#네트워크) 절에 있습니다.
+- GitHub Releases의 사이드로드 APK는 이 권한과 `android.permission.REQUEST_INSTALL_PACKAGES`를 선언하며, 용도는 **기본으로 꺼져 있는 옵트인 업데이트 확인과 설치** 둘뿐입니다. 자세한 내용은 아래 [네트워크](#네트워크) 절에 있습니다.
 - Markleaf는 자체 서버를 운영하지 않으며, 노트/태그/첨부/메타데이터를 자동으로 어떤 외부 서버에도 업로드하지 않습니다.
 - 사용자의 노트는 사용자가 직접 export, share, 외부 링크 열기, 또는 외부 앱이 동기화하는 폴더를 동기화 대상으로 선택하기 전까지 기기 안에 남습니다.
 
@@ -30,10 +30,10 @@ Markleaf에는 분석, 광고, 추적, 원격 설정, 폐쇄형 SDK가 포함되
 
 배포 채널에 따라 다르며, **어느 쪽이든 노트 데이터는 전송되지 않습니다.**
 
-| 배포본 | `android.permission.INTERNET` | 앱이 하는 네트워크 동작 |
+| 배포본 | 선언하는 권한 | 앱이 하는 네트워크 동작 |
 |---|---|---|
-| F-Droid, Google Play | **없음** | 없음 |
-| GitHub Releases (사이드로드) | 있음 | 정적 JSON 파일 하나에 대한 GET 한 번 (업데이트 확인) |
+| F-Droid, Google Play | 없음 | 없음 |
+| GitHub Releases (사이드로드) | `INTERNET`, `REQUEST_INSTALL_PACKAGES` | 하루 1회 정적 JSON GET(업데이트 확인) + 사용자가 설치를 탭했을 때만 업데이트 파일 자체를 GET |
 
 스토어 배포본의 매니페스트에 권한이 없는지는 소스에서 직접 확인할 수 있습니다.
 
@@ -41,15 +41,18 @@ Markleaf에는 분석, 광고, 추적, 원격 설정, 폐쇄형 SDK가 포함되
 rg "android.permission.INTERNET" -n app/src/main/AndroidManifest.xml   # 결과 없음
 ```
 
-사이드로드 APK의 권한은 `app/src/main/AndroidManifest-sideload.xml`에서만 옵니다. 이 사본은 본 매니페스트와 `INTERNET` **한 줄만** 달라야 하며, 그 사실은 문서가 아니라 CI 검사(`SideloadManifestParityTest`)가 지킵니다.
+사이드로드 APK의 권한과 컴포넌트는 `app/src/main/AndroidManifest-sideload.xml`에서만 옵니다. 이 사본은 본 매니페스트에 **정해진 몇 줄만** 더한 것이어야 하며, 그 사실은 문서가 아니라 CI 검사(`SideloadManifestParityTest`)가 지킵니다.
 
 ### 사이드로드 빌드의 업데이트 확인
 
 - **기본값은 꺼짐입니다.** 설정에서 직접 켜야 동작합니다.
 - 켜면 하루에 한 번, 릴리스 정보가 담긴 **정적 JSON 파일 하나**를 GET 합니다. 확인 실패는 조용히 무시됩니다.
+- 새 버전을 알리는 모달에서 **다운로드 및 설치**를 탭하면, 그때 처음으로 업데이트 파일 자체를 GET 합니다. 이 요청도 확인 GET과 마찬가지로 사용자가 직접 시작한 동작입니다.
+- 다운로드가 끝나면 JSON에 실린 SHA-256과 대조합니다. **일치하지 않으면 그 파일은 지워지고 설치로 넘어가지 않습니다.**
+- 검증을 통과한 파일만 Android의 `PackageInstaller`에 넘깁니다. 그 뒤 나오는 설치 확인 화면은 **Android 시스템 자체의 화면**입니다 — Markleaf가 그 화면을 그리지 않습니다. 이 절차에는 `android.permission.REQUEST_INSTALL_PACKAGES` 권한이 필요하며, 앱은 이 권한이 없으면 먼저 설정 화면으로 안내합니다.
+- 다운로드나 검증이 실패하면 다시 시도하거나, **기기의 브라우저에서 대신 열 수** 있습니다(이전 방식과 동일).
 - 요청에 붙는 것은 그 URL과 표준 HTTP 헤더뿐입니다. 쿼리스트링도 쿠키도 계정도 없습니다.
-- **노트 본문·제목·태그·첨부·파일명·메타데이터·기기 식별자·사용 기록은 전송되지 않습니다.** 이 항목은 배포 채널과 무관하게 예외가 없습니다.
-- 새 버전을 알리면 다운로드는 **기기의 브라우저에 넘깁니다.** 앱이 직접 내려받거나 설치하지 않습니다.
+- **노트 본문·제목·태그·첨부·파일명·메타데이터·기기 식별자·사용 기록은 전송되지 않습니다.** 이 항목은 배포 채널과 무관하게, 그리고 확인이든 다운로드든 어느 GET에도 예외가 없습니다.
 - 스토어 배포본에는 이 기능의 **권한도 코드도 들어 있지 않습니다.** 꺼져 있는 것이 아니라 빌드에 포함되지 않습니다.
 
 이 예외의 범위는 [`AGENT_SPEC.md` §15.9](AGENT_SPEC.md)에 규정되어 있으며, 동기화·계정·원격 API로의 확장은 금지되어 있습니다.
@@ -102,7 +105,7 @@ Markleaf는 Android 자동 백업(Android Auto Backup) 및 기기 간 전송(Dev
 - `android.permission.READ_MEDIA_VIDEO`
 - 위치, 마이크, 카메라, 연락처 권한
 
-`android.permission.INTERNET`은 **스토어 배포본(F-Droid, Google Play)에 선언되어 있지 않습니다.** GitHub Releases의 사이드로드 APK에만 있으며 용도는 위 [네트워크](#네트워크) 절의 업데이트 확인 하나뿐입니다.
+`android.permission.INTERNET`과 `android.permission.REQUEST_INSTALL_PACKAGES`는 **스토어 배포본(F-Droid, Google Play)에 선언되어 있지 않습니다.** 둘 다 GitHub Releases의 사이드로드 APK에만 있으며, 용도는 위 [네트워크](#네트워크) 절의 업데이트 확인과 옵트인 설치입니다.
 
 ## 향후 변경
 

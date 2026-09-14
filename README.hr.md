@@ -200,7 +200,7 @@ Markleaf nema vlastitu pozadinsku uslugu i vaše bilješke nikada same ne napuš
 - ✅ Podaci se kreću samo kroz putove operacijskog sustava kad *vi* izvezete, podijelite, otvorite vanjsku poveznicu ili odaberete SAF mapu
 - ✅ Potpuno otvoren kod, svatko ga može provjeriti pod licencom Apache 2.0
 
-**Postoji samo jedna iznimka.** APK na [GitHub Releasesu](https://github.com/jeiel85/markleaf-android/releases/latest) deklarira dozvolu `INTERNET` i to samo za jedno: provjeru ažuriranja koja je **prema zadanome isključena i uključujete je sami**, a čita jednu jedinu statičku JSON datoteku. Izdanja za F-Droid i Google Play ne sadrže ni tu dozvolu ni taj kod — nisu onemogućeni, nego ih **uopće nema**. **Nijedno izdanje ne šalje bilješke, oznake, privitke, metapodatke, identifikatore ni podatke o korištenju.** Granica je zapisana u [`docs/AGENT_SPEC.md` §15.9](docs/AGENT_SPEC.md).
+**Postoji samo jedna iznimka.** APK na [GitHub Releasesu](https://github.com/jeiel85/markleaf-android/releases/latest) deklarira dvije dozvole — `INTERNET` za provjeru ažuriranja koja je **prema zadanome isključena i uključujete je sami**, i `REQUEST_INSTALL_PACKAGES` da bi mogla instalirati odabrano ažuriranje nakon što provjeri njegov SHA-256. Izdanja za F-Droid i Google Play ne sadrže nijednu od tih dozvola ni pripadajući kod — nisu onemogućeni, nego ih **uopće nema**. **Nijedno izdanje, ni u jednom od ovih zahtjeva, ne šalje bilješke, oznake, privitke, metapodatke, identifikatore ni podatke o korištenju.** Granica je zapisana u [`docs/AGENT_SPEC.md` §15.9](docs/AGENT_SPEC.md).
 
 Kako točno funkcionira „nikad ne napušta vaš uređaj” dokumentirano je u [Pravilima privatnosti](docs/PRIVACY.md) i [Potvrdi o radu bez oblaka](docs/NOCLOUD_CERTIFICATION.md).
 

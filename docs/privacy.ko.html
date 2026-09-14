@@ -70,18 +70,21 @@
             <p>앱을 어디에서 받았는지에 따라 다릅니다. <strong>어느 쪽이든 노트 데이터는 전송되지 않습니다.</strong></p>
             <ul>
                 <li><strong>F-Droid, Google Play</strong> — <code>android.permission.INTERNET</code> 권한이 없고, 네트워크 동작도 전혀 없습니다.</li>
-                <li><strong>GitHub Releases (사이드로드)</strong> — 딱 한 가지 용도로 이 권한을 선언합니다. 직접 켜지 않으면 동작하지 않는 업데이트 확인입니다.</li>
+                <li><strong>GitHub Releases (사이드로드)</strong> — 권한을 두 개 선언합니다. 하나는 업데이트 확인용이고, 하나는 사용자가 내려받기로 고른 업데이트를 설치하기 위한 것입니다. 확인을 켜지 않으면 둘 다 동작하지 않습니다.</li>
             </ul>
-            <pre>F-Droid / Google Play   android.permission.INTERNET   없음
-GitHub Releases         android.permission.INTERNET   업데이트 확인 전용</pre>
+            <pre>F-Droid / Google Play   INTERNET: 없음 &middot; REQUEST_INSTALL_PACKAGES: 없음
+GitHub Releases         INTERNET: 업데이트 확인 &middot; REQUEST_INSTALL_PACKAGES: SHA-256 검증 후 설치</pre>
 
             <h3>사이드로드 빌드의 업데이트 확인</h3>
             <ul>
                 <li><strong>기본값은 꺼짐입니다.</strong> 설정에서 직접 켜기 전까지 아무 일도 일어나지 않습니다.</li>
                 <li>켜면 하루에 한 번, 최신 릴리스 정보가 담긴 정적 JSON 파일 하나를 GET 합니다. 확인에 실패하면 조용히 넘어갑니다.</li>
+                <li>업데이트 모달에서 <strong>다운로드 및 설치</strong>를 탭하면, 앱이 하는 또 다른 유일한 네트워크 요청이 일어납니다 — 업데이트 파일 자체에 대한 GET입니다. 확인과 마찬가지로 사용자가 요청했을 때만 일어납니다.</li>
+                <li>파일을 다 받으면 그 JSON에 실린 SHA-256과 대조합니다. <strong>일치하지 않으면 파일을 지우고 설치를 시작하지 않습니다.</strong></li>
+                <li>검증을 통과한 파일만 Android 자체의 <code>PackageInstaller</code>에 넘깁니다. 그 뒤 나오는 설치 확인 화면은 Markleaf가 아니라 Android가 그립니다. 이 단계에는 <code>REQUEST_INSTALL_PACKAGES</code> 권한이 필요하며, 아직 없다면 앱이 먼저 설정 화면으로 안내합니다.</li>
+                <li>다운로드나 검증이 실패하면 다시 시도하거나, 이전과 같이 브라우저에서 대신 열 수 있습니다.</li>
                 <li>요청에 붙는 것은 그 URL과 표준 HTTP 헤더뿐입니다. 쿼리스트링도 쿠키도 계정도 없습니다.</li>
-                <li><strong>노트 본문·제목·태그·첨부·파일명·메타데이터·기기 식별자·사용 기록은 전송되지 않습니다.</strong> 이것은 어느 빌드에서도 예외가 없습니다.</li>
-                <li>새 버전이 있으면 다운로드는 기기의 브라우저에 넘깁니다. 앱이 직접 내려받거나 설치하지 않습니다.</li>
+                <li><strong>노트 본문·제목·태그·첨부·파일명·메타데이터·기기 식별자·사용 기록은 전송되지 않습니다.</strong> 이것은 어느 빌드에서도, 이 요청들 중 어느 하나에도 예외가 없습니다.</li>
                 <li>스토어 배포본에는 이 기능의 권한도 코드도 들어 있지 않습니다. 꺼져 있는 것이 아니라 빌드에 포함되지 않습니다.</li>
             </ul>
 
@@ -107,7 +110,7 @@ GitHub Releases         android.permission.INTERNET   업데이트 확인 전용
             <p>SAF 폴더가 Drive, Dropbox, OneDrive, Syncthing, NAS 마운트 같은 외부 동기화 클라이언트에 의해 동기화될지는 해당 외부 앱의 책임입니다. Markleaf는 그 동기화 자체를 수행하지 않습니다.</p>
 
             <h2>권한 목록</h2>
-            <p>Markleaf가 선언하는 런타임 성격의 권한은 햅틱 피드백을 위한 <code>android.permission.VIBRATE</code>뿐입니다. 위치, 마이크, 카메라, 연락처, 알림, 외부 저장소 읽기, 미디어 읽기 권한은 어느 빌드에도 없습니다. <code>android.permission.INTERNET</code>은 F-Droid·Google Play 빌드에는 없고 사이드로드 빌드에만 있으며, 용도는 위 <a class="text-link" href="#network">네트워크</a> 절의 업데이트 확인 하나뿐입니다.</p>
+            <p>Markleaf가 선언하는 런타임 성격의 권한은 햅틱 피드백을 위한 <code>android.permission.VIBRATE</code>뿐입니다. 위치, 마이크, 카메라, 연락처, 알림, 외부 저장소 읽기, 미디어 읽기 권한은 어느 빌드에도 없습니다. <code>android.permission.INTERNET</code>과 <code>android.permission.REQUEST_INSTALL_PACKAGES</code> 둘 다 F-Droid·Google Play 빌드에는 없고 사이드로드 빌드에만 있으며, 용도는 위 <a class="text-link" href="#network">네트워크</a> 절의 업데이트 확인과 옵트인 설치입니다.</p>
 
             <h2>Contact</h2>
             <p>질문이나 보안/개인정보 관련 제보는 <a class="text-link" href="https://github.com/jeiel85/markleaf-android/issues">GitHub Issues</a>를 통해 남겨주세요.</p>

@@ -70,18 +70,21 @@
             <p>アプリをどこから入手したかによって異なります。<strong>いずれの場合も、ノートのデータが送信されることはありません。</strong></p>
             <ul>
                 <li><strong>F-Droid・Google Play</strong> — <code>android.permission.INTERNET</code> 権限がなく、ネットワーク動作も一切ありません。</li>
-                <li><strong>GitHub Releases（サイドロード）</strong> — 用途はただひとつ、自分でオンにしない限り動かないアップデート確認のためにこの権限を宣言します。</li>
+                <li><strong>GitHub Releases（サイドロード）</strong> — 権限を2つ宣言します。1つはアップデート確認用、もう1つは選んでダウンロードしたアップデートをインストールするためのものです。確認をオンにしない限りどちらも動きません。</li>
             </ul>
-            <pre>F-Droid / Google Play   android.permission.INTERNET   なし
-GitHub Releases         android.permission.INTERNET   アップデート確認のみ</pre>
+            <pre>F-Droid / Google Play   INTERNET: なし &middot; REQUEST_INSTALL_PACKAGES: なし
+GitHub Releases         INTERNET: アップデート確認 &middot; REQUEST_INSTALL_PACKAGES: SHA-256 検証後にインストール</pre>
 
             <h3>サイドロード版のアップデート確認</h3>
             <ul>
                 <li><strong>既定はオフです。</strong> 設定で自分でオンにするまで何も起こりません。</li>
                 <li>オンにすると 1 日 1 回、最新リリース情報が入った静的な JSON ファイルを 1 つ GET します。確認に失敗した場合は黙って見送ります。</li>
+                <li>アップデートのダイアログで<strong>ダウンロードしてインストール</strong>をタップすると、アプリが行うもうひとつだけのネットワークリクエスト — アップデートファイル自体への GET が起こります。確認と同じく、自分で求めたときだけ起こります。</li>
+                <li>ダウンロードが終わると、その JSON に記載された SHA-256 と照合します。<strong>一致しなければファイルは削除され、インストールは始まりません。</strong></li>
+                <li>検証を通過したファイルだけを Android 自体の <code>PackageInstaller</code> に渡します。その後に出るインストール確認画面は Markleaf ではなく Android が描画します。この手順には <code>REQUEST_INSTALL_PACKAGES</code> 権限が必要で、まだ許可されていなければアプリが先に設定画面へ案内します。</li>
+                <li>ダウンロードや検証が失敗した場合は、もう一度試すか、これまでどおりブラウザーで開くこともできます。</li>
                 <li>リクエストに乗るのはその URL と標準的な HTTP ヘッダーだけです。クエリ文字列もクッキーもアカウントもありません。</li>
-                <li><strong>ノート本文・タイトル・タグ・添付・ファイル名・メタデータ・端末識別子・利用履歴が送信されることはありません。</strong> これはどのビルドでも例外がありません。</li>
-                <li>新しいバージョンがある場合、ダウンロードは端末のブラウザに引き渡します。アプリ自身がダウンロードやインストールを行うことはありません。</li>
+                <li><strong>ノート本文・タイトル・タグ・添付・ファイル名・メタデータ・端末識別子・利用履歴が送信されることはありません。</strong> これはどのビルドでも、これらどのリクエストでも例外がありません。</li>
                 <li>ストア版にはこの機能の権限もコードも含まれていません。無効化されているのではなく、ビルドに入っていません。</li>
             </ul>
 
@@ -107,7 +110,7 @@ GitHub Releases         android.permission.INTERNET   アップデート確認�
             <p>SAF フォルダが Drive、Dropbox、OneDrive、Syncthing、NAS マウントといった外部同期クライアントによって同期されるかどうかは、その外部アプリの責任です。Markleaf 自体がその同期を行うことはありません。</p>
 
             <h2>権限</h2>
-            <p>Markleaf が宣言するランタイム的な権限は、触覚フィードバックのための <code>android.permission.VIBRATE</code> のみです。位置情報、マイク、カメラ、連絡先、通知、外部ストレージの読み取り、メディアの読み取りに関する権限は、どのビルドにもありません。<code>android.permission.INTERNET</code> は F-Droid・Google Play 版には存在せず、サイドロード版にのみあり、用途は上記 <a class="text-link" href="#network">ネットワーク</a> のアップデート確認だけです。</p>
+            <p>Markleaf が宣言するランタイム的な権限は、触覚フィードバックのための <code>android.permission.VIBRATE</code> のみです。位置情報、マイク、カメラ、連絡先、通知、外部ストレージの読み取り、メディアの読み取りに関する権限は、どのビルドにもありません。<code>android.permission.INTERNET</code> と <code>android.permission.REQUEST_INSTALL_PACKAGES</code> はどちらも F-Droid・Google Play 版には存在せず、サイドロード版にのみあり、用途は上記 <a class="text-link" href="#network">ネットワーク</a> のアップデート確認とオプトインのインストールです。</p>
 
             <h2>お問い合わせ</h2>
             <p>ご質問や、セキュリティ / プライバシーに関する報告は、<a class="text-link" href="https://github.com/jeiel85/markleaf-android/issues">GitHub Issues</a> からお寄せください。</p>

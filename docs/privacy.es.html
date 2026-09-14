@@ -67,18 +67,21 @@
             <p>Depende de dónde hayas obtenido la aplicación. <strong>En ambos casos, no se envía ningún dato de tus notas.</strong></p>
             <ul>
                 <li><strong>F-Droid y Google Play</strong> — sin permiso <code>android.permission.INTERNET</code> y sin ninguna actividad de red.</li>
-                <li><strong>GitHub Releases (sideload)</strong> — declara el permiso para una sola cosa: una comprobación de actualizaciones que no funciona a menos que tú la actives.</li>
+                <li><strong>GitHub Releases (sideload)</strong> — declara dos permisos: uno para la comprobación de actualizaciones y otro para poder instalar la actualización que elijas descargar. Ninguno funciona a menos que actives la comprobación.</li>
             </ul>
-            <pre>F-Droid / Google Play   android.permission.INTERNET   ninguno
-GitHub Releases         android.permission.INTERNET   solo comprobación de actualizaciones</pre>
+            <pre>F-Droid / Google Play   INTERNET: ninguno &middot; REQUEST_INSTALL_PACKAGES: ninguno
+GitHub Releases         INTERNET: comprobación de actualizaciones &middot; REQUEST_INSTALL_PACKAGES: instalación tras verificar el SHA-256</pre>
 
             <h3>La comprobación de actualizaciones en la versión sideload</h3>
             <ul>
                 <li><strong>Desactivada por defecto.</strong> No ocurre nada hasta que la actives en los ajustes.</li>
                 <li>Una vez al día hace una única petición GET a un archivo JSON estático que describe la versión más reciente. Si la comprobación falla, se ignora en silencio.</li>
+                <li>Tocar <strong>Descargar e instalar</strong> en el cuadro de diálogo de actualización desencadena la única otra petición de red de la aplicación: un GET para el propio archivo de actualización. Igual que la comprobación, solo ocurre porque tú lo pediste.</li>
+                <li>Al terminar la descarga, la aplicación la compara con el SHA-256 de ese archivo JSON. <strong>Si no coincide, el archivo se elimina y la instalación no comienza.</strong></li>
+                <li>Solo un archivo verificado se entrega al propio <code>PackageInstaller</code> de Android. La pantalla de confirmación que sigue la dibuja Android, no Markleaf. Este paso necesita el permiso <code>REQUEST_INSTALL_PACKAGES</code>; si aún no está concedido, la aplicación te lleva primero a Ajustes.</li>
+                <li>Si la descarga o la verificación fallan, puedes volver a intentarlo o abrirla en el navegador como antes.</li>
                 <li>La petición solo lleva esa URL y cabeceras HTTP estándar. Sin cadena de consulta, sin cookies, sin cuenta.</li>
-                <li><strong>No se envían cuerpos de notas, títulos, etiquetas, adjuntos, nombres de archivo, metadatos, identificadores de dispositivo ni datos de uso.</strong> Esto se cumple sin excepción en todas las versiones.</li>
-                <li>Cuando hay una versión nueva, la descarga se entrega a tu navegador. La aplicación no descarga ni instala nada por su cuenta.</li>
+                <li><strong>No se envían cuerpos de notas, títulos, etiquetas, adjuntos, nombres de archivo, metadatos, identificadores de dispositivo ni datos de uso.</strong> Esto se cumple sin excepción en todas las versiones y en cada una de estas peticiones.</li>
                 <li>Las versiones de las tiendas no contienen ni el permiso ni el código para esto: no están desactivados, simplemente no se compilan.</li>
             </ul>
 
@@ -104,7 +107,7 @@ GitHub Releases         android.permission.INTERNET   solo comprobación de actu
             <p>Que una carpeta SAF sea sincronizada por un cliente de sincronización externo como Drive, Dropbox, OneDrive, Syncthing o un montaje NAS es responsabilidad de esa app externa. Markleaf no realiza esa sincronización por sí mismo.</p>
 
             <h2>Permisos</h2>
-            <p>El único permiso de tipo runtime que declara Markleaf es <code>android.permission.VIBRATE</code> para la retroalimentación háptica. Ninguna versión declara permisos de ubicación, micrófono, cámara, contactos, notificaciones, lectura de almacenamiento externo ni lectura de medios. <code>android.permission.INTERNET</code> no está en las versiones de F-Droid y Google Play y solo aparece en la versión sideload, para la comprobación de actualizaciones descrita en <a class="text-link" href="#network">Red</a>.</p>
+            <p>El único permiso de tipo runtime que declara Markleaf es <code>android.permission.VIBRATE</code> para la retroalimentación háptica. Ninguna versión declara permisos de ubicación, micrófono, cámara, contactos, notificaciones, lectura de almacenamiento externo ni lectura de medios. Ni <code>android.permission.INTERNET</code> ni <code>android.permission.REQUEST_INSTALL_PACKAGES</code> están en las versiones de F-Droid y Google Play. Ambos solo aparecen en la versión sideload, para la comprobación de actualizaciones y la instalación opcional descritas en <a class="text-link" href="#network">Red</a>.</p>
 
             <h2>Contacto</h2>
             <p>Para preguntas o informes de seguridad/privacidad, contáctanos a través de <a class="text-link" href="https://github.com/jeiel85/markleaf-android/issues">GitHub Issues</a>.</p>

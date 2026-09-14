@@ -3,6 +3,7 @@
 
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <application
         android:allowBackup="false"
@@ -112,6 +113,13 @@
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
         </activity>
+
+        <!-- PackageInstaller 세션이 STATUS_PENDING_USER_ACTION을 콜백으로 돌려줄 때만
+             불린다(D073, C단계). intent-filter가 없는 이유: UpdateInstaller가 이 컴포넌트를
+             명시적 Intent로만 가리키고, 시스템 액션 문자열로 호출되는 일이 없다. -->
+        <receiver
+            android:name=".update.UpdateInstallReceiver"
+            android:exported="false" />
     </application>
 
 </manifest>

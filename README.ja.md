@@ -200,7 +200,7 @@ Markleaf には独自のバックエンドがなく、ノートがひとりで�
 - ✅ データが OS の経路を通って移動するのは、あなたがエクスポート・共有・外部リンクを開く・SAF フォルダを選択したときだけ
 - ✅ 完全なオープンソース、Apache 2.0 ライセンスで誰でも監査可能
 
-**例外はこれひとつだけです。** [GitHub Releases](https://github.com/jeiel85/markleaf-android/releases/latest) の APK は `INTERNET` 権限を宣言しますが、用途は **既定でオフのオプトイン式アップデート確認** だけです（静的な JSON ファイルを 1 つ読むだけ）。F-Droid・Google Play 版にはその権限もコードも — 無効化されているのではなく — **そもそも含まれていません。** **どのビルドでも、ノート・タグ・添付・メタデータ・識別子・利用履歴が送信されることはありません。** この境界線は [`docs/AGENT_SPEC.md` §15.9](docs/AGENT_SPEC.md) に記されています。
+**例外はこれひとつだけです。** [GitHub Releases](https://github.com/jeiel85/markleaf-android/releases/latest) の APK は権限を2つ宣言します — `INTERNET` は **既定でオフのオプトイン式アップデート確認** 用、`REQUEST_INSTALL_PACKAGES` は SHA-256 まで照合したうえで選んだアップデートをインストールするためのものです。F-Droid・Google Play 版にはどちらの権限もコードも — 無効化されているのではなく — **そもそも含まれていません。** **どのビルドでも、これらどのリクエストでも、ノート・タグ・添付・メタデータ・識別子・利用履歴が送信されることはありません。** この境界線は [`docs/AGENT_SPEC.md` §15.9](docs/AGENT_SPEC.md) に記されています。
 
 「never leaves your device（端末から出ない）」が具体的にどう機能するかは、[プライバシーポリシー](docs/PRIVACY.md) と [No-Cloud Certification](docs/NOCLOUD_CERTIFICATION.md) にまとめられています。
 

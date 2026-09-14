@@ -9,6 +9,13 @@
 가능한가.
 
 ## Conclusion
+
+> **갱신(2026-09-14): B·C단계 모두 구현됨.** 이 문서는 원래 설계 시점(2026-09-13)의 평가를
+> 담고 있고, 아래 결론 문단들은 대부분 그 시점 그대로 남겨 뒀다 — "가능하다"는 판단 자체는
+> 바뀌지 않았기 때문이다. 실제로 무엇이 구현됐고 무엇이 여전히 열려 있는지는 이 문서 끝의
+> `## Decision`을 봐야 정확하다. **이 PR은 아직 머지되지 않았다** — "C단계는 B가 안정된 뒤"라는
+> 아래 원래 계획과 달리, 실사용 검증 기간 없이 같은 PR에서 이어 구현했다.
+
 - 3단계로 나뉜다. **B단계(확인 + 배너/모달 + 브라우저 위임)까지는 낮은 위험으로 가능**하고,
   C단계(앱 내 다운로드 + `PackageInstaller`)도 가능하지만 선행 조건이 많다.
 - 배포 채널은 **Gradle 속성 게이트**(`-Pmarkleaf.updater=true`)로 나눈다. 속성을 주지 않으면
@@ -20,7 +27,7 @@
   다시 빌드한 APK가 일치해야 그 버전이 발행된다. 두 채널이 **같은 파일 하나**를 공유하므로
   사이드로드 산출물은 다른 이름의 자산으로 나가야 한다. 속성 게이트에서는 F-Droid가 속성 없이
   빌드하면 그대로 store 산출물이 나오므로 **업스트림 레시피는 손대지 않는다.**
-- Status: **설계 확정, 구현 보류.** `.agent/tasks.md` Phase 34로 등록.
+- Status: **설계 확정. B·C단계 모두 구현됨(2026-09-14).** `.agent/tasks.md` Phase 34.
 - **AGENT_SPEC 관문은 통과했다(2026-09-13).** `docs/AGENT_SPEC.md` §15.1·§15.6이 개정되고
   §15.9가 신설되어 같은 PR에 담겼다.
 - **fdroiddata MR은 더 이상 필요 없다(2026-09-13, D074).** 플레이버를 쓸 때는 레시피 MR이
@@ -165,9 +172,15 @@ android {
 `srcFile`은 소스 세트당 매니페스트 하나를 **교체**하므로, 사이드로드용 전체 사본이 필요하다.
 사본이 조용히 낡으면 사이드로드 빌드가 본 빌드와 다른 매니페스트로 나간다.
 
-대응: **두 파일이 `INTERNET` 한 줄만 다르다는 것을 검사로 고정한다.** 이 저장소가 이미
-`ResourceParityTest`·`verify-locales.ps1`로 같은 종류의 표류를 막고 있으므로 형식을 맞춘다.
-검사 없이 사본을 두는 것은 이 방식의 유일한 실패 양식이다.
+대응: **두 파일의 차이를 검사로 고정한다.** 이 저장소가 이미 `ResourceParityTest`·
+`verify-locales.ps1`로 같은 종류의 표류를 막고 있으므로 형식을 맞춘다. 검사 없이 사본을 두는
+것은 이 방식의 유일한 실패 양식이다.
+
+> **갱신(2026-09-14, C단계 구현).** 처음엔 정말 `INTERNET` 한 줄뿐이었다. C단계에서
+> `REQUEST_INSTALL_PACKAGES` 권한과 `UpdateInstallReceiver` 선언이 더해지면서 검사도
+> "한 줄만 다르다"에서 "알려진 블록만 뺐을 때 완전히 같다"로 일반화됐다 — 원칙(차이를
+> 검사로 고정한다)은 그대로고, 검사가 확인하는 구체적인 차이의 모양만 늘었다. 상세는
+> `SideloadManifestParityTest`와 D076.
 
 ### 왜 플레이버를 버렸나 (기록)
 플레이버도 같은 분리를 주지만 두 가지 비용이 붙었고, 둘 다 이 프로젝트에서는 무겁다.
@@ -269,7 +282,10 @@ grep -rln "app-release\|assembleDebug\|app-debug\|verifyRoborazziDebug\|lintRele
 - store 빌드에서 이 항목을 아예 숨길지, "F-Droid에서 업데이트됩니다" 안내로 남길지는
   Open questions 4번.
 
-## C단계 구현 세부 (착수 시)
+## C단계 구현 세부
+
+**구현됨(2026-09-14).** 아래는 착수 전에 세운 계획이고, 실제로 그대로 구현했다 —
+달라진 점은 각 항목 옆에 적었다. 상세 결정은 D076.
 - `REQUEST_INSTALL_PACKAGES` 선언 + `packageManager.canRequestPackageInstalls()` 확인 +
   거부 시 `ACTION_MANAGE_UNKNOWN_APP_SOURCES`로 설정 화면 유도.
 - `Intent.ACTION_INSTALL_PACKAGE`는 API 29에서 deprecated다. `PackageInstaller` 세션을
@@ -277,11 +293,32 @@ grep -rln "app-release\|assembleDebug\|app-debug\|verifyRoborazziDebug\|lintRele
 - 다운로드는 앱 캐시로 받는다(외부 저장 권한 회피). 완료 후 JSON의 `sha256`과 대조하고
   불일치면 삭제한다.
 - **서명 일치는 OS가 최종 보증한다.** 다른 키로 서명된 APK는
-  `INSTALL_FAILED_UPDATE_INCOMPATIBLE`로 거부된다(`app/build.gradle.kts:94` 주석,
+  `INSTALL_FAILED_UPDATE_INCOMPATIBLE`로 거부된다(`app/build.gradle.kts:133` 주석,
   `docs/RELEASE.md`의 동일 인증서 설명). 앱이 설치 전에 APK 서명을 미리 검증하는 것도
   바람직하지만, `getPackageArchiveInfo`로 `signingInfo`를 읽는 동작이 API 26~35에서
   어떻게 채워지는지는 실기기 확인이 필요하다 — 확인 전에는 SHA-256 대조를 1차 방어로 둔다.
-- 실패 복구: 부분 다운로드 삭제, 재시도 상한, 그리고 최종 수단으로 브라우저 링크 제시.
+  **구현에서도 이 판단을 그대로 따랐다** — 서명 사전 검증 코드는 넣지 않았다.
+- 실패 복구: 부분 다운로드 삭제, 재시도 상한(3회), 그리고 최종 수단으로 브라우저 링크 제시.
+  **모두 구현됨.**
+
+### 구현 후 남은 미확인 사항
+
+이 웹 세션 컨테이너에는 Android SDK가 없어 아래는 하나도 이 자리에서 실행해 확인할 수
+없었다 — 컴파일도, `PackageInstaller` 세션도, 설치 확인 팝업도 CI와 실기기가 처음 본다.
+
+- **`PackageInstaller` 세션·커밋·`PendingIntent` 콜백 시퀀스 자체가 실기기에서 검증된 적이
+  없다.** 코드는 공개 문서와 통용되는 예제 패턴을 따랐지만, `session.fsync()`처럼 정확한
+  시그니처를 이 환경에서 대조할 방법이 없었다.
+- **Open questions 1번(같은 versionCode로 채널을 넘어 재설치가 허용되는지)이 정확히 이
+  코드 경로에서 실기기로 확인해야 하는 지점이 됐다.** 다운그레이드가 아니므로 통과할
+  것으로 보지만, 실패한다면 그 실패는 여기(`session.commit()` 이후)에서 난다.
+- API 33 미만에서 `Intent.getParcelableExtra(String)`(구식, deprecated) 대신 API 33+에서
+  타입 지정 오버로드로 분기하는 코드(`UpdateInstallReceiver`)는 두 경로 모두 실기기 확인이
+  없다.
+- 진행률은 퍼센트 숫자 대신 부정형 스피너로만 보여준다 — 이 BOM의 Material3가
+  `LinearProgressIndicator`의 어느 오버로드를 제공하는지 이 환경에서 확인할 수 없어,
+  이미 이 코드베이스에서 쓰이고 있는 것으로 확인된(`FileViewerScreen.kt`) 부정형
+  `CircularProgressIndicator()`만 썼다. 의도적으로 낮춘 범위다.
 
 ## Open questions
 1. store 산출물과 사이드로드 산출물이 같은 versionCode를 갖는데, 한 채널에서 다른 채널 APK로
@@ -325,16 +362,23 @@ grep -rln "app-release\|assembleDebug\|app-debug\|verifyRoborazziDebug\|lintRele
   `.github/scripts/launch-smoke.sh`.
 
 ## Decision
-- Status: **설계 확정, 구현 보류.** `.agent/tasks.md` Phase 34.
+- Status: **설계 확정. B·C단계 모두 구현됨(2026-09-14).** `.agent/tasks.md` Phase 34.
 - **`docs/AGENT_SPEC.md` §15.1·§15.6 개정과 그 개정의 명시적 승인이 구현의 선행 조건이었다.**
   2026-09-13에 승인되어 §15.9가 신설됐고, 이 PR이 그 개정을 함께 담는다. 승인이 없었다면
   Phase 34 첫 항목에서 `AGENTS.md` Stop Conditions에 걸려 멈췄을 것이다.
 - 채널 분리는 **Gradle 속성 게이트**로 한다(D074가 D073의 플레이버 결정을 대체).
-- 1차 구현 범위는 B단계. C단계는 B가 안정된 뒤 같은 게이트 안에서 확장한다.
 - store / F-Droid / Play 산출물에는 INTERNET 권한도 업데이터 코드도 들어가지 않는다.
 - **fdroiddata 레시피는 손대지 않는다.** `gradle: - yes`가 계속 맞다.
-- 매니페스트 사본 두 개가 이 방식의 유일한 실패 양식이므로, `INTERNET` 한 줄만 다르다는 것을
+- 매니페스트 사본 두 개가 이 방식의 유일한 실패 양식이므로, 두 파일의 차이를
   검사로 고정한 뒤에 기능 코드를 올린다.
+
+> **갱신(2026-09-14): B·C 모두 구현됨.** "1차 구현 범위는 B단계, C단계는 B가 안정된 뒤
+> 같은 게이트 안에서 확장한다"는 원래 계획이었다. 이 문서를 쓴 뒤 사용자가 8번(문서 정리)에
+> 이어 C단계 착수를 직접 지시했고, **이 PR이 아직 머지되지 않아 B단계가 실제 사용자 앞에서
+> 검증된 적이 없는 상태에서 C단계를 같은 PR에 담았다** — "B가 안정된 뒤"라는 원래 조건은
+> 충족되지 않았다. 승인 자체는 §15.9의 "확장 금지" 문단이 처음부터 "APK 다운로드·설치
+> 위임까지" 명시적으로 포함하고 있었으므로 새 관문이 필요하지는 않았지만, 실사용 검증
+> 순서를 건너뛴 것은 사실이다. 상세 구현 결정은 D076.
 
 ## References
 - Google Play Device and Network Abuse policy —

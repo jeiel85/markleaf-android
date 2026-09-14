@@ -296,9 +296,15 @@
     <string name="update_check_description">Comprobar una vez al día si hay una versión nueva y mostrar un aviso cuando la haya. Las descargas vienen de GitHub Releases y omiten las comprobaciones de F-Droid.</string>
     <string name="update_banner_text">La versión %1$s está disponible</string>
     <string name="update_dialog_title">Actualización disponible</string>
-    <string name="update_dialog_body">Versión %1$s · %2$s. La descarga se abre en tu navegador y proviene de GitHub Releases.</string>
-    <string name="update_action_open">Abrir la descarga</string>
+    <string name="update_dialog_body">Versión %1$s · %2$s, desde GitHub Releases.</string>
+    <string name="update_action_open">Descargar e instalar</string>
     <string name="update_action_skip">Omitir esta versión</string>
+    <string name="update_action_open_in_browser">Abrir en el navegador en su lugar</string>
+    <string name="update_permission_required_body">Markleaf necesita permiso para instalar actualizaciones de la aplicación. Ve a Ajustes, concédelo y luego vuelve aquí.</string>
+    <string name="update_action_open_settings">Abrir ajustes</string>
+    <string name="update_downloading">Descargando la actualización…</string>
+    <string name="update_download_failed_body">No se pudo completar la descarga. Vuelve a intentarlo o ábrela en el navegador.</string>
+    <string name="update_action_retry">Reintentar</string>
     <string name="update_action_release_notes">Notas de la versión</string>
 
     <!-- Widget -->

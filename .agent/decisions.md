@@ -1270,6 +1270,12 @@ Implications:
 - D073은 **폐기되지 않는다.** 왜 분리가 필요한지(제품 약속 세 곳, Play 정책, F-Droid 재현
   빌드)와 AGENT_SPEC 관문은 그대로 유효하다. 이 결정은 그 중 수단 한 가지만 대체한다.
 
+> **갱신(2026-09-14, C단계 구현·D076).** `sourceSets.main.java.srcDir` 게이트는 컴파일까지
+> 정상 동작함을 CI가 확인했다(위 "아직 확인하지 않았다" 항목 해소). 매니페스트 사본의 차이도
+> 이제 `INTERNET` 한 줄이 아니다 — `REQUEST_INSTALL_PACKAGES` 권한과 `UpdateInstallReceiver`
+> 선언이 더해졌다. `SideloadManifestParityTest`는 "한 줄만 다르다"는 단언에서 "알려진 블록만
+> 빼면 완전히 같다"는 단언으로 일반화됐고, 원칙(차이를 검사로 고정한다)은 그대로다.
+
 ### D075 - The Update Manifest Ships As A Release Asset, Not On GitHub Pages
 
 사이드로드 업데이트 확인이 읽는 JSON은 `docs/update.json`(GitHub Pages)이 아니라 태그 런이
@@ -1322,6 +1328,70 @@ Implications:
   `gradle: - yes`도 그대로다(D074).
 - `docs/update.json`은 만들지 않는다. 만들어 두면 Pages에 낡은 사본이 남아, 앱이 읽지 않는
   파일이 릴리스마다 조용히 뒤처진다.
+
+### D076 - The Sideload Update Downloads And Installs Itself, Verified By Hash Before The OS Signature Check
+
+Phase 34의 C단계. B단계(확인 → 배너·모달 → 브라우저 위임)에 이어, 사용자가 모달에서
+"다운로드 및 설치"를 탭하면 앱이 직접 APK를 받아 SHA-256을 대조하고 `PackageInstaller`
+세션에 넘긴다. 그 뒤 나오는 설치 확인 팝업은 Android 자체 화면이다 — 애초 요청("다운로드에서
+실행까지 해주면 안드로이드 자체에서 팝업으로 업데이트 여부를 선택")이 요구한 지점이 정확히
+여기다.
+
+이 절이 여는 새 권한은 `android.permission.REQUEST_INSTALL_PACKAGES` 하나이고, 사이드로드
+빌드에만 있다. §15.9의 "확장 금지" 문단은 처음부터 "사이드로드 빌드의 APK 다운로드·설치
+위임까지" 허용한다고 적어 두었으므로, 새 AGENT_SPEC 승인 관문은 필요 없었다.
+
+Why:
+- **`PackageInstaller` 세션, `ACTION_INSTALL_PACKAGE`가 아니다.** 후자는 API 29에서
+  deprecated고, 전자는 `STATUS_PENDING_USER_ACTION` 콜백으로 "지금 시스템 팝업을 띄워도
+  좋다"는 신호를 명시적으로 준다. 그 콜백을 받는 `UpdateInstallReceiver`는 intent-filter가
+  없다 — `UpdateInstaller`가 이 컴포넌트를 명시적 `Intent`로만 가리키므로 시스템 액션
+  문자열로 불릴 일이 없어서다.
+- **서명 사전 검증은 하지 않는다.** 다른 키로 서명된 APK는 결국 OS가
+  `INSTALL_FAILED_UPDATE_INCOMPATIBLE`로 거부한다(`docs/RELEASE.md`의 동일 인증서 설명).
+  `getPackageArchiveInfo`로 `signingInfo`를 미리 읽는 것도 가능하지만, 그 동작이
+  API 26~35에서 어떻게 채워지는지 이 환경(Android SDK 없음)에서 확인할 방법이 없었다.
+  잘못 구현한 사전 검증이 정상적인 키 교체 업데이트까지 막는 쪽이, 실패 지점이 조금
+  늦어지는 것보다 나쁘다고 봤다. SHA-256 대조를 1차 방어로 둔다.
+- **다운로드는 앱 캐시로 받는다.** 외부 저장소 권한을 요구할 이유가 없다. 하위 디렉터리를
+  두지 않고 그냥 캐시 파일로 다루는 이유는, Android의 "캐시 지우기"가 이 파일만 특별
+  취급할 이유가 없어서다.
+- **재시도 상한은 3회, 새로고침마다 처음부터 다시 받는다(이어받기 없음).** APK가 몇 MB뿐이라
+  이어받기의 복잡도(범위 요청, 부분 파일 검증)를 들일 값어치가 없었다. 실패가 3회를 넘기면
+  사용자에게 보여주고, "다시 시도"와 "브라우저에서 열기"(B단계와 같은 경로) 중 고르게 한다.
+- **진행률은 부정형 스피너로만 보여준다.** 퍼센트 숫자를 넣는 안도 검토했지만, 이 BOM의
+  Material3가 `LinearProgressIndicator`의 어느 오버로드(구식 `Float` 파라미터 vs 최신
+  람다 파라미터)를 제공하는지 이 환경에서 확인할 수 없었다. 이미 이 코드베이스에서 쓰이는
+  것으로 확인된(`FileViewerScreen.kt`) `CircularProgressIndicator()`만 써서 컴파일
+  실패 위험을 없앴다 — 의도적으로 낮춘 범위다.
+
+Implications:
+
+- **매니페스트 사본의 차이가 한 줄에서 두 블록으로 늘었다.** `REQUEST_INSTALL_PACKAGES`
+  권한 한 줄과 `UpdateInstallReceiver` 선언(주석 포함 7줄)이다. `SideloadManifestParityTest`를
+  "본 매니페스트 + INTERNET 한 줄"이라는 단언에서 "알려진 블록만 빼면 본 매니페스트와 완전히
+  같다"는 단언으로 일반화했다 — 블록이 없거나 두 번 나오면 실패하므로 빠뜨림과 중복 모두 여전히
+  잡는다.
+- **사이드로드 빌드의 네트워크 동작이 하나에서 둘로 늘었다.** 하루 1회 자동 GET(매니페스트
+  확인)과, 사용자가 설치를 탭했을 때만 도는 GET(업데이트 파일 자체). "정적 JSON 하나를 GET
+  한다"고 적었던 문서들이 전부 이 사실을 반영하도록 고쳤다 — `AGENT_SPEC.md` §15.9,
+  `docs/SECURITY.md`, `docs/PRIVACY.md`, `docs/privacy.*.html` 8개, `README*.md` 8개,
+  `docs/NOCLOUD_CERTIFICATION.md`, `UpdateChecker.kt`의 KDoc. 노트 데이터가 나가지 않는다는
+  원칙은 두 GET 모두에서 예외 없이 유지된다 — 바뀐 것은 "무엇을 받는가"이지 "무엇을 보내는가"가
+  아니다.
+- **B단계가 실사용 검증을 거치기 전에 같은 PR에서 이어 구현했다.** `docs/UPDATE_STRATEGY_EVALUATION.md`의
+  원래 계획은 "C단계는 B가 안정된 뒤 같은 게이트 안에서 확장한다"였다. 이 PR은 아직 머지되지
+  않았고, 사용자가 8번에 이어 C단계 착수를 직접 지시해 그 순서를 건너뛰었다. §15.9의 승인
+  범위 안에서 진행했지만, "실사용 후 확장"이라는 원래 신중책은 지켜지지 않았다는 사실을
+  남겨 둔다.
+- **이 세션의 컨테이너에는 Android SDK가 없어 `PackageInstaller` 세션·커밋·`PendingIntent`
+  콜백 시퀀스, `Intent.getParcelableExtra`의 API 33 분기, Compose 컴파일 자체를 실행해
+  확인할 방법이 없었다.** 공개 문서와 이 생태계에서 통용되는 예제 패턴을 따랐지만, 첫 실제
+  검증은 CI와 실기기다.
+- 새 순수 로직(`Sha256`)은 단위 테스트가 있다(`Sha256Test`, JDK `MessageDigest`만 써서
+  Robolectric 불필요). `UpdateDownloader`·`UpdateInstaller`·`UpdateInstallReceiver`는
+  `UpdateChecker`와 같은 이유로 단위 테스트가 없다 — Android 프레임워크·네트워크 I/O를
+  이 환경에서 흉내 내 검증할 방법이 마땅치 않다.
 
 ---
 

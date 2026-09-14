@@ -200,7 +200,7 @@ Markleaf 没有自己的后端，你的笔记也不会自行离开设备。你�
 - ✅ 只有当 *你* 导出、分享、打开外部链接或选择 SAF 文件夹时，数据才会经由系统路径移动
 - ✅ 完全开源，任何人都可依据 Apache 2.0 审查
 
-**只有一个例外。** [GitHub Releases](https://github.com/jeiel85/markleaf-android/releases/latest) 上的 APK 声明了 `INTERNET` 权限，用途仅一项：**默认关闭、需你主动开启** 的更新检查（只读取一个静态 JSON 文件）。F-Droid 和 Google Play 版本既没有该权限也没有该代码 — 不是被禁用，而是**根本不存在**。**任何版本都不会发送笔记、标签、附件、元数据、标识符或使用记录。** 这条界线写在 [`docs/AGENT_SPEC.md` §15.9](docs/AGENT_SPEC.md)。
+**只有一个例外。** [GitHub Releases](https://github.com/jeiel85/markleaf-android/releases/latest) 上的 APK 声明了两个权限 —— `INTERNET` 用于**默认关闭、需你主动开启**的更新检查，`REQUEST_INSTALL_PACKAGES` 用于在核对 SHA-256 之后安装你选择的更新。F-Droid 和 Google Play 版本两者皆无，也没有对应代码 —— 不是被禁用，而是**根本不存在**。**任何版本、这些请求中的任何一个，都不会发送笔记、标签、附件、元数据、标识符或使用记录。** 这条界线写在 [`docs/AGENT_SPEC.md` §15.9](docs/AGENT_SPEC.md)。
 
 “绝不离开你的设备”具体是如何做到的，记录在 [隐私政策](docs/PRIVACY.md) 和 [No-Cloud 认证](docs/NOCLOUD_CERTIFICATION.md) 中。
 

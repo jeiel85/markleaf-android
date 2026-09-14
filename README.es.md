@@ -200,7 +200,7 @@ Markleaf no tiene backend propio y tus notas nunca salen del dispositivo por su 
 - ✅ Los datos solo se mueven por rutas del sistema operativo cuando *tú* exportas, compartes, abres un enlace externo o eliges una carpeta SAF
 - ✅ Totalmente de código abierto, auditable por cualquiera bajo Apache 2.0
 
-**Una única excepción.** El APK de [GitHub Releases](https://github.com/jeiel85/markleaf-android/releases/latest) declara `INTERNET` para una sola cosa: una comprobación de actualizaciones **desactivada por defecto y que tú debes activar**, que lee un único archivo JSON estático. Las versiones de F-Droid y Google Play no contienen ni ese permiso ni ese código — no están desactivados, sino **ausentes**. **Ninguna versión envía notas, etiquetas, adjuntos, metadatos, identificadores ni datos de uso.** El límite está escrito en [`docs/AGENT_SPEC.md` §15.9](docs/AGENT_SPEC.md).
+**Una única excepción.** El APK de [GitHub Releases](https://github.com/jeiel85/markleaf-android/releases/latest) declara dos permisos: `INTERNET` para una comprobación de actualizaciones **desactivada por defecto y que tú debes activar**, y `REQUEST_INSTALL_PACKAGES` para poder instalar la actualización elegida, tras verificar su SHA-256. Las versiones de F-Droid y Google Play no contienen ninguno de estos permisos ni el código correspondiente — no están desactivados, sino **ausentes**. **Ninguna versión, en ninguna de estas peticiones, envía notas, etiquetas, adjuntos, metadatos, identificadores ni datos de uso.** El límite está escrito en [`docs/AGENT_SPEC.md` §15.9](docs/AGENT_SPEC.md).
 
 El funcionamiento exacto de "never leaves your device" está documentado en la [Política de privacidad](docs/PRIVACY.md) y la [No-Cloud Certification](docs/NOCLOUD_CERTIFICATION.md).
 

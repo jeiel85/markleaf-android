@@ -200,7 +200,7 @@ Markleaf has no backend, and none of your notes ever leave the device on their o
 - ✅ Data only ever moves through OS paths when *you* export, share, open an external link, or pick a SAF folder
 - ✅ Fully open source, auditable by anyone under Apache 2.0
 
-**One exception, and only one.** The APK on [GitHub Releases](https://github.com/jeiel85/markleaf-android/releases/latest) declares `INTERNET` for an **opt-in, off-by-default** update check that reads a single static JSON file and nothing else. The F-Droid and Google Play builds contain neither that permission nor that code — not disabled, absent. **No notes, tags, attachments, metadata, identifiers or usage data are sent in any build.** The boundary is written down in [`docs/AGENT_SPEC.md` §15.9](docs/AGENT_SPEC.md).
+**One exception, and only one.** The APK on [GitHub Releases](https://github.com/jeiel85/markleaf-android/releases/latest) declares `INTERNET` (for an **opt-in, off-by-default** update check) and `REQUEST_INSTALL_PACKAGES` (so it can install the update you choose to download, after verifying its SHA-256). The F-Droid and Google Play builds contain neither permission nor that code — not disabled, absent. **No notes, tags, attachments, metadata, identifiers or usage data are ever sent, in any build or by either request.** The boundary is written down in [`docs/AGENT_SPEC.md` §15.9](docs/AGENT_SPEC.md).
 
 How "never leaves your device" works exactly is documented in the [Privacy Policy](docs/PRIVACY.md) and the [No-Cloud Certification](docs/NOCLOUD_CERTIFICATION.md).
 

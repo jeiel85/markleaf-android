@@ -200,7 +200,7 @@ Markleaf는 자체 백엔드가 없으며, 노트가 저절로 기기를 떠나�
 - ✅ 사용자가 직접 export, share, 외부 링크 열기, SAF 폴더 선택을 수행할 때만 OS 경로를 통해 데이터가 이동
 - ✅ 완전한 오픈소스, Apache 2.0 라이선스로 누구나 감사 가능
 
-**예외는 딱 하나입니다.** [GitHub Releases](https://github.com/jeiel85/markleaf-android/releases/latest)의 APK는 `INTERNET` 권한을 선언하며, 그 용도는 **기본으로 꺼져 있는 옵트인 업데이트 확인** 하나뿐입니다(정적 JSON 파일 하나를 읽습니다). F-Droid·Google Play 빌드에는 그 권한도 그 코드도 — 꺼져 있는 것이 아니라 — **아예 들어 있지 않습니다.** **어느 빌드에서도 노트·태그·첨부·메타데이터·식별자·사용 기록은 전송되지 않습니다.** 이 경계는 [`docs/AGENT_SPEC.md` §15.9](docs/AGENT_SPEC.md)에 적혀 있습니다.
+**예외는 딱 하나입니다.** [GitHub Releases](https://github.com/jeiel85/markleaf-android/releases/latest)의 APK는 `INTERNET` 권한을 선언하며, 그 권한은 두 개입니다 — `INTERNET`은 **기본으로 꺼져 있는 옵트인 업데이트 확인**용이고, `REQUEST_INSTALL_PACKAGES`는 사용자가 SHA-256까지 대조한 뒤 고른 업데이트를 설치하기 위한 것입니다. F-Droid·Google Play 빌드에는 그 권한도 그 코드도 — 꺼져 있는 것이 아니라 — **아예 들어 있지 않습니다.** **어느 빌드에서도, 이 요청들 중 어느 하나에도 노트·태그·첨부·메타데이터·식별자·사용 기록은 전송되지 않습니다.** 이 경계는 [`docs/AGENT_SPEC.md` §15.9](docs/AGENT_SPEC.md)에 적혀 있습니다.
 
 "never leaves your device" 가 어떻게 정확히 작동하는지는 [Privacy Policy](docs/PRIVACY.md) 와 [No-Cloud Certification](docs/NOCLOUD_CERTIFICATION.md) 에 정리되어 있습니다.
 

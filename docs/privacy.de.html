@@ -67,18 +67,21 @@
             <p>Das hängt davon ab, woher du die App hast. <strong>In beiden Fällen werden keinerlei Notizdaten gesendet.</strong></p>
             <ul>
                 <li><strong>F-Droid und Google Play</strong> — keine <code>android.permission.INTERNET</code>-Berechtigung und überhaupt keine Netzwerkaktivität.</li>
-                <li><strong>GitHub Releases (Sideload)</strong> — deklariert die Berechtigung für genau eine Sache: eine Update-Prüfung, die nur läuft, wenn du sie einschaltest.</li>
+                <li><strong>GitHub Releases (Sideload)</strong> — deklariert zwei Berechtigungen: eine für die Update-Prüfung und eine, damit das von dir heruntergeladene Update installiert werden kann. Beide laufen nur, wenn du die Prüfung einschaltest.</li>
             </ul>
-            <pre>F-Droid / Google Play   android.permission.INTERNET   keine
-GitHub Releases         android.permission.INTERNET   nur Update-Prüfung</pre>
+            <pre>F-Droid / Google Play   INTERNET: keine &middot; REQUEST_INSTALL_PACKAGES: keine
+GitHub Releases         INTERNET: Update-Prüfung &middot; REQUEST_INSTALL_PACKAGES: Installation nach SHA-256-Prüfung</pre>
 
             <h3>Die Update-Prüfung im Sideload-Build</h3>
             <ul>
                 <li><strong>Standardmäßig aus.</strong> Es passiert nichts, bis du sie in den Einstellungen einschaltest.</li>
                 <li>Einmal täglich ein einziges GET auf eine statische JSON-Datei, die die neueste Version beschreibt. Eine fehlgeschlagene Prüfung wird stillschweigend übergangen.</li>
+                <li>Tippst du im Update-Dialog auf <strong>Herunterladen und installieren</strong>, löst das die einzige weitere Netzwerkanfrage der App aus: ein GET für die Update-Datei selbst. Wie die Prüfung geschieht das nur, weil du es verlangt hast.</li>
+                <li>Nach dem Download vergleicht die App die Datei mit dem SHA-256 aus dieser JSON-Datei. <strong>Stimmt er nicht überein, wird die Datei gelöscht und die Installation beginnt nicht.</strong></li>
+                <li>Nur eine geprüfte Datei wird an Androids eigenen <code>PackageInstaller</code> übergeben. Der anschließende Bestätigungsbildschirm wird von Android gezeichnet, nicht von Markleaf. Dieser Schritt braucht die Berechtigung <code>REQUEST_INSTALL_PACKAGES</code>; fehlt sie noch, führt dich die App zuerst zu den Einstellungen.</li>
+                <li>Schlagen Download oder Prüfung fehl, kannst du es erneut versuchen oder es wie zuvor im Browser öffnen.</li>
                 <li>Die Anfrage enthält nur diese URL und übliche HTTP-Header. Kein Query-String, kein Cookie, kein Konto.</li>
-                <li><strong>Notizinhalte, Titel, Tags, Anhänge, Dateinamen, Metadaten, Gerätekennungen und Nutzungsdaten werden nicht gesendet.</strong> Das gilt ausnahmslos in jedem Build.</li>
-                <li>Gibt es eine neue Version, wird der Download an deinen Browser übergeben. Die App lädt und installiert selbst nichts.</li>
+                <li><strong>Notizinhalte, Titel, Tags, Anhänge, Dateinamen, Metadaten, Gerätekennungen und Nutzungsdaten werden nicht gesendet.</strong> Das gilt ausnahmslos in jedem Build und bei jeder dieser Anfragen.</li>
                 <li>Die Store-Builds enthalten weder die Berechtigung noch den Code dafür — nicht deaktiviert, sondern gar nicht erst eingebaut.</li>
             </ul>
 
@@ -104,7 +107,7 @@ GitHub Releases         android.permission.INTERNET   nur Update-Prüfung</pre>
             <p>Ob ein SAF-Ordner von einem externen Sync-Client wie Drive, Dropbox, OneDrive, Syncthing oder einem NAS-Mount synchronisiert wird, liegt in der Verantwortung dieser externen App. Markleaf führt diese Synchronisierung nicht selbst durch.</p>
 
             <h2>Berechtigungen</h2>
-            <p>Die einzige Berechtigung mit Laufzeitcharakter, die Markleaf deklariert, ist <code>android.permission.VIBRATE</code> für haptisches Feedback. Kein Build deklariert Berechtigungen für Standort, Mikrofon, Kamera, Kontakte, Benachrichtigungen, Lesen des externen Speichers oder Lesen von Medien. <code>android.permission.INTERNET</code> fehlt in den F-Droid- und Google-Play-Builds und ist nur im Sideload-Build vorhanden, für die unter <a class="text-link" href="#network">Netzwerk</a> beschriebene Update-Prüfung.</p>
+            <p>Die einzige Berechtigung mit Laufzeitcharakter, die Markleaf deklariert, ist <code>android.permission.VIBRATE</code> für haptisches Feedback. Kein Build deklariert Berechtigungen für Standort, Mikrofon, Kamera, Kontakte, Benachrichtigungen, Lesen des externen Speichers oder Lesen von Medien. Weder <code>android.permission.INTERNET</code> noch <code>android.permission.REQUEST_INSTALL_PACKAGES</code> ist in den F-Droid- und Google-Play-Builds vorhanden. Beide gibt es nur im Sideload-Build, für die unter <a class="text-link" href="#network">Netzwerk</a> beschriebene Update-Prüfung und die optionale Installation.</p>
 
             <h2>Kontakt</h2>
             <p>Bei Fragen oder Sicherheits-/Datenschutzmeldungen wende dich bitte über <a class="text-link" href="https://github.com/jeiel85/markleaf-android/issues">GitHub Issues</a> an uns.</p>

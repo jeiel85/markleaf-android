@@ -4,6 +4,16 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.43.0 - Collapsible sections, and empty notes clean up after themselves - 2026-09-15
+
+Two independent changes, both reported by the same person. No permission or storage-format changes.
+
+### Added
+- **GitHub-style collapsible `<details>`/`<summary>` sections now render in Preview ([#403](https://github.com/jeiel85/markleaf-android/issues/403)).** They used to be silently dropped; now they appear as a tappable row that expands and collapses its body, matching GitHub's own two source forms — the blank-line form its docs recommend, and the compact no-blank-line form from the issue's own example. A `<details>` with no `<summary>` falls back to a localized "Details" label (8 languages). Collapsed sections still print and export to PDF in full, since paper has no tap. Nested sections and several sections back to back both work. An unclosed `<details>` runs to the end of the note instead of crashing it — everything after becomes part of that one section — and a stray closing tag with no matching `<details>` is dropped rather than shown as text. Reported by [@stacsk](https://github.com/stacsk).
+
+### Changed
+- **A note left with nothing in it is discarded instead of kept ([#405](https://github.com/jeiel85/markleaf-android/issues/405)).** Leaving the editor — back icon, system back, or switching to a different note — now removes a note that was never written into, or was typed into and then cleared back out completely. This only applies to a note in its ordinary state: explicitly moving a blank note to Trash, archiving it, locking it, or pinning it all still leave it exactly where you put it. Reported by [@stacsk](https://github.com/stacsk).
+
 ## v2.42.0 - The sideload build can update itself now - 2026-09-14
 
 This only changes the sideload APK. Store and F-Droid builds carry no new code and no new permission — nothing about them changes with this release.

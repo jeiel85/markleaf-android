@@ -1,0 +1,6 @@
+Des sections repliables, et une note vide de moins à ranger.
+
+- Les sections <details>/<summary> s'affichent maintenant dans l'aperçu sous forme de ligne à déplier/replier, comme sur GitHub.
+- En quittant l'éditeur, une note laissée vide est supprimée — sauf si elle a été mise à la corbeille, archivée, verrouillée ou épinglée.
+
+Merci, @stacsk.

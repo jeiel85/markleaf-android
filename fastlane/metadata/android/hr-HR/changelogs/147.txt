@@ -1,0 +1,6 @@
+Sklopivi odjeljci, i jedna prazna bilješka manje za čišćenje.
+
+- Odjeljci <details>/<summary> sada se u pregledu prikazuju kao redak koji se može raširiti i sklopiti, isto kao na GitHubu.
+- Kad napustite uređivač, prazna bilješka se briše — osim ako ste je premjestili u smeće, arhivirali, zaključali ili prikvačili.
+
+Hvala, @stacsk.

@@ -73,6 +73,7 @@ import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
 import com.markleaf.notes.core.markdown.MarkdownEditActions
 import com.markleaf.notes.core.markdown.MarkdownSyntaxVisualTransformation
+import com.markleaf.notes.core.markdown.PreviewLineType
 import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
 import com.markleaf.notes.core.markdown.markdownSyntaxColors
 import com.markleaf.notes.core.markdown.preview.MarkdownPreviewList
@@ -273,6 +274,26 @@ fun EditorScreen(
     // the absolute collapsed set. Reset per note like the rest of this
     // screen's transient UI state.
     var toggledSectionIds by remember(noteId) { mutableStateOf<Set<Int>>(emptySet()) }
+    // collapsibleId is assigned by a section's position among every
+    // <details> in the note, reassigned from zero on every reparse — so
+    // inserting, removing, or reordering a section above an already-toggled
+    // one reassigns its neighbours' ids out from under the toggle set,
+    // silently applying the user's earlier tap to the wrong section (a Codex
+    // review finding). There is no id here stable across an edit that adds or
+    // removes a section, so this detects the next best thing — the ordered
+    // list of summary texts actually changing — and forgets stale toggles
+    // rather than risk misattributing one. Compared only while preview is
+    // actually prepared: previewLines itself goes empty while editing
+    // (shouldPreparePreview is false then), and that transient emptiness must
+    // not read as "every section just disappeared".
+    val currentSummaryTexts = remember(previewLines) {
+        previewLines.filter { it.type == PreviewLineType.COLLAPSIBLE_SUMMARY }.map { it.text }
+    }
+    var lastSeenSummaryTexts by remember(noteId) { mutableStateOf<List<String>?>(null) }
+    if (shouldPreparePreview && currentSummaryTexts != lastSeenSummaryTexts) {
+        if (lastSeenSummaryTexts != null) toggledSectionIds = emptySet()
+        lastSeenSummaryTexts = currentSummaryTexts
+    }
     // What is actually on screen with that toggle state applied. The outline
     // and the jump-to-end button both compute a LazyColumn item index, and
     // MarkdownPreviewList lays out this same filtered list (recomputed there

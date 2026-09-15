@@ -123,6 +123,39 @@ class CollapsibleSectionPreviewTest {
     }
 
     @Test
+    fun adjacentSectionsWithNoBlankLineBetweenThemStayIndependent() {
+        // A Codex finding on the PR: without a blank line between the first
+        // </details> and the second <details>, commonmark folds the close and
+        // the next open into one HtmlBlock. A version of the parser that only
+        // asked "is there an opening tag anywhere in here" skipped over that
+        // leading close, so the second section ended up nested inside the
+        // first instead of standing beside it.
+        val markdown = """
+            <details>
+            <summary>First</summary>
+
+            first body
+            </details>
+            <details>
+            <summary>Second</summary>
+
+            second body
+            </details>
+        """.trimIndent()
+
+        val lines = SimpleMarkdownPreview.parse(markdown)
+
+        val first = lines.first { it.text == "First" }
+        val second = lines.first { it.text == "Second" }
+        val firstBody = lines.first { it.text == "first body" }
+        val secondBody = lines.first { it.text == "second body" }
+        assertTrue("adjacent sections must not share an id", first.collapsibleId != second.collapsibleId)
+        assertEquals("Second must not be nested inside First", emptyList<Int>(), second.collapsibleIds)
+        assertEquals(listOf(first.collapsibleId), firstBody.collapsibleIds)
+        assertEquals(listOf(second.collapsibleId), secondBody.collapsibleIds)
+    }
+
+    @Test
     fun unclosedDetailsRunsToEndOfDocumentInsteadOfCrashing() {
         val markdown = "<details>\n<summary>Never closed</summary>\n\nOne\n\nTwo"
 

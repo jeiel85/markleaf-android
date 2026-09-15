@@ -55,6 +55,8 @@ import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationExceptio
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.SpanStyle
@@ -437,11 +439,16 @@ private fun PreviewLineContent(
 
 @Composable
 private fun CollapsibleSummaryRow(text: String, expanded: Boolean, onClick: () -> Unit) {
+    // The ▾/▸ glyph is a visual-only cue; without this a screen reader
+    // announces "double tap to activate" with no way to tell whether
+    // activating it will open or close the section (a Codex review finding).
+    val stateLabel = stringResource(if (expanded) R.string.expanded else R.string.collapsed)
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(6.dp))
             .clickable(onClick = onClick)
+            .semantics { stateDescription = stateLabel }
             .padding(vertical = 8.dp, horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

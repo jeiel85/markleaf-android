@@ -1,0 +1,6 @@
+Secciones plegables, y una nota vacía menos que ordenar.
+
+- Las secciones <details>/<summary> ahora aparecen en la vista previa como una fila que se puede plegar y desplegar, igual que en GitHub.
+- Al salir del editor, una nota que se queda vacía se elimina — salvo que la hayas movido a la papelera, archivado, bloqueado o fijado.
+
+Gracias, @stacsk.

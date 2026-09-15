@@ -1,0 +1,6 @@
+Collapsible sections, and one less note to tidy up.
+
+- <details>/<summary> sections now render in Preview as a row you tap to expand or collapse, matching GitHub's own markdown.
+- Leaving the editor discards a note left with nothing in it — unless you've trashed, archived, locked, or pinned it.
+
+Thanks, @stacsk.

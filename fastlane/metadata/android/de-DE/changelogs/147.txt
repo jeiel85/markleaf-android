@@ -1,0 +1,6 @@
+Einklappbare Abschnitte, und eine leere Notiz weniger zum Aufräumen.
+
+- <details>/<summary>-Abschnitte erscheinen jetzt in der Vorschau als Zeile zum Auf- und Zuklappen, genau wie bei GitHub.
+- Beim Verlassen des Editors wird eine Notiz ohne Inhalt gelöscht – außer sie wurde in den Papierkorb verschoben, archiviert, gesperrt oder angeheftet.
+
+Danke, @stacsk.

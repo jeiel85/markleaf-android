@@ -134,6 +134,8 @@
     <string name="callout_important">Important</string>
     <string name="callout_warning">Warning</string>
     <string name="callout_caution">Caution</string>
+    <!-- Shown as the title of a `<details>` collapsible section (#403) that has no `<summary>` tag, matching GitHub's own fallback. -->
+    <string name="collapsible_section_default_summary">Details</string>
 
     <string name="pin">Pin</string>
     <string name="unpin">Unpin</string>

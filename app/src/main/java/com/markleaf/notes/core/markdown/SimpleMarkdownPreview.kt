@@ -23,7 +23,20 @@ enum class PreviewLineType {
     FRONTMATTER,
     FOOTNOTE_DEF,
     IMAGE,
-    TABLE
+    TABLE,
+    /** The tappable `<summary>` row of a `<details>` block (#403). */
+    COLLAPSIBLE_SUMMARY,
+    /**
+     * Internal bookkeeping only, produced while walking a `</details>` sibling
+     * and consumed by [CommonMarkPreviewAdapter.applyCollapsibleRanges] before
+     * [CommonMarkPreviewAdapter.parse] returns — a row of this type never
+     * reaches the renderer. It exists as its own [PreviewLineType] rather than
+     * a side channel because the rows in between are already ordinary
+     * [PreviewLine]s produced by the same per-node walk everything else goes
+     * through; marking the close the same way was the smallest way to find it
+     * again in a flat list.
+     */
+    COLLAPSIBLE_END
 }
 
 /** Per-column alignment hint from the GFM table header separator `|:---|---:|`. */
@@ -119,7 +132,23 @@ data class PreviewLine(
      * `MarkdownPreviewList` from the user's setting. Defaults to 1f so the
      * parser, tests, and every existing call site render exactly as before.
      */
-    val fontScale: Float = 1f
+    val fontScale: Float = 1f,
+    /**
+     * Only set when [type] is [PreviewLineType.COLLAPSIBLE_SUMMARY]: this
+     * section's own identity, assigned in document order by
+     * [CommonMarkPreviewAdapter.applyCollapsibleRanges]. What the renderer
+     * toggles and looks up in [PreviewLineType.COLLAPSIBLE_SUMMARY]'s own
+     * `extra` ("open" or null) to decide the default state.
+     */
+    val collapsibleId: Int? = null,
+    /**
+     * The [collapsibleId]s of every `<details>` section this row is nested
+     * inside, outermost first — empty for a row that is not inside one. A row
+     * is hidden when any id in this list is currently collapsed. A row can
+     * carry more than one when sections nest, which is why this is a list
+     * rather than a single nullable id.
+     */
+    val collapsibleIds: List<Int> = emptyList()
 )
 
 object SimpleMarkdownPreview {

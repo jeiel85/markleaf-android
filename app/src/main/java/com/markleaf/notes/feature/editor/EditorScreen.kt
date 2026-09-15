@@ -74,11 +74,13 @@ import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
 import com.markleaf.notes.core.markdown.MarkdownEditActions
 import com.markleaf.notes.core.markdown.MarkdownSyntaxVisualTransformation
+import com.markleaf.notes.core.markdown.PreviewLineType
 import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
 import com.markleaf.notes.core.markdown.markdownSyntaxColors
 import com.markleaf.notes.core.markdown.preview.MarkdownPreviewList
 import com.markleaf.notes.core.markdown.preview.TocHeading
 import com.markleaf.notes.core.markdown.preview.extractHeadings
+import com.markleaf.notes.core.markdown.preview.visiblePreviewLines
 import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.local.entity.NoteViewStateEntity
@@ -348,7 +350,50 @@ fun EditorScreen(
     val previewLines = remember(editorState.text, shouldPreparePreview) {
         if (shouldPreparePreview) SimpleMarkdownPreview.parse(editorState.text) else emptyList()
     }
-    val tocHeadings = remember(previewLines) { extractHeadings(previewLines) }
+    // `<details>` sections toggled away from their parsed default (#403) —
+    // see `visiblePreviewLines`'s own doc for why this is a delta rather than
+    // the absolute collapsed set. Reset per note like the rest of this
+    // screen's transient UI state.
+    var toggledSectionIds by remember(noteId) { mutableStateOf<Set<Int>>(emptySet()) }
+    // collapsibleId is assigned by a section's position among every
+    // <details> in the note, reassigned from zero on every reparse — so
+    // inserting, removing, or reordering a section above an already-toggled
+    // one reassigns its neighbours' ids out from under the toggle set,
+    // silently applying the user's earlier tap to the wrong section (a Codex
+    // review finding). There is no id here stable across an edit that adds or
+    // removes a section, so this detects the next best thing — the ordered
+    // list of (summary text, parsed-open-default) pairs actually changing —
+    // and forgets stale toggles rather than risk misattributing one. The
+    // default is part of the signature, not just the text, because hand-
+    // editing a `<details>` tag's `open` attribute without touching its
+    // `<summary>` is exactly the kind of edit that would otherwise slip past
+    // a text-only comparison and flip the wrong section (a second self-review
+    // finding). Compared only while preview is actually prepared:
+    // previewLines itself goes empty while editing (shouldPreparePreview is
+    // false then), and that transient emptiness must not read as "every
+    // section just disappeared". Two sections sharing both an identical
+    // title and default state is the one case this still cannot tell apart
+    // from a no-op edit — accepted as a narrow, self-correcting residue (a
+    // stray toggle there costs one extra tap, not data).
+    val currentSummarySignature = remember(previewLines) {
+        previewLines
+            .filter { it.type == PreviewLineType.COLLAPSIBLE_SUMMARY }
+            .map { it.text to it.extra }
+    }
+    var lastSeenSummarySignature by remember(noteId) { mutableStateOf<List<Pair<String, String?>>?>(null) }
+    if (shouldPreparePreview && currentSummarySignature != lastSeenSummarySignature) {
+        if (lastSeenSummarySignature != null) toggledSectionIds = emptySet()
+        lastSeenSummarySignature = currentSummarySignature
+    }
+    // What is actually on screen with that toggle state applied. The outline
+    // and the jump-to-end button both compute a LazyColumn item index, and
+    // MarkdownPreviewList lays out this same filtered list (recomputed there
+    // from the same inputs) — a heading or the note's last row inside a
+    // currently-collapsed section is not a jump target until it is expanded.
+    val visibleLines = remember(previewLines, toggledSectionIds) {
+        visiblePreviewLines(previewLines, toggledSectionIds)
+    }
+    val tocHeadings = remember(visibleLines) { extractHeadings(visibleLines) }
     // Which line becomes the title is a user setting (#280); it keys every
     // derivation below so flipping it re-titles the open note straight away.
     val currentTitle = remember(editorState.text, noteId, titleSource) {
@@ -613,21 +658,24 @@ fun EditorScreen(
     // the list actually has rows, and clamped against them — the request can name
     // a block that a shorter note no longer has. Restores are instant; a jump the
     // user asked for animates, so it reads as movement rather than a cut.
-    LaunchedEffect(isPreviewMode, previewLines.size, pendingPreviewScroll) {
+    LaunchedEffect(isPreviewMode, visibleLines.size, pendingPreviewScroll) {
         val request = pendingPreviewScroll ?: return@LaunchedEffect
-        if (!isPreviewMode || previewLines.isEmpty()) return@LaunchedEffect
+        if (!isPreviewMode || visibleLines.isEmpty()) return@LaunchedEffect
         withFrameNanos { }
-        val (target, status) = resolveRestoredPreviewIndex(request.index, previewLines.lastIndex)
+        val (target, status) = resolveRestoredPreviewIndex(request.index, visibleLines.lastIndex)
         // Only a restore reports. `BOTTOM` asks for `Int.MAX_VALUE` on purpose
         // and the outline names a row it just read off this same list, so
         // neither clamp means anything went missing — but a note that opens
         // straight into preview restores here rather than through the caret,
-        // and that is the case the caret breadcrumb cannot see (#262).
+        // and that is the case the caret breadcrumb cannot see (#262). A
+        // collapsed `<details>` section also clamps here now: the saved index
+        // pointed at a row that a shorter, collapsed rendering no longer has,
+        // which reads the same as the note itself having gotten shorter.
         if (BuildConfig.DEBUG && request.restore && status != RestoreStatus.OK) {
             Log.d(
                 "EditorScreen",
                 "preview position restore $status for note $noteId: saved block " +
-                    "${request.index} but the note renders ${previewLines.size}"
+                    "${request.index} but the note renders ${visibleLines.size}"
             )
         }
         if (request.animate) {
@@ -956,21 +1004,32 @@ fun EditorScreen(
                         // Same scale as the editor (#346): the preview is the
                         // rendered form of the same text, and growing it grows
                         // the checkbox glyphs and link tap targets too.
-                        fontScale = appSettings.editorFontSize.scale
+                        fontScale = appSettings.editorFontSize.scale,
+                        toggledSectionIds = toggledSectionIds,
+                        onToggleSection = { id ->
+                            toggledSectionIds = if (id in toggledSectionIds) {
+                                toggledSectionIds - id
+                            } else {
+                                toggledSectionIds + id
+                            }
+                        }
                     )
 
                     // The same jump control as the editor (#214). Here the
                     // scroll position is known outright, so the direction is
-                    // the honest one rather than inferred from a caret.
-                    if (isLongEnoughToJump(editorState.text) && previewLines.isNotEmpty()) {
+                    // the honest one rather than inferred from a caret. Uses
+                    // visibleLines, not previewLines: the LazyColumn this
+                    // scrolls is the one MarkdownPreviewList actually laid
+                    // out, which is shorter whenever a section is collapsed.
+                    if (isLongEnoughToJump(editorState.text) && visibleLines.isNotEmpty()) {
                         val toBottom =
-                            previewListState.firstVisibleItemIndex < previewLines.size / 2
+                            previewListState.firstVisibleItemIndex < visibleLines.size / 2
                         JumpToEndButton(
                             jumpsToBottom = toBottom,
                             onClick = {
                                 coroutineScope.launch {
                                     previewListState.animateScrollToItem(
-                                        if (toBottom) previewLines.lastIndex else 0
+                                        if (toBottom) visibleLines.lastIndex else 0
                                     )
                                 }
                             },

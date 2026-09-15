@@ -4,6 +4,7 @@ import android.os.Build
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -54,6 +55,8 @@ import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationExceptio
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.SpanStyle
@@ -71,6 +74,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.markleaf.notes.R
 import com.markleaf.notes.core.markdown.CalloutKind
+import com.markleaf.notes.core.markdown.CommonMarkPreviewAdapter
 import com.markleaf.notes.core.markdown.PreviewInlineSegment
 import com.markleaf.notes.core.markdown.PreviewInlineType
 import com.markleaf.notes.core.markdown.PreviewLine
@@ -141,20 +145,19 @@ fun MarkdownPreviewList(
     onWikilinkClick: (String) -> Unit = {},
     onImageLongPress: (path: String, currentAlt: String) -> Unit = { _, _ -> },
     onToggleTask: ((sourceLine: Int) -> Unit)? = null,
-    fontScale: Float = 1f
+    fontScale: Float = 1f,
+    /**
+     * A `<details>` section's [PreviewLine.collapsibleId] is in this set when
+     * the user has toggled it *away* from its parsed default (#403) — not the
+     * set of currently-collapsed ids. Tracking the delta instead of the
+     * absolute state means a section with no `open` attribute reads as
+     * collapsed the moment it is typed, with nothing needing to seed the set
+     * up front; see [isSectionExpanded].
+     */
+    toggledSectionIds: Set<Int> = emptySet(),
+    onToggleSection: (Int) -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
-    // Footnote ref → def: clicking a superscript `[^N]` scrolls the matching
-    // `[^N]: …` definition row into view. If no matching def exists in the
-    // current preview, the click is a silent no-op (better than crashing or
-    // jumping to a wrong section).
-    val onFootnoteRefClick: (String) -> Unit = onFootnoteRefClick@{ label ->
-        val targetIndex = findFootnoteDefIndex(lines, label)
-        if (targetIndex < 0) return@onFootnoteRefClick
-        scope.launch {
-            listState.animateScrollToItem(targetIndex)
-        }
-    }
     // The scale rides the PreviewLine rather than a CompositionLocal:
     // material3's LocalTypography is internal, and threading it through would
     // also resize the pieces of this file that are NOT body text (callout
@@ -163,6 +166,27 @@ fun MarkdownPreviewList(
     // live there with no public API change.
     val scaledLines = remember(lines, fontScale) {
         if (fontScale == 1f) lines else lines.map { it.copy(fontScale = fontScale) }
+    }
+    // Rows inside a currently-collapsed `<details>` section (#403) are left
+    // out of the LazyColumn entirely rather than rendered-and-hidden, so a
+    // long collapsed section costs nothing while it stays closed. Recomputed
+    // from scratch on every toggle rather than incrementally — cheap even for
+    // a large note, since it is one filter pass over rows already in memory.
+    val visibleLines = remember(scaledLines, toggledSectionIds) {
+        visiblePreviewLines(scaledLines, toggledSectionIds)
+    }
+    // Footnote ref → def: clicking a superscript `[^N]` scrolls the matching
+    // `[^N]: …` definition row into view. If no matching def exists in the
+    // current preview, the click is a silent no-op (better than crashing or
+    // jumping to a wrong section). Looked up in visibleLines, not lines: the
+    // index this scrolls to is a LazyColumn item index, and the list actually
+    // laid out there is the filtered one.
+    val onFootnoteRefClick: (String) -> Unit = onFootnoteRefClick@{ label ->
+        val targetIndex = findFootnoteDefIndex(visibleLines, label)
+        if (targetIndex < 0) return@onFootnoteRefClick
+        scope.launch {
+            listState.animateScrollToItem(targetIndex)
+        }
     }
     // Preview text is selectable (#386). Before this, copying a sentence out of
     // a rendered note meant switching back to the editor and bringing the
@@ -195,7 +219,7 @@ fun MarkdownPreviewList(
                     state = listState,
                     contentPadding = contentPadding
                 ) {
-                    itemsIndexed(scaledLines) { index, line ->
+                    itemsIndexed(visibleLines) { index, line ->
                         PreviewLineRenderer(
                             line = line,
                             // Only a block with something above it needs
@@ -204,7 +228,9 @@ fun MarkdownPreviewList(
                             onWikilinkClick = onWikilinkClick,
                             onImageLongPress = onImageLongPress,
                             onFootnoteRefClick = onFootnoteRefClick,
-                            onToggleTask = onToggleTask
+                            onToggleTask = onToggleTask,
+                            isSectionToggled = { id -> id in toggledSectionIds },
+                            onToggleSection = onToggleSection
                         )
                     }
                 }
@@ -220,7 +246,10 @@ fun PreviewLineRenderer(
     onWikilinkClick: (String) -> Unit = {},
     onImageLongPress: (path: String, currentAlt: String) -> Unit = { _, _ -> },
     onFootnoteRefClick: (String) -> Unit = {},
-    onToggleTask: ((sourceLine: Int) -> Unit)? = null
+    onToggleTask: ((sourceLine: Int) -> Unit)? = null,
+    /** Whether [PreviewLine.collapsibleId] has been toggled away from its parsed default (#403). */
+    isSectionToggled: (Int) -> Boolean = { false },
+    onToggleSection: (Int) -> Unit = {}
 ) {
     val indent = ListIndentPerLevel * min(line.depth, MaxIndentDepth)
     if (indent == 0.dp) {
@@ -231,7 +260,9 @@ fun PreviewLineRenderer(
             onWikilinkClick = onWikilinkClick,
             onImageLongPress = onImageLongPress,
             onFootnoteRefClick = onFootnoteRefClick,
-            onToggleTask = onToggleTask
+            onToggleTask = onToggleTask,
+            isSectionToggled = isSectionToggled,
+            onToggleSection = onToggleSection
         )
     } else {
         Column(
@@ -245,7 +276,9 @@ fun PreviewLineRenderer(
                 onWikilinkClick = onWikilinkClick,
                 onImageLongPress = onImageLongPress,
                 onFootnoteRefClick = onFootnoteRefClick,
-                onToggleTask = onToggleTask
+                onToggleTask = onToggleTask,
+                isSectionToggled = isSectionToggled,
+                onToggleSection = onToggleSection
             )
         }
     }
@@ -258,7 +291,9 @@ private fun PreviewLineContent(
     onWikilinkClick: (String) -> Unit,
     onImageLongPress: (path: String, currentAlt: String) -> Unit,
     onFootnoteRefClick: (String) -> Unit,
-    onToggleTask: ((sourceLine: Int) -> Unit)?
+    onToggleTask: ((sourceLine: Int) -> Unit)?,
+    isSectionToggled: (Int) -> Boolean = { false },
+    onToggleSection: (Int) -> Unit = {}
 ) {
     // Only a row that knows its own source line can be toggled; see
     // PreviewLine.sourceLine for why we refuse to guess (#219).
@@ -384,6 +419,52 @@ private fun PreviewLineContent(
         PreviewLineType.HORIZONTAL_RULE -> HorizontalDivider(
             modifier = Modifier.padding(vertical = 8.dp),
             color = MaterialTheme.colorScheme.outlineVariant
+        )
+        PreviewLineType.COLLAPSIBLE_SUMMARY -> {
+            val id = line.collapsibleId
+            val defaultOpen = line.extra == CommonMarkPreviewAdapter.OPEN_MARKER
+            val expanded = if (id != null && isSectionToggled(id)) !defaultOpen else defaultOpen
+            CollapsibleSummaryRow(
+                text = line.text.ifEmpty { stringResource(R.string.collapsible_section_default_summary) },
+                expanded = expanded,
+                onClick = { id?.let(onToggleSection) }
+            )
+        }
+        // Internal bookkeeping only -- stripped by CommonMarkPreviewAdapter
+        // .applyCollapsibleRanges before a PreviewLine list ever reaches this
+        // renderer. See PreviewLineType.COLLAPSIBLE_END's own doc comment.
+        PreviewLineType.COLLAPSIBLE_END -> Unit
+    }
+}
+
+@Composable
+private fun CollapsibleSummaryRow(text: String, expanded: Boolean, onClick: () -> Unit) {
+    // The ▾/▸ glyph is a visual-only cue; without this a screen reader
+    // announces "double tap to activate" with no way to tell whether
+    // activating it will open or close the section (a Codex review finding).
+    val stateLabel = stringResource(if (expanded) R.string.expanded else R.string.collapsed)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(6.dp))
+            .clickable(onClick = onClick)
+            .semantics { stateDescription = stateLabel }
+            .padding(vertical = 8.dp, horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // A plain glyph rather than a Material icon, matching how this file
+        // already marks a checkbox (☑/☐) and a callout (ℹ/💡/…) instead of
+        // reaching for the icon library.
+        Text(
+            text = if (expanded) "▾" else "▸",
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(end = 8.dp)
+        )
+        Text(
+            text = text,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
@@ -763,6 +844,42 @@ internal fun findFootnoteDefIndex(lines: List<PreviewLine>, label: String): Int 
     lines.indexOfFirst { line ->
         line.type == PreviewLineType.FOOTNOTE_DEF && line.extra == label
     }
+
+/**
+ * Whether [id] (a [PreviewLine.collapsibleId]) is currently expanded (#403):
+ * its parsed default (`<details open>` or not, carried on the summary row's
+ * own [PreviewLine.extra]) flipped once if the user has toggled it. Tracking
+ * the toggle as a delta rather than storing the absolute open/closed set is
+ * what lets a `<details>` typed into the note default to collapsed with
+ * nothing having to seed the set first.
+ */
+internal fun isSectionExpanded(
+    defaultOpenById: Map<Int, Boolean>,
+    toggledSectionIds: Set<Int>,
+    id: Int
+): Boolean {
+    val defaultOpen = defaultOpenById[id] ?: true
+    return if (id in toggledSectionIds) !defaultOpen else defaultOpen
+}
+
+/**
+ * [lines] filtered down to what is actually visible with [toggledSectionIds]
+ * applied — every row still shows unless one of its enclosing `<details>`
+ * sections ([PreviewLine.collapsibleIds]) is currently collapsed. Used both
+ * for what [MarkdownPreviewList] actually lays out in its `LazyColumn` and
+ * for [extractHeadings]/[findFootnoteDefIndex] callers outside this file
+ * (`EditorScreen`'s outline) to compute indices into the *same* list that is
+ * actually on screen, since a heading inside a collapsed section is not a
+ * jump target until it is expanded.
+ */
+internal fun visiblePreviewLines(lines: List<PreviewLine>, toggledSectionIds: Set<Int>): List<PreviewLine> {
+    val summaries = lines.filter { it.type == PreviewLineType.COLLAPSIBLE_SUMMARY }
+    if (summaries.isEmpty()) return lines
+    val defaultOpenById = summaries.associate { (it.collapsibleId ?: -1) to (it.extra == CommonMarkPreviewAdapter.OPEN_MARKER) }
+    return lines.filter { line ->
+        line.collapsibleIds.all { id -> isSectionExpanded(defaultOpenById, toggledSectionIds, id) }
+    }
+}
 
 /**
  * A heading entry for the table of contents: its [index] into the rendered

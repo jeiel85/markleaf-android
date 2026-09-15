@@ -184,6 +184,8 @@ class UntranslatedStringTest {
             "de" to setOf(
                 "application_id_format",
                 "checkbox",
+                // "Details" (plural of "Detail") is the German word too.
+                "collapsible_section_default_summary",
                 "font_sans",
                 "font_serif",
                 "formatting_inline",

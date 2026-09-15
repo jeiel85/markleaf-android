@@ -92,7 +92,11 @@ class EditorMovingBlankNoteToTrashStaysRecoverableTest {
         // that opened it; the menu has already closed by this point, so only
         // the dialog's own button matches.
         composeRule.onNodeWithText(context.getString(R.string.move_to_trash)).performClick()
-        composeRule.waitForIdle()
+        // Not just waitForIdle() -- see EditorDiscardsBlankNoteTest for why
+        // this polls for the actual outcome (moveToTrash's DB write) instead.
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            runBlocking { repo.getNote(noteId)?.trashed } == true
+        }
 
         val stored = runBlocking { repo.getNote(noteId) }
         assertTrue("the note must still exist, just trashed", stored != null)

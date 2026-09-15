@@ -91,7 +91,16 @@ class EditorDiscardsBlankNoteTest {
         composeRule.waitForIdle()
 
         showEditor = false
-        composeRule.waitForIdle()
+        // Not just waitForIdle(): the discard cleanup's DB read/delete runs
+        // through Room's own executor, which is not reliably drained by
+        // Compose's idle detection the way work on the test's main dispatcher
+        // is (reproduced locally: this assertion flaked intermittently on a
+        // bare waitForIdle(), even with no nested launches). Polling for the
+        // actual outcome is the robust wait for an async effect that crosses
+        // into a dispatcher Compose does not track.
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            runBlocking { repo.getNote(noteId) } == null
+        }
 
         assertNull(
             "A note nobody ever wrote into should not survive leaving the editor",

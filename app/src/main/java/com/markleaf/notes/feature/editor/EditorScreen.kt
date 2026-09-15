@@ -102,7 +102,6 @@ import com.markleaf.notes.widget.WidgetRefresh
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -266,18 +265,25 @@ fun EditorScreen(
                             current.trashed || current.archived || current.locked || current.pinned
                         )
                         if (current != null && !hasDeliberateDisposition) {
-                            // Independent I/O -- the DB row, the attachment
-                            // files, and the sync-folder mirror file don't
-                            // depend on each other's results, so they run
-                            // concurrently rather than one after another
-                            // (matching TrashScreen's own delete-forever flow).
-                            coroutineScope {
-                                launch { repo.deleteForever(id) }
-                                launch(Dispatchers.IO) { AttachmentManager.deleteAllForNote(context, id) }
-                                appSettings.syncFolderUriOrNull()?.let { uri ->
-                                    launch(Dispatchers.IO) {
-                                        NoteFolderMirror.deleteNote(context, uri, id, appSettings.mirrorMetadata())
-                                    }
+                            // Sequential, deliberately: an earlier version ran
+                            // these three concurrently via a nested
+                            // `coroutineScope { launch {...} }` to match
+                            // TrashScreen's own delete-forever flow, and that
+                            // made EditorDiscardsBlankNoteTest /
+                            // EditorDiscardsClearedNoteTest genuinely flaky
+                            // (reproduced locally: 2 of 5 runs failed,
+                            // alternating which one) -- composeRule.waitForIdle()
+                            // does not reliably wait out a child launch nested
+                            // inside another launch the way it does hostScope's
+                            // own direct suspension points. Correctness over a
+                            // minor latency win.
+                            repo.deleteForever(id)
+                            withContext(Dispatchers.IO) {
+                                AttachmentManager.deleteAllForNote(context, id)
+                            }
+                            appSettings.syncFolderUriOrNull()?.let { uri ->
+                                withContext(Dispatchers.IO) {
+                                    NoteFolderMirror.deleteNote(context, uri, id, appSettings.mirrorMetadata())
                                 }
                             }
                             WidgetRefresh.notesChanged(context)

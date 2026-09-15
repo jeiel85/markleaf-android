@@ -83,7 +83,11 @@ class EditorDiscardsClearedNoteTest {
         composeRule.waitForIdle()
 
         showEditor = false
-        composeRule.waitForIdle()
+        // Not just waitForIdle() -- see EditorDiscardsBlankNoteTest for why
+        // this polls for the actual outcome instead.
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            runBlocking { repo.getNote(noteId) } == null
+        }
 
         assertNull(
             "A note cleared back to nothing should not survive leaving the editor either",

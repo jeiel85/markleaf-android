@@ -228,6 +228,11 @@ fun EditorScreen(
         )
     }
     var isLoaded by remember(noteId) { mutableStateOf(noteId == null) }
+    // Set right before the delete-confirm dialog sends this note to Trash
+    // (below), so the DisposableEffect this guards doesn't turn that
+    // recoverable move into deleteForever just because the note is blank —
+    // moveToTrash already ran, and this is not that action's cleanup path.
+    var wasSentToTrash by remember(noteId) { mutableStateOf(false) }
     // #405: a note that is left with nothing in it -- never typed into, or
     // typed into and then cleared back out -- has nothing worth keeping, so
     // it is removed instead of sitting in the list as a blank row. Gated on
@@ -239,7 +244,7 @@ fun EditorScreen(
     DisposableEffect(noteId) {
         onDispose {
             val id = noteId
-            if (id != null && isLoaded && editorState.text.isBlank()) {
+            if (id != null && isLoaded && !wasSentToTrash && editorState.text.isBlank()) {
                 hostScope.launch {
                     repo.deleteForever(id)
                     withContext(Dispatchers.IO) {
@@ -1294,6 +1299,7 @@ fun EditorScreen(
         DeleteConfirmDialog(
             onConfirm = {
                 showDeleteConfirm = false
+                wasSentToTrash = true
                 coroutineScope.launch {
                     repo.moveToTrash(noteId)
                     onBack()

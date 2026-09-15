@@ -281,18 +281,28 @@ fun EditorScreen(
     // silently applying the user's earlier tap to the wrong section (a Codex
     // review finding). There is no id here stable across an edit that adds or
     // removes a section, so this detects the next best thing — the ordered
-    // list of summary texts actually changing — and forgets stale toggles
-    // rather than risk misattributing one. Compared only while preview is
-    // actually prepared: previewLines itself goes empty while editing
-    // (shouldPreparePreview is false then), and that transient emptiness must
-    // not read as "every section just disappeared".
-    val currentSummaryTexts = remember(previewLines) {
-        previewLines.filter { it.type == PreviewLineType.COLLAPSIBLE_SUMMARY }.map { it.text }
+    // list of (summary text, parsed-open-default) pairs actually changing —
+    // and forgets stale toggles rather than risk misattributing one. The
+    // default is part of the signature, not just the text, because hand-
+    // editing a `<details>` tag's `open` attribute without touching its
+    // `<summary>` is exactly the kind of edit that would otherwise slip past
+    // a text-only comparison and flip the wrong section (a second self-review
+    // finding). Compared only while preview is actually prepared:
+    // previewLines itself goes empty while editing (shouldPreparePreview is
+    // false then), and that transient emptiness must not read as "every
+    // section just disappeared". Two sections sharing both an identical
+    // title and default state is the one case this still cannot tell apart
+    // from a no-op edit — accepted as a narrow, self-correcting residue (a
+    // stray toggle there costs one extra tap, not data).
+    val currentSummarySignature = remember(previewLines) {
+        previewLines
+            .filter { it.type == PreviewLineType.COLLAPSIBLE_SUMMARY }
+            .map { it.text to it.extra }
     }
-    var lastSeenSummaryTexts by remember(noteId) { mutableStateOf<List<String>?>(null) }
-    if (shouldPreparePreview && currentSummaryTexts != lastSeenSummaryTexts) {
-        if (lastSeenSummaryTexts != null) toggledSectionIds = emptySet()
-        lastSeenSummaryTexts = currentSummaryTexts
+    var lastSeenSummarySignature by remember(noteId) { mutableStateOf<List<Pair<String, String?>>?>(null) }
+    if (shouldPreparePreview && currentSummarySignature != lastSeenSummarySignature) {
+        if (lastSeenSummarySignature != null) toggledSectionIds = emptySet()
+        lastSeenSummarySignature = currentSummarySignature
     }
     // What is actually on screen with that toggle state applied. The outline
     // and the jump-to-end button both compute a LazyColumn item index, and

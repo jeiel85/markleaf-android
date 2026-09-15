@@ -158,6 +158,26 @@ object ExportPdf {
                 border-radius: 0 6px 6px 0;
                 page-break-inside: avoid;
               }
+              details {
+                display: block;
+                margin: 1.2em 0;
+              }
+              details > summary {
+                font-weight: 600;
+                color: #1a2521;
+                margin-bottom: 0.5em;
+                list-style: none;
+              }
+              details > summary::-webkit-details-marker {
+                display: none;
+              }
+              /* A PDF has no way to tap anything open, so a collapsible
+                 section's content prints regardless of whether the note
+                 shows it collapsed in the app -- the reader would otherwise
+                 lose real, saved content with no indication it exists. */
+              details > :not(summary) {
+                display: block !important;
+              }
               ul, ol {
                 padding-left: 1.8em;
                 margin: 0.8em 0;

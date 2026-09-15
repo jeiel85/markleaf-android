@@ -53,4 +53,28 @@ class ExportPdfTest {
         // The visible body has no injected heading.
         assertFalse(bodyOf(html).contains("<h1>"))
     }
+
+    /**
+     * #403 hardening: a self-review agent found that a collapsed `&lt;details&gt;`
+     * section's content is invisible in the exported PDF with no indication
+     * it exists at all -- there is no tap in a static document to reveal it.
+     * This pins both halves of the fix: the raw tags still pass through
+     * commonmark's renderer unescaped (so there is something for the CSS to
+     * apply to), and the stylesheet forces every section's content to print
+     * regardless of the `open` attribute.
+     */
+    @Test
+    fun `collapsed details content is forced visible for print`() {
+        val markdown = "<details>\n<summary>Appendix</summary>\n\nImportant data\n</details>"
+        val html = ExportPdf.renderDocument(note(markdown), "Untitled")
+        val body = bodyOf(html)
+
+        assertTrue("the <details> tag must pass through, not be stripped", body.contains("<details>"))
+        assertTrue("the <summary> tag must pass through", body.contains("<summary>Appendix</summary>"))
+        assertTrue("the body content must pass through", body.contains("Important data"))
+        assertTrue(
+            "the stylesheet must force non-summary details content visible",
+            html.contains("details > :not(summary)") && html.contains("display: block !important")
+        )
+    }
 }

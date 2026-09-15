@@ -888,7 +888,14 @@ internal object CommonMarkPreviewAdapter {
     // span a hard line break inside the same HtmlBlock literal.
     private val DETAILS_OPEN_TAG_REGEX = Regex("""<details\b([^>]*)>""", RegexOption.IGNORE_CASE)
     private val DETAILS_CLOSE_TAG_REGEX = Regex("""</details\s*>""", RegexOption.IGNORE_CASE)
-    private val DETAILS_OPEN_ATTRIBUTE_REGEX = Regex("""\bopen\b""", RegexOption.IGNORE_CASE)
+    // \bopen\b alone also matched "open" inside an unrelated attribute's own
+    // name or value (class="is-open", data-state="open-pending") since a
+    // hyphen or quote is already a non-word character, satisfying \b without
+    // this being the boolean `open` attribute at all (a self-review finding).
+    // Requiring whitespace-or-start before it and whitespace/=/end after
+    // confines the match to `open`, `open=`, or `open="..."` as a standalone
+    // token.
+    private val DETAILS_OPEN_ATTRIBUTE_REGEX = Regex("""(?:^|\s)open(?=\s|=|$)""", RegexOption.IGNORE_CASE)
     private val SUMMARY_TAG_REGEX = Regex(
         """<summary\b[^>]*>(.*?)</summary\s*>""",
         setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)

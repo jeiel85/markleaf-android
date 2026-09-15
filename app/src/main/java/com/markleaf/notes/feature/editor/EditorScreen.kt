@@ -99,8 +99,10 @@ import com.markleaf.notes.util.HapticFeedback
 import com.markleaf.notes.util.ExportPdf
 import com.markleaf.notes.util.ShareNoteUtil
 import com.markleaf.notes.widget.WidgetRefresh
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -228,11 +230,6 @@ fun EditorScreen(
         )
     }
     var isLoaded by remember(noteId) { mutableStateOf(noteId == null) }
-    // Set right before the delete-confirm dialog sends this note to Trash
-    // (below), so the DisposableEffect this guards doesn't turn that
-    // recoverable move into deleteForever just because the note is blank —
-    // moveToTrash already ran, and this is not that action's cleanup path.
-    var wasSentToTrash by remember(noteId) { mutableStateOf(false) }
     // #405: a note that is left with nothing in it -- never typed into, or
     // typed into and then cleared back out -- has nothing worth keeping, so
     // it is removed instead of sitting in the list as a blank row. Gated on
@@ -241,21 +238,57 @@ fun EditorScreen(
     // when noteId itself changes, which for this screen means this note's
     // visit is actually ending -- the back icon, system back, and switching
     // to a different note all remove this composable from composition.
+    //
+    // The row is re-read fresh rather than trusted to a flag this screen set
+    // earlier: a first version gated this on a `wasSentToTrash` boolean set
+    // only by this file's own delete-confirm dialog, which a review caught
+    // missing every OTHER way a note's disposition can change out from under
+    // an open editor -- archiving, locking, or trashing the same note from
+    // the tablet's list pane, which sits open beside this one in the
+    // two-pane layout and reaches NotesViewModel directly, never touching
+    // this screen at all. Checking the note's own persisted flags instead
+    // covers every such surface by construction, present and future, rather
+    // than one flag per action that happens to also navigate away.
     DisposableEffect(noteId) {
         onDispose {
             val id = noteId
-            if (id != null && isLoaded && !wasSentToTrash && editorState.text.isBlank()) {
+            if (id != null && isLoaded && editorState.text.isBlank()) {
                 hostScope.launch {
-                    repo.deleteForever(id)
-                    withContext(Dispatchers.IO) {
-                        AttachmentManager.deleteAllForNote(context, id)
-                    }
-                    appSettings.syncFolderUriOrNull()?.let { uri ->
-                        withContext(Dispatchers.IO) {
-                            NoteFolderMirror.deleteNote(context, uri, id, appSettings.mirrorMetadata())
+                    // Best-effort cleanup: a failure here (a revoked SAF grant
+                    // on the sync folder, a disk error) must not crash the
+                    // app over a note the user was not even trying to save.
+                    // CancellationException is rethrown rather than swallowed
+                    // -- that one is how structured concurrency itself works,
+                    // not a failure to log.
+                    try {
+                        val current = repo.getNote(id)
+                        val hasDeliberateDisposition = current != null && (
+                            current.trashed || current.archived || current.locked || current.pinned
+                        )
+                        if (current != null && !hasDeliberateDisposition) {
+                            // Independent I/O -- the DB row, the attachment
+                            // files, and the sync-folder mirror file don't
+                            // depend on each other's results, so they run
+                            // concurrently rather than one after another
+                            // (matching TrashScreen's own delete-forever flow).
+                            coroutineScope {
+                                launch { repo.deleteForever(id) }
+                                launch(Dispatchers.IO) { AttachmentManager.deleteAllForNote(context, id) }
+                                appSettings.syncFolderUriOrNull()?.let { uri ->
+                                    launch(Dispatchers.IO) {
+                                        NoteFolderMirror.deleteNote(context, uri, id, appSettings.mirrorMetadata())
+                                    }
+                                }
+                            }
+                            WidgetRefresh.notesChanged(context)
+                        }
+                    } catch (cancellation: CancellationException) {
+                        throw cancellation
+                    } catch (error: Exception) {
+                        if (BuildConfig.DEBUG) {
+                            Log.d("EditorScreen", "empty-note discard failed for $id", error)
                         }
                     }
-                    WidgetRefresh.notesChanged(context)
                 }
             }
         }
@@ -1299,7 +1332,6 @@ fun EditorScreen(
         DeleteConfirmDialog(
             onConfirm = {
                 showDeleteConfirm = false
-                wasSentToTrash = true
                 coroutineScope.launch {
                     repo.moveToTrash(noteId)
                     onBack()

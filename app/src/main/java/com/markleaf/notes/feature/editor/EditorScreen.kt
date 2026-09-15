@@ -37,6 +37,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -98,6 +99,7 @@ import com.markleaf.notes.util.HapticFeedback
 import com.markleaf.notes.util.ExportPdf
 import com.markleaf.notes.util.ShareNoteUtil
 import com.markleaf.notes.widget.WidgetRefresh
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -126,7 +128,15 @@ fun EditorScreen(
     // state. Composing this screen with a setting turned off is what the golden
     // for "Show formatting button" needs (#331) — the row is *not mounted* when
     // it is off, so nothing below screen level can show that it left no gap.
-    settingsRepository: AppSettingsRepository = rememberAppSettingsRepository()
+    settingsRepository: AppSettingsRepository = rememberAppSettingsRepository(),
+    // Where the empty-note cleanup below launches its delete from. It has to be
+    // a scope that outlives *this* composable, not the `rememberCoroutineScope()`
+    // declared further down — that one is cancelled as part of the same teardown
+    // that fires the DisposableEffect's onDispose, which races the delete against
+    // its own cancellation. The caller passes down a scope tied to an ancestor
+    // (the NavHost); the default here only covers tests and previews that never
+    // exercise disposal.
+    hostScope: CoroutineScope = rememberCoroutineScope()
 ) {
     val context = LocalContext.current
     val db = remember { AppDatabase.getInstance(context) }
@@ -218,6 +228,33 @@ fun EditorScreen(
         )
     }
     var isLoaded by remember(noteId) { mutableStateOf(noteId == null) }
+    // #405: a note that is left with nothing in it -- never typed into, or
+    // typed into and then cleared back out -- has nothing worth keeping, so
+    // it is removed instead of sitting in the list as a blank row. Gated on
+    // isLoaded so a note whose real content has not finished loading yet is
+    // never mistaken for an empty one. DisposableEffect(noteId) reruns only
+    // when noteId itself changes, which for this screen means this note's
+    // visit is actually ending -- the back icon, system back, and switching
+    // to a different note all remove this composable from composition.
+    DisposableEffect(noteId) {
+        onDispose {
+            val id = noteId
+            if (id != null && isLoaded && editorState.text.isBlank()) {
+                hostScope.launch {
+                    repo.deleteForever(id)
+                    withContext(Dispatchers.IO) {
+                        AttachmentManager.deleteAllForNote(context, id)
+                    }
+                    appSettings.syncFolderUriOrNull()?.let { uri ->
+                        withContext(Dispatchers.IO) {
+                            NoteFolderMirror.deleteNote(context, uri, id, appSettings.mirrorMetadata())
+                        }
+                    }
+                    WidgetRefresh.notesChanged(context)
+                }
+            }
+        }
+    }
     var shouldRequestEditorFocus by remember(noteId) { mutableStateOf(noteId == null) }
     // Every edit path in this screen writes to [editorState], so the history
     // watches that one value rather than being pushed to from each call site —

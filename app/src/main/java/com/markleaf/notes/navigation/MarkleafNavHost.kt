@@ -120,6 +120,10 @@ fun MarkleafNavHost(
     // resolveOpenNoteRoute. AppDatabase.getInstance is a singleton, so this
     // shares the instance MainActivity already built the factory from.
     val noteRepository = remember { LocalNoteRepository(AppDatabase.getInstance(context)) }
+    // Outlives every individual destination, unlike a scope obtained inside a
+    // `composable { }` route or inside EditorScreen itself -- see the
+    // `hostScope` parameter on EditorScreen (#405) for why that matters.
+    val hostScope = rememberCoroutineScope()
 
     // One-shot intent entry points — widget "new note", text or a file shared
     // into the app (#139), a file opened for reading (#326), and a widget tap on
@@ -372,7 +376,8 @@ fun MarkleafNavHost(
                                         EditorScreen(
                                             noteId = paneNoteId,
                                             onBack = { selectedNoteId = null },
-                                            onNavigateToNote = { id -> selectedNoteId = id }
+                                            onNavigateToNote = { id -> selectedNoteId = id },
+                                            hostScope = hostScope
                                         )
                                     }
                                 }
@@ -428,7 +433,8 @@ fun MarkleafNavHost(
                 EditorScreen(
                     noteId = noteId,
                     onBack = { navController.popBackStack() },
-                    onNavigateToNote = { id -> navController.navigate(NavRoutes.editorRoute(id)) }
+                    onNavigateToNote = { id -> navController.navigate(NavRoutes.editorRoute(id)) },
+                    hostScope = hostScope
                 )
             }
             // Target half of the container transform: the editor surface morphs

@@ -25,6 +25,7 @@ import org.commonmark.node.Emphasis
 import org.commonmark.node.FencedCodeBlock
 import org.commonmark.node.HardLineBreak
 import org.commonmark.node.Heading
+import org.commonmark.node.HtmlBlock
 import org.commonmark.node.Image
 import org.commonmark.node.IndentedCodeBlock
 import org.commonmark.node.Link
@@ -165,7 +166,7 @@ internal object CommonMarkPreviewAdapter {
             renderBlock(node, out, depth = 0)
             node = node.next
         }
-        return out
+        return applyCollapsibleRanges(out)
     }
 
     /**
@@ -214,6 +215,7 @@ internal object CommonMarkPreviewAdapter {
             )
             is TableBlock -> out += renderTable(node, depth)
             is FootnoteDefinition -> out += renderFootnoteDefinition(node, depth)
+            is HtmlBlock -> renderHtmlBlock(node, out, depth)
             else -> {
                 // Unknown node: render as body so we don't drop content.
                 val text = collectText(node)
@@ -528,6 +530,137 @@ internal object CommonMarkPreviewAdapter {
     }
 
     /**
+     * GitHub-style collapsible sections (#403): `<details>` / `<summary>` is
+     * raw HTML, not a CommonMark extension — the spec already recognises
+     * `details`/`summary` as block-level tags, so it parses today, just into
+     * an [HtmlBlock] this renderer used to drop silently (an [HtmlBlock] has
+     * no child nodes to fall through to [collectText]).
+     *
+     * A `<details>` opening tag and its matching `</details>` arrive as two
+     * *separate* sibling [HtmlBlock]s whenever a blank line sits between them
+     * — which is also GitHub's own documented way to get real Markdown
+     * rendered inside the section — so this only ever emits one row per node
+     * and leans on [applyCollapsibleRanges] to find the close and bucket
+     * whatever rendered in between. Without a blank line anywhere, the whole
+     * `<details>…</details>` run is one [HtmlBlock] instead, which this
+     * resolves inline: the body was never split into its own block nodes, so
+     * it gets inline formatting only, not full block structure.
+     */
+    private fun renderHtmlBlock(node: HtmlBlock, out: MutableList<PreviewLine>, depth: Int) {
+        val literal = node.literal
+        val openMatch = DETAILS_OPEN_TAG_REGEX.find(literal)
+        if (openMatch == null) {
+            val closeMatch = DETAILS_CLOSE_TAG_REGEX.find(literal)
+            if (closeMatch != null) {
+                out += PreviewLine(text = "", type = PreviewLineType.COLLAPSIBLE_END, depth = depth)
+                // A stray `</details>` on its own can still share this
+                // HtmlBlock with real content: without a blank line before it,
+                // commonmark folds whatever follows into the same literal
+                // instead of starting a new paragraph (the mirror image of the
+                // self-contained case below, just for the closing side).
+                val trailing = HTML_TAG_REGEX.replace(literal.substring(closeMatch.range.last + 1), "").trim()
+                if (trailing.isNotEmpty()) {
+                    out += PreviewLine(
+                        text = trailing,
+                        type = PreviewLineType.BODY,
+                        segments = collectInlineSegmentsFromPlainText(trailing),
+                        depth = depth
+                    )
+                }
+            }
+            // Any other raw HTML block is silently dropped, same as before
+            // #403 — only <details>/<summary> gets special handling.
+            return
+        }
+        val isOpenByDefault = DETAILS_OPEN_ATTRIBUTE_REGEX.containsMatchIn(openMatch.groupValues[1])
+        val summaryMatch = SUMMARY_TAG_REGEX.find(literal)
+        // Blank rather than a hard-coded "Details": the parser has no
+        // Android Context to localize with, so an absent <summary> is left
+        // for MarkdownPreviewList to fill in via stringResource, the same
+        // split CalloutBox already uses for callout labels.
+        val summaryText = summaryMatch?.groupValues?.get(1)
+            ?.let { HTML_TAG_REGEX.replace(it, "") }
+            ?.trim()
+            .orEmpty()
+        out += PreviewLine(
+            text = summaryText,
+            type = PreviewLineType.COLLAPSIBLE_SUMMARY,
+            extra = if (isOpenByDefault) OPEN_MARKER else null,
+            depth = depth,
+            sourceLine = sourceLineOf(node)
+        )
+        val closeMatch = DETAILS_CLOSE_TAG_REGEX.find(literal, openMatch.range.last + 1) ?: return
+        val bodyStart = summaryMatch?.range?.last?.plus(1) ?: (openMatch.range.last + 1)
+        val innerText = HTML_TAG_REGEX.replace(literal.substring(bodyStart, closeMatch.range.first), "").trim()
+        if (innerText.isNotEmpty()) {
+            out += PreviewLine(
+                text = innerText,
+                type = PreviewLineType.BODY,
+                segments = collectInlineSegmentsFromPlainText(innerText),
+                depth = depth + 1
+            )
+        }
+        out += PreviewLine(text = "", type = PreviewLineType.COLLAPSIBLE_END, depth = depth)
+    }
+
+    /**
+     * Pairs each [PreviewLineType.COLLAPSIBLE_SUMMARY] with the
+     * [PreviewLineType.COLLAPSIBLE_END] that follows it — a stack rather than
+     * simple adjacency so a `<details>` written inside another one nests
+     * instead of closing the wrong section — and stamps every row in between
+     * with the enclosing section's freshly assigned [PreviewLine.collapsibleId].
+     * `COLLAPSIBLE_END` rows exist only to drive this pass and never survive
+     * it. A `<details>` with no closing tag anywhere in the note runs to the
+     * end of the document, which is what an empty stack at the end already
+     * produces without any extra handling.
+     */
+    private fun applyCollapsibleRanges(lines: List<PreviewLine>): List<PreviewLine> {
+        // COLLAPSIBLE_END alone (no summary) happens for a stray `</details>`
+        // with no matching open anywhere in the note — still needs stripping,
+        // which is what makes this an "either" rather than a summary-only check.
+        if (lines.none {
+                it.type == PreviewLineType.COLLAPSIBLE_SUMMARY || it.type == PreviewLineType.COLLAPSIBLE_END
+            }
+        ) {
+            return lines
+        }
+        var nextId = 0
+        val openIds = ArrayDeque<Int>()
+        val result = mutableListOf<PreviewLine>()
+        for (line in lines) {
+            if (line.type == PreviewLineType.COLLAPSIBLE_END) {
+                if (openIds.isNotEmpty()) openIds.removeLast()
+                continue
+            }
+            val tagged = if (openIds.isEmpty()) {
+                line
+            } else {
+                line.copy(collapsibleIds = openIds.toList(), depth = line.depth + openIds.size)
+            }
+            if (line.type == PreviewLineType.COLLAPSIBLE_SUMMARY) {
+                val id = nextId++
+                result += tagged.copy(collapsibleId = id)
+                openIds.addLast(id)
+            } else {
+                result += tagged
+            }
+        }
+        return result
+    }
+
+    /**
+     * Inline-only segments for text that was never parsed as its own Markdown
+     * block — the self-contained `<details>` body in [renderHtmlBlock]. Reuses
+     * [SimpleMarkdownPreview]'s regex-based inline parser (the same one
+     * [com.markleaf.notes.core.markdown.preview.MarkdownPreviewList]'s
+     * `CalloutBox` leans on for the same reason) rather than commonmark's,
+     * because there is no block node here to walk inline children of — just a
+     * substring pulled out of a raw HTML literal.
+     */
+    private fun collectInlineSegmentsFromPlainText(text: String): List<PreviewInlineSegment> =
+        SimpleMarkdownPreview.parseInlineSegments(text)
+
+    /**
      * The 0-based source line a block started on, or null when spans are absent
      * (a hand-built node in a test, say). Never guessed — a wrong line here
      * would toggle somebody else's checkbox.
@@ -694,4 +827,19 @@ internal object CommonMarkPreviewAdapter {
     private enum class TaskState { NONE, TODO, DONE }
 
     private val CALLOUT_HEAD_PREFIX_REGEX = Regex("""^\[!([A-Za-z]+)]""")
+
+    // #403 collapsible sections. IGNORE_CASE because HTML tag names are
+    // case-insensitive; DOT_MATCHES_ALL on the summary body because it can
+    // span a hard line break inside the same HtmlBlock literal.
+    private val DETAILS_OPEN_TAG_REGEX = Regex("""<details\b([^>]*)>""", RegexOption.IGNORE_CASE)
+    private val DETAILS_CLOSE_TAG_REGEX = Regex("""</details\s*>""", RegexOption.IGNORE_CASE)
+    private val DETAILS_OPEN_ATTRIBUTE_REGEX = Regex("""\bopen\b""", RegexOption.IGNORE_CASE)
+    private val SUMMARY_TAG_REGEX = Regex(
+        """<summary\b[^>]*>(.*?)</summary\s*>""",
+        setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)
+    )
+    private val HTML_TAG_REGEX = Regex("""<[^>]+>""")
+
+    /** Sentinel [PreviewLine.extra] marking a `<details open>` section (#403). */
+    internal const val OPEN_MARKER = "open"
 }

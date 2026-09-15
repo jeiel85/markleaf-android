@@ -125,6 +125,7 @@
     <string name="callout_important">重要</string>
     <string name="callout_warning">警告</string>
     <string name="callout_caution">注意</string>
+    <string name="collapsible_section_default_summary">詳細</string>
 
     <string name="pin">ピン留め</string>
     <string name="unpin">ピン留め解除</string>

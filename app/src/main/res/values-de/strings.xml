@@ -126,6 +126,7 @@
     <string name="callout_important">Wichtig</string>
     <string name="callout_warning">Warnung</string>
     <string name="callout_caution">Achtung</string>
+    <string name="collapsible_section_default_summary">Details</string>
 
     <string name="pin">Anheften</string>
     <string name="unpin">Anheften aufheben</string>

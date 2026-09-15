@@ -135,6 +135,7 @@
     <string name="callout_important">Važno</string>
     <string name="callout_warning">Upozorenje</string>
     <string name="callout_caution">Oprez</string>
+    <string name="collapsible_section_default_summary">Detalji</string>
 
     <string name="pin">Prikvači</string>
     <string name="unpin">Otkvači</string>

@@ -125,6 +125,7 @@
     <string name="callout_important">중요</string>
     <string name="callout_warning">주의</string>
     <string name="callout_caution">경고</string>
+    <string name="collapsible_section_default_summary">세부 정보</string>
 
     <string name="pin">상단 고정</string>
     <string name="unpin">고정 해제</string>

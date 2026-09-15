@@ -126,6 +126,7 @@
     <string name="callout_important">Importante</string>
     <string name="callout_warning">Advertencia</string>
     <string name="callout_caution">Precaución</string>
+    <string name="collapsible_section_default_summary">Detalles</string>
 
     <string name="pin">Fijar</string>
     <string name="unpin">Quitar fijado</string>

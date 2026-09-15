@@ -179,20 +179,35 @@ internal fun FileViewerContent(
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(horizontal = 32.dp)
                 )
-                is FileViewerState.Loaded -> MarkdownPreviewList(
-                    lines = state.lines,
-                    // Bounded like the tablet editor: a rendered document read
-                    // edge to edge on a wide screen is the case the line-width
-                    // setting exists for.
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .widthIn(max = contentMaxWidth),
-                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp)
-                    // No onToggleTask and no wikilink handling: a checkbox here
-                    // would have nowhere to write, and a wikilink would either
-                    // create a note or lie about resolving. The file is read
-                    // only until the reader chooses to keep it.
-                )
+                is FileViewerState.Loaded -> {
+                    // Unlike the checkbox/wikilink handlers this screen leaves
+                    // out, expanding a `<details>` section (#403) writes
+                    // nothing back to the file — it is exactly the kind of
+                    // view-only state a read-only viewer can still offer.
+                    var toggledSectionIds by remember(state) { mutableStateOf<Set<Int>>(emptySet()) }
+                    MarkdownPreviewList(
+                        lines = state.lines,
+                        // Bounded like the tablet editor: a rendered document read
+                        // edge to edge on a wide screen is the case the line-width
+                        // setting exists for.
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .widthIn(max = contentMaxWidth),
+                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
+                        // No onToggleTask and no wikilink handling: a checkbox here
+                        // would have nowhere to write, and a wikilink would either
+                        // create a note or lie about resolving. The file is read
+                        // only until the reader chooses to keep it.
+                        toggledSectionIds = toggledSectionIds,
+                        onToggleSection = { id ->
+                            toggledSectionIds = if (id in toggledSectionIds) {
+                                toggledSectionIds - id
+                            } else {
+                                toggledSectionIds + id
+                            }
+                        }
+                    )
+                }
             }
         }
     }

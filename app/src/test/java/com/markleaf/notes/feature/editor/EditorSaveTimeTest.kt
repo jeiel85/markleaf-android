@@ -3,6 +3,8 @@ package com.markleaf.notes.feature.editor
 import java.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class EditorSaveTimeTest {
@@ -23,5 +25,19 @@ class EditorSaveTimeTest {
 
     @Test fun undoingBeforeAutosaveLeavesTheTimestampUntouched() {
         assertNull(editorSaveTime("original", "original", "original", openedAt, now))
+    }
+
+    @Test fun failedMirrorWriteIsRetriedWithoutAContentChange() {
+        assertTrue(editorNeedsMirrorRetry(true, false, openedAt, now))
+        assertFalse(editorNeedsMirrorRetry(true, false, now, now))
+    }
+
+    @Test fun failedMirrorWriteAfterUndoIsRetriedEvenWhenTheTimeMovesBackwards() {
+        assertTrue(editorNeedsMirrorRetry(true, false, now, openedAt))
+    }
+
+    @Test fun unchangedLockedOrUnsyncedNotesDoNotWriteToTheMirror() {
+        assertFalse(editorNeedsMirrorRetry(false, false, null, now))
+        assertFalse(editorNeedsMirrorRetry(true, true, null, now))
     }
 }

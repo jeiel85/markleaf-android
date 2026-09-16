@@ -125,6 +125,13 @@ internal fun editorSaveTime(
     else -> now
 }
 
+internal fun editorNeedsMirrorRetry(
+    syncFolderConfigured: Boolean,
+    locked: Boolean,
+    lastImportedAt: Instant?,
+    updatedAt: Instant
+): Boolean = syncFolderConfigured && !locked && lastImportedAt != updatedAt
+
 /** The production settings repository — the process-wide DataStore singleton. */
 @Composable
 private fun rememberAppSettingsRepository(): AppSettingsRepository {
@@ -186,17 +193,25 @@ fun EditorScreen(
         if (currentNote != null) {
             val saveTime = editorSaveTime(
                 currentNote.contentMarkdown, content, openedContent, openedUpdatedAt, Instant.now()
-            ) ?: return
-            val updatedNote = currentNote.copy(
-                title = TitleExtractor.extractTitle(content, appSettings.noteTitleSource),
-                contentMarkdown = content,
-                excerpt = TitleExtractor.generateExcerpt(content, appSettings.noteTitleSource),
-                updatedAt = saveTime
             )
-            repo.updateNote(updatedNote)
-            tagRepo.reindexTagsForNote(id, content)
-            linkRepo.reindexLinksForNote(id, content)
-            appSettings.syncFolderUriOrNull()?.let { uri ->
+            val syncUri = appSettings.syncFolderUriOrNull()
+            if (saveTime == null && !editorNeedsMirrorRetry(
+                    syncUri != null, currentNote.locked, currentNote.lastImportedAt, currentNote.updatedAt
+                )) return
+            val updatedNote = if (saveTime != null) {
+                currentNote.copy(
+                    title = TitleExtractor.extractTitle(content, appSettings.noteTitleSource),
+                    contentMarkdown = content,
+                    excerpt = TitleExtractor.generateExcerpt(content, appSettings.noteTitleSource),
+                    updatedAt = saveTime
+                )
+            } else currentNote
+            if (saveTime != null) {
+                repo.updateNote(updatedNote)
+                tagRepo.reindexTagsForNote(id, content)
+                linkRepo.reindexLinksForNote(id, content)
+            }
+            syncUri?.let { uri ->
                 // Never mirror a locked note to the sync folder — the Locked
                 // space is meant to stay on-device, and the mirror writes plain
                 // text (#155). Removing the lock re-includes it on the next save.
@@ -235,7 +250,7 @@ fun EditorScreen(
             // Both kinds, not just the single-note one: this save also moves the
             // note to the top of the recent list the other widget draws, and it
             // loses the same race (#262).
-            WidgetRefresh.notesChanged(context)
+            if (saveTime != null) WidgetRefresh.notesChanged(context)
         }
     }
     // Debounced autosave gate: every edit and formatting action bumps it, and

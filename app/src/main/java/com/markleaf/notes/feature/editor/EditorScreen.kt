@@ -111,6 +111,19 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.Instant
+
+internal fun editorSaveTime(
+    persistedContent: String,
+    content: String,
+    openedContent: String?,
+    openedUpdatedAt: Instant?,
+    now: Instant
+): Instant? = when {
+    persistedContent == content -> null
+    content == openedContent -> openedUpdatedAt ?: now
+    else -> now
+}
 
 /** The production settings repository — the process-wide DataStore singleton. */
 @Composable
@@ -157,6 +170,8 @@ fun EditorScreen(
     val coroutineScope = rememberCoroutineScope()
 
     var editorState by remember(noteId) { mutableStateOf(TextFieldValue("")) }
+    var openedContent by remember(noteId) { mutableStateOf<String?>(null) }
+    var openedUpdatedAt by remember(noteId) { mutableStateOf<Instant?>(null) }
     // Per open note, and dropped when the screen leaves: Markleaf keeps no
     // on-disk edit history, so this is a way back from the edit you just made,
     // not a version store (#360).
@@ -169,11 +184,14 @@ fun EditorScreen(
         val id = noteId ?: return
         val currentNote = repo.getNote(id)
         if (currentNote != null) {
+            val saveTime = editorSaveTime(
+                currentNote.contentMarkdown, content, openedContent, openedUpdatedAt, Instant.now()
+            ) ?: return
             val updatedNote = currentNote.copy(
                 title = TitleExtractor.extractTitle(content, appSettings.noteTitleSource),
                 contentMarkdown = content,
                 excerpt = TitleExtractor.generateExcerpt(content, appSettings.noteTitleSource),
-                updatedAt = java.time.Instant.now()
+                updatedAt = saveTime
             )
             repo.updateNote(updatedNote)
             tagRepo.reindexTagsForNote(id, content)
@@ -578,6 +596,8 @@ fun EditorScreen(
             val openInPreview = persistedSettings.openNotesInPreview
             val loadedNote = repo.getNote(noteId)
             val content = loadedNote?.contentMarkdown.orEmpty()
+            openedContent = loadedNote?.contentMarkdown
+            openedUpdatedAt = loadedNote?.updatedAt
             // Where the note opens (#214). Read from the same persisted
             // snapshot as the preview setting above, for the same reason: the
             // collected state starts on the default, so using it here would

@@ -1821,3 +1821,9 @@
 48. 커뮤니티 마크다운 템플릿 갤러리
 49. WCAG 기준 접근성 최적화
 50. 로컬 성능 모니터링 (비추적 방식)
+## 2026-09-16 - v2.43.1: editor timestamps follow the text (#410)
+
+- @ray4423 reported that tapping a note to open the keyboard changed its modification date, and asked that undoing all edits restore the original date.
+- The text field requests autosave on every `onValueChange`, including selection-only updates. Autosave always stamped `Instant.now()` without checking whether the saved body changed. The fix skips an unchanged body and restores the time captured when the note opened if the editor returns to that exact body.
+- Four policy tests cover focus/selection, actual typing, undo after an intermediate save, and undo before any save. `testDebugUnitTest` and `lintRelease` passed locally before the branch was rebased to v2.43.0.
+- The v2.43.0 tag run's `release` job succeeded, but its managed-device widget test failed on a no-row tap target. This is tracked separately from the editor change in the standing hardening tracker #262.

@@ -5,6 +5,15 @@
 
 ---
 
+## GitHub Issue #410 - Editor modification timestamp (Done, 2026-09-16)
+
+- [x] 키보드/커서만 움직여도 수정 시각이 바뀌는 자동저장 경로 확인
+- [x] 본문이 같으면 저장 건너뛰고, 열린 시점의 원문으로 undo하면 원래 수정 시각 복원
+- [x] 타임스탬프 정책 테스트와 `testDebugUnitTest`·`lintRelease` 통과
+- [x] v2.43.1 / versionCode 148 릴리스 문서와 8개 언어 준비
+
+---
+
 ## #262 hardening pass - v2.34.0/v2.34.1/v2.36.0 items (Done, 2026-09-10)
 
 - [x] 프리뷰 블록 재귀 상한 `MAX_BLOCK_DEPTH` + 파서 자체 오버플로 폴백 (실측: 렌더러 2,000 / commonmark 3,000단계)

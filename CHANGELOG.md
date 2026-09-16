@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.43.1 - The timestamp follows your writing - 2026-09-16
+
+Opening the keyboard and moving the caret should not make an untouched note look edited. No permission or storage-format changes.
+
+### Fixed
+- **A note's modification time now changes only when its text changes ([#410](https://github.com/jeiel85/markleaf-android/issues/410)).** Tapping into the editor can still trigger autosave, but an unchanged body no longer rewrites the note. If you edit and then undo all the way back to the text that was there when you opened it, the original modification time returns, even if the intermediate edit was already saved. Undo history lasts only while that editor is open, so this does not restore timestamps after closing and reopening the note. Reported by [@ray4423](https://github.com/ray4423).
+
 ## v2.43.0 - Collapsible sections, and empty notes clean up after themselves - 2026-09-15
 
 Two independent changes, both reported by the same person. No permission or storage-format changes.

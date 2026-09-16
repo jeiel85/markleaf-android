@@ -2720,3 +2720,16 @@ Verification:
 Decision:
 - D072 기록.
 
+## 2026-09-16 - GitHub Issue #410 editor timestamps
+
+Selected task:
+- Opening the keyboard or moving the caret rewrote an unchanged note's `updatedAt`; undo to the opening text did not restore the opening time.
+
+What changed:
+- Editor autosave now compares the persisted text with the live text before writing. If the text returns to the opening snapshot, it uses that snapshot's original `updatedAt`.
+- Added four save-time policy tests; prepared v2.43.1 release notes in both changelogs and all eight store locales.
+
+Verification:
+- `./gradlew :app:testDebugUnitTest :app:lintRelease` passed on the fix before rebasing onto the latest GitHub main.
+
+---

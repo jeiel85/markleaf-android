@@ -1,0 +1,1 @@
+Abrir el teclado o mover el cursor ya no cambia la fecha de una nota sin editar. Si deshaces todos los cambios hasta volver al texto inicial, se restaura la fecha original. (#410)

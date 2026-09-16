@@ -1,0 +1,1 @@
+Tastatur öffnen oder Cursor bewegen ändert das Änderungsdatum einer unveränderten Notiz nicht mehr. Werden alle Änderungen rückgängig gemacht, kehrt das ursprüngliche Datum zurück. (#410)

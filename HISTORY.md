@@ -1821,3 +1821,11 @@
 48. 커뮤니티 마크다운 템플릿 갤러리
 49. WCAG 기준 접근성 최적화
 50. 로컬 성능 모니터링 (비추적 방식)
+## 2026-09-16 - v2.43.1: editor timestamps follow the text (#410)
+
+- @ray4423 reported that tapping a note to open the keyboard changed its modification date, and asked that undoing all edits restore the original date.
+- The text field requests autosave on every `onValueChange`, including selection-only updates. Autosave always stamped `Instant.now()` without checking whether the saved body changed. The fix skips an unchanged body and restores the time captured when the note opened if the editor returns to that exact body.
+- Four policy tests cover focus/selection, actual typing, undo after an intermediate save, and undo before any save. `testDebugUnitTest` and `lintRelease` passed locally before the branch was rebased to v2.43.0.
+- The v2.43.0 tag run's `release` job succeeded, but its managed-device widget test failed on a no-row tap target. This is tracked separately from the editor change in the standing hardening tracker #262.
+- PR #411 reproduced that exact widget failure on 1 of 68 managed-device tests. The test reused the same `AppWidgetHost` ID across cases; a late deletion broadcast can then remove the next case's widget configuration. The fixture now allocates a distinct host ID per case. It keeps the same widget assertions and requires CI to verify the fix.
+- Codex review caught a regression in the first editor fix: returning early for identical text also prevented a failed sync-folder mirror write from being retried. The editor now checks `lastImportedAt != updatedAt` when sync is configured, retries the mirror only, and leaves the modification time untouched. Tests cover an ordinary failed write, a failed write after undo restored an older time, and the cases where no mirror exists or the note is locked.

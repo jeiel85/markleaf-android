@@ -1,0 +1,1 @@
+Otvaranje tipkovnice ili pomicanje pokazivača više ne mijenja vrijeme izmjene nepromijenjene bilješke. Poništavanje svih izmjena do početnog teksta vraća izvorno vrijeme. (#410)

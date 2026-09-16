@@ -1,0 +1,1 @@
+Opening the keyboard or moving the caret no longer changes an untouched note's modification time. Undoing all edits back to the text you opened restores its original time. (#410)

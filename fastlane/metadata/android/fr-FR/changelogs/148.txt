@@ -1,0 +1,1 @@
+Ouvrir le clavier ou déplacer le curseur ne change plus la date d'une note intacte. Annuler toutes les modifications jusqu'au texte initial rétablit la date d'origine. (#410)

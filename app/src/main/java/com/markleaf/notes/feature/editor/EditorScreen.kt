@@ -111,6 +111,26 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.Instant
+
+internal fun editorSaveTime(
+    persistedContent: String,
+    content: String,
+    openedContent: String?,
+    openedUpdatedAt: Instant?,
+    now: Instant
+): Instant? = when {
+    persistedContent == content -> null
+    content == openedContent -> openedUpdatedAt ?: now
+    else -> now
+}
+
+internal fun editorNeedsMirrorRetry(
+    syncFolderConfigured: Boolean,
+    locked: Boolean,
+    lastImportedAt: Instant?,
+    updatedAt: Instant
+): Boolean = syncFolderConfigured && !locked && lastImportedAt != updatedAt
 
 /** The production settings repository — the process-wide DataStore singleton. */
 @Composable
@@ -157,6 +177,8 @@ fun EditorScreen(
     val coroutineScope = rememberCoroutineScope()
 
     var editorState by remember(noteId) { mutableStateOf(TextFieldValue("")) }
+    var openedContent by remember(noteId) { mutableStateOf<String?>(null) }
+    var openedUpdatedAt by remember(noteId) { mutableStateOf<Instant?>(null) }
     // Per open note, and dropped when the screen leaves: Markleaf keeps no
     // on-disk edit history, so this is a way back from the edit you just made,
     // not a version store (#360).
@@ -169,16 +191,27 @@ fun EditorScreen(
         val id = noteId ?: return
         val currentNote = repo.getNote(id)
         if (currentNote != null) {
-            val updatedNote = currentNote.copy(
-                title = TitleExtractor.extractTitle(content, appSettings.noteTitleSource),
-                contentMarkdown = content,
-                excerpt = TitleExtractor.generateExcerpt(content, appSettings.noteTitleSource),
-                updatedAt = java.time.Instant.now()
+            val saveTime = editorSaveTime(
+                currentNote.contentMarkdown, content, openedContent, openedUpdatedAt, Instant.now()
             )
-            repo.updateNote(updatedNote)
-            tagRepo.reindexTagsForNote(id, content)
-            linkRepo.reindexLinksForNote(id, content)
-            appSettings.syncFolderUriOrNull()?.let { uri ->
+            val syncUri = appSettings.syncFolderUriOrNull()
+            if (saveTime == null && !editorNeedsMirrorRetry(
+                    syncUri != null, currentNote.locked, currentNote.lastImportedAt, currentNote.updatedAt
+                )) return
+            val updatedNote = if (saveTime != null) {
+                currentNote.copy(
+                    title = TitleExtractor.extractTitle(content, appSettings.noteTitleSource),
+                    contentMarkdown = content,
+                    excerpt = TitleExtractor.generateExcerpt(content, appSettings.noteTitleSource),
+                    updatedAt = saveTime
+                )
+            } else currentNote
+            if (saveTime != null) {
+                repo.updateNote(updatedNote)
+                tagRepo.reindexTagsForNote(id, content)
+                linkRepo.reindexLinksForNote(id, content)
+            }
+            syncUri?.let { uri ->
                 // Never mirror a locked note to the sync folder — the Locked
                 // space is meant to stay on-device, and the mirror writes plain
                 // text (#155). Removing the lock re-includes it on the next save.
@@ -217,7 +250,7 @@ fun EditorScreen(
             // Both kinds, not just the single-note one: this save also moves the
             // note to the top of the recent list the other widget draws, and it
             // loses the same race (#262).
-            WidgetRefresh.notesChanged(context)
+            if (saveTime != null) WidgetRefresh.notesChanged(context)
         }
     }
     // Debounced autosave gate: every edit and formatting action bumps it, and
@@ -578,6 +611,8 @@ fun EditorScreen(
             val openInPreview = persistedSettings.openNotesInPreview
             val loadedNote = repo.getNote(noteId)
             val content = loadedNote?.contentMarkdown.orEmpty()
+            openedContent = loadedNote?.contentMarkdown
+            openedUpdatedAt = loadedNote?.updatedAt
             // Where the note opens (#214). Read from the same persisted
             // snapshot as the preview setting above, for the same reason: the
             // collected state starts on the default, so using it here would

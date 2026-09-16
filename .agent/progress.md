@@ -2720,3 +2720,19 @@ Verification:
 Decision:
 - D072 기록.
 
+## 2026-09-16 - GitHub Issue #410 editor timestamps
+
+Selected task:
+- Opening the keyboard or moving the caret rewrote an unchanged note's `updatedAt`; undo to the opening text did not restore the opening time.
+
+What changed:
+- Editor autosave now compares the persisted text with the live text before writing. If the text returns to the opening snapshot, it uses that snapshot's original `updatedAt`.
+- Added four save-time policy tests; prepared v2.43.1 release notes in both changelogs and all eight store locales.
+- PR CI reproduced the standing single-note widget test isolation failure from #262. Each test now uses a distinct AppWidgetHost ID, preventing a late deletion event from a previous host from clearing the next test's configuration; assertions were not changed.
+- Automated PR review found a mirror-retry regression: a failed folder write leaves the DB body current but its sync stamp stale. The unchanged-body path now retries only that pending mirror write without stamping the note's modification time or rebuilding tags/links.
+
+Verification:
+- `./gradlew :app:testDebugUnitTest :app:lintRelease` passed on the fix before rebasing onto the latest GitHub main.
+- `./gradlew :app:testDebugUnitTest :app:lintRelease :app:assembleDebug` and `:app:assembleDebugAndroidTest` passed on the release branch.
+
+---

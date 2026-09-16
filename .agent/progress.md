@@ -2728,8 +2728,10 @@ Selected task:
 What changed:
 - Editor autosave now compares the persisted text with the live text before writing. If the text returns to the opening snapshot, it uses that snapshot's original `updatedAt`.
 - Added four save-time policy tests; prepared v2.43.1 release notes in both changelogs and all eight store locales.
+- PR CI reproduced the standing single-note widget test isolation failure from #262. Each test now uses a distinct AppWidgetHost ID, preventing a late deletion event from a previous host from clearing the next test's configuration; assertions were not changed.
 
 Verification:
 - `./gradlew :app:testDebugUnitTest :app:lintRelease` passed on the fix before rebasing onto the latest GitHub main.
+- `./gradlew :app:testDebugUnitTest :app:lintRelease :app:assembleDebug` and `:app:assembleDebugAndroidTest` passed on the release branch.
 
 ---

@@ -63,7 +63,9 @@ class SingleNoteWidgetRenderTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val manager = AppWidgetManager.getInstance(context)
-    private val host = AppWidgetHost(context, HOST_ID)
+    // A late onDeleted broadcast from the previous test must not forget the
+    // configuration of a newly allocated widget with the same host identity.
+    private val host = AppWidgetHost(context, nextHostId.getAndIncrement())
 
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
     private val noteId = "single-note-widget-render-test"
@@ -273,7 +275,7 @@ class SingleNoteWidgetRenderTest {
     }
 
     private companion object {
-        const val HOST_ID = 0x4D4C
+        val nextHostId = java.util.concurrent.atomic.AtomicInteger(0x4D4C)
 
         /** How long the adapter is given to connect to the service before the check fails. */
         const val ADAPTER_TIMEOUT_MS = 10_000L

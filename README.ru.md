@@ -177,13 +177,13 @@ com.markleaf.notes
 Если хотите собрать приложение или внести вклад, выполните следующие шаги.
 
 ```bash
-# Clone the repository
+# Клонировать репозиторий
 git clone https://github.com/jeiel85/markleaf-android.git
 
-# Enter the project folder
+# Перейти в папку проекта
 cd markleaf-android
 
-# Build and install
+# Собрать и установить
 ./gradlew installDebug
 ```
 

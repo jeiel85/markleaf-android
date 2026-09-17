@@ -80,7 +80,7 @@ GitHub Releases         INTERNET: kiểm tra cập nhật &middot; REQUEST_INSTA
             <ul>
                 <li><strong>Tắt theo mặc định.</strong> Không có gì xảy ra cho đến khi bạn bật nó trong Cài đặt.</li>
                 <li>Mỗi ngày một lần, ứng dụng gửi một yêu cầu GET duy nhất để lấy một tệp JSON tĩnh mô tả bản phát hành mới nhất. Nếu kiểm tra thất bại, lỗi sẽ được bỏ qua một cách lặng lẽ.</li>
-                <li>Chạm <strong>Tải về và cài đặt</strong> trong hộp thoại cập nhật sẽ tạo yêu cầu mạng duy nhất còn lại của ứng dụng: một yêu cầu GET để lấy chính tệp cập nhật. Cũng như việc kiểm tra, điều này chỉ xảy ra vì bạn yêu cầu.</li>
+                <li>Chạm <strong>Tải xuống và cài đặt</strong> trong hộp thoại cập nhật sẽ tạo yêu cầu mạng duy nhất còn lại của ứng dụng: một yêu cầu GET để lấy chính tệp cập nhật. Cũng như việc kiểm tra, điều này chỉ xảy ra vì bạn yêu cầu.</li>
                 <li>Khi tệp đã tải xong, ứng dụng so sánh nó với giá trị SHA-256 trong tệp JSON đó. <strong>Nếu không khớp, tệp sẽ bị xóa và quá trình cài đặt không bao giờ bắt đầu.</strong></li>
                 <li>Chỉ tệp đã được xác minh mới được chuyển cho <code>PackageInstaller</code> của chính Android. Màn hình xác nhận hiện ra sau đó do Android hiển thị, không phải Markleaf. Bước này cần quyền <code>REQUEST_INSTALL_PACKAGES</code>; nếu quyền chưa được cấp, ứng dụng sẽ đưa bạn đến Cài đặt trước.</li>
                 <li>Nếu việc tải về hoặc xác minh thất bại, bạn có thể thử lại, hoặc mở trong trình duyệt — đúng cách chuyển giao mà tính năng này dùng trước đây.</li>

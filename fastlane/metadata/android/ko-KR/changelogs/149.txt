@@ -1,0 +1,1 @@
+위키링크에 표시 이름을 붙일 수 있습니다: [[some-note.md|Some Link]]. [Some Link](some-note.md) 같은 상대 Markdown 링크도 선택한 동기화 폴더의 노트를 엽니다. 외부 링크는 기존처럼 다른 앱에서 엽니다. (#414)

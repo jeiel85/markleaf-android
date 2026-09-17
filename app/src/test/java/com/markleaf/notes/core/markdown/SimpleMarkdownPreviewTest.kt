@@ -6,6 +6,14 @@ import org.junit.Test
 
 class SimpleMarkdownPreviewTest {
     @Test
+    fun parse_wikilinkAliasDisplaysLabelButKeepsTarget() {
+        val link = SimpleMarkdownPreview.parse("[[some-note.md|Some Link]]")
+            .flatMap { it.segments }
+            .single { it.type == PreviewInlineType.WIKILINK }
+        assertEquals("Some Link", link.text)
+        assertEquals("some-note.md", link.href)
+    }
+    @Test
     fun parse_parsesHeadingsAndBody() {
         val markdown = """
             # Title

@@ -124,6 +124,28 @@ object NoteFolderMirror {
         return MirrorWrite.writeNoteInto(context, folder, note, extension, metadata)
     }
 
+    /** Resolve a relative Markdown link against an actual file in the selected folder. */
+    fun noteIdForFileName(
+        context: Context,
+        folderUri: Uri,
+        fileName: String,
+        metadata: MirrorMetadata
+    ): String? = runCatching {
+        val folder = DocumentFile.fromTreeUri(context, folderUri) ?: return@runCatching null
+        val file = MirrorFileLookup.matchByName(
+            folder.listFiles().filter { MirrorFileLookup.isMirrorEntry(it) },
+            fileName
+        ) { it.name } ?: return@runCatching null
+        when (metadata) {
+            MirrorMetadata.Frontmatter -> MirrorFileLookup.peekMarkleafId(context, file.uri)
+            is MirrorMetadata.Sidecar -> {
+                val entries = SidecarStore.load(context, folder, metadata.deviceId)
+                SidecarIndex.byFileName(entries)[file.name.orEmpty()]?.noteId
+            }
+        }
+    }.onFailure { android.util.Log.w("NoteFolderMirror", "Could not resolve local note link", it) }
+        .getOrNull()
+
     /** [writeNote] once the folder has been resolved — see [MirrorWrite]. */
     internal fun writeNoteInto(
         context: Context,

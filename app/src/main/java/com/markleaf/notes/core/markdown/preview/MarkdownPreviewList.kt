@@ -83,6 +83,7 @@ import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
 import com.markleaf.notes.core.markdown.TableAlignment
 import com.markleaf.notes.core.markdown.TableData
 import com.markleaf.notes.core.markdown.syntax.SyntaxHighlighter
+import com.markleaf.notes.util.LocalMarkdownLink
 import kotlin.math.min
 
 // Vertical rhythm of the rendered preview (#340).
@@ -143,6 +144,7 @@ fun MarkdownPreviewList(
     contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
     listState: LazyListState = rememberLazyListState(),
     onWikilinkClick: (String) -> Unit = {},
+    onLocalLinkClick: ((String) -> Unit)? = null,
     onImageLongPress: (path: String, currentAlt: String) -> Unit = { _, _ -> },
     onToggleTask: ((sourceLine: Int) -> Unit)? = null,
     fontScale: Float = 1f,
@@ -211,7 +213,10 @@ fun MarkdownPreviewList(
     // the cost this preview exists to avoid.
     var selectionEpoch by remember { mutableIntStateOf(0) }
     val resetSelection: () -> Unit = remember { { selectionEpoch++ } }
-    CompositionLocalProvider(LocalPreviewSelectionReset provides resetSelection) {
+    CompositionLocalProvider(
+        LocalPreviewSelectionReset provides resetSelection,
+        LocalNoteLinkHandler provides onLocalLinkClick
+    ) {
         key(selectionEpoch) {
             SelectionContainer(modifier = modifier.fillMaxSize()) {
                 LazyColumn(
@@ -556,6 +561,7 @@ private fun inlineAnnotatedString(
     // Captured by the LinkAnnotation click listeners built below, so it must be
     // resolved before buildAnnotatedString rather than at the Text call site.
     val context = LocalContext.current
+    val onLocalLinkClick = LocalNoteLinkHandler.current
     return buildAnnotatedString {
         if (leadingMarker.isNotEmpty()) {
             if (onMarkerClick == null) {
@@ -623,7 +629,7 @@ private fun inlineAnnotatedString(
                     }
                 }
                 PreviewInlineType.WIKILINK -> {
-                    val target = segment.text
+                    val target = segment.href ?: segment.text
                     withLink(
                         LinkAnnotation.Clickable(
                             tag = WIKILINK_TAG,
@@ -650,7 +656,14 @@ private fun inlineAnnotatedString(
                                     textDecoration = TextDecoration.Underline
                                 )
                             ),
-                            linkInteractionListener = { openExternalLink(context, href) }
+                            linkInteractionListener = {
+                                val localName = LocalMarkdownLink.fileName(href)
+                                if (localName != null && onLocalLinkClick != null) {
+                                    onLocalLinkClick(localName)
+                                } else {
+                                    openExternalLink(context, href)
+                                }
+                            }
                         )
                     ) {
                         if (href.isBlank()) {
@@ -680,6 +693,7 @@ private const val LINK_TAG = "link"
  * resolve the address under a long press (#386).
  */
 private const val LINK_HREF_TAG = "link_href"
+private val LocalNoteLinkHandler = compositionLocalOf<((String) -> Unit)?> { null }
 
 /**
  * Lets a link long press reach the [SelectionContainer] wrapping the whole

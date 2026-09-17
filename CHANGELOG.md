@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.44.0 - Links between notes read the way you wrote them - 2026-09-17
+
+Notes linked through the selected sync folder can now use readable labels. No new permissions or storage-format changes.
+
+### Added
+- **Named wikilinks and relative Markdown note links ([#414](https://github.com/jeiel85/markleaf-android/issues/414)).** `[[some-note.md|Some Link]]` displays “Some Link” and opens the note held by `some-note.md`. Standard `[Some Link](some-note.md)` links now open the same local note in preview. Both `.md` and `.txt` files work; external URLs keep opening in another app. Local paths resolve only to files directly in the selected notes folder. A missing file or unlinked folder does not create a note. Backlinks for filename-based links are not indexed. Reported by [@Jackson-Nickk](https://github.com/Jackson-Nickk).
+
 ## v2.43.1 - The timestamp follows your writing - 2026-09-16
 
 Opening the keyboard and moving the caret should not make an untouched note look edited. No permission or storage-format changes.

@@ -1829,3 +1829,8 @@
 - The v2.43.0 tag run's `release` job succeeded, but its managed-device widget test failed on a no-row tap target. This is tracked separately from the editor change in the standing hardening tracker #262.
 - PR #411 reproduced that exact widget failure on 1 of 68 managed-device tests. The test reused the same `AppWidgetHost` ID across cases; a late deletion broadcast can then remove the next case's widget configuration. The fixture now allocates a distinct host ID per case. It keeps the same widget assertions and requires CI to verify the fix.
 - Codex review caught a regression in the first editor fix: returning early for identical text also prevented a failed sync-folder mirror write from being retried. The editor now checks `lastImportedAt != updatedAt` when sync is configured, retries the mirror only, and leaves the modification time untouched. Tests cover an ordinary failed write, a failed write after undo restored an older time, and the cases where no mirror exists or the note is locked.
+---
+
+## 2026-09-17 — Issue #414: links between notes
+
+Added wikilink display aliases and local resolution for relative Markdown links to `.md` and `.txt` files in the configured notes folder. Resolution uses the actual mirror filename and its frontmatter or sidecar note ID, preserving duplicate and renamed file handling. Added parser and path-boundary tests; release checks and Android build evidence are recorded in `.agent/progress.md`.

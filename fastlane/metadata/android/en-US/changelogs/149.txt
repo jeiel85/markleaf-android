@@ -1,0 +1,1 @@
+Wikilinks can show a custom label: [[some-note.md|Some Link]]. Relative Markdown links such as [Some Link](some-note.md) now open notes from your selected sync folder. External links still open in another app. (#414)

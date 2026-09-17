@@ -13,11 +13,17 @@ object WikilinkExtractor {
 
     /** Sequence of every wikilink target in source order, including duplicates. */
     fun extract(content: String): List<String> {
-        return WIKILINK_REGEX.findAll(content).map { it.groupValues[1].trim() }.toList()
+        return WIKILINK_REGEX.findAll(content).map { target(it.groupValues[1]) }.filter { it.isNotEmpty() }.toList()
     }
 
     /** True when [text] contains at least one well-formed wikilink. */
     fun hasAny(text: String): Boolean = WIKILINK_REGEX.containsMatchIn(text)
+
+    /** The part before an optional display alias, shared by preview and backlinks. */
+    fun target(body: String): String = body.substringBefore('|').trim()
+
+    /** Display text after the first pipe, falling back to the target. */
+    fun label(body: String): String = body.substringAfter('|', "").trim().ifEmpty { target(body) }
 
     /** Normalize for case-insensitive matching against note titles. */
     fun normalize(title: String): String = title.trim().lowercase()

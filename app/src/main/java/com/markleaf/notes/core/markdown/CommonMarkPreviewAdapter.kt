@@ -841,7 +841,12 @@ internal object CommonMarkPreviewAdapter {
             if (match.range.first > cursor) {
                 out += PreviewInlineSegment(literal.substring(cursor, match.range.first), default)
             }
-            out += PreviewInlineSegment(match.groupValues[1].trim(), PreviewInlineType.WIKILINK)
+            val body = match.groupValues[1]
+            out += PreviewInlineSegment(
+                WikilinkExtractor.label(body),
+                PreviewInlineType.WIKILINK,
+                href = WikilinkExtractor.target(body)
+            )
             cursor = match.range.last + 1
         }
         if (cursor < literal.length) {

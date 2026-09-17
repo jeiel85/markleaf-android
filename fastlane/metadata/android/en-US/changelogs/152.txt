@@ -1,0 +1,1 @@
+Fixed Find and replace in edit mode selecting or replacing the wrong text in notes containing a letter whose lowercase form is longer, such as the Turkish İ. Matches now land exactly on the text you searched for.

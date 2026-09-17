@@ -1,0 +1,1 @@
+Đã sửa lỗi tìm và thay thế ở chế độ chỉnh sửa chọn hoặc thay nhầm văn bản trong ghi chú có chữ cái dài hơn khi viết thường, như chữ İ của tiếng Thổ Nhĩ Kỳ. Giờ kết quả khớp đúng vào văn bản bạn tìm.

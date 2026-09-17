@@ -1,0 +1,1 @@
+Corrigé : rechercher et remplacer en mode édition sélectionnait ou remplaçait le mauvais texte dans les notes contenant une lettre dont la minuscule est plus longue, comme le İ turc. Les résultats tombent désormais exactement sur le texte recherché.

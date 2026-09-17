@@ -400,7 +400,7 @@
     <string name="privacy_no_tracking_desc">Không phân tích, không SDK báo cáo sự cố, không mạng quảng cáo. Chúng tôi không hề biết bạn dùng ứng dụng như thế nào, và chúng tôi muốn giữ như vậy.</string>
     <string name="privacy_verification_title">Xác minh quyền riêng tư</string>
     <string name="privacy_verify_no_internet">Không khai báo quyền INTERNET</string>
-    <string name="privacy_verify_local_only">Xử lý dữ liệu 100% cục bộ</string>
+    <string name="privacy_verify_local_only">Xử lý dữ liệu hoàn toàn cục bộ</string>
     <string name="privacy_verify_no_ads">Không quảng cáo hay trình theo dõi</string>
     <string name="privacy_verify_no_analytics">Không phân tích hay đo từ xa</string>
     <string name="privacy_verify_open_source">Mã nguồn mở và có thể kiểm tra</string>

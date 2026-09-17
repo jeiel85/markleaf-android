@@ -1,0 +1,1 @@
+Markleaf spricht jetzt Russisch und Vietnamesisch. App, Startnotizen, Store-Eintrag, README und Website gibt es in beiden Sprachen – insgesamt sind es nun 10 Sprachen. Die Übersetzungen sind neu; Korrekturen von Muttersprachlern sind auf GitHub willkommen.

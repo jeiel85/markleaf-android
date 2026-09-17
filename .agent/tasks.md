@@ -5,6 +5,14 @@
 
 ---
 
+## PR #418 - Russian and Vietnamese locales (Done, 2026-09-17)
+
+- [x] values/raw/fastlane/README/landing/privacy/demo clip ru·vi 추가, 10개 언어 스위처·개수 갱신
+- [x] verify-locales·landing-versions·release-notes, lintRelease, 에뮬레이터 ru-RU·vi-VN 확인
+- [x] v2.45.0 / versionCode 150 릴리스 문서와 10개 언어 준비
+
+---
+
 ## GitHub Issue #414 - Wikilink aliases and local Markdown links (Done, 2026-09-17)
 
 - [x] 위키링크 대상과 표시 이름 분리, 백링크 색인은 대상만 사용

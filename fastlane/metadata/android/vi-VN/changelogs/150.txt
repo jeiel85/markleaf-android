@@ -1,0 +1,1 @@
+Markleaf nay đã hỗ trợ tiếng Nga và tiếng Việt. Ứng dụng, ghi chú khởi đầu, mô tả trên cửa hàng, README và trang web đều có ở cả hai ngôn ngữ, nâng tổng số lên 10 ngôn ngữ. Bản dịch còn mới, rất mong người bản ngữ góp ý chỉnh sửa trên GitHub.

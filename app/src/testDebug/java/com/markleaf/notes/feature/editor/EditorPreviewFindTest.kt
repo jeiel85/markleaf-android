@@ -7,12 +7,15 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasScrollToIndexAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -152,6 +155,40 @@ class EditorPreviewFindTest {
         val screenHeight = composeRule.onRoot().getUnclippedBoundsInRoot().let { it.bottom - it.top }
         val moved = topAtFirstMatch - paragraphNode.getUnclippedBoundsInRoot().top
         assertTrue("paragraph moved only $moved; expected more than a screen ($screenHeight)", moved > screenHeight)
+    }
+
+    @Test
+    fun rowsRecomposingWithFindOpenDoNotPullTheViewBackToTheMatch() {
+        // A review finding: revealing the current match fired whenever its row
+        // was recomposed into a new slot, not only when the user stepped. With
+        // find left open, scrolling back up and opening a section above the
+        // match shifted the rows and yanked the view down to the match again.
+        val paragraph = "needle start " + "filler words ".repeat(600) + "needle end"
+        val noteId = createNote("<details>\n<summary>More</summary>\n\nhidden body\n</details>\n\n$paragraph")
+        val settings = AppSettingsRepository(InMemoryPreferencesDataStore())
+
+        composeRule.setContent {
+            Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                EditorScreen(noteId = noteId, onBack = {}, settingsRepository = settings)
+            }
+        }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(context.getString(R.string.preview)).performClick()
+        composeRule.onNodeWithContentDescription(context.getString(R.string.more_options)).performClick()
+        composeRule.onNodeWithText(context.getString(R.string.find_in_note)).performClick()
+        composeRule.onNode(hasSetTextAction()).performTextInput("needle")
+        composeRule.onNodeWithContentDescription(context.getString(R.string.find_next_match)).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("2/2").assertExists()
+
+        // Back to the top by hand, then open the section above the match.
+        composeRule.onNode(hasScrollToIndexAction()).performScrollToIndex(0)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("More").performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("hidden body").assertIsDisplayed()
     }
 
     private fun createNote(content: String): String {

@@ -229,10 +229,14 @@ fun MarkdownPreviewList(
     // LazyColumn, and the alternative — composing the whole note at once — is
     // the cost this preview exists to avoid.
     var selectionEpoch by remember { mutableIntStateOf(0) }
+    // Outside the selection-epoch key, so rebuilding the list does not forget
+    // which find step was already revealed (#417).
+    val consumedFindRevealKey = remember { mutableIntStateOf(findRevealKey) }
     val resetSelection: () -> Unit = remember { { selectionEpoch++ } }
     CompositionLocalProvider(
         LocalPreviewSelectionReset provides resetSelection,
-        LocalNoteLinkHandler provides onLocalLinkClick
+        LocalNoteLinkHandler provides onLocalLinkClick,
+        LocalConsumedFindRevealKey provides consumedFindRevealKey
     ) {
         key(selectionEpoch) {
             SelectionContainer(modifier = modifier.fillMaxSize()) {
@@ -770,8 +774,14 @@ private fun FindableText(
  * preview to the match's row is not enough on its own: in a row taller than
  * the screen — a long table, code block or paragraph — every match of that row
  * maps to the same LazyColumn item, and only the text's own layout knows where
- * the match sits. Re-runs whenever [PreviewFindHighlight.revealKey] moves, which
- * the editor bumps after each step, so stepping back to a match re-reveals it.
+ * the match sits.
+ *
+ * A reveal is a one-shot request: it fires only for a [PreviewFindHighlight.revealKey]
+ * the list has not consumed yet, which the editor bumps once per step after
+ * its own row scroll finishes. Keying on the match position instead would
+ * also fire whenever the row is recomposed or recycled — scrolling past it on
+ * the way to an outline heading, toggling a section above it, a selection
+ * reset rebuilding the list — and pull the view back to the match each time.
  *
  * Must be the last modifier on the Text, so the requester's bounds are the
  * text layout's own coordinates.
@@ -791,7 +801,11 @@ private fun Modifier.revealCurrentFindMatch(
         ?: return this
     val end = start + highlight.query.length
     val requester = remember { BringIntoViewRequester() }
-    LaunchedEffect(start, end, highlight.revealKey) {
+    val consumedRevealKey = LocalConsumedFindRevealKey.current
+    val revealKey = highlight.revealKey
+    LaunchedEffect(revealKey) {
+        if (revealKey == consumedRevealKey.intValue) return@LaunchedEffect
+        consumedRevealKey.intValue = revealKey
         // The layout can lag the composition that made this the current match
         // by a frame or two; give it a few before giving up.
         var result = layout.value
@@ -817,6 +831,14 @@ private fun Modifier.revealCurrentFindMatch(
 }
 
 private const val RevealLayoutFrames = 5
+
+/**
+ * The last [PreviewFindHighlight.revealKey] a row has acted on, shared across
+ * the whole list so a recomposed or recycled row cannot reveal the same step
+ * twice; see [revealCurrentFindMatch]. Starts at the editor's initial key, so
+ * nothing is revealed until the first step asks for it.
+ */
+private val LocalConsumedFindRevealKey = compositionLocalOf { mutableIntStateOf(0) }
 
 /**
  * Marks [highlight]'s occurrences in this text: a quiet background for every

@@ -1039,10 +1039,15 @@ fun EditorScreen(
             label = "Editor preview mode"
         ) { previewMode ->
             if (previewMode) {
+                // The same inset handling as the editor branch below (#136,
+                // #398): with preview find's keyboard up (#417), the list has to
+                // end above the IME or a match near the end stays hidden under it.
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
+                        .consumeWindowInsets(paddingValues)
+                        .imePadding()
                 ) {
                     if (isFindOpen) {
                         // Above the list rather than over it, so the row a match

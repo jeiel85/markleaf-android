@@ -584,13 +584,20 @@ fun EditorScreen(
         if (isPreviewMode) emptyList() else findAllRanges(editorState.text, findQuery)
     }
     // A missing attachment renders its `![alt](path)` source, which find has to
-    // search too; checked once per rebuilt preview, not per keystroke in find.
-    val unresolvedImagePaths = remember(previewLines) {
-        previewLines
-            .filter { it.type == PreviewLineType.IMAGE }
-            .mapNotNull { it.extra }
-            .filter { AttachmentManager.resolveFile(context, it) == null }
-            .toSet()
+    // search too. Checked only while a preview search is actually running —
+    // opening preview or the outline must not touch every image on disk — and
+    // then once per rebuilt preview rather than per keystroke.
+    val isPreviewSearchActive = isPreviewMode && isFindOpen && findQuery.isNotEmpty()
+    val unresolvedImagePaths = remember(previewLines, isPreviewSearchActive) {
+        if (!isPreviewSearchActive) {
+            emptySet()
+        } else {
+            previewLines
+                .filter { it.type == PreviewLineType.IMAGE }
+                .mapNotNull { it.extra }
+                .filter { AttachmentManager.resolveFile(context, it) == null }
+                .toSet()
+        }
     }
     val previewFindMatches = remember(previewLines, findQuery, isPreviewMode, unresolvedImagePaths) {
         if (isPreviewMode) {

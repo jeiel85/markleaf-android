@@ -176,8 +176,6 @@ class HardcodedStringTest {
          */
         val LITERAL_IN_UI = setOf(
             "com/markleaf/notes/core/markdown/preview/MarkdownPreviewList.kt" to
-                "![\${line.text}](\$destination)",
-            "com/markleaf/notes/core/markdown/preview/MarkdownPreviewList.kt" to
                 "[^\${line.extra}]",
             "com/markleaf/notes/feature/editor/EditorFormattingControls.kt" to "Aa",
             "com/markleaf/notes/feature/editor/EditorSuggestions.kt" to "#\$tag"

@@ -30,7 +30,9 @@
   <a href="README.de.md">Deutsch</a> ·
   <a href="README.es.md">Español</a> ·
   <a href="README.fr.md">Français</a> ·
-  <strong>Hrvatski</strong>
+  <strong>Hrvatski</strong> ·
+  <a href="README.ru.md">Русский</a> ·
+  <a href="README.vi.md">Tiếng Việt</a>
 </p>
 
 <p align="center">
@@ -97,7 +99,7 @@
 - **Markleaf zelena tema + Material You prekidač** — sistemske boje pozadinske slike na Androidu 12+ po izboru
 - **Automatski tamni način** — prati postavku sustava
 - **Raspored u tri panela za tablete** — bočna traka s oznakama · popis bilješki · uređivač; dodirnite oznaku u bočnoj traci da filtrirate popis bilješki na mjestu (popis se i dalje može sažeti)
-- **Sučelje na 8 jezika** — hrvatski / korejski / engleski / španjolski / japanski / francuski / njemački / kineski (pojednostavljeni)
+- **Sučelje na 10 jezika** — hrvatski / korejski / engleski / španjolski / japanski / francuski / njemački / kineski (pojednostavljeni) / ruski / vijetnamski
 - **Opcija blokiranja snimaka zaslona / pretpregleda u nedavnim aplikacijama** — za osjetljive bilješke
 
 ---

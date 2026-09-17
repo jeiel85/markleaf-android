@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Markleaf</string>
+    <string name="notes_title">Ghi chú</string>
+    <string name="collapse_note_list">Thu gọn danh sách ghi chú</string>
+    <string name="expand_note_list">Mở rộng danh sách ghi chú</string>
+    <string name="hide_tags">Ẩn thẻ</string>
+    <string name="show_tags">Hiện thẻ</string>
+    <string name="search">Tìm kiếm</string>
+    <string name="tags">Thẻ</string>
+    <string name="trash">Thùng rác</string>
+    <!-- "archive" is the destination (noun, screen title); "archive_action" is the verb. -->
+    <string name="archive">Kho lưu trữ</string>
+    <string name="archive_action">Lưu trữ</string>
+    <string name="unarchive">Bỏ lưu trữ</string>
+    <string name="archive_empty">Không có ghi chú đã lưu trữ</string>
+    <string name="archive_empty_hint">Nhấn giữ một ghi chú trong danh sách chính rồi chọn Lưu trữ để chuyển ghi chú vào đây.</string>
+    <string name="settings">Cài đặt</string>
+    <string name="more_options">Tùy chọn khác</string>
+    <string name="quick_switcher_title">Chuyển nhanh</string>
+    <string name="open_file">Mở tệp…</string>
+    <string name="file_viewer_title">Tệp</string>
+    <string name="file_viewer_read_only">Tệp chỉ đọc</string>
+    <string name="file_viewer_save_as_note">Lưu thành ghi chú</string>
+    <string name="file_viewer_unreadable">Không thể hiển thị tệp này. Tệp có thể trống, đã bị di chuyển hoặc xóa, hoặc không phải tệp văn bản.</string>
+    <string name="quick_switcher_hint">Chuyển đến ghi chú…</string>
+    <string name="quick_switcher_no_results">Không có ghi chú phù hợp.</string>
+    <string name="backlinks_section_title">Được liên kết từ</string>
+    <string name="wikilink_suggestions_title">Liên kết đến…</string>
+    <string name="tag_suggestions_title">Thẻ</string>
+    <string name="table_of_contents">Mục lục</string>
+    <string name="note_information">Thông tin ghi chú</string>
+    <string name="note_statistics">Thống kê</string>
+    <string name="note_information_no_headings">Chưa có tiêu đề mục nào.</string>
+    <string name="note_information_no_backlinks">Chưa có ghi chú nào liên kết đến đây.</string>
+    <string name="font_label">Phông chữ</string>
+    <string name="font_size_label">Cỡ chữ</string>
+    <string name="font_size_small">Nhỏ</string>
+    <string name="font_size_medium">Vừa</string>
+    <string name="font_size_large">Lớn</string>
+    <string name="font_size_extra_large">Rất lớn</string>
+    <string name="font_size_description">Thay đổi cỡ chữ trong trình soạn thảo và bản xem trước. Ô đánh dấu và vùng chạm của liên kết cũng lớn theo.</string>
+    <string name="font_sans">Không chân</string>
+    <string name="font_serif">Có chân</string>
+    <string name="font_description">Phông có chân mang lại cảm giác cổ điển như sách in. Mã luôn dùng phông đơn cách.</string>
+    <string name="all_notes">Tất cả ghi chú</string>
+    <string name="no_notes_for_tag">Không có ghi chú nào gắn thẻ này</string>
+    <string name="image_alt_dialog_title">Sửa mô tả hình ảnh</string>
+    <string name="image_alt_dialog_description">Văn bản thay thế giúp trình đọc màn hình và sẽ hiển thị khi không tải được hình ảnh.</string>
+    <string name="image_alt_dialog_label">Mô tả</string>
+    <string name="image_alt_dialog_save">Lưu</string>
+    <string name="add_note">Thêm ghi chú</string>
+    <string name="no_notes_yet">Chưa có ghi chú nào</string>
+    <string name="create_first_note_hint">Nhấn + để tạo ghi chú đầu tiên</string>
+    <string name="create_note">Tạo ghi chú</string>
+    <string name="untitled">Không có tiêu đề</string>
+    <string name="untitled_parenthesized">(Không có tiêu đề)</string>
+    <string name="select_note_to_view">Chọn một ghi chú để xem</string>
+
+    <string name="preview">Xem trước</string>
+    <string name="edit">Sửa</string>
+    <string name="edit_note">Sửa ghi chú</string>
+    <string name="new_note">Ghi chú mới</string>
+    <string name="back">Quay lại</string>
+    <string name="note_content">Nội dung ghi chú</string>
+    <string name="editor_empty_title">Một trang giấy yên tĩnh đã sẵn sàng</string>
+    <string name="editor_empty_hint">Dùng Markdown, #thẻ, liên kết và ô đánh dấu. Markleaf lưu cục bộ ngay khi bạn viết.</string>
+    <string name="undo">Hoàn tác</string>
+    <string name="redo">Làm lại</string>
+    <string name="bold">Đậm</string>
+    <string name="formatting">Định dạng</string>
+    <string name="formatting_inline">Trong dòng</string>
+    <string name="formatting_structure">Cấu trúc</string>
+    <string name="formatting_block_media">Khối và phương tiện</string>
+    <string name="expanded">Đã mở rộng</string>
+    <string name="collapsed">Đã thu gọn</string>
+    <string name="italic">Nghiêng</string>
+    <string name="strikethrough">Gạch ngang</string>
+    <string name="inline_code">Mã trong dòng</string>
+    <string name="checkbox">Ô đánh dấu</string>
+    <string name="markdown_link">Liên kết Markdown</string>
+    <string name="insert_image">Chèn hình ảnh</string>
+    <string name="attachment_failed">Không thể đính kèm hình ảnh.</string>
+    <string name="heading">Tiêu đề mục</string>
+    <string name="bullet_list">Danh sách dấu đầu dòng</string>
+    <string name="ordered_list">Danh sách đánh số</string>
+    <string name="blockquote">Trích dẫn</string>
+    <string name="code_block">Khối mã</string>
+    <string name="horizontal_rule">Đường phân cách</string>
+    <string name="quick_insert_title">Chèn nhanh</string>
+    <string name="quick_insert_heading_1">Tiêu đề mục 1</string>
+    <string name="quick_insert_heading_2">Tiêu đề mục 2</string>
+    <string name="quick_insert_heading_3">Tiêu đề mục 3</string>
+    <string name="quick_insert_bullet_list">Danh sách dấu đầu dòng</string>
+    <string name="quick_insert_numbered_list">Danh sách đánh số</string>
+    <string name="quick_insert_checklist">Danh sách việc cần làm</string>
+    <string name="quick_insert_quote">Trích dẫn</string>
+    <string name="quick_insert_code_block">Khối mã</string>
+    <string name="quick_insert_divider">Đường phân cách</string>
+    <string name="quick_insert_table">Bảng</string>
+    <string name="quick_insert_callout">Khung chú thích</string>
+    <string name="quick_insert_wikilink">Liên kết đến ghi chú</string>
+    <string name="quick_insert_image">Hình ảnh</string>
+    <string name="quick_insert_date">Ngày hôm nay</string>
+    <string name="editor_stats_format">%1$d từ · %2$d ký tự · %3$d phút</string>
+    <string name="focus_mode">Chế độ tập trung</string>
+    <string name="exit_focus_mode">Thoát chế độ tập trung</string>
+    <string name="find_in_note">Tìm trong ghi chú</string>
+    <string name="find_in_note_hint">Tìm</string>
+    <string name="find_previous_match">Kết quả trước</string>
+    <string name="find_next_match">Kết quả tiếp theo</string>
+    <string name="replace_in_note_hint">Thay thế bằng</string>
+    <string name="replace_match">Thay thế</string>
+    <string name="replace_all_matches">Thay thế tất cả</string>
+    <plurals name="replace_all_done_format">
+        <item quantity="other">Đã thay thế %1$d kết quả.</item>
+    </plurals>
+    <string name="close">Đóng</string>
+    <string name="share_note">Chia sẻ hoặc xuất</string>
+    <string name="share_via_system">Chia sẻ qua…</string>
+    <string name="export_as_file">Lưu thành tệp .md…</string>
+    <string name="export_success">Đã xuất ghi chú.</string>
+    <string name="export_failed">Xuất không thành công.</string>
+    <string name="callout_note">Ghi chú</string>
+    <string name="callout_tip">Mẹo</string>
+    <string name="callout_important">Quan trọng</string>
+    <string name="callout_warning">Cảnh báo</string>
+    <string name="callout_caution">Thận trọng</string>
+    <string name="collapsible_section_default_summary">Chi tiết</string>
+
+    <string name="pin">Ghim</string>
+    <string name="unpin">Bỏ ghim</string>
+    <string name="pinned">Đã ghim</string>
+    <string name="section_pinned">Đã ghim</string>
+    <string name="section_today">Hôm nay</string>
+    <string name="section_yesterday">Hôm qua</string>
+    <string name="section_past_week">7 ngày qua</string>
+    <string name="section_older">Cũ hơn</string>
+    <string name="relative_today">Hôm nay %1$s</string>
+    <string name="relative_yesterday">Hôm qua %1$s</string>
+    <string name="relative_days_ago">%1$d ngày trước</string>
+
+    <string name="elapsed_just_now">vừa xong</string>
+    <plurals name="elapsed_minutes_ago">
+        <item quantity="other">%1$d phút trước</item>
+    </plurals>
+    <plurals name="elapsed_hours_ago">
+        <item quantity="other">%1$d giờ trước</item>
+    </plurals>
+    <plurals name="elapsed_days_ago">
+        <item quantity="other">%1$d ngày trước</item>
+    </plurals>
+
+    <string name="search_notes_hint">Tìm ghi chú...</string>
+    <string name="type_to_search_notes">Nhập để tìm ghi chú</string>
+    <string name="no_results_found">Không tìm thấy kết quả</string>
+    <string name="matching_notes">Ghi chú</string>
+    <string name="matching_tags">Thẻ</string>
+    <string name="search_recent_notes">Ghi chú gần đây</string>
+    <string name="search_mode_all">Tất cả</string>
+    <string name="search_mode_titles">Chỉ tiêu đề</string>
+    <string name="sort_notes">Sắp xếp ghi chú</string>
+    <string name="sort_updated_newest">Sửa gần nhất trước</string>
+    <string name="sort_updated_oldest">Sửa lâu nhất trước</string>
+    <string name="sort_title_az">Tiêu đề từ A đến Z</string>
+    <string name="sort_title_za">Tiêu đề từ Z đến A</string>
+    <string name="tag_result_format">#%1$s</string>
+    <string name="no_tags_yet">Chưa có thẻ nào</string>
+    <string name="tags_empty_hint">Gõ #thẻ trong ghi chú để sắp xếp</string>
+    <plurals name="tag_note_count_format">
+        <item quantity="other">%1$d ghi chú</item>
+    </plurals>
+
+    <string name="trash_empty">Thùng rác trống</string>
+    <string name="trash_empty_hint">Ghi chú bạn xóa sẽ xuất hiện ở đây</string>
+    <string name="restore">Khôi phục</string>
+    <string name="delete">Xóa</string>
+    <string name="delete_forever_title">Xóa vĩnh viễn?</string>
+    <string name="delete_forever_message">Ghi chú này sẽ bị xóa vĩnh viễn và không thể khôi phục.</string>
+    <string name="delete_forever">Xóa vĩnh viễn</string>
+    <string name="cancel">Hủy</string>
+
+    <string name="move_to_trash">Chuyển vào thùng rác</string>
+    <string name="move_to_trash_title">Chuyển vào thùng rác?</string>
+    <string name="move_to_trash_message">Chuyển “%1$s” vào thùng rác? Bạn có thể khôi phục sau trong Thùng rác.</string>
+    <string name="move_to_trash_editor_message">Chuyển ghi chú này vào thùng rác? Bạn có thể khôi phục sau trong Thùng rác.</string>
+
+    <string name="settings_appearance">Giao diện</string>
+    <string name="theme_label">Chủ đề</string>
+    <string name="theme_mode_system">Theo hệ thống</string>
+    <string name="theme_mode_light">Sáng</string>
+    <string name="theme_mode_dark">Tối</string>
+    <string name="theme_mode_description">Theo cài đặt chế độ tối của hệ thống, hoặc luôn dùng giao diện sáng hay tối.</string>
+    <string name="color_palette_label">Màu sắc</string>
+    <string name="theme_markleaf_green">Xanh Markleaf</string>
+    <string name="theme_material_you">Material You</string>
+    <string name="theme_description">Xanh Markleaf là bảng màu gốc lấy cảm hứng từ chiếc lá. Material You dùng màu theo hình nền hệ thống trên Android 12 trở lên.</string>
+
+    <string name="settings_markdown">Markdown</string>
+    <string name="show_markdown_syntax">Hiện cú pháp Markdown</string>
+    <string name="show_markdown_syntax_description">Trình soạn thảo trực tiếp làm nổi bật các ký tự Markdown khi bạn viết.</string>
+    <string name="show_formatting_button">Hiện nút định dạng</string>
+    <string name="show_formatting_button_description">Giữ nút Aa trên hàng phía trên bàn phím. Khi tắt, nút này bị ẩn; hoàn tác và làm lại vẫn còn, đậm, nghiêng và liên kết vẫn xuất hiện khi bạn chọn văn bản, còn chèn nhanh bằng / không thay đổi.</string>
+    <string name="line_width">Độ rộng dòng</string>
+    <string name="line_width_narrow">Hẹp</string>
+    <string name="line_width_comfortable">Vừa phải</string>
+    <string name="line_width_wide">Rộng</string>
+    <string name="settings_notes_section">Ghi chú &amp; tìm kiếm</string>
+    <string name="show_note_previews">Hiện bản xem trước ghi chú</string>
+    <string name="show_note_previews_description">Hiện một đoạn trích và thời gian sửa dưới mỗi tiêu đề. Tắt đi để hiển thị được nhiều ghi chú hơn trên màn hình.</string>
+    <string name="reopen_last_note">Mở lại ghi chú gần nhất khi khởi động</string>
+    <string name="reopen_last_note_description">Bắt đầu ở ghi chú bạn sửa gần nhất thay vì danh sách ghi chú.</string>
+    <string name="open_notes_in_preview">Mở ghi chú ở chế độ xem trước</string>
+    <string name="open_notes_in_preview_description">Hiện bản xem trước đã hiển thị định dạng khi mở ghi chú, thay vì chế độ sửa. Ghi chú mới vẫn mở để sửa. Mẹo: nhấn giữ biểu tượng xem trước/sửa trong ghi chú để bật hoặc tắt tùy chọn này.</string>
+    <string name="open_notes_at">Mở ghi chú tại</string>
+    <string name="open_notes_at_top">Đầu trang</string>
+    <string name="open_notes_at_bottom">Cuối trang</string>
+    <string name="open_notes_at_last_position">Vị trí lần trước</string>
+    <string name="open_notes_at_description">Vị trí hiển thị khi bạn mở một ghi chú. Cuối trang phù hợp với ghi chú bạn chỉ viết thêm vào. “Vị trí lần trước” chỉ ghi nhớ vị trí của từng ghi chú trong ứng dụng — không có gì được ghi vào tệp của bạn.</string>
+    <string name="notes_layout">Bố cục danh sách ghi chú</string>
+    <string name="notes_layout_list">Danh sách</string>
+    <string name="notes_layout_grid">Lưới</string>
+    <string name="notes_layout_description">Lưới hiển thị ghi chú dưới dạng thẻ, với số cột vừa với màn hình. “Hiện bản xem trước ghi chú” áp dụng cho cả hai.</string>
+    <string name="note_title_source">Tiêu đề ghi chú</string>
+    <string name="note_title_source_first_heading">Tiêu đề mục đầu tiên</string>
+    <string name="note_title_source_first_line">Dòng đầu tiên</string>
+    <string name="note_title_source_description">Dòng nào trong ghi chú trở thành tiêu đề trong danh sách. “Tiêu đề mục đầu tiên” lấy tiêu đề Markdown đầu tiên ở bất kỳ đâu trong ghi chú; “Dòng đầu tiên” luôn lấy dòng đầu tiên bạn viết. Thay đổi tùy chọn này sẽ đặt lại tiêu đề cho các ghi chú hiện có — trong Trung tâm đồng bộ, “Đổi tên tệp theo tiêu đề ghi chú” sẽ cập nhật tên các tệp đã đồng bộ theo.</string>
+    <plurals name="note_title_retitled_format">
+        <item quantity="other">Đã đặt lại tiêu đề cho %1$d ghi chú.</item>
+    </plurals>
+    <string name="jump_to_end">Chuyển đến cuối</string>
+    <string name="jump_to_start">Chuyển đến đầu</string>
+    <string name="view_mode_locked">Ghi chú giờ sẽ mở ở chế độ xem trước</string>
+    <string name="view_mode_unlocked">Ghi chú giờ sẽ mở ở chế độ sửa</string>
+    <string name="lock_view_mode">Khóa chế độ xem</string>
+    <string name="settings_privacy">Quyền riêng tư</string>
+    <string name="privacy_no_tracking">Không tài khoản, không phân tích, không quảng cáo, không cấu hình từ xa, không SDK báo cáo sự cố độc quyền.</string>
+    <string name="privacy_no_internet">Bản MVP không khai báo quyền INTERNET.</string>
+    <string name="privacy_local_first">Ghi chú chỉ rời khỏi thiết bị khi bạn chủ động xuất hoặc chia sẻ.</string>
+    <string name="settings_data">Dữ liệu</string>
+    <string name="export_all_notes">Xuất tất cả ghi chú…</string>
+    <string name="export_all_notes_description">Chọn một thư mục và Markleaf sẽ lưu mỗi ghi chú thành một tệp .md riêng. Ghi chú trong thùng rác sẽ được bỏ qua.</string>
+    <plurals name="export_all_done_format">
+        <item quantity="other">Đã xuất %1$d ghi chú.</item>
+    </plurals>
+
+    <string name="sync_title">Đồng bộ nhiều thiết bị (phản chiếu thư mục)</string>
+    <string name="sync_explainer">Bản thân Markleaf không bao giờ kết nối mạng. Thay vào đó, bạn chọn một thư mục và Markleaf lưu mỗi ghi chú thành một tệp `.md` trong đó. Nếu thư mục ấy được một ứng dụng khác đồng bộ — Dropbox, Drive, Syncthing, OneDrive, NAS — ghi chú của bạn sẽ có trên các thiết bị khác.</string>
+    <string name="sync_recommended_locations">Những vị trí nên chọn cho Markleaf:\n· /Bộ nhớ trong/Dropbox/Markleaf\n· /Bộ nhớ trong/Drive/Markleaf\n· /Bộ nhớ trong/Sync/Markleaf  (Syncthing)</string>
+    <string name="sync_status_unset">Chưa chọn thư mục.</string>
+    <string name="sync_status_folder_format">Thư mục: %1$s</string>
+    <string name="sync_status_last_synced_format">Đồng bộ lần cuối: %1$s</string>
+    <string name="sync_status_last_synced_never">Đồng bộ lần cuối: chưa bao giờ</string>
+    <string name="sync_metadata_mode">Siêu dữ liệu ghi chú</string>
+    <string name="sync_metadata_mode_frontmatter">Trong tệp</string>
+    <string name="sync_metadata_mode_sidecar">Bên cạnh các tệp</string>
+    <string name="sync_metadata_mode_description">Markleaf cần biết tệp nào chứa ghi chú nào. Mặc định, ứng dụng ghi một phần đầu `---` nhỏ ở đầu mỗi tệp. “Bên cạnh các tệp” sẽ lưu thông tin đó trong một chỉ mục ẩn, để ghi chú chỉ chứa những gì bạn viết.</string>
+    <string name="sync_metadata_sidecar_costs">Đánh đổi: đổi tên tệp bên ngoài Markleaf có thể làm mất liên kết với ghi chú, và thư mục được sao chép mà không kèm chỉ mục sẽ mất ngày tạo và trạng thái ghim của từng ghi chú.</string>
+    <string name="sync_metadata_switched_format">Đã chuyển đổi %1$d tệp.</string>
+    <string name="sync_behavior_summary">· Lưu vào thư mục khoảng 1 giây sau mỗi lần sửa.\n· “Đồng bộ ngay” lấy các thay đổi từ thiết bị khác.\n· Xung đột: bản sửa mới nhất được giữ.\n· Thao tác xóa không được đồng bộ — hãy quản lý thùng rác trên từng thiết bị.\n· Các tệp đã có trong thư mục sẽ được đọc vào thành ghi chú.</string>
+    <string name="sync_pick_folder">Chọn thư mục đồng bộ</string>
+    <string name="sync_change_folder">Đổi thư mục</string>
+    <string name="sync_now">Đồng bộ ngay</string>
+    <string name="sync_stop">Dừng đồng bộ</string>
+    <plurals name="sync_seeded_format">
+        <item quantity="other">Đã sao chép %1$d ghi chú vào thư mục.</item>
+    </plurals>
+    <string name="sync_file_format">Định dạng tệp đồng bộ</string>
+    <string name="sync_tidy_filenames">Đổi tên tệp theo tiêu đề ghi chú</string>
+    <plurals name="sync_tidy_done_format">
+        <item quantity="other">Đã chỉnh lại %1$d tên tệp.</item>
+    </plurals>
+    <string name="sync_done_format">Đã đồng bộ — %1$d cập nhật, %2$d mới, %3$d không đổi.</string>
+    <string name="sync_done_with_conflicts_format">Đã đồng bộ — %1$d cập nhật, %2$d mới, %3$d giữ lại thành bản trùng (xung đột), %4$d không đổi.</string>
+    <string name="sync_conflict_copy_suffix">(bản sao từ thiết bị khác %1$s)</string>
+    <string name="sync_link_import_title">Thư mục này đã có tệp</string>
+    <string name="sync_link_import_message_format">%1$d tệp ở đây chưa phải là ghi chú trong Markleaf. Liên kết sẽ đọc các tệp này vào để chúng xuất hiện trong danh sách — và khi sửa một ghi chú, nội dung sẽ được ghi lại vào chính tệp đó.</string>
+    <string name="sync_link_import_frontmatter_note">Markleaf cũng sẽ ghi một phần đầu “---” nhỏ vào từng tệp. Để giữ tệp ở dạng văn bản thuần, hãy hủy và đặt %1$s thành “%2$s” trước.</string>
+    <string name="sync_link_import_confirm">Liên kết và nhập</string>
+    <string name="sync_linked_format">Đã liên kết — đã ghi ra %1$d ghi chú, đã nhập %2$d.</string>
+    <string name="sync_linked_with_problems_format">Đã liên kết — đã ghi ra %1$d ghi chú, đã nhập %2$d, %3$d giữ lại thành bản trùng (xung đột), %4$d không đọc được.</string>
+    <string name="sync_stopped">Đã tắt đồng bộ.</string>
+    <string name="screenshot_protection">Chặn chụp màn hình và bản xem trước Gần đây</string>
+    <string name="screenshot_protection_description">Ẩn nội dung ghi chú trong ảnh chụp màn hình và màn hình ứng dụng gần đây. Hãy mở lại màn hình soạn thảo để thay đổi có hiệu lực.</string>
+    <string name="settings_app">Ứng dụng</string>
+    <string name="version_format">Phiên bản %1$s</string>
+    <string name="application_id_format">ID ứng dụng %1$s</string>
+    <string name="update_check_title">Kiểm tra cập nhật</string>
+    <string name="update_check_description">Tìm phiên bản mới mỗi ngày một lần và hiện biểu ngữ khi có bản mới. Bản tải xuống đến từ GitHub Releases và không qua kiểm tra của F-Droid.</string>
+    <string name="update_banner_text">Đã có phiên bản %1$s</string>
+    <string name="update_dialog_title">Có bản cập nhật</string>
+    <string name="update_dialog_body">Phiên bản %1$s · %2$s, từ GitHub Releases.</string>
+    <string name="update_action_open">Tải xuống và cài đặt</string>
+    <string name="update_action_open_in_browser">Mở trong trình duyệt</string>
+    <string name="update_action_skip">Bỏ qua phiên bản này</string>
+    <string name="update_action_release_notes">Ghi chú phát hành</string>
+    <string name="update_permission_required_body">Markleaf cần quyền cài đặt bản cập nhật ứng dụng. Hãy tiếp tục đến Cài đặt, cho phép quyền này rồi quay lại đây.</string>
+    <string name="update_action_open_settings">Mở cài đặt</string>
+    <string name="update_downloading">Đang tải bản cập nhật…</string>
+    <string name="update_download_failed_body">Không thể tải xuống xong. Hãy thử lại hoặc mở trong trình duyệt.</string>
+    <string name="update_action_retry">Thử lại</string>
+
+    <string name="settings_open_source">Mã nguồn mở</string>
+    <string name="oss_license_label">Giấy phép</string>
+    <string name="oss_license_value">Apache License 2.0</string>
+    <string name="oss_source_label">Mã nguồn</string>
+    <string name="oss_source_url">https://github.com/jeiel85/markleaf-android</string>
+    <string name="oss_view_source">Xem trên GitHub</string>
+    <string name="oss_view_license">Xem toàn văn giấy phép</string>
+    <string name="oss_license_url">https://github.com/jeiel85/markleaf-android/blob/main/LICENSE</string>
+    <string name="oss_fdroid_label">F-Droid</string>
+    <string name="oss_fdroid_url">https://f-droid.org/packages/com.markleaf.notes/</string>
+    <string name="oss_view_fdroid">Xem trên F-Droid</string>
+    <string name="oss_explainer">Markleaf là phần mềm mã nguồn mở hoàn toàn theo giấy phép Apache 2.0. Hãy đọc mã, kiểm tra cách ghi chú của bạn được lưu trữ và đóng góp trên GitHub.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title_welcome">Chào mừng đến với Markleaf</string>
+    <string name="onboarding_body_welcome">Ứng dụng ghi chú Markdown yên tĩnh, ưu tiên lưu cục bộ cho Android. Văn bản của bạn luôn ở trên thiết bị này, trừ khi bạn chọn chia sẻ hoặc xuất.</string>
+    <string name="onboarding_title_markdown">Viết bằng Markdown</string>
+    <string name="onboarding_body_markdown">Dùng **đậm**, _nghiêng_, # tiêu đề, danh sách, mã và trích dẫn. Nhấn Xem trước trên thanh trên cùng để xem bản hiển thị bất cứ lúc nào.</string>
+    <string name="onboarding_title_tags">Sắp xếp bằng #thẻ</string>
+    <string name="onboarding_body_tags">Gõ #dự-án hoặc #cuộc-họp ở bất kỳ đâu trong ghi chú. Thẻ được nhận diện tự động và hiển thị trên màn hình Thẻ.</string>
+    <string name="onboarding_title_local">Dữ liệu của bạn ở lại trên máy</string>
+    <string name="onboarding_body_local">Không tài khoản, không phân tích, không đám mây. Xuất bất kỳ ghi chú nào thành tệp .md, hoặc chọn cho Markleaf một thư mục được đồng bộ (Dropbox / Drive / Syncthing) để dùng trên nhiều thiết bị.</string>
+    <string name="onboarding_next">Tiếp</string>
+    <string name="onboarding_done">Bắt đầu</string>
+    <string name="onboarding_skip">Bỏ qua</string>
+
+    <!-- Biometric lock -->
+    <string name="biometric_lock_title">Khóa ứng dụng</string>
+    <string name="biometric_lock_setting">Yêu cầu sinh trắc học khi mở</string>
+    <string name="biometric_lock_description">Cần mở khóa bằng vân tay hoặc khuôn mặt khi mở Markleaf. Bản thân ghi chú không bao giờ được gửi ra khỏi thiết bị.</string>
+    <string name="biometric_lock_prompt_title">Mở khóa Markleaf</string>
+    <string name="biometric_lock_prompt_subtitle">Xác thực để truy cập ghi chú của bạn</string>
+    <string name="biometric_lock_cancel">Hủy</string>
+    <string name="biometric_lock_unavailable">Thiết bị này không hỗ trợ xác thực sinh trắc học. Hãy thiết lập vân tay hoặc khuôn mặt trong cài đặt hệ thống để dùng khóa ứng dụng.</string>
+    <string name="biometric_lock_retry">Thử lại</string>
+    <string name="biometric_lock_locked_message">Markleaf đang bị khóa.</string>
+
+    <!-- Locked notes (#155) -->
+    <string name="locked_notes_title">Ghi chú đã khóa</string>
+    <string name="move_to_locked">Chuyển vào mục Đã khóa</string>
+    <string name="remove_from_locked">Gỡ khỏi mục Đã khóa</string>
+    <string name="locked_notes_empty">Không có ghi chú đã khóa</string>
+    <string name="locked_notes_empty_hint">Ghi chú bạn chuyển vào mục Đã khóa sẽ xuất hiện ở đây, được bảo vệ bằng mật mã.</string>
+    <string name="locked_unlock_hint">Nhập mật mã để mở Ghi chú đã khóa.</string>
+    <string name="locked_passcode_label">Mật mã</string>
+    <string name="locked_unlock_button">Mở khóa</string>
+    <string name="locked_wrong_passcode">Mật mã không đúng.</string>
+    <string name="locked_too_many_attempts">Quá nhiều lần thử. Hãy thử lại sau %1$s.</string>
+    <string name="wikilink_target_locked">Ghi chú đó nằm trong Ghi chú đã khóa.</string>
+    <string name="locked_no_passcode_title">Chưa đặt mật mã</string>
+    <string name="locked_no_passcode_hint">Đặt mật mã trong Cài đặt để bảo vệ ghi chú đã khóa.</string>
+    <string name="locked_open_settings">Mở Cài đặt</string>
+    <string name="locked_need_passcode_title">Hãy đặt mật mã trước</string>
+    <string name="locked_need_passcode_message">Để khóa ghi chú, hãy đặt mật mã cho Ghi chú đã khóa trong Cài đặt.</string>
+    <string name="locked_passcode_setting_title">Mật mã ghi chú đã khóa</string>
+    <string name="locked_passcode_setting_description">Bảo vệ các ghi chú bạn chuyển vào mục Đã khóa. Tính năng này ẩn ghi chú trong ứng dụng — đây không phải mã hóa toàn diện.</string>
+    <string name="locked_passcode_set">Đặt mật mã</string>
+    <string name="locked_passcode_change">Đổi mật mã</string>
+    <string name="locked_passcode_remove">Gỡ mật mã</string>
+    <string name="locked_passcode_dialog_title">Mật mã ghi chú đã khóa</string>
+    <string name="locked_passcode_new_label">Mật mã mới</string>
+    <string name="locked_passcode_confirm_label">Xác nhận mật mã</string>
+    <string name="locked_passcode_save">Lưu</string>
+    <string name="locked_passcode_too_short">Dùng ít nhất 4 ký tự.</string>
+    <string name="locked_passcode_mismatch">Mật mã không khớp.</string>
+    <string name="locked_passcode_set_done">Đã đặt mật mã.</string>
+    <string name="locked_passcode_removed_done">Đã gỡ mật mã. Ghi chú đã khóa đã được chuyển về danh sách ghi chú của bạn.</string>
+    <string name="locked_passcode_remove_confirm_title">Gỡ mật mã?</string>
+    <string name="locked_passcode_remove_confirm_message">Thao tác này sẽ chuyển tất cả ghi chú đã khóa về danh sách ghi chú của bạn.</string>
+
+    <!-- Note information sheet accessibility (#152) -->
+    <string name="note_information_heading_action">Chuyển đến mục</string>
+    <string name="note_information_backlink_action">Mở ghi chú</string>
+
+    <!-- PDF export -->
+    <string name="export_pdf">Xuất thành PDF…</string>
+    <string name="export_pdf_job_name">Markleaf — %1$s</string>
+    <string name="export_pdf_unavailable">Chỉ có thể xuất PDF trên Android 5 trở lên.</string>
+
+    <!-- Widget -->
+    <string name="quick_note_widget_label">Ghi chú nhanh</string>
+    <string name="quick_note_widget_description">Nhấn để tạo nhanh ghi chú mới</string>
+    <string name="single_note_widget_label">Một ghi chú</string>
+    <string name="single_note_widget_description">Hiện nội dung của một ghi chú trên màn hình chính</string>
+    <string name="single_note_widget_configure_title">Chọn một ghi chú</string>
+    <string name="single_note_widget_size_description">Chỉ áp dụng cho tiện ích này. Các tiện ích khác và trình soạn thảo vẫn giữ cỡ chữ riêng.</string>
+    <string name="single_note_widget_unavailable">Ghi chú này không còn nữa</string>
+
+    <!-- Privacy Dashboard -->
+    <string name="privacy_dashboard_title">Bảng điều khiển quyền riêng tư</string>
+    <string name="privacy_guarantee_title">Dữ liệu của bạn ở lại trên máy</string>
+    <string name="privacy_guarantee_desc">Markleaf được thiết kế với quyền riêng tư làm cốt lõi. Ghi chú của bạn không bao giờ rời khỏi thiết bị, trừ khi bạn chủ động chọn xuất hoặc chia sẻ.</string>
+    <string name="privacy_data_storage_title">Lưu trữ cục bộ</string>
+    <string name="privacy_data_storage_desc">Toàn bộ ghi chú và thẻ được lưu cục bộ trên thiết bị bằng cơ sở dữ liệu Room an toàn của Android. Không máy chủ đám mây, không tải dữ liệu lên.</string>
+    <string name="privacy_no_cloud_title">Không phụ thuộc đám mây</string>
+    <string name="privacy_no_cloud_desc">Chúng tôi không dùng bất kỳ dịch vụ đám mây nào cho chức năng cốt lõi. Không đồng bộ Google Drive, không tích hợp Dropbox, không máy chủ phụ trợ độc quyền.</string>
+    <string name="privacy_no_tracking_title">Không theo dõi</string>
+    <string name="privacy_no_tracking_desc">Không phân tích, không SDK báo cáo sự cố, không mạng quảng cáo. Chúng tôi không hề biết bạn dùng ứng dụng như thế nào, và chúng tôi muốn giữ như vậy.</string>
+    <string name="privacy_verification_title">Xác minh quyền riêng tư</string>
+    <string name="privacy_verify_no_internet">Không khai báo quyền INTERNET</string>
+    <string name="privacy_verify_local_only">Xử lý dữ liệu 100% cục bộ</string>
+    <string name="privacy_verify_no_ads">Không quảng cáo hay trình theo dõi</string>
+    <string name="privacy_verify_no_analytics">Không phân tích hay đo từ xa</string>
+    <string name="privacy_verify_open_source">Mã nguồn mở và có thể kiểm tra</string>
+    <string name="privacy_app_info_title">Về bản dựng này</string>
+    <string name="privacy_app_info_desc">Phiên bản %1$s\n\nBản dựng Markleaf này tuân thủ các tiêu chuẩn quyền riêng tư nghiêm ngặt. Mọi tính năng đều hoạt động hoàn toàn ngoại tuyến.</string>
+    <string name="privacy_dashboard_button">Xem bảng điều khiển quyền riêng tư</string>
+
+    <!-- Sync & Conflict Center -->
+    <string name="sync_center_title">Trung tâm đồng bộ</string>
+    <string name="conflict_center_title">Trung tâm xung đột</string>
+    <string name="conflict_center_desc">Các ghi chú này đã bị sửa đồng thời trên nhiều thiết bị. Hãy xem lại và sửa để hợp nhất thay đổi thủ công, hoặc xóa các bản sao bạn không còn cần.</string>
+    <string name="conflict_center_empty">Không phát hiện xung đột</string>
+    <string name="conflict_center_empty_desc">Tất cả ghi chú được sao chép đều đã đồng bộ hoàn toàn.</string>
+    <string name="conflict_delete_confirm_title">Xóa bản sao xung đột?</string>
+    <string name="conflict_delete_confirm_desc">Bản sao xung đột này sẽ bị xóa vĩnh viễn.</string>
+    <string name="conflict_note_updated_format">Đã cập nhật: %1$s</string>
+
+    <!-- Preview mode -->
+    <string name="preview_link_address_copied">Đã sao chép địa chỉ liên kết</string>
+
+</resources>

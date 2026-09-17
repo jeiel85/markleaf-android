@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chính sách quyền riêng tư - Markleaf</title>
+    <meta name="description" content="Chính sách quyền riêng tư của Markleaf. Markleaf là ứng dụng ghi chú Markdown ưu tiên lưu trữ cục bộ, không có tài khoản, phân tích, quảng cáo hay theo dõi. Các bản build cho kho ứng dụng không khai báo quyền INTERNET.">
+    <link rel="canonical" href="https://jeiel85.github.io/markleaf-android/privacy.vi.html">
+    <link rel="alternate" hreflang="en" href="https://jeiel85.github.io/markleaf-android/privacy.html">
+    <link rel="alternate" hreflang="ko" href="https://jeiel85.github.io/markleaf-android/privacy.ko.html">
+    <link rel="alternate" hreflang="ja" href="https://jeiel85.github.io/markleaf-android/privacy.ja.html">
+    <link rel="alternate" hreflang="zh-Hans" href="https://jeiel85.github.io/markleaf-android/privacy.zh.html">
+    <link rel="alternate" hreflang="de" href="https://jeiel85.github.io/markleaf-android/privacy.de.html">
+    <link rel="alternate" hreflang="es" href="https://jeiel85.github.io/markleaf-android/privacy.es.html">
+    <link rel="alternate" hreflang="fr" href="https://jeiel85.github.io/markleaf-android/privacy.fr.html">
+    <link rel="alternate" hreflang="hr" href="https://jeiel85.github.io/markleaf-android/privacy.hr.html">
+    <link rel="alternate" hreflang="ru" href="https://jeiel85.github.io/markleaf-android/privacy.ru.html">
+    <link rel="alternate" hreflang="vi" href="https://jeiel85.github.io/markleaf-android/privacy.vi.html">
+    <link rel="alternate" hreflang="x-default" href="https://jeiel85.github.io/markleaf-android/privacy.html">
+    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav aria-label="Điều hướng chính">
+            <a class="logo" href="index.vi.html" aria-label="Trang chủ Markleaf">
+                <img src="assets/logo.svg" alt="">
+                <span>Markleaf</span>
+            </a>
+            <div class="nav-cluster">
+                <ul>
+                    <li><a href="index.vi.html">Trang chủ</a></li>
+                    <li><a href="privacy.vi.html">Quyền riêng tư</a></li>
+                    <li><a href="https://github.com/jeiel85/markleaf-android">GitHub</a></li>
+                </ul>
+                <div class="lang-switch" aria-label="Ngôn ngữ">
+                    <a href="privacy.html" hreflang="en" aria-label="English">EN</a>
+                    <a href="privacy.ko.html" hreflang="ko" aria-label="한국어">KO</a>
+                    <a href="privacy.ja.html" hreflang="ja" aria-label="日本語">JA</a>
+                    <a href="privacy.zh.html" hreflang="zh-Hans" aria-label="简体中文">ZH</a>
+                    <a href="privacy.de.html" hreflang="de" aria-label="Deutsch">DE</a>
+                    <a href="privacy.es.html" hreflang="es" aria-label="Español">ES</a>
+                    <a href="privacy.fr.html" hreflang="fr" aria-label="Français">FR</a>
+                    <a href="privacy.hr.html" hreflang="hr" aria-label="Hrvatski">HR</a>
+                    <a href="privacy.ru.html" hreflang="ru" aria-label="Русский">RU</a>
+                    <a href="privacy.vi.html" hreflang="vi" aria-current="page">VI</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <article class="content">
+            <h1>Chính sách quyền riêng tư của Markleaf</h1>
+            <p class="updated">Cập nhật lần cuối: 26/05/2026 · Áp dụng cho Markleaf Android v2.x</p>
+
+            <h2>Nguyên tắc cốt lõi</h2>
+            <p>Markleaf là ứng dụng ghi chú Markdown ưu tiên lưu trữ cục bộ. Ứng dụng không vận hành máy chủ riêng và không bao giờ tải ghi chú, thẻ, tệp đính kèm hay siêu dữ liệu lên bất kỳ máy chủ bên ngoài nào. Các bản build phân phối qua F-Droid và Google Play hoàn toàn không khai báo quyền <code>android.permission.INTERNET</code>; bản sideload trên GitHub Releases chỉ khai báo quyền này cho một mục đích duy nhất, được mô tả trong phần <a class="text-link" href="#network">Mạng</a>.</p>
+
+            <h2>Thông tin Markleaf không thu thập</h2>
+            <ul>
+                <li>Tên, email, danh bạ, vị trí</li>
+                <li>Thông tin tài khoản hoặc đăng nhập</li>
+                <li>Nội dung, tiêu đề, thẻ, hình ảnh đính kèm, tên tệp, siêu dữ liệu của ghi chú</li>
+                <li>Thống kê sử dụng, dữ liệu đo từ xa, sự kiện phân tích, mã định danh quảng cáo</li>
+                <li>Báo cáo sự cố hoặc mã định danh thiết bị</li>
+            </ul>
+            <p>Ứng dụng cũng không chứa SDK phân tích, quảng cáo, theo dõi, cấu hình từ xa, Firebase hay SDK báo cáo sự cố mã nguồn đóng.</p>
+
+            <h2 id="network">Mạng</h2>
+            <p>Điều này phụ thuộc vào nơi bạn tải ứng dụng. Trong cả hai trường hợp, <strong>không dữ liệu ghi chú nào của bạn bị gửi đi.</strong></p>
+            <ul>
+                <li><strong>F-Droid và Google Play</strong> — không có <code>android.permission.INTERNET</code> và hoàn toàn không có hoạt động mạng nào.</li>
+                <li><strong>GitHub Releases (sideload)</strong> — khai báo hai quyền: một quyền cho việc kiểm tra cập nhật, và một quyền để có thể cài bản cập nhật bạn chọn tải về. Cả hai đều không hoạt động trừ khi bạn bật tính năng kiểm tra.</li>
+            </ul>
+            <pre>F-Droid / Google Play   INTERNET: không có &middot; REQUEST_INSTALL_PACKAGES: không có
+GitHub Releases         INTERNET: kiểm tra cập nhật &middot; REQUEST_INSTALL_PACKAGES: cài đặt, sau khi xác minh SHA-256</pre>
+
+            <h3>Kiểm tra cập nhật trong bản sideload</h3>
+            <ul>
+                <li><strong>Tắt theo mặc định.</strong> Không có gì xảy ra cho đến khi bạn bật nó trong Cài đặt.</li>
+                <li>Mỗi ngày một lần, ứng dụng gửi một yêu cầu GET duy nhất để lấy một tệp JSON tĩnh mô tả bản phát hành mới nhất. Nếu kiểm tra thất bại, lỗi sẽ được bỏ qua một cách lặng lẽ.</li>
+                <li>Chạm <strong>Tải về và cài đặt</strong> trong hộp thoại cập nhật sẽ tạo yêu cầu mạng duy nhất còn lại của ứng dụng: một yêu cầu GET để lấy chính tệp cập nhật. Cũng như việc kiểm tra, điều này chỉ xảy ra vì bạn yêu cầu.</li>
+                <li>Khi tệp đã tải xong, ứng dụng so sánh nó với giá trị SHA-256 trong tệp JSON đó. <strong>Nếu không khớp, tệp sẽ bị xóa và quá trình cài đặt không bao giờ bắt đầu.</strong></li>
+                <li>Chỉ tệp đã được xác minh mới được chuyển cho <code>PackageInstaller</code> của chính Android. Màn hình xác nhận hiện ra sau đó do Android hiển thị, không phải Markleaf. Bước này cần quyền <code>REQUEST_INSTALL_PACKAGES</code>; nếu quyền chưa được cấp, ứng dụng sẽ đưa bạn đến Cài đặt trước.</li>
+                <li>Nếu việc tải về hoặc xác minh thất bại, bạn có thể thử lại, hoặc mở trong trình duyệt — đúng cách chuyển giao mà tính năng này dùng trước đây.</li>
+                <li>Yêu cầu chỉ mang theo URL đó và các header HTTP tiêu chuẩn. Không có chuỗi truy vấn, không cookie, không tài khoản.</li>
+                <li><strong>Không có nội dung, tiêu đề, thẻ, tệp đính kèm, tên tệp, siêu dữ liệu của ghi chú, mã định danh thiết bị hay dữ liệu sử dụng nào bị gửi đi.</strong> Điều này đúng với mọi bản build và mọi yêu cầu kể trên, không có ngoại lệ.</li>
+                <li>Các bản build cho kho ứng dụng không chứa quyền này cũng như đoạn mã tương ứng — không phải bị vô hiệu hóa, mà đơn giản là không được đưa vào.</li>
+            </ul>
+
+            <h2>Nơi lưu trữ dữ liệu</h2>
+            <ul>
+                <li>Nội dung, tiêu đề ghi chú và chỉ mục thẻ được lưu trong cơ sở dữ liệu Room nội bộ của ứng dụng.</li>
+                <li>Cài đặt người dùng được lưu trong DataStore.</li>
+                <li>Hình ảnh đính kèm được sao chép vào bộ nhớ trong của ứng dụng, và siêu dữ liệu EXIF nhạy cảm được loại bỏ khi lưu.</li>
+            </ul>
+
+            <h2>Chính sách sao lưu hệ thống Android</h2>
+            <p>Markleaf đặt <code>android:allowBackup="false"</code> để loại dữ liệu ứng dụng khỏi Tự động sao lưu của Android và việc chuyển dữ liệu giữa các thiết bị. Nếu cần chuyển sang thiết bị mới hoặc dùng nhiều thiết bị, bạn tự chọn xuất Markdown, chia sẻ hoặc phản chiếu thư mục SAF.</p>
+
+            <h2>Di chuyển dữ liệu do người dùng thực hiện</h2>
+            <p>Các thao tác sau chỉ xảy ra khi chính bạn thực hiện, thông qua hộp thoại cấp quyền rõ ràng của Android hoặc lựa chọn trên giao diện do bạn đưa ra.</p>
+            <ul>
+                <li>Xuất một ghi chú hoặc tất cả ghi chú dưới dạng Markdown (<code>.md</code>)</li>
+                <li>Chia sẻ văn bản hoặc tệp ghi chú qua bảng chia sẻ của hệ thống Android</li>
+                <li>Chạm vào liên kết ngoài trong nội dung để giao cho hệ điều hành / trình duyệt mặc định</li>
+                <li>Sao chép vào bộ nhớ tạm</li>
+                <li>Phản chiếu tệp Markdown vào thư mục SAF do bạn chọn</li>
+            </ul>
+            <p>Việc thư mục SAF có được đồng bộ bởi ứng dụng đồng bộ bên ngoài như Drive, Dropbox, OneDrive, Syncthing hay ổ NAS được gắn hay không là trách nhiệm của ứng dụng bên ngoài đó. Bản thân Markleaf không thực hiện việc đồng bộ này.</p>
+
+            <h2>Quyền</h2>
+            <p>Quyền duy nhất thuộc dạng quyền khi chạy mà Markleaf khai báo là <code>android.permission.VIBRATE</code> để phản hồi xúc giác. Không bản build nào khai báo quyền vị trí, micrô, máy ảnh, danh bạ, thông báo, đọc bộ nhớ ngoài hay đọc phương tiện. Cả <code>android.permission.INTERNET</code> lẫn <code>android.permission.REQUEST_INSTALL_PACKAGES</code> đều không có trong bản build F-Droid và Google Play. Hai quyền này chỉ có trong bản sideload, dành cho việc kiểm tra cập nhật và cài đặt tùy chọn được mô tả trong phần <a class="text-link" href="#network">Mạng</a>.</p>
+
+            <h2>Liên hệ</h2>
+            <p>Nếu có câu hỏi hoặc muốn báo cáo vấn đề bảo mật/quyền riêng tư, vui lòng liên hệ qua <a class="text-link" href="https://github.com/jeiel85/markleaf-android/issues">GitHub Issues</a>.</p>
+        </article>
+    </main>
+
+    <footer>
+        <p>Markleaf · Ứng dụng ghi chú Markdown nhẹ, ưu tiên lưu trữ cục bộ cho Android.</p>
+        <p><a href="index.vi.html">Trang chủ</a> · <a href="https://github.com/jeiel85/markleaf-android">GitHub</a> · <a href="https://github.com/jeiel85/markleaf-android/blob/main/LICENSE">Apache-2.0</a></p>
+    </footer>
+</body>
+</html>

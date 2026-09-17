@@ -30,7 +30,9 @@
   <a href="README.de.md">Deutsch</a> ·
   <a href="README.es.md">Español</a> ·
   <a href="README.fr.md">Français</a> ·
-  <a href="README.hr.md">Hrvatski</a>
+  <a href="README.hr.md">Hrvatski</a> ·
+  <a href="README.ru.md">Русский</a> ·
+  <a href="README.vi.md">Tiếng Việt</a>
 </p>
 
 <p align="center">
@@ -97,7 +99,7 @@
 - **Markleaf green theme + Material You toggle** — Android 12+ system wallpaper colors optional
 - **Automatic dark mode** — follows the system setting
 - **Tablet 3-pane layout** — tag sidebar · note list · editor; tap a tag in the sidebar to filter the note list in place (note list still collapsible)
-- **UI in 8 languages** — Korean / English / Spanish / Japanese / French / German / Simplified Chinese / Croatian resources
+- **UI in 10 languages** — Korean / English / Spanish / Japanese / French / German / Simplified Chinese / Croatian / Russian / Vietnamese resources
 - **Block screenshots / recent-apps preview option** — for sensitive notes
 
 ---

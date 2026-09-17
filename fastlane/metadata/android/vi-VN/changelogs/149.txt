@@ -1,0 +1,1 @@
+Wikilink giờ có thể hiển thị nhãn tùy chỉnh: [[some-note.md|Some Link]]. Liên kết Markdown tương đối như [Some Link](some-note.md) giờ mở ghi chú từ thư mục đồng bộ bạn đã chọn. Liên kết bên ngoài vẫn mở trong ứng dụng khác. (#414)

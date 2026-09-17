@@ -30,7 +30,9 @@
   <a href="README.de.md">Deutsch</a> ·
   <a href="README.es.md">Español</a> ·
   <a href="README.fr.md">Français</a> ·
-  <a href="README.hr.md">Hrvatski</a>
+  <a href="README.hr.md">Hrvatski</a> ·
+  <a href="README.ru.md">Русский</a> ·
+  <a href="README.vi.md">Tiếng Việt</a>
 </p>
 
 <p align="center">
@@ -97,7 +99,7 @@
 - **Markleaf グリーンテーマ + Material You 切り替え** — Android 12 以降ではシステム壁紙の色もオプション
 - **自動ダークモード** — システム設定に追従
 - **タブレット 3 ペインレイアウト** — タグサイドバー · ノート一覧 · エディタ。サイドバーのタグをタップするとノート一覧をその場で絞り込み（ノート一覧は折りたたみ可能）
-- **8 言語 UI** — 韓国語 / 英語 / スペイン語 / 日本語 / フランス語 / ドイツ語 / 簡体字中国語 / クロアチア語のリソースを運用
+- **10 言語 UI** — 韓国語 / 英語 / スペイン語 / 日本語 / フランス語 / ドイツ語 / 簡体字中国語 / クロアチア語 / ロシア語 / ベトナム語のリソースを運用
 - **スクリーンショット / 最近のアプリのプレビュー遮断オプション** — 機密性の高いノート向け
 
 ---

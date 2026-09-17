@@ -1,0 +1,1 @@
+Corregido: buscar y reemplazar en el modo de edición seleccionaba o reemplazaba un texto equivocado en notas con una letra cuya minúscula es más larga, como la İ turca. Ahora las coincidencias caen exactamente sobre el texto buscado.

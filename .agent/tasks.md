@@ -5,6 +5,14 @@
 
 ---
 
+## Hardening #262 - Edit-mode find offsets after İ (Done, 2026-09-18)
+
+- [x] `findAllRanges`가 소문자 사본의 위치를 쓰던 문제를 `findOccurrences`로 통일, 재현 테스트 3건
+- [x] 에뮬레이터에서 `İstanbul İzmir apple end` 바꾸기 확인
+- [x] v2.46.1 / versionCode 152 릴리스 문서와 10개 언어 준비
+
+---
+
 ## GitHub Issue #417 - Find in note from preview (Done, 2026-09-17)
 
 - [x] 미리보기 오버플로 메뉴에 노트 내 찾기, 렌더링된 텍스트 기준 매칭·강조·스크롤, 접힌 섹션 펼치기

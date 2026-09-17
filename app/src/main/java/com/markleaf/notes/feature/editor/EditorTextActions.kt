@@ -2,6 +2,7 @@ package com.markleaf.notes.feature.editor
 
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import com.markleaf.notes.core.markdown.preview.findOccurrences
 import com.markleaf.notes.data.settings.OpenNotesAt
 import kotlin.math.ceil
 import kotlin.math.max
@@ -214,20 +215,17 @@ internal fun replaceImageAlt(value: TextFieldValue, path: String, newAlt: String
     )
 }
 
-internal fun findAllRanges(text: String, query: String): List<IntRange> {
-    if (query.isEmpty() || text.isEmpty()) return emptyList()
-    val lower = text.lowercase()
-    val q = query.lowercase()
-    val ranges = mutableListOf<IntRange>()
-    var idx = 0
-    while (idx <= lower.length - q.length) {
-        val found = lower.indexOf(q, idx)
-        if (found < 0) break
-        ranges += found until (found + q.length)
-        idx = found + q.length.coerceAtLeast(1)
-    }
-    return ranges
-}
+/**
+ * Every non-overlapping, case-insensitive match of [query] in [text], as ranges
+ * into [text] itself — the selection and the replace target.
+ *
+ * Matching goes through [findOccurrences], the same comparison preview find
+ * uses, rather than searching a lowercased copy: lowercasing can change a
+ * string's length (`İ` becomes two chars), and offsets from the copy then land
+ * late on the original, so replace edited the wrong text or ran past its end.
+ */
+internal fun findAllRanges(text: String, query: String): List<IntRange> =
+    findOccurrences(text, query).map { start -> start until start + query.length }
 
 internal fun replaceRange(
     state: TextFieldValue,

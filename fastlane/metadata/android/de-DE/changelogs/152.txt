@@ -1,0 +1,1 @@
+Behoben: Suchen und Ersetzen im Bearbeitungsmodus markierte oder ersetzte in Notizen mit einem Buchstaben, der kleingeschrieben länger wird – etwa dem türkischen İ –, den falschen Text. Treffer liegen jetzt genau auf dem gesuchten Text.

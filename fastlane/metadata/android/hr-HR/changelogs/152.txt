@@ -1,0 +1,1 @@
+Ispravljeno: pretraživanje i zamjena u načinu uređivanja označavali su ili mijenjali pogrešan tekst u bilješkama sa slovom koje je u malom obliku dulje, poput turskog İ. Podudaranja sada točno pogađaju traženi tekst.

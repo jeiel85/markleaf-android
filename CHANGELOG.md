@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.46.1 - Find lands on the right letters - 2026-09-18
+
+A fix for find and replace while editing. No permission or storage-format changes.
+
+### Fixed
+- **Find and replace in edit mode selected the wrong text in some languages.** The editor searched a lowercased copy of the note and used positions from that copy, but lowercasing can make text longer — the Turkish dotted capital `İ` becomes two characters. Every such letter before a match pushed the selection one character late, so Replace changed the wrong text, and a match near the end could reach past it. Matches now use the same comparison as find in preview, which never changes the note's length. Found while reviewing v2.46.0.
+
 ## v2.46.0 - Find what you are reading - 2026-09-17
 
 Find in note is no longer limited to edit mode. No permission or storage-format changes.

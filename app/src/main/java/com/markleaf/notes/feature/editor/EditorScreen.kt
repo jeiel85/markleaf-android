@@ -449,6 +449,8 @@ fun EditorScreen(
     )
 
     var isFindOpen by remember(noteId) { mutableStateOf(false) }
+    /** Which mode the find bar was opened in; see the find match lists (#417). */
+    var findOpenedInPreview by remember(noteId) { mutableStateOf(false) }
     var findQuery by remember(noteId) { mutableStateOf("") }
     var findIndex by remember(noteId) { mutableStateOf(0) }
     var replaceQuery by remember(noteId) { mutableStateOf("") }
@@ -578,16 +580,20 @@ fun EditorScreen(
         }
     }
     // Find runs over the source while editing and over the rendered rows in
-    // preview (#417); only the list for the current mode is ever non-empty, so
-    // the preview search never moves the editor's selection.
-    val findMatches = remember(editorState.text, findQuery, isPreviewMode) {
-        if (isPreviewMode) emptyList() else findAllRanges(editorState.text, findQuery)
+    // preview (#417). A query only counts in the mode the bar was opened in:
+    // the effect below that closes find on a mode switch lands a frame late,
+    // and without this gate that frame would still scroll or expand the new
+    // preview, or select a match in the editor, with the old query.
+    val isEditorSearchActive = isFindOpen && !findOpenedInPreview && !isPreviewMode
+    val isPreviewSearchActive =
+        isFindOpen && findOpenedInPreview && isPreviewMode && findQuery.isNotEmpty()
+    val findMatches = remember(editorState.text, findQuery, isEditorSearchActive) {
+        if (isEditorSearchActive) findAllRanges(editorState.text, findQuery) else emptyList()
     }
     // A missing attachment renders its `![alt](path)` source, which find has to
     // search too. Checked only while a preview search is actually running —
     // opening preview or the outline must not touch every image on disk — and
     // then once per rebuilt preview rather than per keystroke.
-    val isPreviewSearchActive = isPreviewMode && isFindOpen && findQuery.isNotEmpty()
     val unresolvedImagePaths = remember(previewLines, isPreviewSearchActive) {
         if (!isPreviewSearchActive) {
             emptySet()
@@ -599,8 +605,8 @@ fun EditorScreen(
                 .toSet()
         }
     }
-    val previewFindMatches = remember(previewLines, findQuery, isPreviewMode, unresolvedImagePaths) {
-        if (isPreviewMode) {
+    val previewFindMatches = remember(previewLines, findQuery, isPreviewSearchActive, unresolvedImagePaths) {
+        if (isPreviewSearchActive) {
             findInPreview(previewLines, findQuery) { path -> path !in unresolvedImagePaths }
         } else {
             emptyList()
@@ -936,6 +942,7 @@ fun EditorScreen(
                             overflowExpanded = false
                             isFindOpen = !isFindOpen
                             if (isFindOpen) {
+                                findOpenedInPreview = isPreviewMode
                                 findQuery = ""
                                 replaceQuery = ""
                             }
@@ -1075,7 +1082,7 @@ fun EditorScreen(
                         MarkdownPreviewList(
                             lines = previewLines,
                             modifier = Modifier.fillMaxSize(),
-                            findQuery = if (isFindOpen) findQuery else "",
+                            findQuery = if (isPreviewSearchActive) findQuery else "",
                             currentFindMatch = previewFindMatches.getOrNull(findIndex),
                             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
                             listState = previewListState,

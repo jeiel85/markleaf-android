@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -85,5 +86,50 @@ class EditorPreviewFindTest {
         composeRule.onNodeWithContentDescription(next).performClick()
         composeRule.onNodeWithText("3/3").assertExists()
         composeRule.onNodeWithText("hidden pear").assertExists()
+    }
+
+    @Test
+    fun switchingToPreviewWithEditorFindOpenDoesNotActOnTheOldQuery() {
+        // A Codex review finding: find closes on a mode switch one frame late,
+        // and that frame used to expand the section holding the first match.
+        val noteId = createNote("# Pears\n\n<details>\n<summary>More</summary>\n\nhidden pear\n</details>")
+        val settings = AppSettingsRepository(InMemoryPreferencesDataStore())
+
+        composeRule.setContent {
+            Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                EditorScreen(noteId = noteId, onBack = {}, settingsRepository = settings)
+            }
+        }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(context.getString(R.string.more_options)).performClick()
+        composeRule.onNodeWithText(context.getString(R.string.find_in_note)).performClick()
+        // The find field is the first of the bar's two text fields (find, replace).
+        composeRule.onAllNodes(
+            hasSetTextAction() and !hasContentDescription(context.getString(R.string.note_content))
+        )[0].performTextInput("hidden")
+
+        composeRule.onNodeWithContentDescription(context.getString(R.string.preview)).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("hidden pear").assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(context.getString(R.string.find_next_match)).assertDoesNotExist()
+    }
+
+    private fun createNote(content: String): String {
+        val noteId = UUID.randomUUID().toString()
+        runBlocking {
+            repo.createNote(
+                Note(
+                    id = noteId,
+                    title = "Pears",
+                    contentMarkdown = content,
+                    excerpt = "",
+                    createdAt = Instant.now(),
+                    updatedAt = Instant.now()
+                )
+            )
+        }
+        return noteId
     }
 }

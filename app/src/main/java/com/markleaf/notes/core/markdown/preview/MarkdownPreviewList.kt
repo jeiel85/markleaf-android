@@ -157,7 +157,14 @@ fun MarkdownPreviewList(
      * up front; see [isSectionExpanded].
      */
     toggledSectionIds: Set<Int> = emptySet(),
-    onToggleSection: (Int) -> Unit = {}
+    onToggleSection: (Int) -> Unit = {},
+    /**
+     * Find-in-note in preview (#417): every occurrence of this is highlighted,
+     * and [currentFindMatch] — whose index is into [lines], not the visible
+     * rows — is drawn more strongly. Empty means find is closed.
+     */
+    findQuery: String = "",
+    currentFindMatch: PreviewFindMatch? = null
 ) {
     val scope = rememberCoroutineScope()
     // The scale rides the PreviewLine rather than a CompositionLocal:
@@ -174,8 +181,11 @@ fun MarkdownPreviewList(
     // long collapsed section costs nothing while it stays closed. Recomputed
     // from scratch on every toggle rather than incrementally — cheap even for
     // a large note, since it is one filter pass over rows already in memory.
-    val visibleLines = remember(scaledLines, toggledSectionIds) {
-        visiblePreviewLines(scaledLines, toggledSectionIds)
+    val visibleIndices = remember(scaledLines, toggledSectionIds) {
+        visiblePreviewLineIndices(scaledLines, toggledSectionIds)
+    }
+    val visibleLines = remember(scaledLines, visibleIndices) {
+        visibleIndices.map { scaledLines[it] }
     }
     // Footnote ref → def: clicking a superscript `[^N]` scrolls the matching
     // `[^N]: …` definition row into view. If no matching def exists in the
@@ -225,18 +235,29 @@ fun MarkdownPreviewList(
                     contentPadding = contentPadding
                 ) {
                     itemsIndexed(visibleLines) { index, line ->
-                        PreviewLineRenderer(
-                            line = line,
-                            // Only a block with something above it needs
-                            // separating from it; see [headingTop].
-                            isFirstBlock = index == 0,
-                            onWikilinkClick = onWikilinkClick,
-                            onImageLongPress = onImageLongPress,
-                            onFootnoteRefClick = onFootnoteRefClick,
-                            onToggleTask = onToggleTask,
-                            isSectionToggled = { id -> id in toggledSectionIds },
-                            onToggleSection = onToggleSection
-                        )
+                        val lineIndex = visibleIndices[index]
+                        val highlight = findQuery.takeIf { it.isNotEmpty() }?.let { query ->
+                            PreviewFindHighlight(
+                                query = query,
+                                current = currentFindMatch
+                                    ?.takeIf { it.lineIndex == lineIndex }
+                                    ?.occurrence
+                            )
+                        }
+                        CompositionLocalProvider(LocalPreviewFindHighlight provides highlight) {
+                            PreviewLineRenderer(
+                                line = line,
+                                // Only a block with something above it needs
+                                // separating from it; see [headingTop].
+                                isFirstBlock = index == 0,
+                                onWikilinkClick = onWikilinkClick,
+                                onImageLongPress = onImageLongPress,
+                                onFootnoteRefClick = onFootnoteRefClick,
+                                onToggleTask = onToggleTask,
+                                isSectionToggled = { id -> id in toggledSectionIds },
+                                onToggleSection = onToggleSection
+                            )
+                        }
                     }
                 }
             }
@@ -309,21 +330,21 @@ private fun PreviewLineContent(
     val scaled = scale != 1f
     when (line.type) {
         PreviewLineType.H1 -> Text(
-            text = line.text,
+            text = findHighlighted(line.text),
             style = if (scaled) MaterialTheme.typography.headlineMedium.scaledBy(scale)
             else MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 24.dp), bottom = 8.dp)
         )
         PreviewLineType.H2 -> Text(
-            text = line.text,
+            text = findHighlighted(line.text),
             style = if (scaled) MaterialTheme.typography.headlineSmall.scaledBy(scale)
             else MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 20.dp), bottom = 6.dp)
         )
         PreviewLineType.H3 -> Text(
-            text = line.text,
+            text = findHighlighted(line.text),
             style = if (scaled) MaterialTheme.typography.titleLarge.scaledBy(scale)
             else MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.secondary,
@@ -334,21 +355,21 @@ private fun PreviewLineContent(
         // by that depth the heading is closer to a label than a section title,
         // and six visually distinct heading styles in one note is noise.
         PreviewLineType.H4 -> Text(
-            text = line.text,
+            text = findHighlighted(line.text),
             style = if (scaled) MaterialTheme.typography.titleMedium.scaledBy(scale)
             else MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 12.dp), bottom = 4.dp)
         )
         PreviewLineType.H5 -> Text(
-            text = line.text,
+            text = findHighlighted(line.text),
             style = if (scaled) MaterialTheme.typography.titleSmall.scaledBy(scale)
             else MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 10.dp), bottom = 2.dp)
         )
         PreviewLineType.H6 -> Text(
-            text = line.text,
+            text = findHighlighted(line.text),
             style = if (scaled) MaterialTheme.typography.labelLarge.scaledBy(scale)
             else MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -429,11 +450,16 @@ private fun PreviewLineContent(
             val id = line.collapsibleId
             val defaultOpen = line.extra == CommonMarkPreviewAdapter.OPEN_MARKER
             val expanded = if (id != null && isSectionToggled(id)) !defaultOpen else defaultOpen
-            CollapsibleSummaryRow(
-                text = line.text.ifEmpty { stringResource(R.string.collapsible_section_default_summary) },
-                expanded = expanded,
-                onClick = { id?.let(onToggleSection) }
-            )
+            // The default label for an empty <summary> is not the note's text, so
+            // find neither counts nor highlights it (#417).
+            val highlight = LocalPreviewFindHighlight.current.takeIf { line.text.isNotEmpty() }
+            CompositionLocalProvider(LocalPreviewFindHighlight provides highlight) {
+                CollapsibleSummaryRow(
+                    text = line.text.ifEmpty { stringResource(R.string.collapsible_section_default_summary) },
+                    expanded = expanded,
+                    onClick = { id?.let(onToggleSection) }
+                )
+            }
         }
         // Internal bookkeeping only -- stripped by CommonMarkPreviewAdapter
         // .applyCollapsibleRanges before a PreviewLine list ever reaches this
@@ -466,7 +492,7 @@ private fun CollapsibleSummaryRow(text: String, expanded: Boolean, onClick: () -
             modifier = Modifier.padding(end = 8.dp)
         )
         Text(
-            text = text,
+            text = findHighlighted(text),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface
@@ -514,7 +540,7 @@ internal fun InlineMarkdownText(
         onFootnoteRefClick = onFootnoteRefClick,
         onMarkerClick = onMarkerClick,
         fontScale = line.fontScale
-    )
+    ).withFindHighlights(LocalPreviewFindHighlight.current, searchStart = leadingMarker.length)
     val baseStyle = MaterialTheme.typography.bodyLarge
     val layout = remember { TextLayoutHolder() }
     // Links are now embedded as LinkAnnotations in `annotated`, so a plain Text
@@ -694,6 +720,41 @@ private const val LINK_TAG = "link"
  */
 private const val LINK_HREF_TAG = "link_href"
 private val LocalNoteLinkHandler = compositionLocalOf<((String) -> Unit)?> { null }
+
+/**
+ * The find highlight for the row being drawn (#417), or null while find is
+ * closed. Provided per LazyColumn item rather than passed down, because the
+ * text it applies to sits several renderers deep (a callout's body line, a
+ * footnote definition) and none of those signatures otherwise need to know.
+ */
+private val LocalPreviewFindHighlight = compositionLocalOf<PreviewFindHighlight?> { null }
+
+/** [text] with the current row's find highlight applied; see [withFindHighlights]. */
+@Composable
+private fun findHighlighted(text: String): AnnotatedString =
+    AnnotatedString(text).withFindHighlights(LocalPreviewFindHighlight.current)
+
+/**
+ * Marks [highlight]'s occurrences in this text: a quiet background for every
+ * match and the primary colour for the current one, the way the editor's
+ * selection marks its current match. Returns the text untouched while find is
+ * closed, so a preview without a query renders exactly as before.
+ */
+@Composable
+private fun AnnotatedString.withFindHighlights(
+    highlight: PreviewFindHighlight?,
+    searchStart: Int = 0
+): AnnotatedString {
+    if (highlight == null) return this
+    val scheme = MaterialTheme.colorScheme
+    return highlightFindMatches(
+        text = this,
+        highlight = highlight,
+        matchStyle = SpanStyle(background = scheme.tertiaryContainer, color = scheme.onTertiaryContainer),
+        currentStyle = SpanStyle(background = scheme.primary, color = scheme.onPrimary),
+        searchStart = searchStart
+    )
+}
 
 /**
  * Lets a link long press reach the [SelectionContainer] wrapping the whole
@@ -886,12 +947,20 @@ internal fun isSectionExpanded(
  * actually on screen, since a heading inside a collapsed section is not a
  * jump target until it is expanded.
  */
-internal fun visiblePreviewLines(lines: List<PreviewLine>, toggledSectionIds: Set<Int>): List<PreviewLine> {
+internal fun visiblePreviewLines(lines: List<PreviewLine>, toggledSectionIds: Set<Int>): List<PreviewLine> =
+    visiblePreviewLineIndices(lines, toggledSectionIds).map { lines[it] }
+
+/**
+ * The indices into [lines] of the rows [visiblePreviewLines] keeps, in order.
+ * Find-in-note (#417) needs these to map a match in the full list onto the
+ * LazyColumn item that draws it.
+ */
+internal fun visiblePreviewLineIndices(lines: List<PreviewLine>, toggledSectionIds: Set<Int>): List<Int> {
     val summaries = lines.filter { it.type == PreviewLineType.COLLAPSIBLE_SUMMARY }
-    if (summaries.isEmpty()) return lines
+    if (summaries.isEmpty()) return lines.indices.toList()
     val defaultOpenById = summaries.associate { (it.collapsibleId ?: -1) to (it.extra == CommonMarkPreviewAdapter.OPEN_MARKER) }
-    return lines.filter { line ->
-        line.collapsibleIds.all { id -> isSectionExpanded(defaultOpenById, toggledSectionIds, id) }
+    return lines.indices.filter { index ->
+        lines[index].collapsibleIds.all { id -> isSectionExpanded(defaultOpenById, toggledSectionIds, id) }
     }
 }
 
@@ -991,18 +1060,31 @@ private fun CalloutBox(
         }
         if (line.text.isNotBlank()) {
             Spacer(Modifier.height(4.dp))
+            // Each body line is its own Text, so the callout's current match is
+            // re-counted from the line it falls in (#417).
+            val highlight = LocalPreviewFindHighlight.current
+            var consumed = 0
             line.text.split("\n").forEach { bodyLine ->
                 if (bodyLine.isBlank()) {
                     Spacer(Modifier.height(4.dp))
                 } else {
-                    InlineMarkdownText(
-                        line = PreviewLine(
-                            text = bodyLine,
-                            type = PreviewLineType.BODY,
-                            segments = SimpleMarkdownPreview.parseInlineSegments(bodyLine)
-                        ),
-                        onFootnoteRefClick = onFootnoteRefClick
+                    val bodyPreviewLine = PreviewLine(
+                        text = bodyLine,
+                        type = PreviewLineType.BODY,
+                        segments = SimpleMarkdownPreview.parseInlineSegments(bodyLine)
                     )
+                    CompositionLocalProvider(
+                        LocalPreviewFindHighlight provides highlight?.after(consumed)
+                    ) {
+                        InlineMarkdownText(
+                            line = bodyPreviewLine,
+                            onFootnoteRefClick = onFootnoteRefClick
+                        )
+                    }
+                    if (highlight != null) {
+                        consumed += previewFindParts(bodyPreviewLine)
+                            .sumOf { findOccurrences(it, highlight.query).size }
+                    }
                 }
             }
         }
@@ -1070,6 +1152,18 @@ private fun MarkdownTable(
             .clip(RoundedCornerShape(6.dp))
             .background(scheme.surfaceVariant.copy(alpha = 0.5f))
     ) {
+        // Find highlights (#417) count occurrences across every cell, header
+        // first and then row by row, in the order previewFindParts lists them;
+        // each row starts counting after the cells above it.
+        val highlight = LocalPreviewFindHighlight.current
+        val occurrencesBeforeRow = remember(data, highlight?.query) {
+            val query = highlight?.query ?: return@remember emptyList<Int>()
+            val cellCounts = previewFindParts(PreviewLine("", PreviewLineType.TABLE, tableData = data))
+                .map { findOccurrences(it, query).size }
+            val rowSizes = listOf(data.headers.size) + data.rows.map { it.size }
+            rowSizes.runningFold(0) { taken, size -> taken + size }
+                .map { cellsBefore -> cellCounts.take(cellsBefore).sum() }
+        }
         // Header row
         TableRow(
             cells = data.headers,
@@ -1078,6 +1172,7 @@ private fun MarkdownTable(
             background = scheme.surfaceVariant,
             textColor = scheme.onSurface,
             bold = true,
+            highlight = highlight?.after(occurrencesBeforeRow.getOrElse(0) { 0 }),
             onWikilinkClick = onWikilinkClick,
             onFootnoteRefClick = onFootnoteRefClick
         )
@@ -1098,6 +1193,7 @@ private fun MarkdownTable(
                 },
                 textColor = scheme.onBackground,
                 bold = false,
+                highlight = highlight?.after(occurrencesBeforeRow.getOrElse(index + 1) { 0 }),
                 onWikilinkClick = onWikilinkClick,
                 onFootnoteRefClick = onFootnoteRefClick
             )
@@ -1113,9 +1209,11 @@ private fun TableRow(
     background: androidx.compose.ui.graphics.Color,
     textColor: androidx.compose.ui.graphics.Color,
     bold: Boolean,
+    highlight: PreviewFindHighlight?,
     onWikilinkClick: (String) -> Unit,
     onFootnoteRefClick: (String) -> Unit
 ) {
+    var consumed = 0
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -1129,7 +1227,7 @@ private fun TableRow(
             // without segment data (hand-built TableData) render the plain
             // string exactly as before.
             val segments = cellSegments.getOrElse(col) { emptyList() }
-            val content = if (segments.isEmpty()) {
+            val plain = if (segments.isEmpty()) {
                 AnnotatedString(cell)
             } else {
                 inlineAnnotatedString(
@@ -1138,6 +1236,8 @@ private fun TableRow(
                     onFootnoteRefClick = onFootnoteRefClick
                 )
             }
+            val content = plain.withFindHighlights(highlight?.after(consumed))
+            if (highlight != null) consumed += findOccurrences(plain.text, highlight.query).size
             val layout = remember { TextLayoutHolder() }
             Text(
                 text = content,
@@ -1171,7 +1271,7 @@ private fun FrontmatterBlock(text: String) {
             .padding(vertical = 6.dp)
     ) {
         Text(
-            text = text,
+            text = findHighlighted(text),
             style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
@@ -1279,7 +1379,7 @@ private fun MarkdownCodeBlock(text: String, language: String?) {
             )
         }
         Text(
-            text = annotated,
+            text = annotated.withFindHighlights(LocalPreviewFindHighlight.current),
             style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

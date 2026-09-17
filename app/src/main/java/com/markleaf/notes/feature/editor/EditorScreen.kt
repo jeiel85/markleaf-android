@@ -79,7 +79,10 @@ import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
 import com.markleaf.notes.core.markdown.markdownSyntaxColors
 import com.markleaf.notes.core.markdown.preview.MarkdownPreviewList
 import com.markleaf.notes.core.markdown.preview.TocHeading
+import com.markleaf.notes.core.markdown.preview.expandSectionsFor
 import com.markleaf.notes.core.markdown.preview.extractHeadings
+import com.markleaf.notes.core.markdown.preview.findInPreview
+import com.markleaf.notes.core.markdown.preview.visiblePreviewLineIndices
 import com.markleaf.notes.core.markdown.preview.visiblePreviewLines
 import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.data.local.AppDatabase
@@ -574,11 +577,39 @@ fun EditorScreen(
             }
         }
     }
-    val findMatches = remember(editorState.text, findQuery) {
-        findAllRanges(editorState.text, findQuery)
+    // Find runs over the source while editing and over the rendered rows in
+    // preview (#417); only the list for the current mode is ever non-empty, so
+    // the preview search never moves the editor's selection.
+    val findMatches = remember(editorState.text, findQuery, isPreviewMode) {
+        if (isPreviewMode) emptyList() else findAllRanges(editorState.text, findQuery)
     }
-    LaunchedEffect(findMatches) {
-        if (findIndex >= findMatches.size) findIndex = 0
+    val previewFindMatches = remember(previewLines, findQuery, isPreviewMode) {
+        if (isPreviewMode) findInPreview(previewLines, findQuery) else emptyList()
+    }
+    val activeFindMatchCount = if (isPreviewMode) previewFindMatches.size else findMatches.size
+    LaunchedEffect(activeFindMatchCount) {
+        if (findIndex >= activeFindMatchCount) findIndex = 0
+    }
+    // Switching between editing and preview changes what the matches are
+    // counted over, so a find left open would point at the wrong thing.
+    LaunchedEffect(isPreviewMode) {
+        isFindOpen = false
+        findQuery = ""
+        replaceQuery = ""
+        findIndex = 0
+    }
+    // Keyed on the query rather than the match list: ticking a checkbox in
+    // preview rebuilds the rows, and that should not pull the view back to the
+    // current match.
+    LaunchedEffect(findIndex, findQuery, isPreviewMode) {
+        if (!isPreviewMode || previewFindMatches.isEmpty()) return@LaunchedEffect
+        val match = previewFindMatches[findIndex.coerceIn(previewFindMatches.indices)]
+        val expanded = expandSectionsFor(previewLines, toggledSectionIds, match.lineIndex)
+        if (expanded != toggledSectionIds) toggledSectionIds = expanded
+        val visibleIndex = visiblePreviewLineIndices(previewLines, expanded).indexOf(match.lineIndex)
+        if (visibleIndex >= 0) {
+            pendingPreviewScroll = PreviewScrollRequest(visibleIndex, animate = true)
+        }
     }
     LaunchedEffect(findIndex, findMatches) {
         if (findMatches.isNotEmpty()) {
@@ -877,19 +908,20 @@ fun EditorScreen(
                 onOpenMore = { overflowExpanded = true },
                 onDismissMore = { overflowExpanded = false },
                 moreMenuContent = {
-                    if (!isPreviewMode) {
-                        DropdownMenuItem(
-                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                            text = { Text(stringResource(R.string.find_in_note)) },
-                            onClick = {
-                                overflowExpanded = false
-                                isFindOpen = !isFindOpen
-                                if (isFindOpen) {
-                                    findQuery = ""
-                                    replaceQuery = ""
-                                }
+                    // Offered in preview too (#417), where it searches the rendered text.
+                    DropdownMenuItem(
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                        text = { Text(stringResource(R.string.find_in_note)) },
+                        onClick = {
+                            overflowExpanded = false
+                            isFindOpen = !isFindOpen
+                            if (isFindOpen) {
+                                findQuery = ""
+                                replaceQuery = ""
                             }
-                        )
+                        }
+                    )
+                    if (!isPreviewMode) {
                         DropdownMenuItem(
                             leadingIcon = {
                                 Icon(Icons.Default.CenterFocusStrong, contentDescription = null)
@@ -980,138 +1012,176 @@ fun EditorScreen(
             label = "Editor preview mode"
         ) { previewMode ->
             if (previewMode) {
-                Box(
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
                 ) {
-                    MarkdownPreviewList(
-                        lines = previewLines,
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
-                        listState = previewListState,
-                        // Tapping a checkbox in the preview flips it in the
-                        // source (#219). The preview is rebuilt from the text,
-                        // so the row redraws on its own; a null result means the
-                        // line stopped being a task item since this preview was
-                        // built, and the tap is dropped rather than guessed at.
-                        onToggleTask = { sourceLine ->
-                            MarkdownEditActions.toggleTaskAtLine(editorState.text, sourceLine)
-                                ?.let { updated ->
-                                    applyEdit(editorState.copy(text = updated))
-                                    if (isLoaded) saver.requestSave()
+                    if (isFindOpen) {
+                        // Above the list rather than over it, so the row a match
+                        // scrolls to is never under the bar. No replace row: a
+                        // replacement edits the source, not the rendered text (#417).
+                        FindBar(
+                            query = findQuery,
+                            onQueryChange = {
+                                findQuery = it
+                                findIndex = 0
+                            },
+                            currentIndex = findIndex,
+                            totalMatches = previewFindMatches.size,
+                            onPrev = {
+                                if (previewFindMatches.isNotEmpty()) {
+                                    findIndex = (findIndex - 1 + previewFindMatches.size) % previewFindMatches.size
                                 }
-                        },
-                        onWikilinkClick = { title ->
-                            coroutineScope.launch {
-                                val localName = LocalMarkdownLink.fileName(title)
-                                val mirroredId = if (localName != null) {
-                                    appSettings.syncFolderUriOrNull()?.let { uri ->
+                            },
+                            onNext = {
+                                if (previewFindMatches.isNotEmpty()) {
+                                    findIndex = (findIndex + 1) % previewFindMatches.size
+                                }
+                            },
+                            onClose = {
+                                isFindOpen = false
+                                findQuery = ""
+                            },
+                            modifier = Modifier.padding(horizontal = 20.dp).padding(top = 12.dp),
+                            showReplace = false
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                    ) {
+                        MarkdownPreviewList(
+                            lines = previewLines,
+                            modifier = Modifier.fillMaxSize(),
+                            findQuery = if (isFindOpen) findQuery else "",
+                            currentFindMatch = previewFindMatches.getOrNull(findIndex),
+                            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
+                            listState = previewListState,
+                            // Tapping a checkbox in the preview flips it in the
+                            // source (#219). The preview is rebuilt from the text,
+                            // so the row redraws on its own; a null result means the
+                            // line stopped being a task item since this preview was
+                            // built, and the tap is dropped rather than guessed at.
+                            onToggleTask = { sourceLine ->
+                                MarkdownEditActions.toggleTaskAtLine(editorState.text, sourceLine)
+                                    ?.let { updated ->
+                                        applyEdit(editorState.copy(text = updated))
+                                        if (isLoaded) saver.requestSave()
+                                    }
+                            },
+                            onWikilinkClick = { title ->
+                                coroutineScope.launch {
+                                    val localName = LocalMarkdownLink.fileName(title)
+                                    val mirroredId = if (localName != null) {
+                                        appSettings.syncFolderUriOrNull()?.let { uri ->
+                                            withContext(Dispatchers.IO) {
+                                                NoteFolderMirror.noteIdForFileName(
+                                                    context, uri, localName, appSettings.mirrorMetadata()
+                                                )
+                                            }
+                                        }
+                                    } else null
+                                    val existing = mirroredId?.let { db.noteDao().getNoteById(it) }
+                                        ?: db.noteDao().getNoteByTitle(title)
+                                    if (existing != null) {
+                                        if (existing.locked) {
+                                            Toast.makeText(context, R.string.wikilink_target_locked, Toast.LENGTH_SHORT).show()
+                                        } else if (!existing.trashed && !existing.archived) {
+                                            onNavigateToNote(existing.id)
+                                        } else {
+                                            Toast.makeText(context, R.string.quick_switcher_no_results, Toast.LENGTH_SHORT).show()
+                                        }
+                                    } else if (db.noteDao().countLockedNotesWithTitle(title) > 0) {
+                                        // The note exists but lives in the Locked space.
+                                        // Opening it here would bypass the passcode, and
+                                        // creating a new one would leave two notes sharing
+                                        // a title, so say where it is instead (#156). The
+                                        // title is already visible in this note's body, so
+                                        // naming its whereabouts leaks nothing new.
+                                        Toast.makeText(
+                                            context,
+                                            R.string.wikilink_target_locked,
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    } else if (localName != null) {
+                                        Toast.makeText(context, R.string.quick_switcher_no_results, Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        val seed = "# $title\n\n"
+                                        val newNote = com.markleaf.notes.domain.model.Note(
+                                            id = java.util.UUID.randomUUID().toString(),
+                                            title = title,
+                                            contentMarkdown = seed,
+                                            excerpt = "",
+                                            createdAt = java.time.Instant.now(),
+                                            updatedAt = java.time.Instant.now()
+                                        )
+                                        repo.createNote(newNote)
+                                        onNavigateToNote(newNote.id)
+                                    }
+                                }
+                            },
+                            onLocalLinkClick = { fileName ->
+                                coroutineScope.launch {
+                                    val folder = appSettings.syncFolderUriOrNull()
+                                    val linkedId = folder?.let { uri ->
                                         withContext(Dispatchers.IO) {
                                             NoteFolderMirror.noteIdForFileName(
-                                                context, uri, localName, appSettings.mirrorMetadata()
+                                                context, uri, fileName, appSettings.mirrorMetadata()
                                             )
                                         }
                                     }
-                                } else null
-                                val existing = mirroredId?.let { db.noteDao().getNoteById(it) }
-                                    ?: db.noteDao().getNoteByTitle(title)
-                                if (existing != null) {
-                                    if (existing.locked) {
-                                        Toast.makeText(context, R.string.wikilink_target_locked, Toast.LENGTH_SHORT).show()
-                                    } else if (!existing.trashed && !existing.archived) {
-                                        onNavigateToNote(existing.id)
-                                    } else {
-                                        Toast.makeText(context, R.string.quick_switcher_no_results, Toast.LENGTH_SHORT).show()
+                                    val target = linkedId?.let { db.noteDao().getNoteById(it) }
+                                    when {
+                                        target == null || target.trashed || target.archived ->
+                                            Toast.makeText(context, R.string.quick_switcher_no_results, Toast.LENGTH_SHORT).show()
+                                        target.locked ->
+                                            Toast.makeText(context, R.string.wikilink_target_locked, Toast.LENGTH_SHORT).show()
+                                        else -> onNavigateToNote(target.id)
                                     }
-                                } else if (db.noteDao().countLockedNotesWithTitle(title) > 0) {
-                                    // The note exists but lives in the Locked space.
-                                    // Opening it here would bypass the passcode, and
-                                    // creating a new one would leave two notes sharing
-                                    // a title, so say where it is instead (#156). The
-                                    // title is already visible in this note's body, so
-                                    // naming its whereabouts leaks nothing new.
-                                    Toast.makeText(
-                                        context,
-                                        R.string.wikilink_target_locked,
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                } else if (localName != null) {
-                                    Toast.makeText(context, R.string.quick_switcher_no_results, Toast.LENGTH_SHORT).show()
-                                } else {
-                                    val seed = "# $title\n\n"
-                                    val newNote = com.markleaf.notes.domain.model.Note(
-                                        id = java.util.UUID.randomUUID().toString(),
-                                        title = title,
-                                        contentMarkdown = seed,
-                                        excerpt = "",
-                                        createdAt = java.time.Instant.now(),
-                                        updatedAt = java.time.Instant.now()
-                                    )
-                                    repo.createNote(newNote)
-                                    onNavigateToNote(newNote.id)
-                                }
-                            }
-                        },
-                        onLocalLinkClick = { fileName ->
-                            coroutineScope.launch {
-                                val folder = appSettings.syncFolderUriOrNull()
-                                val linkedId = folder?.let { uri ->
-                                    withContext(Dispatchers.IO) {
-                                        NoteFolderMirror.noteIdForFileName(
-                                            context, uri, fileName, appSettings.mirrorMetadata()
-                                        )
-                                    }
-                                }
-                                val target = linkedId?.let { db.noteDao().getNoteById(it) }
-                                when {
-                                    target == null || target.trashed || target.archived ->
-                                        Toast.makeText(context, R.string.quick_switcher_no_results, Toast.LENGTH_SHORT).show()
-                                    target.locked ->
-                                        Toast.makeText(context, R.string.wikilink_target_locked, Toast.LENGTH_SHORT).show()
-                                    else -> onNavigateToNote(target.id)
-                                }
-                            }
-                        },
-                        onImageLongPress = { path, currentAlt ->
-                            imageAltEditing = path to currentAlt
-                        },
-                        // Same scale as the editor (#346): the preview is the
-                        // rendered form of the same text, and growing it grows
-                        // the checkbox glyphs and link tap targets too.
-                        fontScale = appSettings.editorFontSize.scale,
-                        toggledSectionIds = toggledSectionIds,
-                        onToggleSection = { id ->
-                            toggledSectionIds = if (id in toggledSectionIds) {
-                                toggledSectionIds - id
-                            } else {
-                                toggledSectionIds + id
-                            }
-                        }
-                    )
-
-                    // The same jump control as the editor (#214). Here the
-                    // scroll position is known outright, so the direction is
-                    // the honest one rather than inferred from a caret. Uses
-                    // visibleLines, not previewLines: the LazyColumn this
-                    // scrolls is the one MarkdownPreviewList actually laid
-                    // out, which is shorter whenever a section is collapsed.
-                    if (isLongEnoughToJump(editorState.text) && visibleLines.isNotEmpty()) {
-                        val toBottom =
-                            previewListState.firstVisibleItemIndex < visibleLines.size / 2
-                        JumpToEndButton(
-                            jumpsToBottom = toBottom,
-                            onClick = {
-                                coroutineScope.launch {
-                                    previewListState.animateScrollToItem(
-                                        if (toBottom) visibleLines.lastIndex else 0
-                                    )
                                 }
                             },
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(end = 20.dp, bottom = 20.dp)
+                            onImageLongPress = { path, currentAlt ->
+                                imageAltEditing = path to currentAlt
+                            },
+                            // Same scale as the editor (#346): the preview is the
+                            // rendered form of the same text, and growing it grows
+                            // the checkbox glyphs and link tap targets too.
+                            fontScale = appSettings.editorFontSize.scale,
+                            toggledSectionIds = toggledSectionIds,
+                            onToggleSection = { id ->
+                                toggledSectionIds = if (id in toggledSectionIds) {
+                                    toggledSectionIds - id
+                                } else {
+                                    toggledSectionIds + id
+                                }
+                            }
                         )
+    
+                        // The same jump control as the editor (#214). Here the
+                        // scroll position is known outright, so the direction is
+                        // the honest one rather than inferred from a caret. Uses
+                        // visibleLines, not previewLines: the LazyColumn this
+                        // scrolls is the one MarkdownPreviewList actually laid
+                        // out, which is shorter whenever a section is collapsed.
+                        if (isLongEnoughToJump(editorState.text) && visibleLines.isNotEmpty()) {
+                            val toBottom =
+                                previewListState.firstVisibleItemIndex < visibleLines.size / 2
+                            JumpToEndButton(
+                                jumpsToBottom = toBottom,
+                                onClick = {
+                                    coroutineScope.launch {
+                                        previewListState.animateScrollToItem(
+                                            if (toBottom) visibleLines.lastIndex else 0
+                                        )
+                                    }
+                                },
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(end = 20.dp, bottom = 20.dp)
+                            )
+                        }
                     }
                 }
             } else {

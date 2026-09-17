@@ -1,0 +1,1 @@
+«Buscar en la nota» ahora funciona en la vista previa. Ábrelo desde el menú ⋮: busca el texto tal como se ve en pantalla, resalta todas las coincidencias y se desplaza a cada una, abriendo una sección contraída si la coincidencia está dentro. Reemplazar sigue disponible solo en el modo de edición. (#417)

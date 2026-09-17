@@ -1,0 +1,1 @@
+Pretraživanje bilješke sada radi i u pregledu. Otvorite ga iz izbornika ⋮: pretražuje tekst kako je prikazan na zaslonu, ističe sva podudaranja i pomiče se do svakog od njih, a sažeti odjeljak otvara kad je podudaranje unutar njega. Zamjena ostaje dostupna samo u načinu uređivanja. (#417)

@@ -34,13 +34,19 @@ internal fun FindBar(
     onPrev: () -> Unit,
     onNext: () -> Unit,
     onClose: () -> Unit,
-    replaceQuery: String,
-    onReplaceQueryChange: (String) -> Unit,
-    onReplaceOne: () -> Unit,
-    onReplaceAll: () -> Unit
+    modifier: Modifier = Modifier,
+    /**
+     * False in preview (#417): replacing edits the Markdown source, and the
+     * preview matches the rendered text instead, so the two would not line up.
+     */
+    showReplace: Boolean = true,
+    replaceQuery: String = "",
+    onReplaceQueryChange: (String) -> Unit = {},
+    onReplaceOne: () -> Unit = {},
+    onReplaceAll: () -> Unit = {}
 ) {
     Surface(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(bottom = 8.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
@@ -89,30 +95,32 @@ internal fun FindBar(
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(4.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedTextField(
-                    value = replaceQuery,
-                    onValueChange = onReplaceQueryChange,
-                    placeholder = { Text(stringResource(R.string.replace_in_note_hint)) },
-                    singleLine = true,
-                    modifier = Modifier.weight(1f)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                TextButton(
-                    onClick = onReplaceOne,
-                    enabled = totalMatches > 0
+            if (showReplace) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(stringResource(R.string.replace_match))
-                }
-                TextButton(
-                    onClick = onReplaceAll,
-                    enabled = totalMatches > 0
-                ) {
-                    Text(stringResource(R.string.replace_all_matches))
+                    OutlinedTextField(
+                        value = replaceQuery,
+                        onValueChange = onReplaceQueryChange,
+                        placeholder = { Text(stringResource(R.string.replace_in_note_hint)) },
+                        singleLine = true,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    TextButton(
+                        onClick = onReplaceOne,
+                        enabled = totalMatches > 0
+                    ) {
+                        Text(stringResource(R.string.replace_match))
+                    }
+                    TextButton(
+                        onClick = onReplaceAll,
+                        enabled = totalMatches > 0
+                    ) {
+                        Text(stringResource(R.string.replace_all_matches))
+                    }
                 }
             }
         }

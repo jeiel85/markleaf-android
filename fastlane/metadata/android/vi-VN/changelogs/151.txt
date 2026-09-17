@@ -1,0 +1,1 @@
+Tìm trong ghi chú giờ đã dùng được ở chế độ xem trước. Mở từ menu ⋮: tính năng tìm theo văn bản hiển thị trên màn hình, tô sáng mọi kết quả và cuộn tới từng kết quả, tự mở phần đang thu gọn nếu kết quả nằm bên trong. Thay thế vẫn chỉ có ở chế độ chỉnh sửa. (#417)

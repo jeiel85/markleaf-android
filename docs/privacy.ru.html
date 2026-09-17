@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Политика конфиденциальности - Markleaf</title>
+    <meta name="description" content="Политика конфиденциальности Markleaf. Markleaf — приложение для заметок в Markdown, где всё хранится локально, без аккаунта, аналитики, рекламы и отслеживания. Сборки для магазинов не объявляют разрешение INTERNET.">
+    <link rel="canonical" href="https://jeiel85.github.io/markleaf-android/privacy.ru.html">
+    <link rel="alternate" hreflang="en" href="https://jeiel85.github.io/markleaf-android/privacy.html">
+    <link rel="alternate" hreflang="ko" href="https://jeiel85.github.io/markleaf-android/privacy.ko.html">
+    <link rel="alternate" hreflang="ja" href="https://jeiel85.github.io/markleaf-android/privacy.ja.html">
+    <link rel="alternate" hreflang="zh-Hans" href="https://jeiel85.github.io/markleaf-android/privacy.zh.html">
+    <link rel="alternate" hreflang="de" href="https://jeiel85.github.io/markleaf-android/privacy.de.html">
+    <link rel="alternate" hreflang="es" href="https://jeiel85.github.io/markleaf-android/privacy.es.html">
+    <link rel="alternate" hreflang="fr" href="https://jeiel85.github.io/markleaf-android/privacy.fr.html">
+    <link rel="alternate" hreflang="hr" href="https://jeiel85.github.io/markleaf-android/privacy.hr.html">
+    <link rel="alternate" hreflang="ru" href="https://jeiel85.github.io/markleaf-android/privacy.ru.html">
+    <link rel="alternate" hreflang="vi" href="https://jeiel85.github.io/markleaf-android/privacy.vi.html">
+    <link rel="alternate" hreflang="x-default" href="https://jeiel85.github.io/markleaf-android/privacy.html">
+    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav aria-label="Основная навигация">
+            <a class="logo" href="index.ru.html" aria-label="Markleaf — главная">
+                <img src="assets/logo.svg" alt="">
+                <span>Markleaf</span>
+            </a>
+            <div class="nav-cluster">
+                <ul>
+                    <li><a href="index.ru.html">Главная</a></li>
+                    <li><a href="privacy.ru.html">Конфиденциальность</a></li>
+                    <li><a href="https://github.com/jeiel85/markleaf-android">GitHub</a></li>
+                </ul>
+                <div class="lang-switch" aria-label="Язык">
+                    <a href="privacy.html" hreflang="en" aria-label="English">EN</a>
+                    <a href="privacy.ko.html" hreflang="ko" aria-label="한국어">KO</a>
+                    <a href="privacy.ja.html" hreflang="ja" aria-label="日本語">JA</a>
+                    <a href="privacy.zh.html" hreflang="zh-Hans" aria-label="简体中文">ZH</a>
+                    <a href="privacy.de.html" hreflang="de" aria-label="Deutsch">DE</a>
+                    <a href="privacy.es.html" hreflang="es" aria-label="Español">ES</a>
+                    <a href="privacy.fr.html" hreflang="fr" aria-label="Français">FR</a>
+                    <a href="privacy.hr.html" hreflang="hr" aria-label="Hrvatski">HR</a>
+                    <a href="privacy.ru.html" hreflang="ru" aria-current="page">RU</a>
+                    <a href="privacy.vi.html" hreflang="vi" aria-label="Tiếng Việt">VI</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <article class="content">
+            <h1>Политика конфиденциальности Markleaf</h1>
+            <p class="updated">Последнее обновление: 26 мая 2026 г. · Относится к Markleaf для Android v2.x</p>
+
+            <h2>Основной принцип</h2>
+            <p>Markleaf — приложение для заметок в Markdown, где всё хранится локально. У него нет собственного сервера, и оно никогда не выгружает заметки, теги, вложения или метаданные ни на какие внешние серверы. Сборки, распространяемые через F-Droid и Google Play, вообще не объявляют разрешение <code>android.permission.INTERNET</code>; сборка для ручной установки из GitHub Releases объявляет его только для одной цели, описанной в разделе <a class="text-link" href="#network">Сеть</a>.</p>
+
+            <h2>Какие данные Markleaf не собирает</h2>
+            <ul>
+                <li>Имя, адрес электронной почты, контакты, местоположение</li>
+                <li>Данные аккаунта или входа</li>
+                <li>Текст заметок, заголовки, теги, вложенные изображения, имена файлов, метаданные</li>
+                <li>Статистику использования, телеметрию, аналитические события, рекламные идентификаторы</li>
+                <li>Отчёты о сбоях или идентификаторы устройства</li>
+            </ul>
+            <p>Кроме того, в приложении нет аналитики, рекламы, отслеживания, удалённой конфигурации, Firebase и SDK для отчётов о сбоях с закрытым исходным кодом.</p>
+
+            <h2 id="network">Сеть</h2>
+            <p>Это зависит от того, откуда вы получили приложение. В обоих случаях <strong>данные ваших заметок никогда не отправляются.</strong></p>
+            <ul>
+                <li><strong>F-Droid и Google Play</strong> — нет <code>android.permission.INTERNET</code> и нет вообще никакой сетевой активности.</li>
+                <li><strong>GitHub Releases (ручная установка)</strong> — объявляет два разрешения: одно для проверки обновлений и одно, чтобы установить обновление, которое вы сами решили скачать. Оба не используются, пока вы не включите проверку.</li>
+            </ul>
+            <pre>F-Droid / Google Play   INTERNET: нет &middot; REQUEST_INSTALL_PACKAGES: нет
+GitHub Releases         INTERNET: проверка обновлений &middot; REQUEST_INSTALL_PACKAGES: установка после проверки SHA-256</pre>
+
+            <h3>Проверка обновлений в сборке для ручной установки</h3>
+            <ul>
+                <li><strong>По умолчанию выключена.</strong> Ничего не происходит, пока вы не включите её в настройках.</li>
+                <li>Раз в день выполняется один GET-запрос к одному статическому JSON-файлу с описанием новейшего релиза. Неудачная проверка молча игнорируется.</li>
+                <li>Нажатие <strong>Скачать и установить</strong> в диалоге обновления выполняет единственный другой сетевой запрос приложения: GET самого файла обновления. Как и проверка, это происходит только потому, что вы об этом попросили.</li>
+                <li>После загрузки приложение сверяет файл с SHA-256, указанным в том же JSON-файле. <strong>Если хеш не совпадает, файл удаляется, а установка так и не начинается.</strong></li>
+                <li>Только проверенный файл передаётся собственному <code>PackageInstaller</code> Android. Следующий за этим экран подтверждения рисует Android, а не Markleaf. Для этого шага нужно разрешение <code>REQUEST_INSTALL_PACKAGES</code>; если оно ещё не выдано, приложение сначала откроет настройки.</li>
+                <li>Если загрузка или проверка не удалась, можно повторить попытку или открыть файл в браузере — так же, как эта функция работала раньше.</li>
+                <li>Запрос содержит только этот URL и стандартные HTTP-заголовки. Никаких параметров запроса, cookie или аккаунта.</li>
+                <li><strong>Текст заметок, заголовки, теги, вложения, имена файлов, метаданные, идентификаторы устройства и данные об использовании не отправляются.</strong> Это справедливо без исключений для каждой сборки и каждого из этих запросов.</li>
+                <li>Сборки для магазинов не содержат ни этого разрешения, ни этого кода — он не отключён, его там просто нет.</li>
+            </ul>
+
+            <h2>Где хранятся данные</h2>
+            <ul>
+                <li>Текст заметок, заголовки и индекс тегов хранятся во внутренней базе данных Room приложения.</li>
+                <li>Пользовательские настройки хранятся в DataStore.</li>
+                <li>Вложенные изображения копируются во внутреннее хранилище приложения, а конфиденциальные метаданные EXIF удаляются при сохранении.</li>
+            </ul>
+
+            <h2>Политика системного резервного копирования Android</h2>
+            <p>Markleaf устанавливает <code>android:allowBackup="false"</code>, чтобы исключить данные приложения из автоматического резервного копирования Android и переноса между устройствами. Если вам нужно перейти на новое устройство или пользоваться несколькими устройствами, вы сами выбираете экспорт в Markdown, отправку через «Поделиться» или зеркало в папку SAF.</p>
+
+            <h2>Перемещение данных по инициативе пользователя</h2>
+            <p>Следующие действия происходят только тогда, когда вы выполняете их сами — через явный диалог разрешений Android или выбор, сделанный вами в интерфейсе.</p>
+            <ul>
+                <li>Экспорт одной или всех заметок в Markdown (<code>.md</code>)</li>
+                <li>Отправка текста или файлов заметки через системное меню «Поделиться» Android</li>
+                <li>Нажатие на внешнюю ссылку в тексте, которая передаётся ОС / браузеру по умолчанию</li>
+                <li>Копирование в буфер обмена</li>
+                <li>Зеркалирование файлов Markdown в выбранную вами папку SAF</li>
+            </ul>
+            <p>Синхронизирует ли папку SAF внешний клиент синхронизации — например, Drive, Dropbox, OneDrive, Syncthing или подключённый NAS, — зависит от этого внешнего приложения и находится в его ответственности. Сам Markleaf такую синхронизацию не выполняет.</p>
+
+            <h2>Разрешения</h2>
+            <p>Единственное разрешение, объявленное Markleaf из числа проверяемых во время работы, — <code>android.permission.VIBRATE</code> для тактильной отдачи. Ни одна сборка не объявляет разрешений на доступ к местоположению, микрофону, камере, контактам, уведомлениям, чтение внешнего хранилища или чтение медиафайлов. Ни <code>android.permission.INTERNET</code>, ни <code>android.permission.REQUEST_INSTALL_PACKAGES</code> нет в сборках для F-Droid и Google Play. Оба присутствуют только в сборке для ручной установки — для проверки обновлений и необязательной установки, описанных в разделе <a class="text-link" href="#network">Сеть</a>.</p>
+
+            <h2>Контакты</h2>
+            <p>С вопросами или сообщениями о проблемах безопасности и конфиденциальности обращайтесь через <a class="text-link" href="https://github.com/jeiel85/markleaf-android/issues">GitHub Issues</a>.</p>
+        </article>
+    </main>
+
+    <footer>
+        <p>Markleaf · Лёгкое приложение для заметок в Markdown для Android, где всё хранится локально.</p>
+        <p><a href="index.ru.html">Главная</a> · <a href="https://github.com/jeiel85/markleaf-android">GitHub</a> · <a href="https://github.com/jeiel85/markleaf-android/blob/main/LICENSE">Apache-2.0</a></p>
+    </footer>
+</body>
+</html>

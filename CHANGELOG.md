@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.45.0 - Markleaf in Russian and Vietnamese - 2026-09-17
+
+Google Play ratings started arriving from Russia and Vietnam, so Markleaf now ships in both languages. No permission, feature, or storage-format changes.
+
+### Added
+- **Russian and Vietnamese ([#418](https://github.com/jeiel85/markleaf-android/pull/418)).** The app interface, the first-launch starter notes, the store descriptions, the README, the website and its privacy page are all translated, bringing Markleaf to 10 languages. Markleaf follows your device language. The tablet demo clip on the website and README has Russian and Vietnamese captions too. These translations are new and not yet reviewed by native speakers — corrections are welcome in [Issues](https://github.com/jeiel85/markleaf-android/issues).
+
 ## v2.44.0 - Links between notes read the way you wrote them - 2026-09-17
 
 Notes linked through the selected sync folder can now use readable labels. No new permissions or storage-format changes.

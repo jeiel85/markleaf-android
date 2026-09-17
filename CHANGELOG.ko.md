@@ -6,6 +6,13 @@ Markleaf의 주요 변경 사항을 기록합니다. 영어판이 기본이며 G
 
 v2.15.3 이전 항목은 이 파일에만 한국어로 보존되어 있습니다.
 
+## v2.45.0 - 러시아어·베트남어 지원 (Markleaf in Russian and Vietnamese) - 2026-09-17
+
+Google Play 평점이 러시아와 베트남에서 들어오기 시작해 두 언어를 추가했습니다. 권한, 기능, 저장 형식 변경은 없습니다.
+
+### Added
+- **러시아어와 베트남어 ([#418](https://github.com/jeiel85/markleaf-android/pull/418)).** 앱 화면, 첫 실행 스타터 노트, 스토어 설명, README, 웹사이트와 개인정보 페이지를 모두 번역해 지원 언어가 10개가 되었습니다. 언어는 기기 언어 설정을 따릅니다. 웹사이트와 README의 태블릿 데모 영상에도 러시아어·베트남어 자막을 넣었습니다. 아직 원어민 검수를 거치지 않은 새 번역이므로 교정 제안은 [Issues](https://github.com/jeiel85/markleaf-android/issues)에서 환영합니다.
+
 ## v2.44.0 - 작성한 그대로 읽히는 노트 간 링크 (Links between notes read the way you wrote them) - 2026-09-17
 
 선택한 동기화 폴더의 노트를 읽기 쉬운 이름으로 연결할 수 있습니다. 새 권한이나 저장 형식 변경은 없습니다.

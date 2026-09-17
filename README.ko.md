@@ -30,7 +30,9 @@
   <a href="README.de.md">Deutsch</a> ·
   <a href="README.es.md">Español</a> ·
   <a href="README.fr.md">Français</a> ·
-  <a href="README.hr.md">Hrvatski</a>
+  <a href="README.hr.md">Hrvatski</a> ·
+  <a href="README.ru.md">Русский</a> ·
+  <a href="README.vi.md">Tiếng Việt</a>
 </p>
 
 <p align="center">
@@ -61,7 +63,7 @@
 
 **Markleaf**는 군더더기를 덜어내고 오직 '기록'과 '정리'에만 집중할 수 있도록 설계된 Android Markdown 메모 앱입니다. 당신의 데이터는 오직 당신의 기기에만 저장되며, 표준 Markdown 형식을 사용하여 데이터의 소유권과 이식성을 완벽히 보장합니다. 동기화도 *당신이 선택한 폴더* 를 통해서만 일어납니다 — Markleaf가 직접 동기화하거나 업로드하는 일은 없습니다.
 
-[**브랜딩 페이지 보기**](https://jeiel85.github.io/markleaf-android/) · [현재 버전: v2.44.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.44.0) · [Privacy Policy](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**브랜딩 페이지 보기**](https://jeiel85.github.io/markleaf-android/) · [현재 버전: v2.45.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.45.0) · [Privacy Policy](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -97,7 +99,7 @@
 - **Markleaf 녹색 테마 + Material You 토글** — 안드로이드 12+ 시스템 월페이퍼 색상도 옵션
 - **자동 다크 모드** — 시스템 설정 따라
 - **태블릿 3-Pane 레이아웃** — 태그 사이드바 · 노트 목록 · 에디터, 사이드바 태그로 노트 목록 즉석 필터링(노트 목록 접고 펴기 가능)
-- **8개 언어 UI** — 한국어 / 영어 / 스페인어 / 일본어 / 프랑스어 / 독일어 / 중국어 간체 / 크로아티아어 리소스 운영
+- **10개 언어 UI** — 한국어 / 영어 / 스페인어 / 일본어 / 프랑스어 / 독일어 / 중국어 간체 / 크로아티아어 / 러시아어 / 베트남어 리소스 운영
 - **스크린샷 / 최근 앱 미리보기 차단 옵션** — 민감한 노트용
 
 ---
@@ -168,7 +170,7 @@ com.markleaf.notes
 > **Google Play 업데이트는 현재 잠정 보류 중입니다.** 1인 개발자의 한국 사업자 등록 요건 관련 정책 이슈가 정리될 때까지 새 버전을 Play Store에 올리지 않습니다. 최신 버전은 **GitHub Releases**에서 받으세요. F-Droid 빌드가 따라온 뒤에는 F-Droid가 권장 업데이트 경로입니다. (Play Store에 이미 설치돼 있다면 그대로 사용할 수 있습니다.)
 
 - **F-Droid** *(자동 업데이트용 권장)*: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — F-Droid 클라이언트에서 검색하거나 위 링크로 바로 설치할 수 있습니다. 카탈로그 반영은 GitHub보다 늦을 수 있으므로, 아직 최신 버전이 보이지 않으면 아래 GitHub Releases를 사용하세요. 동일 서명 키(SHA-256 `0be97352…f91a`)를 사용하므로 처음 GitHub APK를 사이드로드했어도 업데이트가 이어집니다.
-- **APK 직접 설치**: [GitHub v2.44.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.44.0) 릴리스에는 APK가 두 개 있습니다 — `markleaf-v2.44.0.apk`는 F-Droid/Play와 같은 빌드(자동 업데이트 없음, 추가 권한 없음)이고, `markleaf-v2.44.0-sideload.apk`는 앱 내 업데이트 확인 기능이 켜져 있는 빌드입니다(`INTERNET`, `REQUEST_INSTALL_PACKAGES` 권한 추가). 앱에서 바로 업데이트를 확인하고 싶다면 사이드로드 쪽을 받아 Android 기기에서 실행해 설치하세요 — 둘은 같은 서명 키를 쓰므로, 나중에 서로 바꿔 깔아도 재설치가 아니라 평범한 업데이트로 처리됩니다.
+- **APK 직접 설치**: [GitHub v2.45.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.45.0) 릴리스에는 APK가 두 개 있습니다 — `markleaf-v2.45.0.apk`는 F-Droid/Play와 같은 빌드(자동 업데이트 없음, 추가 권한 없음)이고, `markleaf-v2.45.0-sideload.apk`는 앱 내 업데이트 확인 기능이 켜져 있는 빌드입니다(`INTERNET`, `REQUEST_INSTALL_PACKAGES` 권한 추가). 앱에서 바로 업데이트를 확인하고 싶다면 사이드로드 쪽을 받아 Android 기기에서 실행해 설치하세요 — 둘은 같은 서명 키를 쓰므로, 나중에 서로 바꿔 깔아도 재설치가 아니라 평범한 업데이트로 처리됩니다.
 - **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **업데이트 잠정 보류 중**입니다(위 안내 참고). 이미 설치돼 있으면 계속 쓸 수 있으며, 최신 버전은 GitHub Releases 또는 반영이 끝난 F-Droid에서 받으세요.
 
 ### 개발 환경 구축

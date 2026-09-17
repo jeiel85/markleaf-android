@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Markleaf</string>
+    <string name="notes_title">Заметки</string>
+    <string name="collapse_note_list">Свернуть список заметок</string>
+    <string name="expand_note_list">Развернуть список заметок</string>
+    <string name="hide_tags">Скрыть теги</string>
+    <string name="show_tags">Показать теги</string>
+    <string name="search">Поиск</string>
+    <string name="tags">Теги</string>
+    <string name="trash">Корзина</string>
+    <!-- "archive" names the destination: the Archive screen title, and the overflow
+         item that navigates there. "archive_action" is the verb on a note's own menu.
+         English spells both the same, but most locales need a noun and a verb, and
+         archive_empty_hint tells the user which menu entry to look for. -->
+    <string name="archive">Архив</string>
+    <string name="archive_action">Архивировать</string>
+    <string name="unarchive">Вернуть из архива</string>
+    <string name="archive_empty">Нет заметок в архиве</string>
+    <string name="archive_empty_hint">Нажмите и удерживайте заметку в основном списке и выберите «Архивировать», чтобы переместить её сюда.</string>
+    <string name="settings">Настройки</string>
+    <string name="more_options">Другие параметры</string>
+    <string name="quick_switcher_title">Быстрый переход</string>
+    <!-- Reading a file that is not a note (#326): the overflow entry that opens
+         the picker, and the viewer it lands on. "file_viewer_read_only" is what
+         tells the reader the text is a file rather than a note, so "Save as
+         note" does not read as "save my edits". -->
+    <string name="open_file">Открыть файл…</string>
+    <string name="file_viewer_title">Файл</string>
+    <string name="file_viewer_read_only">Файл только для чтения</string>
+    <string name="file_viewer_save_as_note">Сохранить как заметку</string>
+    <string name="file_viewer_unreadable">Не удалось показать этот файл. Возможно, он пуст, перемещён или удалён либо не является текстовым файлом.</string>
+    <string name="quick_switcher_hint">Перейти к заметке…</string>
+    <string name="quick_switcher_no_results">Подходящих заметок нет.</string>
+    <string name="backlinks_section_title">Ссылаются сюда</string>
+    <string name="wikilink_suggestions_title">Ссылка на…</string>
+    <string name="tag_suggestions_title">Теги</string>
+    <string name="table_of_contents">Оглавление</string>
+    <string name="note_information">Сведения о заметке</string>
+    <string name="note_statistics">Статистика</string>
+    <string name="note_information_no_headings">Заголовков пока нет.</string>
+    <string name="note_information_no_backlinks">Сюда пока не ссылается ни одна заметка.</string>
+    <string name="font_label">Шрифт</string>
+    <string name="font_size_label">Размер текста</string>
+    <string name="font_size_small">Мелкий</string>
+    <string name="font_size_medium">Средний</string>
+    <string name="font_size_large">Крупный</string>
+    <string name="font_size_extra_large">Очень крупный</string>
+    <string name="font_size_description">Масштабирует текст в редакторе и предпросмотре. Флажки и области нажатия ссылок увеличиваются вместе с ним.</string>
+    <string name="font_sans">Без засечек</string>
+    <string name="font_serif">С засечками</string>
+    <string name="font_description">Шрифт с засечками придаёт заметкам классический, книжный вид. Код всегда остаётся моноширинным.</string>
+    <string name="all_notes">Все заметки</string>
+    <string name="no_notes_for_tag">Нет заметок с этим тегом</string>
+    <string name="image_alt_dialog_title">Изменить описание изображения</string>
+    <string name="image_alt_dialog_description">Альтернативный текст помогает программам чтения с экрана и отображается, если изображение не удаётся загрузить.</string>
+    <string name="image_alt_dialog_label">Описание</string>
+    <string name="image_alt_dialog_save">Сохранить</string>
+    <string name="add_note">Добавить заметку</string>
+    <string name="no_notes_yet">Заметок пока нет</string>
+    <string name="create_first_note_hint">Нажмите +, чтобы создать первую заметку</string>
+    <string name="create_note">Создать заметку</string>
+    <string name="untitled">Без названия</string>
+    <string name="untitled_parenthesized">(Без названия)</string>
+    <string name="select_note_to_view">Выберите заметку для просмотра</string>
+
+    <string name="preview">Предпросмотр</string>
+    <string name="edit">Редактировать</string>
+    <string name="edit_note">Редактирование заметки</string>
+    <string name="new_note">Новая заметка</string>
+    <string name="back">Назад</string>
+    <string name="note_content">Содержимое заметки</string>
+    <string name="editor_empty_title">Тихая страница ждёт вас</string>
+    <string name="editor_empty_hint">Используйте Markdown, #теги, ссылки и флажки. Markleaf сохраняет всё локально прямо во время набора.</string>
+    <string name="undo">Отменить</string>
+    <string name="redo">Повторить</string>
+    <string name="bold">Жирный</string>
+    <string name="formatting">Форматирование</string>
+    <string name="formatting_inline">В строке</string>
+    <string name="formatting_structure">Структура</string>
+    <string name="formatting_block_media">Блоки и медиа</string>
+    <string name="expanded">Развёрнуто</string>
+    <string name="collapsed">Свёрнуто</string>
+    <string name="italic">Курсив</string>
+    <string name="strikethrough">Зачёркнутый</string>
+    <string name="inline_code">Код в строке</string>
+    <string name="checkbox">Флажок</string>
+    <string name="markdown_link">Ссылка Markdown</string>
+    <string name="insert_image">Вставить изображение</string>
+    <string name="attachment_failed">Не удалось прикрепить изображение.</string>
+    <string name="heading">Заголовок</string>
+    <string name="bullet_list">Маркированный список</string>
+    <string name="ordered_list">Нумерованный список</string>
+    <string name="blockquote">Цитата</string>
+    <string name="code_block">Блок кода</string>
+    <string name="horizontal_rule">Разделитель</string>
+    <string name="quick_insert_title">Быстрая вставка</string>
+    <string name="quick_insert_heading_1">Заголовок 1</string>
+    <string name="quick_insert_heading_2">Заголовок 2</string>
+    <string name="quick_insert_heading_3">Заголовок 3</string>
+    <string name="quick_insert_bullet_list">Маркированный список</string>
+    <string name="quick_insert_numbered_list">Нумерованный список</string>
+    <string name="quick_insert_checklist">Список задач</string>
+    <string name="quick_insert_quote">Цитата</string>
+    <string name="quick_insert_code_block">Блок кода</string>
+    <string name="quick_insert_divider">Разделитель</string>
+    <string name="quick_insert_table">Таблица</string>
+    <string name="quick_insert_callout">Выноска</string>
+    <string name="quick_insert_wikilink">Ссылка на заметку</string>
+    <string name="quick_insert_image">Изображение</string>
+    <string name="quick_insert_date">Сегодняшняя дата</string>
+    <string name="editor_stats_format">Слов: %1$d · символов: %2$d · %3$d мин</string>
+    <string name="focus_mode">Режим фокусировки</string>
+    <string name="exit_focus_mode">Выйти из режима фокусировки</string>
+    <string name="find_in_note">Найти в заметке</string>
+    <string name="find_in_note_hint">Найти</string>
+    <string name="find_previous_match">Предыдущее совпадение</string>
+    <string name="find_next_match">Следующее совпадение</string>
+    <string name="replace_in_note_hint">Заменить на</string>
+    <string name="replace_match">Заменить</string>
+    <string name="replace_all_matches">Заменить все</string>
+    <plurals name="replace_all_done_format">
+        <item quantity="one">Заменено %1$d совпадение.</item>
+        <item quantity="few">Заменено %1$d совпадения.</item>
+        <item quantity="many">Заменено %1$d совпадений.</item>
+        <item quantity="other">Заменено %1$d совпадения.</item>
+    </plurals>
+    <string name="close">Закрыть</string>
+    <string name="share_note">Поделиться или экспортировать</string>
+    <string name="share_via_system">Поделиться через…</string>
+    <string name="export_as_file">Сохранить как файл .md…</string>
+    <string name="export_success">Заметка экспортирована.</string>
+    <string name="export_failed">Не удалось экспортировать.</string>
+    <string name="callout_note">Примечание</string>
+    <string name="callout_tip">Совет</string>
+    <string name="callout_important">Важно</string>
+    <string name="callout_warning">Предупреждение</string>
+    <string name="callout_caution">Осторожно</string>
+    <!-- Shown as the title of a `<details>` collapsible section (#403) that has no `<summary>` tag, matching GitHub's own fallback. -->
+    <string name="collapsible_section_default_summary">Подробнее</string>
+
+    <string name="pin">Закрепить</string>
+    <string name="unpin">Открепить</string>
+    <string name="pinned">Закреплено</string>
+    <string name="section_pinned">Закреплённые</string>
+    <string name="section_today">Сегодня</string>
+    <string name="section_yesterday">Вчера</string>
+    <string name="section_past_week">Последние 7 дней</string>
+    <string name="section_older">Ранее</string>
+    <string name="relative_today">Сегодня, %1$s</string>
+    <string name="relative_yesterday">Вчера, %1$s</string>
+    <string name="relative_days_ago">Дней назад: %1$d</string>
+
+    <!-- Elapsed time since a timestamp, for the sync status rows. Distinct from
+         the relative_* strings above, which name a calendar day. -->
+    <string name="elapsed_just_now">только что</string>
+    <plurals name="elapsed_minutes_ago">
+        <item quantity="one">%1$d минуту назад</item>
+        <item quantity="few">%1$d минуты назад</item>
+        <item quantity="many">%1$d минут назад</item>
+        <item quantity="other">%1$d минуты назад</item>
+    </plurals>
+    <plurals name="elapsed_hours_ago">
+        <item quantity="one">%1$d час назад</item>
+        <item quantity="few">%1$d часа назад</item>
+        <item quantity="many">%1$d часов назад</item>
+        <item quantity="other">%1$d часа назад</item>
+    </plurals>
+    <plurals name="elapsed_days_ago">
+        <item quantity="one">%1$d день назад</item>
+        <item quantity="few">%1$d дня назад</item>
+        <item quantity="many">%1$d дней назад</item>
+        <item quantity="other">%1$d дня назад</item>
+    </plurals>
+
+    <string name="search_notes_hint">Поиск заметок…</string>
+    <string name="type_to_search_notes">Введите запрос для поиска заметок</string>
+    <string name="no_results_found">Ничего не найдено</string>
+    <string name="matching_notes">Заметки</string>
+    <string name="matching_tags">Теги</string>
+    <string name="search_recent_notes">Недавние заметки</string>
+    <string name="search_mode_all">Везде</string>
+    <string name="search_mode_titles">Только заголовки</string>
+    <string name="sort_notes">Сортировка заметок</string>
+    <string name="sort_updated_newest">Сначала недавно изменённые</string>
+    <string name="sort_updated_oldest">Сначала давно изменённые</string>
+    <string name="sort_title_az">Название от А до Я</string>
+    <string name="sort_title_za">Название от Я до А</string>
+    <string name="tag_result_format">#%1$s</string>
+    <string name="no_tags_yet">Тегов пока нет</string>
+    <string name="tags_empty_hint">Напишите #тег в заметке, чтобы упорядочить её</string>
+    <plurals name="tag_note_count_format">
+        <item quantity="one">%1$d заметка</item>
+        <item quantity="few">%1$d заметки</item>
+        <item quantity="many">%1$d заметок</item>
+        <item quantity="other">%1$d заметки</item>
+    </plurals>
+
+    <string name="trash_empty">Корзина пуста</string>
+    <string name="trash_empty_hint">Здесь появятся удалённые заметки</string>
+    <string name="restore">Восстановить</string>
+    <string name="delete">Удалить</string>
+    <string name="delete_forever_title">Удалить навсегда?</string>
+    <string name="delete_forever_message">Эта заметка будет удалена навсегда, и её нельзя будет восстановить.</string>
+    <string name="delete_forever">Удалить навсегда</string>
+    <string name="cancel">Отмена</string>
+
+    <string name="move_to_trash">Переместить в корзину</string>
+    <string name="move_to_trash_title">Переместить в корзину?</string>
+    <string name="move_to_trash_message">Переместить «%1$s» в корзину? Позже её можно будет восстановить из корзины.</string>
+    <string name="move_to_trash_editor_message">Переместить эту заметку в корзину? Позже её можно будет восстановить из корзины.</string>
+
+    <string name="settings_appearance">Оформление</string>
+    <string name="theme_label">Тема</string>
+    <string name="theme_mode_system">Системная</string>
+    <string name="theme_mode_light">Светлая</string>
+    <string name="theme_mode_dark">Тёмная</string>
+    <string name="theme_mode_description">Следовать системной настройке тёмного режима или всегда использовать светлую либо тёмную тему.</string>
+    <string name="color_palette_label">Цвета</string>
+    <string name="theme_markleaf_green">Зелёная Markleaf</string>
+    <string name="theme_material_you">Material You</string>
+    <string name="theme_description">Зелёная Markleaf — исходная палитра в духе листвы. Material You подстраивается под цвета обоев системы на Android 12 и новее.</string>
+
+    <string name="settings_markdown">Markdown</string>
+    <string name="show_markdown_syntax">Показывать синтаксис Markdown</string>
+    <string name="show_markdown_syntax_description">Редактор подсвечивает символы Markdown прямо во время набора.</string>
+    <string name="show_formatting_button">Показывать кнопку форматирования</string>
+    <string name="show_formatting_button_description">Кнопка Aa остаётся на панели над клавиатурой. Если выключить, она скрывается; отмена и повтор остаются, жирный, курсив и ссылка по-прежнему появляются при выделении текста, а быстрая вставка через / не меняется.</string>
+    <string name="line_width">Ширина строки</string>
+    <string name="line_width_narrow">Узкая</string>
+    <string name="line_width_comfortable">Удобная</string>
+    <string name="line_width_wide">Широкая</string>
+    <string name="settings_notes_section">Заметки и поиск</string>
+    <string name="show_note_previews">Показывать превью заметок</string>
+    <string name="show_note_previews_description">Показывать фрагмент текста и время изменения под каждым заголовком. Выключите, чтобы на экране помещалось больше заметок.</string>
+    <string name="reopen_last_note">Открывать последнюю заметку при запуске</string>
+    <string name="reopen_last_note_description">Начинать с последней редактировавшейся заметки, а не со списка заметок.</string>
+    <string name="open_notes_in_preview">Открывать заметки в предпросмотре</string>
+    <string name="open_notes_in_preview_description">При открытии показывать заметку в режиме предпросмотра, а не редактирования. Новые заметки по-прежнему открываются для редактирования. Совет: нажмите и удерживайте значок предпросмотра/редактирования в заметке, чтобы переключить этот параметр.</string>
+    <string name="open_notes_at">Открывать заметки</string>
+    <string name="open_notes_at_top">В начале</string>
+    <string name="open_notes_at_bottom">В конце</string>
+    <string name="open_notes_at_last_position">Там, где вы остановились</string>
+    <string name="open_notes_at_description">Место, где открывается заметка. «В конце» подходит для заметок, которые вы только дополняете. «Там, где вы остановились» запоминает позицию в каждой заметке только внутри приложения — в ваши файлы ничего не записывается.</string>
+    <string name="notes_layout">Вид списка заметок</string>
+    <string name="notes_layout_list">Список</string>
+    <string name="notes_layout_grid">Сетка</string>
+    <string name="notes_layout_description">В виде сетки заметки показываются карточками, в столько столбцов, сколько помещается на экране. «Показывать превью заметок» действует в обоих видах.</string>
+    <string name="note_title_source">Название заметки</string>
+    <string name="note_title_source_first_heading">Первый заголовок</string>
+    <string name="note_title_source_first_line">Первая строка</string>
+    <string name="note_title_source_description">Какая строка заметки становится её названием в списке. «Первый заголовок» берёт первый заголовок Markdown в любом месте заметки; «Первая строка» всегда берёт первую написанную строку. Изменение переименует существующие заметки — в центре синхронизации пункт «Переименовать файлы по названиям заметок» приведёт в соответствие и имена синхронизируемых файлов.</string>
+    <plurals name="note_title_retitled_format">
+        <item quantity="one">Переименована %1$d заметка.</item>
+        <item quantity="few">Переименованы %1$d заметки.</item>
+        <item quantity="many">Переименовано %1$d заметок.</item>
+        <item quantity="other">Переименовано %1$d заметки.</item>
+    </plurals>
+    <string name="jump_to_end">Перейти в конец</string>
+    <string name="jump_to_start">Перейти в начало</string>
+    <string name="view_mode_locked">Заметки теперь открываются в предпросмотре</string>
+    <string name="view_mode_unlocked">Заметки теперь открываются для редактирования</string>
+    <string name="lock_view_mode">Зафиксировать режим просмотра</string>
+    <string name="settings_privacy">Конфиденциальность</string>
+    <string name="privacy_no_tracking">Без аккаунта, аналитики, рекламы, удалённой конфигурации и проприетарных SDK для отчётов о сбоях.</string>
+    <string name="privacy_no_internet">В MVP не объявлено разрешение INTERNET.</string>
+    <string name="privacy_local_first">Заметки покидают устройство, только когда вы явно экспортируете их или делитесь ими.</string>
+    <string name="settings_data">Данные</string>
+    <string name="export_all_notes">Экспортировать все заметки…</string>
+    <string name="export_all_notes_description">Выберите папку, и Markleaf сохранит каждую заметку в отдельный файл .md. Заметки из корзины пропускаются.</string>
+    <plurals name="export_all_done_format">
+        <item quantity="one">Экспортирована %1$d заметка.</item>
+        <item quantity="few">Экспортированы %1$d заметки.</item>
+        <item quantity="many">Экспортировано %1$d заметок.</item>
+        <item quantity="other">Экспортировано %1$d заметки.</item>
+    </plurals>
+
+    <string name="sync_title">Синхронизация между устройствами (зеркало папки)</string>
+    <string name="sync_explainer">Markleaf сам никогда не выходит в интернет. Вместо этого вы выбираете папку, и Markleaf сохраняет в неё каждую заметку как файл `.md`. Если эту папку синхронизирует другое приложение — Dropbox, Drive, Syncthing, OneDrive, NAS, — ваши заметки появятся и на других устройствах.</string>
+    <string name="sync_recommended_locations">Подходящие папки для Markleaf:\n· /Внутренняя память/Dropbox/Markleaf\n· /Внутренняя память/Drive/Markleaf\n· /Внутренняя память/Sync/Markleaf  (Syncthing)</string>
+    <string name="sync_status_unset">Папка не выбрана.</string>
+    <string name="sync_status_folder_format">Папка: %1$s</string>
+    <string name="sync_status_last_synced_format">Последняя синхронизация: %1$s</string>
+    <string name="sync_status_last_synced_never">Последняя синхронизация: никогда</string>
+    <string name="sync_metadata_mode">Метаданные заметок</string>
+    <string name="sync_metadata_mode_frontmatter">В файле</string>
+    <string name="sync_metadata_mode_sidecar">Рядом с файлами</string>
+    <string name="sync_metadata_mode_description">Markleaf нужно знать, в каком файле хранится какая заметка. По умолчанию он записывает небольшой заголовок `---` в начало каждого файла. Вариант «Рядом с файлами» хранит эти сведения в скрытом индексе, и в заметках остаётся только написанное вами.</string>
+    <string name="sync_metadata_sidecar_costs">Компромиссы: переименование файла вне Markleaf может разорвать его связь с заметкой, а при копировании папки без индекса теряются дата создания и закрепление каждой заметки.</string>
+    <string name="sync_metadata_switched_format">Преобразовано файлов: %1$d.</string>
+    <string name="sync_behavior_summary">· Сохраняет в папку примерно через 1 секунду после каждого изменения.\n· «Синхронизировать» подтягивает изменения с других устройств.\n· Конфликты: побеждает самое последнее изменение.\n· Удаления не синхронизируются — очищайте корзину на каждом устройстве.\n· Файлы, уже лежащие в папке, импортируются как заметки.</string>
+    <string name="sync_pick_folder">Выбрать папку синхронизации</string>
+    <string name="sync_change_folder">Сменить папку</string>
+    <string name="sync_now">Синхронизировать</string>
+    <string name="sync_stop">Остановить синхронизацию</string>
+    <plurals name="sync_seeded_format">
+        <item quantity="one">%1$d заметка отражена в папку.</item>
+        <item quantity="few">%1$d заметки отражены в папку.</item>
+        <item quantity="many">%1$d заметок отражено в папку.</item>
+        <item quantity="other">%1$d заметки отражено в папку.</item>
+    </plurals>
+    <string name="sync_file_format">Формат файлов синхронизации</string>
+    <string name="sync_tidy_filenames">Переименовать файлы по названиям заметок</string>
+    <plurals name="sync_tidy_done_format">
+        <item quantity="one">Упорядочено %1$d имя файла.</item>
+        <item quantity="few">Упорядочено %1$d имени файлов.</item>
+        <item quantity="many">Упорядочено %1$d имён файлов.</item>
+        <item quantity="other">Упорядочено %1$d имени файлов.</item>
+    </plurals>
+    <string name="sync_done_format">Синхронизировано: обновлено %1$d, новых %2$d, без изменений %3$d.</string>
+    <string name="sync_done_with_conflicts_format">Синхронизировано: обновлено %1$d, новых %2$d, сохранено как копии (конфликт) %3$d, без изменений %4$d.</string>
+    <string name="sync_conflict_copy_suffix">(копия с другого устройства %1$s)</string>
+    <string name="sync_link_import_title">В этой папке уже есть файлы</string>
+    <string name="sync_link_import_message_format">Файлов, которые ещё не являются заметками Markleaf: %1$d. При связывании они будут импортированы и появятся в списке, а изменения в них будут записываться обратно в те же файлы.</string>
+    <string name="sync_link_import_frontmatter_note">Markleaf также запишет в каждый из них небольшой заголовок «---». Чтобы оставить файлы обычным текстом, отмените действие и сначала задайте для параметра «%1$s» значение «%2$s».</string>
+    <string name="sync_link_import_confirm">Связать и импортировать</string>
+    <string name="sync_linked_format">Связано: записано заметок %1$d, импортировано %2$d.</string>
+    <string name="sync_linked_with_problems_format">Связано: записано заметок %1$d, импортировано %2$d, сохранено как копии (конфликт) %3$d, не удалось прочитать %4$d.</string>
+    <string name="sync_stopped">Синхронизация выключена.</string>
+    <string name="screenshot_protection">Запретить скриншоты и превью в недавних</string>
+    <string name="screenshot_protection_description">Скрывает содержимое заметок на скриншотах и на экране недавних приложений. Чтобы изменение вступило в силу, перезапустите экран редактора.</string>
+    <string name="settings_app">Приложение</string>
+    <string name="version_format">Версия %1$s</string>
+    <string name="application_id_format">ID приложения %1$s</string>
+    <string name="update_check_title">Проверять обновления</string>
+    <string name="update_check_description">Раз в день искать новую версию и показывать баннер, когда она доступна. Загрузки идут из GitHub Releases и не проходят проверки F-Droid.</string>
+    <string name="update_banner_text">Доступна версия %1$s</string>
+    <string name="update_dialog_title">Доступно обновление</string>
+    <string name="update_dialog_body">Версия %1$s · %2$s, из GitHub Releases.</string>
+    <string name="update_action_open">Скачать и установить</string>
+    <string name="update_action_open_in_browser">Открыть в браузере</string>
+    <string name="update_action_skip">Пропустить эту версию</string>
+    <string name="update_action_release_notes">Список изменений</string>
+    <string name="update_permission_required_body">Markleaf нужно разрешение на установку обновлений. Перейдите в настройки, разрешите установку и вернитесь сюда.</string>
+    <string name="update_action_open_settings">Открыть настройки</string>
+    <string name="update_downloading">Загрузка обновления…</string>
+    <string name="update_download_failed_body">Не удалось завершить загрузку. Повторите попытку или откройте ссылку в браузере.</string>
+    <string name="update_action_retry">Повторить</string>
+
+    <string name="settings_open_source">Открытый исходный код</string>
+    <string name="oss_license_label">Лицензия</string>
+    <string name="oss_license_value">Apache License 2.0</string>
+    <string name="oss_source_label">Исходный код</string>
+    <string name="oss_source_url">https://github.com/jeiel85/markleaf-android</string>
+    <string name="oss_view_source">Открыть на GitHub</string>
+    <string name="oss_view_license">Полный текст лицензии</string>
+    <string name="oss_license_url">https://github.com/jeiel85/markleaf-android/blob/main/LICENSE</string>
+    <string name="oss_fdroid_label">F-Droid</string>
+    <string name="oss_fdroid_url">https://f-droid.org/packages/com.markleaf.notes/</string>
+    <string name="oss_view_fdroid">Открыть в F-Droid</string>
+    <string name="oss_explainer">Markleaf — полностью открытое приложение под лицензией Apache 2.0. Читайте код, проверяйте, как хранятся ваши заметки, и участвуйте в разработке на GitHub.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title_welcome">Добро пожаловать в Markleaf</string>
+    <string name="onboarding_body_welcome">Тихое приложение для заметок в Markdown для Android, в котором всё хранится локально. Ваш текст остаётся на этом устройстве, пока вы сами не решите поделиться им или экспортировать его.</string>
+    <string name="onboarding_title_markdown">Пишите в Markdown</string>
+    <string name="onboarding_body_markdown">Используйте **жирный**, _курсив_, # заголовки, списки, код и цитаты. Нажмите «Предпросмотр» на верхней панели, чтобы в любой момент увидеть оформленный вид.</string>
+    <string name="onboarding_title_tags">Упорядочивайте с помощью #тегов</string>
+    <string name="onboarding_body_tags">Напишите #проект или #встреча в любом месте заметки. Теги распознаются автоматически и отображаются на экране «Теги».</string>
+    <string name="onboarding_title_local">Ваши данные остаются у вас</string>
+    <string name="onboarding_body_local">Без аккаунта, без аналитики, без облака. Экспортируйте любую заметку как файл .md или укажите Markleaf синхронизируемую папку (Dropbox / Drive / Syncthing) для работы на нескольких устройствах.</string>
+    <string name="onboarding_next">Далее</string>
+    <string name="onboarding_done">Начать</string>
+    <string name="onboarding_skip">Пропустить</string>
+
+    <!-- Biometric lock -->
+    <string name="biometric_lock_title">Блокировка приложения</string>
+    <string name="biometric_lock_setting">Требовать биометрию при открытии</string>
+    <string name="biometric_lock_description">При открытии Markleaf требуется разблокировка по отпечатку пальца или лицу. Сами заметки никогда не покидают устройство.</string>
+    <string name="biometric_lock_prompt_title">Разблокировать Markleaf</string>
+    <string name="biometric_lock_prompt_subtitle">Подтвердите личность, чтобы открыть заметки</string>
+    <string name="biometric_lock_cancel">Отмена</string>
+    <string name="biometric_lock_unavailable">Биометрическая аутентификация недоступна на этом устройстве. Чтобы использовать блокировку приложения, настройте отпечаток пальца или распознавание лица в настройках системы.</string>
+    <string name="biometric_lock_retry">Повторить</string>
+    <string name="biometric_lock_locked_message">Markleaf заблокирован.</string>
+
+    <!-- Locked notes (#155) -->
+    <string name="locked_notes_title">Защищённые заметки</string>
+    <string name="move_to_locked">Переместить в защищённые</string>
+    <string name="remove_from_locked">Убрать из защищённых</string>
+    <string name="locked_notes_empty">Нет защищённых заметок</string>
+    <string name="locked_notes_empty_hint">Здесь, под защитой кода доступа, появятся заметки, которые вы переместите в защищённые.</string>
+    <string name="locked_unlock_hint">Введите код доступа, чтобы открыть защищённые заметки.</string>
+    <string name="locked_passcode_label">Код доступа</string>
+    <string name="locked_unlock_button">Разблокировать</string>
+    <string name="locked_wrong_passcode">Неверный код доступа.</string>
+    <string name="locked_too_many_attempts">Слишком много попыток. Повторите через %1$s.</string>
+    <string name="wikilink_target_locked">Эта заметка находится в защищённых.</string>
+    <string name="locked_no_passcode_title">Код доступа не задан</string>
+    <string name="locked_no_passcode_hint">Задайте код доступа в настройках, чтобы защитить заметки.</string>
+    <string name="locked_open_settings">Открыть настройки</string>
+    <string name="locked_need_passcode_title">Сначала задайте код доступа</string>
+    <string name="locked_need_passcode_message">Чтобы защищать заметки, задайте код доступа к защищённым заметкам в настройках.</string>
+    <string name="locked_passcode_setting_title">Код доступа к защищённым заметкам</string>
+    <string name="locked_passcode_setting_description">Защищает заметки, перемещённые в защищённые. Они скрываются внутри приложения — это не полноценное шифрование.</string>
+    <string name="locked_passcode_set">Задать код доступа</string>
+    <string name="locked_passcode_change">Изменить код доступа</string>
+    <string name="locked_passcode_remove">Удалить код доступа</string>
+    <string name="locked_passcode_dialog_title">Код доступа к защищённым заметкам</string>
+    <string name="locked_passcode_new_label">Новый код доступа</string>
+    <string name="locked_passcode_confirm_label">Подтвердите код доступа</string>
+    <string name="locked_passcode_save">Сохранить</string>
+    <string name="locked_passcode_too_short">Используйте не менее 4 символов.</string>
+    <string name="locked_passcode_mismatch">Коды доступа не совпадают.</string>
+    <string name="locked_passcode_set_done">Код доступа задан.</string>
+    <string name="locked_passcode_removed_done">Код доступа удалён. Защищённые заметки возвращены к остальным заметкам.</string>
+    <string name="locked_passcode_remove_confirm_title">Удалить код доступа?</string>
+    <string name="locked_passcode_remove_confirm_message">Все защищённые заметки будут возвращены к остальным заметкам.</string>
+
+    <!-- Note information sheet accessibility (#152) -->
+    <string name="note_information_heading_action">Перейти к разделу</string>
+    <string name="note_information_backlink_action">Открыть заметку</string>
+
+    <!-- PDF export -->
+    <string name="export_pdf">Экспортировать в PDF…</string>
+    <string name="export_pdf_job_name">Markleaf — %1$s</string>
+    <string name="export_pdf_unavailable">Экспорт в PDF доступен только на Android 5 и новее.</string>
+
+    <!-- Widget -->
+    <string name="quick_note_widget_label">Быстрая заметка</string>
+    <string name="quick_note_widget_description">Нажмите, чтобы быстро создать новую заметку</string>
+    <string name="single_note_widget_label">Одна заметка</string>
+    <string name="single_note_widget_description">Показывать текст одной заметки на главном экране</string>
+    <string name="single_note_widget_configure_title">Выберите заметку</string>
+    <string name="single_note_widget_size_description">Применяется только к этому виджету. Другие виджеты и редактор сохраняют собственный размер.</string>
+    <string name="single_note_widget_unavailable">Эта заметка больше недоступна</string>
+
+    <!-- Privacy Dashboard -->
+    <string name="privacy_dashboard_title">Панель конфиденциальности</string>
+    <string name="privacy_guarantee_title">Ваши данные остаются на устройстве</string>
+    <string name="privacy_guarantee_desc">Конфиденциальность заложена в основу Markleaf. Ваши заметки никогда не покидают устройство, если вы сами явно не решите экспортировать их или поделиться ими.</string>
+    <string name="privacy_data_storage_title">Локальное хранение</string>
+    <string name="privacy_data_storage_desc">Все заметки и теги хранятся локально на устройстве в защищённой базе данных Room платформы Android. Никаких облачных серверов и выгрузки данных.</string>
+    <string name="privacy_no_cloud_title">Без зависимости от облака</string>
+    <string name="privacy_no_cloud_desc">Для основных функций мы не используем никаких облачных сервисов. Ни синхронизации с Google Диском, ни интеграции с Dropbox, ни проприетарных серверов.</string>
+    <string name="privacy_no_tracking_title">Никакого отслеживания</string>
+    <string name="privacy_no_tracking_desc">Ни аналитики, ни SDK для отчётов о сбоях, ни рекламных сетей. Мы понятия не имеем, как вы пользуетесь приложением, и нас это устраивает.</string>
+    <string name="privacy_verification_title">Проверка конфиденциальности</string>
+    <string name="privacy_verify_no_internet">Разрешение INTERNET не объявлено</string>
+    <string name="privacy_verify_local_only">100% локальная обработка данных</string>
+    <string name="privacy_verify_no_ads">Нет рекламы и трекеров</string>
+    <string name="privacy_verify_no_analytics">Нет аналитики и телеметрии</string>
+    <string name="privacy_verify_open_source">Открытый и проверяемый код</string>
+    <string name="privacy_app_info_title">Об этой сборке</string>
+    <string name="privacy_app_info_desc">Версия %1$s\n\nЭта сборка Markleaf соблюдает строгие стандарты конфиденциальности. Все функции работают полностью офлайн.</string>
+    <string name="privacy_dashboard_button">Открыть панель конфиденциальности</string>
+
+    <!-- Sync & Conflict Center -->
+    <string name="sync_center_title">Центр синхронизации</string>
+    <string name="conflict_center_title">Центр конфликтов</string>
+    <string name="conflict_center_desc">Эти заметки были изменены одновременно на нескольких устройствах. Просмотрите и отредактируйте их, чтобы объединить изменения вручную, или удалите ненужные копии.</string>
+    <string name="conflict_center_empty">Конфликтов не обнаружено</string>
+    <string name="conflict_center_empty_desc">Все отражённые заметки полностью синхронизированы.</string>
+    <string name="conflict_delete_confirm_title">Удалить копию конфликта?</string>
+    <string name="conflict_delete_confirm_desc">Эта копия конфликта будет удалена навсегда.</string>
+    <string name="conflict_note_updated_format">Обновлено: %1$s</string>
+
+    <!-- Preview mode -->
+    <string name="preview_link_address_copied">Адрес ссылки скопирован</string>
+
+</resources>

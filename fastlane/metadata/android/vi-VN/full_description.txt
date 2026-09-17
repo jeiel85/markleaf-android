@@ -1,0 +1,37 @@
+Markleaf là ứng dụng ghi chú Markdown ưu tiên lưu cục bộ dành cho Android.
+
+Viết Markdown thuần, sắp xếp bằng thẻ ngay trong nội dung, tìm kiếm tức thì và giữ ghi chú trong tầm kiểm soát của bạn. Markleaf lưu ghi chú trong cơ sở dữ liệu Room cục bộ và không khai báo quyền INTERNET.
+
+Viết và xem trước:
+
+* Xem trước Markdown trực tiếp với tô màu cú pháp khi gõ
+* Bảng GFM, ô đánh dấu, trích dẫn, khung chú thích (> [!NOTE] …)
+* Tô sáng cú pháp khối mã cho 10 ngôn ngữ lập trình
+* Chuyển qua lại giữa tham chiếu ↔ nội dung chú thích cuối trang, wikilink và liên kết ngược
+* Định dạng thông minh: bọc vùng chọn hoặc từ bằng đậm/nghiêng/gạch ngang/mã
+* Chế độ tập trung, thống kê số từ và thời gian đọc, tìm và thay thế trong ghi chú
+
+Sắp xếp và điều hướng:
+
+* Chỉ cần viết #thẻ trong nội dung để tự động lập chỉ mục (không cần thư mục)
+* Chuyển nhanh và tìm kiếm toàn văn SQLite FTS
+* Ghim, lưu trữ, thùng rác và khôi phục
+
+Đồng bộ và nhập (không đám mây):
+
+* Sao chép mỗi ghi chú thành tệp .md vào thư mục bạn chọn qua SAF
+* Nhập tệp .md / .txt bên ngoài bằng cách mở hoặc chia sẻ vào ứng dụng
+* Xuất Markdown từng ghi chú hoặc tất cả ghi chú, cùng tính năng chia sẻ của hệ thống
+
+Thiết kế và trợ năng:
+
+* Tiện ích màn hình chính, khóa sinh trắc học, tùy chọn chặn chụp màn hình
+* Sáng / tối / Material You, bố cục hai ngăn trên máy tính bảng
+* Giao diện 10 ngôn ngữ (tiếng Hàn, tiếng Anh, tiếng Tây Ban Nha, tiếng Nhật, tiếng Pháp, tiếng Đức, tiếng Trung giản thể, tiếng Croatia, tiếng Nga, tiếng Việt)
+
+Quyền riêng tư và phân phối:
+
+* Không tài khoản, không máy chủ Markleaf
+* Không phân tích, quảng cáo, theo dõi, Firebase hay SDK báo cáo sự cố độc quyền
+* Không quyền INTERNET, tắt Android Auto Backup
+* Dữ liệu người dùng chỉ rời khỏi thiết bị qua các thao tác rõ ràng do hệ điều hành trung gian như xuất, chia sẻ, mở liên kết bên ngoài hoặc thư mục SAF do người dùng chọn

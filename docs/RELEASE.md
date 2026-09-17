@@ -418,7 +418,7 @@ diffable:
 ```powershell
 $out = "D:\Build\$stem-release-notes.txt"
 Set-Content -Path $out -Value '' -NoNewline -Encoding utf8
-foreach ($loc in 'ko-KR','en-US','ja-JP','zh-CN','de-DE','fr-FR','es-ES','hr-HR') {
+foreach ($loc in 'ko-KR','en-US','ja-JP','zh-CN','de-DE','fr-FR','es-ES','hr-HR','ru-RU','vi-VN') {
     $note = (Get-Content -Raw -Encoding utf8 "fastlane/metadata/android/$loc/changelogs/<versionCode>.txt").Trim()
     Add-Content -Path $out -Value "<$loc>`n$note`n</$loc>" -Encoding utf8
 }
@@ -494,14 +494,15 @@ header names. The check names whichever one is missing.
 pwsh scripts/verify-landing-versions.ps1
 ```
 
-The landing page ships in eight languages: `docs/index.html` (English, the
+The landing page ships in ten languages: `docs/index.html` (English, the
 canonical / x-default), `docs/index.ko.html`, `docs/index.ja.html`,
 `docs/index.zh.html`, `docs/index.de.html`, `docs/index.es.html`,
-`docs/index.fr.html`, and `docs/index.hr.html`. The "current release" version
+`docs/index.fr.html`, `docs/index.hr.html`, `docs/index.ru.html`, and
+`docs/index.vi.html`. The "current release" version
 appears in three places per file — the JSON-LD `softwareVersion`, the hero
 `release-line`, and the trust-ledger `<strong>`.
 
-The eight READMEs are checked as well. There the target is any line carrying a
+The ten READMEs are checked as well. There the target is any line carrying a
 release link (`releases/tag/vX.Y.Z` or `-/releases/vX.Y.Z`), and every version
 string on such a line must match — so a stale link label is caught even when the
 URL beside it was updated. Roadmap entries such as `- [x] v1.0.0 stable release`
@@ -518,7 +519,7 @@ unnoticed through v2.25.0 and v2.26.0 (#167).
 
 When the check fails, update the lagging file — not the check.
 
-The privacy pages (`docs/privacy*.html`) ship in the same eight languages and
+The privacy pages (`docs/privacy*.html`) ship in the same ten languages and
 carry no version string, so they are outside this check.
 
 ### Release notes
@@ -529,7 +530,7 @@ pwsh scripts/verify-release-notes.ps1
 
 Four assertions:
 
-- All eight store locales have
+- All ten store locales have
   `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt`.
 - Each stays within Play Console's 500-character-per-locale limit.
   `:app:exportReleaseToBuildDrive` enforces the same limit, but it runs at

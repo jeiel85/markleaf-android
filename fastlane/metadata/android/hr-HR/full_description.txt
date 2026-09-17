@@ -27,7 +27,7 @@ Dizajn i pristupačnost:
 
 * Widget za početni zaslon, biometrijsko zaključavanje, opcija blokiranja snimanja zaslona
 * Svijetla tema / tamna tema / Material You, raspored u dva panela za tablete
-* Sučelje u 8 jezika (hrvatski, korejski, engleski, španjolski, japanski, francuski, njemački i kineski (pojednostavljeni))
+* Sučelje u 10 jezika (hrvatski, korejski, engleski, španjolski, japanski, francuski, njemački, kineski (pojednostavljeni), ruski i vijetnamski)
 
 Privatnost i distribucija:
 

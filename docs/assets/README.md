@@ -9,9 +9,9 @@ stale (#258).
 
 | File | Surface | Recorded on |
 |---|---|---|
-| `markleaf-tablet-<lang>.mp4` (8) | Landing story 01, one per language | v2.30.0 |
-| `markleaf-tablet-<lang>-still.webp` (8) | Poster frame for the above | v2.30.0 |
-| `markleaf-tablet-<lang>.gif` (8) | README hero, one per language | v2.30.0 |
+| `markleaf-tablet-<lang>.mp4` (10) | Landing story 01, one per language | v2.30.0 |
+| `markleaf-tablet-<lang>-still.webp` (10) | Poster frame for the above | v2.30.0 |
+| `markleaf-tablet-<lang>.gif` (10) | README hero, one per language | v2.30.0 |
 | `markleaf-demo.gif` | Older single-language demo | v2.23.0 |
 
 `scripts/verify-landing-versions.ps1` asserts that each language surface points

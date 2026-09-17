@@ -30,7 +30,9 @@
   <a href="README.de.md">Deutsch</a> ·
   <a href="README.es.md">Español</a> ·
   <a href="README.fr.md">Français</a> ·
-  <strong>Hrvatski</strong>
+  <strong>Hrvatski</strong> ·
+  <a href="README.ru.md">Русский</a> ·
+  <a href="README.vi.md">Tiếng Việt</a>
 </p>
 
 <p align="center">
@@ -61,7 +63,7 @@
 
 **Markleaf** je Android aplikacija za Markdown bilješke osmišljena tako da ukloni nered kako biste se mogli usredotočiti na samo dvije stvari: bilježenje i organiziranje. Vaši se podaci pohranjuju isključivo na vašem uređaju, a standardni Markdown jamči potpuno vlasništvo i prenosivost. Čak se i sinkronizacija odvija samo kroz *mapu koju sami odaberete* — Markleaf sam nikada ništa ne sinkronizira ni ne šalje.
 
-[**Pogledajte stranicu projekta**](https://jeiel85.github.io/markleaf-android/) · [Trenutačna verzija: v2.44.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.44.0) · [Pravila privatnosti](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**Pogledajte stranicu projekta**](https://jeiel85.github.io/markleaf-android/) · [Trenutačna verzija: v2.45.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.45.0) · [Pravila privatnosti](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -97,7 +99,7 @@
 - **Markleaf zelena tema + Material You prekidač** — sistemske boje pozadinske slike na Androidu 12+ po izboru
 - **Automatski tamni način** — prati postavku sustava
 - **Raspored u tri panela za tablete** — bočna traka s oznakama · popis bilješki · uređivač; dodirnite oznaku u bočnoj traci da filtrirate popis bilješki na mjestu (popis se i dalje može sažeti)
-- **Sučelje na 8 jezika** — hrvatski / korejski / engleski / španjolski / japanski / francuski / njemački / kineski (pojednostavljeni)
+- **Sučelje na 10 jezika** — hrvatski / korejski / engleski / španjolski / japanski / francuski / njemački / kineski (pojednostavljeni) / ruski / vijetnamski
 - **Opcija blokiranja snimaka zaslona / pretpregleda u nedavnim aplikacijama** — za osjetljive bilješke
 
 ---
@@ -168,7 +170,7 @@ com.markleaf.notes
 > **Ažuriranja na Google Playu trenutačno su zaustavljena.** Nove verzije neće se objavljivati na Play Storeu dok se ne riješi korejski propis o registraciji obrta za samostalnog razvijatelja. Za trenutačno izdanje koristite **GitHub Releases**. F-Droid ostaje preporučeni put ažuriranja kad njegov build dostigne izdanje. (Ako ste je već instalirali s Play Storea, nastavlja raditi.)
 
 - **F-Droid** *(preporučeno za automatska ažuriranja)*: [Markleaf na F-Droidu](https://f-droid.org/packages/com.markleaf.notes/) — potražite u F-Droid klijentu ili instalirajte putem poveznice iznad. Njegov katalog može objaviti nakon GitHuba; ako još ne prikazuje trenutačnu verziju, koristite GitHub Releases ispod. Koristi isti ključ za potpisivanje (SHA-256 `0be97352…f91a`), pa se ažuriranja nastavljaju bez prekida i ako prvo ručno instalirate APK s GitHuba.
-- **Izravna instalacija APK-a**: [GitHub izdanje v2.44.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.44.0) sadrži dva APK-a — `markleaf-v2.44.0.apk` odgovara F-Droid/Play inačici (bez automatskog ažuriranja, bez dodatnih dopuštenja), a `markleaf-v2.44.0-sideload.apk` dodaje neobavezno ažuriranje unutar aplikacije (dopuštenja `INTERNET` i `REQUEST_INSTALL_PACKAGES`). Za ažuriranje unutar aplikacije preuzmite sideload inačicu i pokrenite je na svom Android uređaju — obje koriste isti ključ za potpisivanje, pa je kasnija zamjena jedne drugom obično ažuriranje, a ne ponovna instalacija.
+- **Izravna instalacija APK-a**: [GitHub izdanje v2.45.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.45.0) sadrži dva APK-a — `markleaf-v2.45.0.apk` odgovara F-Droid/Play inačici (bez automatskog ažuriranja, bez dodatnih dopuštenja), a `markleaf-v2.45.0-sideload.apk` dodaje neobavezno ažuriranje unutar aplikacije (dopuštenja `INTERNET` i `REQUEST_INSTALL_PACKAGES`). Za ažuriranje unutar aplikacije preuzmite sideload inačicu i pokrenite je na svom Android uređaju — obje koriste isti ključ za potpisivanje, pa je kasnija zamjena jedne drugom obično ažuriranje, a ne ponovna instalacija.
 - **Google Play**: [Markleaf na Google Playu](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **ažuriranja su zaustavljena** (vidi napomenu iznad). Ako je već imate, nastavlja raditi; za trenutačnu verziju koristite GitHub Releases ili F-Droid kad ondje postane dostupna.
 
 ### Izgradnja iz izvornog koda

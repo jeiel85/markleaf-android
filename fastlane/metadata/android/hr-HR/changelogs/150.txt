@@ -1,0 +1,1 @@
+Markleaf sada govori ruski i vijetnamski. Aplikacija, bilješke za prvo pokretanje, opis u trgovini, README i web-stranica dostupni su na oba jezika, pa ih je ukupno 10. Prijevodi su novi, pa su ispravci izvornih govornika dobrodošli na GitHubu.

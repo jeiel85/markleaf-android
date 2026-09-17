@@ -1834,3 +1834,8 @@
 ## 2026-09-17 — Issue #414: links between notes
 
 Added wikilink display aliases and local resolution for relative Markdown links to `.md` and `.txt` files in the configured notes folder. Resolution uses the actual mirror filename and its frontmatter or sidecar note ID, preserving duplicate and renamed file handling. Added parser and path-boundary tests; release checks and Android build evidence are recorded in `.agent/progress.md`.
+---
+
+## 2026-09-17 — v2.45.0: Russian and Vietnamese
+
+Play Console showed ratings from Russia and Vietnam. Added `ru` and `vi` across every surface `config/locales.tsv` governs (strings, starter notes, store metadata, README, landing and privacy pages, tablet demo clip), bringing Markleaf to 10 languages. The demo clips reuse the shared English recording with a translated caption band rather than a re-shoot. The first CI run failed release lint: the Vietnamese `100% cục bộ` read as a `% c` format conversion, which local `ResourceParityTest` and `assembleDebug` do not catch — new locales should run `:app:lintRelease` locally. Codex review was unavailable (usage limit) on the first push. Verified on the API 36 phone emulator with `cmd locale set-app-locales` for both languages.

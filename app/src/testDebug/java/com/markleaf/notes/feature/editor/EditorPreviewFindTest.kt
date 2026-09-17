@@ -7,9 +7,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
@@ -23,6 +25,7 @@ import com.markleaf.notes.domain.model.Note
 import java.time.Instant
 import java.util.UUID
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -114,6 +117,41 @@ class EditorPreviewFindTest {
 
         composeRule.onNodeWithText("hidden pear").assertDoesNotExist()
         composeRule.onNodeWithContentDescription(context.getString(R.string.find_next_match)).assertDoesNotExist()
+    }
+
+    @Test
+    fun steppingToAMatchDeepInsideATallRowScrollsWithinThatRow() {
+        // A Codex review finding: every occurrence in one row maps to the same
+        // LazyColumn item, so scrolling to the item alone left a match further
+        // down a long paragraph (or table, or code block) off screen.
+        val paragraph = "needle start " + "filler words ".repeat(600) + "needle end"
+        val noteId = createNote("# Tall\n\n$paragraph")
+        val settings = AppSettingsRepository(InMemoryPreferencesDataStore())
+
+        composeRule.setContent {
+            Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                EditorScreen(noteId = noteId, onBack = {}, settingsRepository = settings)
+            }
+        }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(context.getString(R.string.preview)).performClick()
+        composeRule.onNodeWithContentDescription(context.getString(R.string.more_options)).performClick()
+        composeRule.onNodeWithText(context.getString(R.string.find_in_note)).performClick()
+        composeRule.onNode(hasSetTextAction()).performTextInput("needle")
+        composeRule.onNodeWithText("1/2").assertExists()
+        val paragraphNode = composeRule.onNodeWithText("needle start", substring = true)
+        val topAtFirstMatch = paragraphNode.getUnclippedBoundsInRoot().top
+
+        composeRule.onNodeWithContentDescription(context.getString(R.string.find_next_match)).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("2/2").assertExists()
+        // The paragraph is several screens tall; its last words are only on
+        // screen once the row has moved well above where it started.
+        val screenHeight = composeRule.onRoot().getUnclippedBoundsInRoot().let { it.bottom - it.top }
+        val moved = topAtFirstMatch - paragraphNode.getUnclippedBoundsInRoot().top
+        assertTrue("paragraph moved only $moved; expected more than a screen ($screenHeight)", moved > screenHeight)
     }
 
     private fun createNote(content: String): String {

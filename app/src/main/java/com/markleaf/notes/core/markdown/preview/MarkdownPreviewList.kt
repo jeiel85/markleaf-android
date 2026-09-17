@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -39,6 +41,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -49,6 +53,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationException
@@ -164,7 +169,9 @@ fun MarkdownPreviewList(
      * rows — is drawn more strongly. Empty means find is closed.
      */
     findQuery: String = "",
-    currentFindMatch: PreviewFindMatch? = null
+    currentFindMatch: PreviewFindMatch? = null,
+    /** Bumped after each find step so the current match is scrolled into view again. */
+    findRevealKey: Int = 0
 ) {
     val scope = rememberCoroutineScope()
     // The scale rides the PreviewLine rather than a CompositionLocal:
@@ -241,7 +248,8 @@ fun MarkdownPreviewList(
                                 query = query,
                                 current = currentFindMatch
                                     ?.takeIf { it.lineIndex == lineIndex }
-                                    ?.occurrence
+                                    ?.occurrence,
+                                revealKey = findRevealKey
                             )
                         }
                         CompositionLocalProvider(LocalPreviewFindHighlight provides highlight) {
@@ -329,22 +337,22 @@ private fun PreviewLineContent(
     val scale = line.fontScale
     val scaled = scale != 1f
     when (line.type) {
-        PreviewLineType.H1 -> Text(
-            text = findHighlighted(line.text),
+        PreviewLineType.H1 -> FindableText(
+            text = line.text,
             style = if (scaled) MaterialTheme.typography.headlineMedium.scaledBy(scale)
             else MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 24.dp), bottom = 8.dp)
         )
-        PreviewLineType.H2 -> Text(
-            text = findHighlighted(line.text),
+        PreviewLineType.H2 -> FindableText(
+            text = line.text,
             style = if (scaled) MaterialTheme.typography.headlineSmall.scaledBy(scale)
             else MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 20.dp), bottom = 6.dp)
         )
-        PreviewLineType.H3 -> Text(
-            text = findHighlighted(line.text),
+        PreviewLineType.H3 -> FindableText(
+            text = line.text,
             style = if (scaled) MaterialTheme.typography.titleLarge.scaledBy(scale)
             else MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.secondary,
@@ -354,22 +362,22 @@ private fun PreviewLineContent(
         // treatment of their own. The last two also drop to the muted colour:
         // by that depth the heading is closer to a label than a section title,
         // and six visually distinct heading styles in one note is noise.
-        PreviewLineType.H4 -> Text(
-            text = findHighlighted(line.text),
+        PreviewLineType.H4 -> FindableText(
+            text = line.text,
             style = if (scaled) MaterialTheme.typography.titleMedium.scaledBy(scale)
             else MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 12.dp), bottom = 4.dp)
         )
-        PreviewLineType.H5 -> Text(
-            text = findHighlighted(line.text),
+        PreviewLineType.H5 -> FindableText(
+            text = line.text,
             style = if (scaled) MaterialTheme.typography.titleSmall.scaledBy(scale)
             else MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 10.dp), bottom = 2.dp)
         )
-        PreviewLineType.H6 -> Text(
-            text = findHighlighted(line.text),
+        PreviewLineType.H6 -> FindableText(
+            text = line.text,
             style = if (scaled) MaterialTheme.typography.labelLarge.scaledBy(scale)
             else MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -491,8 +499,8 @@ private fun CollapsibleSummaryRow(text: String, expanded: Boolean, onClick: () -
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(end = 8.dp)
         )
-        Text(
-            text = findHighlighted(text),
+        FindableText(
+            text = text,
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface
@@ -533,14 +541,16 @@ internal fun InlineMarkdownText(
     val segments = line.segments.ifEmpty {
         listOf(PreviewInlineSegment(line.text, PreviewInlineType.TEXT))
     }
-    val annotated = inlineAnnotatedString(
+    val unhighlighted = inlineAnnotatedString(
         segments = segments,
         leadingMarker = leadingMarker,
         onWikilinkClick = onWikilinkClick,
         onFootnoteRefClick = onFootnoteRefClick,
         onMarkerClick = onMarkerClick,
         fontScale = line.fontScale
-    ).withFindHighlights(LocalPreviewFindHighlight.current, searchStart = leadingMarker.length)
+    )
+    val highlight = LocalPreviewFindHighlight.current
+    val annotated = unhighlighted.withFindHighlights(highlight, searchStart = leadingMarker.length)
     val baseStyle = MaterialTheme.typography.bodyLarge
     val layout = remember { TextLayoutHolder() }
     // Links are now embedded as LinkAnnotations in `annotated`, so a plain Text
@@ -555,6 +565,7 @@ internal fun InlineMarkdownText(
         modifier = Modifier
             .padding(vertical = verticalPadding)
             .linkPressGestures(annotated, layout)
+            .revealCurrentFindMatch(unhighlighted.text, highlight, layout, searchStart = leadingMarker.length)
     )
 }
 
@@ -729,10 +740,83 @@ private val LocalNoteLinkHandler = compositionLocalOf<((String) -> Unit)?> { nul
  */
 private val LocalPreviewFindHighlight = compositionLocalOf<PreviewFindHighlight?> { null }
 
-/** [text] with the current row's find highlight applied; see [withFindHighlights]. */
+/**
+ * A plain-text row piece that takes part in find (#417): its occurrences are
+ * highlighted, and the current one is scrolled into view — see
+ * [revealCurrentFindMatch]. With find closed it is an ordinary [Text].
+ */
 @Composable
-private fun findHighlighted(text: String): AnnotatedString =
-    AnnotatedString(text).withFindHighlights(LocalPreviewFindHighlight.current)
+private fun FindableText(
+    text: String,
+    modifier: Modifier = Modifier,
+    style: androidx.compose.ui.text.TextStyle = androidx.compose.material3.LocalTextStyle.current,
+    color: Color = Color.Unspecified,
+    fontWeight: FontWeight? = null
+) {
+    val highlight = LocalPreviewFindHighlight.current
+    val layout = remember { TextLayoutHolder() }
+    Text(
+        text = AnnotatedString(text).withFindHighlights(highlight),
+        style = style,
+        color = color,
+        fontWeight = fontWeight,
+        onTextLayout = { layout.value = it },
+        modifier = modifier.revealCurrentFindMatch(text, highlight, layout)
+    )
+}
+
+/**
+ * Scrolls the current find match in this text into view (#417). Scrolling the
+ * preview to the match's row is not enough on its own: in a row taller than
+ * the screen — a long table, code block or paragraph — every match of that row
+ * maps to the same LazyColumn item, and only the text's own layout knows where
+ * the match sits. Re-runs whenever [PreviewFindHighlight.revealKey] moves, which
+ * the editor bumps after each step, so stepping back to a match re-reveals it.
+ *
+ * Must be the last modifier on the Text, so the requester's bounds are the
+ * text layout's own coordinates.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun Modifier.revealCurrentFindMatch(
+    text: String,
+    highlight: PreviewFindHighlight?,
+    layout: TextLayoutHolder,
+    searchStart: Int = 0
+): Modifier {
+    val current = highlight?.current ?: return this
+    val start = findOccurrences(text.substring(searchStart.coerceAtMost(text.length)), highlight.query)
+        .getOrNull(current)
+        ?.plus(searchStart)
+        ?: return this
+    val end = start + highlight.query.length
+    val requester = remember { BringIntoViewRequester() }
+    LaunchedEffect(start, end, highlight.revealKey) {
+        // The layout can lag the composition that made this the current match
+        // by a frame or two; give it a few before giving up.
+        var result = layout.value
+        var frames = 0
+        while ((result == null || result.layoutInput.text.length < end) && frames < RevealLayoutFrames) {
+            withFrameNanos { }
+            result = layout.value
+            frames++
+        }
+        if (result == null || result.layoutInput.text.length < end) return@LaunchedEffect
+        val first = result.getBoundingBox(start)
+        val last = result.getBoundingBox(end - 1)
+        requester.bringIntoView(
+            Rect(
+                left = minOf(first.left, last.left),
+                top = minOf(first.top, last.top),
+                right = maxOf(first.right, last.right),
+                bottom = maxOf(first.bottom, last.bottom)
+            )
+        )
+    }
+    return bringIntoViewRequester(requester)
+}
+
+private const val RevealLayoutFrames = 5
 
 /**
  * Marks [highlight]'s occurrences in this text: a quiet background for every
@@ -1245,7 +1329,8 @@ private fun TableRow(
                     onFootnoteRefClick = onFootnoteRefClick
                 )
             }
-            val content = plain.withFindHighlights(highlight?.after(consumed))
+            val cellHighlight = highlight?.after(consumed)
+            val content = plain.withFindHighlights(cellHighlight)
             if (highlight != null) consumed += findOccurrences(plain.text, highlight.query).size
             val layout = remember { TextLayoutHolder() }
             Text(
@@ -1265,6 +1350,7 @@ private fun TableRow(
                     // A link in a table cell copies its address like any other
                     // (#386), same as it became tappable like any other (#197).
                     .linkPressGestures(content, layout)
+                    .revealCurrentFindMatch(plain.text, cellHighlight, layout)
             )
         }
     }
@@ -1279,8 +1365,8 @@ private fun FrontmatterBlock(text: String) {
             .fillMaxWidth()
             .padding(vertical = 6.dp)
     ) {
-        Text(
-            text = findHighlighted(text),
+        FindableText(
+            text = text,
             style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
@@ -1318,8 +1404,8 @@ private fun AttachmentImage(
             )
         }
     } else {
-        Text(
-            text = findHighlighted(unresolvedImageText(line.text, destination)),
+        FindableText(
+            text = unresolvedImageText(line.text, destination),
             style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(vertical = 4.dp)
@@ -1387,10 +1473,14 @@ private fun MarkdownCodeBlock(text: String, language: String?) {
                 modifier = Modifier.padding(bottom = 4.dp)
             )
         }
+        val highlight = LocalPreviewFindHighlight.current
+        val layout = remember { TextLayoutHolder() }
         Text(
-            text = annotated.withFindHighlights(LocalPreviewFindHighlight.current),
+            text = annotated.withFindHighlights(highlight),
             style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            onTextLayout = { layout.value = it },
+            modifier = Modifier.revealCurrentFindMatch(text, highlight, layout)
         )
     }
 }

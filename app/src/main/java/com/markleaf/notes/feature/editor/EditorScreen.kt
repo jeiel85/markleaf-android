@@ -42,6 +42,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -451,6 +452,8 @@ fun EditorScreen(
     var isFindOpen by remember(noteId) { mutableStateOf(false) }
     /** Which mode the find bar was opened in; see the find match lists (#417). */
     var findOpenedInPreview by remember(noteId) { mutableStateOf(false) }
+    /** Bumped after each preview find step; see the preview find effect (#417). */
+    var findRevealKey by remember(noteId) { mutableIntStateOf(0) }
     var findQuery by remember(noteId) { mutableStateOf("") }
     var findIndex by remember(noteId) { mutableStateOf(0) }
     var replaceQuery by remember(noteId) { mutableStateOf("") }
@@ -627,15 +630,32 @@ fun EditorScreen(
     // Keyed on the query rather than the match list: ticking a checkbox in
     // preview rebuilds the rows, and that should not pull the view back to the
     // current match.
-    LaunchedEffect(findIndex, findQuery, isPreviewMode) {
-        if (!isPreviewMode || previewFindMatches.isEmpty()) return@LaunchedEffect
+    //
+    // Two stages: bring the match's row on screen if it is not already, then
+    // bump findRevealKey so the row scrolls the match itself into view. The
+    // second stage is what reaches a match deep inside a row taller than the
+    // screen (a long table or code block), where every occurrence maps to the
+    // same LazyColumn item; the first is only needed when that item is not
+    // composed at all.
+    LaunchedEffect(findIndex, findQuery, isPreviewSearchActive) {
+        if (!isPreviewSearchActive || previewFindMatches.isEmpty()) return@LaunchedEffect
         val match = previewFindMatches[findIndex.coerceIn(previewFindMatches.indices)]
         val expanded = expandSectionsFor(previewLines, toggledSectionIds, match.lineIndex)
-        if (expanded != toggledSectionIds) toggledSectionIds = expanded
-        val visibleIndex = visiblePreviewLineIndices(previewLines, expanded).indexOf(match.lineIndex)
-        if (visibleIndex >= 0) {
-            pendingPreviewScroll = PreviewScrollRequest(visibleIndex, animate = true)
+        val visibleIndices = visiblePreviewLineIndices(previewLines, expanded)
+        val visibleIndex = visibleIndices.indexOf(match.lineIndex)
+        if (visibleIndex < 0) return@LaunchedEffect
+        if (expanded != toggledSectionIds) {
+            toggledSectionIds = expanded
+            // Wait for the list to lay out the rows the expansion adds before
+            // scrolling to an index among them.
+            withTimeoutOrNull(1_000) {
+                snapshotFlow { previewListState.layoutInfo.totalItemsCount }
+                    .first { it == visibleIndices.size }
+            }
         }
+        val onScreen = previewListState.layoutInfo.visibleItemsInfo.any { it.index == visibleIndex }
+        if (!onScreen) previewListState.animateScrollToItem(visibleIndex)
+        findRevealKey++
     }
     LaunchedEffect(findIndex, findMatches) {
         if (findMatches.isNotEmpty()) {
@@ -1089,6 +1109,7 @@ fun EditorScreen(
                             modifier = Modifier.fillMaxSize(),
                             findQuery = if (isPreviewSearchActive) findQuery else "",
                             currentFindMatch = previewFindMatches.getOrNull(findIndex),
+                            findRevealKey = findRevealKey,
                             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
                             listState = previewListState,
                             // Tapping a checkbox in the preview flips it in the

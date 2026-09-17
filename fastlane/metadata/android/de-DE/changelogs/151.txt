@@ -1,0 +1,1 @@
+„In Notiz suchen“ funktioniert jetzt auch in der Vorschau. Über das ⋮-Menü geöffnet, durchsucht es den Text so, wie er angezeigt wird, hebt alle Treffer hervor und scrollt zu jedem – liegt ein Treffer in einem eingeklappten Abschnitt, wird dieser geöffnet. Ersetzen bleibt dem Bearbeitungsmodus vorbehalten. (#417)

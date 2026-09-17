@@ -135,7 +135,12 @@ internal fun expandSectionsFor(
  * [current] one (an occurrence index within the row) drawn more strongly, or
  * none of them if the current match is elsewhere.
  */
-internal data class PreviewFindHighlight(val query: String, val current: Int?) {
+internal data class PreviewFindHighlight(
+    val query: String,
+    val current: Int?,
+    /** Bumped by the editor after each step so the current match is revealed again. */
+    val revealKey: Int = 0
+) {
     /** The same highlight for a later piece of the row, after [consumed] occurrences. */
     fun after(consumed: Int): PreviewFindHighlight =
         copy(current = current?.minus(consumed)?.takeIf { it >= 0 })

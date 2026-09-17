@@ -1,0 +1,1 @@
+« Rechercher dans la note » fonctionne désormais en aperçu. Ouvert depuis le menu ⋮, il cherche le texte tel qu’il s’affiche, surligne chaque résultat et fait défiler jusqu’à chacun, en dépliant une section repliée si le résultat s’y trouve. Le remplacement reste réservé au mode édition. (#417)

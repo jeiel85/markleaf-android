@@ -5,6 +5,14 @@
 
 ---
 
+## GitHub Issue #417 - Find in note from preview (Done, 2026-09-17)
+
+- [x] 미리보기 오버플로 메뉴에 노트 내 찾기, 렌더링된 텍스트 기준 매칭·강조·스크롤, 접힌 섹션 펼치기
+- [x] Codex 리뷰 지적 전부 PR #421에서 수정, 회귀 테스트 추가
+- [x] v2.46.0 / versionCode 151 릴리스 문서와 10개 언어 준비
+
+---
+
 ## PR #418 - Russian and Vietnamese locales (Done, 2026-09-17)
 
 - [x] values/raw/fastlane/README/landing/privacy/demo clip ru·vi 추가, 10개 언어 스위처·개수 갱신

@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.46.0 - Find what you are reading - 2026-09-17
+
+Find in note is no longer limited to edit mode. No permission or storage-format changes.
+
+### Added
+- **Find in note in preview ([#417](https://github.com/jeiel85/markleaf-android/issues/417)).** The ⋮ menu offers Find in note in preview too. There it searches the text as the preview shows it, so a word written in bold matches without its asterisks and a link matches its label rather than its address. Every match is highlighted, the current one more strongly, and the previous/next buttons scroll to each one, including matches further down a long paragraph, table or code block. A match inside a collapsed `<details>` section is counted, and stepping to it opens that section. Replace stays in edit mode, because a replacement changes the Markdown source rather than the rendered text; switching between edit and preview closes an open search. Requested by [@ray4423](https://github.com/ray4423).
+
 ## v2.45.0 - Markleaf in Russian and Vietnamese - 2026-09-17
 
 Google Play ratings started arriving from Russia and Vietnam, so Markleaf now ships in both languages. No permission, feature, or storage-format changes.

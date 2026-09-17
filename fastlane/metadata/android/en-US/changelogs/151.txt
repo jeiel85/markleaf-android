@@ -1,0 +1,1 @@
+Find in note now works in preview. Open it from the ⋮ menu: it searches the text as it appears on screen, highlights every match, and scrolls to each one — opening a collapsed section when a match is inside it. Replace stays in edit mode. (#417)

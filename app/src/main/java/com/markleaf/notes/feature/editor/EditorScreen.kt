@@ -583,8 +583,21 @@ fun EditorScreen(
     val findMatches = remember(editorState.text, findQuery, isPreviewMode) {
         if (isPreviewMode) emptyList() else findAllRanges(editorState.text, findQuery)
     }
-    val previewFindMatches = remember(previewLines, findQuery, isPreviewMode) {
-        if (isPreviewMode) findInPreview(previewLines, findQuery) else emptyList()
+    // A missing attachment renders its `![alt](path)` source, which find has to
+    // search too; checked once per rebuilt preview, not per keystroke in find.
+    val unresolvedImagePaths = remember(previewLines) {
+        previewLines
+            .filter { it.type == PreviewLineType.IMAGE }
+            .mapNotNull { it.extra }
+            .filter { AttachmentManager.resolveFile(context, it) == null }
+            .toSet()
+    }
+    val previewFindMatches = remember(previewLines, findQuery, isPreviewMode, unresolvedImagePaths) {
+        if (isPreviewMode) {
+            findInPreview(previewLines, findQuery) { path -> path !in unresolvedImagePaths }
+        } else {
+            emptyList()
+        }
     }
     val activeFindMatchCount = if (isPreviewMode) previewFindMatches.size else findMatches.size
     LaunchedEffect(activeFindMatchCount) {

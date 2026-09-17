@@ -81,6 +81,18 @@ class PreviewFindTest {
     }
 
     @Test
+    fun `an image is searched by its fallback text only when its attachment is missing`() {
+        val lines = SimpleMarkdownPreview.parse("![kiwi photo](attachments/kiwi.png)")
+        val image = lines.indexOfFirst { it.type == PreviewLineType.IMAGE }
+
+        assertEquals(emptyList<PreviewFindMatch>(), findInPreview(lines, "kiwi") { true })
+        assertEquals(
+            listOf(PreviewFindMatch(image, 0), PreviewFindMatch(image, 1)),
+            findInPreview(lines, "kiwi") { false }
+        )
+    }
+
+    @Test
     fun `a match in a collapsed section is found and navigating expands it`() {
         val lines = SimpleMarkdownPreview.parse(
             """

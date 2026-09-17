@@ -27,10 +27,15 @@ data class PreviewFindMatch(val lineIndex: Int, val occurrence: Int)
  *
  * Decorations the renderer adds on its own (list bullets and numbers, callout
  * labels, a footnote's `[^n]` tag, a table's grid) are not part of the note's
- * text and are left out. A resolved image draws no text, so image rows are
- * never matched.
+ * text and are left out. A resolved image draws no text and is never matched;
+ * one whose attachment is missing draws its `![alt](path)` source instead, and
+ * that is what gets searched. [isImageResolved] answers that per image path,
+ * the same check the renderer makes.
  */
-internal fun previewFindParts(line: PreviewLine): List<String> = when (line.type) {
+internal fun previewFindParts(
+    line: PreviewLine,
+    isImageResolved: (path: String) -> Boolean = { true }
+): List<String> = when (line.type) {
     PreviewLineType.H1, PreviewLineType.H2, PreviewLineType.H3,
     PreviewLineType.H4, PreviewLineType.H5, PreviewLineType.H6,
     PreviewLineType.CODE_BLOCK, PreviewLineType.FRONTMATTER,
@@ -49,9 +54,14 @@ internal fun previewFindParts(line: PreviewLine): List<String> = when (line.type
             cells.mapIndexed { col, cell -> inlineDisplayText(segments.getOrElse(col) { emptyList() }, cell) }
         }
     }.orEmpty()
-    PreviewLineType.IMAGE, PreviewLineType.HORIZONTAL_RULE,
-    PreviewLineType.COLLAPSIBLE_END -> emptyList()
+    PreviewLineType.IMAGE -> line.extra.orEmpty().let { path ->
+        if (isImageResolved(path)) emptyList() else listOf(unresolvedImageText(line.text, path))
+    }
+    PreviewLineType.HORIZONTAL_RULE, PreviewLineType.COLLAPSIBLE_END -> emptyList()
 }
+
+/** What the preview draws for an image whose attachment cannot be found. */
+internal fun unresolvedImageText(alt: String, path: String): String = "![$alt]($path)"
 
 /** A callout's body lines as its renderer draws them: blank lines are spacers, not text. */
 internal fun calloutBodyLines(text: String): List<String> =
@@ -81,11 +91,15 @@ internal fun findOccurrences(text: String, query: String): List<Int> {
 }
 
 /** Every match of [query] across [lines], in reading order. */
-internal fun findInPreview(lines: List<PreviewLine>, query: String): List<PreviewFindMatch> {
+internal fun findInPreview(
+    lines: List<PreviewLine>,
+    query: String,
+    isImageResolved: (path: String) -> Boolean = { true }
+): List<PreviewFindMatch> {
     if (query.isEmpty()) return emptyList()
     val matches = mutableListOf<PreviewFindMatch>()
     lines.forEachIndexed { index, line ->
-        val count = previewFindParts(line).sumOf { findOccurrences(it, query).size }
+        val count = previewFindParts(line, isImageResolved).sumOf { findOccurrences(it, query).size }
         repeat(count) { matches += PreviewFindMatch(index, it) }
     }
     return matches

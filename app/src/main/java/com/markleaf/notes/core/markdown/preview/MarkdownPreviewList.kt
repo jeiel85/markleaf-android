@@ -1160,9 +1160,18 @@ private fun MarkdownTable(
             val query = highlight?.query ?: return@remember emptyList<Int>()
             val cellCounts = previewFindParts(PreviewLine("", PreviewLineType.TABLE, tableData = data))
                 .map { findOccurrences(it, query).size }
+            // One pass: occurrences before each row, header first. Summing a
+            // growing prefix per row would be quadratic in a large table.
             val rowSizes = listOf(data.headers.size) + data.rows.map { it.size }
-            rowSizes.runningFold(0) { taken, size -> taken + size }
-                .map { cellsBefore -> cellCounts.take(cellsBefore).sum() }
+            var cell = 0
+            var occurrences = 0
+            buildList {
+                add(0)
+                rowSizes.forEach { size ->
+                    repeat(size) { occurrences += cellCounts.getOrElse(cell++) { 0 } }
+                    add(occurrences)
+                }
+            }
         }
         // Header row
         TableRow(
@@ -1310,7 +1319,7 @@ private fun AttachmentImage(
         }
     } else {
         Text(
-            text = "![${line.text}]($destination)",
+            text = findHighlighted(unresolvedImageText(line.text, destination)),
             style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(vertical = 4.dp)

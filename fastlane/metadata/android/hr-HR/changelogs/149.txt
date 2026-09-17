@@ -1,0 +1,1 @@
+Wiki poveznice sada podržavaju vlastiti naslov: [[some-note.md|Some Link]]. Relativne Markdown poveznice poput [Some Link](some-note.md) otvaraju bilješke iz odabrane mape za sinkronizaciju. Vanjske poveznice i dalje se otvaraju u drugoj aplikaciji. (#414)

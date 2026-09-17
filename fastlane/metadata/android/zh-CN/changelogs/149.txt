@@ -1,0 +1,1 @@
+Wiki 链接现在支持自定义显示文字：[[some-note.md|Some Link]]。[Some Link](some-note.md) 等相对 Markdown 链接也能打开所选同步文件夹中的笔记。外部链接仍由其他应用打开。(#414)

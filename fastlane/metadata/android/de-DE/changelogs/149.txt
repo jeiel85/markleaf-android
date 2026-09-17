@@ -1,0 +1,1 @@
+Wikilinks unterstützen jetzt eigene Linktexte: [[some-note.md|Some Link]]. Relative Markdown-Links wie [Some Link](some-note.md) öffnen Notizen aus dem gewählten Synchronisierungsordner. Externe Links öffnen weiterhin eine andere App. (#414)

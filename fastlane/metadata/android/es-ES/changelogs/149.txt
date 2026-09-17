@@ -1,0 +1,1 @@
+Los enlaces wiki admiten un texto personalizado: [[some-note.md|Some Link]]. Los enlaces Markdown relativos como [Some Link](some-note.md) abren notas de la carpeta de sincronización elegida. Los enlaces externos siguen abriéndose en otra aplicación. (#414)

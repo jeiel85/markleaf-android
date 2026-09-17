@@ -98,6 +98,7 @@ import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.util.AttachmentManager
 import com.markleaf.notes.util.ExportUtil
 import com.markleaf.notes.util.HapticFeedback
+import com.markleaf.notes.util.LocalMarkdownLink
 import com.markleaf.notes.util.ExportPdf
 import com.markleaf.notes.util.ShareNoteUtil
 import com.markleaf.notes.widget.WidgetRefresh
@@ -1003,9 +1004,26 @@ fun EditorScreen(
                         },
                         onWikilinkClick = { title ->
                             coroutineScope.launch {
-                                val existing = db.noteDao().getNoteByTitle(title)
+                                val localName = LocalMarkdownLink.fileName(title)
+                                val mirroredId = if (localName != null) {
+                                    appSettings.syncFolderUriOrNull()?.let { uri ->
+                                        withContext(Dispatchers.IO) {
+                                            NoteFolderMirror.noteIdForFileName(
+                                                context, uri, localName, appSettings.mirrorMetadata()
+                                            )
+                                        }
+                                    }
+                                } else null
+                                val existing = mirroredId?.let { db.noteDao().getNoteById(it) }
+                                    ?: db.noteDao().getNoteByTitle(title)
                                 if (existing != null) {
-                                    onNavigateToNote(existing.id)
+                                    if (existing.locked) {
+                                        Toast.makeText(context, R.string.wikilink_target_locked, Toast.LENGTH_SHORT).show()
+                                    } else if (!existing.trashed && !existing.archived) {
+                                        onNavigateToNote(existing.id)
+                                    } else {
+                                        Toast.makeText(context, R.string.quick_switcher_no_results, Toast.LENGTH_SHORT).show()
+                                    }
                                 } else if (db.noteDao().countLockedNotesWithTitle(title) > 0) {
                                     // The note exists but lives in the Locked space.
                                     // Opening it here would bypass the passcode, and
@@ -1018,6 +1036,8 @@ fun EditorScreen(
                                         R.string.wikilink_target_locked,
                                         Toast.LENGTH_SHORT
                                     ).show()
+                                } else if (localName != null) {
+                                    Toast.makeText(context, R.string.quick_switcher_no_results, Toast.LENGTH_SHORT).show()
                                 } else {
                                     val seed = "# $title\n\n"
                                     val newNote = com.markleaf.notes.domain.model.Note(
@@ -1030,6 +1050,26 @@ fun EditorScreen(
                                     )
                                     repo.createNote(newNote)
                                     onNavigateToNote(newNote.id)
+                                }
+                            }
+                        },
+                        onLocalLinkClick = { fileName ->
+                            coroutineScope.launch {
+                                val folder = appSettings.syncFolderUriOrNull()
+                                val linkedId = folder?.let { uri ->
+                                    withContext(Dispatchers.IO) {
+                                        NoteFolderMirror.noteIdForFileName(
+                                            context, uri, fileName, appSettings.mirrorMetadata()
+                                        )
+                                    }
+                                }
+                                val target = linkedId?.let { db.noteDao().getNoteById(it) }
+                                when {
+                                    target == null || target.trashed || target.archived ->
+                                        Toast.makeText(context, R.string.quick_switcher_no_results, Toast.LENGTH_SHORT).show()
+                                    target.locked ->
+                                        Toast.makeText(context, R.string.wikilink_target_locked, Toast.LENGTH_SHORT).show()
+                                    else -> onNavigateToNote(target.id)
                                 }
                             }
                         },

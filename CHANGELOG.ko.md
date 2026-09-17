@@ -6,6 +6,13 @@ Markleaf의 주요 변경 사항을 기록합니다. 영어판이 기본이며 G
 
 v2.15.3 이전 항목은 이 파일에만 한국어로 보존되어 있습니다.
 
+## v2.44.0 - 작성한 그대로 읽히는 노트 간 링크 (Links between notes read the way you wrote them) - 2026-09-17
+
+선택한 동기화 폴더의 노트를 읽기 쉬운 이름으로 연결할 수 있습니다. 새 권한이나 저장 형식 변경은 없습니다.
+
+### Added
+- **별칭 위키링크와 상대 Markdown 노트 링크 ([#414](https://github.com/jeiel85/markleaf-android/issues/414)).** `[[some-note.md|Some Link]]`는 “Some Link”를 표시하고 `some-note.md` 파일의 노트를 엽니다. 표준 `[Some Link](some-note.md)` 링크도 미리보기에서 같은 로컬 노트를 엽니다. `.md`와 `.txt` 파일을 지원하며 외부 URL은 계속 다른 앱에서 엽니다. 로컬 경로는 선택한 노트 폴더 바로 아래의 파일로만 해석합니다. 파일이 없거나 폴더가 연결되지 않았으면 노트를 새로 만들지 않습니다. 파일명 기반 링크의 백링크는 색인하지 않습니다. 제보: [@Jackson-Nickk](https://github.com/Jackson-Nickk).
+
 ## v2.43.1 - 글을 따라가는 수정 시각 (The timestamp follows your writing) - 2026-09-16
 
 키보드를 열거나 커서를 옮겼다는 이유만으로 손대지 않은 노트가 수정된 것처럼 보여서는 안 됩니다. 권한이나 저장 형식 변경은 없습니다.

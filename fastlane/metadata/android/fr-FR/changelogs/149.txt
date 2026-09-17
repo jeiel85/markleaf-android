@@ -1,0 +1,1 @@
+Les wikiliens acceptent un libellé : [[some-note.md|Some Link]]. Les liens Markdown relatifs comme [Some Link](some-note.md) ouvrent désormais les notes du dossier de synchronisation choisi. Les liens externes s’ouvrent toujours dans une autre application. (#414)

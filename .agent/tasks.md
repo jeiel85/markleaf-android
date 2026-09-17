@@ -5,6 +5,16 @@
 
 ---
 
+## GitHub Issue #414 - Wikilink aliases and local Markdown links (Done, 2026-09-17)
+
+- [x] 위키링크 대상과 표시 이름 분리, 백링크 색인은 대상만 사용
+- [x] 상대 `.md`/`.txt` 링크를 선택한 폴더의 실제 파일명과 note ID로 확인
+- [x] 외부 URL 유지, 잠긴 노트/누락 파일/폴더 밖 경로 처리
+- [x] 관련 단위 테스트와 `testDebugUnitTest`·`lintRelease` 통과
+- [x] v2.44.0 / versionCode 149 릴리스 문서와 8개 언어 준비
+
+---
+
 ## GitHub Issue #410 - Editor modification timestamp (Done, 2026-09-16)
 
 - [x] 키보드/커서만 움직여도 수정 시각이 바뀌는 자동저장 경로 확인

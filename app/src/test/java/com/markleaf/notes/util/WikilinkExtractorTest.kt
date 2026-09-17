@@ -6,6 +6,12 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class WikilinkExtractorTest {
+    @Test
+    fun aliasesIndexTheTargetAndKeepTheDisplayLabelSeparate() {
+        assertEquals(listOf("some-note.md"), WikilinkExtractor.extract("[[some-note.md|Some Link]]"))
+        assertEquals("Some Link", WikilinkExtractor.label("some-note.md|Some Link"))
+        assertEquals("some-note.md", WikilinkExtractor.target("some-note.md|Some Link"))
+    }
 
     @Test
     fun extract_findsSingleLink() {

@@ -2736,3 +2736,11 @@ Verification:
 - `./gradlew :app:testDebugUnitTest :app:lintRelease :app:assembleDebug` and `:app:assembleDebugAndroidTest` passed on the release branch.
 
 ---
+# 2026-09-17 - GitHub issue #414 note links
+
+- `[[target|label]]`의 대상과 표시 이름을 분리하고, 백링크 대상은 제목 부분만 색인한다.
+- 상대 Markdown `.md`/`.txt` 링크 및 파일명 위키링크는 선택한 동기화 폴더의 실제 파일을 찾아 frontmatter ID 또는 sidecar 색인으로 노트를 연다. 폴더 밖 경로와 외부 URL은 로컬 파일로 해석하지 않는다.
+- 파일 누락 시 새 노트를 만들지 않으며, 잠긴 노트는 잠금 안내를 유지한다. 파일명 기반 백링크 색인과 읽기 전용 파일 뷰어의 로컬 탐색은 이번 범위에서 제외했다.
+- 최종 버전 변경 후 `testDebugUnitTest`, `lintRelease`, `assembleDebug` 통과. 디버그 APK 21,191,971바이트 확인. 릴리스 노트·랜딩 버전·로케일 검사도 통과.
+
+---

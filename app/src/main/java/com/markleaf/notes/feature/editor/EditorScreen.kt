@@ -1179,12 +1179,20 @@ fun EditorScreen(
                             },
                             onLocalLinkClick = { fileName ->
                                 coroutineScope.launch {
-                                    when (val result = resolveLocalNoteLink(context, db, appSettings, fileName)) {
-                                        is LocalNoteLinkResult.Open -> onNavigateToNote(result.noteId)
-                                        LocalNoteLinkResult.Locked ->
-                                            Toast.makeText(context, R.string.wikilink_target_locked, Toast.LENGTH_SHORT).show()
-                                        LocalNoteLinkResult.NotFound ->
-                                            Toast.makeText(context, R.string.quick_switcher_no_results, Toast.LENGTH_SHORT).show()
+                                    val result = resolveLocalNoteLink(context, db, appSettings, fileName)
+                                    // resolveLocalNoteLink suspends into Room, which resumes
+                                    // its continuation on its own executor rather than
+                                    // hopping back to Main (see MarkleafNavHost's
+                                    // navigateOnMain doc and #235) — onNavigateToNote may be
+                                    // a NavController.navigate call, which requires Main.
+                                    withContext(Dispatchers.Main.immediate) {
+                                        when (result) {
+                                            is LocalNoteLinkResult.Open -> onNavigateToNote(result.noteId)
+                                            LocalNoteLinkResult.Locked ->
+                                                Toast.makeText(context, R.string.wikilink_target_locked, Toast.LENGTH_SHORT).show()
+                                            LocalNoteLinkResult.NotFound ->
+                                                Toast.makeText(context, R.string.quick_switcher_no_results, Toast.LENGTH_SHORT).show()
+                                        }
                                     }
                                 }
                             },

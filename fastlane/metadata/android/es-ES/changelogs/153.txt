@@ -1,0 +1,1 @@
+Corregido: un enlace relativo .md/.txt en el visor de archivos de solo lectura abría un navegador en lugar de la nota a la que apunta. Ahora se resuelve igual que un enlace local en la vista previa del editor. Reportado por @Jackson-Nickk.

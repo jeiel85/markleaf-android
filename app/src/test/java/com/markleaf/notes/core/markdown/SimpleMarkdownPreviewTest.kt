@@ -1,6 +1,7 @@
 package com.markleaf.notes.core.markdown
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -317,6 +318,21 @@ class SimpleMarkdownPreviewTest {
         val linkSegment = lines.first().segments.firstOrNull { it.type == PreviewInlineType.LINK }
         assertEquals("our site", linkSegment?.text)
         assertEquals("https://example.com", linkSegment?.href)
+    }
+
+    @Test
+    fun parse_linkDestinationWithARawSpaceNeedsAngleBrackets() {
+        // CommonMark: an unescaped space ends a destination early, so the whole
+        // construct falls back to plain text rather than becoming a link — not a
+        // Markleaf-specific bug (#414). The spec's own escape, wrapping the
+        // destination in `<...>`, is what carries the space through untouched.
+        val bare = SimpleMarkdownPreview.parse("[note](some note.md)")
+        assertNull(bare.first().segments.firstOrNull { it.type == PreviewInlineType.LINK })
+
+        val escaped = SimpleMarkdownPreview.parse("[note](<some note.md>)")
+        val link = escaped.first().segments.firstOrNull { it.type == PreviewInlineType.LINK }
+        assertEquals("note", link?.text)
+        assertEquals("some note.md", link?.href)
     }
 
     @Test

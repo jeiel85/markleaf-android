@@ -11,6 +11,13 @@ Requested by a low-vision reader who can see the screen but not comfortably at t
 ### Added
 - **Pinch-to-magnify on the preview ([#423](https://github.com/jeiel85/markleaf-android/issues/423)).** Two fingers now zoom the rendered note the way a browser or PDF viewer does — the exact layout you already have, magnified up to 5x, with no reflow: headings keep their size relative to body text, a table keeps its columns, line breaks don't move. Pan with one finger once zoomed in; pinch back out to return to normal size. This is separate from the Text size setting, which still controls the *unzoomed* size and reflows text to fit the screen width — pinch is for a closer look at the exact page, not a permanent size change. Links, checkboxes and text selection all keep working while zoomed, since the magnification is a visual transform over the same layout rather than a different one. Requested by [@kise82](https://github.com/kise82).
 
+## v2.46.2 - The file viewer's links open your notes too - 2026-09-18
+
+A follow-up to #414: the read-only file viewer left relative Markdown links unhandled. No permission or storage-format changes.
+
+### Fixed
+- **A relative `.md`/`.txt` link in the read-only file viewer now opens the note it names, instead of leaving Markleaf for a browser ([#414](https://github.com/jeiel85/markleaf-android/issues/414)).** `Open file…` and other ways of reading a file outside the app both reach this fix — the same lookup the editor preview already used (frontmatter id or sidecar entry, whichever sync mode is active) is now wired into the viewer too. A link naming a file with no matching note, a trashed or archived one, or one kept in Locked notes reports that rather than guessing. Verified against both sync metadata modes and on a device. A destination containing a space needs the standard `<...>` Markdown escape, for example `[link](<some note.md>)` — this is CommonMark's own rule for a bare, unescaped space in a link destination, not something specific to Markleaf. Reported by [@Jackson-Nickk](https://github.com/Jackson-Nickk).
+
 ## v2.46.1 - Find lands on the right letters - 2026-09-18
 
 A fix for find and replace while editing. No permission or storage-format changes.

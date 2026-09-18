@@ -95,7 +95,9 @@ import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import com.markleaf.notes.data.settings.OpenNotesAt
+import com.markleaf.notes.data.sync.LocalNoteLinkResult
 import com.markleaf.notes.data.sync.NoteFolderMirror
+import com.markleaf.notes.data.sync.resolveLocalNoteLink
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.data.sync.mirrorMetadata
 import com.markleaf.notes.domain.model.Note
@@ -1177,21 +1179,20 @@ fun EditorScreen(
                             },
                             onLocalLinkClick = { fileName ->
                                 coroutineScope.launch {
-                                    val folder = appSettings.syncFolderUriOrNull()
-                                    val linkedId = folder?.let { uri ->
-                                        withContext(Dispatchers.IO) {
-                                            NoteFolderMirror.noteIdForFileName(
-                                                context, uri, fileName, appSettings.mirrorMetadata()
-                                            )
+                                    val result = resolveLocalNoteLink(context, db, appSettings, fileName)
+                                    // resolveLocalNoteLink suspends into Room, which resumes
+                                    // its continuation on its own executor rather than
+                                    // hopping back to Main (see MarkleafNavHost's
+                                    // navigateOnMain doc and #235) — onNavigateToNote may be
+                                    // a NavController.navigate call, which requires Main.
+                                    withContext(Dispatchers.Main.immediate) {
+                                        when (result) {
+                                            is LocalNoteLinkResult.Open -> onNavigateToNote(result.noteId)
+                                            LocalNoteLinkResult.Locked ->
+                                                Toast.makeText(context, R.string.wikilink_target_locked, Toast.LENGTH_SHORT).show()
+                                            LocalNoteLinkResult.NotFound ->
+                                                Toast.makeText(context, R.string.quick_switcher_no_results, Toast.LENGTH_SHORT).show()
                                         }
-                                    }
-                                    val target = linkedId?.let { db.noteDao().getNoteById(it) }
-                                    when {
-                                        target == null || target.trashed || target.archived ->
-                                            Toast.makeText(context, R.string.quick_switcher_no_results, Toast.LENGTH_SHORT).show()
-                                        target.locked ->
-                                            Toast.makeText(context, R.string.wikilink_target_locked, Toast.LENGTH_SHORT).show()
-                                        else -> onNavigateToNote(target.id)
                                     }
                                 }
                             },

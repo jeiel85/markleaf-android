@@ -1,10 +1,12 @@
 package com.markleaf.notes.feature.viewer
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
 import com.markleaf.notes.ui.theme.MarkleafTheme
@@ -42,14 +44,16 @@ class FileViewerScreenTest {
     private fun render(
         state: FileViewerState,
         onBack: () -> Unit = {},
-        onSaveAsNote: (String, Instant?, Instant?) -> Unit = { _, _, _ -> }
+        onSaveAsNote: (String, Instant?, Instant?) -> Unit = { _, _, _ -> },
+        onLocalLinkClick: ((String) -> Unit)? = null
     ) {
         composeRule.setContent {
             MarkleafTheme(dynamicColor = false) {
                 FileViewerContent(
                     state = state,
                     onBack = onBack,
-                    onSaveAsNote = onSaveAsNote
+                    onSaveAsNote = onSaveAsNote,
+                    onLocalLinkClick = onLocalLinkClick
                 )
             }
         }
@@ -128,6 +132,25 @@ class FileViewerScreenTest {
 
         assertEquals(created, savedCreated)
         assertEquals(updated, savedUpdated)
+    }
+
+    @Test
+    fun tappingARelativeMarkdownLink_invokesTheLocalLinkHandler() {
+        // #414: a relative `.md` link names a note that may already be in the
+        // sync folder, so it should reach the same handler the editor preview
+        // uses instead of falling through to the browser — the gap the reopened
+        // issue's "the viewer does not install the local-link handler" pointed at.
+        var clicked: String? = null
+        render(
+            loaded(text = "[related note](related-note.md)"),
+            onLocalLinkClick = { clicked = it }
+        )
+
+        composeRule.onNodeWithText("related note").performTouchInput {
+            click(centerLeft.copy(x = 20f))
+        }
+
+        assertEquals("related-note.md", clicked)
     }
 
     @Test

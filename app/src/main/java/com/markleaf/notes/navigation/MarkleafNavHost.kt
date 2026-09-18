@@ -19,6 +19,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import com.markleaf.notes.BuildConfig
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -77,8 +78,10 @@ import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.repository.LocalNoteRepository
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
+import com.markleaf.notes.data.sync.LocalNoteLinkResult
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.mirrorMetadata
+import com.markleaf.notes.data.sync.resolveLocalNoteLink
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.ui.viewmodel.ArchiveViewModel
 import com.markleaf.notes.ui.viewmodel.LockedNotesViewModel
@@ -571,6 +574,31 @@ fun MarkleafNavHost(
                                 // came from.
                                 popUpTo(NavRoutes.VIEWER) { inclusive = true }
                             }
+                        }
+                    }
+                },
+                // A relative `.md`/`.txt` link in a file being read externally can
+                // still name a note already in the sync folder (#414) — opening it
+                // does not touch the file on screen, so it fits the read-only
+                // contract the rest of this screen keeps.
+                onLocalLinkClick = { fileName ->
+                    coroutineScope.launch {
+                        val settings = settingsRepository.settings.first()
+                        // resolveLocalNoteLink suspends into Room, which resumes its
+                        // continuation on its own executor rather than hopping back to
+                        // Main (see navigateOnMain's doc below, and #235) — so every
+                        // branch here has to marshal back explicitly rather than assume
+                        // it is still on Main.
+                        when (val result = resolveLocalNoteLink(context, AppDatabase.getInstance(context), settings, fileName)) {
+                            is LocalNoteLinkResult.Open -> navController.navigateOnMain(NavRoutes.editorRoute(result.noteId))
+                            LocalNoteLinkResult.Locked ->
+                                withContext(Dispatchers.Main.immediate) {
+                                    Toast.makeText(context, R.string.wikilink_target_locked, Toast.LENGTH_SHORT).show()
+                                }
+                            LocalNoteLinkResult.NotFound ->
+                                withContext(Dispatchers.Main.immediate) {
+                                    Toast.makeText(context, R.string.quick_switcher_no_results, Toast.LENGTH_SHORT).show()
+                                }
                         }
                     }
                 }

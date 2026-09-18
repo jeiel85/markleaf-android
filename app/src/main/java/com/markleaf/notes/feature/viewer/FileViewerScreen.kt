@@ -77,6 +77,8 @@ fun FileViewerScreen(
     uri: Uri,
     onBack: () -> Unit = {},
     onSaveAsNote: (String, Instant?, Instant?) -> Unit = { _, _, _ -> },
+    /** A relative `.md`/`.txt` link naming a file in the sync folder (#414). Null leaves it unhandled, same as before. */
+    onLocalLinkClick: ((String) -> Unit)? = null,
     contentMaxWidth: Dp = Dp.Unspecified
 ) {
     val context = LocalContext.current
@@ -104,6 +106,7 @@ fun FileViewerScreen(
         state = state,
         onBack = onBack,
         onSaveAsNote = onSaveAsNote,
+        onLocalLinkClick = onLocalLinkClick,
         contentMaxWidth = contentMaxWidth
     )
 }
@@ -114,6 +117,7 @@ internal fun FileViewerContent(
     state: FileViewerState,
     onBack: () -> Unit = {},
     onSaveAsNote: (String, Instant?, Instant?) -> Unit = { _, _, _ -> },
+    onLocalLinkClick: ((String) -> Unit)? = null,
     /** The reading measure the editor honours on wide screens; unconstrained on a phone. */
     contentMaxWidth: Dp = Dp.Unspecified
 ) {
@@ -195,9 +199,12 @@ internal fun FileViewerContent(
                             .widthIn(max = contentMaxWidth),
                         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
                         // No onToggleTask and no wikilink handling: a checkbox here
-                        // would have nowhere to write, and a wikilink would either
-                        // create a note or lie about resolving. The file is read
-                        // only until the reader chooses to keep it.
+                        // would have nowhere to write, and a title-based wikilink
+                        // would either create a note or lie about resolving. A
+                        // filename-based local link (#414) names an existing file
+                        // directly instead, so it can open that note without either
+                        // problem — the caller decides what "open" means here.
+                        onLocalLinkClick = onLocalLinkClick,
                         toggledSectionIds = toggledSectionIds,
                         onToggleSection = { id ->
                             toggledSectionIds = if (id in toggledSectionIds) {

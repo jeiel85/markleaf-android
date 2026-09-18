@@ -68,14 +68,18 @@ internal object MirrorTraversal {
      * `listFiles()` is a ContentProvider query, and [MirrorFileLookup] already
      * records (#222) that folder scans were the dominant cost of saving a note
      * at a few hundred files. A flat folder costs exactly one such call; a tree
-     * costs one per directory, and [listCalls] is what says how many that turned
-     * out to be for a real folder instead of a guessed one.
+     * costs one per directory.
      *
-     * [directoriesSkipped] counts only the directories skipped by a *rule* —
-     * hidden, or `attachments/`. One the depth cap alone rules out is not
-     * counted, because recognising it as a directory would cost the very query
-     * the cap exists to avoid ([canDescendFrom]). At `maxDepth = 0` it is
-     * therefore always 0, however many directories the folder holds.
+     * [listCalls] counts listings *attempted*, including one that then failed,
+     * because the round trip is spent either way — it is a cost figure, not a
+     * success figure.
+     *
+     * [directoriesSkipped] counts the directories the walk did not descend
+     * into: refused by a rule (hidden, or `attachments/`), or impossible to
+     * list. A directory the depth cap alone rules out is **not** among them,
+     * because recognising it as a directory would cost the very query the cap
+     * exists to avoid ([canDescendFrom]). At `maxDepth = 0` it is therefore 0
+     * for any readable folder, however many directories that folder holds.
      */
     internal data class MirrorWalk(
         val files: List<MirrorFileRef>,

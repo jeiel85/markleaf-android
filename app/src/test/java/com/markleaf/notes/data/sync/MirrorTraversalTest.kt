@@ -15,6 +15,7 @@ import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.doReturn
+import org.mockito.Mockito.doThrow
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.times
@@ -364,6 +365,32 @@ class MirrorTraversalTest {
         // round trip on a device, and it grows with the user's tree, not with
         // their note count.
         assertEquals(3, walk(maxDepth = 1).listCalls)
+    }
+
+    @Test
+    fun `a directory that cannot be listed is counted and stepped over`() {
+        // A half-synced folder can hold a directory the provider refuses. The
+        // other files in the folder are the user's too, so one bad corner must
+        // not cost them the rest — the same principle the import already
+        // applies to a file it cannot read.
+        val broken = mock(DocumentFile::class.java)
+        doReturn(true).`when`(broken).isDirectory
+        doReturn("projects").`when`(broken).name
+        doThrow(SecurityException("no access")).`when`(broken).listFiles()
+
+        val note = mock(DocumentFile::class.java)
+        doReturn(true).`when`(note).isFile
+        doReturn("note.md").`when`(note).name
+
+        val root = mock(DocumentFile::class.java)
+        doReturn(arrayOf(broken, note)).`when`(root).listFiles()
+
+        val result = MirrorTraversal.walk(root, maxDepth = 1)
+
+        assertEquals(listOf("note.md"), result.files.map { it.relativePath })
+        assertEquals(1, result.directoriesSkipped)
+        // The failed listing still counts: the round trip was spent.
+        assertEquals(2, result.listCalls)
     }
 
     @Test

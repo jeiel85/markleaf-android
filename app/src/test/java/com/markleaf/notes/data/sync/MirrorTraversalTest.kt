@@ -368,11 +368,15 @@ class MirrorTraversalTest {
     }
 
     @Test
-    fun `a directory that cannot be listed is counted and stepped over`() {
-        // A half-synced folder can hold a directory the provider refuses. The
-        // other files in the folder are the user's too, so one bad corner must
-        // not cost them the rest — the same principle the import already
-        // applies to a file it cannot read.
+    fun `a listFiles that throws costs one directory, not the whole walk`() {
+        // This guards a `DocumentFile` subclass that throws, and nothing more.
+        // It is **not** how an unreadable SAF directory behaves:
+        // `TreeDocumentFile.listFiles` catches `Exception` around its provider
+        // query and `RawDocumentFile.listFiles` returns empty when
+        // `File.listFiles()` gives null, so a real one never reaches this
+        // branch. A mock is the only way into it — which is the reason the walk
+        // must not claim to *detect* unreadable directories, and why the
+        // companion test below pins what actually happens.
         val broken = mock(DocumentFile::class.java)
         doReturn(true).`when`(broken).isDirectory
         doReturn("projects").`when`(broken).name
@@ -387,9 +391,33 @@ class MirrorTraversalTest {
 
         val result = MirrorTraversal.walk(root, maxDepth = 1)
 
+        // The rest of the folder is still the user's, so it still arrives.
         assertEquals(listOf("note.md"), result.files.map { it.relativePath })
-        assertEquals(1, result.directoriesSkipped)
-        // The failed listing still counts: the round trip was spent.
+        // Not a rule-based skip, so not in that figure — otherwise the number
+        // would mean two things depending on the implementation underneath.
+        assertEquals(0, result.directoriesSkipped)
+        assertEquals(2, result.listCalls)
+    }
+
+    @Test
+    fun `an unreadable directory is indistinguishable from an empty one`() {
+        // The shape a real provider failure takes: not an exception, an empty
+        // listing. The walk cannot tell this from a directory with nothing in
+        // it, reports nothing, and counts nothing — which is a silent drop of
+        // the same kind this spike exists to describe, and is written up as a
+        // finding rather than papered over here.
+        val unreadable = mock(DocumentFile::class.java)
+        doReturn(true).`when`(unreadable).isDirectory
+        doReturn("projects").`when`(unreadable).name
+        doReturn(emptyArray<DocumentFile>()).`when`(unreadable).listFiles()
+
+        val root = mock(DocumentFile::class.java)
+        doReturn(arrayOf(unreadable)).`when`(root).listFiles()
+
+        val result = MirrorTraversal.walk(root, maxDepth = 1)
+
+        assertTrue(result.files.isEmpty())
+        assertEquals(0, result.directoriesSkipped)
         assertEquals(2, result.listCalls)
     }
 

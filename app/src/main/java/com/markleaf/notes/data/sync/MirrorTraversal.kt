@@ -74,12 +74,21 @@ internal object MirrorTraversal {
      * because the round trip is spent either way — it is a cost figure, not a
      * success figure.
      *
-     * [directoriesSkipped] counts the directories the walk did not descend
-     * into: refused by a rule (hidden, or `attachments/`), or impossible to
-     * list. A directory the depth cap alone rules out is **not** among them,
-     * because recognising it as a directory would cost the very query the cap
-     * exists to avoid ([canDescendFrom]). At `maxDepth = 0` it is therefore 0
-     * for any readable folder, however many directories that folder holds.
+     * [directoriesSkipped] counts the directories a *rule* refused — hidden, or
+     * `attachments/`. Nothing else is in it:
+     *
+     * - A directory the depth cap alone rules out is not counted, because
+     *   recognising it as a directory would cost the very query the cap exists
+     *   to avoid ([canDescendFrom]). At `maxDepth = 0` the figure is therefore
+     *   0, however many directories the folder holds.
+     * - **A directory that could not be read is not counted either, and cannot
+     *   be.** Both `DocumentFile` implementations swallow the failure:
+     *   `TreeDocumentFile.listFiles` catches `Exception` around its provider
+     *   query and returns what it has, and `RawDocumentFile.listFiles` returns
+     *   empty when `File.listFiles()` gives null. An unreadable directory
+     *   therefore arrives here as an *empty* one, indistinguishable from a
+     *   directory with nothing in it, and the walk has nothing to count. See
+     *   the spike notes for why that matters if recursion is ever switched on.
      */
     internal data class MirrorWalk(
         val files: List<MirrorFileRef>,
@@ -179,11 +188,13 @@ internal object MirrorTraversal {
      * stack overflow on someone's notes folder is not a failure mode worth
      * leaving available at all.
      *
-     * A directory that cannot be listed is counted and stepped over rather than
-     * failing the walk. An unreadable corner of a tree is a normal thing for a
-     * half-synced folder to contain, and the existing import treats an
-     * unreadable *file* the same way — it counts an error and carries on, on the
-     * principle that one bad entry must not cost the user the other 399.
+     * The `runCatching` around the listing is a guard for a [DocumentFile]
+     * implementation that throws, and **not** a way of detecting an unreadable
+     * directory: neither implementation in `documentfile` throws, they both
+     * hand back an empty listing instead (see [MirrorWalk]). So an unreadable
+     * directory is stepped over here in the only way it can be — as one with
+     * nothing in it — and the guard exists so that a subclass which does throw
+     * costs the user one directory rather than the whole walk.
      */
     internal fun walk(root: DocumentFile, maxDepth: Int): MirrorWalk {
         val files = mutableListOf<MirrorFileRef>()
@@ -196,11 +207,11 @@ internal object MirrorTraversal {
         while (queue.isNotEmpty()) {
             val current = queue.removeFirst()
             listCalls++
-            val entries = runCatching { current.dir.listFiles() }.getOrNull()
-            if (entries == null) {
-                directoriesSkipped++
-                continue
-            }
+            // Not counted as a skip: a directory that fails to list is
+            // indistinguishable from an empty one on a real provider, so
+            // counting the rare throwing case would make the figure mean two
+            // things depending on which implementation was underneath it.
+            val entries = runCatching { current.dir.listFiles() }.getOrNull() ?: continue
 
             for (entry in entries) {
                 // Every property read here is a provider query on a real

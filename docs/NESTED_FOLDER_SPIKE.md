@@ -53,8 +53,8 @@ temp directory, the same technique `NoteFolderMirrorFolderTest` uses):
 
 | Check | Result |
 |---|---|
-| `MirrorTraversalTest` (new) | 29 tests, 0 failures |
-| Full unit suite (`:app:testDebugUnitTest`) | 828 tests, 0 failures |
+| `MirrorTraversalTest` (new) | 30 tests, 0 failures |
+| Full unit suite (`:app:testDebugUnitTest`) | 829 tests, 0 failures |
 | `:app:assembleDebug` | pass |
 | `:app:verifyRoborazziDebug` | pass |
 | `:app:lintRelease` | pass |
@@ -89,6 +89,10 @@ a local and reused.
 Four tests pin all of this, using Mockito to count the calls directly since
 `RawDocumentFile` cannot show them. Each was confirmed to fail against the
 version it guards against before the fix was kept.
+
+The lesson generalises past these two: on `DocumentFile`, *every property read
+is IO*. Reviewing this code means counting property accesses, not reading it
+for style.
 
 The consequence to keep in mind: `directoriesSkipped` counts only rule-based
 skips. At depth 0 it is always 0, because identifying a directory would cost
@@ -155,7 +159,32 @@ import, and was not reproduced on a real folder. Whatever gives `Note` a path
 (finding 1) is also what would let the import tell the two files apart, so this
 is an argument for doing that first, not a separate task.
 
-### 6. SAF cost grows per directory (needs a device)
+### 6. An unreadable directory looks exactly like an empty one (blocking for recursion)
+
+Both `DocumentFile` implementations swallow a listing failure —
+`TreeDocumentFile.listFiles` catches `Exception` around its provider query and
+returns what it has, `RawDocumentFile.listFiles` returns empty when
+`File.listFiles()` gives null (verified in the `documentfile-1.0.1` bytecode).
+Neither throws.
+
+So a subdirectory the provider refuses arrives at the traversal as an empty
+directory. The walk reports no files from it, counts nothing, and there is no
+signal anywhere that something was missed.
+
+That is the same silent drop this whole spike is about, one level down: today a
+subfolder's notes are invisible because nothing looks in it; with recursion
+switched on, an *unreadable* subfolder's notes would be invisible because
+looking in it returns nothing. Anything that ships recursion needs a way to
+tell "empty" from "refused" — which means going to the children URI through
+`ContentResolver` rather than `DocumentFile`, since the abstraction has already
+thrown the distinction away by the time the walk sees it.
+
+Caught by Codex on #425, against an earlier version of this branch whose
+`runCatching` claimed to detect these and whose test only passed because a mock
+threw. The counter and its documentation now say what they can actually
+support.
+
+### 7. SAF cost grows per directory (needs a device)
 
 `listFiles()` is one ContentProvider query per directory. A flat folder costs
 exactly 1; a tree costs one per directory entered, and that count scales with

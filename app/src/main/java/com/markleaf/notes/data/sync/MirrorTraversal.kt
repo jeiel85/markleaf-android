@@ -163,10 +163,14 @@ internal object MirrorTraversal {
      *   and `.md` files in there are that tool's business, not notes the user
      *   wrote. Importing a Syncthing versioning folder would resurrect every
      *   note the user ever deleted.
-     * - **The attachments directory.** Markleaf owns it ([MirrorWrite] writes
-     *   images into `attachments/<noteId>/`). It holds no notes by
-     *   construction, and descending into it would cost one `listFiles()` per
-     *   note that has ever had an attachment.
+     * - **The root attachments directory, and only that one.** Markleaf owns
+     *   `<root>/attachments/<noteId>/` — [MirrorWrite.mirrorAttachments]
+     *   resolves it on the linked folder itself, never deeper. It holds no
+     *   notes by construction, and descending into it would cost one
+     *   `listFiles()` per note that has ever had an attachment. The [depth]
+     *   condition is load-bearing: a `projects/attachments/` further down is
+     *   the user's own directory, and matching it by name would drop the notes
+     *   inside it.
      */
     internal fun directoryVerdict(name: String?, depth: Int, maxDepth: Int): DirectoryVerdict {
         if (!canDescendFrom(depth, maxDepth)) return DirectoryVerdict.SKIP
@@ -177,7 +181,15 @@ internal object MirrorTraversal {
         // difference between a counter that reports and one that misreports.
         val n = name ?: return DirectoryVerdict.UNKNOWN
         if (n.startsWith(".")) return DirectoryVerdict.SKIP
-        if (n.equals(MirrorWrite.ATTACHMENTS_DIR, ignoreCase = true)) return DirectoryVerdict.SKIP
+        // Only at the root. [MirrorWrite.mirrorAttachments] resolves the
+        // attachments directory on the linked folder itself, so Markleaf's
+        // storage is `<root>/attachments/<noteId>/` and nothing else. A
+        // `projects/attachments/` deeper in the tree is the user's own
+        // directory with the user's own notes in it, and skipping that by name
+        // would drop them exactly the way this spike exists to stop.
+        if (depth == 0 && n.equals(MirrorWrite.ATTACHMENTS_DIR, ignoreCase = true)) {
+            return DirectoryVerdict.SKIP
+        }
         return DirectoryVerdict.DESCEND
     }
 

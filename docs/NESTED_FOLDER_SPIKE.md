@@ -26,7 +26,11 @@ decision that was previously copy-pasted:
 - `walk(root, maxDepth)` — breadth-first, returns each mirror file with its
   root-relative path, plus `listCalls` and `directoriesSkipped` counters.
 - `directoryVerdict(name, depth, maxDepth)` — pure skip rules: the depth cap,
-  hidden dot-directories, and the `attachments/` directory Markleaf owns.
+  hidden dot-directories at any depth, and the **root** `attachments/`
+  directory Markleaf owns. The depth condition on that last one is
+  load-bearing: `MirrorWrite.mirrorAttachments` resolves the directory on the
+  linked folder itself, so a `projects/attachments/` deeper in the tree is the
+  user's own, and matching it by name alone would drop the notes in it.
 - `childPath(parent, name)` — pure path assembly.
 - `effectiveDepth(metadata, requested)` — the depth a pass may actually use.
 
@@ -53,8 +57,8 @@ temp directory, the same technique `NoteFolderMirrorFolderTest` uses):
 
 | Check | Result |
 |---|---|
-| `MirrorTraversalTest` (new) | 34 tests, 0 failures |
-| Full unit suite (`:app:testDebugUnitTest`) | 833 tests, 0 failures |
+| `MirrorTraversalTest` (new) | 36 tests, 0 failures |
+| Full unit suite (`:app:testDebugUnitTest`) | 835 tests, 0 failures |
 | `:app:assembleDebug` | pass |
 | `:app:verifyRoborazziDebug` | pass |
 | `:app:lintRelease` | pass |

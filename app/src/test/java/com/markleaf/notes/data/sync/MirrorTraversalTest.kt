@@ -125,7 +125,7 @@ class MirrorTraversalTest {
     }
 
     @Test
-    fun `directoryVerdict refuses the attachments directory Markleaf owns`() {
+    fun `directoryVerdict refuses the root attachments directory Markleaf owns`() {
         assertEquals(
             MirrorTraversal.DirectoryVerdict.SKIP,
             MirrorTraversal.directoryVerdict("attachments", depth = 0, maxDepth = 5)
@@ -136,6 +136,29 @@ class MirrorTraversalTest {
             MirrorTraversal.DirectoryVerdict.SKIP,
             MirrorTraversal.directoryVerdict("Attachments", depth = 0, maxDepth = 5)
         )
+    }
+
+    @Test
+    fun `directoryVerdict descends into a nested attachments directory`() {
+        // `MirrorWrite.mirrorAttachments` resolves `attachments/` on the linked
+        // folder itself, so Markleaf's storage is only ever at the root. A
+        // `projects/attachments/` is the user's own directory, and refusing it
+        // by name would drop whatever notes are in it — the silent loss this
+        // whole spike is about.
+        assertEquals(
+            MirrorTraversal.DirectoryVerdict.DESCEND,
+            MirrorTraversal.directoryVerdict("attachments", depth = 1, maxDepth = 5)
+        )
+    }
+
+    @Test
+    fun `a nested attachments directory keeps its notes`() {
+        seed("attachments/note-1/scan.md")
+        seed("projects/attachments/meeting.md")
+
+        // The root one is Markleaf's and stays out; the nested one is the
+        // user's and its notes arrive.
+        assertEquals(listOf("projects/attachments/meeting.md"), paths(maxDepth = 5))
     }
 
     @Test

@@ -1,0 +1,1 @@
+Ispravljeno: relativna .md/.txt poveznica u prikazu datoteke samo za čitanje otvarala je preglednik umjesto bilješke na koju upućuje. Sada se otvara na isti način kao lokalna poveznica u pretpregledu uređivača. Prijava: @Jackson-Nickk.

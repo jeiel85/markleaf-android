@@ -2755,3 +2755,27 @@ Verification:
 - 미검증으로 남긴 것: SAF 실제 비용은 기기가 없어 측정하지 못했고(`listCalls`는 그 측정을 위한 계측이다), 중복 `markleaf_id` 위험은 import 코드를 읽어 도출한 것이지 폴더에서 재현하지 않았다. 읽을 수 없는 디렉터리는 빈 디렉터리와 구별되지 않는다.
 
 ---
+# 2026-09-18 - GitHub issue #414 후속: 읽기 전용 파일 뷰어 로컬 링크
+
+- reopen 코멘트 중 comment idx 3(jeiel85)이 확정한 좁은 스코프만 처리했다: FileViewerScreen에 로컬 링크
+  핸들러 설치, frontmatter·sidecar 두 동기화 모드 검증. heading anchor·backlink rename·autocomplete pipe는
+  "별도 결정 필요"로 명시적으로 보류된 항목이라 건드리지 않았다.
+- `FileViewerScreen`은 애초에 wikilink 핸들링을 의도적으로 뺐다(제목 기반 조회는 노트를 새로 만들거나
+  거짓 해석을 할 수 있어서) — 하지만 파일명 기반 로컬 링크(#414)는 기존 파일만 가리키므로 그 문제가 없다.
+  새 `onLocalLinkClick` 파라미터를 추가하고, 해석 로직은 EditorScreen의 기존 로직과 함께
+  `data/sync/LocalNoteLinkResolver.kt`(`resolveLocalNoteLink` + 순수 함수 `localNoteLinkVerdict`)로
+  공유해 두 화면이 잠긴/휴지통/보관됨 처리를 따로 유지하지 않게 했다.
+- `NoteFolderMirror.noteIdForFileName`에도 write/delete/rename과 같은 `DocumentFile` 이음매
+  (`noteIdForFileNameIn`)를 냈다 — 이 함수는 이전에 테스트가 전혀 없었다(reopen 코멘트가 지적한 대로).
+  `DocumentFile.fromFile` 임시 폴더로 frontmatter·sidecar 두 모드를 실제 파일 I/O로 검증.
+- 신고자가 제기한 "파일명에 공백이 있으면 링크가 깨진다"는 조사 결과 Markleaf 결함이 아니라 CommonMark
+  스펙 그대로였다 — 이스케이프 없는 링크 목적지의 공백은 링크 자체를 무효화한다. `<some note.md>` 처럼
+  각괄호로 감싸면 이미 정상 동작함을 회귀 테스트로 확인하고 고정했다(코드 변경 없음, 확인만).
+- 기기 검증: S24 무선 ADB는 연결됐으나 설치한 debug APK(`applicationIdSuffix = ".debug"`, 이전 메모와
+  달리 이제 release와 별도 패키지)가 실사용 데이터가 있는 기존 앱과 별개로 설치되어 새 코드를 못
+  건드리는 걸 뒤늦게 발견 — S24는 원상 복구하고 정리한 뒤 `markleaf-phone-api36` 에뮬레이터로 전환.
+  frontmatter 모드에서 "Open file…" → 파일 뷰어 → 공백 포함 파일명 링크 탭 → 대상 노트 에디터로 이동까지
+  실제로 확인했다. 사이드카 모드는 단위 테스트로만 커버(기기에서는 미확인).
+- `./gradlew test`(전 variant) + `lintRelease` 통과. v2.46.2 / versionCode 153.
+
+---

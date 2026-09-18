@@ -5,6 +5,24 @@
 
 ---
 
+## GitHub Issue #414 후속 - 파일 뷰어 로컬 링크 (Done, 2026-09-18)
+
+comment idx 3(jeiel85)가 확정한 좁은 스코프만 처리 — heading anchor·backlink rename·
+autocomplete pipe는 명시적으로 별도 결정 보류 상태로 남김.
+
+- [x] 읽기 전용 FileViewerScreen에 `onLocalLinkClick` 이음매 추가, NavHost가 `resolveLocalNoteLink`
+      (신규, EditorScreen과 공유)로 해석 후 네비게이션 — 이전엔 상대 `.md` 링크가 외부 브라우저로 샜다
+- [x] `NoteFolderMirror.noteIdForFileName`에 `DocumentFile` 이음매(`noteIdForFileNameIn`) 추가해
+      frontmatter·sidecar 두 모드를 실제 `DocumentFile.fromFile` 트리로 단위 테스트
+- [x] 신고자가 제기한 "파일명에 공백이 있으면 링크가 깨진다"는 CommonMark 스펙 동작임을 확인
+      (`<some note.md>` 이스케이프면 정상 동작) — 코드 결함 아님, 회귀 테스트로 고정
+- [x] 에뮬레이터(markleaf-phone-api36)에서 실제 SAF 폴더로 frontmatter 모드 end-to-end 확인
+      (공백 파일명 포함) — "실기기 미검증" 갭을 메움. 사이드카 모드는 단위 테스트로만 커버
+- [x] `testDebugUnitTest`(전 variant) · `lintRelease` 통과
+- [x] v2.46.2 / versionCode 153 릴리스 문서와 10개 언어 준비
+
+---
+
 ## GitHub Issue #424 - 중첩 폴더 가져오기 스파이크 (Spike done — 기능 미착수, 2026-09-18)
 
 - [x] 하위폴더의 `.md`가 조용히 누락되는 현상 확인 (`isMirrorEntry`가 `isFile` 요구)

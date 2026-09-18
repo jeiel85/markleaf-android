@@ -216,6 +216,14 @@ object NoteFolderMirror {
     /**
      * Walk the folder, parse each mirror file, and reconcile with the supplied
      * existing notes. Returns aggregated counts — see [MirrorImport].
+     *
+     * **[maxDepth] above 0 is not shippable today, and this is the public
+     * surface where that is easiest to miss.** A note imported from a
+     * subdirectory has nowhere to record where it came from, so the write
+     * direction puts it back at the root and leaves the original — one note,
+     * two files. Two such files also carry one `markleaf_id`, which nothing
+     * downstream expects. Every caller passes 0; see
+     * `docs/NESTED_FOLDER_SPIKE.md` before any of them stops.
      */
     suspend fun importChanges(
         context: Context,
@@ -237,6 +245,11 @@ object NoteFolderMirror {
     /**
      * Count what [importChanges] would take in, without taking any of it in.
      * See [MirrorSurvey] for why linking asks before importing.
+     *
+     * [maxDepth] must be whatever the following [importChanges] is given —
+     * this number is shown to the user before they agree to the import, so the
+     * two passes disagreeing turns the prompt into a lie. The same caveat as
+     * [importChanges] applies to raising it above 0 at all.
      */
     fun surveyFolder(
         context: Context,

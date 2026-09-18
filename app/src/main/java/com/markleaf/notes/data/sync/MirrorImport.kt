@@ -56,7 +56,7 @@ internal object MirrorImport {
         if (!folder.canRead()) return NoteFolderMirror.ImportResult(0, 0, 0, 1)
         if (metadata is MirrorMetadata.Sidecar) {
             return importChangesSidecar(
-                context, folder, existing, applyUpdate, applyCreate, metadata.deviceId, titleSource
+                context, folder, existing, applyUpdate, applyCreate, metadata, titleSource, maxDepth
             )
         }
 
@@ -203,9 +203,11 @@ internal object MirrorImport {
         existing: List<Note>,
         applyUpdate: suspend (Note) -> Unit,
         applyCreate: suspend (Note) -> Unit,
-        deviceId: String,
-        titleSource: NoteTitleSource
+        metadata: MirrorMetadata.Sidecar,
+        titleSource: NoteTitleSource,
+        maxDepth: Int
     ): NoteFolderMirror.ImportResult {
+        val deviceId = metadata.deviceId
         var updated = 0
         var created = 0
         var skipped = 0
@@ -216,12 +218,14 @@ internal object MirrorImport {
         val merged = SidecarStore.load(context, folder, deviceId)
         val byFileName = SidecarIndex.byFileName(merged)
         val ownEntries = SidecarStore.ownEntries(context, folder, deviceId)
-        // Flat on purpose, and not a default this path is free to raise: every
-        // lookup below keys on a bare filename, which two directories can
-        // supply the same value for. [MirrorTraversal.effectiveDepth] holds the
-        // full reasoning and refuses the depth on this mode's behalf; the
-        // literal 0 here is that refusal made visible at the call site.
-        val files = MirrorTraversal.walk(folder, maxDepth = 0).files.map { it.file }
+        // Resolved through [MirrorTraversal.effectiveDepth] rather than
+        // hardcoded, even though that function always answers 0 for this mode.
+        // [MirrorSurvey] states that both passes settle depth through one
+        // function so they cannot disagree about which files exist (#372); a
+        // literal 0 here made that true only on the survey's side, so relaxing
+        // the sidecar rule later would have moved one pass and not the other.
+        val depth = MirrorTraversal.effectiveDepth(metadata, maxDepth)
+        val files = MirrorTraversal.walk(folder, depth).files.map { it.file }
 
         // Rows describing neither a note nor a file. A note deleted on another
         // device takes its file with it and cannot touch our index, so without

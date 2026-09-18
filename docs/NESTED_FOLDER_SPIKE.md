@@ -24,7 +24,9 @@ One new object, `data/sync/MirrorTraversal.kt`, holding the folder-enumeration
 decision that was previously copy-pasted:
 
 - `walk(root, maxDepth)` — breadth-first, returns each mirror file with its
-  root-relative path, plus `listCalls` and `directoriesSkipped` counters.
+  root-relative path, plus the `listCalls`, `directoriesSkipped` and
+  `entriesUnclassified` counters. None of the three is read by production code;
+  they are instruments, and the limits of each are in `MirrorWalk`'s KDoc.
 - `directoryVerdict(name, depth, maxDepth)` — pure skip rules: the depth cap,
   hidden dot-directories at any depth, and the **root** `attachments/`
   directory Markleaf owns. The depth condition on that last one is
@@ -182,9 +184,20 @@ impossible: filenames are unique within a directory, so it takes a sync client
 duplicating a file to `Note (2).md` with the id intact.
 
 Recursion makes it ordinary. Copy a note into a subfolder — something people do
-with folders — and both files carry the same `markleaf_id`. The pass then
-reconciles the note twice, and the second visit can see a version the first one
-just wrote. Conflict copies on every sync are the plausible failure.
+with folders — and both files carry the same `markleaf_id`.
+
+**What actually goes wrong is not what an earlier version of this section
+claimed.** It said the second visit sees what the first wrote; it cannot.
+`byId` is `existing.associateBy { it.id }`, taken once before the loop and
+never updated, so both files reconcile against the same snapshot. The failures
+are therefore:
+
+- both files reach `Reconcile.Create` and `applyCreate` is called twice with
+  the same `Note.id`, leaving the repository to decide what two inserts of one
+  id mean;
+- or both reach `Overwrite` and the note takes whichever file the walk yielded
+  last — arbitrary, since BFS order is not something a user can predict — with
+  `updated` counted twice for one note.
 
 Stated as a hazard rather than a measurement: it follows from reading the
 import, and was not reproduced on a real folder. Whatever gives `Note` a path

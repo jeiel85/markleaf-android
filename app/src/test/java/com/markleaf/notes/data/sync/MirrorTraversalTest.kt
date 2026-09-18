@@ -13,7 +13,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
-import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.doThrow
 import org.mockito.Mockito.mock
@@ -406,7 +405,12 @@ class MirrorTraversalTest {
 
         MirrorTraversal.walk(root, maxDepth = 1)
 
-        verify(subdirectory, atLeastOnce()).isDirectory
+        // `times(1)`, not `atLeastOnce()`. This test's subject is the cost of
+        // the question, so "asked at all" is only half of it — a second
+        // `isDirectory` check anywhere on the descend path is another provider
+        // round trip per directory candidate, and a loose matcher would let it
+        // through while claiming to guard exactly that.
+        verify(subdirectory, times(1)).isDirectory
     }
 
     @Test

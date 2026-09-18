@@ -17,11 +17,14 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -61,6 +64,7 @@ import com.markleaf.notes.R
 import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.core.text.NoteTitleSource
 import com.markleaf.notes.data.repository.LocalNoteRepository
+import com.markleaf.notes.data.repository.LocalTagRepository
 import com.markleaf.notes.data.repository.NoteRetitler
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
@@ -82,12 +86,12 @@ import com.markleaf.notes.feature.lock.canUseBiometric
 import com.markleaf.notes.feature.sync.rememberSyncFolderLinker
 import com.markleaf.notes.ui.component.elapsedTimeLabel
 import com.markleaf.notes.util.ExportAllNotes
+import com.markleaf.notes.util.TagParser
 import com.markleaf.notes.update.UpdateSurface
 import com.markleaf.notes.util.HapticFeedback
 import com.markleaf.notes.widget.WidgetRefresh
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -104,6 +108,10 @@ fun SettingsScreen(
     val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
     val db = remember { AppDatabase.getInstance(context.applicationContext) }
     val noteRepository = remember { LocalNoteRepository(db) }
+    val tagRepository = remember { LocalTagRepository(db) }
+    val exportTags by tagRepository.observeVisibleTags().collectAsState(initial = emptyList())
+    var exportTag by remember { mutableStateOf<String?>(null) }
+    var showExportTagPicker by remember { mutableStateOf(false) }
     val noteImporter = remember { NoteImporter(db) }
     // Switching metadata mode rewrites every file in the folder. Disabling the
     // control while it runs stops a second switch starting on top of the first,
@@ -170,8 +178,11 @@ fun SettingsScreen(
     ) { folderUri ->
         if (folderUri != null) {
             scope.launch {
-                val notes = withContext(Dispatchers.IO) { noteRepository.observeNotes().first() }
-                    .filter { !it.trashed }
+                val selectedTag = exportTag
+                exportTag = null
+                val notes = withContext(Dispatchers.IO) {
+                    ExportAllNotes.selectNotes(noteRepository.getAllNotes(), selectedTag)
+                }
                 val count = withContext(Dispatchers.IO) {
                     ExportAllNotes.exportAllNotes(context, folderUri, notes)
                 }
@@ -179,6 +190,29 @@ fun SettingsScreen(
                 Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    if (showExportTagPicker) {
+        AlertDialog(
+            onDismissRequest = { showExportTagPicker = false },
+            title = { Text(stringResource(R.string.export_tag_notes)) },
+            text = {
+                LazyColumn(modifier = Modifier.heightIn(max = 360.dp)) {
+                    items(exportTags, key = { it.id }) { tag ->
+                        TextButton(onClick = {
+                            exportTag = TagParser.normalizeTagName(tag.name)
+                            showExportTagPicker = false
+                            exportAllLauncher.launch(null)
+                        }) { Text(tag.name) }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showExportTagPicker = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 
     // Picker, the question about files already in the folder, and the link
@@ -688,10 +722,20 @@ fun SettingsScreen(
                         )
                         Spacer(Modifier.height(8.dp))
                         OutlinedButton(
-                            onClick = { exportAllLauncher.launch(null) },
+                            onClick = {
+                                exportTag = null
+                                exportAllLauncher.launch(null)
+                            },
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(stringResource(R.string.export_all_notes))
+                        }
+                        OutlinedButton(
+                            onClick = { showExportTagPicker = true },
+                            enabled = exportTags.isNotEmpty(),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(stringResource(R.string.export_tag_notes))
                         }
                     }
 

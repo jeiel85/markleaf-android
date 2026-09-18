@@ -1,3 +1,9 @@
+## 2026-09-19 - Issue #424 tag-scoped export
+
+Selected task: implement the reporter-confirmed tag-scoped bulk export.
+Changed Settings → Data to select a tag and export matching notes through the existing SAF exporter. Parent tags include descendants. Excluded Locked notes from both new and existing bulk export paths. Added selection regression tests and prepared v2.48.0 release metadata.
+Verification: 875 debug unit tests, `lintRelease`, `assembleDebug`, release-notes, landing-version, and locale scripts passed. On the API 36 emulator, Settings → Data → `guide` opened the SAF folder picker and exported only the matching `welcome-to-markleaf.md` note; its body carries `#guide`.
+
 ## 2026-07-28 - Project direction and distribution documentation refreshed
 
 Selected task:

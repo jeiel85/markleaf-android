@@ -8,6 +8,18 @@ import java.io.BufferedWriter
 import java.io.OutputStreamWriter
 
 object ExportAllNotes {
+    /** Keep the Locked space out of every bulk export. Parent tags include descendants. */
+    internal fun selectNotes(notes: List<Note>, tag: String? = null): List<Note> {
+        val selectedTag = tag?.let(TagParser::normalizeTagName)
+        return notes.filter { note ->
+            !note.trashed && !note.locked &&
+                (selectedTag == null || TagParser.parseTags(note.contentMarkdown).any { parsed ->
+                    val normalized = TagParser.normalizeTagName(parsed)
+                    normalized == selectedTag || normalized.startsWith("$selectedTag/")
+                })
+        }
+    }
+
     fun exportAllNotes(
         context: Context,
         folderUri: Uri,
@@ -18,7 +30,7 @@ object ExportAllNotes {
 
         var exportedCount = 0
 
-        for (note in notes) {
+        for (note in selectNotes(notes)) {
             try {
                 val slug = SlugGenerator.generateSlug(note.title)
                 val fileName = if (slug.isNotEmpty()) "$slug.md" else "untitled-${note.id}.md"

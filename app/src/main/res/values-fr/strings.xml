@@ -244,6 +244,7 @@
     <string name="privacy_local_first">Les notes ne quittent l\'appareil que lorsque vous les exportez ou les partagez explicitement.</string>
     <string name="settings_data">Données</string>
     <string name="export_all_notes">Exporter toutes les notes…</string>
+    <string name="export_tag_notes">Exporter les notes par tag…</string>
     <string name="export_all_notes_description">Choisissez un dossier et Markleaf enregistrera chaque note dans un fichier .md séparé. Les notes de la corbeille sont ignorées.</string>
     <plurals name="export_all_done_format">
         <item quantity="one">%1$d note exportée.</item>

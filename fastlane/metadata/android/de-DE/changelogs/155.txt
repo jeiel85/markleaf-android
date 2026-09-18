@@ -1,0 +1,1 @@
+Unter Einstellungen → Daten kannst du Notizen nach Tag exportieren. #project schließt untergeordnete Tags wie #project/alpha ein. Gesperrte Notizen werden beim Massenexport ausgeschlossen. Gewünscht von @6r4f.

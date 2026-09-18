@@ -260,6 +260,7 @@
     <string name="privacy_local_first">Bilješke napuštaju uređaj samo kada ih izričito izvezete ili podijelite.</string>
     <string name="settings_data">Podaci</string>
     <string name="export_all_notes">Izvezi sve bilješke…</string>
+    <string name="export_tag_notes">Izvezi bilješke po oznaci…</string>
     <string name="export_all_notes_description">Odaberite mapu i Markleaf će spremiti svaku bilješku kao zasebnu .md datoteku. Bilješke u smeću se preskaču.</string>
     <plurals name="export_all_done_format">
         <item quantity="one">Izvezena je %1$d bilješka.</item>

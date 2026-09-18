@@ -1,0 +1,1 @@
+Giờ có thể xuất ghi chú theo thẻ trong Cài đặt → Dữ liệu. #project bao gồm cả thẻ con như #project/alpha. Ghi chú bị khóa không còn được xuất hàng loạt. Theo đề xuất của @6r4f.

@@ -244,6 +244,7 @@
     <string name="privacy_local_first">只有当你明确选择导出或分享时，笔记才会离开设备。</string>
     <string name="settings_data">数据</string>
     <string name="export_all_notes">导出所有笔记…</string>
+    <string name="export_tag_notes">按标签导出笔记…</string>
     <string name="export_all_notes_description">选择一个文件夹，Markleaf 会将每篇笔记分别保存为 .md 文件。回收站中的笔记不会导出。</string>
     <plurals name="export_all_done_format">
         <item quantity="other">已导出 %1$d 篇笔记。</item>

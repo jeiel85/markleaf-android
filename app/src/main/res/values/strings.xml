@@ -255,6 +255,7 @@
     <string name="privacy_local_first">Notes leave the device only when you explicitly export or share them.</string>
     <string name="settings_data">Data</string>
     <string name="export_all_notes">Export all notes…</string>
+    <string name="export_tag_notes">Export notes by tag…</string>
     <string name="export_all_notes_description">Pick a folder and Markleaf saves every note as a separate .md file. Trashed notes are skipped.</string>
     <plurals name="export_all_done_format">
         <item quantity="one">Exported %1$d note.</item>

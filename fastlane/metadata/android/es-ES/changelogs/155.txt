@@ -1,0 +1,1 @@
+Exporta notas por etiqueta desde Ajustes → Datos. #project incluye subetiquetas como #project/alpha. Las notas bloqueadas ya no se incluyen en las exportaciones masivas. Solicitado por @6r4f.

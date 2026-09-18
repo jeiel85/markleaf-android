@@ -239,6 +239,7 @@
     <string name="privacy_local_first">Ghi chú chỉ rời khỏi thiết bị khi bạn chủ động xuất hoặc chia sẻ.</string>
     <string name="settings_data">Dữ liệu</string>
     <string name="export_all_notes">Xuất tất cả ghi chú…</string>
+    <string name="export_tag_notes">Xuất ghi chú theo thẻ…</string>
     <string name="export_all_notes_description">Chọn một thư mục và Markleaf sẽ lưu mỗi ghi chú thành một tệp .md riêng. Ghi chú trong thùng rác sẽ được bỏ qua.</string>
     <plurals name="export_all_done_format">
         <item quantity="other">Đã xuất %1$d ghi chú.</item>

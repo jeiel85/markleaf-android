@@ -4,6 +4,16 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.48.0 - Take one project with you - 2026-09-19
+
+You can now export notes for one tag without exporting your whole library. No permission or storage-format changes.
+
+### Added
+- **Export by tag ([#424](https://github.com/jeiel85/markleaf-android/issues/424)).** In Settings → Data, choose a tag and a destination folder. Markleaf writes each matching note as a separate Markdown file, including notes carrying a child tag such as `#project/alpha` when you choose `#project`. This does not create subfolders or export attachments. Requested by [@6r4f](https://github.com/6r4f).
+
+### Fixed
+- Bulk export now leaves Locked notes out ([#430](https://github.com/jeiel85/markleaf-android/issues/430)), matching the Locked space's privacy boundary. Archived notes remain eligible; Trash stays excluded.
+
 ## v2.47.0 - Pinch the preview in for a closer look - 2026-09-18
 
 Requested by a low-vision reader who can see the screen but not comfortably at the existing text-size ceiling. No permission or storage-format changes.

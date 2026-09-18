@@ -35,6 +35,13 @@ internal object MirrorImport {
      *
      * `applyUpdate` is invoked synchronously — caller is responsible for
      * shipping the resulting writes onto IO dispatcher and into Room.
+     *
+     * [maxDepth] is how far below the folder this pass may look, and it
+     * defaults to 0 — the root only, which is every caller today and exactly
+     * what this did before [MirrorTraversal] existed. A deeper walk finds the
+     * `.md` files in a user's subdirectories, which are invisible to Markleaf
+     * at depth 0; what it does **not** yet do is remember where they were, so
+     * see [MirrorTraversal] before raising it anywhere real.
      */
     internal suspend fun importChangesFrom(
         context: Context,
@@ -43,7 +50,8 @@ internal object MirrorImport {
         applyUpdate: suspend (Note) -> Unit,
         applyCreate: suspend (Note) -> Unit,
         metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
-        titleSource: NoteTitleSource = NoteTitleSource.FIRST_HEADING
+        titleSource: NoteTitleSource = NoteTitleSource.FIRST_HEADING,
+        maxDepth: Int = 0
     ): NoteFolderMirror.ImportResult {
         if (!folder.canRead()) return NoteFolderMirror.ImportResult(0, 0, 0, 1)
         if (metadata is MirrorMetadata.Sidecar) {
@@ -59,7 +67,10 @@ internal object MirrorImport {
         var conflicts = 0
 
         val byId = existing.associateBy { it.id }
-        val files = folder.listFiles().filter { MirrorFileLookup.isMirrorEntry(it) }
+        val files = MirrorTraversal
+            .walk(folder, MirrorTraversal.effectiveDepth(metadata, maxDepth))
+            .files
+            .map { it.file }
 
         for (file in files) {
             val raw = runCatching {
@@ -205,7 +216,12 @@ internal object MirrorImport {
         val merged = SidecarStore.load(context, folder, deviceId)
         val byFileName = SidecarIndex.byFileName(merged)
         val ownEntries = SidecarStore.ownEntries(context, folder, deviceId)
-        val files = folder.listFiles().filter { MirrorFileLookup.isMirrorEntry(it) }
+        // Flat on purpose, and not a default this path is free to raise: every
+        // lookup below keys on a bare filename, which two directories can
+        // supply the same value for. [MirrorTraversal.effectiveDepth] holds the
+        // full reasoning and refuses the depth on this mode's behalf; the
+        // literal 0 here is that refusal made visible at the call site.
+        val files = MirrorTraversal.walk(folder, maxDepth = 0).files.map { it.file }
 
         // Rows describing neither a note nor a file. A note deleted on another
         // device takes its file with it and cannot touch our index, so without

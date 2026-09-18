@@ -224,12 +224,13 @@ object NoteFolderMirror {
         applyUpdate: suspend (Note) -> Unit,
         applyCreate: suspend (Note) -> Unit,
         metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
-        titleSource: NoteTitleSource = NoteTitleSource.FIRST_HEADING
+        titleSource: NoteTitleSource = NoteTitleSource.FIRST_HEADING,
+        maxDepth: Int = 0
     ): ImportResult {
         val folder = DocumentFile.fromTreeUri(context, folderUri)
             ?: return ImportResult(0, 0, 0, 1)
         return MirrorImport.importChangesFrom(
-            context, folder, existing, applyUpdate, applyCreate, metadata, titleSource
+            context, folder, existing, applyUpdate, applyCreate, metadata, titleSource, maxDepth
         )
     }
 
@@ -241,11 +242,12 @@ object NoteFolderMirror {
         context: Context,
         folderUri: Uri,
         existing: List<Note>,
-        metadata: MirrorMetadata = MirrorMetadata.Frontmatter
+        metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
+        maxDepth: Int = 0
     ): FolderSurvey {
         val folder = DocumentFile.fromTreeUri(context, folderUri)
             ?: return FolderSurvey(0, 0, readable = false)
-        return MirrorSurvey.surveyFolder(context, folder, existing, metadata)
+        return MirrorSurvey.surveyFolder(context, folder, existing, metadata, maxDepth)
     }
 
     /** [surveyFolder] once the folder has been resolved — see [MirrorSurvey]. */
@@ -253,8 +255,9 @@ object NoteFolderMirror {
         context: Context,
         folder: DocumentFile,
         existing: List<Note>,
-        metadata: MirrorMetadata = MirrorMetadata.Frontmatter
-    ): FolderSurvey = MirrorSurvey.surveyFolder(context, folder, existing, metadata)
+        metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
+        maxDepth: Int = 0
+    ): FolderSurvey = MirrorSurvey.surveyFolder(context, folder, existing, metadata, maxDepth)
 
     /** [importChanges] once the folder has been resolved — see [MirrorImport]. */
     internal suspend fun importChangesFrom(
@@ -264,9 +267,10 @@ object NoteFolderMirror {
         applyUpdate: suspend (Note) -> Unit,
         applyCreate: suspend (Note) -> Unit,
         metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
-        titleSource: NoteTitleSource = NoteTitleSource.FIRST_HEADING
+        titleSource: NoteTitleSource = NoteTitleSource.FIRST_HEADING,
+        maxDepth: Int = 0
     ): ImportResult = MirrorImport.importChangesFrom(
-        context, folder, existing, applyUpdate, applyCreate, metadata, titleSource
+        context, folder, existing, applyUpdate, applyCreate, metadata, titleSource, maxDepth
     )
 
     /** See [MirrorFileLookup.matchByName]. */

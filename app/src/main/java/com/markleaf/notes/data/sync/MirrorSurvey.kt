@@ -31,16 +31,28 @@ internal object MirrorSurvey {
      * [MirrorImport.importChangesFrom] requires it: a file matching an archived
      * or trashed note is not a new note, and counting it as one would promise
      * the user arrivals that never come.
+     *
+     * [maxDepth] must be the same value the following import will be given.
+     * This screen's whole job is to state a number the user then agrees to, so
+     * surveying deeper than the import walks would promise arrivals that never
+     * come, and surveying shallower would spring the rest on them after they
+     * said yes. Both directions are resolved through
+     * [MirrorTraversal.effectiveDepth], so the two passes cannot disagree even
+     * in sidecar mode, where the requested depth is refused.
      */
     internal fun surveyFolder(
         context: Context,
         folder: DocumentFile,
         existing: List<Note>,
-        metadata: MirrorMetadata = MirrorMetadata.Frontmatter
+        metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
+        maxDepth: Int = 0
     ): NoteFolderMirror.FolderSurvey {
         if (!folder.canRead()) return NoteFolderMirror.FolderSurvey(0, 0, readable = false)
 
-        val files = folder.listFiles().filter { MirrorFileLookup.isMirrorEntry(it) }
+        val files = MirrorTraversal
+            .walk(folder, MirrorTraversal.effectiveDepth(metadata, maxDepth))
+            .files
+            .map { it.file }
         if (files.isEmpty()) return NoteFolderMirror.FolderSurvey(0, 0)
 
         val knownIds = existing.mapTo(HashSet(existing.size)) { it.id }

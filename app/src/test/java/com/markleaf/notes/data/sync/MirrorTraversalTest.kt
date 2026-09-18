@@ -17,6 +17,7 @@ import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
+import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -214,6 +215,44 @@ class MirrorTraversalTest {
         // And the directory is dismissed on its `isFile` alone, without its
         // name being fetched.
         verify(subdirectory, never()).name
+    }
+
+    @Test
+    fun `a file's name is fetched once, not once per use`() {
+        // `getName()` is a provider query like the rest, and the walk needs the
+        // name twice — to decide the entry is a mirror file, and to build its
+        // relative path. Calling `MirrorFileLookup.isMirrorEntry` and then
+        // reading `name` again cost two queries per file where the flat listing
+        // cost one, which is the same regression as the `isDirectory` one in a
+        // second place.
+        val note = mock(DocumentFile::class.java)
+        doReturn(true).`when`(note).isFile
+        doReturn("note.md").`when`(note).name
+
+        val root = mock(DocumentFile::class.java)
+        doReturn(arrayOf(note)).`when`(root).listFiles()
+
+        val result = MirrorTraversal.walk(root, maxDepth = 0)
+
+        assertEquals(listOf("note.md"), result.files.map { it.relativePath })
+        verify(note, times(1)).name
+        verify(note, times(1)).isFile
+    }
+
+    @Test
+    fun `a directory's name is fetched once on the descend path`() {
+        val subdirectory = mock(DocumentFile::class.java)
+        doReturn(true).`when`(subdirectory).isDirectory
+        doReturn("projects").`when`(subdirectory).name
+        doReturn(emptyArray<DocumentFile>()).`when`(subdirectory).listFiles()
+
+        val root = mock(DocumentFile::class.java)
+        doReturn(arrayOf(subdirectory)).`when`(root).listFiles()
+
+        MirrorTraversal.walk(root, maxDepth = 1)
+
+        // Once for the skip rules, reused for the path — not once for each.
+        verify(subdirectory, times(1)).name
     }
 
     @Test

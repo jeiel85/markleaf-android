@@ -53,8 +53,8 @@ temp directory, the same technique `NoteFolderMirrorFolderTest` uses):
 
 | Check | Result |
 |---|---|
-| `MirrorTraversalTest` (new) | 26 tests, 0 failures |
-| Full unit suite (`:app:testDebugUnitTest`) | 825 tests, 0 failures |
+| `MirrorTraversalTest` (new) | 28 tests, 0 failures |
+| Full unit suite (`:app:testDebugUnitTest`) | 827 tests, 0 failures |
 | `:app:assembleDebug` | pass |
 | `:app:verifyRoborazziDebug` | pass |
 | `:app:lintRelease` | pass |
@@ -75,12 +75,20 @@ which added one provider round trip per entry at `maxDepth = 0` — roughly 400
 extra round trips on a 400-note folder, on every foreground and manual sync,
 for a recursion that is switched off. Caught in review by Codex on #425.
 
-The walk now tests `isMirrorEntry` first and asks `isDirectory` only when
+The walk now settles the file case first and asks `isDirectory` only when
 `canDescendFrom` says the answer could change something, so depth 0 issues
-exactly the queries the flat listing issued. Two tests pin it — one using
-Mockito to count the calls directly, since `RawDocumentFile` cannot show them —
-and both were confirmed to fail against the original ordering before the fix
-was kept.
+exactly the queries the flat listing issued.
+
+A second instance of the same mistake turned up on re-reading the diff, in the
+fix itself: `MirrorFileLookup.isMirrorEntry` reads `name` internally, so
+calling it and then building a relative path fetched the name **twice** per
+file — and `directoryVerdict` plus the child path did the same per directory.
+The walk now spells out `isFile` + `isMirrorFile(name)` with the name read into
+a local and reused.
+
+Four tests pin all of this, using Mockito to count the calls directly since
+`RawDocumentFile` cannot show them. Each was confirmed to fail against the
+version it guards against before the fix was kept.
 
 The consequence to keep in mind: `directoriesSkipped` counts only rule-based
 skips. At depth 0 it is always 0, because identifying a directory would cost

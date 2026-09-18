@@ -112,9 +112,12 @@ internal object MirrorTraversal {
      * Three rules, each with a reason to be here:
      *
      * - **Depth.** A linked folder is someone's real directory tree and may sit
-     *   above a deep one. The cap bounds the cost rather than trusting the
-     *   folder to be shallow, and bounds it in `listFiles()` calls, which is the
-     *   expensive unit.
+     *   above a deep one, so the cap stops the walk trusting it to be shallow —
+     *   and it is what makes a symlink cycle terminate. It bounds *depth* only:
+     *   breadth is still whatever the folder holds, so a shallow directory with
+     *   a thousand subdirectories costs a thousand `listFiles()` calls. If a
+     *   default above 0 is ever shipped, that is the case to measure, not this
+     *   one.
      * - **Hidden directories.** `.git`, `.obsidian`, `.stfolder`,
      *   `.trash` — every sync client and editor keeps state in a dot-directory,
      *   and `.md` files in there are that tool's business, not notes the user
@@ -196,31 +199,43 @@ internal object MirrorTraversal {
             }
 
             for (entry in entries) {
-                // The file test comes first, and the directory test is guarded
-                // by the depth rule, so that this loop costs exactly what the
-                // flat listing it replaced cost. See [canDescendFrom]: every
-                // one of these properties is a provider query on a real folder.
-                // A mirror file is settled by `isMirrorEntry` alone; a
-                // directory fails its `isFile` check and, at `maxDepth = 0`, is
-                // never asked anything further.
-                if (MirrorFileLookup.isMirrorEntry(entry)) {
-                    files.add(
-                        MirrorFileRef(
-                            file = entry,
-                            relativePath = childPath(current.parentPath, entry.name.orEmpty())
+                // Every property read here is a provider query on a real
+                // folder, so the order and the count both matter — see
+                // [canDescendFrom]. Two rules hold this loop to what the flat
+                // listing it replaced cost:
+                //
+                //  - the file case is settled first, and `name` is read into a
+                //    local because the path below needs the same string. This
+                //    is `MirrorFileLookup.isMirrorEntry` spelled out rather
+                //    than called: that helper reads `name` itself, so calling
+                //    it and then building a path cost two `getName()` queries
+                //    per file where the old line cost one.
+                //  - "is this a directory" is asked only once the depth rule
+                //    says the answer could change something, which at
+                //    `maxDepth = 0` it never can. A directory is dismissed by
+                //    its `isFile` alone, before its name is ever fetched.
+                if (entry.isFile) {
+                    val name = entry.name
+                    if (MirrorFileLookup.isMirrorFile(name)) {
+                        files.add(
+                            MirrorFileRef(
+                                file = entry,
+                                relativePath = childPath(current.parentPath, name.orEmpty())
+                            )
                         )
-                    )
+                    }
                     continue
                 }
                 if (!canDescendFrom(current.depth, maxDepth)) continue
                 if (!entry.isDirectory) continue
 
-                when (directoryVerdict(entry.name, current.depth, maxDepth)) {
+                val name = entry.name
+                when (directoryVerdict(name, current.depth, maxDepth)) {
                     DirectoryVerdict.SKIP -> directoriesSkipped++
                     DirectoryVerdict.DESCEND -> queue.add(
                         Pending(
                             dir = entry,
-                            parentPath = childPath(current.parentPath, entry.name.orEmpty()),
+                            parentPath = childPath(current.parentPath, name.orEmpty()),
                             depth = current.depth + 1
                         )
                     )

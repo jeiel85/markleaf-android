@@ -2744,3 +2744,14 @@ Verification:
 - 최종 버전 변경 후 `testDebugUnitTest`, `lintRelease`, `assembleDebug` 통과. 디버그 APK 21,191,971바이트 확인. 릴리스 노트·랜딩 버전·로케일 검사도 통과.
 
 ---
+# 2026-09-18 - GitHub issue #424 중첩 폴더 가져오기 스파이크
+
+- 연결된 동기화 폴더의 하위 디렉터리에 있는 `.md`는 지금까지 오류도 집계도 없이 누락됐다. 모든 읽기 경로가 한 단계만 나열하고 `MirrorFileLookup.isMirrorEntry`가 `isFile`을 요구하기 때문이다. 폴더 기능을 추가하는 것이 아니라 이 누락을 고치는 비용만 측정했다.
+- `MirrorTraversal`이 8곳에 복붙돼 있던 열거 결정을 모은다. survey와 import 두 경로가 여기를 지나고, 쓰기 경로와 `noteIdForFileName`은 의도적으로 평면 그대로 둔다. `maxDepth`는 모든 층에서 기본 0이며 어떤 호출자도 다른 값을 넘기지 않으므로 사용자 폴더는 이전과 동일하게 읽힌다.
+- 순회 자체는 쌌고, 막는 것은 **노트가 자기 경로를 기억하지 못한다는 점**이다. `Note`에 경로 필드가 없어 하위폴더에서 들어온 노트가 다음 저장 때 루트에 다시 쓰이고 원본은 남는다(노트 하나, 파일 둘). 사이드카 모드는 파일명 키 때문에 트리를 표현할 수 없어 `effectiveDepth`로 평면 강제했다. 차단 요인 7건은 `docs/NESTED_FOLDER_SPIKE.md`에 있다.
+- `DocumentFile`은 `isFile`·`isDirectory`·`name` 각각이 provider 쿼리이며 캐시가 없다(`documentfile-1.0.1` 바이트코드로 확인). 초기 구현이 `isDirectory`를 먼저 물어 재귀가 꺼진 깊이에서도 엔트리당 왕복이 늘었고, 그 수정 안에 `name` 중복 조회가 또 있었다. 지금은 깊이 0에서 옛 평면 목록과 쿼리 수가 같고, 목으로 호출 횟수를 검증한다.
+- 리뷰 지적 14건(P2 13, P1 1)을 전부 검증 후 반영했다. 6라운드 이후 지적은 모두 코드가 아니라 테스트·문서였고, 각 수정은 결함을 되돌려 테스트가 실패하는지 확인했다. P1은 `HISTORY.md` 작업 단위 기록 누락이었다.
+- 검증: 로컬 `./gradlew clean test` 844개 통과(`MirrorTraversalTest` 45개), `assembleDebug`·`verifyRoborazziDebug`·`lintRelease` 통과. CI 실패 2건은 이 브랜치 것이 아니었다(위젯 렌더 플레이크, Robolectric 아티팩트 `SocketException`). 사용자 영향 변경이 없어 `CHANGELOG.md`는 건드리지 않았다.
+- 미검증으로 남긴 것: SAF 실제 비용은 기기가 없어 측정하지 못했고(`listCalls`는 그 측정을 위한 계측이다), 중복 `markleaf_id` 위험은 import 코드를 읽어 도출한 것이지 폴더에서 재현하지 않았다. 읽을 수 없는 디렉터리는 빈 디렉터리와 구별되지 않는다.
+
+---

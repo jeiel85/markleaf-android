@@ -114,9 +114,16 @@ internal object MirrorTraversal {
      *   asking `isDirectory` to find out is the query the flat pass must not
      *   spend.
      *
-     * So a zero here is weak evidence and a non-zero is strong evidence. These
-     * are instruments for the recursion experiment, not a health check on
-     * today's flat pass.
+     * So a zero here is weak evidence and a non-zero is strong evidence.
+     *
+     * **And nothing in production reads any of these.** All three call sites
+     * take `.files` and drop the rest, so a provider failure the walk *did*
+     * notice — a `.md` file whose display-name query failed, say — still leaves
+     * `ImportResult.errors` at 0 and the user sees a clean sync. That follows
+     * from what these are: instruments for the recursion experiment, read by
+     * tests and by whoever measures on a device, not a health signal wired to
+     * anything a user sees. Carrying them into `ImportResult` belongs to
+     * whatever ships recursion, not here.
      */
     internal data class MirrorWalk(
         val files: List<MirrorFileRef>,
@@ -152,8 +159,16 @@ internal object MirrorTraversal {
     internal fun canDescendFrom(depth: Int, maxDepth: Int): Boolean = depth < maxDepth
 
     /**
-     * Whether [walk] should go into a directory named [name], found at [depth]
-     * levels below the root, when the walk is allowed to reach [maxDepth].
+     * Whether [walk] should go into a directory named [name], when the walk is
+     * allowed to reach [maxDepth].
+     *
+     * **[depth] is the depth of the directory this entry was *found in*, not of
+     * the entry itself** — [walk] passes the containing directory's depth, so a
+     * directory sitting in the linked root is judged at `depth = 0`. Reading it
+     * the other way round inverts the `attachments/` rule: root-level
+     * `attachments/` would be asked about at 1, get past the `depth == 0`
+     * condition, and the walk would descend into Markleaf's own attachment
+     * store. The tests encode this convention; the prose used to contradict it.
      *
      * Pure so the rules can be unit-tested without Android — the same reason
      * [MirrorFileNames] keeps its string logic separate from the IO around it.
@@ -258,8 +273,17 @@ internal object MirrorTraversal {
      * directory: neither implementation in `documentfile` throws, they both
      * hand back an empty listing instead (see [MirrorWalk]). So an unreadable
      * directory is stepped over here in the only way it can be — as one with
-     * nothing in it — and the guard exists so that a subclass which does throw
-     * costs the user one directory rather than the whole walk.
+     * nothing in it.
+     *
+     * What the guard costs depends on *which* directory throws, and only the
+     * subdirectory case is cheap. A throwing subdirectory loses its own subtree
+     * and the walk carries on. **A throwing root loses the whole walk**: the
+     * queue is empty after it, so the result is a `MirrorWalk` with no files,
+     * which the survey reports as an empty-but-readable folder and the import
+     * as a pass that found nothing — a failure dressed as a clean sync. That is
+     * unreachable through the two `documentfile` implementations, and the
+     * production callers check `canRead()` before arriving here, but the
+     * asymmetry is real and the earlier wording of this paragraph denied it.
      */
     internal fun walk(root: DocumentFile, maxDepth: Int): MirrorWalk {
         val files = mutableListOf<MirrorFileRef>()

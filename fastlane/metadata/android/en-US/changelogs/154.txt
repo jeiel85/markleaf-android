@@ -1,0 +1,1 @@
+Added pinch-to-magnify on the preview. Two fingers zoom the rendered note like a browser or PDF viewer -- the same layout up to 5x, no reflow. Pan with one finger while zoomed; pinch back out to return to normal. Requested by @kise82.

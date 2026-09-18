@@ -1,0 +1,1 @@
+Đã thêm thao tác phóng to bằng hai ngón tay ở chế độ xem trước. Giống trình duyệt hay trình xem PDF, chụm hoặc mở hai ngón tay để phóng to ghi chú đã hiển thị — vẫn giữ nguyên bố cục, phóng to tối đa gấp 5 lần, không dàn lại chữ. Khi đã phóng to, di chuyển bằng một ngón tay; chụm hai ngón lại để quay về kích thước bình thường. Theo yêu cầu của @kise82.

@@ -5,6 +5,27 @@
 
 ---
 
+## GitHub Issue #423 - 미리보기 핀치 줌 (Done, 2026-09-18)
+
+신고자가 route B(리플로우 없는 실제 1:1 확대+팬)를 명시적으로 확정한 뒤 진행. route A(기존
+`fontScale` 4단계 리플로우 확대)는 신고자가 거부했으므로 채택하지 않았다.
+
+- [x] `PreviewZoom`(순수 함수: pivot 보존 확대·수평 클램프)을 `core/markdown/preview/`에 분리하고
+      단위 테스트로 산식 고정 — 수직은 `LazyListState.scrollBy`(가상화 유지), 수평은 `graphicsLayer
+      translationX`, 스케일은 `graphicsLayer scaleX/scaleY`(1~5배)
+- [x] `MarkdownPreviewList`에 `previewZoomGesture` 이음매 추가 — `PointerEventPass.Initial`에서
+      2포인터 핀치 또는 이미 확대된 상태의 1포인터 팬만 소비하고, 정지 상태(스케일 1, 1포인터)는
+      전혀 건드리지 않아 기존 스크롤·탭·링크·선택 제스처가 그대로 통과한다(`linkPressGestures`와
+      같은 패턴)
+- [x] Compose `performTouchInput`으로 실제 2포인터 핀치를 주입하는 통합 테스트 3건 — adb로는 진짜
+      멀티터치를 보낼 수 없어(`input`이 미지원) 이 경로가 유일한 제스처 자동 검증 수단이었다
+- [x] 에뮬레이터(markleaf-phone-api36)에서 정지 상태(스케일 1) 렌더링·스크롤 회귀 없음을 실기기로
+      확인 — 실제 핀치 동작 자체는 이 환경의 도구로 시뮬레이션 불가라 자동 통합 테스트로 대체
+- [x] `./gradlew test`(전 variant) + `lintRelease` + `assembleDebug` 통과
+- [x] v2.47.0 / versionCode 154 릴리스 문서와 10개 언어 준비
+
+---
+
 ## GitHub Issue #424 - 중첩 폴더 가져오기 스파이크 (Spike done — 기능 미착수, 2026-09-18)
 
 - [x] 하위폴더의 `.md`가 조용히 누락되는 현상 확인 (`isMirrorEntry`가 `isFile` 요구)

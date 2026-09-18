@@ -2755,3 +2755,28 @@ Verification:
 - 미검증으로 남긴 것: SAF 실제 비용은 기기가 없어 측정하지 못했고(`listCalls`는 그 측정을 위한 계측이다), 중복 `markleaf_id` 위험은 import 코드를 읽어 도출한 것이지 폴더에서 재현하지 않았다. 읽을 수 없는 디렉터리는 빈 디렉터리와 구별되지 않는다.
 
 ---
+# 2026-09-18 - GitHub issue #423 미리보기 핀치 줌
+
+- 신고자(kise82)가 이슈 코멘트에서 route A(기존 `fontScale` 4단계 reflow 확대)를 명시적으로
+  거부하고 route B(리플로우 없는 실제 1:1 확대+팬, WebView식)를 요청했다. 그 답을 그대로 구현했다.
+- 두 축을 다른 방식으로 다뤘다: 수직은 `LazyListState.scrollBy` 실제 스크롤(라인 가상화를
+  유지해야 하므로 — `graphicsLayer` translationY만 쓰면 LazyColumn이 원래 뷰포트 밖 행을 아예
+  구성하지 않아 빈 영역이 생긴다), 수평은 `graphicsLayer translationX`(LazyColumn은 가로로는
+  가상화하지 않으므로 안전). 스케일 변경 중 핀치 중심점이 화면에서 고정되도록 두 축 모두
+  pivot 보정 공식을 유도해 `PreviewZoom.kt`에 순수 함수로 분리하고 단위 테스트로 고정했다.
+- 제스처는 `linkPressGestures`(같은 파일에 이미 있던 롱프레스 주소 복사 핸들러)와 같은
+  `PointerEventPass.Initial` 패턴을 따른다 — 스케일 1에서 1포인터일 때는 아무것도 consume하지
+  않아 기존 스크롤·탭·링크·선택이 그대로 통과하고, 2포인터 핀치이거나 이미 확대된 상태의
+  1포인터 팬일 때만 소비한다.
+- adb `input`은 진짜 멀티터치를 지원하지 않아 실기기/에뮬레이터에서 핀치 자체를 시뮬레이션할
+  방법이 없었다. 대신 Compose `performTouchInput`의 `down`/`moveTo`(포인터별)/`up`으로 실제
+  2포인터 핀치를 앱의 실제 입력 파이프라인에 주입하는 통합 테스트 3건을 작성했다 — 벌리면
+  확대, 오므리면 축소, 1포인터 단독 드래그는 스케일·이동 모두 불변임을 확인. 순수 함수 테스트가
+  놓칠 수 있는 "제스처가 실제로 코드에 도달하고 올바르게 구분되는가"를 검증하는 건 이쪽이다.
+- 에뮬레이터(markleaf-phone-api36)에서 정지 상태 확인: 실제 노트를 미리보기로 열어 이미지·표·
+  콜아웃·코드블록·각주가 전부 정상 렌더링되고 스크롤도 그대로 동작함을 스크린샷으로 확인했다
+  (`graphicsLayer(scale=1, translationX=0)`이 진짜 no-op라는 것의 실증). 실제 손가락 핀치 느낌
+  자체는 이 환경에서 검증할 수단이 없어 통합 테스트로 대체했다는 점을 남긴다.
+- `./gradlew test`(전 variant) + `lintRelease` + `assembleDebug` 통과. v2.47.0 / versionCode 154.
+
+---

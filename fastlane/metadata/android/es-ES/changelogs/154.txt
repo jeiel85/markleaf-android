@@ -1,0 +1,1 @@
+Se añadió el gesto de pellizco para ampliar la vista previa. Con dos dedos se amplía la nota renderizada como en un navegador o un lector de PDF: el mismo diseño ampliado hasta 5x, sin reajustar el texto. Desplázate con un dedo mientras está ampliada; pellizca hacia dentro para volver al tamaño normal. Solicitado por @kise82.

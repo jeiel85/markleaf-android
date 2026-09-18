@@ -62,8 +62,8 @@ temp directory, the same technique `NoteFolderMirrorFolderTest` uses):
 
 | Check | Result |
 |---|---|
-| `MirrorTraversalTest` (new) | 38 tests, 0 failures |
-| Full unit suite (`:app:testDebugUnitTest`) | 837 tests, 0 failures |
+| `MirrorTraversalTest` (new) | 42 tests, 0 failures |
+| Full unit suite (`:app:testDebugUnitTest`) | 841 tests, 0 failures |
 | `:app:assembleDebug` | pass |
 | `:app:verifyRoborazziDebug` | pass |
 | `:app:lintRelease` | pass |
@@ -102,6 +102,12 @@ version it guards against before the fix was kept.
 The lesson generalises past these two: on `DocumentFile`, *every property read
 is IO*. Reviewing this code means counting property accesses, not reading it
 for style.
+
+And the counting has to be *observed*. The first tests asserted
+`MirrorWalk.listCalls`, a number the walk increments itself, so a refactor that
+listed a directory twice while counting once would have kept them green. The
+invocations are now verified on mocked directories, with the counter's own
+contract tested separately.
 
 Two consequences to keep in mind. `directoriesSkipped` counts only rule-based
 skips, because identifying a directory costs the query the cap exists to avoid.

@@ -102,12 +102,21 @@ internal object MirrorTraversal {
      * Non-zero means something in the folder could not be read; zero does not
      * mean everything could. See the spike notes.
      *
-     * **At `maxDepth = 0` both counters are always 0**, and that is not the
-     * same as "the folder was fine". Nothing past the file test runs at that
-     * depth, so a file whose own `isFile` query failed is passed over as
-     * quietly as everything else. Neither figure says anything about
-     * readability until recursion is switched on; they are instruments for the
-     * experiment, not a health check on today's flat pass.
+     * What each figure can see at `maxDepth = 0`, since that is every
+     * production call and the answer is not "everything":
+     *
+     * - [directoriesSkipped] is always 0. The loop returns before the directory
+     *   branch, so no rule is ever applied.
+     * - [entriesUnclassified] sees a **file the provider would not name** — the
+     *   name is fetched anyway, so that costs nothing — and nothing else. An
+     *   entry whose `isFile` query failed reads back as "not a file", falls
+     *   through the depth gate, and is gone without being counted, because
+     *   asking `isDirectory` to find out is the query the flat pass must not
+     *   spend.
+     *
+     * So a zero here is weak evidence and a non-zero is strong evidence. These
+     * are instruments for the recursion experiment, not a health check on
+     * today's flat pass.
      */
     internal data class MirrorWalk(
         val files: List<MirrorFileRef>,
@@ -288,11 +297,20 @@ internal object MirrorTraversal {
                 //    its `isFile` alone, before its name is ever fetched.
                 if (entry.isFile) {
                     val name = entry.name
-                    if (MirrorFileLookup.isMirrorFile(name)) {
+                    if (name == null) {
+                        // Called a file and then not named. `getName` defaults
+                        // to null when its display-name query fails, so this is
+                        // the same provider failure the directory branch counts
+                        // — and `isMirrorFile(null)` is false, so without this
+                        // the entry would be dropped as quietly as a `.png`
+                        // while the counter reported nothing. The name is
+                        // already fetched, so noticing costs no extra query.
+                        entriesUnclassified++
+                    } else if (MirrorFileLookup.isMirrorFile(name)) {
                         files.add(
                             MirrorFileRef(
                                 file = entry,
-                                relativePath = childPath(current.parentPath, name.orEmpty())
+                                relativePath = childPath(current.parentPath, name)
                             )
                         )
                     }

@@ -28,19 +28,30 @@ import java.io.File
  * The nested-folder spike (#424): what it costs to let the *import* direction
  * see the `.md` files in a user's subdirectories.
  *
- * Two halves, deliberately:
+ * Three kinds of test, and which kind a case gets is itself a decision:
  *
- * - The rule functions are pure and tested as such, the same split
- *   [MirrorFileNames] uses — a skip rule that is wrong is much easier to read
- *   about in a one-line assertion than in a tree walk.
- * - The walk itself runs over a real [DocumentFile] tree built from a temp
- *   directory. `DocumentFile.fromFile` gives a `RawDocumentFile`, whose
+ * - **Pure**, for the rule functions, the same split [MirrorFileNames] uses — a
+ *   skip rule that is wrong is much easier to read about in a one-line
+ *   assertion than in a tree walk.
+ * - **A real [DocumentFile] tree** over a temp directory, for what the walk
+ *   finds. `DocumentFile.fromFile` gives a `RawDocumentFile` whose
  *   `listFiles`/`isFile`/`isDirectory` go straight to `java.io.File`, so the
- *   traversal under test is the real one and not a stub of it. What this cannot
- *   show is SAF's *cost*: a `RawDocumentFile` listing is a filesystem call,
- *   where the real thing is a ContentProvider query. [MirrorTraversal.MirrorWalk.listCalls]
- *   is here so that cost can be counted on a device; these tests pin what it
- *   counts, not what it costs.
+ *   traversal under test is the real one and not a stub of it.
+ * - **Mocks**, for everything a real tree cannot express or would express
+ *   differently on someone else's machine: how many times a property was read
+ *   (each is a provider query on a SAF folder, and `RawDocumentFile` cannot
+ *   show that), a provider that fails a metadata query, and names that differ
+ *   only in case, which are one directory on a case-insensitive filesystem.
+ *
+ * The line that matters between the last two: a mock asserts what it was told
+ * to. Where a test's subject *is* the count of calls, the count has to be
+ * observed on the mock rather than read off
+ * [MirrorTraversal.MirrorWalk.listCalls], which the walk maintains itself —
+ * otherwise the test agrees with the bookkeeping instead of checking it.
+ *
+ * What none of it shows is SAF's *cost*: a `RawDocumentFile` listing is a
+ * filesystem call where the real thing is a ContentProvider query. `listCalls`
+ * exists so that can be measured on a device.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
@@ -245,7 +256,59 @@ class MirrorTraversalTest {
 
         // The old code was a single `folder.listFiles()`. If this ever moves,
         // every existing caller silently got more expensive.
+        //
+        // Note what this pins and what it does not: `listCalls` is a number the
+        // walk increments itself, so this is a test of the counter's contract.
+        // The round trips it stands for are observed separately, below.
         assertEquals(1, walk(maxDepth = 0).listCalls)
+    }
+
+    @Test
+    fun `depth 0 calls listFiles on the root and on nothing else`() {
+        // The observation the counter tests cannot make. A refactor that listed
+        // a directory twice while incrementing `listCalls` once would leave
+        // every assertion on that figure green, and the SAF round trips it
+        // claims to guard would have doubled in silence.
+        val subdirectory = mock(DocumentFile::class.java)
+        doReturn(true).`when`(subdirectory).isDirectory
+        doReturn("projects").`when`(subdirectory).name
+
+        val root = mock(DocumentFile::class.java)
+        doReturn(arrayOf(subdirectory)).`when`(root).listFiles()
+
+        MirrorTraversal.walk(root, maxDepth = 0)
+
+        verify(root, times(1)).listFiles()
+        verify(subdirectory, never()).listFiles()
+    }
+
+    @Test
+    fun `every directory entered is listed exactly once`() {
+        val alpha = mock(DocumentFile::class.java)
+        doReturn(true).`when`(alpha).isFile
+        doReturn("alpha.md").`when`(alpha).name
+
+        val projects = mock(DocumentFile::class.java)
+        doReturn(true).`when`(projects).isDirectory
+        doReturn("projects").`when`(projects).name
+        doReturn(arrayOf(alpha)).`when`(projects).listFiles()
+
+        val archive = mock(DocumentFile::class.java)
+        doReturn(true).`when`(archive).isDirectory
+        doReturn("archive").`when`(archive).name
+        doReturn(emptyArray<DocumentFile>()).`when`(archive).listFiles()
+
+        val root = mock(DocumentFile::class.java)
+        doReturn(arrayOf(projects, archive)).`when`(root).listFiles()
+
+        val result = MirrorTraversal.walk(root, maxDepth = 1)
+
+        assertEquals(listOf("projects/alpha.md"), result.files.map { it.relativePath })
+        verify(root, times(1)).listFiles()
+        verify(projects, times(1)).listFiles()
+        verify(archive, times(1)).listFiles()
+        // …and the counter agrees with what was actually invoked.
+        assertEquals(3, result.listCalls)
     }
 
     @Test
@@ -353,13 +416,12 @@ class MirrorTraversalTest {
     }
 
     @Test
-    fun `depth 0 reports nothing in either counter, including for a failed entry`() {
-        // Both figures are instruments for the recursion experiment, not a
-        // health check on the flat pass. At depth 0 nothing past the file test
-        // runs, so an entry the provider would not describe — `isFile` and
-        // `isDirectory` both answering false — is passed over as quietly as a
-        // `.png` would be, and neither counter moves. Saying so here stops the
-        // zeros being read as "the folder was fine".
+    fun `depth 0 cannot see an entry whose isFile query failed`() {
+        // The limit of what the flat pass can notice, stated so the zeros are
+        // not read as "the folder was fine". An entry the provider would not
+        // describe at all — `isFile` and `isDirectory` both answering false —
+        // falls through the depth gate and is gone, because asking
+        // `isDirectory` to find out is the query the flat pass must not spend.
         val opaque = mock(DocumentFile::class.java)
 
         val root = mock(DocumentFile::class.java)
@@ -369,9 +431,46 @@ class MirrorTraversalTest {
 
         assertEquals(0, result.directoriesSkipped)
         assertEquals(0, result.entriesUnclassified)
-        // …and the entry cost only the one query the flat listing would have.
+        // …and it cost only the one query the flat listing would have.
         verify(opaque, times(1)).isFile
         verify(opaque, never()).isDirectory
+    }
+
+    @Test
+    fun `a file the provider will not name is unclassified, at depth 0 too`() {
+        // The one provider failure the flat pass *can* see, because the name is
+        // fetched anyway. `isMirrorFile(null)` is false, so without an explicit
+        // branch this entry would be dropped as quietly as a `.png` while the
+        // counter reported nothing.
+        val nameless = mock(DocumentFile::class.java)
+        doReturn(true).`when`(nameless).isFile
+        // `name` left unstubbed: null, what a failed display-name query gives.
+
+        val root = mock(DocumentFile::class.java)
+        doReturn(arrayOf(nameless)).`when`(root).listFiles()
+
+        val result = MirrorTraversal.walk(root, maxDepth = 0)
+
+        assertTrue(result.files.isEmpty())
+        assertEquals(0, result.directoriesSkipped)
+        assertEquals(1, result.entriesUnclassified)
+    }
+
+    @Test
+    fun `a named file is not counted as unclassified`() {
+        // The other direction, so the branch cannot start swallowing ordinary
+        // entries: a `.png` is uninteresting, not unreadable.
+        val photo = mock(DocumentFile::class.java)
+        doReturn(true).`when`(photo).isFile
+        doReturn("photo.png").`when`(photo).name
+
+        val root = mock(DocumentFile::class.java)
+        doReturn(arrayOf(photo)).`when`(root).listFiles()
+
+        val result = MirrorTraversal.walk(root, maxDepth = 0)
+
+        assertTrue(result.files.isEmpty())
+        assertEquals(0, result.entriesUnclassified)
     }
 
     @Test
@@ -450,7 +549,9 @@ class MirrorTraversalTest {
 
         // Root + two subdirectories. This is the number that becomes a SAF
         // round trip on a device, and it grows with the user's tree, not with
-        // their note count.
+        // their note count. The counter's contract again; the invocations
+        // themselves are verified in `every directory entered is listed exactly
+        // once`.
         assertEquals(3, walk(maxDepth = 1).listCalls)
     }
 

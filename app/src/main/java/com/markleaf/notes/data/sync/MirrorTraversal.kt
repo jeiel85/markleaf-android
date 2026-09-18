@@ -181,13 +181,25 @@ internal object MirrorTraversal {
         // difference between a counter that reports and one that misreports.
         val n = name ?: return DirectoryVerdict.UNKNOWN
         if (n.startsWith(".")) return DirectoryVerdict.SKIP
-        // Only at the root. [MirrorWrite.mirrorAttachments] resolves the
-        // attachments directory on the linked folder itself, so Markleaf's
-        // storage is `<root>/attachments/<noteId>/` and nothing else. A
+        // Only at the root, and only this exact name.
+        //
+        // [MirrorWrite.mirrorAttachments] resolves the attachments directory on
+        // the linked folder itself, so Markleaf's storage is
+        // `<root>/attachments/<noteId>/` and nothing else. A
         // `projects/attachments/` deeper in the tree is the user's own
-        // directory with the user's own notes in it, and skipping that by name
-        // would drop them exactly the way this spike exists to stop.
-        if (depth == 0 && n.equals(MirrorWrite.ATTACHMENTS_DIR, ignoreCase = true)) {
+        // directory with the user's own notes in it.
+        //
+        // The comparison is case-sensitive on purpose, and the two ways of
+        // being wrong here are not worth the same. `MirrorWrite` looks the
+        // directory up by the lowercase name, so on a case-sensitive provider a
+        // user's `Attachments/` is a different directory that Markleaf does not
+        // own — folding case would refuse it and take its notes with it. The
+        // opposite error, on a provider that hands back another case for
+        // Markleaf's own directory, costs a listing per note that has ever had
+        // an attachment and imports nothing wrong, because what is in there is
+        // images rather than `.md`. Wasted queries against lost notes is not a
+        // close call.
+        if (depth == 0 && n == MirrorWrite.ATTACHMENTS_DIR) {
             return DirectoryVerdict.SKIP
         }
         return DirectoryVerdict.DESCEND

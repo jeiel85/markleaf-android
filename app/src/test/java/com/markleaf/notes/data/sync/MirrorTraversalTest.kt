@@ -130,10 +130,18 @@ class MirrorTraversalTest {
             MirrorTraversal.DirectoryVerdict.SKIP,
             MirrorTraversal.directoryVerdict("attachments", depth = 0, maxDepth = 5)
         )
-        // Case-insensitively, because a synced folder can land on exFAT or a
-        // Windows share where the name comes back in another case.
+    }
+
+    @Test
+    fun `directoryVerdict descends into a root directory whose case differs`() {
+        // `MirrorWrite` looks its directory up by the lowercase name, so on a
+        // case-sensitive provider `Attachments/` is a different directory that
+        // Markleaf does not own. Folding case would refuse it and take the
+        // user's notes with it; not folding costs, at worst, a listing per note
+        // that has ever had an attachment on a provider that reports another
+        // case — and imports nothing wrong, since what is in there is images.
         assertEquals(
-            MirrorTraversal.DirectoryVerdict.SKIP,
+            MirrorTraversal.DirectoryVerdict.DESCEND,
             MirrorTraversal.directoryVerdict("Attachments", depth = 0, maxDepth = 5)
         )
     }
@@ -159,6 +167,36 @@ class MirrorTraversalTest {
         // The root one is Markleaf's and stays out; the nested one is the
         // user's and its notes arrive.
         assertEquals(listOf("projects/attachments/meeting.md"), paths(maxDepth = 5))
+    }
+
+    @Test
+    fun `a root directory whose case differs keeps its notes`() {
+        // Mocked rather than seeded on disk on purpose: the two names are only
+        // distinct on a case-sensitive filesystem, so a real tree would make
+        // this test pass on Linux CI and fail on a macOS checkout. Mocks make
+        // the case distinction the test's own premise instead of the host's.
+        val note = mock(DocumentFile::class.java)
+        doReturn(true).`when`(note).isFile
+        doReturn("meeting.md").`when`(note).name
+
+        val userOwned = mock(DocumentFile::class.java)
+        doReturn(true).`when`(userOwned).isDirectory
+        doReturn("Attachments").`when`(userOwned).name
+        doReturn(arrayOf(note)).`when`(userOwned).listFiles()
+
+        val markleafOwned = mock(DocumentFile::class.java)
+        doReturn(true).`when`(markleafOwned).isDirectory
+        doReturn("attachments").`when`(markleafOwned).name
+
+        val root = mock(DocumentFile::class.java)
+        doReturn(arrayOf(userOwned, markleafOwned)).`when`(root).listFiles()
+
+        val result = MirrorTraversal.walk(root, maxDepth = 5)
+
+        assertEquals(listOf("Attachments/meeting.md"), result.files.map { it.relativePath })
+        assertEquals(1, result.directoriesSkipped)
+        // Markleaf's own directory was refused without being listed.
+        verify(markleafOwned, never()).listFiles()
     }
 
     @Test

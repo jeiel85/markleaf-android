@@ -30,7 +30,12 @@ decision that was previously copy-pasted:
   directory Markleaf owns. The depth condition on that last one is
   load-bearing: `MirrorWrite.mirrorAttachments` resolves the directory on the
   linked folder itself, so a `projects/attachments/` deeper in the tree is the
-  user's own, and matching it by name alone would drop the notes in it.
+  user's own, and matching it by name alone would drop the notes in it. The
+  match is case-sensitive for the same reason: `MirrorWrite` looks the
+  directory up by the lowercase name, so on a case-sensitive provider a user's
+  `Attachments/` is a directory Markleaf does not own. Folding case would lose
+  its notes; not folding costs, at worst, some wasted listings against a
+  directory holding images.
 - `childPath(parent, name)` — pure path assembly.
 - `effectiveDepth(metadata, requested)` — the depth a pass may actually use.
 
@@ -57,8 +62,8 @@ temp directory, the same technique `NoteFolderMirrorFolderTest` uses):
 
 | Check | Result |
 |---|---|
-| `MirrorTraversalTest` (new) | 36 tests, 0 failures |
-| Full unit suite (`:app:testDebugUnitTest`) | 835 tests, 0 failures |
+| `MirrorTraversalTest` (new) | 38 tests, 0 failures |
+| Full unit suite (`:app:testDebugUnitTest`) | 837 tests, 0 failures |
 | `:app:assembleDebug` | pass |
 | `:app:verifyRoborazziDebug` | pass |
 | `:app:lintRelease` | pass |

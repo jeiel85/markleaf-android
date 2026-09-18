@@ -538,8 +538,33 @@ class MirrorTraversalTest {
 
         val result = walk(maxDepth = 5)
         assertEquals(2, result.directoriesSkipped)
-        // One call for the root; neither skipped directory was listed.
+        // One call for the root; neither skipped directory was listed. The
+        // counter's contract again — that a skipped directory is genuinely
+        // never listed is verified on a mock in `a hidden directory is never
+        // listed`, because this figure is one the walk maintains itself.
         assertEquals(1, result.listCalls)
+    }
+
+    @Test
+    fun `a hidden directory is never listed`() {
+        // The skip exists to stop a tool's private directory becoming notes —
+        // a `.stversions` would resurrect everything the user ever deleted —
+        // and it also exists to not spend the query. Asserting `listCalls`
+        // cannot tell the difference between "never listed" and "listed, but
+        // the bookkeeping was not updated", so this observes the invocation.
+        val hidden = mock(DocumentFile::class.java)
+        doReturn(true).`when`(hidden).isDirectory
+        doReturn(".git").`when`(hidden).name
+
+        val root = mock(DocumentFile::class.java)
+        doReturn(arrayOf(hidden)).`when`(root).listFiles()
+
+        val result = MirrorTraversal.walk(root, maxDepth = 5)
+
+        verify(hidden, never()).listFiles()
+        assertTrue(result.files.isEmpty())
+        assertEquals(1, result.directoriesSkipped)
+        assertEquals(0, result.entriesUnclassified)
     }
 
     @Test
@@ -658,6 +683,10 @@ class MirrorTraversalTest {
 
         assertTrue(result.files.isEmpty())
         assertEquals(0, result.directoriesSkipped)
+        // Observed rather than read off the counter: the point is that the
+        // walk *did* descend and list, and got nothing back — which is what
+        // makes the failure indistinguishable from an empty directory.
+        verify(unreadable, times(1)).listFiles()
         assertEquals(2, result.listCalls)
     }
 

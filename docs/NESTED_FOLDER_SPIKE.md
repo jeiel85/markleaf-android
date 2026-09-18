@@ -62,8 +62,8 @@ temp directory, the same technique `NoteFolderMirrorFolderTest` uses):
 
 | Check | Result |
 |---|---|
-| `MirrorTraversalTest` (new) | 42 tests, 0 failures |
-| Full unit suite (`:app:testDebugUnitTest`) | 841 tests, 0 failures |
+| `MirrorTraversalTest` (new) | 43 tests, 0 failures |
+| Full unit suite (`:app:testDebugUnitTest`) | 842 tests, 0 failures |
 | `:app:assembleDebug` | pass |
 | `:app:verifyRoborazziDebug` | pass |
 | `:app:lintRelease` | pass |
@@ -107,7 +107,12 @@ And the counting has to be *observed*. The first tests asserted
 `MirrorWalk.listCalls`, a number the walk increments itself, so a refactor that
 listed a directory twice while counting once would have kept them green. The
 invocations are now verified on mocked directories, with the counter's own
-contract tested separately.
+contract tested separately — for directories the walk enters, for the ones a
+rule refuses, and for the root `attachments/`.
+
+The gap was demonstrated rather than reasoned about: adding a `listFiles()`
+call to the skip branch without touching the bookkeeping fails the
+invocation tests and leaves the counter test green.
 
 Two consequences to keep in mind. `directoriesSkipped` counts only rule-based
 skips, because identifying a directory costs the query the cap exists to avoid.

@@ -137,7 +137,25 @@ still lists flat, so it would only ever find root-level files.
 directories is normal in a vault with folders, and nothing decides which one
 wins.
 
-### 5. SAF cost grows per directory (needs a device)
+### 5. One note id can appear in two directories (needs confirming on a folder)
+
+`importChangesFrom` resolves a file to a note with
+`parsed.markleafId?.let(byId::get)`, and nothing downstream expects two files
+to resolve to the *same* note in one pass. At depth 0 that is nearly
+impossible: filenames are unique within a directory, so it takes a sync client
+duplicating a file to `Note (2).md` with the id intact.
+
+Recursion makes it ordinary. Copy a note into a subfolder — something people do
+with folders — and both files carry the same `markleaf_id`. The pass then
+reconciles the note twice, and the second visit can see a version the first one
+just wrote. Conflict copies on every sync are the plausible failure.
+
+Stated as a hazard rather than a measurement: it follows from reading the
+import, and was not reproduced on a real folder. Whatever gives `Note` a path
+(finding 1) is also what would let the import tell the two files apart, so this
+is an argument for doing that first, not a separate task.
+
+### 6. SAF cost grows per directory (needs a device)
 
 `listFiles()` is one ContentProvider query per directory. A flat folder costs
 exactly 1; a tree costs one per directory entered, and that count scales with
@@ -150,7 +168,9 @@ hundred files, so this is the number to measure before raising any default.
 The traversal is cheap. The spike's value is that it isolates the cost to a
 place it can be seen: **the blocker is not walking the tree, it is that a note
 does not remember where it came from.** Findings 1 and 2 are the real work, and
-2 is riskier than 1 because it is a cross-device on-disk format.
+2 is riskier than 1 because it is a cross-device on-disk format. Finding 5
+folds into 1 — a path is what would let the import tell two copies of a note
+apart — which is another reason to do that one first.
 
 Nothing here changes behaviour for any existing user, and nothing here commits
 the project to folders as a product. If this is not pursued, the branch can be

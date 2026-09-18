@@ -1,0 +1,1 @@
+Đã sửa lỗi liên kết .md/.txt tương đối trong trình xem tệp chỉ đọc mở trình duyệt thay vì ghi chú mà nó trỏ tới. Giờ đây liên kết được mở theo đúng cách mà liên kết cục bộ trong phần xem trước của trình chỉnh sửa đã làm. Do @Jackson-Nickk báo cáo.

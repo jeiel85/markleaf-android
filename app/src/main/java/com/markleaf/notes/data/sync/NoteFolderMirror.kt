@@ -130,8 +130,23 @@ object NoteFolderMirror {
         folderUri: Uri,
         fileName: String,
         metadata: MirrorMetadata
+    ): String? {
+        val folder = DocumentFile.fromTreeUri(context, folderUri) ?: return null
+        return noteIdForFileNameIn(context, folder, fileName, metadata)
+    }
+
+    /**
+     * [noteIdForFileName] once the folder has been resolved — a `DocumentFile`
+     * seam a test can build with `DocumentFile.fromFile` over a temp directory,
+     * the same technique the write/delete/rename seams use, since a `Uri`-based
+     * SAF grant needs a person to tap it.
+     */
+    internal fun noteIdForFileNameIn(
+        context: Context,
+        folder: DocumentFile,
+        fileName: String,
+        metadata: MirrorMetadata
     ): String? = runCatching {
-        val folder = DocumentFile.fromTreeUri(context, folderUri) ?: return@runCatching null
         val file = MirrorFileLookup.matchByName(
             folder.listFiles().filter { MirrorFileLookup.isMirrorEntry(it) },
             fileName

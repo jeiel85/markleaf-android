@@ -1,0 +1,1 @@
+Behoben: Ein relativer .md/.txt-Link in der schreibgeschützten Dateianzeige öffnete einen Browser statt der referenzierten Notiz. Er wird jetzt genauso aufgelöst wie ein lokaler Link in der Editor-Vorschau. Gemeldet von @Jackson-Nickk.

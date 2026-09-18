@@ -1,0 +1,1 @@
+Fixed a relative .md/.txt link in the read-only file viewer opening a browser instead of the note it names -- it now resolves the same way a local link in the editor preview already does. Reported by @Jackson-Nickk.

@@ -1,0 +1,1 @@
+Corrigé : un lien relatif .md/.txt dans la visionneuse de fichiers en lecture seule ouvrait un navigateur au lieu de la note visée. Il est désormais résolu de la même façon qu'un lien local dans l'aperçu de l'éditeur. Signalé par @Jackson-Nickk.

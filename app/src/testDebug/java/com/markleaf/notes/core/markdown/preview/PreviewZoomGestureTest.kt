@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
@@ -16,6 +17,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
@@ -28,6 +31,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import kotlin.math.roundToInt
 
 /**
  * [Modifier.previewZoomGesture] driven by a real (simulated) two-pointer
@@ -51,12 +55,14 @@ class PreviewZoomGestureTest {
 
     private var reportedScale = 1f
     private var reportedTranslationX = 0f
+    private lateinit var hostListState: LazyListState
 
     private fun renderHost() {
         composeRule.setContent {
             var scale by remember { mutableFloatStateOf(1f) }
             var translationX by remember { mutableFloatStateOf(0f) }
             val listState = rememberLazyListState()
+            hostListState = listState
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -70,7 +76,34 @@ class PreviewZoomGestureTest {
                         onTranslationXChange = { translationX = it; reportedTranslationX = it }
                     )
             ) {
-                LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
+                // The same shrink-then-magnify layout MarkdownPreviewList uses
+                // on its SelectionContainer (#423 review, scroll-extent
+                // finding): measuring at full height would leave LazyColumn
+                // computing a scroll range for the unscaled content, so at 2x
+                // only the top half of even a short list would ever be
+                // reachable. Reproduced here so this test host can verify the
+                // mechanism itself, independent of the full preview.
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .layout { measurable, constraints ->
+                            val shrunkHeight = (constraints.maxHeight / scale)
+                                .roundToInt()
+                                .coerceIn(1, constraints.maxHeight)
+                            val placeable = measurable.measure(
+                                constraints.copy(minHeight = 0, maxHeight = shrunkHeight)
+                            )
+                            layout(constraints.maxWidth, constraints.maxHeight) {
+                                placeable.placeWithLayer(0, 0) {
+                                    scaleX = scale
+                                    scaleY = scale
+                                    translationX = translationX
+                                    transformOrigin = TransformOrigin(0f, 0f)
+                                }
+                            }
+                        }
+                ) {
                     items(50) { index ->
                         Text("Line $index", modifier = Modifier.fillMaxWidth().height(48.dp))
                     }
@@ -169,5 +202,82 @@ class PreviewZoomGestureTest {
             "expected the second pinch to zoom in further from $scaleAfterFirstPinch, landed at $reportedScale",
             reportedScale > scaleAfterFirstPinch * 1.1f
         )
+    }
+
+    @Test
+    fun zoomingIn_shrinksTheListsMeasuredViewport() {
+        // Regression guard for the #423 review's scroll-extent finding: measuring
+        // LazyColumn at full height regardless of scale left it computing a
+        // scroll range for the unscaled content, so scrollBy had nothing further
+        // to give once the unscaled list thought it was already at the bottom --
+        // at 2x, only the top half of even a short note was ever reachable. The
+        // fix measures the list at height / scale so its own scroll range
+        // accounts for how much magnified content doesn't fit on screen at once.
+        // Checked here at the seam that actually matters: what LazyColumn itself
+        // reports its viewport as, not the arithmetic already covered elsewhere.
+        renderHost()
+        composeRule.waitForIdle()
+        val heightAtRest = hostListState.layoutInfo.viewportSize.height
+        assertTrue("expected a real measured viewport before zooming", heightAtRest > 0)
+
+        composeRule.onRoot().performTouchInput {
+            down(0, Offset(150f, 300f))
+            down(1, Offset(250f, 300f))
+            moveTo(0, Offset(100f, 300f))
+            moveTo(1, Offset(300f, 300f))
+            up(0)
+            up(1)
+        }
+        composeRule.waitForIdle()
+
+        val expectedShrunkHeight = (heightAtRest / reportedScale).roundToInt()
+        assertTrue(
+            "expected viewport height to shrink from $heightAtRest toward $expectedShrunkHeight at scale $reportedScale, was ${hostListState.layoutInfo.viewportSize.height}",
+            kotlin.math.abs(hostListState.layoutInfo.viewportSize.height - expectedShrunkHeight) <= 2
+        )
+    }
+
+    @Test
+    fun aLongPressThenDragWhileZoomed_doesNotPan_leavingItForSelection() {
+        // Regression guard for the #423 review's selection finding: once
+        // zoomed in, every single-finger move used to be claimed as pan the
+        // instant it started, which meant a long press to begin a text
+        // selection -- SelectionContainer's own gesture, starting exactly the
+        // same way -- could never reach it.
+        //
+        // A stationary long press alone can't tell fixed from broken: with no
+        // movement, the old code never panned either, since pan is driven by
+        // positionChange(). The discriminating sequence is long press *then*
+        // drag -- the shape of dragging a selection handle, or extending a
+        // selection, after it starts. The old code didn't care what preceded
+        // a move; it would have panned on that drag same as any other. The
+        // fix's race times out into "hand off to selection" before the drag
+        // ever happens, so scale/translationX must still be untouched after.
+        renderHost()
+
+        // Zoom in first (a real pinch), then release both fingers fully.
+        composeRule.onRoot().performTouchInput {
+            down(0, Offset(150f, 300f))
+            down(1, Offset(250f, 300f))
+            moveTo(0, Offset(100f, 300f))
+            moveTo(1, Offset(300f, 300f))
+            up(0)
+            up(1)
+        }
+        val scaleAfterZoom = reportedScale
+        val translationAfterZoom = reportedTranslationX
+        assertTrue("expected to be zoomed in before testing the long-press race", scaleAfterZoom > 1.2f)
+
+        // Long press (past the timeout, no movement yet), then drag -- as if
+        // extending a selection after it started.
+        composeRule.onRoot().performTouchInput {
+            down(0, Offset(200f, 400f))
+            advanceEventTime(600)
+            moveTo(0, Offset(120f, 400f))
+            up(0)
+        }
+
+        assertEquals(scaleAfterZoom, reportedScale, 0.001f)
+        assertEquals(translationAfterZoom, reportedTranslationX, 0.001f)
     }
 }

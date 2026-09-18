@@ -62,13 +62,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationException
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
@@ -101,6 +101,7 @@ import com.markleaf.notes.core.markdown.TableData
 import com.markleaf.notes.core.markdown.syntax.SyntaxHighlighter
 import com.markleaf.notes.util.LocalMarkdownLink
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 // Vertical rhythm of the rendered preview (#340).
 //
@@ -277,11 +278,35 @@ fun MarkdownPreviewList(
             SelectionContainer(
                 modifier = Modifier
                     .fillMaxSize()
-                    .graphicsLayer {
-                        scaleX = zoomScale
-                        scaleY = zoomScale
-                        translationX = zoomTranslationX
-                        transformOrigin = TransformOrigin(0f, 0f)
+                    // Measuring at full size and only scaling the *drawing* left
+                    // LazyColumn computing a scroll range for the unscaled
+                    // content, so at 2x only the top half of even a short note
+                    // was ever reachable — scrollBy has nothing further to give
+                    // once the unscaled list thinks it is already at the
+                    // bottom. Instead, measure the child at height / scale (a
+                    // shorter "camera window") and magnify what that produces
+                    // back up to the real height when placing it. LazyColumn
+                    // then has the scroll range a smaller viewport actually
+                    // needs, and scrolling through all of it — already exactly
+                    // what a pan drives — reveals the full magnified content.
+                    // Width is left alone: shrinking it too would feed rows a
+                    // narrower measurement and reflow their text, which is the
+                    // one thing this feature promised not to do.
+                    .layout { measurable, constraints ->
+                        val shrunkHeight = (constraints.maxHeight / zoomScale)
+                            .roundToInt()
+                            .coerceIn(1, constraints.maxHeight)
+                        val placeable = measurable.measure(
+                            constraints.copy(minHeight = 0, maxHeight = shrunkHeight)
+                        )
+                        layout(constraints.maxWidth, constraints.maxHeight) {
+                            placeable.placeWithLayer(0, 0) {
+                                scaleX = zoomScale
+                                scaleY = zoomScale
+                                translationX = zoomTranslationX
+                                transformOrigin = TransformOrigin(0f, 0f)
+                            }
+                        }
                     }
             ) {
                 LazyColumn(
@@ -363,9 +388,59 @@ internal fun Modifier.previewZoomGesture(
     val latestTranslationX = rememberUpdatedState(translationX)
     return this.pointerInput(Unit) {
         awaitEachGesture {
-            awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+            val firstDown = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
             var currentScale = latestScale.value
             var currentTranslationX = latestTranslationX.value
+
+            // A single finger while already zoomed is ambiguous: it could be
+            // the start of a pan, or of a long-press text selection --
+            // SelectionContainer's own gesture, which begins exactly the same
+            // way. Losing the race is what #423's review caught: consuming
+            // every single-finger move as pan the instant the scale passed 1
+            // made selection unreachable while zoomed, contradicting the
+            // "text selection keeps working" this feature was supposed to
+            // keep true.
+            //
+            // This is a three-way race, not two: a second finger can join
+            // before the first has moved or the timeout has fired, which is
+            // exactly a pinch starting with staggered finger timing (or,
+            // observed while pinning this down, is what a Compose test's
+            // synthetic down()-then-down() sequence looks like even for a
+            // deliberately simultaneous two-finger gesture).
+            // `awaitLongPressOrCancellation` only watches one pointer, so it
+            // cannot see that outcome -- it would sit waiting on finger one
+            // and either time out into a false "long press" or miss the
+            // pinch, which a regression test pinned to a real failure before
+            // this was rewritten by hand, the same way `linkPressGestures`
+            // below already does its own long-press race.
+            if (currentScale > 1.01f) {
+                try {
+                    withTimeout(viewConfiguration.longPressTimeoutMillis) {
+                        while (true) {
+                            val event = awaitPointerEvent(PointerEventPass.Initial)
+                            val pressed = event.changes.filter { it.pressed }
+                            if (pressed.size >= 2) return@withTimeout // a pinch starting
+                            val change = pressed.firstOrNull() ?: return@withTimeout // lifted
+                            if ((change.position - firstDown.position).getDistance() > viewConfiguration.touchSlop) {
+                                return@withTimeout // moved: a pan, not a long press
+                            }
+                        }
+                    }
+                } catch (_: PointerEventTimeoutCancellationException) {
+                    // The timeout won: a genuine long press with nothing else
+                    // happening. Nothing from this touch has been consumed,
+                    // so SelectionContainer sees the same long press and
+                    // takes it from here.
+                    return@awaitEachGesture
+                }
+                // Cancelled by a second finger joining (a pinch), by movement
+                // (a pan starting), or by lifting (a tap, e.g. on a link) --
+                // any of the three falls through to the ordinary per-event
+                // handling below, unconsumed so far either way. The do-while
+                // loop's next awaitPointerEvent call reads whichever of those
+                // is now true.
+            }
+
             do {
                 val event = awaitPointerEvent(PointerEventPass.Initial)
                 val pressed = event.changes.filter { it.pressed }

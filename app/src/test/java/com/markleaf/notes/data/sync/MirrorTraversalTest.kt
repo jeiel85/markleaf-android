@@ -44,10 +44,17 @@ import java.io.File
  *   only in case, which are one directory on a case-insensitive filesystem.
  *
  * The line that matters between the last two: a mock asserts what it was told
- * to. Where a test's subject *is* the count of calls, the count has to be
- * observed on the mock rather than read off
- * [MirrorTraversal.MirrorWalk.listCalls], which the walk maintains itself —
- * otherwise the test agrees with the bookkeeping instead of checking it.
+ * to. **Where a test's subject is whether a call happened, it has to be
+ * observed on the mock — in either direction.** Reading it off
+ * [MirrorTraversal.MirrorWalk.listCalls] makes the test agree with the walk's
+ * own bookkeeping instead of checking it, and a refactor that listed a
+ * directory without updating that figure would go unnoticed.
+ *
+ * "Either direction" is the half that kept getting dropped here. *Not* listing
+ * a directory is as much a behaviour as listing one: the hidden-directory and
+ * `attachments/` rules exist partly to avoid the query, so `never()` on those
+ * is the assertion that means something, and a counter reading 1 cannot tell
+ * "never listed" from "listed, bookkeeping not updated".
  *
  * What none of it shows is SAF's *cost*: a `RawDocumentFile` listing is a
  * filesystem call where the real thing is a ContentProvider query. `listCalls`

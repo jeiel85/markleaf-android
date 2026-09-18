@@ -53,14 +53,38 @@ temp directory, the same technique `NoteFolderMirrorFolderTest` uses):
 
 | Check | Result |
 |---|---|
-| `MirrorTraversalTest` (new) | 22 tests, 0 failures |
-| Full unit suite (`:app:testDebugUnitTest`) | 821 tests, 0 failures |
+| `MirrorTraversalTest` (new) | 26 tests, 0 failures |
+| Full unit suite (`:app:testDebugUnitTest`) | 825 tests, 0 failures |
 | `:app:assembleDebug` | pass |
 | `:app:verifyRoborazziDebug` | pass |
+| `:app:lintRelease` | pass |
 
 What the tests **cannot** show: SAF's real cost. `DocumentFile.fromFile` is a
 filesystem call; the user's folder is a ContentProvider query. `listCalls` was
 added so that cost can be counted on a device — it is not measured here.
+
+### The per-entry query trap
+
+`TreeDocumentFile` caches nothing. `isFile`, `isDirectory` and `name` each run
+`getRawType` → `queryForString` → `ContentResolver.query` — verified by reading
+the bytecode of `documentfile-1.0.1`, not assumed. So *which property the walk
+asks for first* is a cost decision, not a style one.
+
+The first version of `walk` tested `entry.isDirectory` before the file check,
+which added one provider round trip per entry at `maxDepth = 0` — roughly 400
+extra round trips on a 400-note folder, on every foreground and manual sync,
+for a recursion that is switched off. Caught in review by Codex on #425.
+
+The walk now tests `isMirrorEntry` first and asks `isDirectory` only when
+`canDescendFrom` says the answer could change something, so depth 0 issues
+exactly the queries the flat listing issued. Two tests pin it — one using
+Mockito to count the calls directly, since `RawDocumentFile` cannot show them —
+and both were confirmed to fail against the original ordering before the fix
+was kept.
+
+The consequence to keep in mind: `directoriesSkipped` counts only rule-based
+skips. At depth 0 it is always 0, because identifying a directory would cost
+the query the cap exists to avoid.
 
 ## Findings — what blocks shipping this
 

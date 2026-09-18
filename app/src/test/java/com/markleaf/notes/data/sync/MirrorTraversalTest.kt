@@ -6,12 +6,18 @@ import androidx.test.core.app.ApplicationProvider
 import com.markleaf.notes.domain.model.Note
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
+import org.mockito.Mockito.atLeastOnce
+import org.mockito.Mockito.doReturn
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.never
+import org.mockito.Mockito.verify
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
@@ -139,6 +145,13 @@ class MirrorTraversalTest {
     }
 
     @Test
+    fun `canDescendFrom is false once the cap is reached`() {
+        assertTrue(MirrorTraversal.canDescendFrom(depth = 0, maxDepth = 1))
+        assertFalse(MirrorTraversal.canDescendFrom(depth = 0, maxDepth = 0))
+        assertFalse(MirrorTraversal.canDescendFrom(depth = 1, maxDepth = 1))
+    }
+
+    @Test
     fun `effectiveDepth forces sidecar mode flat`() {
         // Not conservatism: the sidecar index keys notes by bare filename, so
         // two `note.md` files in different directories collapse onto one entry.
@@ -166,6 +179,72 @@ class MirrorTraversalTest {
         // The old code was a single `folder.listFiles()`. If this ever moves,
         // every existing caller silently got more expensive.
         assertEquals(1, walk(maxDepth = 0).listCalls)
+    }
+
+    @Test
+    fun `depth 0 asks nothing that the flat listing did not ask`() {
+        // The regression this pins is invisible to the RawDocumentFile tests
+        // above: on a SAF folder every one of `isFile`, `name` and
+        // `isDirectory` is its own ContentProvider query, and an earlier
+        // version of `walk` tested `isDirectory` first — one extra round trip
+        // per entry, on every import and survey, for a recursion that is
+        // switched off. Mocks are used here precisely because the count is the
+        // subject; nothing else in this class needs them.
+        // Stubbed with `doReturn(...).when(...)` and only where the walk must
+        // read something, so the properties under verification are never
+        // touched by the setup itself.
+        val note = mock(DocumentFile::class.java)
+        doReturn(true).`when`(note).isFile
+        doReturn("note.md").`when`(note).name
+
+        // Nothing stubbed: an unstubbed `isFile` already answers false, which
+        // is what a directory would answer.
+        val subdirectory = mock(DocumentFile::class.java)
+
+        val root = mock(DocumentFile::class.java)
+        doReturn(arrayOf(note, subdirectory)).`when`(root).listFiles()
+
+        val result = MirrorTraversal.walk(root, maxDepth = 0)
+
+        assertEquals(listOf("note.md"), result.files.map { it.relativePath })
+        // The question that costs a query and cannot change the outcome at
+        // depth 0 is never asked — of either entry.
+        verify(note, never()).isDirectory
+        verify(subdirectory, never()).isDirectory
+        // And the directory is dismissed on its `isFile` alone, without its
+        // name being fetched.
+        verify(subdirectory, never()).name
+    }
+
+    @Test
+    fun `a depth that can descend does ask whether an entry is a directory`() {
+        // The other half of the trade-off: once recursion is possible the
+        // question is worth its query, so this is not "never ask", it is "ask
+        // only when the answer matters".
+        val subdirectory = mock(DocumentFile::class.java)
+        doReturn(true).`when`(subdirectory).isDirectory
+        doReturn("projects").`when`(subdirectory).name
+        doReturn(emptyArray<DocumentFile>()).`when`(subdirectory).listFiles()
+
+        val root = mock(DocumentFile::class.java)
+        doReturn(arrayOf(subdirectory)).`when`(root).listFiles()
+
+        MirrorTraversal.walk(root, maxDepth = 1)
+
+        verify(subdirectory, atLeastOnce()).isDirectory
+    }
+
+    @Test
+    fun `depth 0 reports no skipped directories because it never identifies any`() {
+        // Documented rather than incidental: `directoriesSkipped` counts
+        // rule-based skips, and at depth 0 recognising a directory would cost
+        // the query the cap exists to avoid. A future change that makes this
+        // number non-zero has reintroduced that cost.
+        seed("note.md")
+        seed("projects/alpha.md")
+        seed(".git/hidden.md")
+
+        assertEquals(0, walk(maxDepth = 0).directoriesSkipped)
     }
 
     @Test

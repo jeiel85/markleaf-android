@@ -70,6 +70,12 @@ internal object MirrorTraversal {
      * at a few hundred files. A flat folder costs exactly one such call; a tree
      * costs one per directory, and [listCalls] is what says how many that turned
      * out to be for a real folder instead of a guessed one.
+     *
+     * [directoriesSkipped] counts only the directories skipped by a *rule* —
+     * hidden, or `attachments/`. One the depth cap alone rules out is not
+     * counted, because recognising it as a directory would cost the very query
+     * the cap exists to avoid ([canDescendFrom]). At `maxDepth = 0` it is
+     * therefore always 0, however many directories the folder holds.
      */
     internal data class MirrorWalk(
         val files: List<MirrorFileRef>,
@@ -79,6 +85,22 @@ internal object MirrorTraversal {
 
     /** What [walk] should do with a directory it has just come across. */
     internal enum class DirectoryVerdict { DESCEND, SKIP }
+
+    /**
+     * Whether a directory found at [depth] could be descended into at all,
+     * given [maxDepth] — the depth rule on its own, with no query behind it.
+     *
+     * Separate from [directoryVerdict] because of what asking costs. On a
+     * SAF-backed folder `DocumentFile.isDirectory` is not a field: it runs
+     * `getRawType` → `ContentResolver.query`, one provider round trip, and
+     * `isFile` and `name` are each another. So "is this entry a directory" is a
+     * question [walk] must not ask unless the answer can change what it does —
+     * at `maxDepth = 0`, which is every production caller, it never can, and
+     * asking anyway would have added one query per entry to every import and
+     * survey pass. On a 400-file folder that is 400 extra round trips for
+     * nothing, on the path #222 already found to be scan-dominated.
+     */
+    internal fun canDescendFrom(depth: Int, maxDepth: Int): Boolean = depth < maxDepth
 
     /**
      * Whether [walk] should go into a directory named [name], found at [depth]
@@ -104,7 +126,7 @@ internal object MirrorTraversal {
      *   note that has ever had an attachment.
      */
     internal fun directoryVerdict(name: String?, depth: Int, maxDepth: Int): DirectoryVerdict {
-        if (depth >= maxDepth) return DirectoryVerdict.SKIP
+        if (!canDescendFrom(depth, maxDepth)) return DirectoryVerdict.SKIP
         val n = name ?: return DirectoryVerdict.SKIP
         if (n.startsWith(".")) return DirectoryVerdict.SKIP
         if (n.equals(MirrorWrite.ATTACHMENTS_DIR, ignoreCase = true)) return DirectoryVerdict.SKIP
@@ -174,22 +196,32 @@ internal object MirrorTraversal {
             }
 
             for (entry in entries) {
-                if (entry.isDirectory) {
-                    when (directoryVerdict(entry.name, current.depth, maxDepth)) {
-                        DirectoryVerdict.SKIP -> directoriesSkipped++
-                        DirectoryVerdict.DESCEND -> queue.add(
-                            Pending(
-                                dir = entry,
-                                parentPath = childPath(current.parentPath, entry.name.orEmpty()),
-                                depth = current.depth + 1
-                            )
-                        )
-                    }
-                } else if (MirrorFileLookup.isMirrorEntry(entry)) {
+                // The file test comes first, and the directory test is guarded
+                // by the depth rule, so that this loop costs exactly what the
+                // flat listing it replaced cost. See [canDescendFrom]: every
+                // one of these properties is a provider query on a real folder.
+                // A mirror file is settled by `isMirrorEntry` alone; a
+                // directory fails its `isFile` check and, at `maxDepth = 0`, is
+                // never asked anything further.
+                if (MirrorFileLookup.isMirrorEntry(entry)) {
                     files.add(
                         MirrorFileRef(
                             file = entry,
                             relativePath = childPath(current.parentPath, entry.name.orEmpty())
+                        )
+                    )
+                    continue
+                }
+                if (!canDescendFrom(current.depth, maxDepth)) continue
+                if (!entry.isDirectory) continue
+
+                when (directoryVerdict(entry.name, current.depth, maxDepth)) {
+                    DirectoryVerdict.SKIP -> directoriesSkipped++
+                    DirectoryVerdict.DESCEND -> queue.add(
+                        Pending(
+                            dir = entry,
+                            parentPath = childPath(current.parentPath, entry.name.orEmpty()),
+                            depth = current.depth + 1
                         )
                     )
                 }

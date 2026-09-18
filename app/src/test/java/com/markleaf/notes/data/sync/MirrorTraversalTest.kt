@@ -142,6 +142,23 @@ class MirrorTraversalTest {
     }
 
     @Test
+    fun `directoryVerdict refuses hidden directories below the root too`() {
+        // Deliberately unlike the `attachments/` rule, which is root-only: a
+        // `projects/.git/` is still a tool's private directory, and a nested
+        // `.stversions` would still resurrect deleted notes. Pinned because
+        // "which depths does this rule apply at" is exactly the question the
+        // `attachments/` rule got wrong, and the answer differs between the
+        // two — so neither can be inferred from the other.
+        for (depth in 1..3) {
+            assertEquals(
+                "expected .git to be skipped at depth $depth",
+                MirrorTraversal.DirectoryVerdict.SKIP,
+                MirrorTraversal.directoryVerdict(".git", depth = depth, maxDepth = 5)
+            )
+        }
+    }
+
+    @Test
     fun `directoryVerdict refuses the root attachments directory Markleaf owns`() {
         assertEquals(
             MirrorTraversal.DirectoryVerdict.SKIP,
@@ -540,6 +557,18 @@ class MirrorTraversalTest {
         seed("attachments/note-1/scan.md")
 
         assertEquals(listOf("real.md"), paths(maxDepth = 5))
+    }
+
+    @Test
+    fun `the walk skips a hidden directory nested inside a real one`() {
+        // The root-level case above says nothing about depth, and the two rules
+        // differ there: `attachments/` is refused only at the root, hidden
+        // directories at any depth. A vault with a `projects/.git/` is ordinary,
+        // and its contents are the tool's, not the user's notes.
+        seed("projects/real.md")
+        seed("projects/.git/COMMIT_EDITMSG.md")
+
+        assertEquals(listOf("projects/real.md"), paths(maxDepth = 5))
     }
 
     @Test

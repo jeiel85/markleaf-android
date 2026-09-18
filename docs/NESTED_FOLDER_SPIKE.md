@@ -62,8 +62,8 @@ temp directory, the same technique `NoteFolderMirrorFolderTest` uses):
 
 | Check | Result |
 |---|---|
-| `MirrorTraversalTest` (new) | 43 tests, 0 failures |
-| Full unit suite (`:app:testDebugUnitTest`) | 842 tests, 0 failures |
+| `MirrorTraversalTest` (new) | 45 tests, 0 failures |
+| Full unit suite (`:app:testDebugUnitTest`) | 844 tests, 0 failures |
 | `:app:assembleDebug` | pass |
 | `:app:verifyRoborazziDebug` | pass |
 | `:app:lintRelease` | pass |

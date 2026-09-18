@@ -49,6 +49,14 @@ internal object MirrorTraversal {
     /**
      * One mirror file found by [walk].
      *
+     * [name] is the display name the walk already fetched to decide this entry
+     * was a mirror file. It is carried rather than left to the caller because
+     * `DocumentFile.name` is a provider query every time it is read: the walk
+     * inlines `isMirrorEntry` precisely to spend that query once, and a caller
+     * reaching for `file.name` afterwards spends it again — which both sidecar
+     * call sites were doing, at roughly two extra round trips per file per pass
+     * on the scan-dominated path of #222.
+     *
      * [relativePath] is `/`-separated and root-relative — `"note.md"` for a file
      * at the top, `"projects/alpha/note.md"` below it. It is always the
      * traversal's own view of where the file sits, never something read out of
@@ -58,6 +66,7 @@ internal object MirrorTraversal {
      */
     internal data class MirrorFileRef(
         val file: DocumentFile,
+        val name: String,
         val relativePath: String
     )
 
@@ -334,6 +343,7 @@ internal object MirrorTraversal {
                         files.add(
                             MirrorFileRef(
                                 file = entry,
+                                name = name,
                                 relativePath = childPath(current.parentPath, name)
                             )
                         )

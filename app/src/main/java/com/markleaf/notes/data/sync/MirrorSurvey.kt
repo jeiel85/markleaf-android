@@ -52,7 +52,6 @@ internal object MirrorSurvey {
         val files = MirrorTraversal
             .walk(folder, MirrorTraversal.effectiveDepth(metadata, maxDepth))
             .files
-            .map { it.file }
         if (files.isEmpty()) return NoteFolderMirror.FolderSurvey(0, 0)
 
         val knownIds = existing.mapTo(HashSet(existing.size)) { it.id }
@@ -68,8 +67,9 @@ internal object MirrorSurvey {
 
         var newFiles = 0
         var knownFiles = 0
-        for (file in files) {
-            val idFromIndex = byFileName?.get(file.name.orEmpty())?.noteId
+        for (ref in files) {
+            val file = ref.file
+            val idFromIndex = byFileName?.get(ref.name)?.noteId
             // Even in sidecar mode a file may carry a header — written before
             // the mode was switched, or arriving from a device still writing
             // one — and the import prefers that id when the index has nothing.

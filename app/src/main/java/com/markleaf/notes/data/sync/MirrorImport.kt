@@ -225,18 +225,19 @@ internal object MirrorImport {
         // literal 0 here made that true only on the survey's side, so relaxing
         // the sidecar rule later would have moved one pass and not the other.
         val depth = MirrorTraversal.effectiveDepth(metadata, maxDepth)
-        val files = MirrorTraversal.walk(folder, depth).files.map { it.file }
+        val files = MirrorTraversal.walk(folder, depth).files
 
         // Rows describing neither a note nor a file. A note deleted on another
         // device takes its file with it and cannot touch our index, so without
         // this our copy carries that row for the folder's lifetime — and the
         // same in reverse, leaving both devices holding the other's dead rows
         // (#262).
-        for (id in staleEntryIds(ownEntries.values, byId.keys, files.map { it.name.orEmpty() })) {
+        for (id in staleEntryIds(ownEntries.values, byId.keys, files.map { it.name })) {
             ownEntries.remove(id)
         }
 
-        for (file in files) {
+        for (ref in files) {
+            val file = ref.file
             val body = runCatching {
                 context.contentResolver.openInputStream(file.uri)?.use { it.readBytes() }
                     ?.toString(Charsets.UTF_8)
@@ -246,7 +247,7 @@ internal object MirrorImport {
                 continue
             }
 
-            val fileName = file.name.orEmpty()
+            val fileName = ref.name
             // A file may still carry a header — written before the mode was
             // switched, or arriving from a device still in frontmatter mode. Its
             // block is metadata, not text, and reading it as text would paste it

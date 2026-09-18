@@ -21,7 +21,10 @@ import java.io.OutputStreamWriter
  */
 internal object MirrorWrite {
 
-    private const val ATTACHMENTS_DIR = "attachments"
+    /** Internal rather than private so [MirrorTraversal] can refuse to descend
+     *  into it by the same name this writes, instead of a second copy of the
+     *  string that could drift out of step with this one. */
+    internal const val ATTACHMENTS_DIR = "attachments"
 
     /**
      * [MirrorWrite.writeNote] once the folder has been resolved.

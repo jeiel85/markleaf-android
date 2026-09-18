@@ -35,6 +35,13 @@ internal object MirrorImport {
      *
      * `applyUpdate` is invoked synchronously — caller is responsible for
      * shipping the resulting writes onto IO dispatcher and into Room.
+     *
+     * [maxDepth] is how far below the folder this pass may look, and it
+     * defaults to 0 — the root only, which is every caller today and exactly
+     * what this did before [MirrorTraversal] existed. A deeper walk finds the
+     * `.md` files in a user's subdirectories, which are invisible to Markleaf
+     * at depth 0; what it does **not** yet do is remember where they were, so
+     * see [MirrorTraversal] before raising it anywhere real.
      */
     internal suspend fun importChangesFrom(
         context: Context,
@@ -43,12 +50,13 @@ internal object MirrorImport {
         applyUpdate: suspend (Note) -> Unit,
         applyCreate: suspend (Note) -> Unit,
         metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
-        titleSource: NoteTitleSource = NoteTitleSource.FIRST_HEADING
+        titleSource: NoteTitleSource = NoteTitleSource.FIRST_HEADING,
+        maxDepth: Int = 0
     ): NoteFolderMirror.ImportResult {
         if (!folder.canRead()) return NoteFolderMirror.ImportResult(0, 0, 0, 1)
         if (metadata is MirrorMetadata.Sidecar) {
             return importChangesSidecar(
-                context, folder, existing, applyUpdate, applyCreate, metadata.deviceId, titleSource
+                context, folder, existing, applyUpdate, applyCreate, metadata, titleSource, maxDepth
             )
         }
 
@@ -59,7 +67,10 @@ internal object MirrorImport {
         var conflicts = 0
 
         val byId = existing.associateBy { it.id }
-        val files = folder.listFiles().filter { MirrorFileLookup.isMirrorEntry(it) }
+        val files = MirrorTraversal
+            .walk(folder, MirrorTraversal.effectiveDepth(metadata, maxDepth))
+            .files
+            .map { it.file }
 
         for (file in files) {
             val raw = runCatching {
@@ -192,9 +203,11 @@ internal object MirrorImport {
         existing: List<Note>,
         applyUpdate: suspend (Note) -> Unit,
         applyCreate: suspend (Note) -> Unit,
-        deviceId: String,
-        titleSource: NoteTitleSource
+        metadata: MirrorMetadata.Sidecar,
+        titleSource: NoteTitleSource,
+        maxDepth: Int
     ): NoteFolderMirror.ImportResult {
+        val deviceId = metadata.deviceId
         var updated = 0
         var created = 0
         var skipped = 0
@@ -205,18 +218,26 @@ internal object MirrorImport {
         val merged = SidecarStore.load(context, folder, deviceId)
         val byFileName = SidecarIndex.byFileName(merged)
         val ownEntries = SidecarStore.ownEntries(context, folder, deviceId)
-        val files = folder.listFiles().filter { MirrorFileLookup.isMirrorEntry(it) }
+        // Resolved through [MirrorTraversal.effectiveDepth] rather than
+        // hardcoded, even though that function always answers 0 for this mode.
+        // [MirrorSurvey] states that both passes settle depth through one
+        // function so they cannot disagree about which files exist (#372); a
+        // literal 0 here made that true only on the survey's side, so relaxing
+        // the sidecar rule later would have moved one pass and not the other.
+        val depth = MirrorTraversal.effectiveDepth(metadata, maxDepth)
+        val files = MirrorTraversal.walk(folder, depth).files
 
         // Rows describing neither a note nor a file. A note deleted on another
         // device takes its file with it and cannot touch our index, so without
         // this our copy carries that row for the folder's lifetime — and the
         // same in reverse, leaving both devices holding the other's dead rows
         // (#262).
-        for (id in staleEntryIds(ownEntries.values, byId.keys, files.map { it.name.orEmpty() })) {
+        for (id in staleEntryIds(ownEntries.values, byId.keys, files.map { it.name })) {
             ownEntries.remove(id)
         }
 
-        for (file in files) {
+        for (ref in files) {
+            val file = ref.file
             val body = runCatching {
                 context.contentResolver.openInputStream(file.uri)?.use { it.readBytes() }
                     ?.toString(Charsets.UTF_8)
@@ -226,7 +247,7 @@ internal object MirrorImport {
                 continue
             }
 
-            val fileName = file.name.orEmpty()
+            val fileName = ref.name
             // A file may still carry a header — written before the mode was
             // switched, or arriving from a device still in frontmatter mode. Its
             // block is metadata, not text, and reading it as text would paste it

@@ -216,6 +216,14 @@ object NoteFolderMirror {
     /**
      * Walk the folder, parse each mirror file, and reconcile with the supplied
      * existing notes. Returns aggregated counts — see [MirrorImport].
+     *
+     * **[maxDepth] above 0 is not shippable today, and this is the public
+     * surface where that is easiest to miss.** A note imported from a
+     * subdirectory has nowhere to record where it came from, so the write
+     * direction puts it back at the root and leaves the original — one note,
+     * two files. Two such files also carry one `markleaf_id`, which nothing
+     * downstream expects. Every caller passes 0; see
+     * `docs/NESTED_FOLDER_SPIKE.md` before any of them stops.
      */
     suspend fun importChanges(
         context: Context,
@@ -224,28 +232,35 @@ object NoteFolderMirror {
         applyUpdate: suspend (Note) -> Unit,
         applyCreate: suspend (Note) -> Unit,
         metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
-        titleSource: NoteTitleSource = NoteTitleSource.FIRST_HEADING
+        titleSource: NoteTitleSource = NoteTitleSource.FIRST_HEADING,
+        maxDepth: Int = 0
     ): ImportResult {
         val folder = DocumentFile.fromTreeUri(context, folderUri)
             ?: return ImportResult(0, 0, 0, 1)
         return MirrorImport.importChangesFrom(
-            context, folder, existing, applyUpdate, applyCreate, metadata, titleSource
+            context, folder, existing, applyUpdate, applyCreate, metadata, titleSource, maxDepth
         )
     }
 
     /**
      * Count what [importChanges] would take in, without taking any of it in.
      * See [MirrorSurvey] for why linking asks before importing.
+     *
+     * [maxDepth] must be whatever the following [importChanges] is given —
+     * this number is shown to the user before they agree to the import, so the
+     * two passes disagreeing turns the prompt into a lie. The same caveat as
+     * [importChanges] applies to raising it above 0 at all.
      */
     fun surveyFolder(
         context: Context,
         folderUri: Uri,
         existing: List<Note>,
-        metadata: MirrorMetadata = MirrorMetadata.Frontmatter
+        metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
+        maxDepth: Int = 0
     ): FolderSurvey {
         val folder = DocumentFile.fromTreeUri(context, folderUri)
             ?: return FolderSurvey(0, 0, readable = false)
-        return MirrorSurvey.surveyFolder(context, folder, existing, metadata)
+        return MirrorSurvey.surveyFolder(context, folder, existing, metadata, maxDepth)
     }
 
     /** [surveyFolder] once the folder has been resolved — see [MirrorSurvey]. */
@@ -253,8 +268,9 @@ object NoteFolderMirror {
         context: Context,
         folder: DocumentFile,
         existing: List<Note>,
-        metadata: MirrorMetadata = MirrorMetadata.Frontmatter
-    ): FolderSurvey = MirrorSurvey.surveyFolder(context, folder, existing, metadata)
+        metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
+        maxDepth: Int = 0
+    ): FolderSurvey = MirrorSurvey.surveyFolder(context, folder, existing, metadata, maxDepth)
 
     /** [importChanges] once the folder has been resolved — see [MirrorImport]. */
     internal suspend fun importChangesFrom(
@@ -264,9 +280,10 @@ object NoteFolderMirror {
         applyUpdate: suspend (Note) -> Unit,
         applyCreate: suspend (Note) -> Unit,
         metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
-        titleSource: NoteTitleSource = NoteTitleSource.FIRST_HEADING
+        titleSource: NoteTitleSource = NoteTitleSource.FIRST_HEADING,
+        maxDepth: Int = 0
     ): ImportResult = MirrorImport.importChangesFrom(
-        context, folder, existing, applyUpdate, applyCreate, metadata, titleSource
+        context, folder, existing, applyUpdate, applyCreate, metadata, titleSource, maxDepth
     )
 
     /** See [MirrorFileLookup.matchByName]. */

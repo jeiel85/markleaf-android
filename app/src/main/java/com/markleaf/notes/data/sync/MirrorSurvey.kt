@@ -31,16 +31,27 @@ internal object MirrorSurvey {
      * [MirrorImport.importChangesFrom] requires it: a file matching an archived
      * or trashed note is not a new note, and counting it as one would promise
      * the user arrivals that never come.
+     *
+     * [maxDepth] must be the same value the following import will be given.
+     * This screen's whole job is to state a number the user then agrees to, so
+     * surveying deeper than the import walks would promise arrivals that never
+     * come, and surveying shallower would spring the rest on them after they
+     * said yes. Both directions are resolved through
+     * [MirrorTraversal.effectiveDepth], so the two passes cannot disagree even
+     * in sidecar mode, where the requested depth is refused.
      */
     internal fun surveyFolder(
         context: Context,
         folder: DocumentFile,
         existing: List<Note>,
-        metadata: MirrorMetadata = MirrorMetadata.Frontmatter
+        metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
+        maxDepth: Int = 0
     ): NoteFolderMirror.FolderSurvey {
         if (!folder.canRead()) return NoteFolderMirror.FolderSurvey(0, 0, readable = false)
 
-        val files = folder.listFiles().filter { MirrorFileLookup.isMirrorEntry(it) }
+        val files = MirrorTraversal
+            .walk(folder, MirrorTraversal.effectiveDepth(metadata, maxDepth))
+            .files
         if (files.isEmpty()) return NoteFolderMirror.FolderSurvey(0, 0)
 
         val knownIds = existing.mapTo(HashSet(existing.size)) { it.id }
@@ -56,8 +67,9 @@ internal object MirrorSurvey {
 
         var newFiles = 0
         var knownFiles = 0
-        for (file in files) {
-            val idFromIndex = byFileName?.get(file.name.orEmpty())?.noteId
+        for (ref in files) {
+            val file = ref.file
+            val idFromIndex = byFileName?.get(ref.name)?.noteId
             // Even in sidecar mode a file may carry a header — written before
             // the mode was switched, or arriving from a device still writing
             // one — and the import prefers that id when the index has nothing.

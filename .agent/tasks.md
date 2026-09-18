@@ -5,6 +5,28 @@
 
 ---
 
+## GitHub Issue #424 - 중첩 폴더 가져오기 스파이크 (Spike done — 기능 미착수, 2026-09-18)
+
+- [x] 하위폴더의 `.md`가 조용히 누락되는 현상 확인 (`isMirrorEntry`가 `isFile` 요구)
+- [x] `MirrorTraversal`로 열거 지점 통합 — survey와 import 두 경로 (쓰기 경로는 평면 유지)
+- [x] `maxDepth` 기본 0으로 기존 평면 목록과 파일·쿼리 수까지 동일함을 테스트로 고정
+- [x] 사이드카 모드는 `effectiveDepth`로 평면 강제 (파일명 키 충돌, #140 위험)
+- [x] `docs/NESTED_FOLDER_SPIKE.md`에 차단 요인 7건 기록
+- [x] `./gradlew clean test`(`testDebugUnitTest` 844, release·benchmark 각 675) · `assembleDebug` · `verifyRoborazziDebug` · `lintRelease` 통과
+
+**후속 — 체크박스로 두지 않는다.** 루프는 가장 위의 unchecked task를 집어들므로(AGENTS.md 6단계),
+아래를 `- [ ]`로 적으면 *승인되지 않은* 기능 구현이 저장소의 최우선 실행 작업이 된다. 스파이크는
+아무것도 결정하지 않았고, 이 둘은 기능을 추진하기로 **결정한 뒤에** 태스크가 된다.
+
+- `Note.relativePath` + DB 18→19 마이그레이션 + `MirrorWrite` 경로 반영. 이것 없이는 가져오기만
+  재귀로 바꿀 수 없다(하위폴더 노트가 루트에 복제된다).
+- 사이드카 `SidecarEntry` 경로 추가와 `SCHEMA_VERSION` 상향. 기기 간 포맷이라 #140 재발 위험이
+  있고, 별도 판단이 필요하다.
+
+근거와 나머지 차단 요인은 `docs/NESTED_FOLDER_SPIKE.md`에 있다.
+
+---
+
 ## Hardening #262 - Edit-mode find offsets after İ (Done, 2026-09-18)
 
 - [x] `findAllRanges`가 소문자 사본의 위치를 쓰던 문제를 `findOccurrences`로 통일, 재현 테스트 3건

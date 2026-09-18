@@ -8,6 +8,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculateCentroid
+import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.calculateZoom
+import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -46,19 +51,25 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationException
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -90,6 +101,7 @@ import com.markleaf.notes.core.markdown.TableData
 import com.markleaf.notes.core.markdown.syntax.SyntaxHighlighter
 import com.markleaf.notes.util.LocalMarkdownLink
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 // Vertical rhythm of the rendered preview (#340).
 //
@@ -239,7 +251,64 @@ fun MarkdownPreviewList(
         LocalConsumedFindRevealKey provides consumedFindRevealKey
     ) {
         key(selectionEpoch) {
-            SelectionContainer(modifier = modifier.fillMaxSize()) {
+            // True 1:1 magnification (#423), not the four-step reflow
+            // `fontScale` already does — the accessibility gap this closes is
+            // specifically for a reader who wants the *rendered* note bigger,
+            // formatting and line breaks untouched, the way a browser's pinch
+            // zoom works. Scale and pan are visual only: a `graphicsLayer`
+            // transform on the already-laid-out content, so hit-testing (link
+            // taps, checkbox taps, text selection) keeps working against the
+            // real layout Compose maps screen coordinates back through.
+            var zoomScale by remember { mutableFloatStateOf(1f) }
+            var zoomTranslationX by remember { mutableFloatStateOf(0f) }
+            var viewportWidthPx by remember { mutableFloatStateOf(0f) }
+            Box(
+                modifier = modifier
+                    .fillMaxSize()
+                    .onSizeChanged { viewportWidthPx = it.width.toFloat() }
+                    .previewZoomGesture(
+                        scale = zoomScale,
+                        translationX = zoomTranslationX,
+                        viewportWidth = { viewportWidthPx },
+                        listState = listState,
+                        onScaleChange = { zoomScale = it },
+                        onTranslationXChange = { zoomTranslationX = it }
+                    )
+            ) {
+            SelectionContainer(
+                modifier = Modifier
+                    .fillMaxSize()
+                    // Measuring at full size and only scaling the *drawing* left
+                    // LazyColumn computing a scroll range for the unscaled
+                    // content, so at 2x only the top half of even a short note
+                    // was ever reachable — scrollBy has nothing further to give
+                    // once the unscaled list thinks it is already at the
+                    // bottom. Instead, measure the child at height / scale (a
+                    // shorter "camera window") and magnify what that produces
+                    // back up to the real height when placing it. LazyColumn
+                    // then has the scroll range a smaller viewport actually
+                    // needs, and scrolling through all of it — already exactly
+                    // what a pan drives — reveals the full magnified content.
+                    // Width is left alone: shrinking it too would feed rows a
+                    // narrower measurement and reflow their text, which is the
+                    // one thing this feature promised not to do.
+                    .layout { measurable, constraints ->
+                        val shrunkHeight = (constraints.maxHeight / zoomScale)
+                            .roundToInt()
+                            .coerceIn(1, constraints.maxHeight)
+                        val placeable = measurable.measure(
+                            constraints.copy(minHeight = 0, maxHeight = shrunkHeight)
+                        )
+                        layout(constraints.maxWidth, constraints.maxHeight) {
+                            placeable.placeWithLayer(0, 0) {
+                                scaleX = zoomScale
+                                scaleY = zoomScale
+                                translationX = zoomTranslationX
+                                transformOrigin = TransformOrigin(0f, 0f)
+                            }
+                        }
+                    }
+            ) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     state = listState,
@@ -273,6 +342,150 @@ fun MarkdownPreviewList(
                     }
                 }
             }
+            }
+        }
+    }
+}
+
+/**
+ * Pinch-to-magnify and pan for the preview (#423). Deliberately conservative
+ * about when it takes over a gesture, checked on [PointerEventPass.Initial] —
+ * the same pass [linkPressGestures] uses below, for the same reason: claiming
+ * a pointer here removes it from every gesture detector further down the
+ * tree (the list's own scroll, text selection, link taps), so this only
+ * consumes when the gesture is unambiguously a zoom/pan, leaving a plain
+ * single-finger touch at rest (scale 1) completely untouched.
+ *
+ * Two pointers is always a pinch. One pointer only becomes a pan once the
+ * content is already zoomed in — at scale 1 a single finger is the list's own
+ * scroll, exactly as before this existed.
+ *
+ * Vertical movement is applied through [listState] (see [PreviewZoom]'s
+ * class doc for why); horizontal movement and the scale itself are plain
+ * state this composable owns and applies via `graphicsLayer`.
+ *
+ * [scale] and [translationX] are read through [rememberUpdatedState] rather
+ * than captured directly: `pointerInput(Unit)` never restarts this coroutine
+ * (the key never changes, deliberately — restarting mid-gesture would drop
+ * whatever the fingers were doing), so a plain parameter capture would freeze
+ * both values at whatever they were on the very first composition. Every
+ * *later* pinch — a second one, after the fingers lifted and came back —
+ * would then start from that stale baseline instead of where the first one
+ * left off. [awaitEachGesture]'s own loop calls back in for each new gesture,
+ * which is exactly when the fresh value needs to be read.
+ */
+@Composable
+internal fun Modifier.previewZoomGesture(
+    scale: Float,
+    translationX: Float,
+    viewportWidth: () -> Float,
+    listState: LazyListState,
+    onScaleChange: (Float) -> Unit,
+    onTranslationXChange: (Float) -> Unit
+): Modifier {
+    val scope = rememberCoroutineScope()
+    val latestScale = rememberUpdatedState(scale)
+    val latestTranslationX = rememberUpdatedState(translationX)
+    return this.pointerInput(Unit) {
+        awaitEachGesture {
+            val firstDown = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+            var currentScale = latestScale.value
+            var currentTranslationX = latestTranslationX.value
+
+            // A single finger while already zoomed is ambiguous: it could be
+            // the start of a pan, or of a long-press text selection --
+            // SelectionContainer's own gesture, which begins exactly the same
+            // way. Losing the race is what #423's review caught: consuming
+            // every single-finger move as pan the instant the scale passed 1
+            // made selection unreachable while zoomed, contradicting the
+            // "text selection keeps working" this feature was supposed to
+            // keep true.
+            //
+            // This is a three-way race, not two: a second finger can join
+            // before the first has moved or the timeout has fired, which is
+            // exactly a pinch starting with staggered finger timing (or,
+            // observed while pinning this down, is what a Compose test's
+            // synthetic down()-then-down() sequence looks like even for a
+            // deliberately simultaneous two-finger gesture).
+            // `awaitLongPressOrCancellation` only watches one pointer, so it
+            // cannot see that outcome -- it would sit waiting on finger one
+            // and either time out into a false "long press" or miss the
+            // pinch, which a regression test pinned to a real failure before
+            // this was rewritten by hand, the same way `linkPressGestures`
+            // below already does its own long-press race.
+            if (currentScale > 1.01f) {
+                try {
+                    withTimeout(viewConfiguration.longPressTimeoutMillis) {
+                        while (true) {
+                            val event = awaitPointerEvent(PointerEventPass.Initial)
+                            val pressed = event.changes.filter { it.pressed }
+                            if (pressed.size >= 2) return@withTimeout // a pinch starting
+                            val change = pressed.firstOrNull() ?: return@withTimeout // lifted
+                            if ((change.position - firstDown.position).getDistance() > viewConfiguration.touchSlop) {
+                                return@withTimeout // moved: a pan, not a long press
+                            }
+                        }
+                    }
+                } catch (_: PointerEventTimeoutCancellationException) {
+                    // The timeout won: a genuine long press with nothing else
+                    // happening. Nothing from this touch has been consumed,
+                    // so SelectionContainer sees the same long press and
+                    // takes it from here.
+                    return@awaitEachGesture
+                }
+                // Cancelled by a second finger joining (a pinch), by movement
+                // (a pan starting), or by lifting (a tap, e.g. on a link) --
+                // any of the three falls through to the ordinary per-event
+                // handling below, unconsumed so far either way. The do-while
+                // loop's next awaitPointerEvent call reads whichever of those
+                // is now true.
+            }
+
+            do {
+                val event = awaitPointerEvent(PointerEventPass.Initial)
+                val pressed = event.changes.filter { it.pressed }
+                when {
+                    pressed.size >= 2 -> {
+                        val centroid = event.calculateCentroid(useCurrent = false)
+                        val zoomChange = event.calculateZoom()
+                        val panChange = event.calculatePan()
+                        val oldScale = currentScale
+                        val newScale = PreviewZoom.clampScale(oldScale * zoomChange)
+                        if (centroid != Offset.Unspecified && newScale != oldScale) {
+                            currentTranslationX = PreviewZoom.pivotTranslationX(
+                                centroid.x, currentTranslationX, oldScale, newScale
+                            )
+                            val scrollDelta = PreviewZoom.pivotScrollDelta(centroid.y, oldScale, newScale)
+                            if (scrollDelta != 0f) scope.launch { listState.scrollBy(scrollDelta) }
+                        }
+                        currentScale = newScale
+                        currentTranslationX = PreviewZoom.clampTranslationX(
+                            currentTranslationX + panChange.x, currentScale, viewportWidth()
+                        )
+                        if (panChange.y != 0f) {
+                            scope.launch { listState.scrollBy(-panChange.y / currentScale) }
+                        }
+                        onScaleChange(currentScale)
+                        onTranslationXChange(currentTranslationX)
+                        event.changes.forEach { it.consume() }
+                    }
+                    pressed.size == 1 && currentScale > 1.01f -> {
+                        val change = pressed.first()
+                        val drag = change.positionChange()
+                        currentTranslationX = PreviewZoom.clampTranslationX(
+                            currentTranslationX + drag.x, currentScale, viewportWidth()
+                        )
+                        if (drag.y != 0f) {
+                            scope.launch { listState.scrollBy(-drag.y / currentScale) }
+                        }
+                        onTranslationXChange(currentTranslationX)
+                        change.consume()
+                    }
+                    // At rest: scale 1, a single pointer. Nothing is consumed,
+                    // so the list's own scroll and every row's own tap/link/
+                    // selection handling see this exactly as before #423.
+                }
+            } while (event.changes.any { it.pressed })
         }
     }
 }

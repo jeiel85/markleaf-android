@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.47.0 - Pinch the preview in for a closer look - 2026-09-18
+
+Requested by a low-vision reader who can see the screen but not comfortably at the existing text-size ceiling. No permission or storage-format changes.
+
+### Added
+- **Pinch-to-magnify on the preview ([#423](https://github.com/jeiel85/markleaf-android/issues/423)).** Two fingers now zoom the rendered note the way a browser or PDF viewer does — the exact layout you already have, magnified up to 5x, with no reflow: headings keep their size relative to body text, a table keeps its columns, line breaks don't move. Pan with one finger once zoomed in; pinch back out to return to normal size. This is separate from the Text size setting, which still controls the *unzoomed* size and reflows text to fit the screen width — pinch is for a closer look at the exact page, not a permanent size change. Links, checkboxes and text selection all keep working while zoomed, since the magnification is a visual transform over the same layout rather than a different one. Requested by [@kise82](https://github.com/kise82).
+
 ## v2.46.2 - The file viewer's links open your notes too - 2026-09-18
 
 A follow-up to #414: the read-only file viewer left relative Markdown links unhandled. No permission or storage-format changes.

@@ -1,0 +1,1 @@
+Ajout du zoom par pincement dans l’aperçu. Avec deux doigts, agrandissez la note telle qu’elle s’affiche, comme dans un navigateur ou une visionneuse PDF : la même mise en page jusqu’à 5x, sans réorganisation du texte. Déplacez-vous avec un doigt une fois zoomé ; pincez vers l’intérieur pour revenir à la taille normale. Demandé par @kise82.

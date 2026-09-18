@@ -1,0 +1,1 @@
+In der Vorschau lässt sich jetzt mit einer Zwei-Finger-Geste vergrößern. Zwei Finger zoomen die gerenderte Notiz wie in einem Browser oder PDF-Betrachter – dasselbe Layout bis zu 5-fach, ohne erneuten Zeilenumbruch. Beim Zoomen mit einem Finger verschieben, zum Zurücksetzen die Finger wieder zusammenziehen. Angefragt von @kise82.

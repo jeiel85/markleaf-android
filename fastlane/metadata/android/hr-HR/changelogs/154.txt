@@ -1,0 +1,1 @@
+Dodano povećavanje prikaza u pregledu s dva prsta. Kao u pregledniku ili čitaču PDF-a, razmicanjem prstiju povećavate prikazanu bilješku — isti raspored uvećan do 5x, bez ponovnog prijeloma teksta. Dok je uvećano, pomičete se jednim prstom; približavanjem prstiju vraćate se na normalnu veličinu. Zatražio @kise82.

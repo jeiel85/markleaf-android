@@ -143,12 +143,16 @@ class MirrorTraversalTest {
 
     @Test
     fun `directoryVerdict refuses hidden directories below the root too`() {
-        // Deliberately unlike the `attachments/` rule, which is root-only: a
-        // `projects/.git/` is still a tool's private directory, and a nested
-        // `.stversions` would still resurrect deleted notes. Pinned because
-        // "which depths does this rule apply at" is exactly the question the
-        // `attachments/` rule got wrong, and the answer differs between the
-        // two — so neither can be inferred from the other.
+        // The regression this exists to catch: a change that restricts the
+        // hidden rule to `depth == 0`, the way the `attachments/` rule is
+        // legitimately restricted. Checking only depth 0 would leave the suite
+        // green while the walk descended into `projects/.git` or a nested
+        // `.stversions`, importing tool state or the history of every note the
+        // user deleted.
+        //
+        // The two rules answer "which depths" differently — root-only for
+        // `attachments/`, any depth here — so neither can be inferred from the
+        // other, and both need pinning.
         for (depth in 1..3) {
             assertEquals(
                 "expected .git to be skipped at depth $depth",

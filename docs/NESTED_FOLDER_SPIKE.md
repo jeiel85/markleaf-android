@@ -114,13 +114,21 @@ The gap was demonstrated rather than reasoned about: adding a `listFiles()`
 call to the skip branch without touching the bookkeeping fails the
 invocation tests and leaves the counter test green.
 
-Two consequences to keep in mind. `directoriesSkipped` counts only rule-based
-skips, because identifying a directory costs the query the cap exists to avoid.
-And **at depth 0 both counters are always 0**, which is not the same as "the
-folder was fine" — nothing past the file test runs, so a file whose own
-`isFile` query failed is passed over as quietly as anything else. They are
-instruments for the recursion experiment, not a health check on today's flat
-pass.
+What the counters can and cannot say, since a reader will otherwise take a zero
+for reassurance:
+
+- `directoriesSkipped` counts only rule-based skips, and **at depth 0 it is
+  always 0**, because identifying a directory costs the query the cap exists to
+  avoid.
+- `entriesUnclassified` is **not** always 0 at depth 0. A file the provider
+  will not name is visible to the flat pass — the name is fetched anyway, so
+  noticing costs nothing. What stays invisible there is an entry whose own
+  `isFile` query failed: it reads back as "not a file", falls through the depth
+  gate, and is gone, because asking `isDirectory` to find out is the query the
+  flat pass must not spend.
+
+So a zero is weak evidence and a non-zero is strong. These are instruments for
+the recursion experiment, not a health check on today's flat pass.
 
 ## Findings — what blocks shipping this
 

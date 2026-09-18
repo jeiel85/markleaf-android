@@ -367,6 +367,13 @@ class MirrorTraversalTest {
         // And the directory is dismissed on its `isFile` alone, without its
         // name being fetched.
         verify(subdirectory, never()).name
+        // The reads that *should* happen are counted too, not just the ones
+        // that shouldn't. "Exactly what the flat listing asked" is the claim,
+        // and a second `isFile` on non-file entries would break it while every
+        // `never()` above stayed satisfied.
+        verify(subdirectory, times(1)).isFile
+        verify(note, times(1)).isFile
+        verify(note, times(1)).name
     }
 
     @Test

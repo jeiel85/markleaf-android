@@ -53,8 +53,8 @@ temp directory, the same technique `NoteFolderMirrorFolderTest` uses):
 
 | Check | Result |
 |---|---|
-| `MirrorTraversalTest` (new) | 33 tests, 0 failures |
-| Full unit suite (`:app:testDebugUnitTest`) | 832 tests, 0 failures |
+| `MirrorTraversalTest` (new) | 34 tests, 0 failures |
+| Full unit suite (`:app:testDebugUnitTest`) | 833 tests, 0 failures |
 | `:app:assembleDebug` | pass |
 | `:app:verifyRoborazziDebug` | pass |
 | `:app:lintRelease` | pass |
@@ -94,9 +94,13 @@ The lesson generalises past these two: on `DocumentFile`, *every property read
 is IO*. Reviewing this code means counting property accesses, not reading it
 for style.
 
-The consequence to keep in mind: `directoriesSkipped` counts only rule-based
-skips. At depth 0 it is always 0, because identifying a directory would cost
-the query the cap exists to avoid.
+Two consequences to keep in mind. `directoriesSkipped` counts only rule-based
+skips, because identifying a directory costs the query the cap exists to avoid.
+And **at depth 0 both counters are always 0**, which is not the same as "the
+folder was fine" — nothing past the file test runs, so a file whose own
+`isFile` query failed is passed over as quietly as anything else. They are
+instruments for the recursion experiment, not a health check on today's flat
+pass.
 
 ## Findings — what blocks shipping this
 

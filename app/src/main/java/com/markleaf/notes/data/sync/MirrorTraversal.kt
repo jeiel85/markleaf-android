@@ -101,6 +101,13 @@ internal object MirrorTraversal {
      * here too, and a directory whose *listing* failed never reaches it at all.
      * Non-zero means something in the folder could not be read; zero does not
      * mean everything could. See the spike notes.
+     *
+     * **At `maxDepth = 0` both counters are always 0**, and that is not the
+     * same as "the folder was fine". Nothing past the file test runs at that
+     * depth, so a file whose own `isFile` query failed is passed over as
+     * quietly as everything else. Neither figure says anything about
+     * readability until recursion is switched on; they are instruments for the
+     * experiment, not a health check on today's flat pass.
      */
     internal data class MirrorWalk(
         val files: List<MirrorFileRef>,

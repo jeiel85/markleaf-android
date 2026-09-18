@@ -292,6 +292,28 @@ class MirrorTraversalTest {
     }
 
     @Test
+    fun `depth 0 reports nothing in either counter, including for a failed entry`() {
+        // Both figures are instruments for the recursion experiment, not a
+        // health check on the flat pass. At depth 0 nothing past the file test
+        // runs, so an entry the provider would not describe — `isFile` and
+        // `isDirectory` both answering false — is passed over as quietly as a
+        // `.png` would be, and neither counter moves. Saying so here stops the
+        // zeros being read as "the folder was fine".
+        val opaque = mock(DocumentFile::class.java)
+
+        val root = mock(DocumentFile::class.java)
+        doReturn(arrayOf(opaque)).`when`(root).listFiles()
+
+        val result = MirrorTraversal.walk(root, maxDepth = 0)
+
+        assertEquals(0, result.directoriesSkipped)
+        assertEquals(0, result.entriesUnclassified)
+        // …and the entry cost only the one query the flat listing would have.
+        verify(opaque, times(1)).isFile
+        verify(opaque, never()).isDirectory
+    }
+
+    @Test
     fun `depth 0 keeps ignoring non-mirror files`() {
         seed("note.md")
         seed("note.txt")

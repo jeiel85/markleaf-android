@@ -139,9 +139,13 @@ class MirrorTraversalTest {
     }
 
     @Test
-    fun `directoryVerdict refuses a nameless directory`() {
+    fun `directoryVerdict reports a nameless directory as unknown, not skipped`() {
+        // `getName` is `queryForString(_display_name, null)`, so a null name is
+        // the provider declining to describe the entry — not Markleaf choosing
+        // to pass over it. Calling it a skip would put a provider failure in a
+        // figure documented as Markleaf's own decisions.
         assertEquals(
-            MirrorTraversal.DirectoryVerdict.SKIP,
+            MirrorTraversal.DirectoryVerdict.UNKNOWN,
             MirrorTraversal.directoryVerdict(null, depth = 0, maxDepth = 5)
         )
     }
@@ -397,6 +401,58 @@ class MirrorTraversalTest {
         // would mean two things depending on the implementation underneath.
         assertEquals(0, result.directoriesSkipped)
         assertEquals(2, result.listCalls)
+    }
+
+    @Test
+    fun `an entry the provider will not describe is unclassified, not skipped`() {
+        // `isDirectory` is `"…/directory".equals(getRawType(uri))`, so a failed
+        // MIME query answers "not a directory" and the entry — with whatever
+        // subtree hangs off it — vanishes. The count is the only trace left,
+        // and it must not land in the figure that means "a rule refused this".
+        val opaque = mock(DocumentFile::class.java)
+        // isFile and isDirectory both answer false, which is what a provider
+        // that failed both queries looks like from here.
+
+        val root = mock(DocumentFile::class.java)
+        doReturn(arrayOf(opaque)).`when`(root).listFiles()
+
+        val result = MirrorTraversal.walk(root, maxDepth = 1)
+
+        assertTrue(result.files.isEmpty())
+        assertEquals(0, result.directoriesSkipped)
+        assertEquals(1, result.entriesUnclassified)
+    }
+
+    @Test
+    fun `a directory with no name is unclassified, not skipped`() {
+        val nameless = mock(DocumentFile::class.java)
+        doReturn(true).`when`(nameless).isDirectory
+        // `name` left unstubbed: null, the value a failed display-name query
+        // produces.
+
+        val root = mock(DocumentFile::class.java)
+        doReturn(arrayOf(nameless)).`when`(root).listFiles()
+
+        val result = MirrorTraversal.walk(root, maxDepth = 1)
+
+        assertEquals(0, result.directoriesSkipped)
+        assertEquals(1, result.entriesUnclassified)
+    }
+
+    @Test
+    fun `a rule-based skip stays out of the unclassified count`() {
+        // The other direction: the two buckets must not bleed into each other.
+        val hidden = mock(DocumentFile::class.java)
+        doReturn(true).`when`(hidden).isDirectory
+        doReturn(".obsidian").`when`(hidden).name
+
+        val root = mock(DocumentFile::class.java)
+        doReturn(arrayOf(hidden)).`when`(root).listFiles()
+
+        val result = MirrorTraversal.walk(root, maxDepth = 1)
+
+        assertEquals(1, result.directoriesSkipped)
+        assertEquals(0, result.entriesUnclassified)
     }
 
     @Test

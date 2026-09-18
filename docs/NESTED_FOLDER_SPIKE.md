@@ -53,8 +53,8 @@ temp directory, the same technique `NoteFolderMirrorFolderTest` uses):
 
 | Check | Result |
 |---|---|
-| `MirrorTraversalTest` (new) | 30 tests, 0 failures |
-| Full unit suite (`:app:testDebugUnitTest`) | 829 tests, 0 failures |
+| `MirrorTraversalTest` (new) | 33 tests, 0 failures |
+| Full unit suite (`:app:testDebugUnitTest`) | 832 tests, 0 failures |
 | `:app:assembleDebug` | pass |
 | `:app:verifyRoborazziDebug` | pass |
 | `:app:lintRelease` | pass |
@@ -179,10 +179,27 @@ tell "empty" from "refused" — which means going to the children URI through
 `ContentResolver` rather than `DocumentFile`, since the abstraction has already
 thrown the distinction away by the time the walk sees it.
 
-Caught by Codex on #425, against an earlier version of this branch whose
-`runCatching` claimed to detect these and whose test only passed because a mock
-threw. The counter and its documentation now say what they can actually
-support.
+The same swallowing happens one level down, on individual entries:
+
+- `isDirectory` is `"vnd.android.document/directory".equals(getRawType(uri))`,
+  so a failed MIME query answers **"not a directory"** and the entry, plus any
+  subtree behind it, disappears without a signal.
+- `getName` is `queryForString(_display_name, null)`, so a failed display-name
+  query answers **"no name"**.
+
+Neither is distinguishable from a legitimate answer. The walk now counts both
+as `entriesUnclassified`, kept apart from `directoriesSkipped` so that
+"Markleaf refused this" and "the provider would not say" are never added
+together. That is the closest thing to an error signal the abstraction permits,
+and it is still one-directional: non-zero means something could not be read,
+zero does not mean everything could — a directory whose *listing* failed never
+reaches the count at all.
+
+Caught by Codex on #425 in two passes: first against a `runCatching` that
+claimed to detect listing failures, with a test that only passed because a mock
+threw; then against the version that fixed it, where a nameless directory was
+still being added to the rule-based skip figure. Both counters now say only
+what they can support.
 
 ### 7. SAF cost grows per directory (needs a device)
 

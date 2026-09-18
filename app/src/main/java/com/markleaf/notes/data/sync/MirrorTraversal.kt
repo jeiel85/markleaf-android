@@ -81,23 +81,43 @@ internal object MirrorTraversal {
      *   recognising it as a directory would cost the very query the cap exists
      *   to avoid ([canDescendFrom]). At `maxDepth = 0` the figure is therefore
      *   0, however many directories the folder holds.
-     * - **A directory that could not be read is not counted either, and cannot
-     *   be.** Both `DocumentFile` implementations swallow the failure:
+     * - **A directory whose listing failed is not counted either, and cannot
+     *   be.** Both `DocumentFile` implementations swallow that failure:
      *   `TreeDocumentFile.listFiles` catches `Exception` around its provider
      *   query and returns what it has, and `RawDocumentFile.listFiles` returns
      *   empty when `File.listFiles()` gives null. An unreadable directory
      *   therefore arrives here as an *empty* one, indistinguishable from a
-     *   directory with nothing in it, and the walk has nothing to count. See
-     *   the spike notes for why that matters if recursion is ever switched on.
+     *   directory with nothing in it, and the walk has nothing to count.
+     * - **An entry whose metadata failed goes in [entriesUnclassified], not
+     *   here.** `isDirectory` is `"…/directory".equals(getRawType(uri))` and
+     *   `getName` defaults to null, so a failed MIME or display-name query
+     *   reads back as "not a directory" or "no name" rather than as an error.
+     *   Counting those as skips would say Markleaf chose to pass over them,
+     *   which is the opposite of what happened.
+     *
+     * [entriesUnclassified] is that second bucket: entries the provider would
+     * not describe. It is the closest thing to an error signal this abstraction
+     * permits, and it is still not a reliable one — a genuinely odd entry lands
+     * here too, and a directory whose *listing* failed never reaches it at all.
+     * Non-zero means something in the folder could not be read; zero does not
+     * mean everything could. See the spike notes.
      */
     internal data class MirrorWalk(
         val files: List<MirrorFileRef>,
         val listCalls: Int,
-        val directoriesSkipped: Int
+        val directoriesSkipped: Int,
+        val entriesUnclassified: Int
     )
 
-    /** What [walk] should do with a directory it has just come across. */
-    internal enum class DirectoryVerdict { DESCEND, SKIP }
+    /**
+     * What [walk] should do with a directory it has just come across.
+     *
+     * [UNKNOWN] is separate from [SKIP] because the two are different facts
+     * about the folder, and merging them is how a counter starts lying. A skip
+     * is Markleaf's own decision; an unknown is the provider declining to say
+     * what the entry is, which is a thing the *user* might want to hear about.
+     */
+    internal enum class DirectoryVerdict { DESCEND, SKIP, UNKNOWN }
 
     /**
      * Whether a directory found at [depth] could be descended into at all,
@@ -143,7 +163,12 @@ internal object MirrorTraversal {
      */
     internal fun directoryVerdict(name: String?, depth: Int, maxDepth: Int): DirectoryVerdict {
         if (!canDescendFrom(depth, maxDepth)) return DirectoryVerdict.SKIP
-        val n = name ?: return DirectoryVerdict.SKIP
+        // Not a rule: `getName` returns null when its display-name query fails,
+        // so a nameless directory is one the provider would not describe rather
+        // than one Markleaf chose to pass over. The rules below cannot be
+        // applied to it either way, but which bucket it lands in is the
+        // difference between a counter that reports and one that misreports.
+        val n = name ?: return DirectoryVerdict.UNKNOWN
         if (n.startsWith(".")) return DirectoryVerdict.SKIP
         if (n.equals(MirrorWrite.ATTACHMENTS_DIR, ignoreCase = true)) return DirectoryVerdict.SKIP
         return DirectoryVerdict.DESCEND
@@ -200,6 +225,7 @@ internal object MirrorTraversal {
         val files = mutableListOf<MirrorFileRef>()
         var listCalls = 0
         var directoriesSkipped = 0
+        var entriesUnclassified = 0
 
         val queue = ArrayDeque<Pending>()
         queue.add(Pending(root, parentPath = "", depth = 0))
@@ -242,11 +268,21 @@ internal object MirrorTraversal {
                     continue
                 }
                 if (!canDescendFrom(current.depth, maxDepth)) continue
-                if (!entry.isDirectory) continue
+                if (!entry.isDirectory) {
+                    // Neither a file nor a directory. `isDirectory` is
+                    // `"…/directory".equals(getRawType(uri))`, so a MIME query
+                    // the provider failed reads back here as a plain "no" — and
+                    // whatever was behind it, subtree included, is gone without
+                    // a word. Counting it is the only trace this abstraction
+                    // leaves, and it is not the same fact as a rule-based skip.
+                    entriesUnclassified++
+                    continue
+                }
 
                 val name = entry.name
                 when (directoryVerdict(name, current.depth, maxDepth)) {
                     DirectoryVerdict.SKIP -> directoriesSkipped++
+                    DirectoryVerdict.UNKNOWN -> entriesUnclassified++
                     DirectoryVerdict.DESCEND -> queue.add(
                         Pending(
                             dir = entry,
@@ -261,7 +297,8 @@ internal object MirrorTraversal {
         return MirrorWalk(
             files = files,
             listCalls = listCalls,
-            directoriesSkipped = directoriesSkipped
+            directoriesSkipped = directoriesSkipped,
+            entriesUnclassified = entriesUnclassified
         )
     }
 

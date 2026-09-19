@@ -1,0 +1,1 @@
+Postavke → Markdown → Font sada nudi i Fiksne širine uz Sans i Serif, da stupci tablica i razine uvlačenja ostanu poravnati. Vrijedi za sav tekst u aplikaciji, a blokovi koda i dalje ostaju jednoširinski. Zatražio @makesthingsxyz.

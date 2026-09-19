@@ -1,0 +1,1 @@
+En Ajustes → Markdown → Fuente ya hay Monoespaciada junto a Sans y Serif, para mantener alineadas las columnas de las tablas y los niveles de sangría. Se aplica a todo el texto de la app; los bloques de código siguen en monoespaciado. Lo pidió @makesthingsxyz.

@@ -216,7 +216,7 @@ enum class MarkdownSyntaxVisibility {
 }
 
 /**
- * Typeface for the editor and preview writing surface. Both options use the
+ * Typeface for the editor and preview writing surface. Every option uses the
  * platform's built-in generic font families, so nothing is bundled with the
  * app — it stays F-Droid-reproducible and works fully offline.
  */
@@ -225,7 +225,13 @@ enum class EditorFont {
     SANS,
 
     /** The system serif (Noto Serif on most devices) for an editorial feel. */
-    SERIF
+    SERIF,
+
+    /**
+     * The system monospace, for the whole writing surface rather than only
+     * code (#432) — it keeps table columns and indent levels aligned.
+     */
+    MONOSPACE
 }
 
 enum class EditorLineWidth(

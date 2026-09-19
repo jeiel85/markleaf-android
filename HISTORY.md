@@ -1,3 +1,7 @@
+## 2026-09-19 — Issue #432: monospace font option
+
+`makesthingsxyz` asked for a monospace body font to line up tables and indent levels. Added `EditorFont.MONOSPACE` beside Sans and Serif; `MarkleafTheme` now takes the family to apply (`EditorFont.bodyFontFamily()`, null for Sans so the original typography is untouched) instead of a serif boolean. The Settings row is a `FlowRow` because three labels no longer fit one row in every language. It reaches the whole app's typography, as Serif already did, not only note text — which also means code blocks stop standing out while it is on, noted in the changelog. Prepared v2.49.0 in all ten store locales. Debug unit tests passed; on an API 36 emulator the chip applied monospace to Settings and the editor. Same day, #434 (a conflict copy after a slow pCloud write) was triaged with a hypothesis and questions but not changed — no repro, and the fix would touch the sync core.
+
 ## 2026-09-19 — Issue #424: export notes by tag
 
 Added a tag picker to Settings → Data for exporting matching notes as separate Markdown files. Parent tags include descendants. Bulk export now excludes Locked and trashed notes; archived notes remain eligible. Prepared v2.48.0 release metadata in all ten store locales. Debug unit tests, release lint, Debug APK build and release metadata checks passed; an API 36 emulator exported a `#guide` note through the SAF folder picker.

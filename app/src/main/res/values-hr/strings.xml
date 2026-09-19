@@ -43,6 +43,7 @@
     <string name="font_label">Font</string>
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>
+    <string name="font_monospace">Fiksne širine</string>
     <string name="font_description">Serif daje bilješkama klasični izgled knjige. Kôd uvijek koristi font fiksne širine.</string>
     <string name="font_size_label">Veličina teksta</string>
     <string name="font_size_small">Mala</string>

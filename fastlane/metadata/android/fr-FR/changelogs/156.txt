@@ -1,0 +1,1 @@
+Réglages → Markdown → Police propose désormais Chasse fixe à côté de Sans et Serif, pour garder colonnes de tableaux et retraits bien alignés. Elle s'applique à tout le texte de l'app ; les blocs de code restent à chasse fixe. Demandé par @makesthingsxyz.

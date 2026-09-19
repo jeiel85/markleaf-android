@@ -41,6 +41,7 @@
     <string name="font_size_description">エディタとプレビューの文字サイズを変更します。チェックボックスやリンクのタップ領域も一緒に大きくなります。</string>
     <string name="font_sans">ゴシック</string>
     <string name="font_serif">明朝</string>
+    <string name="font_monospace">等幅</string>
     <string name="font_description">明朝は書籍のような落ち着いた雰囲気になります。コードは常に等幅で表示されます。</string>
     <string name="all_notes">すべてのノート</string>
     <string name="no_notes_for_tag">このタグのノートはありません</string>

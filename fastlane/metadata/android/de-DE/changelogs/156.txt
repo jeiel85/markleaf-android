@@ -1,0 +1,1 @@
+Unter Einstellungen → Markdown → Schriftart gibt es jetzt Festbreite neben Sans und Serif, damit Tabellenspalten und Einrückungen bündig bleiben. Sie gilt für den gesamten Text der App; Codeblöcke bleiben wie bisher in Festbreite. Angeregt von @makesthingsxyz.

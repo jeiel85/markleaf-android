@@ -1,3 +1,10 @@
+## 2026-09-19 - Issue #432 monospace font option
+
+Selected task: implement the accepted monospace body font (small, already triaged as a reasonable accept).
+Added `EditorFont.MONOSPACE`, generalised `MarkleafTheme` from a serif flag to a font family, made the Settings font row wrap, added the label in ten locales (de "Festbreite" and hr "Fiksne širine" translated rather than left English, so no `UntranslatedStringTest` exemption was needed), and prepared v2.49.0.
+Verification: full `testDebugUnitTest` passed, including new `EditorFontFamilyTest` and a repository round-trip for every font; `verify-landing-versions`, `verify-release-notes` and `verify-locales` passed; on the API 36 emulator the Monospace chip appeared as the third option and switched Settings and the editor body to monospace.
+Not verified: narrow-screen wrapping in Russian (the longest label) was reasoned from the existing `FlowRow` precedent for the text-size row, not checked on a device.
+
 ## 2026-09-19 - Issue #424 tag-scoped export
 
 Selected task: implement the reporter-confirmed tag-scoped bulk export.

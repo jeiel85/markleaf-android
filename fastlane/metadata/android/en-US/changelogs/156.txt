@@ -1,0 +1,1 @@
+Settings → Markdown → Font now offers Monospace next to Sans and Serif, to keep table columns and indent levels lined up. It applies to the whole app's text, and code blocks stay monospaced as before. Requested by @makesthingsxyz.

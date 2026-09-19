@@ -41,6 +41,7 @@
     <string name="font_size_description">Escala el texto del editor y la vista previa. Las casillas y las zonas táctiles de los enlaces crecen con él.</string>
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>
+    <string name="font_monospace">Monoespaciada</string>
     <string name="font_description">La serif da a las notas un aire clásico, como de libro. El código siempre se muestra en monoespaciado.</string>
     <string name="all_notes">Todas las notas</string>
     <string name="no_notes_for_tag">No hay notas con esta etiqueta</string>

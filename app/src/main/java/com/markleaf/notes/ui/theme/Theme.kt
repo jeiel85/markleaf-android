@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import com.markleaf.notes.data.settings.EditorFont
 
 /** Internal rather than private so `EditorColorContrastTest` can assert the
  *  editor's colours against the backgrounds they are actually drawn on. */
@@ -169,7 +170,7 @@ private fun androidx.compose.material3.Typography.withContentTextDirection():
 
 /**
  * Returns a copy of this type scale with [family] applied to every text role.
- * Used to switch the whole writing surface to a serif face. Code blocks keep
+ * Used to switch the whole writing surface to the chosen face. Code blocks keep
  * their explicit [FontFamily.Monospace] because they set it at the render site,
  * not via the theme default.
  */
@@ -193,11 +194,21 @@ private fun androidx.compose.material3.Typography.withFontFamily(
     labelSmall = labelSmall.copy(fontFamily = family),
 )
 
+/**
+ * The family [MarkleafTheme] applies for this choice; null leaves the original
+ * Typography untouched, which is what keeps sans byte-for-byte what it always was.
+ */
+fun EditorFont.bodyFontFamily(): FontFamily? = when (this) {
+    EditorFont.SANS -> null
+    EditorFont.SERIF -> FontFamily.Serif
+    EditorFont.MONOSPACE -> FontFamily.Monospace
+}
+
 @Composable
 fun MarkleafTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = false,
-    useSerif: Boolean = false,
+    bodyFontFamily: FontFamily? = null,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
@@ -208,9 +219,9 @@ fun MarkleafTheme(
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
-    // Default (sans) keeps the original Typography untouched — zero rendering
-    // change for existing users; only the serif option swaps the family.
-    val typography = if (useSerif) Typography.withFontFamily(FontFamily.Serif) else Typography
+    // No family (the sans default) keeps the original Typography untouched —
+    // zero rendering change for existing users; only the other options swap it.
+    val typography = if (bodyFontFamily != null) Typography.withFontFamily(bodyFontFamily) else Typography
 
     // Keep the system status / nav bar icon appearance in sync with the
     // composable theme. enableEdgeToEdge() detects light vs dark only at

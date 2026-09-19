@@ -393,7 +393,12 @@ fun SettingsScreen(
                             color = MaterialTheme.colorScheme.onBackground
                         )
                         Spacer(Modifier.height(8.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        // Three options with long translations (ru "Моноширинный")
+                        // overflow one row on a narrow screen, so they wrap.
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
                             EditorFont.entries.forEach { font ->
                                 val selected = appSettings.editorFont == font
                                 if (selected) {
@@ -1418,5 +1423,6 @@ private fun EditorFont.localizedLabel(): String {
     return when (this) {
         EditorFont.SANS -> stringResource(R.string.font_sans)
         EditorFont.SERIF -> stringResource(R.string.font_serif)
+        EditorFont.MONOSPACE -> stringResource(R.string.font_monospace)
     }
 }

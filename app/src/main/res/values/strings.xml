@@ -49,6 +49,7 @@
     <string name="font_size_description">Scales the editor and preview text. Checkboxes and link tap targets grow with it.</string>
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>
+    <string name="font_monospace">Monospace</string>
     <string name="font_description">Serif gives notes a classic, book-like feel. Code always stays monospaced.</string>
     <string name="all_notes">All notes</string>
     <string name="no_notes_for_tag">No notes with this tag</string>

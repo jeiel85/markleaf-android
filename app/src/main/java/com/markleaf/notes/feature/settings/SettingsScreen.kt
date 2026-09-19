@@ -48,6 +48,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -110,7 +111,11 @@ fun SettingsScreen(
     val noteRepository = remember { LocalNoteRepository(db) }
     val tagRepository = remember { LocalTagRepository(db) }
     val exportTags by tagRepository.observeVisibleTags().collectAsState(initial = emptyList())
-    var exportTag by remember { mutableStateOf<String?>(null) }
+    // rememberSaveable, not remember: OpenDocumentTree can outlive an activity
+    // recreation (rotation, background process reclamation), and its callback
+    // fires against the recomposed launcher — a plain remember would reset this
+    // to null first and export every unlocked note instead of the chosen tag.
+    var exportTag by rememberSaveable { mutableStateOf<String?>(null) }
     var showExportTagPicker by remember { mutableStateOf(false) }
     val noteImporter = remember { NoteImporter(db) }
     // Switching metadata mode rewrites every file in the folder. Disabling the

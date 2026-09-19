@@ -1,0 +1,1 @@
+Exportez les notes d'un tag depuis Paramètres → Données. #project inclut aussi les sous-tags comme #project/alpha. Les notes verrouillées sont désormais exclues des exports groupés. Demandé par @6r4f.

@@ -1,0 +1,1 @@
+Export notes for one tag from Settings → Data. Child tags are included, so #project also exports #project/alpha. Bulk exports now exclude Locked notes. Requested by @6r4f.

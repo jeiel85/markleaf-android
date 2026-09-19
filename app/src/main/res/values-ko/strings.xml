@@ -238,6 +238,7 @@
     <string name="privacy_local_first">노트는 사용자가 직접 내보내거나 공유할 때만 기기 밖으로 나갑니다.</string>
     <string name="settings_data">데이터</string>
     <string name="export_all_notes">전체 노트 내보내기</string>
+    <string name="export_tag_notes">태그별 노트 내보내기…</string>
     <string name="export_all_notes_description">폴더를 선택하면 각 노트를 별도의 .md 파일로 저장합니다. 휴지통의 노트는 제외됩니다.</string>
     <plurals name="export_all_done_format">
         <item quantity="other">노트 %1$d개를 내보냈습니다.</item>

@@ -1,0 +1,1 @@
+U Postavkama → Podaci sada možete izvesti bilješke po oznaci. #project uključuje i podoznake poput #project/alpha. Zaključane bilješke više nisu dio skupnog izvoza. Na prijedlog @6r4f.

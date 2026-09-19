@@ -238,6 +238,7 @@
     <string name="privacy_local_first">ノートはユーザーが明示的に書き出し / 共有しない限り端末外へ出ません。</string>
     <string name="settings_data">データ</string>
     <string name="export_all_notes">すべてのノートを書き出し…</string>
+    <string name="export_tag_notes">タグ別にノートを書き出し…</string>
     <string name="export_all_notes_description">フォルダを選ぶと、Markleaf がすべてのノートを個別の .md ファイルとして保存します。ゴミ箱内のノートは除外されます。</string>
     <plurals name="export_all_done_format">
         <item quantity="other">%1$d 件のノートを書き出しました。</item>

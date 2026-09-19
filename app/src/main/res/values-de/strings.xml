@@ -244,6 +244,7 @@
     <string name="privacy_local_first">Notizen verlassen das Gerät nur, wenn du sie explizit exportierst oder teilst.</string>
     <string name="settings_data">Daten</string>
     <string name="export_all_notes">Alle Notizen exportieren…</string>
+    <string name="export_tag_notes">Notizen nach Tag exportieren…</string>
     <string name="export_all_notes_description">Wähle einen Ordner und Markleaf speichert jede Notiz als separate .md-Datei. Notizen im Papierkorb werden übersprungen.</string>
     <plurals name="export_all_done_format">
         <item quantity="one">%1$d Notiz exportiert.</item>

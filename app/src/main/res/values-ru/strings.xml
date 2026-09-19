@@ -267,6 +267,7 @@
     <string name="privacy_local_first">Заметки покидают устройство, только когда вы явно экспортируете их или делитесь ими.</string>
     <string name="settings_data">Данные</string>
     <string name="export_all_notes">Экспортировать все заметки…</string>
+    <string name="export_tag_notes">Экспортировать заметки по тегу…</string>
     <string name="export_all_notes_description">Выберите папку, и Markleaf сохранит каждую заметку в отдельный файл .md. Заметки из корзины пропускаются.</string>
     <plurals name="export_all_done_format">
         <item quantity="one">Экспортирована %1$d заметка.</item>

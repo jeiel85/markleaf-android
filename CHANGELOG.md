@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.49.0 - Type in a monospace font - 2026-09-19
+
+Body text can now use a monospace font, which keeps table columns and indent levels lined up. No permission or storage-format changes.
+
+### Added
+- **Monospace font option ([#432](https://github.com/jeiel85/markleaf-android/issues/432)).** Settings → Markdown → Font now offers Monospace next to Sans and Serif. It uses the system monospace font, so nothing is bundled, and it applies to the app's text as a whole — the editor, the preview and the screens around them — not only to notes. Sans stays the default, so nothing changes until you choose it. Code blocks were always monospaced and still are, which means they no longer stand out from the surrounding text while this is on.
+
 ## v2.48.0 - Take one project with you - 2026-09-19
 
 You can now export notes for one tag without exporting your whole library. No permission or storage-format changes.

@@ -3,6 +3,13 @@
 이 파일은 랄프 루프에서 사용할 작업 목록입니다.  
 에이전트는 매 루프마다 가장 위의 unchecked task 하나만 선택해 구현합니다.
 
+## GitHub Issue #432 - Monospace font option (Done, 2026-09-19)
+
+- [x] `EditorFont.MONOSPACE` in Settings → Markdown → Font, applied through the theme typography
+- [x] label in all ten locales; v2.49.0 release documents and store changelogs
+
+---
+
 ## GitHub Issue #424 - Tag-scoped bulk export (Done, 2026-09-19)
 
 - [x] 설정의 데이터 영역에서 태그 하나를 선택해 Markdown 파일로 일괄 내보내기

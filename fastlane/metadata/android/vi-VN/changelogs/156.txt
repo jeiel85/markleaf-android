@@ -1,0 +1,1 @@
+Cài đặt → Markdown → Phông chữ có thêm Đơn cách bên cạnh Không chân và Có chân, giúp cột bảng và các mức thụt lề thẳng hàng. Áp dụng cho toàn bộ chữ trong ứng dụng; khối mã vẫn dùng phông đơn cách như trước. @makesthingsxyz đề xuất.

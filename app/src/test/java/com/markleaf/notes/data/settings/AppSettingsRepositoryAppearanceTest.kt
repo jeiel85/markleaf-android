@@ -43,6 +43,7 @@ class AppSettingsRepositoryAppearanceTest {
 
         assertEquals(ThemeMode.SYSTEM, settings.themeMode)
         assertEquals(EditorFontSize.MEDIUM, settings.editorFontSize)
+        assertEquals(EditorFont.SANS, settings.editorFont)
     }
 
     @Test
@@ -61,6 +62,15 @@ class AppSettingsRepositoryAppearanceTest {
 
         repo.setEditorFontSize(EditorFontSize.MEDIUM)
         assertEquals(EditorFontSize.MEDIUM, repo.settings.first().editorFontSize)
+    }
+
+    /** Monospace is a stored choice like serif — #432. */
+    @Test
+    fun `editor font round-trips every option`() = runTest {
+        for (font in EditorFont.entries) {
+            repo.setEditorFont(font)
+            assertEquals(font, repo.settings.first().editorFont)
+        }
     }
 
     /** Each preference has its own key — writing one must not disturb the other. */

@@ -41,6 +41,7 @@
     <string name="font_size_description">Met à l\'échelle le texte de l\'éditeur et de l\'aperçu. Les cases à cocher et les zones tactiles des liens grandissent avec.</string>
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>
+    <string name="font_monospace">Chasse fixe</string>
     <string name="font_description">Le serif donne aux notes une allure classique, comme un livre. Le code reste toujours à chasse fixe.</string>
     <string name="all_notes">Toutes les notes</string>
     <string name="no_notes_for_tag">Aucune note avec cette étiquette</string>

@@ -46,12 +46,12 @@ import com.markleaf.notes.data.repository.LocalNoteRepository
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.ColorPalette
-import com.markleaf.notes.data.settings.EditorFont
 import com.markleaf.notes.data.settings.EditorFontSize
 import com.markleaf.notes.data.settings.ThemeMode
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.feature.lock.BiometricLockGate
 import com.markleaf.notes.ui.theme.MarkleafTheme
+import com.markleaf.notes.ui.theme.bodyFontFamily
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import kotlinx.coroutines.Dispatchers
@@ -113,7 +113,7 @@ class SingleNoteWidgetConfigureActivity : FragmentActivity() {
                     ThemeMode.DARK -> true
                 },
                 dynamicColor = appSettings.colorPalette == ColorPalette.MATERIAL_YOU,
-                useSerif = appSettings.editorFont == EditorFont.SERIF
+                bodyFontFamily = appSettings.editorFont.bodyFontFamily()
             ) {
                 // The launcher starts this activity directly, so app lock has to
                 // be honoured here as it is in MainActivity — otherwise placing a

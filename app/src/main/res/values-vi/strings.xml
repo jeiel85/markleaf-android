@@ -42,6 +42,7 @@
     <string name="font_size_description">Thay đổi cỡ chữ trong trình soạn thảo và bản xem trước. Ô đánh dấu và vùng chạm của liên kết cũng lớn theo.</string>
     <string name="font_sans">Không chân</string>
     <string name="font_serif">Có chân</string>
+    <string name="font_monospace">Đơn cách</string>
     <string name="font_description">Phông có chân mang lại cảm giác cổ điển như sách in. Mã luôn dùng phông đơn cách.</string>
     <string name="all_notes">Tất cả ghi chú</string>
     <string name="no_notes_for_tag">Không có ghi chú nào gắn thẻ này</string>

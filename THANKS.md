@@ -41,12 +41,18 @@ Listed by first report.
 | [@ElizabethWega](https://github.com/ElizabethWega) | [#283](https://github.com/jeiel85/markleaf-android/issues/283), [#298](https://github.com/jeiel85/markleaf-android/issues/298) |
 | [@unrealsswag](https://github.com/unrealsswag) | [#325](https://github.com/jeiel85/markleaf-android/issues/325) |
 | [@gamersat678](https://github.com/gamersat678) | [#345](https://github.com/jeiel85/markleaf-android/issues/345), [#346](https://github.com/jeiel85/markleaf-android/issues/346), [#354](https://github.com/jeiel85/markleaf-android/issues/354) |
-| [@ray4423](https://github.com/ray4423) | [#351](https://github.com/jeiel85/markleaf-android/issues/351), [#363](https://github.com/jeiel85/markleaf-android/issues/363), [#375](https://github.com/jeiel85/markleaf-android/issues/375), [#394](https://github.com/jeiel85/markleaf-android/issues/394) |
+| [@ray4423](https://github.com/ray4423) | [#351](https://github.com/jeiel85/markleaf-android/issues/351), [#363](https://github.com/jeiel85/markleaf-android/issues/363), [#375](https://github.com/jeiel85/markleaf-android/issues/375), [#394](https://github.com/jeiel85/markleaf-android/issues/394), [#410](https://github.com/jeiel85/markleaf-android/issues/410), [#417](https://github.com/jeiel85/markleaf-android/issues/417) |
 | [@iamgitcat](https://github.com/iamgitcat) | [#360](https://github.com/jeiel85/markleaf-android/issues/360) |
 | [@canllaith](https://github.com/canllaith) | [#370](https://github.com/jeiel85/markleaf-android/issues/370) |
 | [@Bedz01](https://github.com/Bedz01) | [#386](https://github.com/jeiel85/markleaf-android/issues/386) |
 | [@hawk1335](https://github.com/hawk1335) | [#390](https://github.com/jeiel85/markleaf-android/issues/390) |
-| [@stacsk](https://github.com/stacsk) | [#398](https://github.com/jeiel85/markleaf-android/issues/398) |
+| [@stacsk](https://github.com/stacsk) | [#398](https://github.com/jeiel85/markleaf-android/issues/398), [#403](https://github.com/jeiel85/markleaf-android/issues/403), [#405](https://github.com/jeiel85/markleaf-android/issues/405) |
+| [@Vikranttiw](https://github.com/Vikranttiw) | [#413](https://github.com/jeiel85/markleaf-android/issues/413) |
+| [@Jackson-Nickk](https://github.com/Jackson-Nickk) | [#414](https://github.com/jeiel85/markleaf-android/issues/414) |
+| [@kise82](https://github.com/kise82) | [#423](https://github.com/jeiel85/markleaf-android/issues/423) |
+| [@6r4f](https://github.com/6r4f) | [#424](https://github.com/jeiel85/markleaf-android/issues/424) |
+| [@jcesarap](https://github.com/jcesarap) | [#428](https://github.com/jeiel85/markleaf-android/issues/428), [#429](https://github.com/jeiel85/markleaf-android/issues/429) |
+| [@makesthingsxyz](https://github.com/makesthingsxyz) | [#432](https://github.com/jeiel85/markleaf-android/issues/432) |
 
 Not every request here was accepted — a couple were declined, and saying no to a
 thoughtful suggestion is its own kind of debt. Being told what you want from the

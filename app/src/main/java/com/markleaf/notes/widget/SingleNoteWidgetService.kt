@@ -21,6 +21,11 @@ import kotlinx.coroutines.runBlocking
  * Unlike [QuickNoteWidgetService], one factory per placed widget: every
  * single-note widget shows a different note, and its id arrives on the intent.
  * [SingleNoteWidget.factoryIntent] is what keeps those intents distinct.
+ *
+ * Each row's text is inline-styled by [WidgetInlineSpans] before it reaches the
+ * `TextView` — bold, italic, strikethrough and inline code render instead of
+ * showing their markers (#438). Block constructs stay literal; see
+ * [WidgetInlineSpans]'s own comment for why that boundary is where it is.
  */
 class SingleNoteWidgetService : RemoteViewsService() {
     override fun onGetViewFactory(intent: Intent): RemoteViewsFactory =
@@ -46,6 +51,9 @@ internal class SingleNoteWidgetFactory(
 ) : RemoteViewsService.RemoteViewsFactory {
 
     private var rows: List<String> = emptyList()
+    // Parallel to [rows]: true where WidgetInlineSpans.style must not touch the
+    // line (a fence delimiter, or a line between one) — see WidgetInlineSpans.fenceFlags.
+    private var rawRows: List<Boolean> = emptyList()
     private var noteId: String? = null
     private var textSizeSp: Float = SingleNoteWidgetStore.bodySizeSp(EditorFontSize.MEDIUM)
 
@@ -87,10 +95,12 @@ internal class SingleNoteWidgetFactory(
                 )
             }
         }
+        rawRows = WidgetInlineSpans.fenceFlags(rows)
     }
 
     override fun onDestroy() {
         rows = emptyList()
+        rawRows = emptyList()
         noteId = null
         colors = null
     }
@@ -101,10 +111,16 @@ internal class SingleNoteWidgetFactory(
         val view = RemoteViews(context.packageName, R.layout.widget_single_note_line)
         // getOrNull, not [position]: the launcher may ask for a row from the
         // count it last read, and a note edited in between can be shorter.
-        view.setTextViewText(
-            R.id.single_note_line,
-            rows.getOrNull(position) ?: SingleNoteWidget.BLANK_LINE
-        )
+        val line = rows.getOrNull(position) ?: SingleNoteWidget.BLANK_LINE
+        // rawRows.getOrNull defaults to false (style it) rather than true: a
+        // stale/short flag list from a note that shrank between reads should
+        // not silently stop styling every remaining row.
+        val text: CharSequence = if (rawRows.getOrNull(position) == true) {
+            line
+        } else {
+            WidgetInlineSpans.style(line)
+        }
+        view.setTextViewText(R.id.single_note_line, text)
         view.setTextViewTextSize(
             R.id.single_note_line,
             TypedValue.COMPLEX_UNIT_SP,

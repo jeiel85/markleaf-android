@@ -8,6 +8,7 @@ import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.text.input.TextFieldValue
 import com.markleaf.notes.core.markdown.MarkdownEditActions
+import java.time.LocalDate
 
 internal enum class EditorFormattingAction {
     BOLD,
@@ -15,6 +16,7 @@ internal enum class EditorFormattingAction {
     STRIKETHROUGH,
     INLINE_CODE,
     LINK,
+    WIKILINK,
     HEADING,
     BULLET_LIST,
     ORDERED_LIST,
@@ -24,7 +26,8 @@ internal enum class EditorFormattingAction {
     TABLE,
     CALLOUT,
     DIVIDER,
-    IMAGE
+    IMAGE,
+    DATE
 }
 
 internal sealed interface EditorFormattingResult {
@@ -59,7 +62,15 @@ internal fun formattingShortcutFor(key: Key, shiftPressed: Boolean): EditorForma
 internal fun KeyEvent.toFormattingAction(): EditorFormattingAction? =
     if (isCtrlPressed || isMetaPressed) formattingShortcutFor(key, isShiftPressed) else null
 
-internal fun EditorFormattingAction.applyTo(value: TextFieldValue): EditorFormattingResult = when (this) {
+/**
+ * [today] is injected rather than read inside so a test can pin the panel's
+ * date row and `/date` to the same string; every caller in the app takes the
+ * default.
+ */
+internal fun EditorFormattingAction.applyTo(
+    value: TextFieldValue,
+    today: LocalDate = LocalDate.now()
+): EditorFormattingResult = when (this) {
     EditorFormattingAction.BOLD -> EditorFormattingResult.Edited(MarkdownEditActions.bold(value))
     EditorFormattingAction.ITALIC -> EditorFormattingResult.Edited(MarkdownEditActions.italic(value))
     EditorFormattingAction.STRIKETHROUGH -> EditorFormattingResult.Edited(
@@ -67,6 +78,7 @@ internal fun EditorFormattingAction.applyTo(value: TextFieldValue): EditorFormat
     )
     EditorFormattingAction.INLINE_CODE -> EditorFormattingResult.Edited(MarkdownEditActions.inlineCode(value))
     EditorFormattingAction.LINK -> EditorFormattingResult.Edited(MarkdownEditActions.markdownLink(value))
+    EditorFormattingAction.WIKILINK -> EditorFormattingResult.Edited(MarkdownEditActions.wikilink(value))
     EditorFormattingAction.HEADING -> EditorFormattingResult.Edited(MarkdownEditActions.heading(value))
     EditorFormattingAction.BULLET_LIST -> EditorFormattingResult.Edited(MarkdownEditActions.bulletList(value))
     EditorFormattingAction.ORDERED_LIST -> EditorFormattingResult.Edited(MarkdownEditActions.orderedList(value))
@@ -77,4 +89,5 @@ internal fun EditorFormattingAction.applyTo(value: TextFieldValue): EditorFormat
     EditorFormattingAction.CALLOUT -> EditorFormattingResult.Edited(MarkdownEditActions.callout(value))
     EditorFormattingAction.DIVIDER -> EditorFormattingResult.Edited(MarkdownEditActions.horizontalRule(value))
     EditorFormattingAction.IMAGE -> EditorFormattingResult.PickImage
+    EditorFormattingAction.DATE -> EditorFormattingResult.Edited(MarkdownEditActions.date(value, today))
 }

@@ -22,6 +22,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.automirrored.filled.Redo
 import androidx.compose.material.icons.automirrored.filled.Undo
+import androidx.compose.material.icons.filled.AddLink
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.CheckBox
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.DataObject
@@ -105,6 +107,25 @@ private data class FormattingItem(
 private data class FormattingGroup(
     val label: String,
     val items: List<FormattingItem>
+)
+
+/**
+ * The same two shapes before their labels are resolved.
+ *
+ * Splitting the panel's contents out of composition is what lets
+ * [EditorFormattingParityTest] read the list of actions the panel offers and
+ * compare it against the slash menu. Kept private; [formattingPanelActions] is
+ * the part the test needs.
+ */
+private data class FormattingItemSpec(
+    val action: EditorFormattingAction,
+    val labelRes: Int,
+    val icon: ImageVector
+)
+
+private data class FormattingGroupSpec(
+    val labelRes: Int,
+    val items: List<FormattingItemSpec>
 )
 
 @Composable
@@ -504,55 +525,79 @@ private fun FormattingActionRow(
     }
 }
 
-@Composable
-private fun formattingGroups(): List<FormattingGroup> = listOf(
-    FormattingGroup(
-        stringResource(R.string.formatting_inline),
+/**
+ * What the panel offers, in the order it is drawn.
+ *
+ * Every construct the `/` menu can insert has to appear here too. Tables and
+ * callouts were slash-only until #390 and that cost a user the feature; the
+ * same was still true of wikilinks and the date until #424 reported it from the
+ * other end — someone searched this panel for a way to link a note, did not
+ * find one, and asked for a feature the app already had. The rule is now a
+ * gate: see [QuickInsertCommand.panelEquivalent] and the parity test.
+ */
+private val formattingPanelSpec: List<FormattingGroupSpec> = listOf(
+    FormattingGroupSpec(
+        R.string.formatting_inline,
         listOf(
-            FormattingItem(EditorFormattingAction.BOLD, stringResource(R.string.bold), Icons.Default.FormatBold),
-            FormattingItem(EditorFormattingAction.ITALIC, stringResource(R.string.italic), Icons.Default.FormatItalic),
-            FormattingItem(
+            FormattingItemSpec(EditorFormattingAction.BOLD, R.string.bold, Icons.Default.FormatBold),
+            FormattingItemSpec(EditorFormattingAction.ITALIC, R.string.italic, Icons.Default.FormatItalic),
+            FormattingItemSpec(
                 EditorFormattingAction.STRIKETHROUGH,
-                stringResource(R.string.strikethrough),
+                R.string.strikethrough,
                 Icons.Default.FormatStrikethrough
             ),
-            FormattingItem(EditorFormattingAction.INLINE_CODE, stringResource(R.string.inline_code), Icons.Default.Code),
-            FormattingItem(EditorFormattingAction.LINK, stringResource(R.string.markdown_link), Icons.Default.Link)
+            FormattingItemSpec(EditorFormattingAction.INLINE_CODE, R.string.inline_code, Icons.Default.Code),
+            FormattingItemSpec(EditorFormattingAction.LINK, R.string.markdown_link, Icons.Default.Link),
+            // Reuse the quick-insert labels, as #390 established for tables and
+            // callouts: one construct must not have two names depending on
+            // which door you came through.
+            FormattingItemSpec(EditorFormattingAction.WIKILINK, R.string.quick_insert_wikilink, Icons.Default.AddLink),
+            FormattingItemSpec(EditorFormattingAction.DATE, R.string.quick_insert_date, Icons.Default.CalendarToday)
         )
     ),
-    FormattingGroup(
-        stringResource(R.string.formatting_structure),
+    FormattingGroupSpec(
+        R.string.formatting_structure,
         listOf(
-            FormattingItem(EditorFormattingAction.HEADING, stringResource(R.string.heading), Icons.Default.Title),
-            FormattingItem(
+            FormattingItemSpec(EditorFormattingAction.HEADING, R.string.heading, Icons.Default.Title),
+            FormattingItemSpec(
                 EditorFormattingAction.BULLET_LIST,
-                stringResource(R.string.bullet_list),
+                R.string.bullet_list,
                 Icons.AutoMirrored.Filled.FormatListBulleted
             ),
-            FormattingItem(
+            FormattingItemSpec(
                 EditorFormattingAction.ORDERED_LIST,
-                stringResource(R.string.ordered_list),
+                R.string.ordered_list,
                 Icons.Default.FormatListNumbered
             ),
-            FormattingItem(EditorFormattingAction.CHECKLIST, stringResource(R.string.checkbox), Icons.Default.CheckBox),
-            FormattingItem(EditorFormattingAction.QUOTE, stringResource(R.string.blockquote), Icons.Default.FormatQuote)
+            FormattingItemSpec(EditorFormattingAction.CHECKLIST, R.string.checkbox, Icons.Default.CheckBox),
+            FormattingItemSpec(EditorFormattingAction.QUOTE, R.string.blockquote, Icons.Default.FormatQuote)
         )
     ),
-    FormattingGroup(
-        stringResource(R.string.formatting_block_media),
+    FormattingGroupSpec(
+        R.string.formatting_block_media,
         listOf(
-            FormattingItem(EditorFormattingAction.CODE_BLOCK, stringResource(R.string.code_block), Icons.Default.DataObject),
-            // Tables and callouts were reachable only by typing `/` until #390,
-            // which is a shape you have to already know to look for. They reuse
-            // the quick-insert labels on purpose: one construct must not have
-            // two names depending on which door you came through.
-            FormattingItem(EditorFormattingAction.TABLE, stringResource(R.string.quick_insert_table), Icons.Default.TableChart),
-            FormattingItem(EditorFormattingAction.CALLOUT, stringResource(R.string.quick_insert_callout), Icons.Default.Info),
-            FormattingItem(EditorFormattingAction.DIVIDER, stringResource(R.string.horizontal_rule), Icons.Default.HorizontalRule),
-            FormattingItem(EditorFormattingAction.IMAGE, stringResource(R.string.insert_image), Icons.Default.Image)
+            FormattingItemSpec(EditorFormattingAction.CODE_BLOCK, R.string.code_block, Icons.Default.DataObject),
+            FormattingItemSpec(EditorFormattingAction.TABLE, R.string.quick_insert_table, Icons.Default.TableChart),
+            FormattingItemSpec(EditorFormattingAction.CALLOUT, R.string.quick_insert_callout, Icons.Default.Info),
+            FormattingItemSpec(EditorFormattingAction.DIVIDER, R.string.horizontal_rule, Icons.Default.HorizontalRule),
+            FormattingItemSpec(EditorFormattingAction.IMAGE, R.string.insert_image, Icons.Default.Image)
         )
     )
 )
+
+/** Every action the panel can reach, for the parity gate. */
+internal val formattingPanelActions: List<EditorFormattingAction>
+    get() = formattingPanelSpec.flatMap { group -> group.items.map { it.action } }
+
+@Composable
+private fun formattingGroups(): List<FormattingGroup> = formattingPanelSpec.map { group ->
+    FormattingGroup(
+        label = stringResource(group.labelRes),
+        items = group.items.map { item ->
+            FormattingItem(item.action, stringResource(item.labelRes), item.icon)
+        }
+    )
+}
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)

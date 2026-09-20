@@ -4,6 +4,20 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.51.0 - Synced changes reach the open note - 2026-09-20
+
+Three fixes from one issue pass, all of them about long notes and the sync folder. **One storage-format change:** note files in a sync folder now carry a `body_sha256` line in their frontmatter header — see *Changed*. No permission changes.
+
+### Added
+- **A note you have open now picks up a version that arrives from the sync folder ([#428](https://github.com/jeiel85/markleaf-android/issues/428)).** The editor used to read its note once, so a change imported while you were looking at it only showed up after leaving the note and coming back. Two things it will not do: it never replaces what is on screen while you have unsaved typing — your edit wins and is saved as usual — and it never adopts a version that *empties* the note. Found by [@jcesarap](https://github.com/jcesarap), who tested the existing sync behaviour and correctly re-identified this as the real problem behind a request for sync-at-startup.
+
+### Fixed
+- **Pasting a very large Markdown note no longer freezes the editor ([#437](https://github.com/jeiel85/markleaf-android/issues/437)).** Live syntax styling now switches itself off for a note that would need more than 1,500 individually styled pieces of text, or that is longer than 100,000 characters. On the reporter's phone a 200,000-character Markdown paste took around 30 seconds and ended in "Markleaf isn't responding"; the same paste with styling turned off was instant. Plain prose keeps its styling at any length, because prose produces nothing to style. Reported and then measured across four file sizes by [@angelblackcoat](https://github.com/angelblackcoat). Scrolling inside a very long note is still slower than it should be — that is a separate limitation and is not fixed here.
+- **An interrupted sync write no longer leaves a spurious "(copy from another device …)" note behind ([#434](https://github.com/jeiel85/markleaf-android/issues/434)).** When a write to a slow sync folder did not finish, the next sync pass could read Markleaf's own older file as though another device had edited it, and file a conflict copy next to your note. Markleaf can now tell its own unfinished write apart from a real outside edit, so that copy is not created. An edit made by another app is still imported exactly as before. Reported by [@ray4423](https://github.com/ray4423), syncing through rclone/RSAF over a slow link.
+
+### Changed
+- **Note files in a sync folder now carry a `body_sha256` line in their frontmatter header ([#434](https://github.com/jeiel85/markleaf-android/issues/434)).** It is a checksum of the note's own text, and it is what makes the fix above possible: without it, Markleaf's half-finished write and another app's edit are indistinguishable. Existing files gain the line the next time Markleaf saves that note — nothing is rewritten in bulk — and a file without it is read exactly as before. Other tools ignore frontmatter keys they do not recognise.
+
 ## v2.50.0 - Link notes and dates from the toolbar - 2026-09-20
 
 Requested by [@6r4f](https://github.com/6r4f), who went looking for a way to link a note from the formatting toolbar and came up empty. No permission or storage-format changes.

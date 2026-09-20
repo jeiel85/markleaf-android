@@ -4,6 +4,16 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.50.0 - Link notes and dates from the toolbar - 2026-09-20
+
+Requested by [@6r4f](https://github.com/6r4f), who went looking for a way to link a note from the formatting toolbar and came up empty. No permission or storage-format changes.
+
+### Added
+- **Link to note and today's date in the formatting toolbar ([#424](https://github.com/jeiel85/markleaf-android/issues/424)).** The `Aa` panel now has rows for both, next to Markdown link — the same insertions `/wiki` and `/date` already made, now reachable without knowing to type `/` first.
+
+### Fixed
+- **The Single Note widget now renders bold, italic, strikethrough and inline code ([#438](https://github.com/jeiel85/markleaf-android/issues/438)), instead of showing the literal `**`, `*`, `~~` and `` ` `` markers.** Headings, lists, tables, images and fenced code still show exactly as typed — a home-screen widget can style characters within a line but can't lay out a real heading or table. Reported by [@Violet-RM](https://github.com/Violet-RM).
+
 ## v2.49.0 - Type in a monospace font - 2026-09-19
 
 Body text can now use a monospace font, which keeps table columns and indent levels lined up. No permission or storage-format changes.

@@ -1,0 +1,1 @@
+The formatting toolbar now has rows to link a note and insert today's date, next to Markdown link -- the same insertions /wiki and /date already made. Requested by @6r4f. Also fixed: the Single Note widget now renders bold, italic, strikethrough and inline code instead of showing the literal markers. Headings, lists, tables and images still show as typed. Reported by @Violet-RM.

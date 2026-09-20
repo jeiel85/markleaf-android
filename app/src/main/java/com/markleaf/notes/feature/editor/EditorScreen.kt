@@ -139,6 +139,49 @@ internal fun editorNeedsMirrorRetry(
     updatedAt: Instant
 ): Boolean = syncFolderConfigured && !locked && lastImportedAt != updatedAt
 
+/**
+ * In: the text on screen, the text the editor and the database last *agreed*
+ * on (loaded, last saved, or last adopted), and the text the note's row holds
+ * now. Out: the text to put on screen, or null to leave it alone (#428).
+ *
+ * The whole decision is [onScreen] != [agreed]: that is the window where the
+ * user has typed and the save debounce hasn't fired yet, and adopting there
+ * would delete keystrokes they can still see. Their edit wins and is written on
+ * the next save exactly as it would have been — at the cost of not showing the
+ * imported version until they leave the note, which is what happens today for
+ * every case, typing or not.
+ *
+ * Pure, and separate from the effect that runs it, for the same reason
+ * [editorSaveTime] is: the ordering contract is the part worth testing, and it
+ * needs neither a database nor a composition to state.
+ */
+internal fun editorLiveRefreshText(
+    onScreen: String,
+    agreed: String?,
+    incoming: String?
+): String? = when {
+    // The note is gone (deleted forever elsewhere). Blanking the screen is not
+    // this function's call to make; leaving is handled where navigation is.
+    incoming == null -> null
+    // An import that *empties* the note is not adopted, and this is the one
+    // rule here that isn't about typing. #405 discards a note left blank when
+    // the editor closes — `repo.deleteForever`, plus its attachments and its
+    // file in the sync folder. That rule can't tell "the user cleared this"
+    // from "the folder said it was empty", so adopting an empty version would
+    // turn one emptied file into a permanent delete of the note on the way out.
+    // Leaving the text on screen is exactly what happens today for every
+    // import, so this is never worse than the behaviour it replaces.
+    incoming.isEmpty() -> null
+    // Already on screen: our own save coming back, or a change to something
+    // other than the text — a `lastImportedAt` stamp, a retitle, a pin.
+    incoming == onScreen -> null
+    // Nothing has been loaded yet, so there is nothing to compare against.
+    agreed == null -> null
+    // Unsaved local edit in progress.
+    onScreen != agreed -> null
+    else -> incoming
+}
+
 /** The production settings repository — the process-wide DataStore singleton. */
 @Composable
 private fun rememberAppSettingsRepository(): AppSettingsRepository {
@@ -186,6 +229,11 @@ fun EditorScreen(
     var editorState by remember(noteId) { mutableStateOf(TextFieldValue("")) }
     var openedContent by remember(noteId) { mutableStateOf<String?>(null) }
     var openedUpdatedAt by remember(noteId) { mutableStateOf<Instant?>(null) }
+    // The text the editor and the database last agreed on — what was loaded,
+    // what was last saved from here, or the last version adopted from the sync
+    // folder. It is the only thing that tells "the row changed under me" apart
+    // from "I changed it", which is what the live refresh below turns on (#428).
+    var syncedContent by remember(noteId) { mutableStateOf<String?>(null) }
     // Per open note, and dropped when the screen leaves: Markleaf keeps no
     // on-disk edit history, so this is a way back from the edit you just made,
     // not a version store (#360).
@@ -215,6 +263,10 @@ fun EditorScreen(
             } else currentNote
             if (saveTime != null) {
                 repo.updateNote(updatedNote)
+                // The row now holds what is on screen, so the next emission
+                // carrying this text is this write coming back, not news from
+                // the folder (#428).
+                syncedContent = content
                 tagRepo.reindexTagsForNote(id, content)
                 linkRepo.reindexLinksForNote(id, content)
             }
@@ -693,6 +745,7 @@ fun EditorScreen(
             val content = loadedNote?.contentMarkdown.orEmpty()
             openedContent = loadedNote?.contentMarkdown
             openedUpdatedAt = loadedNote?.updatedAt
+            syncedContent = content
             // Where the note opens (#214). Read from the same persisted
             // snapshot as the preview setting above, for the same reason: the
             // collected state starts on the default, so using it here would
@@ -753,6 +806,51 @@ fun EditorScreen(
             if (loadedNote != null) {
                 settingsRepository.setLastOpenedNoteId(noteId)
             }
+        }
+    }
+
+    // #428: the editor reads its note once, keyed by `noteId`, and then stops
+    // listening — so a newer version the folder reconcile imports while the note
+    // is open stays invisible until you leave the screen and come back. This
+    // listens to the row instead.
+    //
+    // A stream rather than a timer, deliberately. The reconcile already reruns
+    // on every app resume and lands its result in the database, so the row is
+    // where the news arrives; Room tells us when it changes for free. Polling
+    // would spend battery asking a question that is already answered, and a
+    // filesystem watcher is not available for a SAF-picked folder another app
+    // writes to — which is why this is scoped to the row and not to the folder.
+    LaunchedEffect(noteId, isLoaded) {
+        if (noteId == null || !isLoaded) return@LaunchedEffect
+        repo.observeNote(noteId).distinctUntilChanged().collect { row ->
+            val incoming = editorLiveRefreshText(editorState.text, syncedContent, row?.contentMarkdown)
+            if (incoming == null) {
+                // Not news, but if the row now matches the screen, that is the
+                // new agreement point — our own save, or an import that happened
+                // to write what is already here.
+                if (row != null && row.contentMarkdown == editorState.text) {
+                    syncedContent = row.contentMarkdown
+                }
+                return@collect
+            }
+            // Clamped, never trusted, for the same reason the load path clamps a
+            // restored caret: the version that arrived can be shorter than what
+            // is on screen.
+            val adopted = TextFieldValue(
+                incoming,
+                TextRange(editorState.selection.start.coerceIn(0, incoming.length))
+            )
+            editorState = adopted
+            syncedContent = incoming
+            // The adopted version is the new floor for undo. Recording it
+            // instead would leave the pre-import text one undo away, and undoing
+            // to it would save it straight back over what just arrived.
+            undoHistory.reset(adopted)
+            // The session's baseline moves with it: `editorSaveTime` dates an
+            // edit that lands back on the opened text at the opened timestamp,
+            // and after this, "what this session started from" is this version.
+            openedContent = incoming
+            openedUpdatedAt = row?.updatedAt
         }
     }
 

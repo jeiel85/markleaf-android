@@ -23,6 +23,10 @@ class LocalNoteRepository(
         return database.noteDao().getNoteById(noteId)?.toDomain()
     }
 
+    override fun observeNote(noteId: String): Flow<Note?> {
+        return database.noteDao().observeNoteById(noteId).map { it?.toDomain() }
+    }
+
     override suspend fun getAllNotes(): List<Note> {
         return database.noteDao().getAllNotes().map { it.toDomain() }
     }

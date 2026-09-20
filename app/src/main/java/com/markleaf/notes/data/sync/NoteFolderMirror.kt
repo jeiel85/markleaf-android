@@ -319,9 +319,10 @@ object NoteFolderMirror {
     internal fun effectiveFileTimestamp(
         frontmatterUpdatedAt: java.time.Instant?,
         fileModifiedAt: java.time.Instant,
-        bodyChanged: Boolean
+        bodyChanged: Boolean,
+        bodyIsSelfVerified: Boolean = false
     ): java.time.Instant = MirrorReconcile.effectiveFileTimestamp(
-        frontmatterUpdatedAt, fileModifiedAt, bodyChanged
+        frontmatterUpdatedAt, fileModifiedAt, bodyChanged, bodyIsSelfVerified
     )
 
     /** See [MirrorImport.staleEntryIds]. */

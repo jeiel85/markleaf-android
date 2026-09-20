@@ -25,6 +25,18 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE id = :id")
     suspend fun getNoteById(id: String): NoteEntity?
 
+    /**
+     * The same row as [getNoteById], but as a stream: emits again whenever the
+     * row changes, including when the change came from the folder reconcile
+     * rather than from this screen (#428). The open editor reads its note once
+     * and had no way to hear about a newer version arriving underneath it.
+     *
+     * Null when the note is gone (deleted forever), which a caller must not
+     * confuse with "unchanged".
+     */
+    @Query("SELECT * FROM notes WHERE id = :id")
+    fun observeNoteById(id: String): Flow<NoteEntity?>
+
     @Query("SELECT COUNT(*) FROM notes")
     suspend fun countAllNotes(): Int
 

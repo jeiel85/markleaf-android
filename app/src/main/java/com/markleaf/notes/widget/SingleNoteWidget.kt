@@ -21,9 +21,13 @@ import com.markleaf.notes.data.local.entity.NoteEntity
  * the other. The note and the text size are chosen per placed widget in
  * [SingleNoteWidgetConfigureActivity] and kept in [SingleNoteWidgetStore].
  *
- * The body is drawn as it was typed — Markdown source, not rendered. A
- * `RemoteViews` tree can only hold a fixed set of platform views, so `**bold**`
- * reads as `**bold**` here.
+ * The body is drawn close to how it was typed, not fully rendered: a
+ * `RemoteViews` tree can only hold a fixed set of platform views, so a real
+ * heading, list, table or image needs layout this one-row-per-line factory does
+ * not have. Inline emphasis is the exception — [WidgetInlineSpans] turns
+ * `**bold**`, `*italic*`, `~~strikethrough~~` and `` `code` `` into character
+ * spans within each row's single `TextView` (#438), which a widget update can
+ * carry the same way it carries anything else `TextView.setText` accepts.
  *
  * The body **scrolls** (#371), which is why it is a `ListView` fed by
  * [SingleNoteWidgetService] rather than the single `TextView` it was until

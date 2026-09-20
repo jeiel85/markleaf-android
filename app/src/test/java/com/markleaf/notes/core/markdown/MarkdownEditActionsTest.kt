@@ -2,6 +2,7 @@ package com.markleaf.notes.core.markdown
 
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -727,5 +728,30 @@ class MarkdownEditActionsTest {
     @Test
     fun offsetOfLine_acceptsTheEmptyLineAfterATrailingNewline() {
         assertEquals(4, MarkdownEditActions.offsetOfLine("one\n", 1))
+    }
+
+    @Test
+    fun wikilink_insertsEmptyBracketsWithTheCaretBetweenThem() {
+        val value = TextFieldValue("see ", selection = TextRange(4))
+        val result = MarkdownEditActions.wikilink(value)
+        assertEquals("see [[]]", result.text)
+        assertEquals(6, result.selection.start)
+    }
+
+    @Test
+    fun wikilink_wrapsTheSelectionInsteadOfOverwritingIt() {
+        // With "Show formatting button" off (#331) a selection is the only way
+        // the panel opens, so this is the common path, not the edge one.
+        val value = TextFieldValue("see Project Alpha", selection = TextRange(4, 17))
+        val result = MarkdownEditActions.wikilink(value)
+        assertEquals("see [[Project Alpha]]", result.text)
+    }
+
+    @Test
+    fun date_insertsTheIsoDateAtTheCaret() {
+        val value = TextFieldValue("due ", selection = TextRange(4))
+        val result = MarkdownEditActions.date(value, LocalDate.of(2026, 9, 20))
+        assertEquals("due 2026-09-20", result.text)
+        assertEquals(14, result.selection.start)
     }
 }

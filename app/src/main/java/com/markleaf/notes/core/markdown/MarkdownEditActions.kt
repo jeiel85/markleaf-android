@@ -2,6 +2,7 @@ package com.markleaf.notes.core.markdown
 
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import java.time.LocalDate
 
 object MarkdownEditActions {
     /**
@@ -19,6 +20,17 @@ object MarkdownEditActions {
     /** The callout head, and the head plus an empty body line for insertion. */
     const val CALLOUT_HEAD = "> [!NOTE]"
     const val CALLOUT_TEMPLATE = CALLOUT_HEAD + "\n> "
+
+    /**
+     * The empty wikilink, and the caret offset that lands between its brackets.
+     *
+     * Shared with `/wiki` for the same reason the table skeleton is, and #424 is
+     * what the gap costs when a construct has only one door: the slash menu has
+     * carried wikilinks since v2.22.0, the panel never did, and a user hunting
+     * the panel for a way to link a note gave up and filed a request for it.
+     */
+    const val WIKILINK_TEMPLATE = "[[]]"
+    const val WIKILINK_CARET_OFFSET = 2
 
     private val headingPattern = Regex("""^(#{1,6})\s+""")
     private val bulletPattern = Regex("""^([-*+])\s+""")
@@ -105,6 +117,32 @@ object MarkdownEditActions {
             replaceSelection(value, "[$selected]($selected)")
         }
     }
+
+    /**
+     * An empty `[[]]`, or the selection wrapped as `[[note title]]`.
+     *
+     * Wrapping rather than replacing matters because with "Show formatting
+     * button" off (#331) a selection is the only way the panel opens at all —
+     * overwriting it would eat the very words the user meant to link.
+     */
+    fun wikilink(value: TextFieldValue): TextFieldValue {
+        val selected = selectedText(value)
+        return if (selected.isBlank()) {
+            replaceSelection(value, WIKILINK_TEMPLATE, cursorOffset = WIKILINK_CARET_OFFSET)
+        } else {
+            replaceSelection(value, "[[$selected]]")
+        }
+    }
+
+    /**
+     * Today's date, ISO form, at the caret.
+     *
+     * [today] is a parameter rather than a `LocalDate.now()` read inside so the
+     * panel row and `/date` can be pinned to the same output by a test instead
+     * of being trusted to agree.
+     */
+    fun date(value: TextFieldValue, today: LocalDate): TextFieldValue =
+        replaceSelection(value, today.toString())
 
     /** Cycle current line through `# ` -> `## ` -> `### ` -> none -> `# `. */
     fun heading(value: TextFieldValue): TextFieldValue {

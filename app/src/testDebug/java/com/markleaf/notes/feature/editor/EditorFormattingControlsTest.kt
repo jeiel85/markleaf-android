@@ -115,6 +115,34 @@ class EditorFormattingControlsTest {
         assertEquals(false, expanded.value)
     }
 
+    /**
+     * Input: the expanded panel. Output: the wikilink and date rows are there,
+     * under the labels the slash menu already uses, and dispatch their actions.
+     *
+     * The same omission as [panelOffersTableAndCallout], found from the other
+     * end: #424 is a user who searched this panel for a way to link a note,
+     * did not find one, and filed a request for something `/wiki` had done
+     * since v2.22.0.
+     */
+    @Test
+    fun panelOffersWikilinkAndDate() {
+        val expanded = mutableStateOf(true)
+        var picked: EditorFormattingAction? = null
+        render(
+            state = { EditorFormattingUiState(expanded = expanded.value) },
+            onExpandedChange = { expanded.value = it },
+            onAction = { picked = it }
+        )
+
+        // Curly apostrophe on purpose — this asserts the shipped string, not a
+        // lookalike typed into the test.
+        composeRule.onNodeWithText("Today\u2019s date").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Link to note").performScrollTo().performClick()
+
+        assertEquals(EditorFormattingAction.WIKILINK, picked)
+        assertEquals(false, expanded.value)
+    }
+
     @Test
     fun keyboardOpenMovesFocusToFirstPanelAction() {
         val expanded = mutableStateOf(false)

@@ -25,6 +25,40 @@ internal enum class QuickInsertCommand(
     DATE(listOf("date", "today"))
 }
 
+/**
+ * The formatting-panel row that inserts the same construct as this command.
+ *
+ * Exhaustive on purpose, and that is the whole point: a new
+ * [QuickInsertCommand] will not compile until someone says which panel row it
+ * belongs to. Twice now a construct has shipped behind the slash menu alone and
+ * been found only when a user gave up looking for it in the panel — tables and
+ * callouts in #390, wikilinks and the date in #424 — because nothing made the
+ * omission visible at the point it was introduced. `EditorFormattingParityTest`
+ * turns the mapping below into a failing test when a row goes missing.
+ *
+ * The reverse does not hold and should not: bold, italic, strikethrough, inline
+ * code and the Markdown link wrap a selection rather than insert a construct,
+ * so they have no `/` command and need none.
+ */
+internal fun QuickInsertCommand.panelEquivalent(): EditorFormattingAction = when (this) {
+    // The panel's heading row cycles H1 -> H2 -> H3 where `/h2` lands directly;
+    // the construct is the same one and that is what parity is about here.
+    QuickInsertCommand.HEADING_1,
+    QuickInsertCommand.HEADING_2,
+    QuickInsertCommand.HEADING_3 -> EditorFormattingAction.HEADING
+    QuickInsertCommand.BULLET_LIST -> EditorFormattingAction.BULLET_LIST
+    QuickInsertCommand.NUMBERED_LIST -> EditorFormattingAction.ORDERED_LIST
+    QuickInsertCommand.CHECKLIST -> EditorFormattingAction.CHECKLIST
+    QuickInsertCommand.QUOTE -> EditorFormattingAction.QUOTE
+    QuickInsertCommand.CODE_BLOCK -> EditorFormattingAction.CODE_BLOCK
+    QuickInsertCommand.DIVIDER -> EditorFormattingAction.DIVIDER
+    QuickInsertCommand.TABLE -> EditorFormattingAction.TABLE
+    QuickInsertCommand.CALLOUT -> EditorFormattingAction.CALLOUT
+    QuickInsertCommand.WIKILINK -> EditorFormattingAction.WIKILINK
+    QuickInsertCommand.IMAGE -> EditorFormattingAction.IMAGE
+    QuickInsertCommand.DATE -> EditorFormattingAction.DATE
+}
+
 internal data class QuickInsertQuery(
     val start: Int,
     val end: Int,
@@ -128,7 +162,10 @@ private fun insertionFor(
         caretOffset = MarkdownEditActions.TABLE_CARET_OFFSET
     )
     QuickInsertCommand.CALLOUT -> QuickInsertion(MarkdownEditActions.CALLOUT_TEMPLATE)
-    QuickInsertCommand.WIKILINK -> QuickInsertion("[[]]", caretOffset = 2)
+    QuickInsertCommand.WIKILINK -> QuickInsertion(
+        MarkdownEditActions.WIKILINK_TEMPLATE,
+        caretOffset = MarkdownEditActions.WIKILINK_CARET_OFFSET
+    )
     QuickInsertCommand.IMAGE -> QuickInsertion("")
     QuickInsertCommand.DATE -> QuickInsertion(today.toString())
 }

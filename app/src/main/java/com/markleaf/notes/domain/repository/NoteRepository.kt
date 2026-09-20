@@ -6,6 +6,11 @@ import kotlinx.coroutines.flow.Flow
 interface NoteRepository {
     fun observeNotes(): Flow<List<Note>>
     suspend fun getNote(noteId: String): Note?
+
+    /** [getNote] as a stream, so a screen holding one note open hears about a
+     *  version that arrives from the sync folder while it is open (#428).
+     *  Emits null when the note no longer exists. */
+    fun observeNote(noteId: String): Flow<Note?>
     /** Every note regardless of state (active/archived/trashed) — used by the
      *  folder reconcile so hidden notes aren't re-imported as new (#148). */
     suspend fun getAllNotes(): List<Note>

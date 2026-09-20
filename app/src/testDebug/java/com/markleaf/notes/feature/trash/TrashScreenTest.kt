@@ -92,6 +92,7 @@ class TrashScreenTest {
     private class FakeNoteRepository(private val note: Note) : NoteRepository {
         override fun observeNotes(): Flow<List<Note>> = flowOf(emptyList())
         override suspend fun getNote(noteId: String): Note? = null
+        override fun observeNote(noteId: String): Flow<Note?> = flowOf(null)
         override suspend fun getAllNotes(): List<Note> = emptyList()
         override suspend fun createNote(note: Note) = Unit
         override suspend fun updateNote(note: Note) = Unit

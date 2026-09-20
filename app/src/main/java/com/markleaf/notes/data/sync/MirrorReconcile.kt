@@ -102,13 +102,37 @@ internal object MirrorReconcile {
      * client that re-downloads a file bumps its mtime without touching a byte of
      * content; trusting it there would make every file look newer than its note
      * on every pass, which is a conflict storm rather than a sync.
+     *
+     * Nor is it trusted when the file proves it does not need it:
+     * [bodyIsSelfVerified] says the body still matches the digest written
+     * alongside the timestamp, so the header was written for this text and the
+     * exception above does not apply (#434).
      */
     internal fun effectiveFileTimestamp(
         frontmatterUpdatedAt: Instant?,
         fileModifiedAt: Instant,
-        bodyChanged: Boolean
+        bodyChanged: Boolean,
+        bodyIsSelfVerified: Boolean = false
     ): Instant {
         if (frontmatterUpdatedAt == null) return fileModifiedAt
+        // The file carries a digest of its own body and the body still matches
+        // it, so whoever wrote this text also wrote the `updated_at` above it:
+        // the timestamp describes the content rather than trailing it, and the
+        // mtime has nothing left to contribute (#434).
+        //
+        // This is the whole fix for the "(copy from another device)" note that
+        // turns up after a sync write that didn't finish. The old file is
+        // exactly what Markleaf last wrote, so its `updated_at` is honest and
+        // older than the note — but its *mtime* had moved, the rule below read
+        // that as a remote edit, and the pass copied our own stale content back
+        // in beside the note. A file that verifies can no longer do that.
+        //
+        // Deliberately not "trust the frontmatter whenever the body changed":
+        // an editor that rewrites the body and leaves our block alone leaves a
+        // stale timestamp behind, and skipping that file would lose a real
+        // edit. The digest is what separates the two, which is why the default
+        // here is false — a file with no digest gets exactly the old rule.
+        if (bodyIsSelfVerified) return frontmatterUpdatedAt
         if (bodyChanged && fileModifiedAt.isAfter(frontmatterUpdatedAt)) return fileModifiedAt
         return frontmatterUpdatedAt
     }

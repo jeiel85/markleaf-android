@@ -15,11 +15,13 @@ import java.time.format.DateTimeFormatter
  * created_at: 2026-05-08T10:30:00Z
  * updated_at: 2026-05-08T11:00:00Z
  * pinned: false
+ * archived: false
+ * body_sha256: 9f86d081…
  * ---
  * # Body...
  * ```
  *
- * We don't ship a YAML parser. Our own five keys are read as `key: value` on a
+ * We don't ship a YAML parser. Our own six keys are read as `key: value` on a
  * single line, which is all we ever write. Everything else is treated as opaque
  * text: an entry is a top-level line plus every continuation line under it, and
  * it is carried back out byte-for-byte so external tools can keep their own
@@ -46,7 +48,7 @@ object SyncFrontmatter {
 
     /** Keys we own and emit explicitly — never echoed back from [Parsed.unknownEntries]. */
     private val RESERVED_KEYS = setOf(
-        "markleaf_id", "created_at", "updated_at", "pinned", "archived"
+        "markleaf_id", "created_at", "updated_at", "pinned", "archived", "body_sha256"
     )
 
     private val isoFormatter: DateTimeFormatter = DateTimeFormatter.ISO_INSTANT
@@ -80,7 +82,17 @@ object SyncFrontmatter {
          * or not what sat between them was metadata. Lets a reader stop: once
          * the block has closed, reading further cannot change the verdict.
          */
-        val blockClosed: Boolean
+        val blockClosed: Boolean,
+        /**
+         * The digest of the body the frontmatter was written for, if the file
+         * carries one (`body_sha256`). Null for a file written before this key
+         * existed, or by anything other than Markleaf.
+         *
+         * Read through [bodyIsSelfVerified] rather than directly: on its own it
+         * is only a claim, and the whole value of it is in whether the body
+         * still matches it (#434).
+         */
+        val bodySha256: String? = null
     )
 
     /**
@@ -94,6 +106,25 @@ object SyncFrontmatter {
      */
     fun opensFrontmatter(fileContents: String): Boolean =
         fileContents.removePrefix(BOM).lineSequence().firstOrNull()?.trim() == DELIMITER
+
+    /**
+     * In: a decoded file. Out: whether the file's body is the one its own
+     * header was written for — i.e. whether the header can be believed about
+     * *this* body (#434).
+     *
+     * False for a file with no `body_sha256` (written before the key existed,
+     * or by something else), and false when the body has moved since: an editor
+     * that changed the text and left our block alone leaves the old digest
+     * behind, which is exactly the case we must not mistake for our own file.
+     *
+     * True is the useful answer: whoever wrote the body also wrote the
+     * `updated_at` above it, so the timestamp describes the content rather than
+     * trailing it, and the filesystem's modified time has nothing to add.
+     */
+    fun bodyIsSelfVerified(parsed: Parsed): Boolean {
+        val declared = parsed.bodySha256 ?: return false
+        return declared.equals(SidecarIndex.hashOf(parsed.body), ignoreCase = true)
+    }
 
     /**
      * @param extraEntries frontmatter entries written by other tools (Obsidian
@@ -113,6 +144,12 @@ object SyncFrontmatter {
         sb.append("updated_at: ").append(isoFormatter.format(note.updatedAt)).append('\n')
         sb.append("pinned: ").append(note.pinned).append('\n')
         sb.append("archived: ").append(note.archived).append('\n')
+        // A digest of the body this header describes (#434). It is what lets a
+        // later read tell "this file still holds exactly what Markleaf wrote"
+        // from "someone edited the body and left our block alone" — the two are
+        // indistinguishable from the header's own timestamp, and getting them
+        // confused is what turns an unfinished upload into a conflict copy.
+        sb.append("body_sha256: ").append(SidecarIndex.hashOf(note.contentMarkdown)).append('\n')
         extraEntries.forEach { entry ->
             val key = topLevelKeyOf(entry.lineSequence().firstOrNull().orEmpty())
             // A null key is a comment or a line we can't read as `key: value`;
@@ -182,6 +219,7 @@ object SyncFrontmatter {
         var updatedAt: Instant? = null
         var pinned: Boolean? = null
         var archived: Boolean? = null
+        var bodySha256: String? = null
         val unknownEntries = mutableListOf<String>()
 
         groupEntries(frontmatterLines).forEach { entry ->
@@ -199,12 +237,13 @@ object SyncFrontmatter {
                 "updated_at" -> updatedAt = parseInstantOrNull(value)
                 "pinned" -> pinned = value.equals("true", ignoreCase = true)
                 "archived" -> archived = value.equals("true", ignoreCase = true)
+                "body_sha256" -> bodySha256 = value.takeIf { it.isNotEmpty() }
             }
         }
 
         return Parsed(
             markleafId, createdAt, updatedAt, pinned, archived, body, unknownEntries,
-            hasFrontmatter = true, blockClosed = true
+            hasFrontmatter = true, blockClosed = true, bodySha256 = bodySha256
         )
     }
 

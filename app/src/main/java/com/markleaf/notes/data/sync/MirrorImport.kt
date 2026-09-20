@@ -84,10 +84,21 @@ internal object MirrorImport {
 
             val parsed = SyncFrontmatter.decode(raw)
             val existingNote = parsed.markleafId?.let(byId::get)
+            val bodyChanged = existingNote != null && parsed.body != existingNote.contentMarkdown
             val fileTs = MirrorReconcile.effectiveFileTimestamp(
                 frontmatterUpdatedAt = parsed.updatedAt,
                 fileModifiedAt = Instant.ofEpochMilli(file.lastModified()),
-                bodyChanged = existingNote != null && parsed.body != existingNote.contentMarkdown
+                bodyChanged = bodyChanged,
+                // Gated on `bodyChanged`, which is free rather than clever:
+                // verification only changes the answer where the mtime would
+                // otherwise be consulted, and that needs a changed body. So the
+                // ordinary file — in sync, nothing to do — is never hashed, and
+                // one whose key is missing returns before hashing anyway. What
+                // is left is the case this exists for: a body that differs from
+                // the note, where the digest says whether the header above it
+                // was written for this text or is just sitting on top of it
+                // (#434).
+                bodyIsSelfVerified = bodyChanged && SyncFrontmatter.bodyIsSelfVerified(parsed)
             )
 
             try {

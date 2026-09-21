@@ -95,6 +95,12 @@ CI 또는 릴리즈 검증 시에는 APK 산출물 확인을 반드시 포함한
   the GitLab release`가 매 태그마다 403으로 실패해 "빨간 `release` 잡 = 릴리스 실패
   아님"이라는 예외를 두었지만, 그 스텝이 skip 되는 지금은 그 예외가 없다. 지금 `release`
   잡이 빨갛다면 GitLab 문제가 아니므로 스텝 목록을 보고 진짜 원인을 찾을 것.
+- **CI의 `./gradlew test`는 첫 실패 직후에 멈춘다.** `build`·`release` 잡의 테스트 스텝은
+  `-Pmarkleaf.testFailFast=true`를 넘겨 `failFast`를 켜고(클래스 단위라 이미 진행 중인 클래스
+  하나는 더 돌 수 있다. 로컬 실행과 `verifyRoborazziDebug`는 그대로 전부 보여 준다), 실패하면 `unit-test-report-build` / `unit-test-report-release`
+  아티팩트(HTML 리포트 + XML, 7일)가 남는다. Compose 테스트 하나가 잘못 실패하면 같은 JVM의
+  뒤 테스트가 전부 60초씩 유휴 타임아웃을 기다려 런이 1시간 넘게 도는 알려진 flake(#262
+  `## v2.51.0`)가 있어서다 — 그 런이 빨갛다면 첫 실패의 스택을 아티팩트에서 먼저 볼 것.
 
 ### 순수 코드 이동(pure code motion) 리뷰
 

@@ -1,4 +1,5 @@
 import java.util.Properties
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
     id("com.android.application")
@@ -192,6 +193,27 @@ android {
             isIncludeAndroidResources = true
             all {
                 it.systemProperty("robolectric.sqliteMode", "NATIVE")
+                // Gradle's default "short" format prints one frame of a failing
+                // test's exception. That is all the two CalledFromWrongThread
+                // runs of 2026-09-19 and 2026-09-20 left behind (#262): a
+                // location, no stack, so nobody could say which View call it was.
+                it.testLogging {
+                    exceptionFormat = TestExceptionFormat.FULL
+                }
+                // Opt-in, not the default: CI passes -Pmarkleaf.testFailFast=true
+                // on its `./gradlew test` steps and nothing else does. A Compose
+                // test that fails wrongly can leave every later one in the same JVM
+                // unable to go idle, and each of those then waits out Espresso's
+                // 60 s idle timeout -- 96 of them turned one real failure into a
+                // 1 h 35 min run. Stopping bounds that. Gradle stops handing out
+                // test *classes* after the first failure, so a class already in
+                // flight can still finish -- measured: one extra class, not 96.
+                // It is deliberately not applied locally (where seeing every failing test
+                // at once is the useful thing) or to verifyRoborazziDebug (where
+                // seeing every mismatched screenshot at once is).
+                if (providers.gradleProperty("markleaf.testFailFast").orNull == "true") {
+                    it.failFast = true
+                }
                 // The locale tests read config/locales.tsv (LocaleManifest), which
                 // is outside the test task's inputs, so editing it alone left the
                 // task UP-TO-DATE and the new language unchecked until something

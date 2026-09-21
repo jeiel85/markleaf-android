@@ -74,7 +74,23 @@ jobs:
           ls -lh app/build/outputs/apk/debug/app-debug.apk
 
       - name: Run tests
-        run: ./gradlew test
+        id: unit-tests
+        # failFast: stop at the first failing test. See app/build.gradle.kts for why.
+        run: ./gradlew test -Pmarkleaf.testFailFast=true
+
+      - name: Upload unit test report on failure
+        if: failure() && steps.unit-tests.outcome == 'failure'
+        uses: actions/upload-artifact@v7
+        with:
+          name: unit-test-report-build
+          path: |
+            app/build/reports/tests/
+            app/build/test-results/
+          if-no-files-found: warn
+          # The log alone kept only one stack frame of the 2026-09 Compose-test
+          # flake (#262); this keeps the report that has the rest. A week outlives
+          # any run worth re-opening.
+          retention-days: 7
 
       - name: Verify Roborazzi snapshots (visual regression)
         run: ./gradlew verifyRoborazziDebug
@@ -374,7 +390,19 @@ jobs:
           test -s release/markleaf-release.p12
 
       - name: Run tests
-        run: ./gradlew test
+        id: unit-tests
+        run: ./gradlew test -Pmarkleaf.testFailFast=true
+
+      - name: Upload unit test report on failure
+        if: failure() && steps.unit-tests.outcome == 'failure'
+        uses: actions/upload-artifact@v7
+        with:
+          name: unit-test-report-release
+          path: |
+            app/build/reports/tests/
+            app/build/test-results/
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Build signed release APK and Play Console AAB
         env:

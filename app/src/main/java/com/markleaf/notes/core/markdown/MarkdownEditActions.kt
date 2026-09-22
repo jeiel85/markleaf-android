@@ -354,23 +354,64 @@ object MarkdownEditActions {
     }
 
     /**
-     * If [old] -> [new] looks like a single Enter key press at the end of a list /
-     * checklist / blockquote / ordered-list line, return a text-field value that
-     * either continues the prefix on the new line, or removes a stale empty prefix
-     * from the previous line. Returns [new] unchanged when no continuation rule applies.
+     * Paired with the [AutoContinuationResult] that made [staleEcho] out of what a
+     * keyboard actually sent: the two exact values needed to recognize that same
+     * keyboard resending its own now-stale pre-continuation copy on a later
+     * callback (#447), confirmed against a real device — see [applyAutoContinuation].
+     *
+     * [expectedCurrent] guards the other side: if the field has since changed
+     * through anything other than that one callback (undo, a formatting shortcut,
+     * switching notes), the caller's `old` on the next call no longer matches it,
+     * and the echo stops being recognized. Without that check, a later, unrelated
+     * edit that happened to reproduce [staleEcho]'s text by coincidence would be
+     * swallowed instead of applied.
      */
-    fun applyAutoContinuation(old: TextFieldValue, new: TextFieldValue): TextFieldValue {
-        if (new.text.length != old.text.length + 1) return new
+    data class PendingEcho(val expectedCurrent: TextFieldValue, val staleEcho: TextFieldValue)
+
+    /** [value] to show, and the [pendingEcho] the caller must hold onto and pass
+     * back on its next call — see [applyAutoContinuation]. */
+    data class AutoContinuationResult(val value: TextFieldValue, val pendingEcho: PendingEcho?)
+
+    /**
+     * If [old] -> [new] looks like a single Enter key press at the end of a list /
+     * checklist / blockquote / ordered-list line, continue the prefix on the new
+     * line, or remove a stale empty prefix from the previous line. Returns [new]
+     * unchanged (with no pending echo) when no continuation rule applies.
+     *
+     * Some IMEs — SwiftKey, confirmed against a real device via `adb logcat` (#447)
+     * — resend their own pre-continuation copy of the text in a *second* callback,
+     * one step behind Markleaf's own edit: [old] arrives as the continuation this
+     * function just produced, and [new] arrives as the plain-newline text that led
+     * to it, as if the continuation had never been added. Content alone can't tell
+     * that apart from a deliberate matching edit, so [pendingGuard] — round-tripped
+     * through the caller's own state across calls — does instead: a keyboard's echo
+     * reproduces a value this function itself handed back as `new` on the
+     * immediately preceding call, byte for byte and selection for selection; a real
+     * edit is the keyboard reacting to text the keyboard has not seen yet, and can't.
+     */
+    fun applyAutoContinuation(
+        old: TextFieldValue,
+        new: TextFieldValue,
+        pendingGuard: PendingEcho?
+    ): AutoContinuationResult {
+        if (pendingGuard != null && old == pendingGuard.expectedCurrent && new == pendingGuard.staleEcho) {
+            // The keyboard is replaying the pre-continuation text it sent last
+            // time, unaware Markleaf already turned that into `old`. Keep `old`
+            // and keep guarding it — the same stale echo can arrive more than once.
+            return AutoContinuationResult(old, pendingGuard)
+        }
+
+        if (new.text.length != old.text.length + 1) return AutoContinuationResult(new, null)
         val cursor = new.selection.start
-        if (cursor < 1 || cursor > new.text.length) return new
-        if (new.text[cursor - 1] != '\n') return new
+        if (cursor < 1 || cursor > new.text.length) return AutoContinuationResult(new, null)
+        if (new.text[cursor - 1] != '\n') return AutoContinuationResult(new, null)
 
         val prevLineStart = new.text.lastIndexOf('\n', cursor - 2).let { if (it == -1) 0 else it + 1 }
         val prevLine = new.text.substring(prevLineStart, cursor - 1)
 
-        val continuation = continuationFor(prevLine) ?: return new
+        val continuation = continuationFor(prevLine) ?: return AutoContinuationResult(new, null)
 
-        return if (continuation.bodyEmpty) {
+        val result = if (continuation.bodyEmpty) {
             // Remove the bare prefix from the previous line, keep the newline.
             val updated = new.text.substring(0, prevLineStart) + new.text.substring(cursor - 1)
             val delta = (cursor - 1) - prevLineStart // chars removed
@@ -381,6 +422,7 @@ object MarkdownEditActions {
             val updated = new.text.substring(0, cursor) + insertion + new.text.substring(cursor)
             new.copy(text = updated, selection = TextRange(cursor + insertion.length))
         }
+        return AutoContinuationResult(result, PendingEcho(expectedCurrent = result, staleEcho = new))
     }
 
     private data class Continuation(val nextPrefix: String, val bodyEmpty: Boolean)

@@ -234,6 +234,12 @@ fun EditorScreen(
     // folder. It is the only thing that tells "the row changed under me" apart
     // from "I changed it", which is what the live refresh below turns on (#428).
     var syncedContent by remember(noteId) { mutableStateOf<String?>(null) }
+    // Guards the next onValueChange against a keyboard resending its own
+    // pre-continuation copy of the text one callback behind Markleaf's own edit
+    // (#447) — see MarkdownEditActions.applyAutoContinuation.
+    var autoContinuationGuard by remember(noteId) {
+        mutableStateOf<MarkdownEditActions.PendingEcho?>(null)
+    }
     // Per open note, and dropped when the screen leaves: Markleaf keeps no
     // on-disk edit history, so this is a way back from the edit you just made,
     // not a version store (#360).
@@ -1489,7 +1495,13 @@ fun EditorScreen(
                             value = editorState,
                             onValueChange = { incoming ->
                                 isFormattingExpanded = false
-                                editorState = MarkdownEditActions.applyAutoContinuation(editorState, incoming)
+                                val result = MarkdownEditActions.applyAutoContinuation(
+                                    editorState,
+                                    incoming,
+                                    autoContinuationGuard
+                                )
+                                editorState = result.value
+                                autoContinuationGuard = result.pendingEcho
                                 if (isLoaded) saver.requestSave()
                             },
                             modifier = Modifier

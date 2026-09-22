@@ -1,0 +1,1 @@
+Gumb za popis obveza sada svaki odabrani redak pretvara u zasebnu stavku, a ne samo prvi -- korisno za pretvaranje zalijepljenog popisa u popis obveza jednim dodirom. Ispravljeno: bilješka čija je sinkronizirana datoteka ispražnjena negdje drugdje više se ne briše trajno samim otvaranjem i zatvaranjem. Hvala @Kamul-PL.

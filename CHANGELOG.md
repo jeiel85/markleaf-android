@@ -4,6 +4,16 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.52.0 - Turn a pasted list into a checklist - 2026-09-22
+
+Two fixes from an issue-response pass: an editor convenience, and a data-safety fix for anyone syncing notes to a folder. No permission or storage-format changes.
+
+### Added
+- **Selecting several lines and tapping the checklist button now turns every line into its own item ([#446](https://github.com/jeiel85/markleaf-android/issues/446)).** A plain line becomes `- [ ] line`, an already-checked line toggles, and a blank line is left alone rather than becoming an empty item — so a list pasted in from elsewhere (a grocery list from a text message, one item per line) becomes a checklist in one tap. Previously only the first line of the selection was touched. Requested by [@Kamul-PL](https://github.com/Kamul-PL).
+
+### Fixed
+- **A note whose sync folder file was emptied elsewhere no longer gets permanently deleted just for being opened and closed ([#443](https://github.com/jeiel85/markleaf-android/issues/443)).** Leaving the editor on a blank note discards it — meant for a note you created and never typed into. An existing note whose file was cleared on another device or truncated by a sync client looked exactly the same from inside the editor, so it was discarded too: the note, its attachments and its file in the sync folder, with no trash step to undo it. Markleaf now checks whether the row's last confirmed write was an import rather than something typed during this visit before discarding it. A note that has never synced is unaffected. Found while working on [#428](https://github.com/jeiel85/markleaf-android/issues/428) and [#434](https://github.com/jeiel85/markleaf-android/issues/434).
+
 ## v2.51.0 - Synced changes reach the open note - 2026-09-20
 
 Three fixes from one issue pass, all of them about long notes and the sync folder. **One storage-format change:** note files in a sync folder now carry a `body_sha256` line in their frontmatter header — see *Changed*. No permission changes.

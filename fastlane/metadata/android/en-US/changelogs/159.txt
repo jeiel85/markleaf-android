@@ -1,0 +1,1 @@
+The checklist button now converts every selected line into its own item instead of just the first -- handy for turning a pasted list into a checklist in one tap. Fixed: a note whose synced file was emptied elsewhere no longer gets permanently deleted just for being opened and closed. Thanks to @Kamul-PL.

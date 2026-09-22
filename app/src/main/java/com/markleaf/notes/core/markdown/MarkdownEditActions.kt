@@ -57,14 +57,40 @@ object MarkdownEditActions {
      * On a line that is already a checklist item, toggle it between TODO `[ ]` and
      * DONE `[x]` (#145). Otherwise turn the current line into a new `- [ ] ` item.
      * Toggling swaps a single character, so the caret stays put.
+     *
+     * A selection spanning more than one line (#446) applies that per-line rule
+     * to every line in the block instead: a plain line becomes a new `- [ ] `
+     * item, an already-checked one toggles, and a blank line is left alone
+     * rather than becoming an empty item. This is what turns a pasted list —
+     * grocery items from a text message, one per line — into a checklist in one
+     * tap, without hand-prefixing each line first.
      */
     fun checkbox(value: TextFieldValue): TextFieldValue {
+        val (blockStart, blockEnd) = selectionLineRange(value)
+        val block = value.text.substring(blockStart, blockEnd)
+        if (!value.selection.collapsed && block.contains('\n')) {
+            val transformed = block.split("\n").joinToString("\n") { line -> toggleOrPrefixChecklist(line) }
+            val updated = value.text.substring(0, blockStart) + transformed + value.text.substring(blockEnd)
+            return value.copy(
+                text = updated,
+                selection = TextRange(blockStart, blockStart + transformed.length)
+            )
+        }
+
         val (lineStart, line) = currentLine(value)
         val match = checkboxPattern.find(line) ?: return insertAtLineStart(value, "- [ ] ")
         val markerOffset = lineStart + match.value.indexOf('[') + 1
         val newMarker = if (value.text[markerOffset] == ' ') 'x' else ' '
         val updated = value.text.substring(0, markerOffset) + newMarker + value.text.substring(markerOffset + 1)
         return value.copy(text = updated, selection = value.selection)
+    }
+
+    private fun toggleOrPrefixChecklist(line: String): String {
+        if (line.isBlank()) return line
+        val match = checkboxPattern.find(line) ?: return "- [ ] $line"
+        val markerIndex = match.value.indexOf('[') + 1
+        val newMarker = if (line[markerIndex] == ' ') 'x' else ' '
+        return line.substring(0, markerIndex) + newMarker + line.substring(markerIndex + 1)
     }
 
     /**

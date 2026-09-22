@@ -156,6 +156,49 @@ class MarkdownEditActionsTest {
     }
 
     @Test
+    fun checkbox_convertsEveryLineOfAMultiLineSelection() {
+        val text = "one\ntwo\nthree"
+        val result = MarkdownEditActions.checkbox(
+            TextFieldValue(text, selection = TextRange(0, text.length))
+        )
+
+        assertEquals("- [ ] one\n- [ ] two\n- [ ] three", result.text)
+        assertEquals(TextRange(0, result.text.length), result.selection)
+    }
+
+    @Test
+    fun checkbox_leavesBlankLinesAloneInAMultiLineSelection() {
+        val text = "one\n\nthree"
+        val result = MarkdownEditActions.checkbox(
+            TextFieldValue(text, selection = TextRange(0, text.length))
+        )
+
+        assertEquals("- [ ] one\n\n- [ ] three", result.text)
+    }
+
+    @Test
+    fun checkbox_togglesExistingItemsWithinAMultiLineSelection() {
+        val text = "- [ ] one\ntwo\n- [x] three"
+        val result = MarkdownEditActions.checkbox(
+            TextFieldValue(text, selection = TextRange(0, text.length))
+        )
+
+        assertEquals("- [x] one\n- [ ] two\n- [ ] three", result.text)
+    }
+
+    @Test
+    fun checkbox_singleLineSelectionStillUsesTheSingleLineRule() {
+        // A selection confined to one line (no newline in the touched block)
+        // must not take the multi-line path -- it still toggles/prefixes only
+        // the line the selection is on, same as a plain caret.
+        val result = MarkdownEditActions.checkbox(
+            TextFieldValue("one two", selection = TextRange(0, 3))
+        )
+
+        assertEquals("- [ ] one two", result.text)
+    }
+
+    @Test
     fun markdownLink_usesSelectedTextAsLabelAndTarget() {
         val result = MarkdownEditActions.markdownLink(
             TextFieldValue("Open Target", selection = TextRange(5, 11))

@@ -16,10 +16,14 @@ data class Note(
     val tags: List<Tag> = emptyList(),
     val sortOrder: Int = 0,
     /** Set by [com.markleaf.notes.data.sync.NoteFolderMirror] when this note's
-     *  body was last copied in from the sync folder. Used as the conflict
-     *  baseline: if [updatedAt] is later than this, the local copy has been
-     *  edited since the last sync and an incoming newer file is treated as a
-     *  conflict (kept as a duplicate) rather than silently overwriting. */
+     *  body was last copied in from the sync folder, and by the editor's own
+     *  autosave once a mirrored-out write of this body is confirmed. Used as
+     *  the conflict baseline: if [updatedAt] is later than this, the local
+     *  copy has been edited since the last sync and an incoming newer file is
+     *  treated as a conflict (kept as a duplicate) rather than silently
+     *  overwriting. Equal to [updatedAt] also means the editor's leave-blank
+     *  cleanup will not discard this note even if [contentMarkdown] is empty
+     *  -- that blankness is a confirmed state, not this visit's doing. */
     val lastImportedAt: Instant? = null,
     /** The newest mirror-file timestamp the reconcile has already dealt with for
      *  this note. Purely reconcile bookkeeping — it exists so settling a sync

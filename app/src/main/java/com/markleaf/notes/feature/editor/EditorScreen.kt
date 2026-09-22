@@ -358,7 +358,20 @@ fun EditorScreen(
                         val hasDeliberateDisposition = current != null && (
                             current.trashed || current.archived || current.locked || current.pinned
                         )
-                        if (current != null && !hasDeliberateDisposition) {
+                        // current.lastImportedAt lands equal to current.updatedAt in
+                        // exactly two places: MirrorImport, when a file's body is
+                        // copied in over this note, and this screen's own autosave,
+                        // once a mirrored-out write is confirmed. Either way, the
+                        // last thing to touch this row's content was a confirmed
+                        // state, not this visit typing and clearing it -- so a blank
+                        // result here is not this visit's doing to discard (#443).
+                        // An emptied import looks identical to a never-touched or
+                        // hand-cleared note from inside the editor; this is the one
+                        // signal that tells them apart without trusting a clock.
+                        val blanknessIsConfirmedElsewhere = current != null &&
+                            current.lastImportedAt != null &&
+                            current.lastImportedAt == current.updatedAt
+                        if (current != null && !hasDeliberateDisposition && !blanknessIsConfirmedElsewhere) {
                             // Sequential, deliberately: an earlier version ran
                             // these three concurrently via a nested
                             // `coroutineScope { launch {...} }` to match

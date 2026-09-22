@@ -238,7 +238,7 @@ fun EditorScreen(
     // pre-continuation copy of the text one callback behind Markleaf's own edit
     // (#447) — see MarkdownEditActions.applyAutoContinuation.
     var autoContinuationGuard by remember(noteId) {
-        mutableStateOf<MarkdownEditActions.PendingEcho?>(null)
+        mutableStateOf<MarkdownEditActions.AutoContinuationResult?>(null)
     }
     // Per open note, and dropped when the screen leaves: Markleaf keeps no
     // on-disk edit history, so this is a way back from the edit you just made,
@@ -1501,7 +1501,7 @@ fun EditorScreen(
                                     autoContinuationGuard
                                 )
                                 editorState = result.value
-                                autoContinuationGuard = result.pendingEcho
+                                autoContinuationGuard = result
                                 if (isLoaded) saver.requestSave()
                             },
                             modifier = Modifier

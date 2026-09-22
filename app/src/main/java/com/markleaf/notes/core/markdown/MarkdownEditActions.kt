@@ -354,23 +354,40 @@ object MarkdownEditActions {
     }
 
     /**
-     * Paired with the [AutoContinuationResult] that made [staleEcho] out of what a
-     * keyboard actually sent: the two exact values needed to recognize that same
-     * keyboard resending its own now-stale pre-continuation copy on a later
-     * callback (#447), confirmed against a real device — see [applyAutoContinuation].
+     * [value] to show, and — when it differs from what the keyboard actually sent
+     * — [staleEcho], the exact value a keyboard resending its own now-stale
+     * pre-continuation copy on a later callback would reproduce (#447), confirmed
+     * against a real device. See [applyAutoContinuation].
      *
-     * [expectedCurrent] guards the other side: if the field has since changed
-     * through anything other than that one callback (undo, a formatting shortcut,
-     * switching notes), the caller's `old` on the next call no longer matches it,
-     * and the echo stops being recognized. Without that check, a later, unrelated
-     * edit that happened to reproduce [staleEcho]'s text by coincidence would be
-     * swallowed instead of applied.
+     * The caller round-trips a whole [AutoContinuationResult] back in as the next
+     * call's `pendingGuard`: [value] doubles as the `old` a later call must see,
+     * and [staleEcho] as the `new` it must see, for that later callback to be
+     * recognized as the same echo rather than a real edit. That symmetry is
+     * deliberate — [value] is guaranteed to equal what this function returns as
+     * `value` at the moment [staleEcho] is set alongside it, so there is nothing
+     * for a separate "expected current" field to say that [value] does not
+     * already say.
+     *
+     * The `old`-side check is what guards the other direction: if the field has
+     * since changed through anything other than that one callback (undo, a
+     * formatting shortcut, switching notes), the caller's `old` on the next call
+     * no longer matches [value], and the echo stops being recognized. Without
+     * that check, a later, unrelated edit that happened to reproduce [staleEcho]'s
+     * text by coincidence would be swallowed instead of applied.
      */
-    data class PendingEcho(val expectedCurrent: TextFieldValue, val staleEcho: TextFieldValue)
+    data class AutoContinuationResult(val value: TextFieldValue, val staleEcho: TextFieldValue?)
 
-    /** [value] to show, and the [pendingEcho] the caller must hold onto and pass
-     * back on its next call — see [applyAutoContinuation]. */
-    data class AutoContinuationResult(val value: TextFieldValue, val pendingEcho: PendingEcho?)
+    /**
+     * Text and cursor position, ignoring [TextFieldValue.composition] — which
+     * `TextFieldValue.equals` otherwise compares too. Composition is set by the
+     * platform/IME, not by Markleaf, and can legitimately differ between two
+     * callbacks that describe the same logical content and caret (a keyboard's
+     * delayed echo re-opening a composing region the original edit didn't have,
+     * for instance) — comparing it here would make [applyAutoContinuation]'s echo
+     * check fail to recognize a real echo and reproduce #447 for that keyboard.
+     */
+    private fun TextFieldValue.sameContentAs(other: TextFieldValue) =
+        text == other.text && selection == other.selection
 
     /**
      * If [old] -> [new] looks like a single Enter key press at the end of a list /
@@ -386,19 +403,30 @@ object MarkdownEditActions {
      * that apart from a deliberate matching edit, so [pendingGuard] — round-tripped
      * through the caller's own state across calls — does instead: a keyboard's echo
      * reproduces a value this function itself handed back as `new` on the
-     * immediately preceding call, byte for byte and selection for selection; a real
-     * edit is the keyboard reacting to text the keyboard has not seen yet, and can't.
+     * immediately preceding call; a real edit is the keyboard reacting to text the
+     * keyboard has not seen yet, and normally can't.
+     *
+     * "Normally" is doing real work in that sentence: a single edit that happens
+     * to delete exactly an auto-inserted prefix in one keyboard-batched callback
+     * (a swipe-to-delete gesture, say, rather than one backspace per character)
+     * is indistinguishable from the echo by content alone, and is swallowed the
+     * same way. Accepted rather than chased further — it is narrow (needs an
+     * exact byte-for-byte, cursor-for-cursor match against a guard that is only
+     * ever live for one callback at a time), and self-corrects on the very next
+     * keystroke, which will not reproduce the same stale pair and so drops the
+     * guard normally.
      */
     fun applyAutoContinuation(
         old: TextFieldValue,
         new: TextFieldValue,
-        pendingGuard: PendingEcho?
+        pendingGuard: AutoContinuationResult?
     ): AutoContinuationResult {
-        if (pendingGuard != null && old == pendingGuard.expectedCurrent && new == pendingGuard.staleEcho) {
+        val staleEcho = pendingGuard?.staleEcho
+        if (staleEcho != null && old.sameContentAs(pendingGuard.value) && new.sameContentAs(staleEcho)) {
             // The keyboard is replaying the pre-continuation text it sent last
             // time, unaware Markleaf already turned that into `old`. Keep `old`
             // and keep guarding it — the same stale echo can arrive more than once.
-            return AutoContinuationResult(old, pendingGuard)
+            return AutoContinuationResult(old, staleEcho)
         }
 
         if (new.text.length != old.text.length + 1) return AutoContinuationResult(new, null)
@@ -422,7 +450,7 @@ object MarkdownEditActions {
             val updated = new.text.substring(0, cursor) + insertion + new.text.substring(cursor)
             new.copy(text = updated, selection = TextRange(cursor + insertion.length))
         }
-        return AutoContinuationResult(result, PendingEcho(expectedCurrent = result, staleEcho = new))
+        return AutoContinuationResult(result, new)
     }
 
     private data class Continuation(val nextPrefix: String, val bodyEmpty: Boolean)

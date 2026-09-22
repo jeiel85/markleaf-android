@@ -487,8 +487,7 @@ class MarkdownEditActionsTest {
         assertEquals(TextRange(8), result.value.selection)
         // The continuation differs from what the keyboard sent, so a guard against
         // that exact pre-continuation text (#447) must come out the other side.
-        assertEquals(result.value, result.pendingEcho?.expectedCurrent)
-        assertEquals(typed, result.pendingEcho?.staleEcho)
+        assertEquals(typed, result.staleEcho)
     }
 
     @Test
@@ -541,7 +540,7 @@ class MarkdownEditActionsTest {
         assertEquals("hello\n", result.value.text)
         // Nothing was added beyond what the keyboard sent, so there is nothing to
         // guard against an echo of.
-        assertNull(result.pendingEcho)
+        assertNull(result.staleEcho)
     }
 
     // --- #447: a keyboard (SwiftKey, confirmed on a real device) resending its
@@ -553,7 +552,7 @@ class MarkdownEditActionsTest {
         // running SwiftKey 9.13.16.5, typing "- logtest" and tapping its on-screen
         // Enter key (#447). Replayed here as a fixed regression fixture because the
         // race that produces it can't be reproduced deterministically in a test.
-        var guard: MarkdownEditActions.PendingEcho? = null
+        var guard: MarkdownEditActions.AutoContinuationResult? = null
 
         // SwiftKey finalizing the composed word: no-op.
         val step1 = MarkdownEditActions.applyAutoContinuation(
@@ -562,7 +561,7 @@ class MarkdownEditActionsTest {
             pendingGuard = guard
         )
         assertEquals("- logtest", step1.value.text)
-        guard = step1.pendingEcho
+        guard = step1
 
         // The real Enter keystroke: a clean +1 char, continuation fires.
         val step2 = MarkdownEditActions.applyAutoContinuation(
@@ -571,7 +570,7 @@ class MarkdownEditActionsTest {
             pendingGuard = guard
         )
         assertEquals("- logtest\n- ", step2.value.text)
-        guard = step2.pendingEcho
+        guard = step2
 
         // SwiftKey's stale echo: its own pre-continuation copy, one callback late.
         // Without the guard this overwrites step2's result right back to "- logtest\n".
@@ -581,7 +580,7 @@ class MarkdownEditActionsTest {
             pendingGuard = guard
         )
         assertEquals("- logtest\n- ", step3.value.text)
-        guard = step3.pendingEcho
+        guard = step3
 
         // A settling no-op call some keyboards send after: still guarded, still holds.
         val step4 = MarkdownEditActions.applyAutoContinuation(
@@ -590,6 +589,30 @@ class MarkdownEditActionsTest {
             pendingGuard = guard
         )
         assertEquals("- logtest\n- ", step4.value.text)
+    }
+
+    @Test
+    fun autoContinuation_recognizesAnEchoEvenWithADifferentComposingRegion() {
+        // TextFieldValue.equals compares `composition` as well as text and
+        // selection, and it is the IME's to set, not Markleaf's — a keyboard's
+        // delayed echo can plausibly carry a different composition than the
+        // original edit did (e.g. re-opening a composing region on replay) while
+        // still describing the same logical text and caret. The guard has to
+        // recognize that as the same echo, or #447 resurfaces for exactly the
+        // keyboards and timings that would otherwise be fixed by it.
+        val synthesized = MarkdownEditActions.applyAutoContinuation(
+            old = TextFieldValue("- one", selection = TextRange(5)),
+            new = TextFieldValue("- one\n", selection = TextRange(6)),
+            pendingGuard = null
+        )
+        assertEquals("- one\n- ", synthesized.value.text)
+
+        val echoWithComposing = MarkdownEditActions.applyAutoContinuation(
+            old = TextFieldValue("- one\n- ", selection = TextRange(8)),
+            new = TextFieldValue("- one\n", selection = TextRange(6), composition = TextRange(0, 1)),
+            pendingGuard = synthesized
+        )
+        assertEquals("- one\n- ", echoWithComposing.value.text)
     }
 
     @Test
@@ -605,7 +628,7 @@ class MarkdownEditActionsTest {
             pendingGuard = null
         )
         assertEquals("- one\n- ", synthesized.value.text)
-        val guard = synthesized.pendingEcho
+        val guard = synthesized
 
         // The field was reset by something else (e.g. undo) to exactly the text the
         // guard is watching for — this must NOT be treated as the keyboard's echo,
@@ -635,17 +658,52 @@ class MarkdownEditActionsTest {
         val backspace1 = MarkdownEditActions.applyAutoContinuation(
             old = synthesized.value,
             new = TextFieldValue("- one\n-", selection = TextRange(7)),
-            pendingGuard = synthesized.pendingEcho
+            pendingGuard = synthesized
         )
         assertEquals("- one\n-", backspace1.value.text)
-        assertNull(backspace1.pendingEcho)
+        assertNull(backspace1.staleEcho)
 
         val backspace2 = MarkdownEditActions.applyAutoContinuation(
             old = backspace1.value,
             new = TextFieldValue("- one\n", selection = TextRange(6)),
-            pendingGuard = backspace1.pendingEcho
+            pendingGuard = backspace1
         )
         assertEquals("- one\n", backspace2.value.text)
+    }
+
+    @Test
+    fun autoContinuation_aSingleCallbackDeletionMatchingTheGuardIsAcceptedAsAnEcho() {
+        // Documents a known, accepted trade-off rather than a desired outcome: a
+        // keyboard that batches "delete the auto-inserted prefix" into one
+        // callback (a swipe-to-delete gesture, say, instead of one backspace per
+        // character) is byte-for-byte and cursor-for-cursor identical to the
+        // keyboard's own stale echo at the point the guard is watching for, and
+        // there is nothing in a TextFieldValue that tells the two apart. This
+        // test exists so that fact is visible and intentional rather than
+        // rediscovered as a surprise — it self-corrects on the next keystroke,
+        // which will not reproduce the same stale pair a second time.
+        val synthesized = MarkdownEditActions.applyAutoContinuation(
+            old = TextFieldValue("- one", selection = TextRange(5)),
+            new = TextFieldValue("- one\n", selection = TextRange(6)),
+            pendingGuard = null
+        )
+        assertEquals("- one\n- ", synthesized.value.text)
+
+        val batchedDeletion = MarkdownEditActions.applyAutoContinuation(
+            old = synthesized.value,
+            new = TextFieldValue("- one\n", selection = TextRange(6)),
+            pendingGuard = synthesized
+        )
+        assertEquals("- one\n- ", batchedDeletion.value.text)
+
+        // The next keystroke does not reproduce the guarded stale text, so it is
+        // applied normally and the guard stops interfering.
+        val nextKeystroke = MarkdownEditActions.applyAutoContinuation(
+            old = batchedDeletion.value,
+            new = TextFieldValue("- one\n- x", selection = TextRange(9)),
+            pendingGuard = batchedDeletion
+        )
+        assertEquals("- one\n- x", nextKeystroke.value.text)
     }
 
     @Test

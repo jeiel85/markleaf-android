@@ -1,0 +1,1 @@
+Le bouton case à cocher transforme désormais chaque ligne sélectionnée en un élément distinct, et non plus seulement la première -- pratique pour transformer une liste collée en liste de tâches en un geste. Corrigé : une note dont le fichier synchronisé avait été vidé ailleurs n'est plus supprimée définitivement juste en l'ouvrant puis en la fermant. Merci à @Kamul-PL.

@@ -98,8 +98,8 @@ android {
         applicationId = "com.markleaf.notes"
         minSdk = 26
         targetSdk = 35
-        versionCode = 158
-        versionName = "2.51.0"
+        versionCode = 159
+        versionName = "2.52.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // 공통 UI가 업데이트 항목을 보여줄지 판단하는 값. 스토어 빌드에서는 항상 false이고,

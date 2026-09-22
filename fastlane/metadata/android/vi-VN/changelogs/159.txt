@@ -1,0 +1,1 @@
+Nút danh sách công việc giờ chuyển mỗi dòng được chọn thành một mục riêng, không chỉ dòng đầu tiên -- tiện lợi để biến một danh sách dán vào thành danh sách công việc chỉ bằng một lần chạm. Đã sửa: ghi chú có tệp đồng bộ bị xóa trống ở nơi khác không còn bị xóa vĩnh viễn chỉ vì mở rồi đóng lại. Cảm ơn @Kamul-PL.

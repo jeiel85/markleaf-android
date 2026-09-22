@@ -1,0 +1,1 @@
+El botón de casilla ahora convierte cada línea seleccionada en un elemento propio, no solo la primera -- útil para convertir una lista pegada en una lista de tareas de un solo toque. Corregido: una nota cuyo archivo sincronizado se vació en otro lugar ya no se elimina permanentemente solo por abrirla y cerrarla. Gracias a @Kamul-PL.

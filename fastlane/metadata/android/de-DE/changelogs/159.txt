@@ -1,0 +1,1 @@
+Die Checkbox-Schaltfläche wandelt jetzt jede ausgewählte Zeile in einen eigenen Eintrag um, nicht mehr nur die erste -- praktisch, um eine eingefügte Liste mit einem Tipp in eine Checkliste zu verwandeln. Behoben: Eine Notiz, deren synchronisierte Datei anderswo geleert wurde, wurde allein durch Öffnen und Schließen dauerhaft gelöscht. Danke an @Kamul-PL.

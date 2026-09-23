@@ -1,16 +1,19 @@
 # Vitajte v Markleaf
 
+Markleaf je čistý, lokálny Markdown zápisník pre Android. Rýchlo sa otvára,
+neprekáža a udržiava vaše písanie ako obyčajný text, ktorý patrí vám.
+
 ## Malá prehliadka
 
 - Otvorte **Krásne prostredie Markdown-u**, aby ste videli pracovnú plochu.
-- Otvorte **Každodenný rituál písania**, kde nájdete príklady v štýle
+- Otvorte si **Každodenný rituál písania**, kde nájdete príklady v štýle
   denníka.
 - Otvorte **Stručný popis projektu**, aby ste si prezreli úlohy, odkazy a
   štruktúru.
 - Otvorte **Zrkadlenie miestneho priečinka** ak potrebujete zdieľať súbory mimo
   aplikácie.
 
-> [!TIP] Ide o bežné poznámky. Keď už prehliadku nebudete potrebovať, môžete ich
+> [!TIP] Ide o bežné poznámky. Keď už prehliadku nebudete potrebovať, môžete ju
 > upravovať, exportovať, presunúť do koša alebo vymazať.
 
 #začiatok #návod
@@ -27,7 +30,7 @@ vycibrený vzhľad.
 
 ## Čo táto poznámka ukazuje
 
-- **Tučné písmo**, _kurzíva_, ~~prečiarknuté~~ a `inline kód`
+- **Tučné písmo**, _kurzíva_, ~~prečiarknuté~~ a `kód v riadku`
 - Nadpisy, zoznamy, kontrolné zoznamy, citáty, oddeľovače, bloky kódu, tabuľky,
   vysvetlivky, poznámky pod čiarou, odkazy a obrázky
 - Dynamické formátovanie syntaxe počas písania
@@ -97,7 +100,8 @@ Vytvorte čistý ukážkový zošit, ktorý učí tým, že je užitočný.
 
 ## Poznámky
 
-Related: [[Každodenný rituál písania]] and [[Tags, Search, and Backlinks]]
+Súvisiace: [[Každodenný rituál písania]] and [[Značky, vyhľadávanie a spätné
+odkazy]]
 
 #projekt/markleaf #plánovanie
 
@@ -146,4 +150,4 @@ nechať, aby sa oň postaral systém Android alebo váš synchronizačný nástr
 Vaše poznámky zostávajú čitateľné aj v iných nástrojoch na prácu s Markdownom a
 synchronizácia závisí od vášho rozhodnutia.
 
-#privacy #folder-mirror #prednostne_lokálne
+#ochrana súkromia #zrkadlenie priečinka #prednostne-lokálne

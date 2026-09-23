@@ -104,6 +104,15 @@ autocomplete pipe는 명시적으로 별도 결정 보류 상태로 남김.
 
 ---
 
+## PR #453 - Slovak locale (Done, 2026-09-23)
+
+- [x] values/raw/fastlane/README/landing/privacy/demo clip sk 추가, 11개 언어 스위처·개수 갱신
+- [x] 기여 번역의 스타터 노트 구조 결함(구분자·콜아웃·위키링크·태그)과 의미 오류 약 10건 수정, 기여자에게 제안으로 회신
+- [x] verify-locales·landing-versions·release-notes·landing overflow, lintRelease, testDebugUnitTest, 에뮬레이터 sk-SK 확인
+- [x] v2.53.0 / versionCode 160 릴리스 문서와 11개 언어 준비
+
+---
+
 ## PR #418 - Russian and Vietnamese locales (Done, 2026-09-17)
 
 - [x] values/raw/fastlane/README/landing/privacy/demo clip ru·vi 추가, 10개 언어 스위처·개수 갱신

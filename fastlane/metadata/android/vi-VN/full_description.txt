@@ -27,7 +27,7 @@ Thiết kế và trợ năng:
 
 * Tiện ích màn hình chính, khóa sinh trắc học, tùy chọn chặn chụp màn hình
 * Sáng / tối / Material You, bố cục hai ngăn trên máy tính bảng
-* Giao diện 10 ngôn ngữ (tiếng Hàn, tiếng Anh, tiếng Tây Ban Nha, tiếng Nhật, tiếng Pháp, tiếng Đức, tiếng Trung giản thể, tiếng Croatia, tiếng Nga, tiếng Việt)
+* Giao diện 11 ngôn ngữ (tiếng Hàn, tiếng Anh, tiếng Tây Ban Nha, tiếng Nhật, tiếng Pháp, tiếng Đức, tiếng Trung giản thể, tiếng Croatia, tiếng Nga, tiếng Việt, tiếng Slovakia)
 
 Quyền riêng tư và phân phối:
 

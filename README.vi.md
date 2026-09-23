@@ -32,7 +32,8 @@
   <a href="README.fr.md">Français</a> ·
   <a href="README.hr.md">Hrvatski</a> ·
   <a href="README.ru.md">Русский</a> ·
-  <strong>Tiếng Việt</strong>
+  <strong>Tiếng Việt</strong> ·
+  <a href="README.sk.md">Slovenčina</a>
 </p>
 
 <p align="center">
@@ -99,7 +100,7 @@
 - **Giao diện xanh Markleaf + bật/tắt Material You** — tùy chọn dùng màu hình nền hệ thống trên Android 12+
 - **Chế độ tối tự động** — theo cài đặt hệ thống
 - **Bố cục 3 khung cho máy tính bảng** — thanh thẻ bên · danh sách ghi chú · trình soạn thảo; chạm vào thẻ ở thanh bên để lọc danh sách ghi chú ngay tại chỗ (danh sách ghi chú vẫn thu gọn được)
-- **Giao diện bằng 10 ngôn ngữ** — tài nguyên tiếng Hàn / tiếng Anh / tiếng Tây Ban Nha / tiếng Nhật / tiếng Pháp / tiếng Đức / tiếng Trung giản thể / tiếng Croatia / tiếng Nga / tiếng Việt
+- **Giao diện bằng 11 ngôn ngữ** — tài nguyên tiếng Hàn / tiếng Anh / tiếng Tây Ban Nha / tiếng Nhật / tiếng Pháp / tiếng Đức / tiếng Trung giản thể / tiếng Croatia / tiếng Nga / tiếng Việt / tiếng Slovakia
 - **Tùy chọn chặn chụp màn hình / xem trước trong ứng dụng gần đây** — dành cho ghi chú nhạy cảm
 
 ---

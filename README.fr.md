@@ -32,7 +32,8 @@
   <strong>Français</strong> ·
   <a href="README.hr.md">Hrvatski</a> ·
   <a href="README.ru.md">Русский</a> ·
-  <a href="README.vi.md">Tiếng Việt</a>
+  <a href="README.vi.md">Tiếng Việt</a> ·
+  <a href="README.sk.md">Slovenčina</a>
 </p>
 
 <p align="center">
@@ -99,7 +100,7 @@
 - **Thème vert Markleaf + bascule Material You** — couleurs du fond d'écran système en option sur Android 12+
 - **Mode sombre automatique** — suit le paramètre système
 - **Disposition en 3 panneaux pour tablette** — barre latérale des étiquettes · liste des notes · éditeur ; appuyez sur une étiquette dans la barre latérale pour filtrer la liste des notes sur place (la liste des notes reste réductible)
-- **Interface en 10 langues** — ressources en coréen / anglais / espagnol / japonais / français / allemand / chinois simplifié / croate / russe / vietnamien
+- **Interface en 11 langues** — ressources en coréen / anglais / espagnol / japonais / français / allemand / chinois simplifié / croate / russe / vietnamien / slovaque
 - **Option de blocage des captures d'écran / aperçu dans les applications récentes** — pour les notes sensibles
 
 ---

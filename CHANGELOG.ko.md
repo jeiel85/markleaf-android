@@ -14,7 +14,7 @@ v2.15.3 이전 항목은 이 파일에만 한국어로 보존되어 있습니다
 - **슬로바키아어 ([#453](https://github.com/jeiel85/markleaf-android/pull/453)).** 앱 화면과 첫 실행 스타터 노트를 [@padi-sk](https://github.com/padi-sk)님이 번역했고, 스토어 설명·README·웹사이트와 개인정보 페이지, 슬로바키아어 자막이 붙은 태블릿 데모 영상이 뒤따라 Markleaf는 11개 언어가 되었습니다. Markleaf는 기기 언어를 따릅니다. 원어민의 수정 제안은 [Issues](https://github.com/jeiel85/markleaf-android/issues)에서 환영합니다.
 
 ### Fixed
-- **SwiftKey에서 목록 중 Enter를 누르면 새 글머리표나 번호가 사라지던 문제를 고쳤습니다 ([#447](https://github.com/jeiel85/markleaf-android/issues/447)).** Enter로 목록을 이어 쓴 직후 Microsoft SwiftKey가 자기가 들고 있던 이전 텍스트를 한 번 더 보내, Markleaf가 방금 넣은 `- `나 `2. `를 조용히 되돌리곤 했습니다. 이제 그 낡은 사본을 알아보고 무시하며, 실제로 입력한 편집은 그대로 반영됩니다. Galaxy S24의 SwiftKey로 확인했으며, 다른 키보드에서 여전히 사라진다면 알려 주세요. [@Akshaythorat376](https://github.com/Akshaythorat376)님이 보고해 주셨습니다.
+- **SwiftKey에서 목록 중 Enter를 누르면 새 글머리표나 번호가 사라지던 문제를 고쳤습니다 ([#447](https://github.com/jeiel85/markleaf-android/issues/447)).** Enter로 목록을 이어 쓴 직후 Microsoft SwiftKey가 자기가 들고 있던 이전 텍스트를 한 번 더 보내, Markleaf가 방금 넣은 `- `나 `2. `를 조용히 되돌리곤 했습니다. 이제 그 낡은 사본을 알아보고 무시하며, 평소의 입력과 백스페이스에는 영향이 없습니다. 좁은 예외가 하나 있습니다: Enter 직후 방금 들어간 기호를 한 번의 동작(예: 스와이프 삭제)으로 지우면 그 낡은 사본과 똑같아 보여 같은 방식으로 무시되며, 한 번 더 지우면 지워집니다. Galaxy S24의 SwiftKey로 확인했으며, 다른 키보드에서 여전히 사라진다면 알려 주세요. [@Akshaythorat376](https://github.com/Akshaythorat376)님이 보고해 주셨습니다.
 
 ## v2.52.0 - 붙여넣은 목록을 체크리스트로 (Turn a pasted list into a checklist) - 2026-09-22
 

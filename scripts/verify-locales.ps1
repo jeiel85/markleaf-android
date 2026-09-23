@@ -27,7 +27,8 @@
 
   마지막으로 문서에 적힌 언어 "개수"도 본다. AGENTS.md·docs/RELEASE.md·
   docs/assets/README.md 는 개수를 산문으로 적어 두는데, 그건 목록에서 파생되지
-  않으므로 언어가 늘어도 그대로 남는다.
+  않으므로 언어가 늘어도 그대로 남는다. 스토어 설명과 README 의 "UI N개 언어"
+  줄도 같은 이유로 본다.
 .EXAMPLE
   pwsh scripts/verify-locales.ps1
 #>
@@ -213,6 +214,47 @@ if (Test-Path -LiteralPath $agentsPath) {
                 Write-Host ("  OK    AGENTS.md            언어 목록 ({0})" -f $match.Groups[1].Value) -ForegroundColor Green
             }
         }
+    }
+}
+
+# ---- 8. 번역된 표면에 적힌 UI 언어 수 ----
+#
+# 스토어 설명과 README 는 언어마다 "UI N개 언어 (한국어, 영어, …)" 줄을 한 줄씩
+# 갖고 있고, 그 문장은 번역이라 위 7번처럼 정규식 하나로 잡을 수 없다. 그래서
+# 문구가 아니라 모양으로 찾는다: 언어 이름을 구분자로 나열하고 숫자가 들어간
+# 줄. 아키텍처 줄(core / data / …)은 숫자가 없어 빠진다. hr·ru·vi 를 거치는 동안
+# 스토어 설명 여섯 개가 "7개 언어"로 남아 있었고 어떤 검사도 보지 않았다 (#262).
+Write-Host "`n스토어 설명·README 의 UI 언어 수 ($($locales.Count)개여야 함)"
+$uiLineSurfaces = @(
+    $locales | ForEach-Object {
+        @{ File = "fastlane/metadata/android/$($_.Store)/full_description.txt"; Separator = '[,、，]' }
+    }
+    $locales | ForEach-Object { @{ File = $_.ReadmeFile; Separator = ' / ' } }
+)
+foreach ($surface in $uiLineSurfaces) {
+    $path = Resolve-UnderRoot $surface.File
+    if (-not (Test-Path -LiteralPath $path)) { continue }  # 존재 여부는 3·5번이 본다
+    $candidates = @(Get-Content -Encoding utf8 -LiteralPath $path | Where-Object {
+        [regex]::Matches($_, $surface.Separator).Count -ge 4 -and $_ -match '\d'
+    })
+    if ($candidates.Count -ne 1) {
+        Add-Failure ("  FAIL  {0,-48} UI 언어 줄(구분자로 나열한 언어 이름 + 숫자)이 {1}개입니다 — 정확히 1개여야 합니다." -f $surface.File, $candidates.Count)
+        continue
+    }
+    $line = $candidates[0]
+    $stated = [regex]::Match($line, '\d+').Value
+    $separators = [regex]::Matches($line, $surface.Separator)
+    $names = $separators.Count + 1
+    # 마지막 두 이름을 구분자 대신 접속사로 잇는 줄(hr "…, ruski, vijetnamski i slovački")은
+    # 이름 하나가 구분자에 안 잡히므로 하나 더 센다. 모든 줄에 1개 오차를 허용하면
+    # 숫자만 올리고 새 이름을 빠뜨린 줄이 통과하므로, 마지막 구분자 뒤에 접속사가
+    # 있을 때만이다.
+    $tail = $line.Substring($separators[$separators.Count - 1].Index + $separators[$separators.Count - 1].Length)
+    if ($tail -match '\s(?:i|a|and|y|e|et|und|и|và)\s') { $names++ }
+    if ($stated -ne "$($locales.Count)" -or $names -ne $locales.Count) {
+        Add-Failure ("  FAIL  {0,-48} '{1}개'라고 적고 이름을 약 {2}개 나열합니다 — {3}개 언어로 갱신하세요." -f $surface.File, $stated, $names, $locales.Count)
+    } else {
+        Write-Host ("  OK    {0,-48} {1}개" -f $surface.File, $stated) -ForegroundColor Green
     }
 }
 

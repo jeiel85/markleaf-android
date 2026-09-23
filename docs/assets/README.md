@@ -37,7 +37,32 @@ this was filed. On this content — 238 frames of flat UI at 960×540 — it cam
 out **four times larger than the GIF**, not a third of it (3,730 KB at q55,
 4,202 KB at q70, 9,354 KB lossless); GIF's palette plus frame differencing
 suits a screencast of flat colour better than a lossy photographic codec does.
-h264 at crf 28 is 115 KB, vp9 at crf 36 is 110 KB. Re-encode with:
+h264 at crf 28 is 115 KB, vp9 at crf 36 is 110 KB.
+
+### Making a new language's clip
+
+Don't re-shoot. Every clip is the same English recording with a translated
+caption band: the app occupies `y=13..933` of the 1920×1080 master and the
+captions sit below it, so `crop=1920:934:0:0,pad=1920:1080:0:0:black` on any
+language's master gives a clean base to draw the new captions on (52pt white at
+`y=946`, 36pt `#9FC7AC` at `y=1016`, one pair per scene). Re-shooting shifts the
+clock, the timing and the app version out of step with the other clips.
+
+Then the GIF, with the dither **pinned**:
+
+```
+ffmpeg -i markleaf-tablet-demo-<lang>.mp4 -filter_complex \
+  "[0:v]setpts=PTS/1.6,fps=10,scale=960:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5" \
+  -loop 0 markleaf-tablet-<lang>.gif
+```
+
+Leaving `paletteuse` at its default made the Slovak GIF 1.26 MB against ~1.0 MB
+for its siblings with the same command under ffmpeg 8.1.2. Bayer at scale 5 came
+out at 1.01 MB **and** closer to the source (PSNR 43.96 dB against the default's
+43.01; the committed Russian clip measures 44.23), so it is not a
+size-for-quality trade (#262).
+
+The mp4 and poster are then derived from the GIF:
 
 ```
 ffmpeg -i markleaf-tablet-<lang>.gif -c:v libx264 -pix_fmt yuv420p -crf 28 \

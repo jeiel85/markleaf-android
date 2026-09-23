@@ -50,16 +50,30 @@ echo "sys.boot_completed=${BOOT_COMPLETED}"
 # Output is captured rather than piped, so `set -o pipefail` cannot turn an adb
 # failure into a false "service is back"; the assignment sits in an `if` so its
 # exit status is kept instead of discarded.
+#
+# Answering is not the same as being able to install. On #454 the first attempt
+# died with `Broken pipe` because system_server restarted underneath it; about a
+# minute later the package service answered again, and attempts 2 and 3 both
+# failed inside it with `NullPointerException ... StorageManager.getVolumes()` --
+# the storage service (`mount`) had not been registered yet, and an install
+# resolves its volume through it. So the probe also waits for `mount`, and the
+# window is three minutes rather than one: a restarting system_server takes
+# longer than a first boot's tail.
 wait_for_package_service() {
-  for _ in $(seq 1 30); do
+  for _ in $(seq 1 90); do
     if probe="$(adb shell cmd package list packages 2>&1)"; then
       case "$probe" in
         *"Can't find service: package"*) ;;
         *"Failure calling service package"*) ;;
-        *) return 0 ;;
+        *)
+          if storage="$(adb shell service check mount 2>&1)" \
+            && printf '%s\n' "$storage" | grep -q 'mount: found'; then
+            return 0
+          fi
+          ;;
       esac
     fi
-    echo "Package service is not answering yet"
+    echo "Package or storage service is not ready yet"
     sleep 2
   done
   return 1
@@ -73,6 +87,11 @@ wait_for_package_service() {
 # did not: it burned attempts 2 and 3 six seconds apart against a device that
 # had no package manager, and reported "adb install failed after retries" as
 # though the APK were at fault.
+if ! wait_for_package_service; then
+  echo "The device's package or storage service never came up after boot; the emulator is not usable."
+  exit 1
+fi
+
 for attempt in 1 2 3; do
   echo "Install attempt ${attempt}"
   if adb install -r "$APK"; then

@@ -97,7 +97,8 @@ object StarterNotesSeeder {
         }
     }
 
-    private const val STARTER_NOTE_SEPARATOR = "---markleaf-note---"
+    /** Splits `starter_notes.md`; shared with the tests so the two can't drift. */
+    internal const val STARTER_NOTE_SEPARATOR = "---markleaf-note---"
 
     private val DEFAULT_STARTER_NOTE_CONTENTS = listOf(
         """

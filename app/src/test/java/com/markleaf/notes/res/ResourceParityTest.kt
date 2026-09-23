@@ -1,6 +1,7 @@
 package com.markleaf.notes.res
 
 import com.markleaf.notes.LocaleManifest
+import com.markleaf.notes.data.onboarding.StarterNotesSeeder
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -47,7 +48,7 @@ class ResourceParityTest {
             .forEach { path ->
                 val file = File(path)
                 assertTrue("$path should exist", file.exists())
-                assertEquals(6, file.readText().split("---markleaf-note---").size)
+                assertEquals(6, file.readText().split(StarterNotesSeeder.STARTER_NOTE_SEPARATOR).size)
             }
     }
 

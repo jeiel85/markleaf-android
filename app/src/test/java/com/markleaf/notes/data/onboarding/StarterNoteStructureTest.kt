@@ -59,28 +59,38 @@ class StarterNoteStructureTest {
     fun tagLinesHoldOnlyTags() {
         assertNoProblems("tag lines with words that are not tags") { note ->
             // Every starter note ends with its tag line. A tag can't contain a
-            // space, so a translated multi-word tag leaves words behind.
+            // space, so a translated multi-word tag leaves words behind. Each word
+            // must also be read as one whole tag: `#l'écriture` or `#vie.privée`
+            // would be tagged `l` and `vie`, with the rest left as body text.
             val line = note.content.lines().last { it.isNotBlank() }
-            val words = line.trim().split(Regex("\\s+")).distinct()
-            if (TagParser.parseTags(line).size == words.size && words.all { it.startsWith("#") }) {
-                emptyList()
-            } else {
-                listOf("\"$line\" — tags can't contain spaces; join the words with - or _")
-            }
+            line.trim().split(Regex("\\s+"))
+                .filterNot { TagParser.parseTags(it) == listOf(it.removePrefix("#")) }
+                .map { "\"$it\" in \"$line\" — not one whole tag; use letters, digits, - or _, and no spaces" }
         }
     }
 
     @Test
     fun theTourNamesTheOtherStarterNotesByTitle() {
+        // Matching titles alone would pass a tour with no bold at all — say one
+        // whose entries were put in „quotes" instead — so the count has to
+        // match the source language's tour too.
+        val sourceTour = tourEntries(starterFile(LocaleManifest.source).notes.first())
         assertNoProblems("tour entries in the first note that match no note title") { note ->
             if (note.index != 0) return@assertNoProblems emptyList()
-            BOLD.findAll(note.content)
-                .map { it.groupValues[1] }
+            val entries = tourEntries(note)
+            val problems = entries
                 .filterNot { WikilinkExtractor.normalize(it) in note.file.normalizedTitles }
                 .map { "**$it** — the tour should use the exact title of the note it points to" }
-                .toList()
+            if (entries.size == sourceTour.size) {
+                problems
+            } else {
+                problems + "${entries.size} bold tour entries where the source has ${sourceTour.size} — keep each note title in **bold**"
+            }
         }
     }
+
+    private fun tourEntries(note: StarterNote): List<String> =
+        BOLD.findAll(note.content).map { it.groupValues[1] }.toList()
 
     private class StarterFile(val path: String, contents: List<String>) {
         val notes: List<StarterNote> = contents.mapIndexed { index, content -> StarterNote(this, index, content) }
@@ -109,21 +119,21 @@ class StarterNoteStructureTest {
     }
 
     private fun starterFiles(): List<StarterFile> =
-        LocaleManifest.entries
-            .filter { it.hasStarterNotes }
-            .map { entry ->
-                val path = "src/main/res/${entry.rawDir}/starter_notes.md"
-                val file = File(path)
-                assertTrue("$path should exist", file.isFile)
-                // The same split the seeder does.
-                StarterFile(
-                    path,
-                    file.readText()
-                        .split(StarterNotesSeeder.STARTER_NOTE_SEPARATOR)
-                        .map { it.trim() }
-                        .filter { it.isNotBlank() }
-                )
-            }
+        LocaleManifest.entries.filter { it.hasStarterNotes }.map(::starterFile)
+
+    private fun starterFile(entry: LocaleManifest.Entry): StarterFile {
+        val path = "src/main/res/${entry.rawDir}/starter_notes.md"
+        val file = File(path)
+        assertTrue("$path should exist", file.isFile)
+        // The same split the seeder does.
+        return StarterFile(
+            path,
+            file.readText()
+                .split(StarterNotesSeeder.STARTER_NOTE_SEPARATOR)
+                .map { it.trim() }
+                .filter { it.isNotBlank() }
+        )
+    }
 
     /** Code isn't rendered as Markdown, so a `[[` or `[!` inside it is an example, not structure. */
     private fun withoutCode(content: String): String =

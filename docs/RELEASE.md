@@ -483,7 +483,12 @@ language added without its privacy translation gave two dead links per page.
 
 It also checks the language *counts* written into `AGENTS.md`, this file and
 `docs/assets/README.md`. Prose counts are the one place the list cannot be
-derived from, which is why they had been stale through two additions.
+derived from, which is why they had been stale through two additions. The same
+goes for the "UI in N languages (…)" line in every store description and README:
+those are translated, so the check finds the line by shape — language names in a
+separated list, plus a number — and requires the number to match the manifest.
+Six store descriptions were still at 7 while the app had 11 before this was
+added.
 
 Adding a language means adding a row to the manifest and then the files its
 header names. The check names whichever one is missing.

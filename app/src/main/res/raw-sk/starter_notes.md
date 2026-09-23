@@ -1,62 +1,53 @@
 # Vitajte v Markleaf
 
-Markleaf je čistý, lokálny Markdown zápisník pre Android. Rýchlo sa otvára,
-neprekáža a udržiava vaše písanie ako obyčajný text, ktorý patrí vám.
+Markleaf je pokojný, prednostne lokálny zápisník Markdown pre Android. Rýchlo sa otvára, neprekáža a uchováva vaše písanie ako obyčajný text, ktorý patrí vám.
 
 ## Malá prehliadka
 
-- Otvorte **Krásne prostredie Markdown-u**, aby ste videli pracovnú plochu.
-- Otvorte si **Každodenný rituál písania**, kde nájdete príklady v štýle
-  denníka.
-- Otvorte **Stručný popis projektu**, aby ste si prezreli úlohy, odkazy a
-  štruktúru.
-- Otvorte **Zrkadlenie miestneho priečinka** ak potrebujete zdieľať súbory mimo
-  aplikácie.
+- Otvorte **Krásne plátno Markdownu** a pozrite si pracovnú plochu.
+- Otvorte **Každodenný rituál písania**, kde nájdete príklad v štýle denníka.
+- Otvorte **Stručný popis projektu** a pozrite si úlohy, odkazy a štruktúru.
+- Otvorte **Zrkadlenie lokálneho priečinka**, keď chcete mať súbory aj mimo aplikácie.
 
-> [!TIP] Ide o bežné poznámky. Keď už prehliadku nebudete potrebovať, môžete ju
-> upravovať, exportovať, presunúť do koša alebo vymazať.
+> [!TIP]
+> Toto sú bežné poznámky. Upravte ich, exportujte, presuňte do koša alebo ich vymažte, keď prehliadku už nebudete potrebovať.
 
 #začiatok #návod
 
----markleaf-poznámka---
+---markleaf-note---
 
-# Krásne prostredie Markdown-u
+# Krásne plátno Markdownu
 
-![Vzorový dokument
-Markleaf](attachments/starter-note-2/markleaf-sample-cover.png)
+![Ukážkové plátno Markleaf](attachments/starter-note-2/markleaf-sample-cover.png)
 
-Markdown zostáva čitateľný ako text a v **Náhľade** nadobúda prehľadný a
-vycibrený vzhľad.
+Markdown zostáva čitateľný ako text a v **Náhľade** nadobúda pokojný, vycibrený vzhľad.
 
 ## Čo táto poznámka ukazuje
 
-- **Tučné písmo**, _kurzíva_, ~~prečiarknuté~~ a `kód v riadku`
-- Nadpisy, zoznamy, kontrolné zoznamy, citáty, oddeľovače, bloky kódu, tabuľky,
-  vysvetlivky, poznámky pod čiarou, odkazy a obrázky
-- Dynamické formátovanie syntaxe počas písania
+- **Tučné písmo**, _kurzíva_, ~~prečiarknutie~~ a `kód v riadku`
+- Nadpisy, zoznamy, zoznamy úloh, citáty, oddeľovače, bloky kódu, tabuľky, zvýraznené bloky, poznámky pod čiarou, odkazy a obrázky
+- Zvýrazňovanie syntaxe už počas písania
 
-> [!POZNÁMKA] V hornom paneli môžete prepínať medzi režimami „Upraviť“ a
-> „Náhľad“. Poznámka je naďalej len v formáte Markdown.
+> [!NOTE]
+> Medzi úpravou a náhľadom prepínate v hornom paneli. Poznámka je stále len Markdown.
 
-| Prvok                        | Použite to na              |
-| ---------------------------- | -------------------------- |
-| `#značka`                    | organizácia                |
+| Prvok | Na čo slúži |
+| --- | --- |
+| `#značka` | organizácia |
 | `[[Stručný popis projektu]]` | odkazy na lokálne poznámky |
-| `![](...)`                   | priložené obrázky          |
+| `![](...)` | priložené obrázky |
 
 ```kotlin
-zábavný markleaf() = "prednostne lokálny markdown"
+fun markleaf() = "prednostne lokálny markdown"
 ```
 
-Malá poznámka pod čiarou umožňuje mať podrobnosti po ruke, bez toho, aby
-narušovala plynulosť odseku.[^1]
+Malá poznámka pod čiarou drží podrobnosti nablízku bez toho, aby prerušila odsek.[^1]
 
-[^1]: Poznámky pod čiarou, vysvetlivky, tabuľky a bloky kódu sa všetky zobrazujú
-lokálne.
+[^1]: Poznámky pod čiarou, zvýraznené bloky, tabuľky aj bloky kódu sa vykresľujú lokálne.
 
-#markdown #prezentácia
+#markdown #ukážka
 
----markleaf-poznámka---
+---markleaf-note---
 
 # Každodenný rituál písania
 
@@ -64,53 +55,50 @@ lokálne.
 
 Cieľom nie je písať viac. Cieľom je, aby prvá veta bola jednoduchá.
 
-- [x] Zachyť jednu myšlienku
+- [x] Zachytiť jednu myšlienku
 - [ ] Premeniť jednu úlohu na poznámku
-- [ ] Prepojiť súvisiace práce s [[Stručný popis projektu]]
+- [ ] Prepojiť súvisiacu prácu so [[Stručný popis projektu]]
 
-> Ponechajte si poznámku dostatočne krátku, aby ste sa k nej skutočne vrátili.
+> Nechajte poznámku dosť krátku na to, aby ste sa k nej naozaj vrátili.
 
 ## Záver dňa
 
-Čo sa dnes zmenilo?
+Čo sa dnes pohlo dopredu?
 
 1. Jedno užitočné rozhodnutie
 2. Jedna otvorená otázka
-3. Jedna vec, ktorú si nechám na zajtra
+3. Jedna vec, ktorú nechám na zajtra
 
 #denník #písanie
 
----markleaf-poznámka---
+---markleaf-note---
 
 # Stručný popis projektu
 
-Táto poznámka ukazuje, ako Markleaf dokáže zvládnuť malý projekt bez toho, aby
-sa stal ťažkopádnym.
+Táto poznámka ukazuje, ako Markleaf zvládne malý projekt bez toho, aby sa stal ťažkopádnym.
 
 ## Výsledok
 
-Vytvorte čistý ukážkový zošit, ktorý učí tým, že je užitočný.
+Vydať čistý ukážkový zápisník, ktorý učí tým, že je užitočný.
 
 ## Plán
 
-- [x] Zobraziť syntax Markdownu v atraktívnom formáte
+- [x] Pekne zobraziť syntax Markdownu
 - [x] Vložiť prílohu s obrázkom
-- [ ] Skúste vyhľadávať s použitím `prednostne lokálne`
+- [ ] Skúsiť vyhľadať `prednostne lokálne`
 - [ ] Otvoriť spätné odkazy z **Každodenný rituál písania**
 
 ## Poznámky
 
-Súvisiace: [[Každodenný rituál písania]] and [[Značky, vyhľadávanie a spätné
-odkazy]]
+Súvisiace: [[Každodenný rituál písania]] a [[Značky, vyhľadávanie a spätné odkazy]]
 
 #projekt/markleaf #plánovanie
 
----markleaf-poznámka---
+---markleaf-note---
 
 # Značky, vyhľadávanie a spätné odkazy
 
-Zadávajte značky priamo do textu: #projekt, #písanie, #súkromie,
-#prednostne_lokálne.
+Značky píšte priamo do textu: #projekt, #písanie, #súkromie, #prednostne-lokálne.
 
 ## Nápady na vyhľadávanie
 
@@ -122,32 +110,27 @@ Skúste vyhľadať:
 
 ## Spätné odkazy
 
-Vikilinks používajú formát `[[Názov poznámky]]`. Ak sem odkazuje iná poznámka,
-Markleaf môže tento vzťah zobraziť priamo v danej poznámke. Nie je do toho
-zapojený žiadny účet ani server.
+Wikiodkazy majú tvar `[[Názov poznámky]]`. Keď na túto poznámku odkazuje iná poznámka, Markleaf môže tento vzťah zobraziť lokálne. Nie je do toho zapojený žiadny účet ani server.
 
-Pozri tiež [[Stručný popis projektu]].
+Pozrite tiež [[Stručný popis projektu]].
 
-#organizovať #vyhľadávať
+#organizácia #vyhľadávanie
 
----markleaf-poznámka---
+---markleaf-note---
 
-# Zkradlenie lokálneho priečinka
+# Zrkadlenie lokálneho priečinka
 
-Markleaf nepotrebuje vlastný cloud. Namiesto toho si môžete vybrať priečinok a
-nechať, aby sa oň postaral systém Android alebo váš synchronizačný nástroj.
+Markleaf nepotrebuje vlastný cloud. Namiesto toho si môžete vybrať priečinok a nechať, aby sa oň postaral Android alebo váš synchronizačný nástroj.
 
-## Čo sa stane
+## Čo sa deje
 
-- Markleaf ukladá každú poznámku ako súbor vo formáte Markdown.
-- Úvodná sekcia zachováva nemenné `markleaf_id`.
-- Prílohy sa ukladajú vedľa zrkadlených poznámok.
-- Markleaf nikdy neukladá vaše poznámky – synchronizácia je úlohou vášho
-  nástroja, nie aplikácie.
+- Markleaf zapisuje každú poznámku ako súbor Markdown.
+- Úvodná hlavička (frontmatter) uchováva stály `markleaf_id`.
+- Prílohy zostávajú vedľa zrkadlených poznámok.
+- Markleaf nikdy neodosiela vaše poznámky — synchronizácia je úlohou vášho nástroja, nie aplikácie.
 
-## Prečo je to dôležité
+## Prečo na tom záleží
 
-Vaše poznámky zostávajú čitateľné aj v iných nástrojoch na prácu s Markdownom a
-synchronizácia závisí od vášho rozhodnutia.
+Vaše poznámky zostávajú čitateľné aj v iných nástrojoch pre Markdown a o synchronizácii rozhodujete vy.
 
-#ochrana súkromia #zrkadlenie priečinka #prednostne-lokálne
+#súkromie #zrkadlenie-priečinka #prednostne-lokálne

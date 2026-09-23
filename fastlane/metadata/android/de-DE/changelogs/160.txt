@@ -1,0 +1,1 @@
+Markleaf spricht jetzt Slowakisch, übersetzt von @padi-sk – insgesamt 11 Sprachen. Behoben: Mit SwiftKey verschwindet nach Enter in einer Liste der neue Aufzählungspunkt oder die neue Nummer nicht mehr kurz darauf. Danke an @Akshaythorat376.

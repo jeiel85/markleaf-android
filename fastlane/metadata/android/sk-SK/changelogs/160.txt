@@ -1,0 +1,1 @@
+Markleaf teraz hovorí po slovensky, preklad pripravil @padi-sk – spolu 11 jazykov. Opravené: so SwiftKey už stlačenie Enter v zozname o chvíľu nezmaže novú odrážku ani číslo. Vďaka @Akshaythorat376.

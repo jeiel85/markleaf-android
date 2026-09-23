@@ -4,6 +4,16 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.53.0 - Markleaf in Slovak - 2026-09-23
+
+A new language and one editor fix. No permission or storage-format changes.
+
+### Added
+- **Slovak ([#453](https://github.com/jeiel85/markleaf-android/pull/453)).** The app interface and the first-launch starter notes were translated by [@padi-sk](https://github.com/padi-sk); the store descriptions, the README, the website and its privacy page followed, and the tablet demo clip has Slovak captions — bringing Markleaf to 11 languages. Markleaf follows your device language. Corrections from native speakers are welcome in [Issues](https://github.com/jeiel85/markleaf-android/issues).
+
+### Fixed
+- **Pressing Enter in a list no longer loses the new bullet or number with SwiftKey ([#447](https://github.com/jeiel85/markleaf-android/issues/447)).** After Enter continued a list, Microsoft SwiftKey could send its own earlier copy of the text a moment later, silently undoing the `- ` or `2. ` Markleaf had just added. Markleaf now recognises that stale copy and ignores it, and any edit you actually make still goes through. Confirmed with SwiftKey on a Galaxy S24; if another keyboard still drops the continuation, please report it. Reported by [@Akshaythorat376](https://github.com/Akshaythorat376).
+
 ## v2.52.0 - Turn a pasted list into a checklist - 2026-09-22
 
 Two fixes from an issue-response pass: an editor convenience, and a data-safety fix for anyone syncing notes to a folder. No permission or storage-format changes.

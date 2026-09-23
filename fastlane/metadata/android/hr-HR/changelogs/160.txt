@@ -1,0 +1,1 @@
+Markleaf sada govori slovački, prijevod je izradio @padi-sk – ukupno 11 jezika. Ispravljeno: sa SwiftKeyjem pritisak na Enter u popisu više ne briše novu grafičku oznaku ili broj trenutak kasnije. Hvala @Akshaythorat376.

@@ -27,7 +27,7 @@ Design and accessibility:
 
 * Home screen widget, biometric lock, screenshot blocking option
 * Light / dark / Material You, tablet two-pane layout
-* UI in 10 languages (Korean, English, Spanish, Japanese, French, German, Simplified Chinese, Croatian, Russian, Vietnamese)
+* UI in 11 languages (Korean, English, Spanish, Japanese, French, German, Simplified Chinese, Croatian, Russian, Vietnamese, Slovak)
 
 Privacy and distribution:
 

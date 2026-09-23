@@ -1,0 +1,1 @@
+Markleaf 现已支持斯洛伐克语（由 @padi-sk 翻译），共 11 种语言。修复：使用 SwiftKey 时，在列表中按回车后新的项目符号或编号不会再随即消失。感谢 @Akshaythorat376。

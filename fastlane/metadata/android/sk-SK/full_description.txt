@@ -1,0 +1,37 @@
+Markleaf je aplikácia na poznámky v Markdowne pre Android, ktorá uchováva všetko lokálne.
+
+Píšte v obyčajnom Markdowne, usporadúvajte poznámky značkami priamo v texte, vyhľadávajte okamžite a majte svoje poznámky pod kontrolou. Markleaf ukladá poznámky do lokálnej databázy Room a nedeklaruje povolenie INTERNET.
+
+Písanie a náhľad:
+
+* Živý náhľad Markdownu so zvýrazňovaním syntaxe počas písania
+* Tabuľky GFM, začiarkavacie políčka, citáty, zvýraznené bloky (> [!NOTE] …)
+* Zvýrazňovanie syntaxe v blokoch kódu pre 10 jazykov
+* Skok medzi odkazom na poznámku pod čiarou a jej definíciou, wikiodkazy a spätné odkazy
+* Inteligentné formátovanie, ktoré obalí výber alebo slovo do tučného písma/kurzívy/prečiarknutia/kódu
+* Režim čistého písania, štatistiky slov a času čítania, vyhľadávanie a nahrádzanie v poznámke
+
+Usporiadanie a navigácia:
+
+* Stačí písať #značky do textu a automaticky sa zaindexujú (bez priečinkov)
+* Rýchly prepínač a fulltextové vyhľadávanie SQLite FTS
+* Pripnutie, archív, kôš a obnovenie
+
+Synchronizácia a import (No-Cloud):
+
+* Zrkadlenie každej poznámky ako súboru .md do priečinka, ktorý vyberiete cez SAF
+* Import externých súborov .md / .txt ich otvorením alebo zdieľaním do aplikácie
+* Export jednej alebo všetkých poznámok do Markdownu a zdieľanie cez systém
+
+Dizajn a prístupnosť:
+
+* Widget na domovskej obrazovke, biometrické uzamknutie, možnosť blokovať snímky obrazovky
+* Svetlý / tmavý motív / Material You, rozloženie s dvoma panelmi na tablete
+* Rozhranie v 11 jazykoch (kórejčina, angličtina, španielčina, japončina, francúzština, nemčina, zjednodušená čínština, chorvátčina, ruština, vietnamčina, slovenčina)
+
+Súkromie a distribúcia:
+
+* Žiadny účet, žiadny server Markleafu
+* Žiadna analytika, reklamy, sledovanie, Firebase ani proprietárne SDK na hlásenie pádov
+* Žiadne povolenie INTERNET, automatické zálohovanie Androidu je vypnuté
+* Údaje používateľa opúšťajú zariadenie iba prostredníctvom výslovných akcií sprostredkovaných systémom, ako je export, zdieľanie, otvorenie externého odkazu alebo priečinok SAF zvolený používateľom

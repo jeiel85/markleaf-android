@@ -1,0 +1,1 @@
+Markleaf nay đã có tiếng Slovakia, do @padi-sk dịch — tổng cộng 11 ngôn ngữ. Đã sửa: với SwiftKey, nhấn Enter trong danh sách không còn làm mất dấu đầu dòng hoặc số mới ngay sau đó. Cảm ơn @Akshaythorat376.

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zásady ochrany osobných údajov - Markleaf</title>
+    <meta name="description" content="Zásady ochrany osobných údajov aplikácie Markleaf. Markleaf je aplikácia na Markdown poznámky s dôrazom na lokálne ukladanie, bez účtu, analytiky, reklám a sledovania. Zostavy pre obchody nedeklarujú povolenie INTERNET.">
+    <link rel="canonical" href="https://jeiel85.github.io/markleaf-android/privacy.sk.html">
+    <link rel="alternate" hreflang="en" href="https://jeiel85.github.io/markleaf-android/privacy.html">
+    <link rel="alternate" hreflang="ko" href="https://jeiel85.github.io/markleaf-android/privacy.ko.html">
+    <link rel="alternate" hreflang="ja" href="https://jeiel85.github.io/markleaf-android/privacy.ja.html">
+    <link rel="alternate" hreflang="zh-Hans" href="https://jeiel85.github.io/markleaf-android/privacy.zh.html">
+    <link rel="alternate" hreflang="de" href="https://jeiel85.github.io/markleaf-android/privacy.de.html">
+    <link rel="alternate" hreflang="es" href="https://jeiel85.github.io/markleaf-android/privacy.es.html">
+    <link rel="alternate" hreflang="fr" href="https://jeiel85.github.io/markleaf-android/privacy.fr.html">
+    <link rel="alternate" hreflang="hr" href="https://jeiel85.github.io/markleaf-android/privacy.hr.html">
+    <link rel="alternate" hreflang="ru" href="https://jeiel85.github.io/markleaf-android/privacy.ru.html">
+    <link rel="alternate" hreflang="vi" href="https://jeiel85.github.io/markleaf-android/privacy.vi.html">
+    <link rel="alternate" hreflang="sk" href="https://jeiel85.github.io/markleaf-android/privacy.sk.html">
+    <link rel="alternate" hreflang="x-default" href="https://jeiel85.github.io/markleaf-android/privacy.html">
+    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav aria-label="Hlavná navigácia">
+            <a class="logo" href="index.sk.html" aria-label="Markleaf — úvodná stránka">
+                <img src="assets/logo.svg" alt="">
+                <span>Markleaf</span>
+            </a>
+            <div class="nav-cluster">
+                <ul>
+                    <li><a href="index.sk.html">Domov</a></li>
+                    <li><a href="privacy.sk.html">Súkromie</a></li>
+                    <li><a href="https://github.com/jeiel85/markleaf-android">GitHub</a></li>
+                </ul>
+                <div class="lang-switch" aria-label="Jazyk">
+                    <a href="privacy.html" hreflang="en" aria-label="English">EN</a>
+                    <a href="privacy.ko.html" hreflang="ko" aria-label="한국어">KO</a>
+                    <a href="privacy.ja.html" hreflang="ja" aria-label="日本語">JA</a>
+                    <a href="privacy.zh.html" hreflang="zh-Hans" aria-label="简体中文">ZH</a>
+                    <a href="privacy.de.html" hreflang="de" aria-label="Deutsch">DE</a>
+                    <a href="privacy.es.html" hreflang="es" aria-label="Español">ES</a>
+                    <a href="privacy.fr.html" hreflang="fr" aria-label="Français">FR</a>
+                    <a href="privacy.hr.html" hreflang="hr" aria-label="Hrvatski">HR</a>
+                    <a href="privacy.ru.html" hreflang="ru" aria-label="Русский">RU</a>
+                    <a href="privacy.vi.html" hreflang="vi" aria-label="Tiếng Việt">VI</a>
+                    <a href="privacy.sk.html" hreflang="sk" aria-current="page">SK</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <article class="content">
+            <h1>Zásady ochrany osobných údajov Markleaf</h1>
+            <p class="updated">Posledná aktualizácia: 26. mája 2026 · Platí pre Markleaf pre Android v2.x</p>
+
+            <h2>Základný princíp</h2>
+            <p>Markleaf je aplikácia na Markdown poznámky s dôrazom na lokálne ukladanie. Neprevádzkuje žiadny vlastný server a nikdy neodosiela poznámky, značky, prílohy ani metadáta na žiadny externý server. Zostavy distribuované cez F-Droid a Google Play vôbec nedeklarujú povolenie <code>android.permission.INTERNET</code>; zostava na ručnú inštaláciu z GitHub Releases ho deklaruje len na jediný účel, ktorý je opísaný v časti <a class="text-link" href="#network">Sieť</a>.</p>
+
+            <h2>Údaje, ktoré Markleaf nezhromažďuje</h2>
+            <ul>
+                <li>Meno, e-mail, kontakty, poloha</li>
+                <li>Údaje o účte alebo prihlásení</li>
+                <li>Text poznámok, názvy, značky, priložené obrázky, názvy súborov, metadáta</li>
+                <li>Štatistiky používania, telemetria, analytické udalosti, reklamné identifikátory</li>
+                <li>Hlásenia o zlyhaní alebo identifikátory zariadenia</li>
+            </ul>
+            <p>Aplikácia tiež neobsahuje analytiku, reklamy, sledovanie, vzdialenú konfiguráciu, Firebase ani SDK na hlásenie zlyhaní s uzavretým zdrojovým kódom.</p>
+
+            <h2 id="network">Sieť</h2>
+            <p>Závisí to od toho, odkiaľ ste aplikáciu získali. V oboch prípadoch sa <strong>nikdy neodosielajú žiadne údaje z vašich poznámok.</strong></p>
+            <ul>
+                <li><strong>F-Droid a Google Play</strong> — žiadne <code>android.permission.INTERNET</code> a vôbec žiadna sieťová aktivita.</li>
+                <li><strong>GitHub Releases (ručná inštalácia)</strong> — deklaruje dve povolenia: jedno na kontrolu aktualizácií a druhé na inštaláciu aktualizácie, ktorú sa sami rozhodnete stiahnuť. Obe zostávajú nevyužité, kým kontrolu nezapnete.</li>
+            </ul>
+            <pre>F-Droid / Google Play   INTERNET: žiadne &middot; REQUEST_INSTALL_PACKAGES: žiadne
+GitHub Releases         INTERNET: kontrola aktualizácií &middot; REQUEST_INSTALL_PACKAGES: inštalácia po overení SHA-256</pre>
+
+            <h3>Kontrola aktualizácií v zostave na ručnú inštaláciu</h3>
+            <ul>
+                <li><strong>Predvolene vypnutá.</strong> Nič sa nestane, kým ju nezapnete v Nastaveniach.</li>
+                <li>Raz denne odošle jedinú požiadavku GET na jeden statický súbor JSON, ktorý opisuje najnovšie vydanie. Neúspešná kontrola sa potichu ignoruje.</li>
+                <li>Ťuknutím na <strong>Stiahnuť a nainštalovať</strong> v dialógovom okne aktualizácie aplikácia odošle svoju jedinú ďalšiu sieťovú požiadavku: GET na samotný súbor aktualizácie. Rovnako ako kontrola sa to stane len preto, že ste o to požiadali.</li>
+                <li>Po stiahnutí súboru ho aplikácia porovná s hodnotou SHA-256 uvedenou v tom istom súbore JSON. <strong>Ak sa nezhoduje, súbor sa odstráni a inštalácia sa vôbec nezačne.</strong></li>
+                <li>Iba overený súbor sa odovzdá vlastnému inštalátoru <code>PackageInstaller</code> systému Android. Potvrdzovaciu obrazovku, ktorá nasleduje, zobrazuje Android, nie Markleaf. Tento krok vyžaduje povolenie <code>REQUEST_INSTALL_PACKAGES</code>; ak ešte nie je udelené, aplikácia vás najprv presmeruje do Nastavení.</li>
+                <li>Ak sťahovanie alebo overenie zlyhá, môžete to skúsiť znova alebo súbor namiesto toho otvoriť v prehliadači — rovnako, ako to táto funkcia robila predtým.</li>
+                <li>Požiadavka obsahuje iba túto adresu URL a štandardné hlavičky HTTP. Žiadne parametre dopytu, žiadne cookies, žiadny účet.</li>
+                <li><strong>Neodosiela sa text poznámok, názvy, značky, prílohy, názvy súborov, metadáta, identifikátory zariadenia ani údaje o používaní.</strong> Platí to bez výnimky pre každú zostavu a každú z týchto požiadaviek.</li>
+                <li>Zostavy pre obchody neobsahujú ani toto povolenie, ani príslušný kód — nie je vypnutý, jednoducho v nich nie je zabudovaný.</li>
+            </ul>
+
+            <h2>Kde sa ukladajú údaje</h2>
+            <ul>
+                <li>Text poznámok, názvy a index značiek sa ukladajú do internej databázy Room aplikácie.</li>
+                <li>Používateľské nastavenia sa ukladajú v DataStore.</li>
+                <li>Priložené obrázky sa kopírujú do interného úložiska aplikácie a citlivé metadáta EXIF sa pri ukladaní odstraňujú.</li>
+            </ul>
+
+            <h2>Zásady systémového zálohovania Androidu</h2>
+            <p>Markleaf nastavuje <code>android:allowBackup="false"</code>, aby vylúčil údaje aplikácie z automatického zálohovania Androidu a z prenosu medzi zariadeniami. Ak potrebujete prejsť na nové zariadenie alebo používať viac zariadení, sami si zvolíte export do Markdownu, zdieľanie alebo zrkadlenie do priečinka SAF.</p>
+
+            <h2>Presun údajov z podnetu používateľa</h2>
+            <p>Nasledujúce akcie sa vykonajú iba vtedy, keď ich vykonáte sami — prostredníctvom výslovného dialógového okna povolení Androidu alebo voľby, ktorú urobíte v rozhraní.</p>
+            <ul>
+                <li>Export jednej alebo všetkých poznámok do Markdownu (<code>.md</code>)</li>
+                <li>Zdieľanie textu alebo súborov poznámky cez systémovú ponuku zdieľania v Androide</li>
+                <li>Ťuknutie na externý odkaz v texte, ktorý sa odovzdá systému / predvolenému prehliadaču</li>
+                <li>Kopírovanie do schránky</li>
+                <li>Zrkadlenie súborov Markdown do priečinka SAF, ktorý si vyberiete</li>
+            </ul>
+            <p>Či priečinok SAF synchronizuje externý synchronizačný klient, napríklad Drive, Dropbox, OneDrive, Syncthing alebo pripojené úložisko NAS, je zodpovednosťou tejto externej aplikácie. Markleaf takúto synchronizáciu sám nevykonáva.</p>
+
+            <h2>Povolenia</h2>
+            <p>Jediné povolenie typu runtime, ktoré Markleaf deklaruje, je <code>android.permission.VIBRATE</code> pre haptickú odozvu. Žiadna zostava nedeklaruje povolenia na polohu, mikrofón, fotoaparát, kontakty, upozornenia, čítanie externého úložiska ani čítanie médií. V zostavách pre F-Droid a Google Play nie je ani <code>android.permission.INTERNET</code>, ani <code>android.permission.REQUEST_INSTALL_PACKAGES</code>. Obe sú prítomné iba v zostave na ručnú inštaláciu, a to na kontrolu aktualizácií a voliteľnú inštaláciu opísané v časti <a class="text-link" href="#network">Sieť</a>.</p>
+
+            <h2>Kontakt</h2>
+            <p>Otázky alebo hlásenia týkajúce sa bezpečnosti či súkromia nám pošlite cez <a class="text-link" href="https://github.com/jeiel85/markleaf-android/issues">GitHub Issues</a>.</p>
+        </article>
+    </main>
+
+    <footer>
+        <p>Markleaf · Ľahká aplikácia na Markdown poznámky pre Android s dôrazom na lokálne ukladanie.</p>
+        <p><a href="index.sk.html">Domov</a> · <a href="https://github.com/jeiel85/markleaf-android">GitHub</a> · <a href="https://github.com/jeiel85/markleaf-android/blob/main/LICENSE">Apache-2.0</a></p>
+    </footer>
+</body>
+</html>

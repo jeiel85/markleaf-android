@@ -82,6 +82,7 @@ deciding the clipped leaf was worth a pull request.
 | [@ALILEX-1](https://github.com/ALILEX-1) | [#294](https://github.com/jeiel85/markleaf-android/pull/294) — Simplified Chinese |
 | [@ThatOneCalculator](https://github.com/ThatOneCalculator) | [#318](https://github.com/jeiel85/markleaf-android/pull/318) — launcher icon clipped by the adaptive-icon mask |
 | [@anotherus3r](https://github.com/anotherus3r) | [#329](https://github.com/jeiel85/markleaf-android/pull/329) — Croatian |
+| [@padi-sk](https://github.com/padi-sk) | [#453](https://github.com/jeiel85/markleaf-android/pull/453) — Slovak |
 
 Reporting something new? [Issues](https://github.com/jeiel85/markleaf-android/issues)
 for bugs, [Discussions](https://github.com/jeiel85/markleaf-android/discussions)

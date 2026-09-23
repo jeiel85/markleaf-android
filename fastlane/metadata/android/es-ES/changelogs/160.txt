@@ -1,0 +1,1 @@
+Markleaf ya habla eslovaco, traducido por @padi-sk: 11 idiomas en total. Corregido: con SwiftKey, pulsar Intro en una lista ya no hace desaparecer poco después la nueva viñeta o el nuevo número. Gracias a @Akshaythorat376.

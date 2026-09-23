@@ -32,7 +32,8 @@
   <a href="README.fr.md">Français</a> ·
   <a href="README.hr.md">Hrvatski</a> ·
   <a href="README.ru.md">Русский</a> ·
-  <a href="README.vi.md">Tiếng Việt</a>
+  <a href="README.vi.md">Tiếng Việt</a> ·
+  <a href="README.sk.md">Slovenčina</a>
 </p>
 
 <p align="center">
@@ -63,7 +64,7 @@
 
 **Markleaf** ist eine Android-Markdown-Notiz-App, die bewusst auf Ballast verzichtet, damit du dich auf zwei Dinge konzentrieren kannst: festhalten und ordnen. Deine Daten liegen ausschließlich auf deinem Gerät, und das standardisierte Markdown-Format garantiert volle Eigentümerschaft und Portabilität. Auch die Synchronisierung läuft nur über *einen von dir gewählten Ordner* – Markleaf synchronisiert und lädt selbst nie etwas hoch.
 
-[**Branding-Seite ansehen**](https://jeiel85.github.io/markleaf-android/) · [Aktuelle Version: v2.52.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.52.0) · [Datenschutzerklärung](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**Branding-Seite ansehen**](https://jeiel85.github.io/markleaf-android/) · [Aktuelle Version: v2.53.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.53.0) · [Datenschutzerklärung](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -99,7 +100,7 @@
 - **Markleaf-Grün-Theme + Material-You-Umschalter** – Systemfarben des Hintergrundbilds ab Android 12 optional
 - **Automatischer Dunkelmodus** – folgt der Systemeinstellung
 - **3-Spalten-Layout für Tablets** – Tag-Seitenleiste · Notizliste · Editor; tippe einen Tag in der Seitenleiste an, um die Notizliste direkt zu filtern (Notizliste weiterhin einklappbar)
-- **Oberfläche in 10 Sprachen** – Koreanisch / Englisch / Spanisch / Japanisch / Französisch / Deutsch / Vereinfachtes Chinesisch / Kroatisch / Russisch / Vietnamesisch
+- **Oberfläche in 11 Sprachen** – Koreanisch / Englisch / Spanisch / Japanisch / Französisch / Deutsch / Vereinfachtes Chinesisch / Kroatisch / Russisch / Vietnamesisch / Slowakisch
 - **Option zum Blockieren von Screenshots / Vorschau in zuletzt verwendeten Apps** – für vertrauliche Notizen
 
 ---
@@ -170,7 +171,7 @@ com.markleaf.notes
 > **Google-Play-Updates sind derzeit ausgesetzt.** Bis eine koreanische Gewerbeanmeldungs-Anforderung für den Einzelentwickler geklärt ist, werden keine neuen Versionen in den Play Store geladen. Die aktuelle Version bekommst du über **GitHub Releases**. Sobald der F-Droid-Build nachgezogen hat, ist F-Droid der empfohlene Update-Weg. (Wenn du sie bereits aus dem Play Store installiert hast, funktioniert sie weiterhin.)
 
 - **F-Droid** *(für automatische Updates empfohlen)*: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) – im F-Droid-Client suchen oder über den Link oben installieren. Der Katalog kann später als GitHub veröffentlichen; falls die aktuelle Version noch nicht angezeigt wird, nutze unten GitHub Releases. Es wird derselbe Signaturschlüssel (SHA-256 `0be97352…f91a`) verwendet, sodass Updates auch nach einem ersten Sideload eines GitHub-APKs nahtlos weiterlaufen.
-- **Direkte APK-Installation**: Der [GitHub-v2.52.0-Release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.52.0) enthält zwei APKs — `markleaf-v2.52.0.apk` entspricht dem F-Droid/Play-Build (kein Auto-Update, keine zusätzliche Berechtigung), und `markleaf-v2.52.0-sideload.apk` fügt eine optionale In-App-Update-Prüfung hinzu (`INTERNET`, `REQUEST_INSTALL_PACKAGES`). Wähle für In-App-Updates die Sideload-Variante, lade sie herunter und führe sie auf deinem Android-Gerät aus — beide verwenden denselben Signierschlüssel, ein späterer Wechsel zählt also als normales Update, nicht als Neuinstallation.
+- **Direkte APK-Installation**: Der [GitHub-v2.53.0-Release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.53.0) enthält zwei APKs — `markleaf-v2.53.0.apk` entspricht dem F-Droid/Play-Build (kein Auto-Update, keine zusätzliche Berechtigung), und `markleaf-v2.53.0-sideload.apk` fügt eine optionale In-App-Update-Prüfung hinzu (`INTERNET`, `REQUEST_INSTALL_PACKAGES`). Wähle für In-App-Updates die Sideload-Variante, lade sie herunter und führe sie auf deinem Android-Gerät aus — beide verwenden denselben Signierschlüssel, ein späterer Wechsel zählt also als normales Update, nicht als Neuinstallation.
 - **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) – **Updates sind ausgesetzt** (siehe Hinweis oben). Wenn du die App bereits hast, funktioniert sie weiter; die aktuelle Version gibt es über GitHub Releases oder nach Veröffentlichung über F-Droid.
 
 ### Aus dem Quellcode bauen

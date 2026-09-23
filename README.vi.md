@@ -32,7 +32,8 @@
   <a href="README.fr.md">Français</a> ·
   <a href="README.hr.md">Hrvatski</a> ·
   <a href="README.ru.md">Русский</a> ·
-  <strong>Tiếng Việt</strong>
+  <strong>Tiếng Việt</strong> ·
+  <a href="README.sk.md">Slovenčina</a>
 </p>
 
 <p align="center">
@@ -63,7 +64,7 @@
 
 **Markleaf** là ứng dụng ghi chú Markdown cho Android, được thiết kế để loại bỏ mọi thứ rườm rà, giúp bạn chỉ tập trung vào hai việc: ghi lại và sắp xếp. Dữ liệu chỉ được lưu trên thiết bị của bạn, và Markdown chuẩn bảo đảm bạn hoàn toàn sở hữu cũng như dễ dàng mang dữ liệu đi bất cứ đâu. Ngay cả đồng bộ cũng chỉ diễn ra qua *thư mục do bạn chọn* — bản thân Markleaf không bao giờ đồng bộ hay tải lên bất cứ thứ gì.
 
-[**Xem trang giới thiệu**](https://jeiel85.github.io/markleaf-android/) · [Phiên bản hiện tại: v2.52.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.52.0) · [Chính sách quyền riêng tư](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**Xem trang giới thiệu**](https://jeiel85.github.io/markleaf-android/) · [Phiên bản hiện tại: v2.53.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.53.0) · [Chính sách quyền riêng tư](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -99,7 +100,7 @@
 - **Giao diện xanh Markleaf + bật/tắt Material You** — tùy chọn dùng màu hình nền hệ thống trên Android 12+
 - **Chế độ tối tự động** — theo cài đặt hệ thống
 - **Bố cục 3 khung cho máy tính bảng** — thanh thẻ bên · danh sách ghi chú · trình soạn thảo; chạm vào thẻ ở thanh bên để lọc danh sách ghi chú ngay tại chỗ (danh sách ghi chú vẫn thu gọn được)
-- **Giao diện bằng 10 ngôn ngữ** — tài nguyên tiếng Hàn / tiếng Anh / tiếng Tây Ban Nha / tiếng Nhật / tiếng Pháp / tiếng Đức / tiếng Trung giản thể / tiếng Croatia / tiếng Nga / tiếng Việt
+- **Giao diện bằng 11 ngôn ngữ** — tài nguyên tiếng Hàn / tiếng Anh / tiếng Tây Ban Nha / tiếng Nhật / tiếng Pháp / tiếng Đức / tiếng Trung giản thể / tiếng Croatia / tiếng Nga / tiếng Việt / tiếng Slovakia
 - **Tùy chọn chặn chụp màn hình / xem trước trong ứng dụng gần đây** — dành cho ghi chú nhạy cảm
 
 ---
@@ -170,7 +171,7 @@ com.markleaf.notes
 > **Việc cập nhật trên Google Play hiện đang tạm dừng.** Phiên bản mới sẽ không được đưa lên Play Store cho đến khi yêu cầu chính sách về đăng ký kinh doanh tại Hàn Quốc đối với nhà phát triển cá nhân được giải quyết. Để dùng bản phát hành hiện tại, hãy dùng **GitHub Releases**. F-Droid vẫn là kênh cập nhật được khuyên dùng khi bản build ở đó đã theo kịp. (Nếu bạn đã cài từ Play Store, ứng dụng vẫn tiếp tục hoạt động.)
 
 - **F-Droid** *(khuyên dùng để cập nhật tự động)*: [Markleaf trên F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — tìm trong ứng dụng F-Droid hoặc cài qua liên kết trên. Danh mục của F-Droid có thể phát hành sau GitHub; nếu chưa thấy phiên bản hiện tại, hãy dùng GitHub Releases bên dưới. Nó dùng cùng khóa ký (SHA-256 `0be97352…f91a`), nên việc cập nhật vẫn liền mạch ngay cả khi ban đầu bạn cài APK từ GitHub.
-- **Cài APK trực tiếp**: [bản phát hành GitHub v2.52.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.52.0) có hai APK — `markleaf-v2.52.0.apk` giống bản build F-Droid/Play (không tự cập nhật, không thêm quyền), còn `markleaf-v2.52.0-sideload.apk` bổ sung tính năng kiểm tra cập nhật trong ứng dụng do bạn tự bật (`INTERNET`, `REQUEST_INSTALL_PACKAGES`). Chọn bản sideload nếu muốn cập nhật trong ứng dụng, tải về rồi chạy trên thiết bị Android — cả hai dùng chung khóa ký, nên sau này chuyển qua lại giữa chúng chỉ là một lần cập nhật bình thường, không phải cài lại.
+- **Cài APK trực tiếp**: [bản phát hành GitHub v2.53.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.53.0) có hai APK — `markleaf-v2.53.0.apk` giống bản build F-Droid/Play (không tự cập nhật, không thêm quyền), còn `markleaf-v2.53.0-sideload.apk` bổ sung tính năng kiểm tra cập nhật trong ứng dụng do bạn tự bật (`INTERNET`, `REQUEST_INSTALL_PACKAGES`). Chọn bản sideload nếu muốn cập nhật trong ứng dụng, tải về rồi chạy trên thiết bị Android — cả hai dùng chung khóa ký, nên sau này chuyển qua lại giữa chúng chỉ là một lần cập nhật bình thường, không phải cài lại.
 - **Google Play**: [Markleaf trên Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **cập nhật đang tạm dừng** (xem lưu ý ở trên). Nếu bạn đã cài, ứng dụng vẫn hoạt động; hãy dùng GitHub Releases để có phiên bản hiện tại, hoặc F-Droid khi phiên bản đó có mặt ở đó.
 
 ### Build từ mã nguồn

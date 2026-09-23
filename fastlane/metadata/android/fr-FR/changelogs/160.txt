@@ -1,0 +1,1 @@
+Markleaf parle désormais slovaque, traduit par @padi-sk – 11 langues au total. Corrigé : avec SwiftKey, appuyer sur Entrée dans une liste ne fait plus disparaître la nouvelle puce ou le nouveau numéro un instant après. Merci à @Akshaythorat376.

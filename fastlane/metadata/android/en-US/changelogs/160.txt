@@ -1,0 +1,1 @@
+Markleaf now speaks Slovak, translated by @padi-sk -- 11 languages in all. Fixed: with SwiftKey, pressing Enter in a list no longer loses the new bullet or number a moment later. Thanks to @Akshaythorat376.

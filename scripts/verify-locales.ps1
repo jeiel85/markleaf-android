@@ -229,10 +229,7 @@ $uiLineSurfaces = @(
     $locales | ForEach-Object {
         @{ File = "fastlane/metadata/android/$($_.Store)/full_description.txt"; Separator = '[,、，]' }
     }
-    $locales | ForEach-Object {
-        $name = if ($_.IsSource) { "README.md" } else { "README.$($_.Code).md" }
-        @{ File = $name; Separator = ' / ' }
-    }
+    $locales | ForEach-Object { @{ File = $_.ReadmeFile; Separator = ' / ' } }
 )
 foreach ($surface in $uiLineSurfaces) {
     $path = Resolve-UnderRoot $surface.File
@@ -246,9 +243,15 @@ foreach ($surface in $uiLineSurfaces) {
     }
     $line = $candidates[0]
     $stated = [regex]::Match($line, '\d+').Value
-    $names = [regex]::Matches($line, $surface.Separator).Count + 1
-    # 마지막 두 이름을 쉼표 대신 접속사로 잇는 언어(hr "…, ruski, vijetnamski i slovački")는 하나 적게 센다.
-    if ($stated -ne "$($locales.Count)" -or ($names -ne $locales.Count -and $names -ne $locales.Count - 1)) {
+    $separators = [regex]::Matches($line, $surface.Separator)
+    $names = $separators.Count + 1
+    # 마지막 두 이름을 구분자 대신 접속사로 잇는 줄(hr "…, ruski, vijetnamski i slovački")은
+    # 이름 하나가 구분자에 안 잡히므로 하나 더 센다. 모든 줄에 1개 오차를 허용하면
+    # 숫자만 올리고 새 이름을 빠뜨린 줄이 통과하므로, 마지막 구분자 뒤에 접속사가
+    # 있을 때만이다.
+    $tail = $line.Substring($separators[$separators.Count - 1].Index + $separators[$separators.Count - 1].Length)
+    if ($tail -match '\s(?:i|a|and|y|e|et|und|и|và)\s') { $names++ }
+    if ($stated -ne "$($locales.Count)" -or $names -ne $locales.Count) {
         Add-Failure ("  FAIL  {0,-48} '{1}개'라고 적고 이름을 약 {2}개 나열합니다 — {3}개 언어로 갱신하세요." -f $surface.File, $stated, $names, $locales.Count)
     } else {
         Write-Host ("  OK    {0,-48} {1}개" -f $surface.File, $stated) -ForegroundColor Green

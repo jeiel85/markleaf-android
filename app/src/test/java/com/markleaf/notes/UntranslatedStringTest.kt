@@ -210,11 +210,14 @@ class UntranslatedStringTest {
             ),
             // Slovak keeps the three typeface names in their English form; the
             // native-speaker contributor chose "Monospace" over a translation
-            // in #458, alongside "Sans"/"Serif" as hr, es, fr and de do.
+            // in #458, alongside "Sans"/"Serif" as hr, es, fr and de do. They
+            // keep the palette's name "Markleaf green" untranslated too, so the
+            // chip matches theme_description, which already says it (#458).
             "sk" to setOf(
                 "font_monospace",
                 "font_sans",
-                "font_serif"
+                "font_serif",
+                "theme_markleaf_green"
             )
         )
     }

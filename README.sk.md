@@ -97,7 +97,7 @@
 - **Odoslanie cez systémovú ponuku zdieľania**
 
 ### Dizajn a prístupnosť
-- **Motív Markleaf zelený + prepínač Material You** — voliteľne farby systémovej tapety v Androide 12 a novšom
+- **Motív Markleaf green + prepínač Material You** — voliteľne farby systémovej tapety v Androide 12 a novšom
 - **Automatický tmavý režim** — riadi sa nastavením systému
 - **Rozloženie s tromi panelmi na tablete** — bočný panel značiek · zoznam poznámok · editor; ťuknutím na značku v bočnom paneli vyfiltrujete zoznam poznámok priamo na mieste (zoznam poznámok sa dá stále zbaliť)
 - **Rozhranie v 11 jazykoch** — kórejčina / angličtina / španielčina / japončina / francúzština / nemčina / zjednodušená čínština / chorvátčina / ruština / vietnamčina / slovenčina
@@ -158,7 +158,7 @@ com.markleaf.notes
 │   ├── trash     # kôš / trvalé odstránenie
 │   └── settings  # motív, synchronizačný priečinok, blokovanie snímok obrazovky atď.
 ├── navigation    # nastavenie Jetpack Compose Navigation
-└── ui            # motív (Markleaf zelený / Material You), spoločné komponenty
+└── ui            # motív (Markleaf green / Material You), spoločné komponenty
 ```
 
 ---
@@ -226,7 +226,7 @@ Ako presne funguje „nikdy neopustí vaše zariadenie“, je opísané v [Zása
 - [x] **v2.4–2.5** Wikiodkazy (`[[Názov]]`) + automatické dopĺňanie + panel spätných odkazov
 - [x] **v2.6** Obrázkové prílohy + alternatívny text + lightbox
 - [x] **v2.7** Synchronizácia zrkadlením priečinka cez SAF (prenechaná Drive/Dropboxu/Syncthingu, stále bez INTERNET)
-- [x] **v2.8** Prepínač Material You + návrat motívu Markleaf zelený
+- [x] **v2.8** Prepínač Material You + návrat motívu Markleaf green
 - [x] **v2.9** Možnosť blokovania snímok obrazovky, zavedené vizuálne regresné testovanie (Roborazzi)
 - [x] **v2.10** Zvýrazňovanie syntaxe v blokoch kódu (10 jazykov)
 - [x] **v2.11** Obnovený náhľad tabuliek GFM

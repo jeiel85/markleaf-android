@@ -1,3 +1,13 @@
+## 2026-09-24 — The single-note widget render test's flake (#262)
+
+`theWidgetSurfaceOpensTheNoteWhenNoRowAreDrawn` failed about 1 run in 40 (required `instrumented-tests`; twice in ~15 CI runs). #411's fix, one host ID per case, assumed a late `onDeleted` was wiping the next case's configuration. That wasn't it. Reproduced on the API 36 emulator by looping the class (3 failures in 115 runs), with every pushed `RemoteViews` tagged:
+
+- The bind-triggered `onUpdate` ran on the main thread **before** the test stored the choice, and pushed "not configured" views. The test then pushed the configured ones from the instrumentation thread.
+- The system ended up holding the *first* push: a freshly created host view showed it too, so it wasn't a stale view on the test's side.
+- AOSP's `AppWidgetManager` explains why. On Android 15+, an update whose `RemoteViews` has a `setRemoteAdapter` list is sent from a background executor after the list is collected when it's called on the main thread, but sent immediately from any other thread. On API 30 the same interleaving is a plain read-before-save, send-after race.
+
+The app has no such race: the launcher's `onUpdate` and the configure screen's repaint both run on the main thread, in order. A first attempt that routed all repaints through the main thread was reverted: on 15+ it made the test's own repaint asynchronous too, and two other cases then failed on every run. The fix is in the test. Each case stores its configuration and only then binds (`place()`), so every repaint reads the same store and sends the same picture, and arrival order stops mattering. Verified with 150 consecutive runs of the class on the same emulator, 0 failures.
+
 ## 2026-09-24 — launch-smoke: enable KVM, and treat a system_server restart as a reboot (#262)
 
 #457's fix (wait for `mount`) was half right: #458 failed the same way one service further along. The underlying cause turned out to be in the workflow, not the script. `launch-smoke` never had the `Enable KVM` step that `instrumented-tests` has, and its log said so — `ProbeKVM: This user doesn't have permissions to use KVM`, then `Disabling Linux hardware acceleration`. At software-emulation speed, system_server restarted partway through the 75 s first install. The step is now there.

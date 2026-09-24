@@ -75,6 +75,28 @@ class SingleNoteWidgetRenderTest {
         grantBindPermission()
         InstrumentationRegistry.getInstrumentation().runOnMainSync { host.startListening() }
         appWidgetId = host.allocateAppWidgetId()
+    }
+
+    /**
+     * Puts the widget on the "home screen" — binds it, which is what makes the
+     * system send the provider its first `onUpdate`. Each test calls this *after*
+     * storing the widget's configuration, and that order is the point.
+     *
+     * The provider's `onUpdate` runs on the main thread and reads the store when
+     * it runs; [inflate] repaints from this thread. Bound before the store was
+     * written, the two could each send a different picture — "not configured"
+     * from `onUpdate`, the chosen note from the test — and the system keeps
+     * whichever arrives last. On Android 15+ that is often `onUpdate`'s, because
+     * a main-thread update with a list is sent from a background executor after
+     * the list is collected, while this thread's is sent at once. The widget then
+     * rendered unconfigured: no tap target, no rows (#262, `theWidgetSurface…`,
+     * about 1 run in 40). Configured first, every repaint reads the same store and
+     * sends the same picture, so arrival order stops mattering.
+     *
+     * The app itself has no such race: the launcher's `onUpdate` and the
+     * configure screen's repaint both run on the main thread, one after the other.
+     */
+    private fun place() {
         val bound = manager.bindAppWidgetIdIfAllowed(
             appWidgetId,
             ComponentName(context, SingleNoteWidget::class.java)
@@ -116,6 +138,7 @@ class SingleNoteWidgetRenderTest {
     fun theBodyIsInflatedAsAScrollableList() {
         seedNote(locked = false)
         SingleNoteWidgetStore.save(context, appWidgetId, noteId, EditorFontSize.MEDIUM)
+        place()
 
         assertNotNull("The widget inflated without a ListView", inflate().firstListView())
     }
@@ -124,6 +147,7 @@ class SingleNoteWidgetRenderTest {
     fun theChosenNotesLinesAreTheRowsAtTheChosenSize() {
         seedNote(locked = false)
         SingleNoteWidgetStore.save(context, appWidgetId, noteId, EditorFontSize.EXTRA_LARGE)
+        place()
         val factory = readyFactory()
 
         assertEquals(2, factory.getCount())
@@ -153,6 +177,7 @@ class SingleNoteWidgetRenderTest {
     fun theHostBindsTheServiceAndGetsRows() {
         seedNote(locked = false)
         SingleNoteWidgetStore.save(context, appWidgetId, noteId, EditorFontSize.MEDIUM)
+        place()
 
         val list = requireNotNull(inflate().firstListView()) { "The widget inflated without a ListView" }
 
@@ -178,6 +203,7 @@ class SingleNoteWidgetRenderTest {
     fun aNoteLockedAfterItWasChosenStopsShowingItsText() {
         seedNote(locked = false)
         SingleNoteWidgetStore.save(context, appWidgetId, noteId, EditorFontSize.MEDIUM)
+        place()
         val factory = readyFactory()
         assertEquals(2, factory.getCount())
 
@@ -203,6 +229,7 @@ class SingleNoteWidgetRenderTest {
     fun theWidgetSurfaceOpensTheNoteWhenNoRowAreDrawn() {
         seedNote(locked = true)
         SingleNoteWidgetStore.save(context, appWidgetId, noteId, EditorFontSize.MEDIUM)
+        place()
 
         val root = inflate().findViewById<View>(R.id.single_note_root)
 
@@ -213,6 +240,7 @@ class SingleNoteWidgetRenderTest {
     /** Nothing chosen yet — the state every widget is in between drop and picker. */
     @Test
     fun anUnconfiguredWidgetHasNothingToOpen() {
+        place()
         val root = inflate().findViewById<View>(R.id.single_note_root)
 
         assertFalse("An unconfigured widget offers a tap that opens nothing", root.hasOnClickListeners())

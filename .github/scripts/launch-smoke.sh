@@ -30,10 +30,36 @@ echo "Package:  $PACKAGE"
 echo "Activity: $ACTIVITY"
 
 adb wait-for-device
-BOOT_COMPLETED="$(adb shell getprop sys.boot_completed | tr -d '\r')"
-echo "sys.boot_completed=${BOOT_COMPLETED}"
 
-# Waits until the device's package manager answers, or gives up.
+# The framework's own "finished booting" flag, from the system_server that is
+# running now.
+#
+# `sys.boot_completed` cannot be used for this. It is an init property, and it
+# stays 1 when system_server restarts -- measured on an API 36 emulator with
+# `setprop ctl.restart zygote`: the property never dropped, while the package
+# and storage services came back in 5-6 s and the framework only finished
+# booting at 13-17 s. That gap is where #454 and #458 died: each wait for one
+# more service (package, then `mount`) was satisfied while the next one was
+# still missing (`StorageManager.getVolumes()`, then
+# `PackageManagerInternal.freeStorage` NPEs), and an install that did land was
+# followed by fifteen "Activity class does not exist" answers.
+#
+# ActivityManager's `mBooted` is absent while system_server is down, false
+# while it boots, and true once boot has finished, whatever the boot animation
+# is doing (this emulator runs with -no-boot-anim).
+framework_booted() {
+  local processes
+  processes="$(adb shell dumpsys activity processes 2>/dev/null)" || return 1
+  printf '%s\n' "$processes" | grep -q 'mBooted=true'
+}
+
+# Whatever system_server is running now, empty if none.
+system_server_pid() {
+  adb shell pidof system_server 2>/dev/null | tr -d '\r' || true
+}
+
+# Waits until the framework has finished booting and can take an install, or
+# gives up.
 #
 # The probe must fail closed. An unrecognised answer is *not* evidence of
 # health: `Failure calling service package: Broken pipe (32)` is a second error
@@ -43,25 +69,18 @@ echo "sys.boot_completed=${BOOT_COMPLETED}"
 # non-zero probe means not ready, and so does either observed error string; only
 # a clean exit with neither of them proceeds.
 #
-# The strings are still matched by name rather than a success format being
-# parsed: nothing here depends on guessing what "ready" looks like, only on
-# refusing to call "unknown" ready.
-#
 # Output is captured rather than piped, so `set -o pipefail` cannot turn an adb
 # failure into a false "service is back"; the assignment sits in an `if` so its
 # exit status is kept instead of discarded.
 #
-# Answering is not the same as being able to install. On #454 the first attempt
-# died with `Broken pipe` because system_server restarted underneath it; about a
-# minute later the package service answered again, and attempts 2 and 3 both
-# failed inside it with `NullPointerException ... StorageManager.getVolumes()` --
-# the storage service (`mount`) had not been registered yet, and an install
-# resolves its volume through it. So the probe also waits for `mount`, and the
-# window is three minutes rather than one: a restarting system_server takes
-# longer than a first boot's tail.
-wait_for_package_service() {
+# `mBooted` comes first: the service checks after it were each once the whole
+# test and each turned out to be one step short (see framework_booted). The
+# window is three minutes because a restarting system_server on a runner's
+# emulator takes longer than a first boot's tail.
+wait_for_framework() {
   for _ in $(seq 1 90); do
-    if probe="$(adb shell cmd package list packages 2>&1)"; then
+    if framework_booted \
+      && probe="$(adb shell cmd package list packages 2>&1)"; then
       case "$probe" in
         *"Can't find service: package"*) ;;
         *"Failure calling service package"*) ;;
@@ -73,25 +92,27 @@ wait_for_package_service() {
           ;;
       esac
     fi
-    echo "Package or storage service is not ready yet"
+    echo "The framework has not finished booting yet"
     sleep 2
   done
   return 1
 }
 
-# adb install can intermittently fail on CI emulators, in two different places.
-# `Broken pipe (32)` is the connection; `Can't find service: package` is the
-# device's own package service being gone. Restarting the adb server addresses
-# only the first -- so the second half of this loop waits for the service to
-# come back before spending the next attempt on it, which the previous version
-# did not: it burned attempts 2 and 3 six seconds apart against a device that
-# had no package manager, and reported "adb install failed after retries" as
-# though the APK were at fault.
-if ! wait_for_package_service; then
-  echo "The device's package or storage service never came up after boot; the emulator is not usable."
+# Also run before the first attempt: that proves on every run that the signal
+# exists on this image, instead of finding out only after a restart.
+if ! wait_for_framework; then
+  echo "The framework never reported finishing its boot (no mBooted=true from dumpsys activity processes)."
+  echo "Either the emulator is unusable or this image no longer prints that flag -- check the dump before blaming the build."
   exit 1
 fi
+SERVER_PID="$(system_server_pid)"
+echo "system_server pid ${SERVER_PID}"
 
+# adb install can fail on CI emulators because system_server restarts under it
+# -- `Broken pipe (32)` is what that looks like from here. A restart is
+# effectively a reboot, so after a failure the device is not retried until the
+# framework has finished booting again, and the log says whether it restarted,
+# so a restart is never mistaken for a broken APK.
 for attempt in 1 2 3; do
   echo "Install attempt ${attempt}"
   if adb install -r "$APK"; then
@@ -106,12 +127,27 @@ for attempt in 1 2 3; do
   adb kill-server || true
   adb start-server
   adb wait-for-device
-  if ! wait_for_package_service; then
-    echo "The device's package service never came back; the emulator is gone, not the build."
+  NOW_PID="$(system_server_pid)"
+  if [ "$NOW_PID" != "$SERVER_PID" ]; then
+    echo "system_server restarted during the install (pid ${SERVER_PID} -> ${NOW_PID:-none}); waiting for the framework to boot again"
+  fi
+  if ! wait_for_framework; then
+    echo "The framework never finished booting again; the emulator is gone, not the build."
     exit 1
   fi
-  sleep 5
+  SERVER_PID="$(system_server_pid)"
 done
+
+# A restart can also land after the install commits and before the launch. The
+# installed APK survives it, but the launch would meet a framework that is
+# still booting, so wait for it here too.
+if [ "$(system_server_pid)" != "$SERVER_PID" ]; then
+  echo "system_server restarted after the install; waiting for the framework to boot again"
+  if ! wait_for_framework; then
+    echo "The framework never finished booting again; the emulator is gone, not the build."
+    exit 1
+  fi
+fi
 
 # `adb install` returns when the install session commits, which is before the
 # package manager has the app indexed. Starting the activity in that window

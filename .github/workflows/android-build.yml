@@ -233,6 +233,16 @@ jobs:
       - name: Build debug APK for smoke launch
         run: ./gradlew assembleDebug
 
+      # instrumented-tests 와 같은 이유로 /dev/kvm 을 연다. 이 잡에는 이 스텝이
+      # 빠져 있어서 에뮬레이터가 `ProbeKVM: This user doesn't have permissions to
+      # use KVM` 뒤 하드웨어 가속 없이 돌았고, 그 속도에서는 75초짜리 첫 설치 도중
+      # system_server 가 재시작됐다 — #454·#458 의 Broken pipe 가 그것이다.
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
       - name: Launch app on emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:

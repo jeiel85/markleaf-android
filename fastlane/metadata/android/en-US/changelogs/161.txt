@@ -1,0 +1,1 @@
+The Slovak translation was reviewed and corrected by a native speaker, @padi-sk: grammar in the text-size options, the line-width setting's name, several settings descriptions, and the privacy screen. Nothing else changed.

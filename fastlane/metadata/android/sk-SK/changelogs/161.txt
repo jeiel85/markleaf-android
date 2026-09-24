@@ -1,0 +1,1 @@
+Slovenský preklad skontroloval a opravil rodený hovorca @padi-sk: gramatika veľkostí písma, názov nastavenia šírky riadku, niekoľko popisov nastavení a obrazovka súkromia. Nič iné sa nezmenilo.

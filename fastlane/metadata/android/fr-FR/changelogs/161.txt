@@ -1,0 +1,1 @@
+La traduction slovaque a été relue et corrigée par un locuteur natif, @padi-sk : grammaire des tailles de texte, nom du réglage de largeur de ligne, plusieurs descriptions de réglages et l'écran de confidentialité. Rien d'autre ne change.

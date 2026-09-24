@@ -1,0 +1,1 @@
+Bản dịch tiếng Slovakia đã được người bản ngữ @padi-sk rà soát và sửa: ngữ pháp các cỡ chữ, tên cài đặt độ rộng dòng, một số mô tả cài đặt và màn hình quyền riêng tư. Không có thay đổi nào khác.

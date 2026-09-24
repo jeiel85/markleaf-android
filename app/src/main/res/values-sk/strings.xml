@@ -199,7 +199,7 @@
     <string name="theme_mode_dark">Tmavý</string>
     <string name="theme_mode_description">Riadiť sa nastavením tmavého režimu systému, alebo vždy používať svetlý či tmavý motív.</string>
     <string name="color_palette_label">Farby</string>
-    <string name="theme_markleaf_green">Markleaf zelený</string>
+    <string name="theme_markleaf_green">Markleaf green</string>
     <string name="theme_material_you">Material You</string>
     <string name="theme_description">Markleaf green je pôvodná paleta inšpirovaná listami. Material You sa prispôsobuje farbám systémovej tapety v systéme Android 12 a novších verziách.</string>
     <string name="settings_markdown">Markdown</string>
@@ -400,7 +400,7 @@
     <string name="privacy_no_tracking_desc">Žiadne analytické nástroje, žiadne SDK na hlásenie chýb, žiadne internetové reklamy. Nemáme ani potuchy, ako aplikáciu používate, a vyhovuje nám to tak.</string>
     <string name="privacy_verification_title">Overenie ochrany osobných údajov</string>
     <string name="privacy_verify_no_internet">Žiadne povolenie na prístup k internetu</string>
-    <string name="privacy_verify_local_only">100 % spracovanie údajov na lokálnej úrovni</string>
+    <string name="privacy_verify_local_only">100 percentné spracovanie údajov na lokálnej úrovni</string>
     <string name="privacy_verify_no_ads">Žiadne reklamy ani sledovacie nástroje</string>
     <string name="privacy_verify_no_analytics">Žiadna analytika ani telemetria</string>
     <string name="privacy_verify_open_source">S otvoreným zdrojovým kódom a overiteľný</string>

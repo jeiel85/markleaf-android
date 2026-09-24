@@ -1,3 +1,7 @@
+## 2026-09-24 — Slovak follow-up from the #458 review
+
+After #458 merged, `padi-sk` answered the open question as a review: `privacy_verify_local_only` can read *100 percentné spracovanie údajov na lokálnej úrovni*, "Monospace" stays English, and "Markleaf green" may stay untranslated. The first replaces #458's non-breaking-space workaround. That workaround passed release lint only because of an invisible character, which anyone tidying the file to a normal space would have broken; the sentence now has no `%` at all. The third settles the chip/description mismatch: the chip `theme_markleaf_green` and `README.sk.md` now say *Markleaf green* like `theme_description`, and the key joins `UntranslatedStringTest`'s sk allowlist as the translator's decision. The reply was a PR review, not a comment, so a scan of issue comments alone would have missed it.
+
 ## 2026-09-24 — The single-note widget render test's flake (#262)
 
 `theWidgetSurfaceOpensTheNoteWhenNoRowAreDrawn` failed about 1 run in 40 (required `instrumented-tests`; twice in ~15 CI runs). #411's fix, one host ID per case, assumed a late `onDeleted` was wiping the next case's configuration. That wasn't it. Reproduced on the API 36 emulator by looping the class (3 failures in 115 runs), with every pushed `RemoteViews` tagged:

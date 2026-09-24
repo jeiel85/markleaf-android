@@ -1,6 +1,6 @@
 # Vitajte v Markleaf
 
-Markleaf je pokojný, prednostne lokálny zápisník Markdown pre Android. Rýchlo sa otvára, neprekáža a uchováva vaše písanie ako obyčajný text, ktorý patrí vám.
+Markleaf je čistý, prednostne lokálny zápisník Markdown pre Android. Rýchlo sa otvára, neprekáža a uchováva vaše písanie ako obyčajný text, ktorý patrí vám.
 
 ## Malá prehliadka
 
@@ -20,7 +20,7 @@ Markleaf je pokojný, prednostne lokálny zápisník Markdown pre Android. Rých
 
 ![Ukážkové plátno Markleaf](attachments/starter-note-2/markleaf-sample-cover.png)
 
-Markdown zostáva čitateľný ako text a v **Náhľade** nadobúda pokojný, vycibrený vzhľad.
+Markdown zostáva čitateľný ako text a v **Náhľade** nadobúda čistý, vycibrený vzhľad.
 
 ## Čo táto poznámka ukazuje
 
@@ -29,13 +29,13 @@ Markdown zostáva čitateľný ako text a v **Náhľade** nadobúda pokojný, vy
 - Zvýrazňovanie syntaxe už počas písania
 
 > [!NOTE]
-> Medzi úpravou a náhľadom prepínate v hornom paneli. Poznámka je stále len Markdown.
+> Medzi editorom a náhľadom prepínate v hornom paneli. Poznámka je stále len Markdown.
 
-| Prvok | Na čo slúži |
-| --- | --- |
-| `#značka` | organizácia |
+| Prvok                        | Na čo slúži                |
+| ---------------------------- | -------------------------- |
+| `#značka`                    | organizácia                |
 | `[[Stručný popis projektu]]` | odkazy na lokálne poznámky |
-| `![](...)` | priložené obrázky |
+| `![](...)`                   | priložené obrázky          |
 
 ```kotlin
 fun markleaf() = "prednostne lokálny markdown"
@@ -51,7 +51,7 @@ Malá poznámka pod čiarou drží podrobnosti nablízku bez toho, aby prerušil
 
 # Každodenný rituál písania
 
-## Ranná stránka
+## Ranný zápis
 
 Cieľom nie je písať viac. Cieľom je, aby prvá veta bola jednoduchá.
 
@@ -75,11 +75,11 @@ Cieľom nie je písať viac. Cieľom je, aby prvá veta bola jednoduchá.
 
 # Stručný popis projektu
 
-Táto poznámka ukazuje, ako Markleaf zvládne malý projekt bez toho, aby sa stal ťažkopádnym.
+Táto poznámka ukazuje, ako aplikácia Markleaf zvládne malý projekt bez toho, aby sa stal ťažkopádnym.
 
 ## Výsledok
 
-Vydať čistý ukážkový zápisník, ktorý učí tým, že je užitočný.
+Vydať čistú ukážkovú zbierku poznámok, ktorá učí tým, že je užitočná
 
 ## Plán
 
@@ -110,7 +110,7 @@ Skúste vyhľadať:
 
 ## Spätné odkazy
 
-Wikiodkazy majú tvar `[[Názov poznámky]]`. Keď na túto poznámku odkazuje iná poznámka, Markleaf môže tento vzťah zobraziť lokálne. Nie je do toho zapojený žiadny účet ani server.
+Wikiodkazy majú tvar `[[Názov poznámky]]`. Keď na túto poznámku odkazuje iná poznámka, aplikácia Markleaf môže tento vzťah zobraziť lokálne. Nie je do toho zapojený žiadny účet ani server.
 
 Pozrite tiež [[Stručný popis projektu]].
 
@@ -120,9 +120,9 @@ Pozrite tiež [[Stručný popis projektu]].
 
 # Zrkadlenie lokálneho priečinka
 
-Markleaf nepotrebuje vlastný cloud. Namiesto toho si môžete vybrať priečinok a nechať, aby sa oň postaral Android alebo váš synchronizačný nástroj.
+Aplikácia Markleaf nepotrebuje vlastný cloud. Namiesto toho si môžete vybrať priečinok a nechať, aby sa oň postaral Android alebo váš synchronizačný nástroj.
 
-## Čo sa deje
+## Čo sa stane
 
 - Markleaf zapisuje každú poznámku ako súbor Markdown.
 - Úvodná hlavička (frontmatter) uchováva stály `markleaf_id`.

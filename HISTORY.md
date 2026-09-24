@@ -1,3 +1,7 @@
+## 2026-09-24 — PR #458: native-speaker corrections to Slovak
+
+`padi-sk` reviewed the proposals left on #453 — "almost all of them were valid" — and sent corrections of their own: font-size labels in the feminine to agree with *veľkosť*, `line_width` as *Šírka riadku*, several strings back to their original wording, and smoother starter notes. Their wording stands, including where it reverses a change made in #454. Two choices failed build gates rather than reading wrong, so a maintainer commit on the PR keeps the wording and fixes only the mechanics: non-breaking spaces around `%` in `privacy_verify_local_only` (a plain `% s` is a format conversion to release lint, the vi `% c` case again), and `font_monospace` = "Monospace" added to `UntranslatedStringTest`'s sk allowlist. `StarterNoteStructureTest` (#456) passed the new starter notes unchanged. One inconsistency was asked about rather than fixed: the theme chip reads *Markleaf zelený* while its description now says *Markleaf green*.
+
 ## 2026-09-24 — v2.53.0 hardening: locale counts, launch-smoke readiness, demo GIF (#262)
 
 The three remaining items of #262's `## v2.53.0` section; the fourth, the starter-note structure test, is #456.

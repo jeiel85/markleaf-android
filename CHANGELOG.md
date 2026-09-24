@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.53.1 - Slovak, reviewed by a native speaker - 2026-09-24
+
+A translation-only update. No behaviour, permission or storage-format changes.
+
+### Fixed
+- **The Slovak translation has been reviewed and corrected by a native speaker ([#458](https://github.com/jeiel85/markleaf-android/pull/458), [#461](https://github.com/jeiel85/markleaf-android/pull/461)).** [@padi-sk](https://github.com/padi-sk), who contributed Slovak in v2.53.0, went through the interface and the first-launch notes. Among the fixes: the text-size options now agree grammatically, the line-width setting is named correctly, several settings descriptions read more naturally, and the privacy screen's "100 percent local" line is worded properly. The palette keeps its name, *Markleaf green*, in both the chip and its description. First-launch notes are created only once, so an existing install keeps the notes it already has; everything else updates.
+
 ## v2.53.0 - Markleaf in Slovak - 2026-09-23
 
 A new language and one editor fix. No permission or storage-format changes.

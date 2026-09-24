@@ -208,9 +208,11 @@ class UntranslatedStringTest {
                 "font_sans",
                 "font_serif"
             ),
-            // Slovak keeps "Sans"/"Serif" as typeface names, as hr, es, fr and de
-            // do; the monospace option is translated ("Pevná šírka").
+            // Slovak keeps the three typeface names in their English form; the
+            // native-speaker contributor chose "Monospace" over a translation
+            // in #458, alongside "Sans"/"Serif" as hr, es, fr and de do.
             "sk" to setOf(
+                "font_monospace",
                 "font_sans",
                 "font_serif"
             )

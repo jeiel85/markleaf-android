@@ -400,7 +400,7 @@
     <string name="privacy_no_tracking_desc">Žiadne analytické nástroje, žiadne SDK na hlásenie chýb, žiadne internetové reklamy. Nemáme ani potuchy, ako aplikáciu používate, a vyhovuje nám to tak.</string>
     <string name="privacy_verification_title">Overenie ochrany osobných údajov</string>
     <string name="privacy_verify_no_internet">Žiadne povolenie na prístup k internetu</string>
-    <string name="privacy_verify_local_only">100 % spracovanie údajov na lokálnej úrovni</string>
+    <string name="privacy_verify_local_only">100 % spracovanie údajov na lokálnej úrovni</string>
     <string name="privacy_verify_no_ads">Žiadne reklamy ani sledovacie nástroje</string>
     <string name="privacy_verify_no_analytics">Žiadna analytika ani telemetria</string>
     <string name="privacy_verify_open_source">S otvoreným zdrojovým kódom a overiteľný</string>

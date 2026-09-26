@@ -1,0 +1,1 @@
+Cài đặt → Markdown → "Độ rộng dòng" nay có phần giải thích: nó giới hạn độ rộng văn bản trên màn hình rộng như máy tính bảng; trên điện thoại cầm dọc không có gì thay đổi, và đây không phải khoảng cách dòng. Cảm ơn @ray4423 đã báo lỗi.

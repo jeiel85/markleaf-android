@@ -1,0 +1,1 @@
+Nastavenia → Markdown → „Šírka riadku“ teraz vysvetľuje, čo robí: obmedzuje šírku textu na širokých obrazovkách, napríklad na tabletoch; na telefóne drženom na výšku sa nič nezmení a nejde o riadkovanie. Ďakujeme @ray4423 za nahlásenie.

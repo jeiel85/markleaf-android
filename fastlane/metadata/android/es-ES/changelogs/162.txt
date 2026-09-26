@@ -1,0 +1,1 @@
+Ajustes → Markdown → «Ancho de línea» ahora explica qué hace: limita el ancho del texto en pantallas anchas como tabletas; en un teléfono en vertical no cambia nada y no es el interlineado. Gracias a @ray4423 por el aviso.

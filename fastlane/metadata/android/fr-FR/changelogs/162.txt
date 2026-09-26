@@ -1,0 +1,1 @@
+Paramètres → Markdown → « Largeur de ligne » s'explique désormais : elle limite la largeur du texte sur les écrans larges comme les tablettes, rien ne change sur un téléphone à la verticale, et ce n'est pas l'interligne. Merci à @ray4423 pour le signalement.

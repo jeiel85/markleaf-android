@@ -1,0 +1,1 @@
+Einstellungen → Markdown → „Zeilenbreite“ erklärt sich jetzt selbst: Sie begrenzt die Textbreite auf breiten Bildschirmen wie Tablets, auf einem hochkant gehaltenen Smartphone ändert sich nichts, und sie ist kein Zeilenabstand. Danke an @ray4423 für die Meldung.

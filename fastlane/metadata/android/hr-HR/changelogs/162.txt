@@ -1,0 +1,1 @@
+Postavke → Markdown → „Širina retka” sada objašnjava što radi: ograničava širinu teksta na širokim zaslonima poput tableta, na uspravnom telefonu ništa se ne mijenja i nije razmak između redaka. Hvala @ray4423 na prijavi.

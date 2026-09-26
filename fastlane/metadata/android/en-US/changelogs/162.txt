@@ -1,0 +1,1 @@
+Settings → Markdown → "Line width" now explains itself. It caps how wide text runs on wide screens such as tablets; on an upright phone nothing changes, and it isn't line spacing. Thanks @ray4423 for the report.

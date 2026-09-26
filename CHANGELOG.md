@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.53.2 - Saying what "Line width" does - 2026-09-26
+
+A settings-text update. No behaviour, permission or storage-format changes.
+
+### Fixed
+- **Settings → Markdown → Line width now says what it does ([#465](https://github.com/jeiel85/markleaf-android/issues/465), [#466](https://github.com/jeiel85/markleaf-android/pull/466)).** The setting caps how wide the text column can grow (Narrow, Comfortable and Wide are 640, 800 and 960 dp). It applies to the editor in the tablet side-by-side layout and to the file viewer. An upright phone is narrower than every option, so on a phone all three looked the same, and the name alone read like line spacing. A short description under the options now says so in all 11 languages: it keeps lines from stretching on wide screens, nothing changes on an upright phone, and it doesn't change the spacing between lines. Thanks to [@ray4423](https://github.com/ray4423) for the report.
+
 ## v2.53.1 - Slovak, reviewed by a native speaker - 2026-09-24
 
 A translation-only update. No behaviour, permission or storage-format changes.

@@ -211,6 +211,7 @@
     <string name="line_width_narrow">Úzka</string>
     <string name="line_width_comfortable">Komfortná</string>
     <string name="line_width_wide">Široká</string>
+    <string name="line_width_description">Zabráni tomu, aby sa riadky na širokých obrazovkách, napríklad na tablete, príliš roztiahli. Na telefóne drženom na výšku sa text už zmestí na obrazovku, takže sa tam nič nezmení. Nemení riadkovanie.</string>
     <string name="settings_notes_section">Poznámky a vyhľadávanie</string>
     <string name="show_note_previews">Zobraziť náhľady poznámok</string>
     <string name="show_note_previews_description">Pod každým nadpisom zobrazte úryvok a čas úpravy. Vypnite túto funkciu, aby sa na obrazovku zmestilo viac poznámok.</string>

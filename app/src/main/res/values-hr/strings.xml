@@ -225,6 +225,7 @@
     <string name="line_width_narrow">Usko</string>
     <string name="line_width_comfortable">Udobno</string>
     <string name="line_width_wide">Široko</string>
+    <string name="line_width_description">Sprječava da se retci razvuku preko širokih zaslona, poput tableta. Na uspravno držanom telefonu tekst već stane na zaslon, pa se tamo ništa ne mijenja. Ne mijenja razmak između redaka.</string>
     <string name="settings_notes_section">Bilješke i pretraživanje</string>
     <string name="show_note_previews">Prikaži pretpregled bilješke</string>
     <string name="show_note_previews_description">Prikaži isječak i vrijeme uređivanja ispod svakog naslova bilješke. Isključite ovo da bi se prikazalo više bilješki na zaslonu.</string>

@@ -206,6 +206,7 @@
     <string name="line_width_narrow">Hẹp</string>
     <string name="line_width_comfortable">Vừa phải</string>
     <string name="line_width_wide">Rộng</string>
+    <string name="line_width_description">Giữ cho dòng chữ không bị kéo dài trên màn hình rộng như máy tính bảng. Trên điện thoại cầm dọc, văn bản vốn đã vừa màn hình nên sẽ không thay đổi. Cài đặt này không đổi khoảng cách giữa các dòng.</string>
     <string name="settings_notes_section">Ghi chú &amp; tìm kiếm</string>
     <string name="show_note_previews">Hiện bản xem trước ghi chú</string>
     <string name="show_note_previews_description">Hiện một đoạn trích và thời gian sửa dưới mỗi tiêu đề. Tắt đi để hiển thị được nhiều ghi chú hơn trên màn hình.</string>

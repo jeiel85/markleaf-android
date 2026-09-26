@@ -211,6 +211,7 @@
     <string name="line_width_narrow">窄</string>
     <string name="line_width_comfortable">适中</string>
     <string name="line_width_wide">宽</string>
+    <string name="line_width_description">在平板等宽屏上限制正文宽度，避免每行过长。竖屏手机上正文本就与屏幕同宽，因此不会有变化。此设置不改变行间距。</string>
     <string name="settings_notes_section">笔记与搜索</string>
     <string name="show_note_previews">显示笔记预览</string>
     <string name="show_note_previews_description">在每个标题下显示内容摘要和编辑时间。关闭后可在屏幕上显示更多笔记。</string>

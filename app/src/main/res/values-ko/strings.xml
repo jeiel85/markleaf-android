@@ -205,6 +205,7 @@
     <string name="line_width_narrow">좁게</string>
     <string name="line_width_comfortable">편안하게</string>
     <string name="line_width_wide">넓게</string>
+    <string name="line_width_description">태블릿처럼 넓은 화면에서 한 줄이 너무 길어지지 않도록 본문 폭을 제한합니다. 세로로 든 휴대폰에서는 본문이 이미 화면에 맞으므로 달라지지 않습니다. 줄 간격은 바꾸지 않습니다.</string>
     <string name="settings_notes_section">노트 및 검색</string>
     <string name="show_note_previews">노트 미리보기 표시</string>
     <string name="show_note_previews_description">제목 아래에 본문 일부와 수정 시각을 표시합니다. 끄면 화면에 더 많은 노트가 보입니다.</string>

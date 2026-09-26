@@ -221,6 +221,7 @@
     <string name="line_width_narrow">Narrow</string>
     <string name="line_width_comfortable">Comfortable</string>
     <string name="line_width_wide">Wide</string>
+    <string name="line_width_description">Keeps lines from stretching across wide screens, such as a tablet. On a phone held upright the text already fits the screen, so nothing changes there. This doesn\'t change the spacing between lines.</string>
     <string name="settings_notes_section">Notes &amp; search</string>
     <string name="show_note_previews">Show note previews</string>
     <string name="show_note_previews_description">Show a snippet and edit time under each title. Turn off to fit more notes on screen.</string>

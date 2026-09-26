@@ -210,6 +210,7 @@
     <string name="line_width_narrow">Schmal</string>
     <string name="line_width_comfortable">Komfortabel</string>
     <string name="line_width_wide">Breit</string>
+    <string name="line_width_description">Verhindert, dass Zeilen auf breiten Bildschirmen wie Tablets zu lang werden. Auf einem hochkant gehaltenen Smartphone passt der Text schon auf den Bildschirm, dort ändert sich nichts. Der Zeilenabstand bleibt gleich.</string>
     <string name="settings_notes_section">Notizen &amp; Suche</string>
     <string name="show_note_previews">Notizvorschau anzeigen</string>
     <string name="show_note_previews_description">Zeigt unter jedem Titel einen Ausschnitt und die Bearbeitungszeit. Ausschalten, um mehr Notizen auf dem Bildschirm zu sehen.</string>

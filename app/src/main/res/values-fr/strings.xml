@@ -210,6 +210,7 @@
     <string name="line_width_narrow">Étroite</string>
     <string name="line_width_comfortable">Confortable</string>
     <string name="line_width_wide">Large</string>
+    <string name="line_width_description">Évite que les lignes s\'étirent sur les écrans larges, comme une tablette. Sur un téléphone tenu à la verticale, le texte tient déjà dans l\'écran : rien ne change. L\'interligne n\'est pas modifié.</string>
     <string name="settings_notes_section">Notes et recherche</string>
     <string name="show_note_previews">Afficher l\'aperçu des notes</string>
     <string name="show_note_previews_description">Affiche un extrait et l\'heure de modification sous chaque titre. Désactivez pour afficher plus de notes à l\'écran.</string>

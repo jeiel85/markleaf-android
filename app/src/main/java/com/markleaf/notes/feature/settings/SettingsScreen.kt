@@ -385,6 +385,16 @@ fun SettingsScreen(
                                 }
                             }
                         }
+                        Spacer(Modifier.height(6.dp))
+                        // The cap only binds on a wide layout (the tablet editor
+                        // pane, the file viewer); an upright phone is narrower than
+                        // every option, so the label alone read as line spacing that
+                        // "did nothing" (#465).
+                        Text(
+                            text = stringResource(R.string.line_width_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                         Spacer(Modifier.height(12.dp))
                         Text(
                             text = stringResource(R.string.font_label),

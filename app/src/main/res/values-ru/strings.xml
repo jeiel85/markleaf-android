@@ -231,6 +231,7 @@
     <string name="line_width_narrow">Узкая</string>
     <string name="line_width_comfortable">Удобная</string>
     <string name="line_width_wide">Широкая</string>
+    <string name="line_width_description">Не даёт строкам растягиваться на широких экранах, например на планшете. На телефоне в вертикальном положении текст и так умещается на экране, поэтому там ничего не меняется. Межстрочный интервал не меняется.</string>
     <string name="settings_notes_section">Заметки и поиск</string>
     <string name="show_note_previews">Показывать превью заметок</string>
     <string name="show_note_previews_description">Показывать фрагмент текста и время изменения под каждым заголовком. Выключите, чтобы на экране помещалось больше заметок.</string>

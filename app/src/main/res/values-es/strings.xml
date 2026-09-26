@@ -210,6 +210,7 @@
     <string name="line_width_narrow">Estrecho</string>
     <string name="line_width_comfortable">Cómodo</string>
     <string name="line_width_wide">Ancho</string>
+    <string name="line_width_description">Evita que las líneas se estiren en pantallas anchas, como una tableta. En un teléfono en vertical el texto ya cabe en la pantalla, así que ahí no cambia nada. No cambia el interlineado.</string>
     <string name="settings_notes_section">Notas y búsqueda</string>
     <string name="show_note_previews">Mostrar vista previa de las notas</string>
     <string name="show_note_previews_description">Muestra un fragmento y la hora de edición bajo cada título. Desactívalo para ver más notas en pantalla.</string>

@@ -187,6 +187,48 @@ class UnfinishedWriteConflictTest {
     }
 
     @Test
+    fun aCrlfNoteVerifiesAgainstItsOwnDigest() {
+        // A note whose stored text holds `\r\n` — kept raw from a Windows file
+        // imported without frontmatter. The decoder hands the body back with `\n`,
+        // so a digest of the stored text could never match it and the #434 rule
+        // never applied to such a note (#262, v2.51.0).
+        val crlf = "# Windows\r\n\r\nfirst line\r\nsecond line\r\n"
+        val file = fileAsWritten(crlf, t0)
+
+        assertEquals("# Windows\n\nfirst line\nsecond line\n", file.body)
+        assertTrue(SyncFrontmatter.bodyIsSelfVerified(file))
+
+        // And so the case #434 is about resolves the same way it does for `\n`:
+        // the stored text differs from the decoded body, but the header stands.
+        val onDevice = note(crlf, updatedAt = t0, lastImportedAt = t0)
+        val fileTs = MirrorReconcile.effectiveFileTimestamp(
+            frontmatterUpdatedAt = file.updatedAt,
+            fileModifiedAt = mtimeNow,
+            bodyChanged = file.body != onDevice.contentMarkdown,
+            bodyIsSelfVerified = SyncFrontmatter.bodyIsSelfVerified(file)
+        )
+        assertEquals(t0, fileTs)
+        assertEquals(Reconcile.Skip, MirrorReconcile.reconcileAction(onDevice, fileTs))
+    }
+
+    @Test
+    fun aLfOnlyDigestIsUnchanged() {
+        // Normalizing is the identity for a body with only `\n`, so every
+        // `body_sha256` already written keeps verifying after the change above.
+        val body = "# Heading\n\nplain\n"
+        assertEquals(SidecarIndex.hashOf(body), SyncFrontmatter.bodyDigest(body))
+    }
+
+    @Test
+    fun anEditedCrlfBodyStillFailsVerification() {
+        // Line endings are all the digest forgives: a changed word still fails.
+        val written = SyncFrontmatter.encode(note("one\r\ntwo\r\n", t0, lastImportedAt = t0))
+        val edited = SyncFrontmatter.decode(written.replace("two", "too"))
+
+        assertFalse(SyncFrontmatter.bodyIsSelfVerified(edited))
+    }
+
+    @Test
     fun theDigestIsNotEchoedBackAsSomebodyElsesFrontmatter() {
         // `body_sha256` is ours, so a re-stamp must emit exactly one of them
         // rather than carrying the file's old copy through as an unknown entry.

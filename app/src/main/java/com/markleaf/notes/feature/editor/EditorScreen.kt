@@ -97,6 +97,7 @@ import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import com.markleaf.notes.data.settings.OpenNotesAt
 import com.markleaf.notes.data.sync.LocalNoteLinkResult
 import com.markleaf.notes.data.sync.NoteFolderMirror
+import com.markleaf.notes.data.sync.localNoteLinkVerdict
 import com.markleaf.notes.data.sync.resolveLocalNoteLink
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.data.sync.mirrorMetadata
@@ -1258,12 +1259,16 @@ fun EditorScreen(
                                     val existing = mirroredId?.let { db.noteDao().getNoteById(it) }
                                         ?: db.noteDao().getNoteByTitle(title)
                                     if (existing != null) {
-                                        if (existing.locked) {
-                                            Toast.makeText(context, R.string.wikilink_target_locked, Toast.LENGTH_SHORT).show()
-                                        } else if (!existing.trashed && !existing.archived) {
-                                            onNavigateToNote(existing.id)
-                                        } else {
-                                            Toast.makeText(context, R.string.quick_switcher_no_results, Toast.LENGTH_SHORT).show()
+                                        // The same verdict a `[text](file.md)` tap gets, so the two
+                                        // link kinds cannot disagree about one note: trashed or
+                                        // archived reads as "not found" before locked is asked,
+                                        // as countLockedNotesWithTitle below already assumes (#262).
+                                        when (val verdict = localNoteLinkVerdict(existing)) {
+                                            is LocalNoteLinkResult.Open -> onNavigateToNote(verdict.noteId)
+                                            LocalNoteLinkResult.Locked ->
+                                                Toast.makeText(context, R.string.wikilink_target_locked, Toast.LENGTH_SHORT).show()
+                                            LocalNoteLinkResult.NotFound ->
+                                                Toast.makeText(context, R.string.quick_switcher_no_results, Toast.LENGTH_SHORT).show()
                                         }
                                     } else if (db.noteDao().countLockedNotesWithTitle(title) > 0) {
                                         // The note exists but lives in the Locked space.

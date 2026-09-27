@@ -24,6 +24,14 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # 잡마다 상한을 둔다. 한 번 오염된 테스트 JVM이 뒤의 Compose 테스트를 전부
+    # 60초 유휴 타임아웃에 걸어 release 잡이 1시간 39분을 돈 적이 있다(#262 `## v2.51.0`,
+    # 런 35517150796). 기준은 v2.53.2 태그 런에서 잰 소요 시간이다 — build 8분 40초(→40,
+    # 약 4.6배) · release 8분 30초(→45, 약 5.3배). 에뮬레이터 두 잡(launch-smoke 3분 5초,
+    # instrumented-tests 3분 50초)은 40이다: launch-smoke.sh 는 부팅 준비를 최대 3분씩
+    # 네 번, 설치를 세 번까지 기다리므로 정상적인 재시도 경로만 더해도 30분 가까이 된다.
+    # 캐시가 비어도 여유가 있고 hang은 끊긴다.
+    timeout-minutes: 40
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -209,6 +217,7 @@ jobs:
   # 초록이면 러너를 먼저 의심할 것 — 재실행 한 번이면 대개 갈린다.
   launch-smoke:
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     needs: build
     continue-on-error: true
     env:
@@ -273,6 +282,7 @@ jobs:
   # continue-on-error 를 되돌리는 것은 게이트를 없애는 것이므로 마지막 수단이다.
   instrumented-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     needs: build
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -326,6 +336,7 @@ jobs:
   record-roborazzi:
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.record_roborazzi == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -368,6 +379,7 @@ jobs:
     # 지나간다. 릴리스가 몇 분 늦어지는 대신 게이트를 실제 게이트로 만든다 (#184).
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     permissions:
       contents: write
     env:

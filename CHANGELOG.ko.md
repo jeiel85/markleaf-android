@@ -6,6 +6,16 @@ Markleaf의 주요 변경 사항을 기록합니다. 영어판이 기본이며 G
 
 v2.15.3 이전 항목은 이 파일에만 한국어로 보존되어 있습니다.
 
+## Unreleased
+
+<!-- Rename to `## vX.Y.Z - Title - YYYY-MM-DD` in the release commit. The release-note step and the verify scripts read only `## v` headings, so this section is invisible to them until then. -->
+
+### 추가
+- **Android의 앱별 언어 설정에 Markleaf가 나타납니다 ([#470](https://github.com/jeiel85/markleaf-android/pull/470)).** Android 13 이상에서 시스템의 *앱 언어* 설정에 Markleaf와 지원하는 11개 언어가 표시되어, 휴대폰의 나머지는 그대로 둔 채 Markleaf만 다른 언어로 쓸 수 있습니다. 이전에는 Markleaf의 언어를 바꾸려면 휴대폰 전체의 언어를 바꿔야 했습니다. 이전 Android 버전은 달라지지 않습니다.
+
+### 수정
+- **Windows 줄바꿈을 가진 노트도 이제 끝나지 않은 동기화 쓰기로부터 보호됩니다 ([#470](https://github.com/jeiel85/markleaf-android/pull/470)).** v2.51.0이 각 파일 헤더에 넣은 체크섬([#434](https://github.com/jeiel85/markleaf-android/issues/434))은 본문에 Windows식(CRLF) 줄바꿈이 있는 노트 — 보통 Windows에서 만든 파일을 가져온 노트 — 와는 절대 일치할 수 없었습니다. 그런 노트에는 그 수정이 적용되지 않아, 느린 동기화에서 가짜 "(copy from another device …)" 노트가 여전히 생길 수 있었습니다. 이제 체크섬은 줄바꿈 방식을 무시합니다. 다른 노트에 이미 기록된 체크섬 값은 바뀌지 않습니다.
+
 ## v2.53.2 - "본문 폭" 설정 설명 추가 (Saying what "Line width" does) - 2026-09-26
 
 설정 문구만 바뀐 업데이트입니다. 동작, 권한, 저장 형식 변경은 없습니다.

@@ -4,6 +4,16 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## Unreleased
+
+<!-- Rename to `## vX.Y.Z - Title - YYYY-MM-DD` in the release commit. The release-note step and the verify scripts read only `## v` headings, so this section is invisible to them until then. -->
+
+### Added
+- **Markleaf now appears in Android's per-app language setting ([#470](https://github.com/jeiel85/markleaf-android/pull/470)).** On Android 13 and later, the system's *App languages* setting lists Markleaf with its 11 languages, so you can use Markleaf in one language while the rest of the phone stays in another. Before, the only way to change Markleaf's language was to change the whole phone's. Older Android versions are unchanged.
+
+### Fixed
+- **Notes with Windows line endings now get the protection against half-finished sync writes ([#470](https://github.com/jeiel85/markleaf-android/pull/470)).** The checksum v2.51.0 added to each file's header ([#434](https://github.com/jeiel85/markleaf-android/issues/434)) could never match a note whose text holds Windows-style (CRLF) line breaks, typically one imported from a file made on Windows. For those notes the fix did not apply, and a slow sync could still leave a spurious "(copy from another device …)" note. The checksum now ignores the line-ending style. Checksums already written for other notes keep their value.
+
 ## v2.53.2 - Saying what "Line width" does - 2026-09-26
 
 A settings-text update. No behaviour, permission or storage-format changes.

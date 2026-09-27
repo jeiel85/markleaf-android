@@ -123,8 +123,23 @@ object SyncFrontmatter {
      */
     fun bodyIsSelfVerified(parsed: Parsed): Boolean {
         val declared = parsed.bodySha256 ?: return false
-        return declared.equals(SidecarIndex.hashOf(parsed.body), ignoreCase = true)
+        return declared.equals(bodyDigest(parsed.body), ignoreCase = true)
     }
+
+    /**
+     * In: a note body, as stored or as [decode] returned it. Out: the `body_sha256`
+     * value for it.
+     *
+     * Hashed after the same line splitting [decode] does, because that split is
+     * what the reader gets back: `lines()` breaks on `\r\n` and a lone `\r` as
+     * well as `\n`, and the body is rejoined with `\n`. Hashing the stored text
+     * as is meant a note holding `\r\n` — kept raw from a Windows file imported
+     * without frontmatter — could never match its own digest, so the #434 fix
+     * silently skipped it (#262, v2.51.0). For a body with only `\n` this is the
+     * identity, so every digest already on disk keeps its value.
+     */
+    internal fun bodyDigest(body: String): String =
+        SidecarIndex.hashOf(body.lines().joinToString("\n"))
 
     /**
      * @param extraEntries frontmatter entries written by other tools (Obsidian
@@ -149,7 +164,7 @@ object SyncFrontmatter {
         // from "someone edited the body and left our block alone" — the two are
         // indistinguishable from the header's own timestamp, and getting them
         // confused is what turns an unfinished upload into a conflict copy.
-        sb.append("body_sha256: ").append(SidecarIndex.hashOf(note.contentMarkdown)).append('\n')
+        sb.append("body_sha256: ").append(bodyDigest(note.contentMarkdown)).append('\n')
         extraEntries.forEach { entry ->
             val key = topLevelKeyOf(entry.lineSequence().firstOrNull().orEmpty())
             // A null key is a comment or a line we can't read as `key: value`;

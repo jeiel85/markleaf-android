@@ -116,6 +116,18 @@ android {
         includeInBundle = false
     }
 
+    // Android 13+ lists an app under Settings → App languages only when its
+    // manifest names a locale config. Without one, someone who wants Markleaf in
+    // Russian on an English phone had to switch the whole system (#262 v2.45.0).
+    // Generated rather than hand-written: AGP reads the `values-<code>` directories,
+    // which `scripts/verify-locales.ps1` already holds to `config/locales.tsv`, so this
+    // adds no second copy of the list. `res/resources.properties` names the locale
+    // the unqualified `values/` is written in. The attribute is injected into the
+    // merged manifest, so the sideload manifest copy needs no edit either.
+    androidResources {
+        generateLocaleConfig = true
+    }
+
     signingConfigs {
         if (hasReleaseSigningConfig) {
             create("release") {

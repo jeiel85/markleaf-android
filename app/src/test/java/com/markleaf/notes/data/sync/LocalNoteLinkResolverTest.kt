@@ -58,10 +58,15 @@ class LocalNoteLinkResolverTest {
 
     @Test
     fun aLockedAndTrashedNote_isNotFound_trashedTakesPrecedence() {
-        // Preserves the editor's pre-#414 ordering for this path: trashed/archived
-        // is checked first, so a locked note that is also trashed reads as "not
-        // found" rather than revealing it is locked. (The title-based wikilink
-        // handler checks the opposite order — see the #262 note left for it.)
+        // Trashed/archived is checked first, so a locked note that is also trashed
+        // reads as "not found" rather than revealing it is locked. The `[[Title]]`
+        // handler in EditorScreen now calls this same function, so both link kinds
+        // answer alike for such a note (#262, v2.46.2).
         assertEquals(LocalNoteLinkResult.NotFound, localNoteLinkVerdict(note(locked = true, trashed = true)))
+    }
+
+    @Test
+    fun aLockedAndArchivedNote_isNotFound_archivedTakesPrecedence() {
+        assertEquals(LocalNoteLinkResult.NotFound, localNoteLinkVerdict(note(locked = true, archived = true)))
     }
 }

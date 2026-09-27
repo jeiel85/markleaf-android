@@ -95,6 +95,13 @@ CI 또는 릴리즈 검증 시에는 APK 산출물 확인을 반드시 포함한
   the GitLab release`가 매 태그마다 403으로 실패해 "빨간 `release` 잡 = 릴리스 실패
   아님"이라는 예외를 두었지만, 그 스텝이 skip 되는 지금은 그 예외가 없다. 지금 `release`
   잡이 빨갛다면 GitLab 문제가 아니므로 스텝 목록을 보고 진짜 원인을 찾을 것.
+- **옛 태그의 런을 재실행하면 Latest를 빼앗는다.** 더 새 버전이 나간 뒤 이전 태그의
+  `release` 잡을 다시 돌리면 그 Release가 나중에 발행되어 GitHub가 **Latest**를 그쪽으로
+  옮긴다. 사이드로드 업데이터가 읽는 `releases/latest/download/update.json`도 따라서 옛
+  버전을 가리키게 된다(2026-09-21 v2.50.0 재실행 때 실제로 일어났다, #262 `## v2.51.0`).
+  재실행했다면 `gh release edit <가장 새 태그> --latest`로 되돌리고, `gh release list`만이
+  아니라 `latest/download/update.json` 리다이렉트가 새 버전을 가리키는지까지 확인한다 —
+  그때는 리다이렉트가 API보다 몇 분 늦게 따라왔다.
 - **CI의 `./gradlew test`는 첫 실패 직후에 멈춘다.** `build`·`release` 잡의 테스트 스텝은
   `-Pmarkleaf.testFailFast=true`를 넘겨 `failFast`를 켜고(클래스 단위라 이미 진행 중인 클래스
   하나는 더 돌 수 있다. 로컬 실행과 `verifyRoborazziDebug`는 그대로 전부 보여 준다), 실패하면 `unit-test-report-build` / `unit-test-report-release`
@@ -188,6 +195,13 @@ GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
    (`testDebugUnitTest` + `lintRelease`)를 통과시킨다. 프리뷰/타이포 렌더링을 바꿨으면
    Roborazzi 골든을 Linux CI 러너에서 재기록한다 (`android-build.yml`의 `record_roborazzi`
    workflow_dispatch — 로컬 재기록은 폰트 힌팅 차이로 CI verify와 어긋난다).
+   **dispatch가 안 되는 세션(claude.ai/code 클라우드 세션은 GitHub App 토큰이라 403)에서는**
+   빨간 `build` 런의 `roborazzi-diff-images` 아티팩트를 받아, 이번 변경이 **움직이려던
+   골든의** `app/build/outputs/roborazzi/<name>_actual.png`만
+   `app/src/test/snapshots/roborazzi/<name>.png`로 덮어 커밋하고 다시 돌린다. 나머지
+   `_actual`은 건드리지 않는다 — 의도하지 않은 골든이 함께 빨갛다면 그것은 재기록할 대상이
+   아니라 조사할 회귀다. 커밋 메시지에 출처 런 ID를 적는다(첫 사례: #466의 `2cceedc`,
+   런 36218972502). 로컬 `gh` 로그인에 `workflow` 스코프가 있으면 dispatch가 여전히 첫 경로다.
 3. **F-Droid — 태그 푸시로 자동 배포.** versionCode/versionName bump + `CHANGELOG.md`(영어,
    릴리즈 노트 원본) + `CHANGELOG.ko.md`(한국어판) + fastlane changelog 작성 후 main에
    푸시한다. **태그를 밀기 전에 할 로컬 작업은 없다(D072).** 릴리스 산출물은 태그 런이

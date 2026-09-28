@@ -1,0 +1,5 @@
+Ajustes → Apariencia → «Fondo del widget» deja ver el fondo de pantalla a través de los widgets: 100 % (predeterminado), 75 %, 50 %, 25 % o 0 %. El color del texto no cambia, así que comprueba que se lea bien. Gracias a @Violet-RM por la sugerencia.
+
+En Android 13+, Markleaf aparece en el ajuste de idioma por aplicación del sistema.
+
+Las notas con saltos de línea de Windows ya reciben la protección de v2.51.0 contra copias de sincronización espurias.

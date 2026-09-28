@@ -4,9 +4,9 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
-## Unreleased
+## v2.54.0 - Widgets that let the wallpaper through - 2026-09-28
 
-<!-- Rename to `## vX.Y.Z - Title - YYYY-MM-DD` in the release commit. The release-note step and the verify scripts read only `## v` headings, so this section is invisible to them until then. -->
+A widget setting, Markleaf in Android's per-app language list, and one sync fix. No permission or storage-format changes.
 
 ### Added
 - **Markleaf now appears in Android's per-app language setting ([#470](https://github.com/jeiel85/markleaf-android/pull/470)).** On Android 13 and later, the system's *App languages* setting lists Markleaf with its 11 languages, so you can use Markleaf in one language while the rest of the phone stays in another. Before, the only way to change Markleaf's language was to change the whole phone's. Older Android versions are unchanged.

@@ -1,0 +1,5 @@
+Nastavenia → Vzhľad → „Pozadie miniaplikácie“ nechá tapetu presvitať cez miniaplikácie: 100 % (predvolené), 75 %, 50 %, 25 % alebo 0 %. Farba textu sa nemení, preto skontrolujte čitateľnosť. Ďakujeme @Violet-RM za návrh.
+
+V systéme Android 13+ sa Markleaf zobrazuje v systémovom nastavení jazyka aplikácií.
+
+Poznámky s koncami riadkov z Windowsu teraz tiež chráni oprava z v2.51.0 proti falošným kópiám synchronizácie.

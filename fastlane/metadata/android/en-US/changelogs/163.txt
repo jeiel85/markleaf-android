@@ -1,0 +1,5 @@
+Settings → Appearance → "Widget background" lets the wallpaper show through the home-screen widgets: 100% (default), 75%, 50%, 25% or 0%. The text keeps its colour, so check it stays readable. Thanks @Violet-RM for the request.
+
+On Android 13+, Markleaf now appears in the system's per-app language setting.
+
+Notes with Windows line endings now get the v2.51.0 protection against spurious sync copies.

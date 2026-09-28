@@ -1,0 +1,5 @@
+Cài đặt → Giao diện → "Nền tiện ích" cho hình nền hiện qua các tiện ích màn hình chính: 100% (mặc định), 75%, 50%, 25% hoặc 0%. Màu chữ không đổi, hãy kiểm tra chữ vẫn dễ đọc. Cảm ơn @Violet-RM đã đề xuất.
+
+Trên Android 13 trở lên, Markleaf nay có trong cài đặt ngôn ngữ theo ứng dụng của hệ thống.
+
+Ghi chú dùng xuống dòng kiểu Windows nay cũng được bảo vệ khỏi bản sao đồng bộ thừa như từ v2.51.0.

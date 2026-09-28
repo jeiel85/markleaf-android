@@ -200,6 +200,8 @@
     <string name="theme_markleaf_green">Markleaf-Grün</string>
     <string name="theme_material_you">Material You</string>
     <string name="theme_description">Markleaf-Grün ist die ursprüngliche, vom Blatt inspirierte Farbpalette. Material You folgt deinen Systemfarben ab Android 12.</string>
+    <string name="widget_opacity_label">Widget-Hintergrund</string>
+    <string name="widget_opacity_description">Je niedriger der Wert, desto mehr scheint dein Hintergrundbild durch die Widgets auf dem Startbildschirm. Die Textfarbe bleibt gleich – prüfe bei niedrigen Werten, ob der Text auf deinem Hintergrundbild noch lesbar ist.</string>
 
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Markdown-Syntax anzeigen</string>

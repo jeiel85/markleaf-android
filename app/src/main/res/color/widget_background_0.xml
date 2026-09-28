@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- @color/widget_background at 0% alpha, for Settings → Appearance → Widget
+     background (#469). A selector with android:alpha rather than a second hex
+     value so the hue stays defined in one place, colors.xml. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:alpha="0" android:color="@color/widget_background" />
+</selector>

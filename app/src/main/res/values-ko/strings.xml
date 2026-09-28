@@ -195,6 +195,8 @@
     <string name="theme_markleaf_green">Markleaf 그린</string>
     <string name="theme_material_you">Material You</string>
     <string name="theme_description">Markleaf 그린은 앱 이름의 잎과 어울리는 원래 색상입니다. Material You는 Android 12 이상에서 시스템 배경화면의 색을 따라갑니다.</string>
+    <string name="widget_opacity_label">위젯 배경</string>
+    <string name="widget_opacity_description">값이 낮을수록 홈 화면 위젯 뒤로 배경화면이 더 많이 비쳐 보입니다. 글자 색은 바뀌지 않으므로, 낮은 값에서는 배경화면 위에서도 글자가 잘 읽히는지 확인해 주세요.</string>
 
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Markdown 문법 표시</string>

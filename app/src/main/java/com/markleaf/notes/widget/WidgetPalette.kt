@@ -5,10 +5,13 @@ import android.content.res.ColorStateList
 import android.os.Build
 import android.widget.RemoteViews
 import androidx.annotation.ColorInt
+import androidx.annotation.DrawableRes
 import androidx.annotation.IdRes
 import androidx.annotation.RequiresApi
+import com.markleaf.notes.R
 import com.markleaf.notes.data.settings.ColorPalette
 import com.markleaf.notes.data.settings.ThemeMode
+import com.markleaf.notes.data.settings.WidgetOpacity
 
 /**
  * Which colours a home-screen widget paints itself with (#375).
@@ -156,6 +159,40 @@ fun RemoteViews.setWidgetBackground(@IdRes viewId: Int, colors: WidgetColors) {
         ColorStateList.valueOf(colors.notNight.background),
         ColorStateList.valueOf(colors.night.background)
     )
+}
+
+/**
+ * Makes the rounded background of [viewId] as opaque as [opacity] asks (#469).
+ *
+ * Input: the widget's root view and the mirrored Widget background setting.
+ * Output: the layout's `widget_background`, or its translucent twin, set on
+ * the view.
+ *
+ * Why a drawable swap rather than an alpha: `View.setAlpha` would fade the text
+ * along with the card, and the one-colour tint [setWidgetBackground] uses is
+ * Android 12+ only — this has to work down to the app's minimum. The swap is
+ * compatible with that tint in either order: the tint is kept on the view and
+ * re-applied to the new drawable, and in its default `SRC_IN` mode it takes the
+ * drawable's alpha, so Material You and a translucent step compose.
+ *
+ * Why OPAQUE still writes, unlike Markleaf Green in [WidgetPalette.colors]:
+ * `AppWidgetHostView` re-applies a new `RemoteViews` onto the view it already
+ * shows when the layout id is unchanged, instead of inflating afresh, so an
+ * action left out keeps the previous one's effect. Writing nothing here would
+ * leave a widget translucent after the user moved the setting back to 100%.
+ */
+fun RemoteViews.setWidgetOpacity(@IdRes viewId: Int, opacity: WidgetOpacity) {
+    setInt(viewId, "setBackgroundResource", opacity.backgroundRes())
+}
+
+/** The `widget_background` drawable for this step — the layout's own at 100%. */
+@DrawableRes
+internal fun WidgetOpacity.backgroundRes(): Int = when (this) {
+    WidgetOpacity.OPAQUE -> R.drawable.widget_background
+    WidgetOpacity.HIGH -> R.drawable.widget_background_75
+    WidgetOpacity.HALF -> R.drawable.widget_background_50
+    WidgetOpacity.LOW -> R.drawable.widget_background_25
+    WidgetOpacity.NONE -> R.drawable.widget_background_0
 }
 
 /** The primary text role of [viewId], per the host's night mode. */

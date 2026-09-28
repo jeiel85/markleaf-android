@@ -196,6 +196,8 @@
     <string name="theme_markleaf_green">Xanh Markleaf</string>
     <string name="theme_material_you">Material You</string>
     <string name="theme_description">Xanh Markleaf là bảng màu gốc lấy cảm hứng từ chiếc lá. Material You dùng màu theo hình nền hệ thống trên Android 12 trở lên.</string>
+    <string name="widget_opacity_label">Nền tiện ích</string>
+    <string name="widget_opacity_description">Giá trị càng thấp thì hình nền càng hiện rõ qua các tiện ích trên màn hình chính. Màu chữ không đổi, nên ở mức thấp hãy kiểm tra chữ vẫn dễ đọc trên hình nền của bạn.</string>
 
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Hiện cú pháp Markdown</string>

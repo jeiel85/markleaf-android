@@ -15,6 +15,10 @@ data class AppSettings(
      *  which is the pre-existing behaviour of following the system dark-mode
      *  setting, so an update changes nothing until opted into (#345). */
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
+    /** How opaque the home-screen widgets' background is. Defaults to
+     *  [WidgetOpacity.OPAQUE], the solid card the widgets have always drawn,
+     *  so an update changes nothing until opted into (#469). */
+    val widgetOpacity: WidgetOpacity = WidgetOpacity.OPAQUE,
     /** Editor and preview text scale. Defaults to [EditorFontSize.MEDIUM]
      *  (scale 1.0), which renders exactly as before (#346). */
     val editorFontSize: EditorFontSize = EditorFontSize.MEDIUM,
@@ -188,6 +192,30 @@ enum class ThemeMode {
 
     /** Always dark, regardless of the system setting. */
     DARK
+}
+
+/**
+ * How much of the wallpaper shows through the home-screen widgets (#469).
+ *
+ * Input: the user's pick in Settings → Appearance.
+ * Output: [percent], the background's opacity; the widget text is not affected.
+ *
+ * Why fixed steps rather than a slider: a widget's background is a shape
+ * drawable baked into its layout, and a `RemoteViews` tree can only swap that
+ * drawable for another resource — it cannot set an arbitrary alpha on it below
+ * Android 12. One drawable per step works on every supported version, and five
+ * steps cover the range without asking for a precision nobody can see on a
+ * home screen.
+ */
+enum class WidgetOpacity(val percent: Int) {
+    /** The solid card the widgets have always drawn — the default. */
+    OPAQUE(100),
+    HIGH(75),
+    HALF(50),
+    LOW(25),
+
+    /** No background at all; the text sits directly on the wallpaper. */
+    NONE(0)
 }
 
 /**

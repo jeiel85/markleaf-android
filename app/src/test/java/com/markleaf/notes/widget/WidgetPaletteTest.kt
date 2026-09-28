@@ -10,6 +10,7 @@ import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.ColorPalette
 import com.markleaf.notes.data.settings.InMemoryPreferencesDataStore
 import com.markleaf.notes.data.settings.ThemeMode
+import com.markleaf.notes.data.settings.WidgetOpacity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -44,7 +45,7 @@ class WidgetPaletteTest {
 
     @Test
     fun `the mirrored settings are what come back`() {
-        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.DARK)
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.DARK, WidgetOpacity.OPAQUE)
 
         assertEquals(ColorPalette.MATERIAL_YOU, WidgetPaletteStore.palette(context))
         assertEquals(ThemeMode.DARK, WidgetPaletteStore.themeMode(context))
@@ -57,23 +58,23 @@ class WidgetPaletteTest {
      */
     @Test
     fun `saving reports only a real change`() {
-        assertTrue(WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM))
-        assertFalse(WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM))
-        assertTrue(WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.DARK))
-        assertTrue(WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.DARK))
+        assertTrue(WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE))
+        assertFalse(WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE))
+        assertTrue(WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.DARK, WidgetOpacity.OPAQUE))
+        assertTrue(WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.DARK, WidgetOpacity.OPAQUE))
     }
 
     /** Null means "leave the layout alone", which already draws the green. */
     @Test
     fun `markleaf green asks for no override`() {
-        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM)
+        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE)
 
         assertNull(WidgetPalette.colors(context))
     }
 
     @Test
     fun `material you asks for an override`() {
-        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM)
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE)
 
         assertNotNull(WidgetPalette.colors(context))
     }
@@ -87,7 +88,7 @@ class WidgetPaletteTest {
      */
     @Test
     fun `following the system hands the host both surfaces`() {
-        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM)
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE)
 
         val colors = requireNotNull(WidgetPalette.colors(context))
 
@@ -109,13 +110,13 @@ class WidgetPaletteTest {
      */
     @Test
     fun `a fixed theme gives the host no choice`() {
-        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.DARK)
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.DARK, WidgetOpacity.OPAQUE)
         val dark = requireNotNull(WidgetPalette.colors(context))
 
         assertEquals(dark.notNight, dark.night)
         assertEquals(context.getColor(android.R.color.system_accent1_700), dark.notNight.background)
 
-        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.LIGHT)
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.LIGHT, WidgetOpacity.OPAQUE)
         val light = requireNotNull(WidgetPalette.colors(context))
 
         assertEquals(light.notNight, light.night)
@@ -136,7 +137,7 @@ class WidgetPaletteTest {
      */
     @Test
     fun `the night surface is the darker of the two`() {
-        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM)
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE)
 
         val colors = requireNotNull(WidgetPalette.colors(context))
 
@@ -153,7 +154,7 @@ class WidgetPaletteTest {
      */
     @Test
     fun `both surfaces carry readable text`() {
-        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM)
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE)
 
         val colors = requireNotNull(WidgetPalette.colors(context))
 
@@ -220,7 +221,7 @@ class WidgetPaletteTest {
     @Test
     @Config(sdk = [30])
     fun `material you asks for no override before android 12`() {
-        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM)
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE)
 
         assertNull(WidgetPalette.colors(context))
     }
@@ -250,7 +251,7 @@ class WidgetPaletteTest {
      */
     @Test
     fun `material you reaches the recent-notes widget`() {
-        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM)
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE)
         val expected = requireNotNull(WidgetPalette.colors(context))
 
         val view = inflateQuickNoteWidget()
@@ -265,7 +266,7 @@ class WidgetPaletteTest {
     /** The counterpart: green leaves the layout's own background untouched. */
     @Test
     fun `markleaf green leaves the recent-notes widget as the layout drew it`() {
-        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM)
+        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE)
 
         assertNull(inflateQuickNoteWidget().backgroundTintList)
     }

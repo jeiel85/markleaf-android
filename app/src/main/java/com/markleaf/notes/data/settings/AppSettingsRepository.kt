@@ -67,6 +67,9 @@ class AppSettingsRepository internal constructor(
             themeMode = preferences[THEME_MODE]
                 ?.let { value -> enumValueOrDefault(value, ThemeMode.SYSTEM) }
                 ?: ThemeMode.SYSTEM,
+            widgetOpacity = preferences[WIDGET_OPACITY]
+                ?.let { value -> enumValueOrDefault(value, WidgetOpacity.OPAQUE) }
+                ?: WidgetOpacity.OPAQUE,
             editorFontSize = preferences[EDITOR_FONT_SIZE]
                 ?.let { value -> enumValueOrDefault(value, EditorFontSize.MEDIUM) }
                 ?: EditorFontSize.MEDIUM,
@@ -203,6 +206,12 @@ class AppSettingsRepository internal constructor(
     suspend fun setThemeMode(mode: ThemeMode) {
         persist { preferences ->
             preferences[THEME_MODE] = mode.name
+        }
+    }
+
+    suspend fun setWidgetOpacity(opacity: WidgetOpacity) {
+        persist { preferences ->
+            preferences[WIDGET_OPACITY] = opacity.name
         }
     }
 
@@ -429,6 +438,7 @@ class AppSettingsRepository internal constructor(
         val SYNC_FILE_EXTENSION = stringPreferencesKey("sync_file_extension")
         val COLOR_PALETTE = stringPreferencesKey("color_palette")
         val THEME_MODE = stringPreferencesKey("theme_mode")
+        val WIDGET_OPACITY = stringPreferencesKey("widget_opacity")
         val EDITOR_FONT_SIZE = stringPreferencesKey("editor_font_size")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val BIOMETRIC_LOCK_ENABLED = booleanPreferencesKey("biometric_lock_enabled")

@@ -1,3 +1,14 @@
+## 2026-09-28 — Widget background opacity (#469)
+
+`Violet-RM` asked for widget customisation: colour schemes beyond Markleaf green and Material You, and a transparency value. This covers the transparency half; the colour half is answered on the issue and stays open there.
+
+- **Setting.** `WidgetOpacity` (100 / 75 / 50 / 25 / 0 %) in `AppSettings`, default `OPAQUE`, shown under Settings → Appearance after Colors. Labels come from `NumberFormat.getPercentInstance` with the composition's locale (`75 %` in fr/de), so there are no per-step strings; the label and description are new in all 11 locales.
+- **Mirror.** `WidgetPaletteStore` gains a third key and `save()` a fourth argument. `MainActivity` collects the triple, and `syncFromSettings` carries it, so the self-healing path the factories run covers it too.
+- **Drawing.** Fixed steps, one drawable each (`widget_background_{75,50,25,0}` over `res/color/widget_background_*` selectors with `android:alpha`), swapped in with `setInt(id, "setBackgroundResource", …)`. The alternatives both fail: `setAlpha` fades the text with the card, and the one-colour tint Material You uses is API 31+ while `minSdk` is 26. The swap composes with that tint because the tint stays on the view and `SRC_IN` keeps the drawable's alpha (`material you keeps its tint on a translucent step`).
+- **100% still writes.** `AppWidgetHostView` re-applies a new `RemoteViews` onto its existing view when the layout id is unchanged, and Robolectric's `ShadowAppWidgetManager.updateAppWidget` does the same (`canReapplyRemoteViews`). A 100% that wrote nothing would leave a widget at its last step. `moving back to opaque repaints the widget opaque` pins it; with an early `return` for `OPAQUE` put back, exactly that test fails.
+- **Pre-existing, not changed here.** By the same re-apply rule, switching Colors from Material You back to Markleaf green writes no tint or text colour, so a placed widget can keep the Material You colours until the launcher inflates it afresh. Reproduced with a throwaway Robolectric test (update with Material You, then green, on the same widget id: `backgroundTintList` is still the accent), not on a device; noted on #262 rather than widened into this change.
+- **Verification.** `WidgetOpacityTest` (8) and `WidgetPaletteTest` (14) pass. Full `testDebugUnitTest`: 949 tests in 124 classes, 0 failures; `lintRelease` passes. The Appearance section is in `settings_centered_tablet`, so that golden moves.
+
 ## 2026-09-27 — Hardening pass: link verdicts, CRLF digests, locale config, format traps, CI timeouts (#262)
 
 Six open #262 items that could be settled without a device or a golden re-record, plus one that was already done.

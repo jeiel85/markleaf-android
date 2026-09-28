@@ -198,13 +198,16 @@ class SingleNoteWidget : AppWidgetProvider() {
         }
 
         /**
-         * Paints the surface in the user's chosen palette (#375).
+         * Paints the surface in the user's chosen palette (#375) and opacity (#469).
          *
-         * No-op for Markleaf Green, which the layout already draws — see
-         * [WidgetPalette]. The body rows belong to [SingleNoteWidgetService] and
-         * are coloured there from the same source.
+         * Opacity is written for both palettes and at every step, 100%
+         * included — see [setWidgetOpacity] for why. The palette is a no-op for
+         * Markleaf Green, which the layout already draws — see [WidgetPalette].
+         * The body rows belong to [SingleNoteWidgetService] and are coloured
+         * there from the same source.
          */
         private fun applyPalette(context: Context, views: RemoteViews) {
+            views.setWidgetOpacity(R.id.single_note_root, WidgetPaletteStore.opacity(context))
             val colors = WidgetPalette.colors(context) ?: return
             views.setWidgetBackground(R.id.single_note_root, colors)
             views.setWidgetTextColor(R.id.single_note_empty, colors)

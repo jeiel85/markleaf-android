@@ -12,6 +12,7 @@ v2.15.3 이전 항목은 이 파일에만 한국어로 보존되어 있습니다
 
 ### 추가
 - **Android의 앱별 언어 설정에 Markleaf가 나타납니다 ([#470](https://github.com/jeiel85/markleaf-android/pull/470)).** Android 13 이상에서 시스템의 *앱 언어* 설정에 Markleaf와 지원하는 11개 언어가 표시되어, 휴대폰의 나머지는 그대로 둔 채 Markleaf만 다른 언어로 쓸 수 있습니다. 이전에는 Markleaf의 언어를 바꾸려면 휴대폰 전체의 언어를 바꿔야 했습니다. 이전 Android 버전은 달라지지 않습니다.
+- **홈 화면 위젯 뒤로 배경화면이 비쳐 보이게 할 수 있습니다 ([#469](https://github.com/jeiel85/markleaf-android/issues/469)).** 설정 → 외관 → 위젯 배경에서 빠른 노트·단일 노트 위젯 카드의 불투명도를 고릅니다: 100%(지금까지의 꽉 찬 카드이자 기본값), 75%, 50%, 25%, 0%. Markleaf 그린과 Material You 모두에서, Markleaf가 지원하는 모든 Android 버전에서 동작합니다. 글자 색은 어느 단계에서도 그대로이므로, 낮은 값에서 글자가 잘 읽히는지는 배경화면에 달려 있습니다. 설정은 위젯마다가 아니라 놓인 위젯 전체에 한 번에 적용됩니다. [@Violet-RM](https://github.com/Violet-RM)님의 요청입니다.
 
 ### 수정
 - **Windows 줄바꿈을 가진 노트도 이제 끝나지 않은 동기화 쓰기로부터 보호됩니다 ([#470](https://github.com/jeiel85/markleaf-android/pull/470)).** v2.51.0이 각 파일 헤더에 넣은 체크섬([#434](https://github.com/jeiel85/markleaf-android/issues/434))은 본문에 Windows식(CRLF) 줄바꿈이 있는 노트 — 보통 Windows에서 만든 파일을 가져온 노트 — 와는 절대 일치할 수 없었습니다. 그런 노트에는 그 수정이 적용되지 않아, 느린 동기화에서 가짜 "(copy from another device …)" 노트가 여전히 생길 수 있었습니다. 이제 체크섬은 줄바꿈 방식을 무시합니다. 다른 노트에 이미 기록된 체크섬 값은 바뀌지 않습니다.

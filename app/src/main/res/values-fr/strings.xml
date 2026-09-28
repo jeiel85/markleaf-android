@@ -200,6 +200,8 @@
     <string name="theme_markleaf_green">Vert Markleaf</string>
     <string name="theme_material_you">Material You</string>
     <string name="theme_description">Vert Markleaf est la palette originale inspirée des feuilles. Material You s\'adapte aux couleurs de votre fond d\'écran système sur Android 12 et versions ultérieures.</string>
+    <string name="widget_opacity_label">Arrière-plan du widget</string>
+    <string name="widget_opacity_description">Plus la valeur est basse, plus votre fond d\'écran transparaît à travers les widgets de l\'écran d\'accueil. La couleur du texte ne change pas : avec une valeur basse, vérifiez qu\'il reste lisible sur votre fond d\'écran.</string>
 
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Afficher la syntaxe Markdown</string>

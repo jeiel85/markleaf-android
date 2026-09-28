@@ -210,6 +210,8 @@
     <string name="theme_markleaf_green">Markleafova zelena</string>
     <string name="theme_material_you">Material You</string>
     <string name="theme_description">Markleafova zelena je izvorna paleta boja inspirirana lišćem. Material You slijedi boje tvoje pozadinske slike na Androidu 12 i novijem.</string>
+    <string name="widget_opacity_label">Pozadina widgeta</string>
+    <string name="widget_opacity_description">Što je vrijednost niža, to se više tvoje pozadinske slike vidi kroz widgete na početnom zaslonu. Boja teksta ostaje ista, pa kod niskih vrijednosti provjeri je li tekst i dalje čitljiv na tvojoj pozadini.</string>
     <string name="theme_mode_system">Sustav</string>
     <string name="theme_mode_light">Svijetla</string>
     <string name="theme_mode_dark">Tamna</string>

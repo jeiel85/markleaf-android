@@ -4,18 +4,19 @@ import android.content.Context
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.ColorPalette
 import com.markleaf.notes.data.settings.ThemeMode
+import com.markleaf.notes.data.settings.WidgetOpacity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
 /**
- * The two Appearance settings a widget paints itself from, mirrored where it can
- * read them (#375).
+ * The Appearance settings a widget paints itself from, mirrored where it can
+ * read them (#375, #469).
  *
  * SharedPreferences rather than the app's DataStore, for the same reason
  * [SingleNoteWidgetStore] is: `onUpdate` runs on the receiver's main thread and
  * has to answer immediately, and a DataStore read there would mean blocking it
  * on I/O. The authoritative copies stay in `markleaf_settings`; this is a cache
- * of two enums, written by `MainActivity` whenever either changes.
+ * of three enums, written by `MainActivity` whenever any of them changes.
  *
  * Theme is here as well as Colors because the widget needs to know which *end*
  * of the dynamic palette to take, and its own `Configuration` cannot be trusted
@@ -33,6 +34,7 @@ object WidgetPaletteStore {
     private const val PREFS_NAME = "widget_appearance"
     private const val KEY_PALETTE = "color_palette"
     private const val KEY_THEME_MODE = "theme_mode"
+    private const val KEY_OPACITY = "widget_opacity"
 
     /** Defaults to [ColorPalette.MARKLEAF_GREEN], as the setting itself does. */
     fun palette(context: Context): ColorPalette =
@@ -46,8 +48,14 @@ object WidgetPaletteStore {
             ?.let { stored -> ThemeMode.entries.firstOrNull { it.name == stored } }
             ?: ThemeMode.SYSTEM
 
+    /** Defaults to [WidgetOpacity.OPAQUE], as the setting itself does. */
+    fun opacity(context: Context): WidgetOpacity =
+        prefs(context).getString(KEY_OPACITY, null)
+            ?.let { stored -> WidgetOpacity.entries.firstOrNull { it.name == stored } }
+            ?: WidgetOpacity.OPAQUE
+
     /**
-     * Stores both values, returning whether either differed from what was there.
+     * Stores all three values, returning whether any differed from what was there.
      *
      * The return value is what lets the caller repaint only on a real change:
      * the settings arrive once per process whether or not the user touched them,
@@ -57,14 +65,21 @@ object WidgetPaletteStore {
      * redraw, and those widgets read this file back on another thread. Call it
      * off the main thread — `MainActivity` does.
      */
-    fun save(context: Context, palette: ColorPalette, themeMode: ThemeMode): Boolean {
+    fun save(
+        context: Context,
+        palette: ColorPalette,
+        themeMode: ThemeMode,
+        opacity: WidgetOpacity
+    ): Boolean {
         val prefs = prefs(context)
         val unchanged = prefs.getString(KEY_PALETTE, null) == palette.name &&
-            prefs.getString(KEY_THEME_MODE, null) == themeMode.name
+            prefs.getString(KEY_THEME_MODE, null) == themeMode.name &&
+            prefs.getString(KEY_OPACITY, null) == opacity.name
         if (unchanged) return false
         prefs.edit()
             .putString(KEY_PALETTE, palette.name)
             .putString(KEY_THEME_MODE, themeMode.name)
+            .putString(KEY_OPACITY, opacity.name)
             .commit()
         return true
     }
@@ -100,7 +115,7 @@ object WidgetPaletteStore {
         repository: AppSettingsRepository = AppSettingsRepository(context)
     ): Boolean {
         val settings = runBlocking { repository.settings.first() }
-        return save(context, settings.colorPalette, settings.themeMode)
+        return save(context, settings.colorPalette, settings.themeMode, settings.widgetOpacity)
     }
 
     private fun prefs(context: Context) =

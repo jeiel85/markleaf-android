@@ -211,6 +211,8 @@
     <string name="theme_markleaf_green">Markleaf green</string>
     <string name="theme_material_you">Material You</string>
     <string name="theme_description">Markleaf green is the original leaf-inspired palette. Material You follows your system wallpaper colors on Android 12 and later.</string>
+    <string name="widget_opacity_label">Widget background</string>
+    <string name="widget_opacity_description">Lower values let more of your wallpaper show through the home-screen widgets. The text keeps its color, so at low values check that it stays readable on your wallpaper.</string>
 
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Show Markdown syntax</string>

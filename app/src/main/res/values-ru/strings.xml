@@ -221,6 +221,8 @@
     <string name="theme_markleaf_green">Зелёная Markleaf</string>
     <string name="theme_material_you">Material You</string>
     <string name="theme_description">Зелёная Markleaf — исходная палитра в духе листвы. Material You подстраивается под цвета обоев системы на Android 12 и новее.</string>
+    <string name="widget_opacity_label">Фон виджета</string>
+    <string name="widget_opacity_description">Чем ниже значение, тем больше обоев видно сквозь виджеты на главном экране. Цвет текста не меняется, поэтому при низких значениях проверьте, что текст остаётся читаемым на ваших обоях.</string>
 
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Показывать синтаксис Markdown</string>

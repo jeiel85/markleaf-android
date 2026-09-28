@@ -147,10 +147,10 @@ class MainActivity : FragmentActivity() {
         }
 
         // Mirror the Appearance settings where the widgets can read them, and
-        // repaint the widgets when either changes (#375). A widget is drawn by a
-        // receiver on its main thread and cannot wait on DataStore, so the
-        // values have to be pushed to it rather than pulled — WidgetPaletteStore
-        // is that copy.
+        // repaint the widgets when any of them changes (#375, #469). A widget
+        // is drawn by a receiver on its main thread and cannot wait on
+        // DataStore, so the values have to be pushed to it rather than pulled —
+        // WidgetPaletteStore is that copy.
         //
         // Theme travels with Colors because the widget needs to know which end
         // of the dynamic palette to take, and its own Configuration cannot be
@@ -165,16 +165,16 @@ class MainActivity : FragmentActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 settingsRepository.settings
-                    .map { it.colorPalette to it.themeMode }
+                    .map { Triple(it.colorPalette, it.themeMode, it.widgetOpacity) }
                     .distinctUntilChanged()
-                    .collect { (palette, themeMode) ->
+                    .collect { (palette, themeMode, opacity) ->
                         // save() reports whether the values actually moved; they
                         // arrive once per process whether or not anyone touched
                         // them, and repainting every widget on each launch would
                         // be work for nothing. It commits, so it runs off the
                         // main thread this collector is on.
                         val changed = withContext(Dispatchers.IO) {
-                            WidgetPaletteStore.save(applicationContext, palette, themeMode)
+                            WidgetPaletteStore.save(applicationContext, palette, themeMode, opacity)
                         }
                         if (changed) {
                             WidgetRefresh.notesChanged(applicationContext)

@@ -105,14 +105,17 @@ class QuickNoteWidget : AppWidgetProvider() {
         }
 
         /**
-         * Paints the container in the user's chosen palette (#375).
+         * Paints the container in the user's chosen palette (#375) and opacity (#469).
          *
-         * No-op for Markleaf Green: the layout already draws it, and
+         * Opacity is written for both palettes and at every step, 100%
+         * included — see [setWidgetOpacity] for why. The palette is a no-op for
+         * Markleaf Green: the layout already draws it, and
          * [WidgetPalette.colors] returns null to say so. The rows are not
          * touched here — they are the factory's views, and
          * [QuickNoteWidgetService] colours them from the same source.
          */
         private fun applyPalette(context: Context, views: RemoteViews) {
+            views.setWidgetOpacity(R.id.widget_container, WidgetPaletteStore.opacity(context))
             val colors = WidgetPalette.colors(context) ?: return
             views.setWidgetBackground(R.id.widget_container, colors)
             views.setWidgetTextColor(R.id.widget_title, colors)

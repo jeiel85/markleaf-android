@@ -52,6 +52,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
@@ -78,6 +79,7 @@ import com.markleaf.notes.data.settings.NotesLayout
 import com.markleaf.notes.data.settings.OpenNotesAt
 import com.markleaf.notes.data.settings.SyncMetadataMode
 import com.markleaf.notes.data.settings.ThemeMode
+import com.markleaf.notes.data.settings.WidgetOpacity
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.NoteImporter
 import com.markleaf.notes.data.sync.SidecarMigration
@@ -91,6 +93,7 @@ import com.markleaf.notes.util.TagParser
 import com.markleaf.notes.update.UpdateSurface
 import com.markleaf.notes.util.HapticFeedback
 import com.markleaf.notes.widget.WidgetRefresh
+import java.text.NumberFormat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
@@ -326,6 +329,40 @@ fun SettingsScreen(
                         Spacer(Modifier.height(6.dp))
                         Text(
                             text = stringResource(R.string.theme_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        Text(
+                            text = stringResource(R.string.widget_opacity_label),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        // Five percentages don't fit one row on a narrow phone,
+                        // so they wrap like the font sizes below.
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            WidgetOpacity.entries.forEach { opacity ->
+                                val selected = appSettings.widgetOpacity == opacity
+                                if (selected) {
+                                    Button(onClick = {}) {
+                                        Text(opacity.localizedLabel())
+                                    }
+                                } else {
+                                    OutlinedButton(
+                                        onClick = {
+                                            scope.launch { settingsRepository.setWidgetOpacity(opacity) }
+                                        }
+                                    ) {
+                                        Text(opacity.localizedLabel())
+                                    }
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        Text(
+                            text = stringResource(R.string.widget_opacity_description),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -1407,6 +1444,24 @@ private fun ColorPalette.localizedLabel(): String {
         ColorPalette.MARKLEAF_GREEN -> stringResource(R.string.theme_markleaf_green)
         ColorPalette.MATERIAL_YOU -> stringResource(R.string.theme_material_you)
     }
+}
+
+/**
+ * "75%" in the viewer's own number format (#469).
+ *
+ * Input: the step's [WidgetOpacity.percent].
+ * Output: the percentage as the app's current locale writes it.
+ *
+ * Why NumberFormat instead of a translated string: the only localised part is
+ * how a percentage is written — `75 %` in French and German, `75%` in English —
+ * and the platform already knows that for every locale, including any added
+ * later. The locale comes from the composition so it follows the per-app
+ * language (#470) rather than whatever `Locale.getDefault()` last held.
+ */
+@Composable
+private fun WidgetOpacity.localizedLabel(): String {
+    val locale = LocalConfiguration.current.locales[0]
+    return NumberFormat.getPercentInstance(locale).format(percent / 100.0)
 }
 
 @Composable

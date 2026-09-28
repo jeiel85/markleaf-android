@@ -1,0 +1,5 @@
+Einstellungen → Darstellung → „Widget-Hintergrund“ lässt das Hintergrundbild durch die Widgets scheinen: 100 % (Standard), 75 %, 50 %, 25 % oder 0 %. Die Textfarbe bleibt gleich – prüfe die Lesbarkeit. Danke an @Violet-RM für den Wunsch.
+
+Ab Android 13 erscheint Markleaf in der App-Spracheinstellung des Systems.
+
+Notizen mit Windows-Zeilenenden erhalten jetzt den Schutz aus v2.51.0 gegen unnötige Sync-Kopien.

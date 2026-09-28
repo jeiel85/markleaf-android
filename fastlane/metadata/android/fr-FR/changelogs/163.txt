@@ -1,0 +1,5 @@
+Paramètres → Apparence → « Arrière-plan du widget » laisse transparaître le fond d'écran à travers les widgets : 100 % (par défaut), 75 %, 50 %, 25 % ou 0 %. La couleur du texte ne change pas : vérifiez qu'il reste lisible. Merci à @Violet-RM pour la suggestion.
+
+Sous Android 13+, Markleaf apparaît dans le réglage de langue par application.
+
+Les notes avec des fins de ligne Windows bénéficient désormais de la protection de la v2.51.0 contre les copies de synchronisation parasites.

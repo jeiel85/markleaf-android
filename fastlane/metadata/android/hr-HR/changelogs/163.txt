@@ -1,0 +1,5 @@
+Postavke → Izgled → „Pozadina widgeta” omogućuje da se pozadinska slika vidi kroz widgete: 100 % (zadano), 75 %, 50 %, 25 % ili 0 %. Boja teksta ostaje ista, pa provjeri čitljivost. Hvala @Violet-RM na prijedlogu.
+
+Na Androidu 13+ Markleaf se sada pojavljuje u sistemskoj postavci jezika po aplikaciji.
+
+Bilješke s Windows prijelomima redaka sada dobivaju zaštitu iz v2.51.0 od lažnih kopija sinkronizacije.

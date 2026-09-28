@@ -54,7 +54,7 @@ Listed by first report.
 | [@jcesarap](https://github.com/jcesarap) | [#428](https://github.com/jeiel85/markleaf-android/issues/428), [#429](https://github.com/jeiel85/markleaf-android/issues/429) |
 | [@makesthingsxyz](https://github.com/makesthingsxyz) | [#432](https://github.com/jeiel85/markleaf-android/issues/432) |
 | [@angelblackcoat](https://github.com/angelblackcoat) | [#437](https://github.com/jeiel85/markleaf-android/issues/437) |
-| [@Violet-RM](https://github.com/Violet-RM) | [#438](https://github.com/jeiel85/markleaf-android/issues/438) |
+| [@Violet-RM](https://github.com/Violet-RM) | [#438](https://github.com/jeiel85/markleaf-android/issues/438), [#469](https://github.com/jeiel85/markleaf-android/issues/469) |
 | [@Kamul-PL](https://github.com/Kamul-PL) | [#446](https://github.com/jeiel85/markleaf-android/issues/446) |
 | [@Akshaythorat376](https://github.com/Akshaythorat376) | [#447](https://github.com/jeiel85/markleaf-android/issues/447) |
 

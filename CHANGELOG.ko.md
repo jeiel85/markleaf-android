@@ -6,9 +6,9 @@ Markleaf의 주요 변경 사항을 기록합니다. 영어판이 기본이며 G
 
 v2.15.3 이전 항목은 이 파일에만 한국어로 보존되어 있습니다.
 
-## Unreleased
+## v2.54.0 - 배경화면이 비치는 위젯 (Widgets that let the wallpaper through) - 2026-09-28
 
-<!-- Rename to `## vX.Y.Z - Title - YYYY-MM-DD` in the release commit. The release-note step and the verify scripts read only `## v` headings, so this section is invisible to them until then. -->
+위젯 설정 하나, Android 앱별 언어 목록에 Markleaf 추가, 동기화 수정 하나입니다. 권한과 저장 형식 변경은 없습니다.
 
 ### 추가
 - **Android의 앱별 언어 설정에 Markleaf가 나타납니다 ([#470](https://github.com/jeiel85/markleaf-android/pull/470)).** Android 13 이상에서 시스템의 *앱 언어* 설정에 Markleaf와 지원하는 11개 언어가 표시되어, 휴대폰의 나머지는 그대로 둔 채 Markleaf만 다른 언어로 쓸 수 있습니다. 이전에는 Markleaf의 언어를 바꾸려면 휴대폰 전체의 언어를 바꿔야 했습니다. 이전 Android 버전은 달라지지 않습니다.

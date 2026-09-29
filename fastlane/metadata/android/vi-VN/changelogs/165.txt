@@ -1,1 +1,1 @@
-Xuất PDF giờ bao gồm cả hình ảnh đính kèm trong ghi chú, giống như trong bản xem trước. Hình ảnh không lưu trong Markleaf sẽ được in dưới dạng văn bản liên kết; không có gì được tải xuống để tạo PDF. Cảm ơn @ClockGen đã đề xuất.
+Xuất PDF giờ bao gồm cả hình ảnh đính kèm trong ghi chú, giống như trong bản xem trước. Hình ảnh không lưu trong Markleaf sẽ được in dưới dạng văn bản liên kết; không có gì được tải xuống để tạo PDF. Với ghi chú có rất nhiều ảnh, các ảnh cuối có thể được in dưới dạng văn bản do giới hạn bộ nhớ. Cảm ơn @ClockGen đã đề xuất.

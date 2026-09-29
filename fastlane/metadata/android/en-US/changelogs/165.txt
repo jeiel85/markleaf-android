@@ -1,1 +1,1 @@
-Export as PDF now includes the images attached to a note, the same ones the preview shows. Images that aren't stored in Markleaf print as their link text; nothing is downloaded to make a PDF. Thanks @ClockGen for the request.
+Export as PDF now includes the images attached to a note, the same ones the preview shows. Images that aren't stored in Markleaf print as their link text; nothing is downloaded to make a PDF. Notes with very many photos may print the last ones as text, to stay within memory. Thanks @ClockGen for the request.

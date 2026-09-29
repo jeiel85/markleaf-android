@@ -6,6 +6,16 @@ Markleaf의 주요 변경 사항을 기록합니다. 영어판이 기본이며 G
 
 v2.15.3 이전 항목은 이 파일에만 한국어로 보존되어 있습니다.
 
+## Unreleased
+
+<!-- Rename to `## vX.Y.Z - Title - YYYY-MM-DD` in the release commit. The release-note step and the verify scripts read only `## v` headings, so this section is invisible to them until then. -->
+
+### 추가
+- **홈 화면 위젯에 원하는 색을 지정할 수 있습니다 ([#469](https://github.com/jeiel85/markleaf-android/issues/469)).** 설정 → 모양 → 위젯 색상에 *앱 색상*(기본값, 지금처럼 색상 설정을 따름) 옆으로 *직접 선택*이 생겼습니다. 직접 선택을 누르면 프리셋, 색조·채도·밝기 슬라이더, 16진수 코드 입력과 미리보기가 있는 선택 창이 열립니다. 빠른 메모와 단일 노트 위젯 모두 라이트·다크 모드와 관계없이 그 색으로 칠해집니다. 글자는 고른 색 위에서 더 잘 보이는 쪽으로 흰색과 검은색 중에서 바뀌고, 위젯 배경 불투명도 설정도 그대로 함께 적용됩니다. 직접 선택은 Android 12 이상이 필요하며, 그보다 낮은 버전에서는 옵션이 비활성으로 표시됩니다. [@Violet-RM](https://github.com/Violet-RM) 님이 요청했습니다.
+
+### 수정
+- **위젯 색을 되돌리면 이미 놓인 위젯도 다시 칠해집니다 ([#469](https://github.com/jeiel85/markleaf-android/issues/469)).** Material You(이제는 직접 선택한 색도)에서 Markleaf 그린으로 돌아가면, 홈 화면에 놓인 위젯이 런처가 새로 그리기 전까지 이전 색으로 남을 수 있었습니다. 이제 위젯이 갱신될 때마다 기본 색을 다시 써 넣습니다.
+
 ## v2.54.0 - 배경화면이 비치는 위젯 (Widgets that let the wallpaper through) - 2026-09-28
 
 위젯 설정 하나, Android 앱별 언어 목록에 Markleaf 추가, 동기화 수정 하나입니다. 권한과 저장 형식 변경은 없습니다.

@@ -133,7 +133,10 @@ private fun WidgetColorPickerDialog(
     var brightness by remember { mutableFloatStateOf(start[2]) }
     var hexText by remember { mutableStateOf(formatHexColor(initial)) }
 
-    val color = android.graphics.Color.HSVToColor(floatArrayOf(hue, saturation, brightness))
+    // The typed or slider-mirrored code when it parses, so the preview is exactly
+    // what Apply saves; the HSV colour only while the field is mid-edit.
+    val color = parseHexColor(hexText)
+        ?: android.graphics.Color.HSVToColor(floatArrayOf(hue, saturation, brightness))
     fun setFrom(picked: Int) {
         val hsv = FloatArray(3).also { android.graphics.Color.colorToHSV(picked, it) }
         hue = hsv[0]
@@ -208,7 +211,15 @@ private fun WidgetColorPickerDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(color) }) {
+            // The hex field always mirrors the sliders, so its value is what the
+            // user sees; confirming it (not the HSV floats) keeps a typed code
+            // exact, and an incomplete one can't silently apply the last valid
+            // colour instead.
+            val confirmed = parseHexColor(hexText)
+            TextButton(
+                onClick = { confirmed?.let(onConfirm) },
+                enabled = confirmed != null
+            ) {
                 Text(stringResource(R.string.widget_color_apply))
             }
         },

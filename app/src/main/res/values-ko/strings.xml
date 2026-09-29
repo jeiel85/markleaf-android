@@ -197,6 +197,17 @@
     <string name="theme_description">Markleaf 그린은 앱 이름의 잎과 어울리는 원래 색상입니다. Material You는 Android 12 이상에서 시스템 배경화면의 색을 따라갑니다.</string>
     <string name="widget_opacity_label">위젯 배경</string>
     <string name="widget_opacity_description">값이 낮을수록 홈 화면 위젯 뒤로 배경화면이 더 많이 비쳐 보입니다. 글자 색은 바뀌지 않으므로, 낮은 값에서는 배경화면 위에서도 글자가 잘 읽히는지 확인해 주세요.</string>
+    <string name="widget_color_label">위젯 색상</string>
+    <string name="widget_color_app">앱 색상</string>
+    <string name="widget_color_custom">직접 선택</string>
+    <string name="widget_color_description">앱 색상은 위의 색상 설정을 따릅니다. 직접 선택하면 두 위젯 모두 고른 색으로 칠해지고, 글자는 잘 보이도록 흰색과 검은색 중에서 자동으로 바뀝니다.</string>
+    <string name="widget_color_requires_android_12">위젯 색상 직접 선택은 Android 12 이상에서 사용할 수 있습니다.</string>
+    <string name="widget_color_preview">빠른 메모</string>
+    <string name="widget_color_hue">색조</string>
+    <string name="widget_color_saturation">채도</string>
+    <string name="widget_color_brightness">밝기</string>
+    <string name="widget_color_hex">16진수 코드</string>
+    <string name="widget_color_apply">적용</string>
 
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Markdown 문법 표시</string>

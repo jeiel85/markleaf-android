@@ -170,7 +170,8 @@ class UntranslatedStringTest {
                 "settings_open_source",
                 "tag_note_count_format[one]",
                 "tag_note_count_format[other]",
-                "version_format"
+                "version_format",
+                "widget_color_saturation"
             ),
             // Typography terms kept in their English form.
             "es" to setOf(

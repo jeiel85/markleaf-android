@@ -19,6 +19,10 @@ data class AppSettings(
      *  [WidgetOpacity.OPAQUE], the solid card the widgets have always drawn,
      *  so an update changes nothing until opted into (#469). */
     val widgetOpacity: WidgetOpacity = WidgetOpacity.OPAQUE,
+    /** A colour the home-screen widgets paint instead of the Colors palette,
+     *  as opaque ARGB. Null — the default — keeps them on the app's palette,
+     *  which is what they have always drawn (#469). */
+    val widgetCustomColor: Int? = null,
     /** Editor and preview text scale. Defaults to [EditorFontSize.MEDIUM]
      *  (scale 1.0), which renders exactly as before (#346). */
     val editorFontSize: EditorFontSize = EditorFontSize.MEDIUM,

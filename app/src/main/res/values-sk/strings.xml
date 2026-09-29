@@ -204,6 +204,17 @@
     <string name="theme_description">Markleaf green je pôvodná paleta inšpirovaná listami. Material You sa prispôsobuje farbám systémovej tapety v systéme Android 12 a novších verziách.</string>
     <string name="widget_opacity_label">Pozadie miniaplikácie</string>
     <string name="widget_opacity_description">Čím nižšia hodnota, tým viac tapety presvitá cez miniaplikácie na ploche. Farba textu sa nemení, preto pri nízkych hodnotách skontrolujte, či je text na vašej tapete stále čitateľný.</string>
+    <string name="widget_color_label">Farba miniaplikácie</string>
+    <string name="widget_color_app">Farby aplikácie</string>
+    <string name="widget_color_custom">Vlastná</string>
+    <string name="widget_color_description">Farby aplikácie sa riadia nastavením Farby vyššie. Vlastná zafarbí obe miniaplikácie farbou, ktorú si vyberiete, a text sa prepína medzi bielou a čiernou, aby zostal čitateľný.</string>
+    <string name="widget_color_requires_android_12">Vlastné farby miniaplikácie vyžadujú Android 12 alebo novší.</string>
+    <string name="widget_color_preview">Rýchla poznámka</string>
+    <string name="widget_color_hue">Odtieň</string>
+    <string name="widget_color_saturation">Sýtosť</string>
+    <string name="widget_color_brightness">Jas</string>
+    <string name="widget_color_hex">Hexadecimálny kód</string>
+    <string name="widget_color_apply">Použiť</string>
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Zobraziť syntax Markdownu</string>
     <string name="show_markdown_syntax_description">Editor v reálnom čase zvýrazňuje znaky Markdownu priamo počas písania.</string>

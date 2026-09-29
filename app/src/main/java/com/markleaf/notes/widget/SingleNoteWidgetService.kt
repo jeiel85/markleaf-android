@@ -127,7 +127,7 @@ internal class SingleNoteWidgetFactory(
             textSizeSp
         )
         // Null means Markleaf Green, which the layout already draws.
-        colors?.let { view.setWidgetTextColor(R.id.single_note_line, it) }
+        view.setWidgetTextColor(R.id.single_note_line, colors)
         // Every row opens the same note, so the fill-in is the same for all of
         // them; the template in the provider carries the action and component.
         noteId?.let {

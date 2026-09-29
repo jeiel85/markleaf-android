@@ -213,6 +213,17 @@
     <string name="theme_description">Markleaf green is the original leaf-inspired palette. Material You follows your system wallpaper colors on Android 12 and later.</string>
     <string name="widget_opacity_label">Widget background</string>
     <string name="widget_opacity_description">Lower values let more of your wallpaper show through the home-screen widgets. The text keeps its color, so at low values check that it stays readable on your wallpaper.</string>
+    <string name="widget_color_label">Widget color</string>
+    <string name="widget_color_app">App colors</string>
+    <string name="widget_color_custom">Custom</string>
+    <string name="widget_color_description">App colors follows the Colors setting above. Custom paints both widgets in a color you pick, and the text switches between white and black to stay readable.</string>
+    <string name="widget_color_requires_android_12">Custom widget colors need Android 12 or later.</string>
+    <string name="widget_color_preview">Quick note</string>
+    <string name="widget_color_hue">Hue</string>
+    <string name="widget_color_saturation">Saturation</string>
+    <string name="widget_color_brightness">Brightness</string>
+    <string name="widget_color_hex">Hex code</string>
+    <string name="widget_color_apply">Apply</string>
 
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Show Markdown syntax</string>

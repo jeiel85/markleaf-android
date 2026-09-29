@@ -10,8 +10,12 @@ v2.15.3 이전 항목은 이 파일에만 한국어로 보존되어 있습니다
 
 <!-- Rename to `## vX.Y.Z - Title - YYYY-MM-DD` in the release commit. The release-note step and the verify scripts read only `## v` headings, so this section is invisible to them until then. -->
 
+### 추가
+- **홈 화면 위젯에 원하는 색을 지정할 수 있습니다 ([#469](https://github.com/jeiel85/markleaf-android/issues/469)).** 설정 → 외관 → 위젯 색상에 *앱 색상*(기본값, 지금처럼 색상 설정을 따름) 옆으로 *직접 선택*이 생겼습니다. 직접 선택을 누르면 프리셋, 색조·채도·밝기 슬라이더, 16진수 코드 입력과 미리보기가 있는 선택 창이 열립니다. 빠른 메모와 단일 노트 위젯 모두 라이트·다크 모드와 관계없이 그 색으로 칠해집니다. 글자는 고른 색 위에서 더 잘 보이는 쪽으로 흰색과 검은색 중에서 바뀌고, 위젯 배경 불투명도 설정도 그대로 함께 적용됩니다. 직접 선택은 Android 12 이상이 필요하며, 그보다 낮은 버전에서는 옵션이 비활성으로 표시됩니다. [@Violet-RM](https://github.com/Violet-RM) 님이 요청했습니다.
+
 ### 수정
 - **Material You 모노크롬 팔레트에서도 콜아웃 글자가 보입니다 ([#473](https://github.com/jeiel85/markleaf-android/issues/473)).** 모노크롬 배경화면 팔레트에서는 미리보기의 *Note* 콜아웃 배경이 라이트 모드에서 어둡고 다크 모드에서 밝은데, 글자는 페이지의 일반 글자색을 그대로 써서 어두운 바탕에 어두운 글자, 밝은 바탕에 밝은 글자가 되었습니다. 이제 모든 콜아웃 종류가 아이콘·라벨·본문을 자기 배경에 맞는 색으로 그립니다. Markleaf 그린에서는 라벨이 이전보다 약간 짙은 초록이 됩니다. 콜아웃 안의 링크는 앱의 링크 색을 유지하므로 모노크롬 팔레트에서는 여전히 잘 안 보일 수 있습니다. [@blend0matik](https://github.com/blend0matik) 님이 제보했습니다.
+- **위젯 색을 되돌리면 이미 놓인 위젯도 다시 칠해집니다 ([#469](https://github.com/jeiel85/markleaf-android/issues/469)).** Material You(이제는 직접 선택한 색도)에서 Markleaf 그린으로 돌아가면, 홈 화면에 놓인 위젯이 런처가 새로 그리기 전까지 이전 색으로 남을 수 있었습니다. 이제 위젯이 갱신될 때마다 기본 색을 다시 써 넣습니다.
 
 ## v2.54.0 - 배경화면이 비치는 위젯 (Widgets that let the wallpaper through) - 2026-09-28
 

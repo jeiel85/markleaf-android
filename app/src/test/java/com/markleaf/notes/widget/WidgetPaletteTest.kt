@@ -272,10 +272,139 @@ class WidgetPaletteTest {
     }
 
     /**
+     * A picked colour wins over the palette and ignores night mode (#469): it is
+     * the one colour the user asked to see, so the host gets no second choice.
+     */
+    @Test
+    fun `a custom colour overrides the palette in both night modes`() {
+        val picked = 0xFF1E88E5.toInt()
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE, picked)
+
+        val colors = requireNotNull(WidgetPalette.colors(context))
+
+        assertEquals(picked, colors.notNight.background)
+        assertEquals(colors.notNight, colors.night)
+    }
+
+    @Test
+    fun `a custom colour overrides markleaf green too`() {
+        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE, 0xFFFDD835.toInt())
+
+        assertEquals(0xFFFDD835.toInt(), WidgetPalette.colors(context)?.notNight?.background)
+    }
+
+    /** Clearing it has to reach the widget, or it would stay on the old colour. */
+    @Test
+    fun `saving reports a custom colour set, changed or cleared`() {
+        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE)
+
+        assertTrue(WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE, 0xFF000000.toInt()))
+        assertFalse(WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE, 0xFF000000.toInt()))
+        assertTrue(WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE, 0xFF4CAF50.toInt()))
+        assertTrue(WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE, null))
+        assertNull(WidgetPaletteStore.customColor(context))
+        assertNull(WidgetPalette.colors(context))
+    }
+
+    /** Black is a real colour, not "unset" — the mirror must not read 0 as null or vice versa. */
+    @Test
+    fun `an unmirrored custom colour reads as none, and black survives the round trip`() {
+        assertNull(WidgetPaletteStore.customColor(context))
+
+        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE, 0xFF000000.toInt())
+
+        assertEquals(0xFF000000.toInt(), WidgetPaletteStore.customColor(context))
+    }
+
+    @Test
+    @Config(sdk = [30])
+    fun `a custom colour asks for no override before android 12`() {
+        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE, 0xFF1E88E5.toInt())
+
+        assertNull(WidgetPalette.colors(context))
+    }
+
+    @Test
+    fun `the custom colour is mirrored from the settings`() {
+        val repository = AppSettingsRepository(InMemoryPreferencesDataStore())
+        runBlocking { repository.setWidgetCustomColor(0xFF8E24AA.toInt()) }
+
+        assertTrue(WidgetPaletteStore.syncFromSettings(context, repository))
+        assertEquals(0xFF8E24AA.toInt(), WidgetPaletteStore.customColor(context))
+
+        runBlocking { repository.setWidgetCustomColor(null) }
+        assertTrue(WidgetPaletteStore.syncFromSettings(context, repository))
+        assertNull(WidgetPaletteStore.customColor(context))
+    }
+
+    @Test
+    fun `a custom colour reaches the recent-notes widget with readable text`() {
+        val picked = 0xFFFAFAFA.toInt()
+        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE, picked)
+
+        val view = inflateQuickNoteWidget()
+
+        assertEquals(picked, view.backgroundTintList?.defaultColor)
+        assertEquals(
+            0xFF000000.toInt(),
+            view.findViewById<TextView>(R.id.widget_title).currentTextColor
+        )
+    }
+
+    /**
      * Runs the provider and hands back the view the launcher would show.
      * `getViewFor` is the shadow's inflation of the RemoteViews the widget
      * pushed, so it sees exactly what `updateAppWidget` set and nothing else.
      */
+    /**
+     * Going back to the palette must repaint a widget that is already placed.
+     * The host re-applies a new `RemoteViews` onto the view it shows, so an
+     * update that wrote nothing for Markleaf Green left the custom colour — and
+     * its black text — on screen until the launcher next inflated the widget.
+     * Compared against a freshly inflated widget rather than hard-coded values,
+     * so the assertion is "looks like the layout", whatever the theme resolves.
+     */
+    @Test
+    fun `clearing a custom colour repaints a placed widget in the layout's own colours`() {
+        val manager = AppWidgetManager.getInstance(context)
+        val fresh = inflateQuickNoteWidget()
+        val id = shadowOf(manager)
+            .createWidgets(QuickNoteWidget::class.java, R.layout.widget_quick_note, 1)
+            .first()
+
+        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE, 0xFFFAFAFA.toInt())
+        QuickNoteWidget.updateAppWidget(context, manager, id)
+        assertEquals(0xFFFAFAFA.toInt(), shadowOf(manager).getViewFor(id).backgroundTintList?.defaultColor)
+
+        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE, null)
+        QuickNoteWidget.updateAppWidget(context, manager, id)
+        val view = shadowOf(manager).getViewFor(id)
+
+        assertNull(view.backgroundTintList)
+        assertEquals(
+            fresh.findViewById<TextView>(R.id.widget_title).currentTextColor,
+            view.findViewById<TextView>(R.id.widget_title).currentTextColor
+        )
+    }
+
+    /** The same for Material You → Markleaf Green, which had the same gap (#262). */
+    @Test
+    fun `switching material you back to green repaints a placed widget`() {
+        val manager = AppWidgetManager.getInstance(context)
+        val id = shadowOf(manager)
+            .createWidgets(QuickNoteWidget::class.java, R.layout.widget_quick_note, 1)
+            .first()
+
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE)
+        QuickNoteWidget.updateAppWidget(context, manager, id)
+        assertNotNull(shadowOf(manager).getViewFor(id).backgroundTintList)
+
+        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE)
+        QuickNoteWidget.updateAppWidget(context, manager, id)
+
+        assertNull(shadowOf(manager).getViewFor(id).backgroundTintList)
+    }
+
     private fun inflateQuickNoteWidget(): android.view.View {
         val manager = AppWidgetManager.getInstance(context)
         val id = shadowOf(manager)

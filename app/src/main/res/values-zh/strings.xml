@@ -203,6 +203,17 @@
     <string name="theme_description">Markleaf 绿是以树叶为灵感的原始配色。Material You 在 Android 12 及更高版本上会跟随系统壁纸配色。</string>
     <string name="widget_opacity_label">小部件背景</string>
     <string name="widget_opacity_description">数值越低，主屏幕小部件透出的壁纸越多。文字颜色保持不变，因此数值较低时，请确认文字在壁纸上仍清晰可读。</string>
+    <string name="widget_color_label">小部件颜色</string>
+    <string name="widget_color_app">应用颜色</string>
+    <string name="widget_color_custom">自定义</string>
+    <string name="widget_color_description">“应用颜色”跟随上方的配色设置。“自定义”会用你选的颜色绘制两个小部件，文字会在白色和黑色之间自动切换以保持清晰可读。</string>
+    <string name="widget_color_requires_android_12">自定义小部件颜色需要 Android 12 或更高版本。</string>
+    <string name="widget_color_preview">快速笔记</string>
+    <string name="widget_color_hue">色相</string>
+    <string name="widget_color_saturation">饱和度</string>
+    <string name="widget_color_brightness">亮度</string>
+    <string name="widget_color_hex">十六进制代码</string>
+    <string name="widget_color_apply">应用</string>
 
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">显示 Markdown 语法</string>

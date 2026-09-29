@@ -366,6 +366,13 @@ fun SettingsScreen(
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                        Spacer(Modifier.height(12.dp))
+                        WidgetColorSetting(
+                            customColor = appSettings.widgetCustomColor,
+                            onChange = { color ->
+                                scope.launch { settingsRepository.setWidgetCustomColor(color) }
+                            }
+                        )
                     }
 
                     SettingsSection(title = stringResource(R.string.settings_markdown)) {

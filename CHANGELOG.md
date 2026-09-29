@@ -8,8 +8,12 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 <!-- Rename to `## vX.Y.Z - Title - YYYY-MM-DD` in the release commit. The release-note step and the verify scripts read only `## v` headings, so this section is invisible to them until then. -->
 
+### Added
+- **Home-screen widgets can take a colour you pick ([#469](https://github.com/jeiel85/markleaf-android/issues/469)).** Settings → Appearance → Widget color now has *Custom* next to *App colors* (the default, which follows the Colors setting as before). Custom opens a picker with presets, hue / saturation / brightness sliders and a hex code field, and shows a preview. Both the Quick Note and Single Note widgets paint that colour in light and dark mode alike. The text switches between white and black, whichever reads better on your colour, and the Widget background opacity steps still apply on top. Custom colours need Android 12 or later; on older versions the option is shown but disabled. Requested by [@Violet-RM](https://github.com/Violet-RM).
+
 ### Fixed
 - **Callout text is readable in Material You's monochrome palette ([#473](https://github.com/jeiel85/markleaf-android/issues/473)).** With a monochrome wallpaper palette, a *Note* callout in the preview had a dark fill in light mode and a light fill in dark mode, but its text stayed in the page's text colour, so it read dark-on-dark or light-on-light. Every callout type now draws its icon, label and text in the colour that belongs to its own fill. In Markleaf green the label is a slightly darker green than before. A link inside a callout keeps the app's link colour, so in the monochrome palette it can still be hard to see. Reported by [@blend0matik](https://github.com/blend0matik).
+- **Switching widget colours back now repaints widgets that are already placed ([#469](https://github.com/jeiel85/markleaf-android/issues/469)).** Going from Material You (or, now, a custom colour) back to Markleaf green could leave a placed widget in the old colours until the launcher redrew it from scratch. The widgets now write their default colours back on every update.
 
 ## v2.54.0 - Widgets that let the wallpaper through - 2026-09-28
 

@@ -1,0 +1,1 @@
+Export do PDF teraz obsahuje obrázky priložené k poznámke, rovnaké ako v náhľade. Obrázky, ktoré nie sú uložené v Markleaf, sa vytlačia ako text odkazu; na vytvorenie PDF sa nič nesťahuje. Pri poznámkach s veľmi veľa fotkami sa posledné môžu pre obmedzenie pamäte vytlačiť ako text. Ďakujeme @ClockGen za návrh.

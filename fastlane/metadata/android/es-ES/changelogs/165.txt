@@ -1,0 +1,1 @@
+Exportar como PDF ahora incluye las imágenes adjuntas a una nota, las mismas que muestra la vista previa. Las imágenes que no están guardadas en Markleaf se imprimen como el texto del enlace; no se descarga nada para crear el PDF. En notas con muchísimas fotos, las últimas pueden imprimirse como texto por el límite de memoria. Gracias @ClockGen por la petición.

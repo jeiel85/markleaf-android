@@ -9,7 +9,7 @@ All notable changes to Markleaf are documented in this file. This English editio
 <!-- Rename to `## vX.Y.Z - Title - YYYY-MM-DD` in the release commit. The release-note step and the verify scripts read only `## v` headings, so this section is invisible to them until then. -->
 
 ### Added
-- **PDF export now includes a note's images ([#474](https://github.com/jeiel85/markleaf-android/issues/474)).** Images attached to a note were left out of *Export as PDF*. They are now embedded in the PDF, the same images the preview shows. As in the preview, an image that isn't stored in Markleaf (a web address, for example) prints as its `![alt](link)` text, and nothing is downloaded to make the PDF. Requested by [@ClockGen](https://github.com/ClockGen).
+- **PDF export now includes a note's images ([#474](https://github.com/jeiel85/markleaf-android/issues/474)).** Images attached to a note were left out of *Export as PDF*. They are now embedded in the PDF, the same images the preview shows. Large photos are scaled down to print size, so a note full of camera photos still exports. As in the preview, an image that isn't stored in Markleaf (a web address, for example) prints as its `![alt](link)` text, and nothing is downloaded to make the PDF. Requested by [@ClockGen](https://github.com/ClockGen).
 
 ## v2.55.0 - Widget colours of your own - 2026-09-29
 

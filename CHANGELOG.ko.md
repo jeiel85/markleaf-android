@@ -11,7 +11,7 @@ v2.15.3 이전 항목은 이 파일에만 한국어로 보존되어 있습니다
 <!-- Rename to `## vX.Y.Z - Title - YYYY-MM-DD` in the release commit. The release-note step and the verify scripts read only `## v` headings, so this section is invisible to them until then. -->
 
 ### 추가
-- **PDF 내보내기에 노트의 이미지가 들어갑니다 ([#474](https://github.com/jeiel85/markleaf-android/issues/474)).** 노트에 첨부한 이미지가 *PDF로 내보내기*에서 빠졌습니다. 이제 미리보기에 보이는 이미지가 그대로 PDF에 담깁니다. 미리보기와 마찬가지로 Markleaf에 저장되지 않은 이미지(예: 웹 주소)는 `![alt](link)` 텍스트로 인쇄되며, PDF를 만들기 위해 아무것도 내려받지 않습니다. [@ClockGen](https://github.com/ClockGen) 님이 요청했습니다.
+- **PDF 내보내기에 노트의 이미지가 들어갑니다 ([#474](https://github.com/jeiel85/markleaf-android/issues/474)).** 노트에 첨부한 이미지가 *PDF로 내보내기*에서 빠졌습니다. 이제 미리보기에 보이는 이미지가 그대로 PDF에 담깁니다. 큰 사진은 인쇄 크기로 줄여 넣으므로, 카메라 사진이 많은 노트도 내보낼 수 있습니다. 미리보기와 마찬가지로 Markleaf에 저장되지 않은 이미지(예: 웹 주소)는 `![alt](link)` 텍스트로 인쇄되며, PDF를 만들기 위해 아무것도 내려받지 않습니다. [@ClockGen](https://github.com/ClockGen) 님이 요청했습니다.
 
 ## v2.55.0 - 직접 고르는 위젯 색 (Widget colours of your own) - 2026-09-29
 

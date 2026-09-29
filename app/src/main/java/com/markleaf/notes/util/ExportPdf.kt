@@ -8,8 +8,6 @@ import android.webkit.WebViewClient
 import com.markleaf.notes.R
 import com.markleaf.notes.core.markdown.preview.unresolvedImageText
 import com.markleaf.notes.domain.model.Note
-import java.io.File
-import java.util.Base64
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.commonmark.node.AbstractVisitor
@@ -50,7 +48,7 @@ object ExportPdf {
         val untitled = context.getString(R.string.untitled)
         val title = note.title.ifBlank { untitled }
         val html = withContext(Dispatchers.IO) {
-            renderDocument(note, untitled) { destination -> attachmentDataUri(context, destination) }
+            renderDocument(note, untitled, PdfImageInliner(context)::dataUri)
         }
 
         // WebView must outlive this call until the print adapter is created.
@@ -133,43 +131,6 @@ object ExportPdf {
             }
         }
     }
-
-    /**
-     * A `data:` URI for an image the note references from Markleaf's own
-     * attachment folder, or null for anything else — the same set of images the
-     * in-app preview draws, which also resolves only files under `filesDir`.
-     *
-     * Confined to `filesDir/attachments` by canonical path, so a crafted
-     * `../` destination cannot pull another app-private file into a PDF, and
-     * limited to image types the WebView renders. Oversized files are skipped
-     * (shown as text) rather than risk exhausting memory: base64 inflates them
-     * by a third, and the whole page is one string.
-     */
-    internal fun attachmentDataUri(context: Context, destination: String): String? =
-        attachmentDataUri(File(context.filesDir, "attachments"), context.filesDir, destination)
-
-    internal fun attachmentDataUri(attachmentsRoot: File, filesDir: File, destination: String): String? {
-        val relative = destination.trim().removePrefix("./")
-        if (relative.isEmpty() || relative.contains(':')) return null
-        val file = runCatching { File(filesDir, relative).canonicalFile }.getOrNull() ?: return null
-        val root = runCatching { attachmentsRoot.canonicalFile }.getOrNull() ?: return null
-        if (!file.path.startsWith(root.path + File.separator) || !file.isFile) return null
-        if (file.length() > MAX_INLINE_IMAGE_BYTES) return null
-        val mime = IMAGE_MIME_BY_EXTENSION[file.extension.lowercase()] ?: return null
-        val bytes = runCatching { file.readBytes() }.getOrNull() ?: return null
-        return "data:$mime;base64," + Base64.getEncoder().encodeToString(bytes)
-    }
-
-    private const val MAX_INLINE_IMAGE_BYTES = 15L * 1024 * 1024
-
-    private val IMAGE_MIME_BY_EXTENSION = mapOf(
-        "png" to "image/png",
-        "jpg" to "image/jpeg",
-        "jpeg" to "image/jpeg",
-        "webp" to "image/webp",
-        "gif" to "image/gif",
-        "bmp" to "image/bmp"
-    )
 
     private fun wrapHtml(title: String, body: String): String {
         // Inline styles only — WebView loads data with no base URL, so external

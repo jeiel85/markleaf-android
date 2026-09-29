@@ -101,6 +101,25 @@ class PdfImageInlinerTest {
         assertNull("a repeat is charged again", inliner.dataUri("attachments/n1/a.png"))
     }
 
+    /**
+     * The budget has to bound what is held, not only what reaches the page: a
+     * note with many distinct photos must not keep every rejected one's bytes.
+     */
+    @Test
+    fun `images that don't fit are not kept in memory`() {
+        val inliner = inliner(budget = 10, result = {
+            PdfImageInliner.EncodedImage("image/jpeg", ByteArray(4))
+        })
+        repeat(20) { i -> File(root, "n1/p$i.heic").writeBytes(byteArrayOf(1)) }
+
+        val inlined = (0 until 20).count { inliner.dataUri("attachments/n1/p$it.heic") != null }
+
+        assertEquals(2, inlined)
+        assertTrue("held ${inliner.retainedBytes} bytes", inliner.retainedBytes <= 10)
+        assertNull(inliner.dataUri("attachments/n1/p5.heic"))
+        assertEquals("a rejected file is not decoded again", 20, transcodes)
+    }
+
     /** Only the attachment folder, only images, only local paths. */
     @Test
     fun `anything outside the attachment folder or not an image resolves to nothing`() {

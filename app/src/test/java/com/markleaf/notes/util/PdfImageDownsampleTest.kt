@@ -3,6 +3,7 @@ package com.markleaf.notes.util
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import androidx.exifinterface.media.ExifInterface
 import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -58,6 +59,25 @@ class PdfImageDownsampleTest {
 
         assertEquals("image/png", image.mime)
         assertEquals(300 to 300, decodedSize(image))
+    }
+
+    /**
+     * Import keeps the EXIF orientation and the preview honours it, but the
+     * re-encoded image has no EXIF — so the rotation has to be in the pixels.
+     */
+    @Test
+    fun `the exif orientation is applied before re-encoding`() {
+        val bitmap = Bitmap.createBitmap(400, 100, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.BLUE) }
+        val file = temp.newFile("portrait.jpg")
+        file.outputStream().use { bitmap.compress(Bitmap.CompressFormat.JPEG, 90, it) }
+        ExifInterface(file.path).apply {
+            setAttribute(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_ROTATE_90.toString())
+            saveAttributes()
+        }
+
+        val image = requireNotNull(PdfImageInliner.downsample(file))
+
+        assertEquals(100 to 400, decodedSize(image))
     }
 
     @Test

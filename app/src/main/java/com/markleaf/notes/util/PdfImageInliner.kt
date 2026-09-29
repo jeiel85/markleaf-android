@@ -3,6 +3,8 @@ package com.markleaf.notes.util
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import androidx.exifinterface.media.ExifInterface
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.Base64
@@ -27,7 +29,9 @@ import java.util.Base64
  *   re-encoded, which a printed page can't tell apart;
  * - each file is read and encoded once however often the note shows it;
  * - [budgetBytes] caps the encoded bytes of all occurrences together, and an
- *   image that would go over it prints as text instead.
+ *   image that would go over it prints as text instead — and is not kept:
+ *   its bytes are dropped and only a "doesn't fit" marker is cached, so a
+ *   note with hundreds of photos holds at most the budget, not every photo.
  *
  * The decode path is also what gives HEIC, HEIF, AVIF and BMP attachments a
  * format the print WebView can show: the picker accepts them and the preview
@@ -48,14 +52,26 @@ internal class PdfImageInliner(
     private val encoded = HashMap<String, EncodedImage?>()
     private var usedBytes = 0L
 
+    /** Encoded bytes still held by the cache — for tests of the memory bound. */
+    internal val retainedBytes: Long
+        get() = encoded.values.sumOf { it?.bytes?.size?.toLong() ?: 0L }
+
     fun dataUri(destination: String): String? {
         val file = resolve(destination) ?: return null
         val image = if (encoded.containsKey(file.path)) {
             encoded[file.path]
         } else {
-            encode(file).also { encoded[file.path] = it }
-        } ?: return null
-        if (usedBytes + image.bytes.size > budgetBytes) return null
+            encode(file)
+        } ?: run {
+            encoded[file.path] = null
+            return null
+        }
+        if (usedBytes + image.bytes.size > budgetBytes) {
+            // The budget only grows, so this file will never fit later either.
+            encoded[file.path] = null
+            return null
+        }
+        encoded[file.path] = image
         usedBytes += image.bytes.size
         return "data:${image.mime};base64," + Base64.getEncoder().encodeToString(image.bytes)
     }
@@ -99,6 +115,11 @@ internal class PdfImageInliner(
          * side within [MAX_EDGE_PX], and re-encodes it as JPEG, or PNG when it has transparent
          * pixels. Null when the platform can't decode it — HEIC before
          * Android 9, AVIF before 12 — which prints as text, like any unresolved image.
+         *
+         * The EXIF orientation is applied to the pixels before re-encoding.
+         * `BitmapFactory` ignores it and the re-encoded image carries no EXIF,
+         * while import keeps `TAG_ORIENTATION` and the preview honours it — so
+         * without this a portrait camera photo would print sideways.
          */
         fun downsample(file: File): EncodedImage? {
             val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
@@ -111,6 +132,12 @@ internal class PdfImageInliner(
                 file.path,
                 BitmapFactory.Options().apply { inSampleSize = sample }
             ) ?: return null
+            val oriented = applyExifOrientation(bitmap, file)
+            if (oriented !== bitmap) bitmap.recycle()
+            return compress(oriented)
+        }
+
+        private fun compress(bitmap: Bitmap): EncodedImage {
             try {
                 val out = ByteArrayOutputStream()
                 return if (hasTransparentPixel(bitmap)) {
@@ -123,6 +150,27 @@ internal class PdfImageInliner(
             } finally {
                 bitmap.recycle()
             }
+        }
+
+        private fun applyExifOrientation(bitmap: Bitmap, file: File): Bitmap {
+            val orientation = runCatching {
+                ExifInterface(file.path).getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_NORMAL
+                )
+            }.getOrDefault(ExifInterface.ORIENTATION_NORMAL)
+            val matrix = Matrix()
+            when (orientation) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+                ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+                ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> matrix.postScale(-1f, 1f)
+                ExifInterface.ORIENTATION_FLIP_VERTICAL -> matrix.postScale(1f, -1f)
+                ExifInterface.ORIENTATION_TRANSPOSE -> { matrix.postRotate(90f); matrix.postScale(-1f, 1f) }
+                ExifInterface.ORIENTATION_TRANSVERSE -> { matrix.postRotate(270f); matrix.postScale(-1f, 1f) }
+                else -> return bitmap
+            }
+            return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
         }
 
         /**

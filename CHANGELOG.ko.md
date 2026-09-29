@@ -6,6 +6,13 @@ Markleaf의 주요 변경 사항을 기록합니다. 영어판이 기본이며 G
 
 v2.15.3 이전 항목은 이 파일에만 한국어로 보존되어 있습니다.
 
+## Unreleased
+
+<!-- Rename to `## vX.Y.Z - Title - YYYY-MM-DD` in the release commit. The release-note step and the verify scripts read only `## v` headings, so this section is invisible to them until then. -->
+
+### 수정
+- **Material You 모노크롬 팔레트에서도 콜아웃 글자가 보입니다 ([#473](https://github.com/jeiel85/markleaf-android/issues/473)).** 모노크롬 배경화면 팔레트에서는 미리보기의 *Note* 콜아웃 배경이 라이트 모드에서 어둡고 다크 모드에서 밝은데, 글자는 페이지의 일반 글자색을 그대로 써서 어두운 바탕에 어두운 글자, 밝은 바탕에 밝은 글자가 되었습니다. 이제 모든 콜아웃 종류가 아이콘·라벨·본문을 자기 배경에 맞는 색으로 그립니다. Markleaf 그린에서는 라벨이 이전보다 약간 짙은 초록이 됩니다. 콜아웃 안의 링크는 앱의 링크 색을 유지하므로 모노크롬 팔레트에서는 여전히 잘 안 보일 수 있습니다. [@blend0matik](https://github.com/blend0matik) 님이 제보했습니다.
+
 ## v2.54.0 - 배경화면이 비치는 위젯 (Widgets that let the wallpaper through) - 2026-09-28
 
 위젯 설정 하나, Android 앱별 언어 목록에 Markleaf 추가, 동기화 수정 하나입니다. 권한과 저장 형식 변경은 없습니다.

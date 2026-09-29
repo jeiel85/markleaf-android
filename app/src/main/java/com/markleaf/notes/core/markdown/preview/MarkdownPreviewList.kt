@@ -34,6 +34,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -1368,12 +1369,12 @@ private fun CalloutBox(
             .padding(horizontal = 12.dp, vertical = 10.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = visuals.icon, color = visuals.accentColor)
+            Text(text = visuals.icon, color = visuals.contentColor)
             Spacer(Modifier.width(8.dp))
             Text(
                 text = visuals.label,
                 style = MaterialTheme.typography.labelLarge,
-                color = visuals.accentColor,
+                color = visuals.contentColor,
                 fontWeight = FontWeight.SemiBold
             )
         }
@@ -1397,7 +1398,8 @@ private fun CalloutBox(
                     ) {
                         InlineMarkdownText(
                             line = bodyPreviewLine,
-                            onFootnoteRefClick = onFootnoteRefClick
+                            onFootnoteRefClick = onFootnoteRefClick,
+                            color = visuals.contentColor
                         )
                     }
                     if (highlight != null) {
@@ -1411,48 +1413,43 @@ private fun CalloutBox(
 }
 
 @Composable
-private fun calloutVisuals(kind: CalloutKind?, raw: String): CalloutVisuals = when (kind) {
-    CalloutKind.NOTE -> CalloutVisuals(
-        MaterialTheme.colorScheme.primaryContainer,
-        MaterialTheme.colorScheme.primary,
-        stringResource(R.string.callout_note),
-        "ℹ"
-    )
-    CalloutKind.TIP -> CalloutVisuals(
-        MaterialTheme.colorScheme.secondaryContainer,
-        MaterialTheme.colorScheme.secondary,
-        stringResource(R.string.callout_tip),
-        "💡"
-    )
-    CalloutKind.IMPORTANT -> CalloutVisuals(
-        MaterialTheme.colorScheme.tertiaryContainer,
-        MaterialTheme.colorScheme.tertiary,
-        stringResource(R.string.callout_important),
-        "★"
-    )
-    CalloutKind.WARNING -> CalloutVisuals(
-        MaterialTheme.colorScheme.errorContainer,
-        MaterialTheme.colorScheme.error,
-        stringResource(R.string.callout_warning),
-        "⚠"
-    )
-    CalloutKind.CAUTION -> CalloutVisuals(
-        MaterialTheme.colorScheme.errorContainer,
-        MaterialTheme.colorScheme.error,
-        stringResource(R.string.callout_caution),
-        "⛔"
-    )
-    null -> CalloutVisuals(
-        MaterialTheme.colorScheme.surfaceVariant,
-        MaterialTheme.colorScheme.onSurfaceVariant,
-        raw,
-        "•"
-    )
+private fun calloutVisuals(kind: CalloutKind?, raw: String): CalloutVisuals {
+    val colors = calloutColors(kind, MaterialTheme.colorScheme)
+    val (label, icon) = when (kind) {
+        CalloutKind.NOTE -> stringResource(R.string.callout_note) to "ℹ"
+        CalloutKind.TIP -> stringResource(R.string.callout_tip) to "💡"
+        CalloutKind.IMPORTANT -> stringResource(R.string.callout_important) to "★"
+        CalloutKind.WARNING -> stringResource(R.string.callout_warning) to "⚠"
+        CalloutKind.CAUTION -> stringResource(R.string.callout_caution) to "⛔"
+        null -> raw to "•"
+    }
+    return CalloutVisuals(colors.container, colors.content, label, icon)
 }
+
+/**
+ * The fill of a callout and the colour of everything drawn on it — icon, label
+ * and body. The content colour is always the fill's own `on…Container` role,
+ * the only pairing a colour scheme promises to keep legible. The label used to
+ * take the accent (`primary`, `error`, …) and the body the page's
+ * `onBackground`, which happen to contrast in Markleaf green and the usual
+ * Material You schemes but not in the Monochrome one: there `primaryContainer`
+ * is dark in light mode and light in dark mode, so the body read dark-on-dark
+ * or light-on-light (#473).
+ */
+internal fun calloutColors(kind: CalloutKind?, scheme: ColorScheme): CalloutColors = when (kind) {
+    CalloutKind.NOTE -> CalloutColors(scheme.primaryContainer, scheme.onPrimaryContainer)
+    CalloutKind.TIP -> CalloutColors(scheme.secondaryContainer, scheme.onSecondaryContainer)
+    CalloutKind.IMPORTANT -> CalloutColors(scheme.tertiaryContainer, scheme.onTertiaryContainer)
+    CalloutKind.WARNING, CalloutKind.CAUTION ->
+        CalloutColors(scheme.errorContainer, scheme.onErrorContainer)
+    null -> CalloutColors(scheme.surfaceVariant, scheme.onSurfaceVariant)
+}
+
+internal data class CalloutColors(val container: Color, val content: Color)
 
 private data class CalloutVisuals(
     val containerColor: Color,
-    val accentColor: Color,
+    val contentColor: Color,
     val label: String,
     val icon: String
 )

@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## Unreleased
+
+<!-- Rename to `## vX.Y.Z - Title - YYYY-MM-DD` in the release commit. The release-note step and the verify scripts read only `## v` headings, so this section is invisible to them until then. -->
+
+### Fixed
+- **Callout text is readable in Material You's monochrome palette ([#473](https://github.com/jeiel85/markleaf-android/issues/473)).** With a monochrome wallpaper palette, a *Note* callout in the preview had a dark fill in light mode and a light fill in dark mode, but its text stayed in the page's text colour, so it read dark-on-dark or light-on-light. Every callout type now draws its icon, label and text in the colour that belongs to its own fill. In Markleaf green the label is a slightly darker green than before. A link inside a callout keeps the app's link colour, so in the monochrome palette it can still be hard to see. Reported by [@blend0matik](https://github.com/blend0matik).
+
 ## v2.54.0 - Widgets that let the wallpaper through - 2026-09-28
 
 A widget setting, Markleaf in Android's per-app language list, and one sync fix. No permission or storage-format changes.

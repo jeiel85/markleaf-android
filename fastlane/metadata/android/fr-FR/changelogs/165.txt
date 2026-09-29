@@ -1,0 +1,1 @@
+L'export en PDF inclut désormais les images jointes à une note, comme dans l'aperçu. Les images qui ne sont pas stockées dans Markleaf s'impriment sous forme de texte du lien ; rien n'est téléchargé pour créer le PDF. Merci @ClockGen pour la demande.

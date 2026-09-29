@@ -4,9 +4,9 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
-## Unreleased
+## v2.56.0 - Images in PDF export - 2026-09-29
 
-<!-- Rename to `## vX.Y.Z - Title - YYYY-MM-DD` in the release commit. The release-note step and the verify scripts read only `## v` headings, so this section is invisible to them until then. -->
+One export improvement. No permission or storage-format changes.
 
 ### Added
 - **PDF export now includes a note's images ([#474](https://github.com/jeiel85/markleaf-android/issues/474)).** Images attached to a note were left out of *Export as PDF*. They are now embedded in the PDF, the same images the preview shows. Large photos are scaled down to print size, so a note full of camera photos still exports. As in the preview, an image that isn't stored in Markleaf (a web address, for example) prints as its `![alt](link)` text, and nothing is downloaded to make the PDF. Requested by [@ClockGen](https://github.com/ClockGen).

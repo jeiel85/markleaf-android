@@ -1,0 +1,1 @@
+Izvoz u PDF sada uključuje slike priložene bilješci, iste one koje prikazuje pregled. Slike koje nisu spremljene u Markleaf ispisuju se kao tekst poveznice; ništa se ne preuzima za izradu PDF-a. Hvala @ClockGen na prijedlogu.

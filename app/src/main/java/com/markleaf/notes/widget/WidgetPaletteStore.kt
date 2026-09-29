@@ -16,7 +16,8 @@ import kotlinx.coroutines.runBlocking
  * [SingleNoteWidgetStore] is: `onUpdate` runs on the receiver's main thread and
  * has to answer immediately, and a DataStore read there would mean blocking it
  * on I/O. The authoritative copies stay in `markleaf_settings`; this is a cache
- * of three enums, written by `MainActivity` whenever any of them changes.
+ * of three enums and the optional custom colour, written by `MainActivity`
+ * whenever any of them changes.
  *
  * Theme is here as well as Colors because the widget needs to know which *end*
  * of the dynamic palette to take, and its own `Configuration` cannot be trusted
@@ -35,6 +36,7 @@ object WidgetPaletteStore {
     private const val KEY_PALETTE = "color_palette"
     private const val KEY_THEME_MODE = "theme_mode"
     private const val KEY_OPACITY = "widget_opacity"
+    private const val KEY_CUSTOM_COLOR = "widget_custom_color"
 
     /** Defaults to [ColorPalette.MARKLEAF_GREEN], as the setting itself does. */
     fun palette(context: Context): ColorPalette =
@@ -54,8 +56,14 @@ object WidgetPaletteStore {
             ?.let { stored -> WidgetOpacity.entries.firstOrNull { it.name == stored } }
             ?: WidgetOpacity.OPAQUE
 
+    /** Null — the default, as the setting's — means "follow the palette". */
+    fun customColor(context: Context): Int? {
+        val prefs = prefs(context)
+        return if (prefs.contains(KEY_CUSTOM_COLOR)) prefs.getInt(KEY_CUSTOM_COLOR, 0) else null
+    }
+
     /**
-     * Stores all three values, returning whether any differed from what was there.
+     * Stores all four values, returning whether any differed from what was there.
      *
      * The return value is what lets the caller repaint only on a real change:
      * the settings arrive once per process whether or not the user touched them,
@@ -69,17 +77,22 @@ object WidgetPaletteStore {
         context: Context,
         palette: ColorPalette,
         themeMode: ThemeMode,
-        opacity: WidgetOpacity
+        opacity: WidgetOpacity,
+        customColor: Int? = null
     ): Boolean {
         val prefs = prefs(context)
         val unchanged = prefs.getString(KEY_PALETTE, null) == palette.name &&
             prefs.getString(KEY_THEME_MODE, null) == themeMode.name &&
-            prefs.getString(KEY_OPACITY, null) == opacity.name
+            prefs.getString(KEY_OPACITY, null) == opacity.name &&
+            customColor(context) == customColor
         if (unchanged) return false
         prefs.edit()
             .putString(KEY_PALETTE, palette.name)
             .putString(KEY_THEME_MODE, themeMode.name)
             .putString(KEY_OPACITY, opacity.name)
+            .apply {
+                if (customColor == null) remove(KEY_CUSTOM_COLOR) else putInt(KEY_CUSTOM_COLOR, customColor)
+            }
             .commit()
         return true
     }
@@ -115,7 +128,13 @@ object WidgetPaletteStore {
         repository: AppSettingsRepository = AppSettingsRepository(context)
     ): Boolean {
         val settings = runBlocking { repository.settings.first() }
-        return save(context, settings.colorPalette, settings.themeMode, settings.widgetOpacity)
+        return save(
+            context,
+            settings.colorPalette,
+            settings.themeMode,
+            settings.widgetOpacity,
+            settings.widgetCustomColor
+        )
     }
 
     private fun prefs(context: Context) =

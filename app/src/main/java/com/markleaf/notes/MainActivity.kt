@@ -27,6 +27,7 @@ import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.ColorPalette
 import com.markleaf.notes.data.settings.ThemeMode
+import com.markleaf.notes.data.settings.WidgetOpacity
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.NoteImporter
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
@@ -165,16 +166,29 @@ class MainActivity : FragmentActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 settingsRepository.settings
-                    .map { Triple(it.colorPalette, it.themeMode, it.widgetOpacity) }
+                    .map { settings ->
+                        WidgetAppearance(
+                            settings.colorPalette,
+                            settings.themeMode,
+                            settings.widgetOpacity,
+                            settings.widgetCustomColor
+                        )
+                    }
                     .distinctUntilChanged()
-                    .collect { (palette, themeMode, opacity) ->
+                    .collect { appearance ->
                         // save() reports whether the values actually moved; they
                         // arrive once per process whether or not anyone touched
                         // them, and repainting every widget on each launch would
                         // be work for nothing. It commits, so it runs off the
                         // main thread this collector is on.
                         val changed = withContext(Dispatchers.IO) {
-                            WidgetPaletteStore.save(applicationContext, palette, themeMode, opacity)
+                            WidgetPaletteStore.save(
+                                applicationContext,
+                                appearance.palette,
+                                appearance.themeMode,
+                                appearance.opacity,
+                                appearance.customColor
+                            )
                         }
                         if (changed) {
                             WidgetRefresh.notesChanged(applicationContext)
@@ -390,3 +404,11 @@ internal fun ThemeMode.toApplicationNightMode(): Int = when (this) {
     ThemeMode.LIGHT -> UiModeManager.MODE_NIGHT_NO
     ThemeMode.DARK -> UiModeManager.MODE_NIGHT_YES
 }
+
+/** The settings a widget paints itself from, compared as one value so a change to any repaints. */
+private data class WidgetAppearance(
+    val palette: ColorPalette,
+    val themeMode: ThemeMode,
+    val opacity: WidgetOpacity,
+    val customColor: Int?
+)

@@ -42,6 +42,7 @@ object WidgetPalette {
      */
     fun colors(context: Context): WidgetColors? {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return null
+        WidgetPaletteStore.customColor(context)?.let { return customColors(it) }
         return when (WidgetPaletteStore.palette(context)) {
             ColorPalette.MARKLEAF_GREEN -> null
             ColorPalette.MATERIAL_YOU -> dynamicColors(context)
@@ -104,6 +105,47 @@ object WidgetPalette {
         }
     }
 }
+
+/**
+ * The surface for a colour the user picked for the widgets (#469).
+ *
+ * Input: the picked colour, opaque ARGB.
+ * Output: the same [WidgetSurface] for both night modes — a colour chosen by
+ * hand is the one the user wants to see, so the host is given no choice.
+ *
+ * Unlike the palettes, a picked colour comes with no role pair that promises a
+ * readable text colour, so the text is chosen here: [readableTextColorOn].
+ */
+internal fun customColors(@ColorInt background: Int): WidgetColors {
+    val surface = WidgetSurface(background, readableTextColorOn(background))
+    return WidgetColors(notNight = surface, night = surface)
+}
+
+/**
+ * White or black, whichever contrasts more with [background] (WCAG relative
+ * luminance). One of the two always clears 4.5:1 against any opaque colour,
+ * so the widget's title stays readable whatever was picked; the picker shows
+ * the same choice as a preview. Pure arithmetic rather than
+ * `ColorUtils.calculateContrast` so it can be tested without a framework.
+ */
+@ColorInt
+internal fun readableTextColorOn(@ColorInt background: Int): Int {
+    val luminance = relativeLuminance(background)
+    val againstWhite = 1.05 / (luminance + 0.05)
+    val againstBlack = (luminance + 0.05) / 0.05
+    return if (againstWhite >= againstBlack) WHITE else BLACK
+}
+
+internal fun relativeLuminance(@ColorInt color: Int): Double {
+    fun channel(shift: Int): Double {
+        val c = ((color shr shift) and 0xFF) / 255.0
+        return if (c <= 0.04045) c / 12.92 else Math.pow((c + 0.055) / 1.055, 2.4)
+    }
+    return 0.2126 * channel(16) + 0.7152 * channel(8) + 0.0722 * channel(0)
+}
+
+private const val WHITE = 0xFFFFFFFF.toInt()
+private const val BLACK = 0xFF000000.toInt()
 
 /**
  * A widget surface's background and the text drawn on it.

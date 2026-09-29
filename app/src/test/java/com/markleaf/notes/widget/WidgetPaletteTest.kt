@@ -272,6 +272,86 @@ class WidgetPaletteTest {
     }
 
     /**
+     * A picked colour wins over the palette and ignores night mode (#469): it is
+     * the one colour the user asked to see, so the host gets no second choice.
+     */
+    @Test
+    fun `a custom colour overrides the palette in both night modes`() {
+        val picked = 0xFF1E88E5.toInt()
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE, picked)
+
+        val colors = requireNotNull(WidgetPalette.colors(context))
+
+        assertEquals(picked, colors.notNight.background)
+        assertEquals(colors.notNight, colors.night)
+    }
+
+    @Test
+    fun `a custom colour overrides markleaf green too`() {
+        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE, 0xFFFDD835.toInt())
+
+        assertEquals(0xFFFDD835.toInt(), WidgetPalette.colors(context)?.notNight?.background)
+    }
+
+    /** Clearing it has to reach the widget, or it would stay on the old colour. */
+    @Test
+    fun `saving reports a custom colour set, changed or cleared`() {
+        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE)
+
+        assertTrue(WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE, 0xFF000000.toInt()))
+        assertFalse(WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE, 0xFF000000.toInt()))
+        assertTrue(WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE, 0xFF4CAF50.toInt()))
+        assertTrue(WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE, null))
+        assertNull(WidgetPaletteStore.customColor(context))
+        assertNull(WidgetPalette.colors(context))
+    }
+
+    /** Black is a real colour, not "unset" — the mirror must not read 0 as null or vice versa. */
+    @Test
+    fun `an unmirrored custom colour reads as none, and black survives the round trip`() {
+        assertNull(WidgetPaletteStore.customColor(context))
+
+        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE, 0xFF000000.toInt())
+
+        assertEquals(0xFF000000.toInt(), WidgetPaletteStore.customColor(context))
+    }
+
+    @Test
+    @Config(sdk = [30])
+    fun `a custom colour asks for no override before android 12`() {
+        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE, 0xFF1E88E5.toInt())
+
+        assertNull(WidgetPalette.colors(context))
+    }
+
+    @Test
+    fun `the custom colour is mirrored from the settings`() {
+        val repository = AppSettingsRepository(InMemoryPreferencesDataStore())
+        runBlocking { repository.setWidgetCustomColor(0xFF8E24AA.toInt()) }
+
+        assertTrue(WidgetPaletteStore.syncFromSettings(context, repository))
+        assertEquals(0xFF8E24AA.toInt(), WidgetPaletteStore.customColor(context))
+
+        runBlocking { repository.setWidgetCustomColor(null) }
+        assertTrue(WidgetPaletteStore.syncFromSettings(context, repository))
+        assertNull(WidgetPaletteStore.customColor(context))
+    }
+
+    @Test
+    fun `a custom colour reaches the recent-notes widget with readable text`() {
+        val picked = 0xFFFAFAFA.toInt()
+        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE, picked)
+
+        val view = inflateQuickNoteWidget()
+
+        assertEquals(picked, view.backgroundTintList?.defaultColor)
+        assertEquals(
+            0xFF000000.toInt(),
+            view.findViewById<TextView>(R.id.widget_title).currentTextColor
+        )
+    }
+
+    /**
      * Runs the provider and hands back the view the launcher would show.
      * `getViewFor` is the shadow's inflation of the RemoteViews the widget
      * pushed, so it sees exactly what `updateAppWidget` set and nothing else.

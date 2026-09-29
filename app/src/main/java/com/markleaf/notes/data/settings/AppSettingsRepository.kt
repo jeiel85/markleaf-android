@@ -70,6 +70,7 @@ class AppSettingsRepository internal constructor(
             widgetOpacity = preferences[WIDGET_OPACITY]
                 ?.let { value -> enumValueOrDefault(value, WidgetOpacity.OPAQUE) }
                 ?: WidgetOpacity.OPAQUE,
+            widgetCustomColor = preferences[WIDGET_CUSTOM_COLOR],
             editorFontSize = preferences[EDITOR_FONT_SIZE]
                 ?.let { value -> enumValueOrDefault(value, EditorFontSize.MEDIUM) }
                 ?: EditorFontSize.MEDIUM,
@@ -212,6 +213,17 @@ class AppSettingsRepository internal constructor(
     suspend fun setWidgetOpacity(opacity: WidgetOpacity) {
         persist { preferences ->
             preferences[WIDGET_OPACITY] = opacity.name
+        }
+    }
+
+    /** Null clears the custom colour, putting the widgets back on the palette. */
+    suspend fun setWidgetCustomColor(color: Int?) {
+        persist { preferences ->
+            if (color == null) {
+                preferences.remove(WIDGET_CUSTOM_COLOR)
+            } else {
+                preferences[WIDGET_CUSTOM_COLOR] = color
+            }
         }
     }
 
@@ -439,6 +451,7 @@ class AppSettingsRepository internal constructor(
         val COLOR_PALETTE = stringPreferencesKey("color_palette")
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val WIDGET_OPACITY = stringPreferencesKey("widget_opacity")
+        val WIDGET_CUSTOM_COLOR = intPreferencesKey("widget_custom_color")
         val EDITOR_FONT_SIZE = stringPreferencesKey("editor_font_size")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val BIOMETRIC_LOCK_ENABLED = booleanPreferencesKey("biometric_lock_enabled")

@@ -202,6 +202,17 @@
     <string name="theme_description">Vert Markleaf est la palette originale inspirée des feuilles. Material You s\'adapte aux couleurs de votre fond d\'écran système sur Android 12 et versions ultérieures.</string>
     <string name="widget_opacity_label">Arrière-plan du widget</string>
     <string name="widget_opacity_description">Plus la valeur est basse, plus votre fond d\'écran transparaît à travers les widgets de l\'écran d\'accueil. La couleur du texte ne change pas : avec une valeur basse, vérifiez qu\'il reste lisible sur votre fond d\'écran.</string>
+    <string name="widget_color_label">Couleur du widget</string>
+    <string name="widget_color_app">Couleurs de l\'app</string>
+    <string name="widget_color_custom">Personnalisée</string>
+    <string name="widget_color_description">Couleurs de l\'app suit le réglage Couleurs ci-dessus. Personnalisée peint les deux widgets dans la couleur de votre choix, et le texte passe du blanc au noir pour rester lisible.</string>
+    <string name="widget_color_requires_android_12">Les couleurs de widget personnalisées nécessitent Android 12 ou version ultérieure.</string>
+    <string name="widget_color_preview">Note rapide</string>
+    <string name="widget_color_hue">Teinte</string>
+    <string name="widget_color_saturation">Saturation</string>
+    <string name="widget_color_brightness">Luminosité</string>
+    <string name="widget_color_hex">Code hexadécimal</string>
+    <string name="widget_color_apply">Appliquer</string>
 
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Afficher la syntaxe Markdown</string>

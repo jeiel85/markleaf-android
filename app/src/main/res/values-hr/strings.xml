@@ -212,6 +212,17 @@
     <string name="theme_description">Markleafova zelena je izvorna paleta boja inspirirana lišćem. Material You slijedi boje tvoje pozadinske slike na Androidu 12 i novijem.</string>
     <string name="widget_opacity_label">Pozadina widgeta</string>
     <string name="widget_opacity_description">Što je vrijednost niža, to se više tvoje pozadinske slike vidi kroz widgete na početnom zaslonu. Boja teksta ostaje ista, pa kod niskih vrijednosti provjeri je li tekst i dalje čitljiv na tvojoj pozadini.</string>
+    <string name="widget_color_label">Boja widgeta</string>
+    <string name="widget_color_app">Boje aplikacije</string>
+    <string name="widget_color_custom">Prilagođena</string>
+    <string name="widget_color_description">Boje aplikacije prate postavku Boje iznad. Prilagođena boja oboji oba widgeta bojom koju odaberete, a tekst se mijenja između bijele i crne kako bi ostao čitljiv.</string>
+    <string name="widget_color_requires_android_12">Prilagođene boje widgeta zahtijevaju Android 12 ili noviji.</string>
+    <string name="widget_color_preview">Brza bilješka</string>
+    <string name="widget_color_hue">Nijansa</string>
+    <string name="widget_color_saturation">Zasićenost</string>
+    <string name="widget_color_brightness">Svjetlina</string>
+    <string name="widget_color_hex">Heksadecimalni kod</string>
+    <string name="widget_color_apply">Primijeni</string>
     <string name="theme_mode_system">Sustav</string>
     <string name="theme_mode_light">Svijetla</string>
     <string name="theme_mode_dark">Tamna</string>

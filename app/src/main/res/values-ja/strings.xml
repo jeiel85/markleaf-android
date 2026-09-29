@@ -197,6 +197,17 @@
     <string name="theme_description">Markleaf グリーンは葉をモチーフにしたオリジナルパレットです。Material You は Android 12 以降でシステムの壁紙カラーに追従します。</string>
     <string name="widget_opacity_label">ウィジェットの背景</string>
     <string name="widget_opacity_description">値が低いほど、ホーム画面のウィジェットから壁紙が透けて見えます。文字の色は変わらないため、低い値では壁紙の上でも文字が読みやすいか確認してください。</string>
+    <string name="widget_color_label">ウィジェットの色</string>
+    <string name="widget_color_app">アプリの色</string>
+    <string name="widget_color_custom">カスタム</string>
+    <string name="widget_color_description">「アプリの色」は上の配色設定に従います。「カスタム」では両方のウィジェットを選んだ色で塗り、文字は読みやすいよう白と黒を自動で切り替えます。</string>
+    <string name="widget_color_requires_android_12">ウィジェットのカスタムカラーには Android 12 以降が必要です。</string>
+    <string name="widget_color_preview">クイックメモ</string>
+    <string name="widget_color_hue">色相</string>
+    <string name="widget_color_saturation">彩度</string>
+    <string name="widget_color_brightness">明るさ</string>
+    <string name="widget_color_hex">16進コード</string>
+    <string name="widget_color_apply">適用</string>
 
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Markdown 構文を表示</string>

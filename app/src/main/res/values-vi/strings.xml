@@ -198,6 +198,17 @@
     <string name="theme_description">Xanh Markleaf là bảng màu gốc lấy cảm hứng từ chiếc lá. Material You dùng màu theo hình nền hệ thống trên Android 12 trở lên.</string>
     <string name="widget_opacity_label">Nền tiện ích</string>
     <string name="widget_opacity_description">Giá trị càng thấp thì hình nền càng hiện rõ qua các tiện ích trên màn hình chính. Màu chữ không đổi, nên ở mức thấp hãy kiểm tra chữ vẫn dễ đọc trên hình nền của bạn.</string>
+    <string name="widget_color_label">Màu tiện ích</string>
+    <string name="widget_color_app">Màu ứng dụng</string>
+    <string name="widget_color_custom">Tùy chỉnh</string>
+    <string name="widget_color_description">Màu ứng dụng theo cài đặt Màu sắc ở trên. Tùy chỉnh tô cả hai tiện ích bằng màu bạn chọn, và chữ tự đổi giữa trắng và đen để luôn dễ đọc.</string>
+    <string name="widget_color_requires_android_12">Màu tiện ích tùy chỉnh cần Android 12 trở lên.</string>
+    <string name="widget_color_preview">Ghi chú nhanh</string>
+    <string name="widget_color_hue">Sắc độ</string>
+    <string name="widget_color_saturation">Độ bão hòa</string>
+    <string name="widget_color_brightness">Độ sáng</string>
+    <string name="widget_color_hex">Mã hex</string>
+    <string name="widget_color_apply">Áp dụng</string>
 
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Hiện cú pháp Markdown</string>

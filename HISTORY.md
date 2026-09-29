@@ -10,6 +10,18 @@
 - **Re-apply gap, fixed here.** The v2.54.0 entry noted that Material You → green left a placed widget tinted, because `AppWidgetHostView` re-applies `RemoteViews` and green wrote nothing. A custom colour made that the common path (Custom → App colors on the default palette), so it's fixed rather than carried: the `setWidget*` helpers now take `WidgetColors?`, and null writes the layout's values back. That's a null background tint, and `setColorAttr` with the same `textColor{Primary,Secondary}Inverse` the XML names, for the texts, the rows and the icon's colour filter. Two new tests cover Custom → App colors and Material You → green on the same widget id. Both fail with the old `?: return` put back.
 - **Device.** On emulator `markleaf-phone-api36`: the chips, the dialog, presets, the hex field updating the sliders, and the preview text flipping to black on `#FDD835` all work. Apply wrote `widget_custom_color=-141259` (`0xFFFDD835`) to `widget_appearance.xml`, and App colors removed it. Placing a widget can't be driven with synthetic input, so the tint reaching the view is covered by the Robolectric tests, not the device.
 
+## 2026-09-29 — Callout text on its own fill (#473)
+
+`blend0matik` reported callout text that is dark on dark in light mode and light on light in dark mode, with a screenshot from a Galaxy A55: a `#3C3C3C` NOTE fill on a `#FAFAFA` page.
+
+- **Cause.** `CalloutBox` drew the label in the accent role (`primary`, `error`, …) and the body in `InlineMarkdownText`'s default `onBackground`, over `…Container` fills. Neither is the fill's text role. The screenshot's colours are neutral tones 25 and 98, which is where Material's Monochrome scheme puts `primaryContainer` and `background` in light mode (tone 85 for the container in dark). Markleaf green and the tonal-spot Material You schemes happen to keep enough contrast, which is why it hadn't shown up.
+- **Change.** `calloutColors(kind, scheme)` returns the fill and its `on…Container`, and the icon, label and body all use that colour. It's a plain function so it can be tested without Compose.
+- **Test.** `CalloutColorContrastTest` checks every kind plus untyped at ≥ 4.5:1 in both Markleaf schemes and a Monochrome light/dark scheme rebuilt from the tone table. A guard test asserts the rebuilt scheme still fails with the old pairing (`onBackground` on `primaryContainer`), so the scheme can't drift into proving nothing.
+- **Goldens.** Six callout goldens were re-recorded on the Linux runner (run 36501683286). No other golden moved.
+- **Device.** On emulator `markleaf-phone-api36`, `theme_customization_overlay_packages` was set to `MONOCHROMATIC` with Material You on. Light mode showed a `#3B3B3B` fill with white text, dark mode a light fill with black text.
+- **Left out.** Inline links (`primary`) and inline-code backgrounds inside a callout keep their colours. A link in a NOTE callout can still be low-contrast in Monochrome.
+- **Emulator note.** Windows had reserved TCP 5480–6179 this boot, so `-ports 5700,5701` was invisible to adb. `-ports 5250,5251` plus `adb connect 127.0.0.1:5251` worked.
+
 ## 2026-09-28 — Widget background opacity (#469)
 
 `Violet-RM` asked for widget customisation: colour schemes beyond Markleaf green and Material You, and a transparency value. This covers the transparency half; the colour half is answered on the issue and stays open there.

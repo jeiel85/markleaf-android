@@ -57,6 +57,7 @@ Listed by first report.
 | [@Violet-RM](https://github.com/Violet-RM) | [#438](https://github.com/jeiel85/markleaf-android/issues/438), [#469](https://github.com/jeiel85/markleaf-android/issues/469) |
 | [@Kamul-PL](https://github.com/Kamul-PL) | [#446](https://github.com/jeiel85/markleaf-android/issues/446) |
 | [@Akshaythorat376](https://github.com/Akshaythorat376) | [#447](https://github.com/jeiel85/markleaf-android/issues/447) |
+| [@blend0matik](https://github.com/blend0matik) | [#473](https://github.com/jeiel85/markleaf-android/issues/473) |
 
 Not every request here was accepted — a couple were declined, and saying no to a
 thoughtful suggestion is its own kind of debt. Being told what you want from the

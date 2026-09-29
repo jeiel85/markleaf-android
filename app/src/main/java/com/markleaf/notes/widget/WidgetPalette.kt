@@ -182,19 +182,30 @@ data class WidgetColors(
 )
 
 /**
- * Recolours the rounded background of [viewId].
+ * Recolours the rounded background of [viewId], or — for null — puts back the
+ * layout's own green.
  *
  * A tint rather than `setBackgroundColor`: the background is a shape drawable
  * carrying the 16dp corner radius, and setting a flat colour would replace the
- * shape with a square block. The two-value overload is API 31, which every
- * caller already is — [WidgetPalette.colors] returns null below it.
+ * shape with a square block. The two-value overload is API 31.
+ *
+ * Why null still writes (a null tint): `AppWidgetHostView` re-applies a new
+ * `RemoteViews` onto the view it already shows when the layout id is
+ * unchanged, so an action left out keeps the previous one's effect — the same
+ * rule [setWidgetOpacity] documents. Skipping it for Markleaf Green left a
+ * placed widget in its last Material You or custom colour until the launcher
+ * inflated it afresh (#469). The text and icon setters below follow the same
+ * rule for the same reason.
+ *
+ * Nothing below Android 12, where no override is ever written either:
+ * [WidgetPalette.colors] answers null there, so there is nothing to undo.
  */
-fun RemoteViews.setWidgetBackground(@IdRes viewId: Int, colors: WidgetColors) {
-    // Unreachable below Android 12 — WidgetPalette.colors() answers null there,
-    // so no caller holds a WidgetColors to pass. It is stated here rather than at
-    // each of the five call sites because that is one place for lint and the
-    // next reader to find the rule, instead of five copies of it.
+fun RemoteViews.setWidgetBackground(@IdRes viewId: Int, colors: WidgetColors?) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+    if (colors == null) {
+        setColorStateList(viewId, "setBackgroundTintList", null as ColorStateList?)
+        return
+    }
     setColorStateList(
         viewId,
         "setBackgroundTintList",
@@ -217,7 +228,7 @@ fun RemoteViews.setWidgetBackground(@IdRes viewId: Int, colors: WidgetColors) {
  * re-applied to the new drawable, and in its default `SRC_IN` mode it takes the
  * drawable's alpha, so Material You and a translucent step compose.
  *
- * Why OPAQUE still writes, unlike Markleaf Green in [WidgetPalette.colors]:
+ * Why OPAQUE still writes:
  * `AppWidgetHostView` re-applies a new `RemoteViews` onto the view it already
  * shows when the layout id is unchanged, instead of inflating afresh, so an
  * action left out keeps the previous one's effect. Writing nothing here would
@@ -237,23 +248,30 @@ internal fun WidgetOpacity.backgroundRes(): Int = when (this) {
     WidgetOpacity.NONE -> R.drawable.widget_background_0
 }
 
-/** The primary text role of [viewId], per the host's night mode. */
-fun RemoteViews.setWidgetTextColor(@IdRes viewId: Int, colors: WidgetColors) {
-    // Unreachable below Android 12 — WidgetPalette.colors() answers null there,
-    // so no caller holds a WidgetColors to pass. It is stated here rather than at
-    // each of the five call sites because that is one place for lint and the
-    // next reader to find the rule, instead of five copies of it.
+/**
+ * The primary text role of [viewId], per the host's night mode — or, for null,
+ * the layout's own `textColorPrimaryInverse`, resolved the way the XML
+ * resolves it. See [setWidgetBackground] for why null still writes.
+ */
+fun RemoteViews.setWidgetTextColor(@IdRes viewId: Int, colors: WidgetColors?) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+    if (colors == null) {
+        setColorAttr(viewId, "setTextColor", android.R.attr.textColorPrimaryInverse)
+        return
+    }
     setColorInt(viewId, "setTextColor", colors.notNight.onBackground, colors.night.onBackground)
 }
 
-/** The secondary text role of [viewId] — the same hue, less opaque. */
-fun RemoteViews.setWidgetSecondaryTextColor(@IdRes viewId: Int, colors: WidgetColors) {
-    // Unreachable below Android 12 — WidgetPalette.colors() answers null there,
-    // so no caller holds a WidgetColors to pass. It is stated here rather than at
-    // each of the five call sites because that is one place for lint and the
-    // next reader to find the rule, instead of five copies of it.
+/**
+ * The secondary text role of [viewId] — the same hue, less opaque — or, for
+ * null, the layout's own `textColorSecondaryInverse`.
+ */
+fun RemoteViews.setWidgetSecondaryTextColor(@IdRes viewId: Int, colors: WidgetColors?) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+    if (colors == null) {
+        setColorAttr(viewId, "setTextColor", android.R.attr.textColorSecondaryInverse)
+        return
+    }
     setColorInt(
         viewId,
         "setTextColor",
@@ -263,17 +281,19 @@ fun RemoteViews.setWidgetSecondaryTextColor(@IdRes viewId: Int, colors: WidgetCo
 }
 
 /**
- * Tints a single-colour icon to the primary text role.
+ * Tints a single-colour icon to the primary text role — for null, the same
+ * `textColorPrimaryInverse` its XML `android:tint` names.
  *
  * `setColorFilter` rather than a tint: `ImageView` has no tint setter a
  * `RemoteViews` may call by name, and a drawable prefers an explicit colour
- * filter over its XML `android:tint`.
+ * filter over its XML `android:tint` — which is also why null cannot simply
+ * write nothing: a filter set earlier would keep winning over the tint.
  */
-fun RemoteViews.setWidgetIconColor(@IdRes viewId: Int, colors: WidgetColors) {
-    // Unreachable below Android 12 — WidgetPalette.colors() answers null there,
-    // so no caller holds a WidgetColors to pass. It is stated here rather than at
-    // each of the five call sites because that is one place for lint and the
-    // next reader to find the rule, instead of five copies of it.
+fun RemoteViews.setWidgetIconColor(@IdRes viewId: Int, colors: WidgetColors?) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+    if (colors == null) {
+        setColorAttr(viewId, "setColorFilter", android.R.attr.textColorPrimaryInverse)
+        return
+    }
     setColorInt(viewId, "setColorFilter", colors.notNight.onBackground, colors.night.onBackground)
 }

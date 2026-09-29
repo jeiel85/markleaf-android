@@ -73,11 +73,10 @@ private class QuickNoteWidgetFactory(
             note.title.ifBlank { context.getString(R.string.untitled_parenthesized) }
         )
         view.setTextViewText(R.id.widget_item_excerpt, note.excerpt)
-        // Null means Markleaf Green, which the layout already draws.
-        colors?.let {
-            view.setWidgetTextColor(R.id.widget_item_title, it)
-            view.setWidgetSecondaryTextColor(R.id.widget_item_excerpt, it)
-        }
+        // Null means Markleaf Green; it is written back rather than skipped
+        // because the host re-applies rows onto recycled views (#469).
+        view.setWidgetTextColor(R.id.widget_item_title, colors)
+        view.setWidgetSecondaryTextColor(R.id.widget_item_excerpt, colors)
 
         val fillIn = Intent().apply {
             putExtra(QuickNoteWidget.EXTRA_NOTE_ID, note.id)

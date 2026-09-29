@@ -356,6 +356,55 @@ class WidgetPaletteTest {
      * `getViewFor` is the shadow's inflation of the RemoteViews the widget
      * pushed, so it sees exactly what `updateAppWidget` set and nothing else.
      */
+    /**
+     * Going back to the palette must repaint a widget that is already placed.
+     * The host re-applies a new `RemoteViews` onto the view it shows, so an
+     * update that wrote nothing for Markleaf Green left the custom colour — and
+     * its black text — on screen until the launcher next inflated the widget.
+     * Compared against a freshly inflated widget rather than hard-coded values,
+     * so the assertion is "looks like the layout", whatever the theme resolves.
+     */
+    @Test
+    fun `clearing a custom colour repaints a placed widget in the layout's own colours`() {
+        val manager = AppWidgetManager.getInstance(context)
+        val fresh = inflateQuickNoteWidget()
+        val id = shadowOf(manager)
+            .createWidgets(QuickNoteWidget::class.java, R.layout.widget_quick_note, 1)
+            .first()
+
+        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE, 0xFFFAFAFA.toInt())
+        QuickNoteWidget.updateAppWidget(context, manager, id)
+        assertEquals(0xFFFAFAFA.toInt(), shadowOf(manager).getViewFor(id).backgroundTintList?.defaultColor)
+
+        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE, null)
+        QuickNoteWidget.updateAppWidget(context, manager, id)
+        val view = shadowOf(manager).getViewFor(id)
+
+        assertNull(view.backgroundTintList)
+        assertEquals(
+            fresh.findViewById<TextView>(R.id.widget_title).currentTextColor,
+            view.findViewById<TextView>(R.id.widget_title).currentTextColor
+        )
+    }
+
+    /** The same for Material You → Markleaf Green, which had the same gap (#262). */
+    @Test
+    fun `switching material you back to green repaints a placed widget`() {
+        val manager = AppWidgetManager.getInstance(context)
+        val id = shadowOf(manager)
+            .createWidgets(QuickNoteWidget::class.java, R.layout.widget_quick_note, 1)
+            .first()
+
+        WidgetPaletteStore.save(context, ColorPalette.MATERIAL_YOU, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE)
+        QuickNoteWidget.updateAppWidget(context, manager, id)
+        assertNotNull(shadowOf(manager).getViewFor(id).backgroundTintList)
+
+        WidgetPaletteStore.save(context, ColorPalette.MARKLEAF_GREEN, ThemeMode.SYSTEM, WidgetOpacity.OPAQUE)
+        QuickNoteWidget.updateAppWidget(context, manager, id)
+
+        assertNull(shadowOf(manager).getViewFor(id).backgroundTintList)
+    }
+
     private fun inflateQuickNoteWidget(): android.view.View {
         val manager = AppWidgetManager.getInstance(context)
         val id = shadowOf(manager)

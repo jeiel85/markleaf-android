@@ -1,0 +1,5 @@
+Nastavenia → Vzhľad → „Farba miniaplikácie“ → Vlastná zafarbí miniaplikácie na ploche farbou podľa vášho výberu, s predvoľbami, posuvníkmi a hexadecimálnym kódom (Android 12+). Text sa prepína medzi bielou a čiernou, aby zostal čitateľný. Ďakujeme @Violet-RM za návrh.
+
+Text zvýraznených poznámok v náhľade je opäť čitateľný v monochromatickej palete Material You. Ďakujeme @blend0matik za nahlásenie.
+
+Po vrátení farby miniaplikácie sa prefarbia aj už umiestnené miniaplikácie.

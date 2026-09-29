@@ -1,0 +1,5 @@
+Einstellungen → Darstellung → „Widget-Farbe“ → Eigene färbt die Startbildschirm-Widgets in einer Farbe deiner Wahl, mit Vorlagen, Reglern und Hex-Code (Android 12+). Der Text wechselt zwischen Weiß und Schwarz, damit er lesbar bleibt. Danke @Violet-RM für den Wunsch.
+
+Callout-Text in der Vorschau ist mit der monochromen Material-You-Palette wieder lesbar. Danke @blend0matik für die Meldung.
+
+Wer die Widget-Farbe zurückstellt, sieht bereits platzierte Widgets jetzt neu gefärbt.

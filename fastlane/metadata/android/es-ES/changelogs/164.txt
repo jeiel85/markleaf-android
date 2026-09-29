@@ -1,0 +1,5 @@
+Ajustes → Apariencia → «Color del widget» → Personalizado pinta los widgets de inicio del color que elijas, con colores predefinidos, controles y código hexadecimal (Android 12+). El texto cambia entre blanco y negro para seguir siendo legible. Gracias @Violet-RM por la petición.
+
+El texto de los avisos de la vista previa vuelve a leerse con la paleta monocromática de Material You. Gracias @blend0matik por el aviso.
+
+Al volver a los colores anteriores, los widgets ya colocados se repintan.

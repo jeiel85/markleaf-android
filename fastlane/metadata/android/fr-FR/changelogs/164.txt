@@ -1,0 +1,5 @@
+Réglages → Apparence → « Couleur du widget » → Personnalisée peint les widgets de l'écran d'accueil dans la couleur de votre choix, avec préréglages, curseurs et code hexadécimal (Android 12+). Le texte passe du blanc au noir pour rester lisible. Merci @Violet-RM pour la demande.
+
+Le texte des encadrés de l'aperçu est à nouveau lisible avec la palette monochrome de Material You. Merci @blend0matik pour le signalement.
+
+Revenir aux couleurs d'origine repeint désormais les widgets déjà placés.

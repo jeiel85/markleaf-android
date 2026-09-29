@@ -1,0 +1,5 @@
+Settings → Appearance → "Widget color" → Custom paints the home-screen widgets in a colour you pick, with presets, sliders and a hex code (Android 12+). The text switches between white and black to stay readable. Thanks @Violet-RM for the request.
+
+Callout text in the preview is readable again with Material You's monochrome palette. Thanks @blend0matik for the report.
+
+Switching widget colours back now repaints widgets that are already placed.

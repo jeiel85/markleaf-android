@@ -1,0 +1,5 @@
+Postavke → Izgled → „Boja widgeta” → Prilagođena boji widgete početnog zaslona bojom po vašem izboru, uz predloške, klizače i heksadecimalni kod (Android 12+). Tekst se mijenja između bijele i crne kako bi ostao čitljiv. Hvala @Violet-RM na prijedlogu.
+
+Tekst oblačića u pregledu ponovno je čitljiv s monokromatskom paletom Material You. Hvala @blend0matik na prijavi.
+
+Vraćanje boje widgeta sada ponovno boji i već postavljene widgete.

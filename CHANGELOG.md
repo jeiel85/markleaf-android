@@ -4,9 +4,9 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
-## Unreleased
+## v2.55.0 - Widget colours of your own - 2026-09-29
 
-<!-- Rename to `## vX.Y.Z - Title - YYYY-MM-DD` in the release commit. The release-note step and the verify scripts read only `## v` headings, so this section is invisible to them until then. -->
+A widget colour setting, a readability fix for callouts, and one widget repaint fix. No permission or storage-format changes.
 
 ### Added
 - **Home-screen widgets can take a colour you pick ([#469](https://github.com/jeiel85/markleaf-android/issues/469)).** Settings → Appearance → Widget color now has *Custom* next to *App colors* (the default, which follows the Colors setting as before). Custom opens a picker with presets, hue / saturation / brightness sliders and a hex code field, and shows a preview. Both the Quick Note and Single Note widgets paint that colour in light and dark mode alike. The text switches between white and black, whichever reads better on your colour, and the Widget background opacity steps still apply on top. Custom colours need Android 12 or later; on older versions the option is shown but disabled. Requested by [@Violet-RM](https://github.com/Violet-RM).

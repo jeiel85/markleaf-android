@@ -1,0 +1,5 @@
+Cài đặt → Giao diện → "Màu tiện ích" → Tùy chỉnh tô các tiện ích màn hình chính bằng màu bạn chọn, có màu mẫu, thanh trượt và mã hex (Android 12 trở lên). Chữ tự đổi giữa trắng và đen để dễ đọc. Cảm ơn @Violet-RM đã đề xuất.
+
+Chữ trong khung chú thích ở chế độ xem trước đã dễ đọc với bảng màu đơn sắc của Material You. Cảm ơn @blend0matik đã báo lỗi.
+
+Khi đổi màu tiện ích trở lại, các tiện ích đã đặt cũng được tô lại.

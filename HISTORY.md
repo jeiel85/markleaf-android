@@ -1,3 +1,14 @@
+## 2026-09-29 — Images in PDF export (#474)
+
+`ClockGen` reported that PDF export contains the rendered Markdown but no images.
+
+- **Cause.** `ExportPdf` loads its HTML with `loadDataWithBaseURL(null, …)`, so an `attachments/<note>/<id>.png` source resolves to nothing, and WebView file access is off by default from Android 11 anyway.
+- **Change.** `renderDocument` gains an `imageSource` resolver. It walks the parsed document and rewrites each `Image` destination to a `data:` URI, or replaces the image with the preview's own `unresolvedImageText` (`![alt](path)`). `export` is now `suspend` and reads the images on `Dispatchers.IO`; its only caller is already in a `rememberCoroutineScope` launch. `attachmentDataUri` only accepts files under `filesDir/attachments` (by canonical path, so `../` can't reach other private files), only image extensions, and only up to 15 MB each.
+- **Network.** `webView.settings.blockNetworkLoads = true`. The store build has no INTERNET anyway. In the sideload build it keeps a remote image URL from being fetched just because a note was printed.
+- **Tests.** `ExportPdfTest` +4: a resolved source is used, an unresolved image becomes the preview text, and `attachmentDataUri` inlines from the attachment folder while refusing missing files, non-images, `../` traversal, files outside `attachments/`, `https:` and `content:`.
+- **Device.** On emulator `markleaf-phone-api36`, exporting the starter note "A Beautiful Markdown Canvas" shows its cover image in the system print preview.
+- **Seen in passing, not changed.** In the PDF, callouts print as a plain blockquote with a literal `[!NOTE]`, because commonmark-java has no callout extension. Logged on #262.
+
 ## 2026-09-29 — Custom widget colour (#469)
 
 `Violet-RM` picked option 3 (a free colour picker) from the choices offered after v2.54.0 shipped the transparency half.

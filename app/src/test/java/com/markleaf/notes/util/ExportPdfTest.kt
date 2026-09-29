@@ -3,10 +3,14 @@ package com.markleaf.notes.util
 import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.domain.model.Note
 import java.time.Instant
+import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 
 /**
  * Guards against #143: PDF export must not render the note's title twice. A
@@ -76,5 +80,78 @@ class ExportPdfTest {
             "the stylesheet must force non-summary details content visible",
             html.contains("details > :not(summary)") && html.contains("display: block !important")
         )
+    }
+
+    @get:Rule
+    val temp = TemporaryFolder()
+
+    /**
+     * #474: images were missing from the PDF because the page is loaded with
+     * no base URL, so `attachments/…` resolved to nothing. A resolvable image
+     * is now inlined as whatever source the resolver returns.
+     */
+    @Test
+    fun `a resolvable image is rendered with the resolved source`() {
+        val html = ExportPdf.renderDocument(
+            note("# Trip\n\n![Beach](attachments/n1/a.png)"),
+            "Untitled"
+        ) { destination -> if (destination == "attachments/n1/a.png") "data:image/png;base64,AAAA" else null }
+        val body = bodyOf(html)
+
+        assertTrue(body, body.contains("<img src=\"data:image/png;base64,AAAA\" alt=\"Beach\""))
+        assertFalse(body.contains("attachments/n1/a.png"))
+    }
+
+    /** Unresolvable images read the way the in-app preview shows them, not as a broken icon. */
+    @Test
+    fun `an unresolvable image becomes the same text the preview shows`() {
+        val html = ExportPdf.renderDocument(
+            note("Look: ![Diagram](https://example.com/d.png)"),
+            "Untitled"
+        )
+        val body = bodyOf(html)
+
+        assertFalse(body.contains("<img"))
+        assertTrue(body, body.contains("![Diagram](https://example.com/d.png)"))
+    }
+
+    @Test
+    fun `attachment data uri inlines an image from the attachment folder`() {
+        val (filesDir, root) = attachmentDirs()
+        File(root, "n1").mkdirs()
+        File(root, "n1/a.png").writeBytes(byteArrayOf(1, 2, 3))
+
+        assertEquals(
+            "data:image/png;base64,AQID",
+            ExportPdf.attachmentDataUri(root, filesDir, "attachments/n1/a.png")
+        )
+        assertEquals(
+            "data:image/png;base64,AQID",
+            ExportPdf.attachmentDataUri(root, filesDir, "./attachments/n1/a.png")
+        )
+    }
+
+    /** Only the attachment folder, only images, only local paths. */
+    @Test
+    fun `attachment data uri refuses anything outside the attachment folder or not an image`() {
+        val (filesDir, root) = attachmentDirs()
+        File(root, "n1").mkdirs()
+        File(root, "n1/notes.txt").writeText("secret")
+        File(filesDir, "shared_prefs").mkdirs()
+        File(filesDir, "shared_prefs/x.png").writeBytes(byteArrayOf(1))
+
+        assertNull(ExportPdf.attachmentDataUri(root, filesDir, "attachments/n1/missing.png"))
+        assertNull(ExportPdf.attachmentDataUri(root, filesDir, "attachments/n1/notes.txt"))
+        assertNull(ExportPdf.attachmentDataUri(root, filesDir, "attachments/../shared_prefs/x.png"))
+        assertNull(ExportPdf.attachmentDataUri(root, filesDir, "shared_prefs/x.png"))
+        assertNull(ExportPdf.attachmentDataUri(root, filesDir, "https://example.com/a.png"))
+        assertNull(ExportPdf.attachmentDataUri(root, filesDir, "content://x/attachments/a.png"))
+        assertNull(ExportPdf.attachmentDataUri(root, filesDir, ""))
+    }
+
+    private fun attachmentDirs(): Pair<File, File> {
+        val filesDir = temp.newFolder("files")
+        val root = File(filesDir, "attachments").apply { mkdirs() }
+        return filesDir to root
     }
 }

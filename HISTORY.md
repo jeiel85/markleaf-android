@@ -1,3 +1,17 @@
+## 2026-09-29 — Images in PDF export (#474)
+
+`ClockGen` reported that PDF export contains the rendered Markdown but no images.
+
+- **Cause.** `ExportPdf` loads its HTML with `loadDataWithBaseURL(null, …)`, so an `attachments/<note>/<id>.png` source resolves to nothing, and WebView file access is off by default from Android 11 anyway.
+- **Change.** `renderDocument` gains an `imageSource` resolver. It walks the parsed document and rewrites each `Image` destination to a `data:` URI, or replaces the image with the preview's own `unresolvedImageText` (`![alt](path)`). `export` is now `suspend` and does the image work on `Dispatchers.IO`; its only caller is already in a `rememberCoroutineScope` launch.
+- **`PdfImageInliner`** (after the Codex review on #479). It only resolves files under `filesDir/attachments`, by canonical path. Memory is bounded per document, because the page is one string holding every image. Web-safe files up to 1.5 MB are inlined raw. Anything larger, and HEIC/HEIF/AVIF/BMP (which the picker accepts but the WebView may not render), is decoded with `inSampleSize` to a long side ≤ 2048 px and re-encoded as JPEG q85, or PNG if a pixel is actually transparent. Each file is encoded once per export, and a 24 MB budget covers all occurrences; past it, images print as text.
+- **Second review round (Codex on b4508c65).** First, a rejected over-budget image was still cached with its bytes, so many unique photos stayed in memory. Now only a "doesn't fit" marker is cached, and `retainedBytes` in the test shows the cache holds at most the budget. Second, `BitmapFactory` ignores EXIF orientation and the re-encoded image has no EXIF, while import keeps `TAG_ORIENTATION` and the preview honours it, so a portrait photo over 1.5 MB would have printed sideways. `applyExifOrientation` now rotates or flips the pixels for all 8 orientations. The raw path needs nothing, since Chromium applies EXIF orientation itself. Both new tests fail with their fix reverted.
+- **`hasAlpha()` isn't transparency.** The native-graphics test caught that an opaque RGBA PNG (most screenshots) reports `hasAlpha()`, and so would have stayed a large PNG. `hasTransparentPixel` scans a row at a time instead.
+- **Network.** `webView.settings.blockNetworkLoads = true`. The store build has no INTERNET anyway. In the sideload build it keeps a remote image URL from being fetched just because a note was printed.
+- **Tests.** `ExportPdfTest` +2 (a resolved source is used; an unresolved image becomes the preview text). `PdfImageInlinerTest` (9, JVM, fake decoder): raw vs re-encoded, the decode-only formats, decoder rejection, one decode per file, the document budget including repeats, and refusal of missing files / non-images / `../` / outside `attachments/` / `https:` / `content:`. `PdfImageDownsampleTest` (4, Robolectric native graphics): a 5000×1200 PNG comes back as a JPEG ≤ 2048 px with its aspect ratio kept, a transparent PNG stays PNG, an EXIF ROTATE_90 JPEG comes back rotated, and a non-image decodes to null.
+- **Device.** On emulator `markleaf-phone-api36`, exporting the starter note "A Beautiful Markdown Canvas" shows its cover image in the system print preview.
+- **Seen in passing, not changed.** In the PDF, callouts print as a plain blockquote with a literal `[!NOTE]`, because commonmark-java has no callout extension. Logged on #262.
+
 ## 2026-09-29 — Custom widget colour (#469)
 
 `Violet-RM` picked option 3 (a free colour picker) from the choices offered after v2.54.0 shipped the transparency half.

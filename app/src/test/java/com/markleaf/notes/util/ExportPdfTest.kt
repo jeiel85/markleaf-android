@@ -77,4 +77,34 @@ class ExportPdfTest {
             html.contains("details > :not(summary)") && html.contains("display: block !important")
         )
     }
+
+    /**
+     * #474: images were missing from the PDF because the page is loaded with
+     * no base URL, so `attachments/…` resolved to nothing. A resolvable image
+     * is now inlined as whatever source the resolver returns.
+     */
+    @Test
+    fun `a resolvable image is rendered with the resolved source`() {
+        val html = ExportPdf.renderDocument(
+            note("# Trip\n\n![Beach](attachments/n1/a.png)"),
+            "Untitled"
+        ) { destination -> if (destination == "attachments/n1/a.png") "data:image/png;base64,AAAA" else null }
+        val body = bodyOf(html)
+
+        assertTrue(body, body.contains("<img src=\"data:image/png;base64,AAAA\" alt=\"Beach\""))
+        assertFalse(body.contains("attachments/n1/a.png"))
+    }
+
+    /** Unresolvable images read the way the in-app preview shows them, not as a broken icon. */
+    @Test
+    fun `an unresolvable image becomes the same text the preview shows`() {
+        val html = ExportPdf.renderDocument(
+            note("Look: ![Diagram](https://example.com/d.png)"),
+            "Untitled"
+        )
+        val body = bodyOf(html)
+
+        assertFalse(body.contains("<img"))
+        assertTrue(body, body.contains("![Diagram](https://example.com/d.png)"))
+    }
 }

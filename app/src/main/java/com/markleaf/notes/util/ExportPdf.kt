@@ -6,7 +6,13 @@ import android.print.PrintManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.markleaf.notes.R
+import com.markleaf.notes.core.markdown.preview.unresolvedImageText
 import com.markleaf.notes.domain.model.Note
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.commonmark.node.AbstractVisitor
+import org.commonmark.node.Image
+import org.commonmark.node.Text
 import org.commonmark.ext.footnotes.FootnotesExtension
 import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
 import org.commonmark.ext.gfm.tables.TablesExtension
@@ -31,18 +37,30 @@ object ExportPdf {
     private val parser: Parser = Parser.builder().extensions(extensions).build()
     private val renderer: HtmlRenderer = HtmlRenderer.builder().extensions(extensions).build()
 
-    fun export(context: Context, note: Note): Boolean {
+    /**
+     * Suspends while the note's images are read and encoded on [Dispatchers.IO];
+     * the WebView itself is created back on the caller's (main) thread.
+     */
+    suspend fun export(context: Context, note: Note): Boolean {
         val printManager = context.getSystemService(Context.PRINT_SERVICE) as? PrintManager
             ?: return false
 
         val untitled = context.getString(R.string.untitled)
         val title = note.title.ifBlank { untitled }
-        val html = renderDocument(note, untitled)
+        val html = withContext(Dispatchers.IO) {
+            renderDocument(note, untitled, PdfImageInliner(context)::dataUri)
+        }
 
         // WebView must outlive this call until the print adapter is created.
         // PrintManager keeps a reference to it via the adapter, so a local val
         // is enough — once printing finishes the WebView is GC'd.
         val webView = WebView(context)
+        // Images arrive inlined as data: URIs, so the page needs nothing from
+        // outside. Blocking the network makes that a guarantee rather than an
+        // accident of the store build having no INTERNET permission: in the
+        // sideload build, a remote image URL in a note must not be fetched just
+        // because the user printed it.
+        webView.settings.blockNetworkLoads = true
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView, url: String) {
                 val jobName = context.getString(R.string.export_pdf_job_name, title)
@@ -66,10 +84,52 @@ object ExportPdf {
      * as the injected title and again as part of the body (#143). [untitled] is
      * the fallback used only for the document/tab `<title>` of a blank note.
      */
-    internal fun renderDocument(note: Note, untitled: String): String {
-        val bodyHtml = renderer.render(parser.parse(note.contentMarkdown))
+    internal fun renderDocument(
+        note: Note,
+        untitled: String,
+        imageSource: (destination: String) -> String? = { null }
+    ): String {
+        val document = parser.parse(note.contentMarkdown)
+        inlineImages(document, imageSource)
+        val bodyHtml = renderer.render(document)
         val title = note.title.ifBlank { untitled }
         return wrapHtml(title, bodyHtml)
+    }
+
+    /**
+     * Points every image at what [imageSource] returns for its destination,
+     * or — when it returns null — replaces the image with the same
+     * `![alt](path)` text the in-app preview shows for an image it can't
+     * resolve (#474).
+     *
+     * Why the images must be rewritten at all: the page is loaded from a
+     * string with no base URL, so a relative `attachments/…` path resolves to
+     * nothing, and WebView file access is off by default from Android 11. An
+     * inlined data: URI needs neither, and keeps the export self-contained.
+     */
+    private fun inlineImages(document: org.commonmark.node.Node, imageSource: (String) -> String?) {
+        val images = mutableListOf<Image>()
+        document.accept(object : AbstractVisitor() {
+            override fun visit(image: Image) {
+                images += image
+            }
+        })
+        for (image in images) {
+            val source = imageSource(image.destination)
+            if (source != null) {
+                image.destination = source
+            } else {
+                val alt = buildString {
+                    var child = image.firstChild
+                    while (child != null) {
+                        if (child is Text) append(child.literal)
+                        child = child.next
+                    }
+                }
+                image.insertAfter(Text(unresolvedImageText(alt, image.destination)))
+                image.unlink()
+            }
+        }
     }
 
     private fun wrapHtml(title: String, body: String): String {

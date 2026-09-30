@@ -116,7 +116,17 @@ fun MarkleafNavHost(
     sharedCreatedAt: Instant? = null,
     sharedUpdatedAt: Instant? = null,
     openNoteId: String? = null,
-    viewFileUri: String? = null
+    viewFileUri: String? = null,
+    /**
+     * False when an earlier instance of the activity has already run this launch
+     * request — an entry intent, or the plain-launch "reopen last note" fallback —
+     * and this one is only a recreation of it. Then nothing is dispatched: the
+     * restored back stack is where the user is, and running the request again would
+     * repeat it on top (a second note from a share, the last note pushed over the
+     * file viewer). Defaults to true, a fresh launch.
+     */
+    dispatchLaunchRequest: Boolean = true,
+    onEntryDispatched: () -> Unit = {}
 ) {
     val isExpanded = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded
     val context = LocalContext.current
@@ -144,8 +154,12 @@ fun MarkleafNavHost(
     // fresh activity (onNewIntent → recreate) and re-composes the host, so new
     // shares/opens still import. The sources are mutually exclusive (each
     // derives from a single intent action), so a `when` handles at most one.
+    // A recreated activity gets the same intent again, so MainActivity keeps a
+    // saved-state flag that onEntryDispatched sets once the branch below has run;
+    // the next instance is told not to dispatch at all (dispatchLaunchRequest).
     val intentEntryViewModel = viewModel<NotesViewModel>(factory = viewModelFactory)
     LaunchedEffect(Unit) {
+        if (!dispatchLaunchRequest) return@LaunchedEffect
         when {
             shouldCreateNote -> {
                 val newNote = intentEntryViewModel.createNote()
@@ -207,6 +221,10 @@ fun MarkleafNavHost(
                 }
             }
         }
+        // Reached only if the branch above ran to the end: an effect cancelled part
+        // way (the activity recreated mid-dispatch) leaves the request unacted on, so
+        // the next instance runs it again rather than losing it.
+        onEntryDispatched()
     }
 
     // Restrained shared-axis-X motion for forward/back navigation: the incoming

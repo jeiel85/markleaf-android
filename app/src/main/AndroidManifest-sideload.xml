@@ -21,6 +21,16 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- Lets Android 14+ offer Markleaf as the device's Notes app
+                 (Settings > Apps > Default apps), so the system's own note
+                 shortcuts - a stylus button, Quick Settings - open a new note (#481).
+                 Deliberately no android:showWhenLocked: this activity is the whole
+                 app, and showing it over the lock screen would show the notes list
+                 too. Launched from a locked device, Android asks to unlock first. -->
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_NOTE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />

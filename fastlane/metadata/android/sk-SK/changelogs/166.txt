@@ -1,0 +1,1 @@
+Na zariadeniach s Androidom 14+, ktoré ponúkajú rolu Poznámky, si môžete Markleaf vybrať ako aplikáciu na poznámky: systémové skratky na poznámky (napríklad tlačidlo pera) otvoria novú poznámku. Cez zamknutú obrazovku sa nikdy neotvorí. A pri prepnutí z náhľadu do editora sa kurzor teraz nastaví tam, kde ste čítali. Vďaka za nápady, @PaxonF a @sakakigaranko-sketch.

@@ -4,6 +4,17 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.57.0 - Editing where you were reading - 2026-09-30
+
+Two additions from Discussions, and a fix for something they shared with the widget and with sharing. No permission or storage-format changes.
+
+### Added
+- **Leaving Preview puts the caret where you were reading ([#464](https://github.com/jeiel85/markleaf-android/discussions/464)).** Switching from Preview to the editor used to open at the caret you left before you started scrolling, so finding a sentence to change in a long note meant scrolling to it a second time. If you scrolled the preview, the editor now opens with the caret at the start of the block at the top of the screen — a paragraph, list item, heading, table or code block — and keeps it in view when the keyboard comes up. If you haven't scrolled since you last left Preview (a short note, or a quick glance), the caret stays exactly where it was, so what you were typing isn't moved. The caret goes to the start of the block, not to a word inside it. Requested by [@sakakigaranko-sketch](https://github.com/sakakigaranko-sketch).
+- **Markleaf can be your device's Notes app on Android 14 and later ([#481](https://github.com/jeiel85/markleaf-android/discussions/481)).** Android has a system-wide *Notes* role: the app it hands to the shortcuts that start a note, such as a stylus button or a Quick Settings tile. Markleaf now declares what that role asks for, so on a device that offers the role you can choose Markleaf in the system's default-apps settings, and those shortcuts open a new, empty note — the same one the widget's + button opens. It adds no permission and needs no network. Two limits. Not every device offers the role. And Markleaf does not open over the lock screen: from a locked device Android asks you to unlock first, because what would open is the whole app, notes list included. Requested by [@PaxonF](https://github.com/PaxonF).
+
+### Fixed
+- **Rotating the screen no longer repeats the request that opened Markleaf ([#483](https://github.com/jeiel85/markleaf-android/pull/483)).** Text shared into Markleaf was imported a second time each time the screen rotated, and a new-note shortcut — the widget's + button, and now the Notes-app action — sent you from the note you were writing to another blank one. A request that opens Markleaf is now acted on once. A rotation, a theme change, or Android restoring the app after closing it no longer repeats it — and with *Reopen last note on launch* on, no longer pushes the last note onto the screen you are on — while a new share that arrives with Markleaf already open is still imported. If App lock is on, a request that arrives while the app is still locked waits for you to unlock instead of being dropped when the screen rotates. Found in review of the Notes-app change.
+
 ## v2.56.0 - Images in PDF export - 2026-09-29
 
 One export improvement. No permission or storage-format changes.

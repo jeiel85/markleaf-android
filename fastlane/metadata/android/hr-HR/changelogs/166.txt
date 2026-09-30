@@ -1,0 +1,1 @@
+Na uređajima s Androidom 14+ koji nude ulogu Bilješki, Markleaf se sada može odabrati kao aplikacija za bilješke: sistemski prečaci za bilješke (na primjer gumb olovke) otvaraju novu bilješku. Nikad se ne otvara preko zaključanog zaslona. Osim toga, prelaskom iz pregleda u uređivač kursor se postavlja tamo gdje ste čitali. Hvala na idejama, @PaxonF i @sakakigaranko-sketch.

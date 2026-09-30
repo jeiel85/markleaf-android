@@ -1,0 +1,1 @@
+Markleaf can now be chosen as the Notes app on Android 14+ devices that offer that role, so the system's note shortcuts (a stylus button, for example) open a new note. It never opens over the lock screen. And switching from Preview to the editor now puts the caret where you were reading. Thanks @PaxonF and @sakakigaranko-sketch for the ideas.

@@ -1,0 +1,1 @@
+Trên thiết bị Android 14+ có vai trò Ghi chú, giờ bạn có thể chọn Markleaf làm ứng dụng ghi chú: các phím tắt ghi chú của hệ thống (ví dụ nút bút cảm ứng) sẽ mở một ghi chú mới. Ứng dụng không bao giờ mở trên màn hình khóa. Ngoài ra, khi chuyển từ Xem trước sang trình soạn thảo, con trỏ sẽ nằm đúng chỗ bạn đang đọc. Cảm ơn ý tưởng của @PaxonF và @sakakigaranko-sketch.

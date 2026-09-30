@@ -158,7 +158,9 @@ internal object CommonMarkPreviewAdapter {
         val out = mutableListOf<PreviewLine>()
         val frontmatter = collectFrontmatter(document)
         if (frontmatter != null) {
-            out += PreviewLine(text = frontmatter, type = PreviewLineType.FRONTMATTER)
+            // Front matter can only open the note, so its line is known without
+            // asking the parser for a span.
+            out += PreviewLine(text = frontmatter, type = PreviewLineType.FRONTMATTER, startLine = 0)
         }
 
         var node: Node? = document.firstChild
@@ -190,6 +192,7 @@ internal object CommonMarkPreviewAdapter {
             }
             return
         }
+        val firstRow = out.size
         when (node) {
             is YamlFrontMatterBlock -> { /* already consumed by collectFrontmatter */ }
             is Heading -> out += renderHeading(node)
@@ -228,6 +231,15 @@ internal object CommonMarkPreviewAdapter {
                     )
                 }
             }
+        }
+        // Every row this block just produced starts where the block does (#464)
+        // — unless a row already knows better. A list item stamps its own line
+        // in renderListItem, and a block nested inside a list item stamped
+        // itself when its own renderBlock ran; only what is still unset is
+        // left to this block's first line.
+        val blockLine = sourceLineOf(node) ?: return
+        for (i in firstRow until out.size) {
+            if (out[i].startLine == null) out[i] = out[i].copy(startLine = blockLine)
         }
     }
 
@@ -365,7 +377,10 @@ internal object CommonMarkPreviewAdapter {
             segments = lead?.let { collectInlineSegments(it) }.orEmpty(),
             sourceLine = sourceLine,
             depth = depth,
-            looseList = looseList
+            looseList = looseList,
+            // The item's own line, not the list's: renderBlock would otherwise
+            // hand every item the first item's line (#464).
+            startLine = sourceLineOf(item)
         )
         // An item can open straight into a sublist (`-` on its own line), in
         // which case there is no lead paragraph to walk past. Written long-hand

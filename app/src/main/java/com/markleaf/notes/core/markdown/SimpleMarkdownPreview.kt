@@ -148,7 +148,21 @@ data class PreviewLine(
      * carry more than one when sections nest, which is why this is a list
      * rather than a single nullable id.
      */
-    val collapsibleIds: List<Int> = emptyList()
+    val collapsibleIds: List<Int> = emptyList(),
+    /**
+     * 0-based line of the note's text where the block this row was drawn from
+     * begins (#464). Set on every row the parser draws from the text, and
+     * unlike [sourceLine] it makes no promise of being *this row's own* line:
+     * rows that share a block (a quote's paragraphs, a callout) share its first
+     * line, and a row a parser synthesizes has none.
+     *
+     * That looseness is why this is a separate field. [sourceLine] is exact
+     * because a checkbox tap must flip one particular `[ ]`, and it is
+     * deliberately null for a row that cannot promise that. This one only ever
+     * places a caret, where "the start of the block you were reading" is the
+     * right answer and a row it cannot place simply leaves the caret alone.
+     */
+    val startLine: Int? = null
 )
 
 object SimpleMarkdownPreview {

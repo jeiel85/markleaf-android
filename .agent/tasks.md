@@ -3,6 +3,24 @@
 이 파일은 랄프 루프에서 사용할 작업 목록입니다.  
 에이전트는 매 루프마다 가장 위의 unchecked task 하나만 선택해 구현합니다.
 
+## Interaction motion - one container transform for opening a note (Done, 2026-09-30)
+
+사용자 요청: 노트를 열 때(그리고 다른 인터랙션에서) iOS처럼 부드럽게 펼쳐지는 느낌. 코드에 이미 있던
+카드→에디터 컨테이너 전환(#145)을 새로 만들지 않고 다듬었다. 판단 근거는 `.agent/decisions.md` D077.
+
+- [x] 컨테이너 전환이 도는 이동에서는 NavHost 슬라이드를 끈다 — `NoteOrigin`(탭한 노트+화면)이 있을 때만
+- [x] 불투명 에디터 서피스 + 콘텐츠만 페이드(90ms 나가고 210ms 들어온다), 출발점 콘텐츠를 에디터 위에 그린다
+- [x] 컨테이너 색이 출발점(그리드 타일·FAB·행)에서 페이지 색으로, 코너는 창 점유율로 계산
+- [x] 출발점 확장: 검색 결과·보관함 행·그리드 타일·새 노트(FAB) — 화면별 키 네임스페이스
+- [x] 노트 행·타일·보관함 행 눌림 반응(그리기 전용 0.97 스케일 — hit region 불변)
+- [x] 테스트: 순수 규칙/코너 계산(`NoteTransitionTest`), 실제 NavHost 전환의 안착·짝 형성(`NoteContainerTransitionTest`),
+      눌림이 터치 영역을 줄이지 않음(`PressScaleTest`) — 짝/눌림 테스트는 변이로 실패를 확인
+- [x] DESIGN.md §6, D077, HISTORY.md
+- [ ] 실기기에서 체감 확인(스프링 강성 `NoteTransition.BOUNDS_STIFFNESS`, 페이드 배분) — 이 환경에서는 불가
+- [ ] predictive back 제스처 중 shared bounds가 손가락을 따라가는지 확인 — 이 환경에서는 불가
+
+---
+
 ## GitHub Issue #432 - Monospace font option (Done, 2026-09-19)
 
 - [x] `EditorFont.MONOSPACE` in Settings → Markdown → Font, applied through the theme typography

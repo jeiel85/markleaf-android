@@ -72,6 +72,7 @@ class NoteContainerTransitionTest {
 
     private lateinit var navController: NavHostController
     private var origin by mutableStateOf<NoteOrigin?>(null)
+    private var rowAVisible by mutableStateOf(true)
 
     private fun setUpHarness() {
         composeRule.setContent {
@@ -105,6 +106,7 @@ class NoteContainerTransitionTest {
                                 CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides this) {
                                     Column(Modifier.fillMaxSize()) {
                                         for (id in listOf("a", "b", "c")) {
+                                            if (id == "a" && !rowAVisible) continue
                                             Text(
                                                 text = "Row ${id.uppercase()}",
                                                 modifier = Modifier
@@ -176,6 +178,23 @@ class NoteContainerTransitionTest {
 
         composeRule.onNodeWithText("Row A").assertIsDisplayed()
         composeRule.onNodeWithText("Row B").assertIsDisplayed()
+        composeRule.onNodeWithText("Editor A").assertDoesNotExist()
+    }
+
+    @Test
+    fun aReturnWhoseSourceIsGoneStillLandsOnTheList() {
+        setUpHarness()
+        composeRule.onNodeWithText("Row A").performClick()
+        settle()
+
+        // The edit moved the note out of the list (or out of the search results):
+        // when the editor closes there is no row to shrink into.
+        composeRule.runOnUiThread { rowAVisible = false }
+        composeRule.runOnUiThread { navController.popBackStack() }
+        settle()
+
+        composeRule.onNodeWithText("Row B").assertIsDisplayed()
+        composeRule.onNodeWithText("Row A").assertDoesNotExist()
         composeRule.onNodeWithText("Editor A").assertDoesNotExist()
     }
 

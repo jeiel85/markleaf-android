@@ -13,6 +13,7 @@ import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
@@ -25,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
@@ -183,6 +185,15 @@ internal object NoteTransition {
     const val FADE_IN_MS = 210
 
     /**
+     * The editor's own content leaves more slowly than a source's does. Closing,
+     * the container has barely begun to shrink when a 90ms fade ends, and what is
+     * left for the next ~80ms is a blank page-coloured screen (seen in rendered
+     * frames) — the back gesture reads as a stall. Holding the text a little longer
+     * bridges to the moment the list starts to be uncovered.
+     */
+    const val EDITOR_FADE_OUT_MS = 180
+
+    /**
      * Softer than the library default (400): the expansion should read as
      * unfolding rather than snapping open. Critically damped on purpose — an
      * underdamped spring would overshoot past the window edge.
@@ -190,6 +201,17 @@ internal object NoteTransition {
     const val BOUNDS_STIFFNESS = 320f
 
     const val SOURCE_Z_INDEX = 1f
+
+    /**
+     * How the editor leaves when its source is gone. The hop turns the NavHost's
+     * own exit off, so with nothing to shrink into it would otherwise lose its
+     * content in 90ms and then vanish, cutting to the list. Fading the whole
+     * editor over the (already visible) list is the plain-navigation look. The
+     * delay covers the first frames of a return, when the list's rows have not yet
+     * registered and a source that does exist still reads as missing.
+     */
+    const val UNPAIRED_LEAVE_MS = 200
+    const val UNPAIRED_LEAVE_DELAY_MS = 48
 
     val boundsTransform = BoundsTransform { _, _ ->
         spring(
@@ -294,14 +316,23 @@ private fun Modifier.sourceSharedBounds(key: String): Modifier {
  * the source.
  *
  * Input: the key of the source it pairs with, the colour the source starts as,
- * the destination's visibility scope and the editor content. Output: the content wrapped in the shared container,
- * or unwrapped when no shared scope is published.
+ * the destination's visibility scope and the editor content. Output: the
+ * content wrapped in the shared container, or unwrapped when no shared scope
+ * is published.
  *
  * Why the surface and the content are separate layers: the container itself
  * carries no enter/exit, so its opaque background is there from the first frame
  * and masks the list behind it. Only the editor content fades (after the
  * source's own content has gone). Fading the whole container instead would let
  * the list show through mid-transition — the "two screens overlaid" look.
+ *
+ * Why the unpaired branches exist: the NavHost's own transition is off for the
+ * whole hop, but a hop only knows the source was *tapped*, not that it is still
+ * on screen when the editor closes. An edit can move the note out of the search
+ * results or out of the restored list viewport, and then nothing is composed to
+ * shrink into. That return — and an editor re-entered without a source — falls
+ * back to fading the whole editor over the list, with the content and colour
+ * left alone.
  */
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -318,17 +349,39 @@ internal fun NoteContainerTarget(
     }
     val clip = rememberContainerClip()
     val pageColor = MaterialTheme.colorScheme.background
-    // Follows the destination's own enter/exit state, so it runs forward on the
-    // way in and backward on the way out without a second clock to keep in step.
-    val surface by animatedVisibilityScope.transition.animateColor(
+    val transition = animatedVisibilityScope.transition
+    // These follow the destination's own enter/exit state, so they run forward on
+    // the way in and backward on the way out without a second clock to keep in step.
+    val surface by transition.animateColor(
         transitionSpec = { tween(NoteTransition.FADE_IN_MS) },
         label = "note container surface"
     ) { state -> if (state == EnterExitState.Visible) pageColor else startSurface }
+    // The content fade of a paired hop: out fast, in after it.
+    val contentAlpha by transition.animateFloat(
+        transitionSpec = {
+            if (targetState == EnterExitState.Visible) {
+                tween(NoteTransition.FADE_IN_MS, delayMillis = NoteTransition.FADE_OUT_MS)
+            } else {
+                tween(NoteTransition.EDITOR_FADE_OUT_MS)
+            }
+        },
+        label = "note container content"
+    ) { state -> if (state == EnterExitState.Visible) 1f else 0f }
+    // The whole-editor fade of a return whose source is gone.
+    val leaveAlpha by transition.animateFloat(
+        transitionSpec = {
+            tween(NoteTransition.UNPAIRED_LEAVE_MS, delayMillis = NoteTransition.UNPAIRED_LEAVE_DELAY_MS)
+        },
+        label = "note container leave"
+    ) { state -> if (state == EnterExitState.PostExit) 0f else 1f }
     with(sharedScope) {
         val sharedState = rememberSharedContentState(key = sharedKey)
         Box(
             Modifier
                 .fillMaxSize()
+                // Only an unpaired editor fades as a whole. A paired one is drawn in
+                // the overlay and shrinks into its source instead.
+                .graphicsLayer { alpha = if (sharedState.isMatchFound) 1f else leaveAlpha }
                 .sharedBounds(
                     sharedContentState = sharedState,
                     animatedVisibilityScope = animatedVisibilityScope,
@@ -346,16 +399,13 @@ internal fun NoteContainerTarget(
                 // surface sliding in would be wrong.
                 .drawBehind { drawRect(if (sharedState.isMatchFound) surface else pageColor) }
         ) {
-            with(animatedVisibilityScope) {
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .animateEnterExit(
-                            enter = NoteTransition.incoming,
-                            exit = NoteTransition.outgoing
-                        )
-                ) { content() }
-            }
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    // Unpaired, the content rides the whole-editor fade (or the plain
+                    // navigation slide) rather than fading on its own first.
+                    .graphicsLayer { alpha = if (sharedState.isMatchFound) contentAlpha else 1f }
+            ) { content() }
         }
     }
 }

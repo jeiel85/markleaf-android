@@ -2,7 +2,9 @@ package com.markleaf.notes.feature.archive
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,6 +52,9 @@ import com.markleaf.notes.R
 import com.markleaf.notes.ui.component.EmptyState
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.ui.viewmodel.ArchiveViewModel
+import com.markleaf.notes.navigation.NoteSource
+import com.markleaf.notes.navigation.noteSharedBounds
+import com.markleaf.notes.ui.component.pressScale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -131,14 +136,18 @@ private fun ArchiveRow(
     onLongPress: () -> Unit
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
-    Box {
+    val interactionSource = remember { MutableInteractionSource() }
+    Box(Modifier.noteSharedBounds(note.id, NoteSource.ARCHIVE)) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .pressScale(interactionSource)
                 .padding(horizontal = 12.dp, vertical = 4.dp)
                 .clip(MaterialTheme.shapes.medium)
                 .background(Color.Transparent)
                 .combinedClickable(
+                    interactionSource = interactionSource,
+                    indication = LocalIndication.current,
                     onClick = onClick,
                     onLongClick = {
                         onLongPress()

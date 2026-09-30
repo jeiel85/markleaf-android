@@ -50,6 +50,8 @@ import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.domain.model.Tag
 import com.markleaf.notes.ui.component.EmptyState
 import com.markleaf.notes.ui.viewmodel.SearchViewModel
+import com.markleaf.notes.navigation.NoteSource
+import com.markleaf.notes.navigation.noteSharedBounds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -248,6 +250,10 @@ private fun NoteSearchResult(
 ) {
     Column(
         modifier = Modifier
+            // The whole row is the source the editor grows out of; the search
+            // screen has its own key namespace so opening Search does not pair
+            // these rows with the list's (see NoteSource).
+            .noteSharedBounds(note.id, NoteSource.SEARCH)
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .clickable { onNoteClick(note.id) }

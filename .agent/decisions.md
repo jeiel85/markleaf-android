@@ -1706,3 +1706,44 @@ Implications:
   retry through the normal editor autosave path.
 - Record `lastImportedAt` only after the mirror write succeeds, preventing a
   failed first write from being treated as synchronized.
+
+---
+
+### D079 - The Sideload Update Is Handed To The System Installer By Intent, So It Can End On "Open"
+
+D076의 설치 경로를 `PackageInstaller` 세션에서 `ACTION_INSTALL_PACKAGE` 인텐트(+ `FileProvider`
+URI)로 바꾼다. 메인테이너 요청: 앱 안에서 업데이트하면 앱이 닫히고 끝나는데, 텔레그램은 OS가
+업데이트 뒤 "완료 / 열기"를 보여 준다 — 우리도 그래야 다시 열기가 쉽다.
+
+Why:
+- **세션 API로 자기 자신을 업데이트하면 "열기"가 나올 자리가 없다.** 시스템은 확인 팝업만 띄우고,
+  설치가 끝나면 우리 프로세스가 교체되며 사라진다. 결과 콜백(`STATUS_SUCCESS`)을 받아 알림으로
+  "열기"를 주는 안은 `POST_NOTIFICATIONS` 권한이 필요하고(어느 빌드에도 알림 권한이 없다는 것이
+  공개 문서의 약속이다), 새 버전이 백그라운드에서 스스로 액티비티를 띄우는 것은 API 29+의
+  백그라운드 실행 제한에 막힌다.
+- **인텐트로 넘기면 확인 → 진행 → "앱이 업데이트됨 — 완료 / 열기"를 시스템 설치 앱이 자기
+  프로세스에서 그린다.** 우리 프로세스가 교체돼도 그 화면은 남는다. 텔레그램 등 스토어 밖 배포
+  앱이 쓰는 방식이다.
+- **`ACTION_VIEW`가 아니라 `ACTION_INSTALL_PACKAGE`.** API 29에서 deprecated지만 API 36의 시스템
+  설치 앱이 그대로 처리한다(아래 실기기 확인). `ACTION_VIEW` + APK MIME은 파일 관리자·서드파티
+  설치 앱이 선택지에 끼어들 수 있어 "Android 자체 화면만이 설치한다"는 문서의 약속이 약해진다.
+- **SHA-256 대조는 그대로 1차 방어다.** 대조를 통과한 파일만 URI로 넘기고, 읽기 권한은 그 URI
+  하나에만 붙는다(`FileProvider`는 exported=false 그대로).
+
+Implications:
+- `UpdateInstallReceiver`와 그 매니페스트 블록을 지웠다 — 세션 콜백이 없으니 받을 것도 없다.
+  `SideloadManifestParityTest`의 알려진 추가 블록은 다시 권한 블록 하나다.
+- `file_paths.xml`에 `cache-path updates/` 한 줄이 생겼다. 이 파일은 두 매니페스트가 공유하므로
+  스토어 빌드에도 들어가지만, 스토어 빌드에는 그 폴더에 쓰는 코드가 없는 빈 경로 선언일 뿐이다.
+  사이드로드 전용 리소스 디렉터리를 새로 두는 안은 매니페스트 사본에 교체 줄을 만들어 패리티
+  검사를 더 복잡하게 하므로 택하지 않았다.
+- 설치 앱은 호출이 돌아온 뒤에 URI를 읽으므로 APK를 넘긴 직후 지울 수 없다. 배너가 컴포즈될 때
+  (`downloadInProgress`가 아닐 때) `cache/updates/`를 비운다 — 새 버전으로 다시 시작했든 설치를
+  취소했든 그 파일은 더 쓸 데가 없다.
+- **실기기 확인(2026-09-30, S24 SM-S921N, API 36, One UI).** 디버그 사이드로드 빌드
+  vc166 → vc167(같은 디버그 키)로 이 코드 경로(`UpdateInstaller.install`)를 두 번 탔다.
+  "앱을 업데이트하시겠습니까?" → Samsung "앱 설치가 권장되지 않음"(무시하고 설치) → Play 프로텍트
+  "앱 검사 권장됨"(검사 없이 설치) → "업데이트 중…" → **"앱이 업데이트됨 — 완료 / 열기"**, "열기"로
+  vc167의 `MainActivity`가 떴다. 두 번째 실행 때 `cache/updates/`는 비어 있었다(남은 파일 정리 확인).
+  Samsung·Play 프로텍트 경고는 세션 API 때도 기기 설정에 따라 나오는 시스템 몫이다. 다운로드 +
+  SHA-256 대조 구간은 바뀌지 않아 이번에 다시 타지 않았다(훅으로 대조된 파일 자리에 직접 넣었다).

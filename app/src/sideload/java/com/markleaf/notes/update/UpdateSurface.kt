@@ -105,7 +105,15 @@ internal object UpdateSurface {
         var dialogOpen by remember { mutableStateOf(false) }
 
         LaunchedEffect(Unit) {
-            offered = withContext(Dispatchers.IO) { refresh(preferences) }
+            offered = withContext(Dispatchers.IO) {
+                // 지난번 설치 앱에 넘긴 APK는 여기서 치운다(`UpdateInstaller.install` 참조).
+                // 설치 앱은 뜨자마자 파일을 자기 쪽으로 복사하므로, 사용자가 이 화면으로 다시
+                // 돌아올 무렵에는 이미 다 읽은 뒤다. 내려받는 중이면 그 파일이므로 건드리지 않는다.
+                if (!downloadInProgress.get()) {
+                    UpdateInstaller.deleteLeftovers(File(context.cacheDir, DOWNLOAD_DIR))
+                }
+                refresh(preferences)
+            }
         }
 
         val manifest = offered ?: return
@@ -144,7 +152,7 @@ internal object UpdateSurface {
     /**
      * 이 모달의 상태 기계. `Offer`가 시작점이고, 성공하면 [onDismiss]로 빠져나가며 다시
      * 이 상태로 돌아오지 않는다 — 설치가 넘어간 뒤에 이 모달이 여전히 무언가를 보여줄 이유가
-     * 없다(그 다음은 시스템 설치 확인 팝업의 몫).
+     * 없다(그 다음은 시스템 설치 앱의 몫).
      */
     private enum class DownloadFlowState { Offer, NeedsInstallPermission, Downloading, Failed }
 
@@ -197,27 +205,29 @@ internal object UpdateSurface {
             try {
                 val destination =
                     File(File(context.cacheDir, DOWNLOAD_DIR).apply { mkdirs() }, DOWNLOAD_FILE_NAME)
-                val installed = withContext(Dispatchers.IO) {
-                    when (val result = UpdateDownloader().download(manifest.apkUrl, destination, manifest.sha256)) {
-                        is UpdateDownloader.Result.Success -> UpdateInstaller.install(context, result.file)
-                        UpdateDownloader.Result.Failed -> false
-                    }
+                val downloaded = withContext(Dispatchers.IO) {
+                    UpdateDownloader().download(manifest.apkUrl, destination, manifest.sha256)
                 }
-                // 성공하면 이 모달이 더 할 일이 없다 — 설치 확인 팝업은 시스템이 띄운다. 실패하면
-                // "다시 시도"와 "브라우저에서 열기" 중 고르게 한다(디자인 문서의 "실패 복구").
+                // 설치 앱은 메인 스레드에서 띄운다 — 이 LaunchedEffect의 기본 디스패처다.
+                val installed = when (downloaded) {
+                    is UpdateDownloader.Result.Success -> UpdateInstaller.install(context, downloaded.file)
+                    UpdateDownloader.Result.Failed -> false
+                }
+                // 성공하면 이 모달이 더 할 일이 없다 — 그다음(확인, 진행, 완료/열기)은 시스템 설치
+                // 앱이 그린다. 실패하면 "다시 시도"와 "브라우저에서 열기" 중 고르게 한다(디자인
+                // 문서의 "실패 복구").
                 if (installed) onDismiss() else flowState = DownloadFlowState.Failed
             } finally {
-                // `UpdateDownloader.download()`/`UpdateInstaller.install()`은 취소 체크포인트가
-                // 없는 순수 블로킹 함수라, 이 LaunchedEffect가 취소돼도 둘 다 이미 시작했다면
-                // 끝까지 실행된 뒤에야 여기 도달한다 — 그래서 가드 해제를 finally에 둬도
+                // `UpdateDownloader.download()`는 취소 체크포인트가 없는 순수 블로킹 함수라, 이
+                // LaunchedEffect가 취소돼도 이미 시작했다면 끝까지 실행된 뒤에야 여기 도달한다 — 그래서 가드 해제를 finally에 둬도
                 // "아직 실행 중인데 풀렸다"는 일이 없다.
                 downloadInProgress.set(false)
             }
         }
 
-        // Downloading 동안은 닫을 방법을 아예 주지 않는다. 이 상태에서 시작된 네트워크 읽기나
-        // `PackageInstaller.session.commit()`은 취소 체크포인트가 없는 블로킹 호출이라 다이얼로그를
-        // 나가도 실제로는 멈추지 않는다 — "닫았다"고 믿었는데 잠시 뒤 설치 확인 팝업이 뜨는 혼란과,
+        // Downloading 동안은 닫을 방법을 아예 주지 않는다. 이 상태에서 시작된 네트워크 읽기는
+        // 취소 체크포인트가 없는 블로킹 호출이라 다이얼로그를 나가도 실제로는 멈추지 않는다 —
+        // "닫았다"고 믿었는데 잠시 뒤 설치 확인 화면이 뜨는 혼란과,
         // 그 틈에 재시도가 같은 캐시 파일을 다시 써서 생기는 경합(위 `downloadInProgress` 참조)을
         // 애초에 만들지 않는 편이 낫다.
         val canDismiss = flowState != DownloadFlowState.Downloading

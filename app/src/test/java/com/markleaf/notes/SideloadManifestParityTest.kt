@@ -23,9 +23,12 @@ import java.io.File
  *
  * **C단계(2026-09-14)에서 추가분이 한 줄에서 두 블록으로 늘었다.** `INTERNET`만 필터링하던
  * 원래 검사로는 `REQUEST_INSTALL_PACKAGES`와 `UpdateInstallReceiver` 선언을 놓친다. 그래서
- * "허용된 추가분 목록에서 정확히 이 블록들을 빼면 main과 완전히 같다"로 일반화했다 — 이 사본에
- * 설명 주석을 둔 것도 이 시점부터다(리시버 블록); 그 주석까지 통째로 허용 목록에 넣어 정확히
- * 대조하므로, 주석 표류도 여전히 잡는다.
+ * "허용된 추가분 목록에서 정확히 이 블록들을 빼면 main과 완전히 같다"로 일반화했다.
+ *
+ * **D079(2026-09-30)에서 리시버 블록이 빠졌다.** 설치를 `PackageInstaller` 세션 대신
+ * `ACTION_INSTALL_PACKAGE` 인텐트로 넘기면서 세션 콜백을 받을 리시버가 필요 없어졌다. 추가분은
+ * 다시 권한 블록 하나지만, 일반화한 검사는 그대로 둔다 — 다음 사이드로드 전용 블록이 생길 때
+ * 목록에 한 줄 더하면 된다.
  */
 class SideloadManifestParityTest {
 
@@ -109,15 +112,6 @@ class SideloadManifestParityTest {
             "    <uses-permission android:name=\"android.permission.INTERNET\" />",
             "    <uses-permission android:name=\"android.permission.REQUEST_INSTALL_PACKAGES\" />"
         )
-        val INSTALL_RECEIVER_BLOCK = listOf(
-            "",
-            "        <!-- PackageInstaller 세션이 STATUS_PENDING_USER_ACTION을 콜백으로 돌려줄 때만",
-            "             불린다(D073, C단계). intent-filter가 없는 이유: UpdateInstaller가 이 컴포넌트를",
-            "             명시적 Intent로만 가리키고, 시스템 액션 문자열로 호출되는 일이 없다. -->",
-            "        <receiver",
-            "            android:name=\".update.UpdateInstallReceiver\"",
-            "            android:exported=\"false\" />"
-        )
-        val KNOWN_EXTRA_BLOCKS = listOf(PERMISSION_BLOCK, INSTALL_RECEIVER_BLOCK)
+        val KNOWN_EXTRA_BLOCKS = listOf(PERMISSION_BLOCK)
     }
 }

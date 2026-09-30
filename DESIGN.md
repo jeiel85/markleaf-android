@@ -181,12 +181,20 @@ Focus rules:
 | Type | Duration | Usage |
 |---|---:|---|
 | Micro | Material default | Press and selection feedback |
+| Press | Spring, medium stiffness, no bounce | Note rows and tiles sink to 97% under a finger |
 | Context switch | 220ms | Tablet note crossfade |
 | Navigation | 280ms | Shared-axis phone navigation and predictive back |
+| Container transform | Spring, stiffness 320, no bounce; a source's content fades out in 90ms, the editor's in 180ms, and the incoming content fades in over 210ms after the first 90ms | Phone only: a tapped note row, tile, search or archive result, or the new-note button growing into the editor and back |
 
 Rules:
 
 - Motion communicates navigation, content replacement, or selection only.
+- The container transform replaces the shared-axis slide for the one hop it covers — it never runs on top of it. It applies only when the user tapped a source on screen; an editor opened by a widget, a share, or a wikilink has nothing to grow from and keeps the slide.
+- The growing editor carries an opaque surface from its first frame, and only its content fades. A translucent container shows the list through the editor and reads as two screens overlaid.
+- A hop only knows the source was tapped, not that it is still on screen when the editor closes (an edit can move the note out of the search results or the list viewport). With no source to shrink into, the whole editor fades out over the list instead.
+- The container starts in the source's own colour (a grid tile's fill, the new-note button's colour, the page colour for a plain row) and settles to the page colour as it grows, so the card and the surface under it read as one shape.
+- Corners relax from the card's radius to square as the container fills the window; nothing bounces or overshoots.
+- Press feedback is a draw-only scale, so it never changes a card's touch target. It is limited to note rows and tiles; it is not a general control style.
 - Quick Insert appears and disappears with query state and adds no ornamental animation.
 - The compact entry and selection-context group replace each other with Material state feedback only; no bouncing, scaling, or decorative morph is introduced.
 - The expanded style panel uses the Material visibility transition appropriate to its anchored surface and respects the system animation scale.

@@ -17,10 +17,11 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.Label
@@ -93,8 +94,10 @@ import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.data.sync.mirrorMetadata
 import com.markleaf.notes.domain.model.Note
-import com.markleaf.notes.navigation.LocalNavAnimatedVisibilityScope
-import com.markleaf.notes.navigation.LocalSharedTransitionScope
+import com.markleaf.notes.navigation.NoteSource
+import com.markleaf.notes.navigation.fabSharedBounds
+import com.markleaf.notes.navigation.noteSharedBounds
+import com.markleaf.notes.ui.component.pressScale
 import com.markleaf.notes.ui.viewmodel.NotesViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -349,6 +352,7 @@ fun NotesListScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
+                modifier = Modifier.fabSharedBounds(),
                 onClick = {
                     hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                     onFabClick()
@@ -583,29 +587,7 @@ private fun SectionHeader(
     )
 }
 
-/**
- * Source half of the card→editor container transform. Only active on the phone
- * nav path, where both scopes are published; the tablet in-pane editor provides
- * neither, so the item just renders normally.
- */
-@OptIn(ExperimentalSharedTransitionApi::class)
-@Composable
-private fun Modifier.noteSharedBounds(noteId: String): Modifier {
-    val sharedScope = LocalSharedTransitionScope.current
-    val avScope = LocalNavAnimatedVisibilityScope.current
-    return if (sharedScope != null && avScope != null) {
-        with(sharedScope) {
-            this@noteSharedBounds.sharedBounds(
-                rememberSharedContentState(key = "note-$noteId"),
-                animatedVisibilityScope = avScope
-            )
-        }
-    } else {
-        this
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun NoteRow(
     note: Note,
@@ -626,14 +608,19 @@ private fun NoteRow(
         Color.Transparent
     }
 
+    val interactionSource = remember { MutableInteractionSource() }
+
     Box(modifier.noteSharedBounds(note.id)) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .pressScale(interactionSource)
                 .padding(horizontal = 16.dp, vertical = 4.dp)
                 .clip(MaterialTheme.shapes.medium)
                 .background(itemBackground)
                 .combinedClickable(
+                    interactionSource = interactionSource,
+                    indication = LocalIndication.current,
                     onClick = { onClick(note.id) },
                     onLongClick = {
                         onLongPress()
@@ -707,7 +694,7 @@ private fun NoteRow(
  * two lines instead of one and the excerpt four instead of two, because a tile
  * has height to spare and width it does not.
  */
-@OptIn(ExperimentalFoundationApi::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun NoteCard(
     note: Note,
@@ -728,16 +715,21 @@ private fun NoteCard(
         MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
     }
 
-    Box(modifier.noteSharedBounds(note.id)) {
+    val interactionSource = remember { MutableInteractionSource() }
+
+    Box(modifier.noteSharedBounds(note.id, NoteSource.TILE)) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 // A title-only tile is otherwise a thin sliver next to a tile
                 // with an excerpt; the minimum keeps a row of them even.
                 .heightIn(min = if (showPreview) 120.dp else 64.dp)
+                .pressScale(interactionSource)
                 .clip(MaterialTheme.shapes.medium)
                 .background(itemBackground)
                 .combinedClickable(
+                    interactionSource = interactionSource,
+                    indication = LocalIndication.current,
                     onClick = { onClick(note.id) },
                     onLongClick = {
                         onLongPress()

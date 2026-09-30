@@ -1,3 +1,11 @@
+## 2026-09-30 - Note-open motion (container transform, sources, press feedback)
+
+Selected task: the maintainer asked for note opening and other interactions to feel smoother, "like the way iOS unfolds". The container transform already existed (#145), so the work was to make it one motion and widen it, not to add another.
+Changed: NavHost slide is switched off for the hop between a tapped source and that note's editor (`NoteOrigin`, `isContainerHop`); the editor grows on an opaque surface whose colour starts as the source's and whose corners relax as it fills the window; search results, archive rows, grid tiles and the new-note button became sources (own key namespaces); note rows, tiles and archive rows sink to 97% on press (draw-only). Recorded as D077; DESIGN.md section 6 updated.
+Verification: full `testDebugUnitTest` (1008 tests, 0 failures, including the 25 new ones), `testReleaseUnitTest` for `NoteTransitionTest`, `lintRelease`, `verifyRoborazziDebug` (no golden changed) and `assembleDebug` (`app-debug.apk`, 21 MB) passed. The pairing and press tests were checked by mutation: with every editor key mismatched `NoteContainerTransitionTest` fails (`paired hop ended after 352ms, unpaired after 352ms`), and with a `graphicsLayer` scale `PressScaleTest` fails (`expected:<1> but was:<0>`). Frames of open and back (list, tile, new-note button) were rendered with Robolectric native graphics and inspected; that is how the two-tone tile patch and the blank-frame failure of an unpaired editor were found.
+Not verified: how it feels on a device (no device or emulator here), predictive back driving the shared bounds, Compose applying the system animation scale to the press spring, and whether the editor's late note load is visible during the transition (`EditorScreen` was left alone). Spring stiffness and fade split are constants in `NoteTransition` for tuning.
+Environment note: this cloud session needed the Android SDK installed by hand, and Maven Central answered the first parallel dependency download with 429; a retry resolved it. The Robolectric SDK 34 jar failed once the same way and passed on retry.
+
 ## 2026-09-19 - Issue #432 monospace font option
 
 Selected task: implement the accepted monospace body font (small, already triaged as a reasonable accept).

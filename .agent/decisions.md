@@ -1417,6 +1417,78 @@ Implications:
 
 ---
 
+### D077 - The Note → Editor Transition Is One Container Motion, Only When There Is A Tapped Source
+
+폰에서 노트를 열 때 카드가 에디터로 펼쳐지는 전환(`sharedBounds`, HISTORY.md 2026-06-25 항목, #145)이
+이미 있었지만, 같은 이동에 NavHost의 가로 슬라이드+페이드가 **함께** 돌았고, 컨테이너는 각진 사각형에
+투명했다. 사용자 요청("iOS처럼 부드럽게 펼쳐지는 느낌")에 따라 이 전환을 한 동작으로 다듬고, 출발점을
+검색·보관함·새 노트 버튼으로 넓히고, 노트 카드에 눌림 반응을 더했다.
+
+Why:
+- **두 모션을 겹치지 않는다.** 컨테이너 전환이 도는 이동(`NoteOrigin`과 맞는 출발 화면 ↔ 그 노트의
+  에디터)에서는 NavHost의 enter/exit/popEnter/popExit를 전부 `None`으로 둔다. 그 밖의 이동(설정, 태그,
+  위키링크, 위젯·공유 인텐트)은 기존 슬라이드를 그대로 쓴다. 판정은 순수 함수 `isContainerHop`이고
+  `NoteTransitionTest`가 고정한다. 라이브러리 문서(Navigation 페이지)는 NavHost 전환과 shared element의
+  상호작용을 설명하지 않는다 — 겹치면 실제로 어떻게 보이는지는 확인하지 못했고, "겹치지 않게"가 안전한
+  쪽이라는 판단이다.
+- **출발점은 호스트가 기억한다.** 클릭 핸들러가 `navigate` 직전에 `NoteOrigin(noteId, source)`를
+  기록한다. 경로 이름만 보면 "출발점이 화면에 없는" 이동(위젯이 여는 노트)에서도 슬라이드가 꺼져
+  에디터가 아무 데서나 나타난다. 기록하지 않은 이동은 정확히 예전 동작으로 남는다. 액티비티가 재생성되면
+  기록이 사라져 슬라이드로 돌아가는데, 예쁘지 않을 뿐 올바른 동작이라 저장하지 않았다.
+- **키는 화면별이다.** 리스트·검색·보관함이 같은 노트를 그리고 NavHost가 나가는 화면과 들어오는
+  화면을 함께 컴포즈하므로, `note-<id>` 하나를 공유하면 리스트에서 검색을 열 때 각 행이 검색 결과의
+  같은 노트와 짝지어져 아무도 요청하지 않은 shared bounds가 돈다. FAB은 노트가 생기기 전에 그려지므로
+  고정 키(`note-fab`)를 갖는다.
+- **불투명 서피스 + 콘텐츠만 페이드.** 컨테이너 자체에는 enter/exit를 주지 않아 배경이 첫 프레임부터
+  불투명하고, 에디터 콘텐츠만 90ms 뒤에 210ms 동안 나타난다(출발 콘텐츠는 90ms에 사라진다 — Material
+  container transform의 fade-through 배분). 컨테이너 전체를 페이드하면 목록이 에디터를 비쳐 두 화면이
+  겹쳐 보인다. 출발 콘텐츠는 `zIndexInOverlay = 1`로 에디터 위에 그려 교차 페이드가 된다.
+- **출발점이 사라진 복귀는 에디터 전체 페이드로 떨어진다.** 훅은 출발점이 "탭됐다"는 것만 알고, 에디터를 닫을
+  때 그 행이 아직 화면에 있는지는 모른다. 편집으로 노트가 검색 결과에서 빠지거나 긴 목록의 복원된
+  뷰포트 밖으로 재정렬되면(최신순 정렬에서는 편집한 노트가 맨 위로 간다) 줄어들 곳이 없다. 그때 NavHost
+  전환까지 꺼 두면 에디터가 콘텐츠만 잃고 목록이 툭 나타난다(Codex 리뷰가 지적, #484). 짝이 없으면
+  (`isMatchFound == false`) 에디터 전체가 목록 위에서 200ms 페이드로 나가고(48ms 지연: 복귀 첫 프레임에는
+  존재하는 출발 행도 아직 등록 전이다), 콘텐츠·색은 그대로 둔다. 같은 분기가 위키링크에서 원점 노트로
+  돌아오는 경우도 처리한다 — 그때는 NavHost 슬라이드가 그대로 돌고 초록색 서피스나 지연 페이드가 얹히지
+  않는다.
+- **에디터 콘텐츠는 나갈 때 더 천천히 사라진다(180ms).** 닫을 때 컨테이너는 90ms 페이드가 끝난 시점에도
+  거의 줄어들지 않아, 다음 ~80ms가 페이지 색 빈 화면이었다(렌더링한 프레임에서 확인). 180ms로 늘려 목록이
+  드러나기 시작하는 시점까지 글자를 잇는다. 공백은 ~50ms로 줄었고 완전히 없애지는 못했다.
+- **컨테이너는 출발점의 색으로 시작한다.** 출발 콘텐츠와 에디터는 너비 기준으로 스케일되므로 두
+  종횡비는 양 끝에서만 일치한다. 그 사이에서 불투명 에디터 서피스는 그 위 카드와 다른 모양이 되어, 그리드
+  타일이 줄어드는 프레임에 이색(二色) 조각이 옆 타일을 잠깐 덮었다(Robolectric 프레임으로 확인). 컨테이너
+  색을 카드 색(타일: `surfaceVariant` 35% 위에 배경, FAB: `primaryContainer`, 행: 배경)에서 페이지
+  색으로 `AnimatedVisibilityScope.transition`에 맞춰 바꾸면 하나의 카드가 페이지가 되는 모양이 된다. 색은
+  `drawBehind`로 그려 프레임마다 에디터 래퍼를 리컴포즈하지 않는다.
+- **코너는 경계에서 계산한다.** 공식 문서가 "shape 간 자동 애니메이션은 내장 지원이 없다"고 적었고,
+  별도 애니메이션은 bounds spring과 박자를 맞춰야 한다. `OverlayClip`이 프레임마다 현재 bounds를
+  받으므로, 코너 반경 = 카드 반경 × (1 − 창 대비 두 축 중 작은 점유율)로 상태 없이 구한다. 창이 가득 차면
+  정확히 0이다.
+- **눌림은 그리기 전용이다.** `graphicsLayer` 스케일은 hit region도 줄여, 카드를 누르고 있는 동안
+  가장자리 띠가 반응하지 않는다. `PressScaleTest`가 눌림을 붙든 채 가장자리를 탭해 이를 재현했다 —
+  `graphicsLayer` 변이는 `expected:<1> but was:<0>`로 실패하고 그리기 변환은 통과한다. 처음에는
+  "눌리는 사이 영역 밖으로 밀려 클릭을 잃는다"고 적으려 했으나 그 시나리오(누른 뒤 스케일이 바뀌는
+  경우)는 테스트 환경에서 재현되지 않아 적지 않았다. `drawWithContent` 변환은 레이아웃·hit test를
+  건드리지 않고, 정지 상태(스케일 1)에서는 변환을 아예 그리지 않는다. 범위는 노트 행·타일·보관함 행으로
+  한정했다(DESIGN.md §6).
+- **에디터 로딩 경로는 건드리지 않았다.** `EditorScreen`은 전환이 시작된 뒤에 DataStore와 노트를
+  읽는다(`isLoaded`). 본문이 늦게 보이는지는 측정하지 못했고, 그 경로는 빈 노트 정리·캐럿/미리보기
+  복원(#195, #200, #214)이 `isLoaded`에 걸려 있어 측정 없이 옮기기엔 위험하다. 콘텐츠 페이드 지연
+  (90ms)이 그 틈을 조금 가릴 뿐이다.
+
+확인한 방법과 한계: 이 환경에는 실기기·에뮬레이터가 없어, Robolectric 네이티브 그래픽 모드로 전환을
+16~400ms 프레임 단위로 렌더링해 확인했다(짝 맞음/어긋남, 열기/닫기, 목록·타일·FAB). 이는 배치와 타이밍의
+증거이지 손끝 체감의 증거가 아니다.
+
+Not verified (이 환경에는 실기기·에뮬레이터가 없다):
+- 실제 프레임의 모양과 체감 속도. 스프링 강성(320)과 페이드 배분은 조정 가능한 상수(`NoteTransition`)로
+  뽑아 두었다.
+- predictive back 제스처 중 shared bounds가 손가락을 따라가는지. 공식 문서는 Navigation 2.8.0-alpha02
+  이상과 매니페스트 플래그만 요구한다고 적을 뿐, 이 조합의 한계는 적지 않았다.
+- Compose가 눌림 스프링에 시스템 애니메이션 배율을 적용한다는 점(알고 있는 동작이지만 확인하지 않았다).
+
+---
+
 ## Resolved (Pending → Confirmed)
 
 - **Hilt vs Koin vs manual DI**: 수동 의존성 주입 사용. 코드베이스 단순성 유지.
@@ -1427,7 +1499,7 @@ Implications:
 - **tablet two-pane layout 도입 시점**: 2-Pane 레이아웃 도입 완료 (v1.0.x).
 - **Play Store / F-Droid flavor 분리**: 단일 flavor로 양쪽 대응. F-Droid 호환 의존성 정책 유지.
 
-### D077 - The Notes Role Is Answered By The Whole App, So It Never Shows Over The Lock Screen
+### D078 - The Notes Role Is Answered By The Whole App, So It Never Shows Over The Lock Screen
 
 Markleaf declares `android.intent.action.CREATE_NOTE` on `MainActivity` so Android 14+ can
 offer it as the device's Notes app (#481). The declaration opens a new empty note through the

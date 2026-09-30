@@ -4,6 +4,8 @@ package com.markleaf.notes.navigation
 
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
@@ -77,6 +79,7 @@ import com.markleaf.notes.feature.viewer.FileViewerScreen
 import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.repository.LocalNoteRepository
 import com.markleaf.notes.data.settings.AppSettings
+import com.markleaf.notes.data.settings.NotesLayout
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.sync.LocalNoteLinkResult
 import com.markleaf.notes.data.sync.NoteFolderMirror
@@ -222,6 +225,12 @@ fun MarkleafNavHost(
     // tablet layout keeps the editor in-pane (no navigation) and never hits these.
     val navMotion = tween<Float>(durationMillis = 280)
     val navOffsetMotion = tween<IntOffset>(durationMillis = 280)
+    // The note (and the screen it was tapped on) the editor is growing out of.
+    // Set by the click handlers immediately before navigating and read by the
+    // transition specs below and by the EDITOR destination. Not saved across
+    // recreation on purpose: without it the editor simply falls back to the plain
+    // slide, which is a correct — only less pretty — way to open a note.
+    var noteOrigin by remember { mutableStateOf<NoteOrigin?>(null) }
     // SharedTransitionLayout wraps the graph so a tapped note card can morph into
     // the editor (container transform). `this` is the SharedTransitionScope; it is
     // published via LocalSharedTransitionScope so the deeply-nested NoteRow (source)
@@ -231,17 +240,25 @@ fun MarkleafNavHost(
     NavHost(
         navController = navController,
         startDestination = NavRoutes.NOTES,
+        // When a navigation is the container hop, the slide/fade below must be
+        // off: the shared bounds already carry the motion, and running both makes
+        // the editor slide sideways while it also unfolds from the card.
+        // Everything else — settings, tags, wikilink hops, intent opens — keeps it.
         enterTransition = {
-            slideInHorizontally(navOffsetMotion) { it / 5 } + fadeIn(navMotion)
+            if (opensOrClosesNoteContainer(noteOrigin)) EnterTransition.None
+            else slideInHorizontally(navOffsetMotion) { it / 5 } + fadeIn(navMotion)
         },
         exitTransition = {
-            slideOutHorizontally(navOffsetMotion) { -it / 5 } + fadeOut(navMotion)
+            if (opensOrClosesNoteContainer(noteOrigin)) ExitTransition.None
+            else slideOutHorizontally(navOffsetMotion) { -it / 5 } + fadeOut(navMotion)
         },
         popEnterTransition = {
-            slideInHorizontally(navOffsetMotion) { -it / 5 } + fadeIn(navMotion)
+            if (opensOrClosesNoteContainer(noteOrigin)) EnterTransition.None
+            else slideInHorizontally(navOffsetMotion) { -it / 5 } + fadeIn(navMotion)
         },
         popExitTransition = {
-            slideOutHorizontally(navOffsetMotion) { it / 5 } + fadeOut(navMotion)
+            if (opensOrClosesNoteContainer(noteOrigin)) ExitTransition.None
+            else slideOutHorizontally(navOffsetMotion) { it / 5 } + fadeOut(navMotion)
         }
     ) {
         composable(NavRoutes.NOTES) {
@@ -415,11 +432,24 @@ fun MarkleafNavHost(
                 NotesListScreen(
                     viewModel = viewModel,
                     onNoteClick = { noteId ->
-                        if (noteId != null) navController.navigate(NavRoutes.editorRoute(noteId))
+                        if (noteId != null) {
+                            // A grid tile has a fill of its own that the container has to
+                            // start as; a list row does not (see NoteSource.startSurface).
+                            val source = if (appSettings.notesLayout == NotesLayout.GRID) {
+                                NoteSource.TILE
+                            } else {
+                                NoteSource.LIST
+                            }
+                            noteOrigin = NoteOrigin(noteId, source)
+                            navController.navigate(NavRoutes.editorRoute(noteId))
+                        }
                     },
                     onFabClick = {
                         coroutineScope.launch {
                             val newNote = viewModel.createNote()
+                            // The note did not exist when the FAB was drawn, so the
+                            // FAB owns a fixed key rather than one per note.
+                            noteOrigin = NoteOrigin(newNote.id, NoteSource.FAB)
                             navController.navigateOnMain(NavRoutes.editorRoute(newNote.id))
                         }
                     },
@@ -438,8 +468,6 @@ fun MarkleafNavHost(
         }
         composable(NavRoutes.EDITOR) {
             val noteId = it.arguments?.getString("noteId")
-            val sharedScope = LocalSharedTransitionScope.current
-            val avScope = this
             val editorContent = @Composable {
                 EditorScreen(
                     noteId = noteId,
@@ -448,17 +476,17 @@ fun MarkleafNavHost(
                     hostScope = hostScope
                 )
             }
-            // Target half of the container transform: the editor surface morphs
-            // from the tapped row's bounds (matched by the "note-<id>" key).
-            if (sharedScope != null && noteId != null) {
-                with(sharedScope) {
-                    Box(
-                        Modifier.sharedBounds(
-                            rememberSharedContentState(key = "note-$noteId"),
-                            animatedVisibilityScope = avScope
-                        )
-                    ) { editorContent() }
-                }
+            // Target half of the container transform: the editor surface grows out
+            // of the spot the user tapped (matched by the origin's key). Only the
+            // origin note gets it — an editor reached any other way (wikilink,
+            // widget, share) has no source to grow from and keeps the plain slide.
+            val origin = noteOrigin
+            if (noteId != null && origin != null && origin.noteId == noteId) {
+                NoteContainerTarget(
+                    sharedKey = origin.source.keyFor(noteId),
+                    startSurface = origin.source.startSurface(MaterialTheme.colorScheme),
+                    animatedVisibilityScope = this
+                ) { editorContent() }
             } else {
                 editorContent()
             }
@@ -480,12 +508,17 @@ fun MarkleafNavHost(
         ) {
             val viewModel = viewModel<SearchViewModel>(factory = viewModelFactory)
             val query = it.arguments?.getString("query").orEmpty()
-            SearchScreen(
-                viewModel = viewModel,
-                initialQuery = query,
-                onBack = { navController.popBackStack() },
-                onNoteClick = { noteId -> navController.navigate(NavRoutes.editorRoute(noteId)) }
-            )
+            CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides this) {
+                SearchScreen(
+                    viewModel = viewModel,
+                    initialQuery = query,
+                    onBack = { navController.popBackStack() },
+                    onNoteClick = { noteId ->
+                        noteOrigin = NoteOrigin(noteId, NoteSource.SEARCH)
+                        navController.navigate(NavRoutes.editorRoute(noteId))
+                    }
+                )
+            }
         }
         composable(NavRoutes.TRASH) {
             val viewModel = viewModel<TrashViewModel>(factory = viewModelFactory)
@@ -496,11 +529,16 @@ fun MarkleafNavHost(
         }
         composable(NavRoutes.ARCHIVE) {
             val viewModel = viewModel<ArchiveViewModel>(factory = viewModelFactory)
-            ArchiveScreen(
-                viewModel = viewModel,
-                onBack = { navController.popBackStack() },
-                onNoteClick = { noteId -> navController.navigate(NavRoutes.editorRoute(noteId)) }
-            )
+            CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides this) {
+                ArchiveScreen(
+                    viewModel = viewModel,
+                    onBack = { navController.popBackStack() },
+                    onNoteClick = { noteId ->
+                        noteOrigin = NoteOrigin(noteId, NoteSource.ARCHIVE)
+                        navController.navigate(NavRoutes.editorRoute(noteId))
+                    }
+                )
+            }
         }
         composable(NavRoutes.LOCKED) {
             val viewModel = viewModel<LockedNotesViewModel>(factory = viewModelFactory)

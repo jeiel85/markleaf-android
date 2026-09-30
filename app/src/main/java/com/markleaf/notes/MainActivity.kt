@@ -203,8 +203,13 @@ class MainActivity : FragmentActivity() {
         // makes another note out of a share, or throws the screen you were writing
         // on over to a fresh blank one. Whether it has been acted on travels in the
         // saved state, so only the first instance reads it.
+        //
+        // "Acted on" is set by the host when it dispatches (onEntryDispatched below),
+        // not here. With App lock on, the host is not composed until the user
+        // authenticates, so an activity recreated behind the prompt has dispatched
+        // nothing yet — marking the intent consumed now would lose the request.
         val entryIntent = intent.unlessConsumedBy(savedInstanceState)
-        entryIntentConsumed = true
+        entryIntentConsumed = entryIntent == null
         val shouldCreateNote = entryIntent?.requestsNewNote() == true
         val openNoteId = if (entryIntent?.action == QuickNoteWidget.ACTION_OPEN_NOTE) {
             entryIntent.getStringExtra(QuickNoteWidget.EXTRA_NOTE_ID)
@@ -242,7 +247,8 @@ class MainActivity : FragmentActivity() {
                         sharedCreatedAt = sharedContent?.createdAt,
                         sharedUpdatedAt = sharedContent?.updatedAt,
                         openNoteId = openNoteId,
-                        viewFileUri = viewFileUri
+                        viewFileUri = viewFileUri,
+                        onEntryDispatched = { entryIntentConsumed = true }
                     )
                     if (!appSettings.onboardingCompleted) {
                         WelcomeOnboardingSheet(

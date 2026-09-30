@@ -113,7 +113,8 @@ fun MarkleafNavHost(
     sharedCreatedAt: Instant? = null,
     sharedUpdatedAt: Instant? = null,
     openNoteId: String? = null,
-    viewFileUri: String? = null
+    viewFileUri: String? = null,
+    onEntryDispatched: () -> Unit = {}
 ) {
     val isExpanded = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded
     val context = LocalContext.current
@@ -141,6 +142,9 @@ fun MarkleafNavHost(
     // fresh activity (onNewIntent → recreate) and re-composes the host, so new
     // shares/opens still import. The sources are mutually exclusive (each
     // derives from a single intent action), so a `when` handles at most one.
+    // A recreated activity gets the same intent again, so MainActivity keeps a
+    // saved-state flag that onEntryDispatched sets once the branch below has run;
+    // the next instance then does not hand it to this host at all.
     val intentEntryViewModel = viewModel<NotesViewModel>(factory = viewModelFactory)
     LaunchedEffect(Unit) {
         when {
@@ -204,6 +208,10 @@ fun MarkleafNavHost(
                 }
             }
         }
+        // Reached only if the branch above ran to the end: an effect cancelled part
+        // way (the activity recreated mid-dispatch) leaves the request unacted on, so
+        // the next instance runs it again rather than losing it.
+        onEntryDispatched()
     }
 
     // Restrained shared-axis-X motion for forward/back navigation: the incoming

@@ -1077,6 +1077,28 @@ fun EditorScreen(
         }
     }
 
+    // Every way out of Preview into the editor goes through here — the toggle, and
+    // the long press that unlocks the persistent preview mode — so the caret lands
+    // where the reader was however they left, not where it was before they scrolled
+    // away (#464). A null from caretOffsetForPreviewPosition leaves the caret alone.
+    val leavePreview: () -> Unit = {
+        val leavingAt = PreviewScroll(
+            previewListState.firstVisibleItemIndex,
+            previewListState.firstVisibleItemScrollOffset
+        )
+        caretOffsetForPreviewPosition(
+            text = editorState.text,
+            rows = visibleLines,
+            now = leavingAt,
+            lastLeftAt = lastLeftPreviewAt
+        )?.let { offset ->
+            // Handed to the effect above, which places it and keeps it in view as
+            // the keyboard the focus request raises arrives.
+            pendingPreviewCaret = PendingCaret(offset, editorState.text)
+        }
+        lastLeftPreviewAt = leavingAt
+    }
+
     Scaffold(
         topBar = topBar@{
             if (showOutline) {
@@ -1097,25 +1119,7 @@ fun EditorScreen(
                 onBack = onBack,
                 onTogglePreview = {
                     val returningToEdit = isPreviewMode
-                    if (returningToEdit) {
-                        // Open the editor where the reader was, not where the caret
-                        // was before they scrolled away (#464). A null leaves it.
-                        val leavingAt = PreviewScroll(
-                            previewListState.firstVisibleItemIndex,
-                            previewListState.firstVisibleItemScrollOffset
-                        )
-                        caretOffsetForPreviewPosition(
-                            text = editorState.text,
-                            rows = visibleLines,
-                            now = leavingAt,
-                            lastLeftAt = lastLeftPreviewAt
-                        )?.let { offset ->
-                            // Handed to the effect below, which places it and keeps it
-                            // in view as the keyboard the focus request raises arrives.
-                            pendingPreviewCaret = PendingCaret(offset, editorState.text)
-                        }
-                        lastLeftPreviewAt = leavingAt
-                    }
+                    if (returningToEdit) leavePreview()
                     isPreviewMode = !isPreviewMode
                     if (returningToEdit) shouldRequestEditorFocus = true
                 },
@@ -1128,6 +1132,9 @@ fun EditorScreen(
                     coroutineScope.launch {
                         settingsRepository.setOpenNotesInPreview(nowLocked)
                     }
+                    // Unlocking leaves Preview like the tap does, so it takes the
+                    // reader's place with it (#464).
+                    if (!nowLocked && isPreviewMode) leavePreview()
                     isPreviewMode = nowLocked
                     if (!nowLocked) shouldRequestEditorFocus = true
                     HapticFeedback.light(context)

@@ -301,6 +301,11 @@ grep -rln "app-release\|assembleDebug\|app-debug\|verifyRoborazziDebug\|lintRele
 - 실패 복구: 부분 다운로드 삭제, 재시도 상한(3회), 그리고 최종 수단으로 브라우저 링크 제시.
   **모두 구현됨.**
 
+> **갱신(2026-09-30, D079).** 설치 경로를 `PackageInstaller` 세션에서 `ACTION_INSTALL_PACKAGE`
+> 인텐트로 바꿨다 — 세션 API로는 자기 업데이트 뒤 "완료 / 열기" 화면이 나오지 않아 앱이 닫히고
+> 끝났다. 아래 미확인 사항 중 세션·`PendingIntent` 콜백·`UpdateInstallReceiver`에 관한 항목은
+> 그 코드가 사라져 더는 해당하지 않는다. 새 경로는 S24(API 36) 실기기에서 확인했다.
+
 ### 구현 후 남은 미확인 사항
 
 이 웹 세션 컨테이너에는 Android SDK가 없어 아래는 하나도 이 자리에서 실행해 확인할 수

@@ -1,3 +1,12 @@
+## 2026-09-30 — Sideload update ends on "App updated — Open" (v2.58.0)
+
+The maintainer noticed that an in-app update closed Markleaf and left nothing behind, while Telegram's sideload update ends on the system's "Done / Open" screen.
+
+- **Cause.** D076 used a `PackageInstaller` session. For a self-update the system shows only the confirmation dialog, then replaces our process; there is no success screen, so the app simply vanished.
+- **Change (D079).** `UpdateInstaller.install` now hands the verified APK to the system installer with `ACTION_INSTALL_PACKAGE` and a `FileProvider` URI (`cache-path updates/`). The installer draws confirm → progress → "App updated — Done / Open" in its own process, which survives ours being replaced. `UpdateInstallReceiver` and its manifest block are gone; `SideloadManifestParityTest` is back to one known block. The APK can no longer be deleted right after hand-off, so the banner clears `cache/updates/` when it composes.
+- **Device check.** S24 (API 36), debug sideload vc166 → vc167 twice via a temporary, uncommitted hook that dropped a staged APK where the verified download would be. Result screen "앱이 업데이트됨 — 완료 / 열기"; **Open** launched vc167. Samsung's unknown-source prompt and Play Protect's scan prompt appeared on the way (chose install without sending the APK to Google). Debug app uninstalled afterwards.
+- **Not re-run.** The download + SHA-256 path is unchanged and was not exercised again.
+
 ## 2026-09-30 — Notes role (#481) and editing where you were reading (#464)
 
 Two Ideas from Discussions, both answered in v2.57.0. `PaxonF` asked for Android 14's Notes role; `sakakigaranko-sketch` asked for the editor to open where the reader was in Preview.

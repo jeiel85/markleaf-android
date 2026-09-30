@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
     <cache-path name="shared_notes" path="shared_notes/" />
+    <!-- 사이드로드 빌드의 업데이트 APK를 시스템 설치 앱에 넘기는 경로(D079). 스토어 빌드에는
+         이 폴더에 쓰는 코드가 없어 비어 있는 경로 선언일 뿐이다 — 이 파일이 두 매니페스트에
+         공용이라 여기 둔다. -->
+    <cache-path name="updates" path="updates/" />
 </paths>

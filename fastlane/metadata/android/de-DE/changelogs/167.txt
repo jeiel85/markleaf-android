@@ -1,0 +1,1 @@
+Keine sichtbare Änderung in diesem Build — gleiche Bildschirme, gleiches Verhalten wie zuvor. Beim separaten, nur auf GitHub verteilten Build endet das In-App-Update jetzt auf Androids Bildschirm „App aktualisiert — Öffnen“, statt die App zu schließen; die neue Version ist nur einen Tipp entfernt. Diese Funktion gibt es nur in jenem Build, nie in diesem Play-/F-Droid-Build.

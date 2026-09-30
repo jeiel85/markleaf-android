@@ -1,0 +1,1 @@
+Bản dựng này không có thay đổi nào có thể thấy — màn hình và hành vi vẫn như trước. Ở bản dựng riêng chỉ phát hành trên GitHub, cập nhật trong ứng dụng giờ kết thúc ở màn hình "Đã cập nhật ứng dụng — Mở" của Android thay vì đóng ứng dụng, nên chỉ cần một lần chạm để mở phiên bản mới. Tính năng đó chỉ có trong bản dựng kia, không bao giờ có trong bản Play/F-Droid này.

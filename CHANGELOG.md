@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.58.0 - Open the app right after it updates - 2026-09-30
+
+This only changes the sideload APK from GitHub Releases. The store and F-Droid builds carry no new code and no new permission.
+
+### Changed
+- **An in-app update now ends on Android's "App updated — Done / Open" screen.** Until now, confirming an update from inside Markleaf closed the app the moment the new version was installed, and nothing came back: you had to find the icon again to reopen it. Markleaf now hands the verified APK to Android's own package installer the same way a downloaded APK is opened, so the installer stays on screen through the install and finishes with **Open**, which starts the new version. Nothing else changes — the download is still checked against the release's SHA-256 before the installer sees it, and only your tap on Android's own screen installs anything. The screen's wording and extra warnings (Play Protect, or a manufacturer's "unknown source" prompt) are the system's, and vary by device. One limit: the update *to* this version is still carried out by the previous version's code, so it closes the app the old way — **Open** appears from the next update on.
+
 ## v2.57.0 - Editing where you were reading - 2026-09-30
 
 Two additions from Discussions, and a fix for something they shared with the widget and with sharing. No permission or storage-format changes.

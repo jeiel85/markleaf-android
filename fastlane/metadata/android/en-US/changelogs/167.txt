@@ -1,0 +1,1 @@
+No visible change in this build — same screens, same behaviour as before. The separate GitHub-only build's in-app updater now ends on Android's "App updated — Open" screen instead of closing the app, so the new version is one tap away. That feature lives only in that build, never in this Play/F-Droid one.

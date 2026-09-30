@@ -197,7 +197,7 @@ class MainActivity : FragmentActivity() {
             }
         }
 
-        val shouldCreateNote = intent.action == QuickNoteWidget.ACTION_CREATE_NOTE
+        val shouldCreateNote = intent.requestsNewNote()
         val openNoteId = if (intent.action == QuickNoteWidget.ACTION_OPEN_NOTE) {
             intent.getStringExtra(QuickNoteWidget.EXTRA_NOTE_ID)
         } else null
@@ -303,7 +303,7 @@ class MainActivity : FragmentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         when {
-            intent.action == QuickNoteWidget.ACTION_CREATE_NOTE -> {
+            intent.requestsNewNote() -> {
                 setIntent(intent)
                 recreate()
             }
@@ -404,6 +404,22 @@ internal fun ThemeMode.toApplicationNightMode(): Int = when (this) {
     ThemeMode.LIGHT -> UiModeManager.MODE_NIGHT_NO
     ThemeMode.DARK -> UiModeManager.MODE_NIGHT_YES
 }
+
+/**
+ * The system's "create a note" action (`Intent.ACTION_CREATE_NOTE`, Android 14).
+ * Spelled out as a string because the constant is API 34 and `minSdk` is 26; the
+ * value is fixed by the platform, and on an older Android nothing ever sends it.
+ */
+internal const val ACTION_CREATE_NOTE_SYSTEM = "android.intent.action.CREATE_NOTE"
+
+/**
+ * True when this intent asks for a fresh, empty note: the widget's "+" button, or
+ * the system's Notes-role action (#481) that a stylus button or a Quick Settings
+ * tile sends once Markleaf is chosen as the Notes app. Both open the same blank
+ * editor, so they share one answer here rather than two copies of the check.
+ */
+internal fun Intent.requestsNewNote(): Boolean =
+    action == QuickNoteWidget.ACTION_CREATE_NOTE || action == ACTION_CREATE_NOTE_SYSTEM
 
 /** The settings a widget paints itself from, compared as one value so a change to any repaints. */
 private data class WidgetAppearance(

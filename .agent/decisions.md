@@ -1427,6 +1427,40 @@ Implications:
 - **tablet two-pane layout 도입 시점**: 2-Pane 레이아웃 도입 완료 (v1.0.x).
 - **Play Store / F-Droid flavor 분리**: 단일 flavor로 양쪽 대응. F-Droid 호환 의존성 정책 유지.
 
+### D077 - The Notes Role Is Answered By The Whole App, So It Never Shows Over The Lock Screen
+
+Markleaf declares `android.intent.action.CREATE_NOTE` on `MainActivity` so Android 14+ can
+offer it as the device's Notes app (#481). The declaration opens a new empty note through the
+same path as the widget's "+" (`requestsNewNote()`), and nothing else.
+
+`MainActivity` never gets `android:showWhenLocked` or `android:turnScreenOn`. The Notes role's
+documentation asks for them to make the app reachable from the lock screen, but this activity is
+the whole app — notes list, search, every note — so showing it there shows all of it to whoever
+is holding a locked phone. App lock and Locked notes do not change that: the notes list is
+visible before either is asked. From a locked device Android asks to unlock first, and the
+blank note is waiting after.
+
+Why:
+- **The asymmetry is the point.** Not opening over the lock screen costs one unlock. Opening over
+  it costs the privacy of every note the phone holds, and this app's one promise is that notes
+  stay where their owner put them.
+- **Pinned, not remembered.** `NotesRoleIntentTest` reads both manifests and fails if either
+  gives `MainActivity` the attributes, so a later "make the lock-screen shortcut work" change
+  meets a red test that points here instead of a silent regression.
+
+Implications:
+
+- Lock-screen capture, if it is ever wanted, is a **separate activity** that can create one
+  note and show nothing else. It needs its own decision: how it treats App lock, Locked notes,
+  and a note that is left empty. It is not a flag on this one.
+- Not verified end to end: choosing Markleaf as the Notes app in system settings. The
+  `markleaf-phone-api36` emulator image reports `Role is unavailable: android.app.role.NOTES`
+  and both physical devices were unreachable, so what was checked is that the system resolves
+  the action to `MainActivity`, that the action opens a blank editor, and that a PIN-locked
+  device keeps the keyguard up instead of showing the app.
+- No permission, network access, or schema change. The sideload manifest copy carries the same
+  filter (`SideloadManifestParityTest`).
+
 ### D006 - Documentation Baseline Integration
 
 템플릿 기반 운영 문서를 프로젝트 루트에 통합한다.

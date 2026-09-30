@@ -13,12 +13,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -63,6 +65,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -455,6 +458,14 @@ fun EditorScreen(
     var showDeleteConfirm by remember(noteId) { mutableStateOf(false) }
 
     val previewListState = rememberLazyListState()
+    // Where the preview was scrolled the last time it was left for the editor.
+    // The list keeps its position between visits, so "the reader scrolled" can
+    // only mean "differently from this" (#464) — see caretOffsetForPreviewPosition.
+    var lastLeftPreviewAt by remember(noteId) { mutableStateOf(PreviewScroll.Top) }
+    // A caret move asked for on leaving Preview, until the effect below has acted on it (#464).
+    var pendingPreviewCaret by remember(noteId) { mutableStateOf<PendingCaret?>(null) }
+    val imeInsets = WindowInsets.ime
+    val imeDensity = LocalDensity.current
     var showInfo by remember(noteId) { mutableStateOf(false) }
     var showOutline by remember(noteId) { mutableStateOf(false) }
     var pendingPreviewScroll by remember(noteId) { mutableStateOf<PreviewScrollRequest?>(null) }
@@ -886,6 +897,51 @@ fun EditorScreen(
         }
     }
 
+    // Puts the caret where the reader was in Preview and keeps it in view as the
+    // keyboard arrives (#464). The caret is placed at once, which is right when
+    // no keyboard follows. When one does, the field would leave the caret
+    // underneath it: a text field scrolls to its caret when the caret moves, not
+    // when the room around it shrinks, so the caret ends up at the bottom edge
+    // of the full-height view and the keyboard then covers that edge. Once the
+    // keyboard is up and still, the caret is stepped away and back (see
+    // nudgeOffset), which is a move in the view that is there.
+    //
+    // It waits for the keyboard, not for a timer: how long a keyboard takes to
+    // appear is the phone's business, and a fixed wait either delays the caret on
+    // a fast one or gives up before a slow one. FOLLOW_KEYBOARD_MS only ends the
+    // wait when none comes. It does nothing if the note is no longer as it was
+    // left — a tap moved the caret, a keystroke or an import changed the text —
+    // because the place the user chose beats the place they were reading.
+    LaunchedEffect(noteId, pendingPreviewCaret, isPreviewMode) {
+        val pending = pendingPreviewCaret ?: return@LaunchedEffect
+        // Whichever way this ends — finished, the note changed, or the reader went
+        // back to Preview and cancelled it — the request is spent. Left behind, it
+        // would move the caret on the next visit to the editor, to a place that
+        // was only right for the visit before.
+        try {
+            if (isPreviewMode || editorState.text != pending.text) return@LaunchedEffect
+            val target = TextRange(pending.offset.coerceIn(0, pending.text.length))
+            editorState = editorState.copy(selection = target)
+            val untouched = { editorState.text == pending.text && editorState.selection == target }
+            withTimeoutOrNull(FOLLOW_KEYBOARD_MS) {
+                awaitKeyboardSettled(keyboardHeight = { imeInsets.getBottom(imeDensity) })
+                if (!untouched()) return@withTimeoutOrNull
+                val away = TextRange(nudgeOffset(target.start, pending.text.length) ?: return@withTimeoutOrNull)
+                editorState = editorState.copy(selection = away)
+                try {
+                    withFrameNanos { }
+                    withFrameNanos { }
+                } finally {
+                    if (editorState.text == pending.text && editorState.selection == away) {
+                        editorState = editorState.copy(selection = target)
+                    }
+                }
+            }
+        } finally {
+            if (pendingPreviewCaret === pending) pendingPreviewCaret = null
+        }
+    }
+
     // Preview scrolls that have to wait for the preview to exist: the outline's
     // jump-to-heading, and restoring where the note was left (#214). Held until
     // the list actually has rows, and clamped against them — the request can name
@@ -1041,6 +1097,25 @@ fun EditorScreen(
                 onBack = onBack,
                 onTogglePreview = {
                     val returningToEdit = isPreviewMode
+                    if (returningToEdit) {
+                        // Open the editor where the reader was, not where the caret
+                        // was before they scrolled away (#464). A null leaves it.
+                        val leavingAt = PreviewScroll(
+                            previewListState.firstVisibleItemIndex,
+                            previewListState.firstVisibleItemScrollOffset
+                        )
+                        caretOffsetForPreviewPosition(
+                            text = editorState.text,
+                            rows = visibleLines,
+                            now = leavingAt,
+                            lastLeftAt = lastLeftPreviewAt
+                        )?.let { offset ->
+                            // Handed to the effect below, which places it and keeps it
+                            // in view as the keyboard the focus request raises arrives.
+                            pendingPreviewCaret = PendingCaret(offset, editorState.text)
+                        }
+                        lastLeftPreviewAt = leavingAt
+                    }
                     isPreviewMode = !isPreviewMode
                     if (returningToEdit) shouldRequestEditorFocus = true
                 },

@@ -197,15 +197,23 @@ class MainActivity : FragmentActivity() {
             }
         }
 
-        val shouldCreateNote = intent.requestsNewNote()
-        val openNoteId = if (intent.action == QuickNoteWidget.ACTION_OPEN_NOTE) {
-            intent.getStringExtra(QuickNoteWidget.EXTRA_NOTE_ID)
+        // The launching intent is a one-shot request: a widget tap, a share, a file
+        // to open. A recreation — rotation, a theme change, the process coming back —
+        // hands the activity the same intent again, and acting on it a second time
+        // makes another note out of a share, or throws the screen you were writing
+        // on over to a fresh blank one. Whether it has been acted on travels in the
+        // saved state, so only the first instance reads it.
+        val entryIntent = intent.unlessConsumedBy(savedInstanceState)
+        entryIntentConsumed = true
+        val shouldCreateNote = entryIntent?.requestsNewNote() == true
+        val openNoteId = if (entryIntent?.action == QuickNoteWidget.ACTION_OPEN_NOTE) {
+            entryIntent.getStringExtra(QuickNoteWidget.EXTRA_NOTE_ID)
         } else null
-        val sharedContent = extractInitialContent(intent)
+        val sharedContent = extractInitialContent(entryIntent)
         // A file opened from elsewhere (ACTION_VIEW) is shown for reading rather
         // than imported (#326); sharing one in (ACTION_SEND) still means "take
         // this", and keeps creating a note.
-        val viewFileUri = intent.takeIf { it.action == Intent.ACTION_VIEW }?.data?.toString()
+        val viewFileUri = entryIntent?.takeIf { it.action == Intent.ACTION_VIEW }?.data?.toString()
 
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
@@ -302,25 +310,33 @@ class MainActivity : FragmentActivity() {
     // body's former null-safe calls are now plain non-null accesses.
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        when {
-            intent.requestsNewNote() -> {
-                setIntent(intent)
-                recreate()
-            }
-            intent.action == QuickNoteWidget.ACTION_OPEN_NOTE -> {
-                setIntent(intent)
-                recreate()
-            }
+        val isEntryRequest = when {
+            intent.requestsNewNote() -> true
+            intent.action == QuickNoteWidget.ACTION_OPEN_NOTE -> true
             intent.action == Intent.ACTION_SEND &&
-                (intent.streamUri() != null || extractSharedText(intent) != null) -> {
-                setIntent(intent)
-                recreate()
-            }
-            intent.action == Intent.ACTION_VIEW && intent.data != null -> {
-                setIntent(intent)
-                recreate()
-            }
+                (intent.streamUri() != null || extractSharedText(intent) != null) -> true
+            intent.action == Intent.ACTION_VIEW && intent.data != null -> true
+            else -> false
         }
+        if (isEntryRequest) {
+            setIntent(intent)
+            // A new request, not yet acted on: the instance recreate() builds reads
+            // this from the saved state and dispatches it, once.
+            entryIntentConsumed = false
+            recreate()
+        }
+    }
+
+    /**
+     * True once the launching intent has been acted on, so a recreated activity —
+     * which is handed the same intent again — does not act on it twice. Saved and
+     * restored with the rest of the instance state.
+     */
+    private var entryIntentConsumed = false
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(STATE_ENTRY_INTENT_CONSUMED, entryIntentConsumed)
     }
 
     private companion object {
@@ -428,3 +444,16 @@ private data class WidgetAppearance(
     val opacity: WidgetOpacity,
     val customColor: Int?
 )
+
+/** The saved-state key that records the launching intent has been acted on. */
+internal const val STATE_ENTRY_INTENT_CONSUMED = "entry_intent_consumed"
+
+/**
+ * This launching intent, unless the instance state says an earlier instance of the
+ * activity already acted on it — the case for every recreation: rotation, a theme
+ * change, the process coming back. A `null` [saved] is a first launch, and a saved
+ * `false` is what [MainActivity.onNewIntent] leaves for a request that has not been
+ * acted on yet, so both hand the intent through.
+ */
+internal fun Intent.unlessConsumedBy(saved: Bundle?): Intent? =
+    takeUnless { saved?.getBoolean(STATE_ENTRY_INTENT_CONSUMED) == true }

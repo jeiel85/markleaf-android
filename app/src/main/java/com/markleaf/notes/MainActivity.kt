@@ -204,12 +204,20 @@ class MainActivity : FragmentActivity() {
         // on over to a fresh blank one. Whether it has been acted on travels in the
         // saved state, so only the first instance reads it.
         //
+        // The same goes for a launch with no request at all: the host's plain-launch
+        // fallback ("Reopen last note on launch") is part of the one dispatch, so a
+        // recreation must skip it too — otherwise the last note is pushed on top of
+        // the back stack the activity just restored. An acted-on launch therefore
+        // tells the host not to dispatch anything (dispatchLaunchRequest = false),
+        // rather than handing it an empty request that reads as a plain launch.
+        //
         // "Acted on" is set by the host when it dispatches (onEntryDispatched below),
         // not here. With App lock on, the host is not composed until the user
         // authenticates, so an activity recreated behind the prompt has dispatched
         // nothing yet — marking the intent consumed now would lose the request.
         val entryIntent = intent.unlessConsumedBy(savedInstanceState)
-        entryIntentConsumed = entryIntent == null
+        val launchAlreadyDispatched = entryIntent == null
+        entryIntentConsumed = launchAlreadyDispatched
         val shouldCreateNote = entryIntent?.requestsNewNote() == true
         val openNoteId = if (entryIntent?.action == QuickNoteWidget.ACTION_OPEN_NOTE) {
             entryIntent.getStringExtra(QuickNoteWidget.EXTRA_NOTE_ID)
@@ -248,6 +256,7 @@ class MainActivity : FragmentActivity() {
                         sharedUpdatedAt = sharedContent?.updatedAt,
                         openNoteId = openNoteId,
                         viewFileUri = viewFileUri,
+                        dispatchLaunchRequest = !launchAlreadyDispatched,
                         onEntryDispatched = { entryIntentConsumed = true }
                     )
                     if (!appSettings.onboardingCompleted) {

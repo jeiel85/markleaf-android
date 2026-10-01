@@ -533,7 +533,7 @@ v1.2.0에서 *명시적으로 제거*했던 두 기능을 사용자 결정으로
 
 - **Roborazzi 시각 회귀** (v1.9) — 18+ 골든 이미지로 라이브 프리뷰 회귀 차단. PR마다 자동.
 - **Macrobenchmark** (v2.2) — `:benchmark` 모듈, cold/warm/hot startup + scroll jank. §2.1 *빠름 우선* 을 *증거 기반* 으로.
-- **commonmark-java 0.24.0** (v2.3) — 손파서 `SimpleMarkdownPreview` 를 표준 라이브러리로 교체. CommonMark spec compliance 확보, 위키링크/이미지 같은 확장의 안정적 토대.
+- **commonmark-java 0.24.0** (v2.3, 0.30.0부터 autolink 확장 포함 — D082) — 손파서 `SimpleMarkdownPreview` 를 표준 라이브러리로 교체. CommonMark spec compliance 확보, 위키링크/이미지 같은 확장의 안정적 토대.
 
 ### 15.5 이미 폐기된 §7 *명시적 제외* 항목
 

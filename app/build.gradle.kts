@@ -98,8 +98,8 @@ android {
         applicationId = "com.markleaf.notes"
         minSdk = 26
         targetSdk = 35
-        versionCode = 169
-        versionName = "2.59.1"
+        versionCode = 170
+        versionName = "2.60.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // 공통 UI가 업데이트 항목을 보여줄지 판단하는 값. 스토어 빌드에서는 항상 false이고,
@@ -482,8 +482,14 @@ dependencies {
     // CommonMark parser (BSD-2-clause, F-Droid friendly). Replaces the
     // hand-rolled SimpleMarkdownPreview internals while keeping the same
     // PreviewLine output model for the renderer.
-    val commonmarkVersion = "0.24.0"
+    // 0.30 (D082): GFM autolink, caps on block/inline nesting that the
+    // preview's own depth guard used to be the only defence against, and
+    // fixes for quadratic and stack-overflowing pathological input.
+    val commonmarkVersion = "0.30.0"
     implementation("org.commonmark:commonmark:$commonmarkVersion")
+    // Bare URLs, www. addresses and email addresses become links, as on
+    // GitHub. Pulls in org.nibor.autolink (MIT, ~20 KB, no dependencies).
+    implementation("org.commonmark:commonmark-ext-autolink:$commonmarkVersion")
     implementation("org.commonmark:commonmark-ext-yaml-front-matter:$commonmarkVersion")
     implementation("org.commonmark:commonmark-ext-footnotes:$commonmarkVersion")
     implementation("org.commonmark:commonmark-ext-gfm-strikethrough:$commonmarkVersion")

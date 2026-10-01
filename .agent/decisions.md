@@ -1605,6 +1605,36 @@ Implications:
   (`previewAccent`), and `---` that nothing closes is a thematic break, not front matter, in the
   preview and the PDF (`opensUnclosedFrontMatter`).
 
+### D082 - commonmark-java 0.30 With GFM Autolink; Callout Heads Carry A Title
+
+Date: 2026-10-01. Plan: `docs/MARKDOWN_SYNTAX_PLAN.md` (M2).
+
+Decision:
+- commonmark-java 0.24.0 → 0.30.0, adding `commonmark-ext-autolink` (pulls `org.nibor.autolink`
+  0.11.0, MIT, ~20 KB, no further dependencies). Bare `https://…`, `www.…` and email addresses
+  become links in the preview and the PDF, as on GitHub. Code spans and written links are untouched.
+- `maxOpenBlockParsers` is set to `MAX_BLOCK_DEPTH * 2 + 16`, not left at 0.30's default 100: a list
+  level opens two parsers, so the default flattened lists deeper than ~50 levels into text, below
+  the preview's own visible cut at 64. The `StackOverflowError` catch stays.
+- 0.30 aborts a table past a million cells with `IllegalArgumentException`. Only the parse call
+  is guarded; the preview falls back to the note's lines and the PDF prints the text in `<pre>`.
+- A callout head (`CalloutHead`, shared by preview and PDF) takes the rest of its line as the title,
+  as Obsidian does, and drops a fold marker (`-`/`+`). Folding is not offered.
+- The PDF prints a callout as a tinted box under its title (localized type label when untitled) and
+  a wikilink as its label.
+- Wikilinks become `WikilinkNode`s in a parser post-processor registered before autolink, so an
+  address inside `[[…]]` stays part of the wikilink (self-review of #492).
+
+Alternatives considered:
+- `gfm-alerts` (0.28+) instead of `CalloutHead`: rejected in D081 — it needs the types listed.
+- Keeping 0.24 and matching URLs with a regex: the autolink library already handles trailing
+  punctuation, brackets and email rules that a regex would get wrong.
+
+Implications:
+- Java 11 bytecode as before (0.24 was already Java 11); minSdk 26 relies on D8 backports, as now.
+- Existing notes can render differently: a bare URL becomes a link, and a table no longer needs a
+  blank line above it (0.25, matching GitHub).
+
 ### D006 - Documentation Baseline Integration
 
 템플릿 기반 운영 문서를 프로젝트 루트에 통합한다.

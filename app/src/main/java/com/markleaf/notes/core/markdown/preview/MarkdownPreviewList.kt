@@ -1438,12 +1438,23 @@ private fun CalloutHeader(line: PreviewLine) {
     ) {
         Text(text = visuals.icon, color = visuals.contentColor)
         Spacer(Modifier.width(8.dp))
-        Text(
-            text = visuals.label,
-            style = MaterialTheme.typography.labelLarge,
-            color = visuals.contentColor,
-            fontWeight = FontWeight.SemiBold
-        )
+        if (line.text.isNotBlank()) {
+            // A title the author wrote (`> [!TIP] Title`) replaces the type's
+            // label, as in Obsidian. It is the note's text, so find sees it.
+            FindableText(
+                text = line.text,
+                style = MaterialTheme.typography.labelLarge,
+                color = visuals.contentColor,
+                fontWeight = FontWeight.SemiBold
+            )
+        } else {
+            Text(
+                text = visuals.label,
+                style = MaterialTheme.typography.labelLarge,
+                color = visuals.contentColor,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
 }
 

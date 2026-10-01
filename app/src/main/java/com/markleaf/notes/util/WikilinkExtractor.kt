@@ -9,7 +9,7 @@ package com.markleaf.notes.util
  * set Obsidian / Bear use, so notes round-trip cleanly between apps.
  */
 object WikilinkExtractor {
-    private val WIKILINK_REGEX = Regex("""\[\[([^\[\]\n]+?)]]""")
+    internal val WIKILINK_REGEX = Regex("""\[\[([^\[\]\n]+?)]]""")
 
     /** Sequence of every wikilink target in source order, including duplicates. */
     fun extract(content: String): List<String> {

@@ -1,0 +1,1 @@
+Web i e-mail adrese napisane izravno u bilješci sada su poveznice koje se mogu dodirnuti, kao na GitHubu (kod ostaje kod). Riječi nakon [!TIP] u istaknutom okviru postaju njegov naslov, a Obsidianova oznaka sklapanja više se ne prikazuje kao usamljena crtica. Izvoz u PDF ispisuje okvire s naslovom, a wiki-poveznice kao običan tekst.

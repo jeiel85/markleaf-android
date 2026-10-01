@@ -1,0 +1,1 @@
+Einfach hingeschriebene Web- und E-Mail-Adressen sind jetzt antippbare Links, wie auf GitHub (Code bleibt Code). Worte nach dem [!TIP] einer Hinweisbox werden zu ihrem Titel, und Obsidians Einklapp-Markierung erscheint nicht mehr als einzelner Strich. Der PDF-Export druckt Hinweisboxen als Kästen mit Titel und Wikilinks als normalen Text.

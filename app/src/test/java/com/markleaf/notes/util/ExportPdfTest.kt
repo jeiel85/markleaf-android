@@ -129,6 +129,85 @@ class ExportPdfTest {
     }
 
     @Test
+    fun aCalloutPrintsAsATitledBox() {
+        val body = bodyOf(
+            ExportPdf.renderDocument(
+                note("> [!WARNING]\n> Be careful"),
+                "Untitled",
+                calloutLabel = { kind, _ -> "Label:${kind?.name}" }
+            )
+        )
+
+        assertTrue(body, body.contains("<div class=\"callout callout-warning\">"))
+        assertTrue(body, body.contains("<p class=\"callout-title\">Label:WARNING</p>"))
+        assertTrue(body, body.contains("Be careful"))
+        assertFalse(body, body.contains("[!WARNING]"))
+    }
+
+    @Test
+    fun aCalloutTitleIsEscapedAndUsed() {
+        // `1 < 2` is text, not a tag, so it reaches the title and must be escaped.
+        val body = bodyOf(ExportPdf.renderDocument(note("> [!TIP] When 1 < 2 & co\n> body"), "Untitled"))
+
+        assertTrue(body, body.contains("<p class=\"callout-title\">When 1 &lt; 2 &amp; co</p>"))
+    }
+
+    @Test
+    fun anUnknownCalloutTypeIsLabelledByItsWord() {
+        val body = bodyOf(ExportPdf.renderDocument(note("> [!info]\n> body"), "Untitled"))
+
+        assertTrue(body, body.contains("callout-other"))
+        assertTrue(body, body.contains(">info</p>"))
+    }
+
+    @Test
+    fun wikilinksPrintAsTheirLabel() {
+        val body = bodyOf(ExportPdf.renderDocument(note("See [[Target]] and [[Other|the other]]. `[[code]]`"), "Untitled"))
+
+        assertTrue(body, body.contains("See Target and the other."))
+        assertTrue(body, body.contains("<code>[[code]]</code>"))
+    }
+
+    @Test
+    fun aTablePastTheCellLimitPrintsAsText() {
+        val columns = 1_000
+        val row = "|" + "x|".repeat(columns)
+        val markdown = buildString {
+            append(row).append('\n')
+            append("|").append("-|".repeat(columns)).append('\n')
+            repeat(1_001) { append(row).append('\n') }
+        }
+
+        val body = bodyOf(ExportPdf.renderDocument(note(markdown), "Untitled"))
+
+        assertTrue(body.contains("<pre>"))
+        assertFalse(body.contains("<table"))
+    }
+
+    @Test
+    fun anAddressInsideAWikilinkPrintsAsTheLabel() {
+        val body = bodyOf(ExportPdf.renderDocument(note("See [[www.example.com notes]] now"), "Untitled"))
+
+        assertTrue(body, body.contains("See www.example.com notes now"))
+        assertFalse(body, body.contains("<a "))
+    }
+
+    @Test
+    fun aPlainQuoteInsideACalloutIsNotStyledAsTheCallout() {
+        val html = ExportPdf.renderDocument(note("> [!NOTE]\n> > inner"), "Untitled")
+
+        assertTrue(html.contains(".callout > blockquote"))
+        assertFalse(html.contains(".callout blockquote"))
+    }
+
+    @Test
+    fun aBareUrlPrintsAsALink() {
+        val body = bodyOf(ExportPdf.renderDocument(note("Visit https://example.com today"), "Untitled"))
+
+        assertTrue(body, body.contains("<a href=\"https://example.com\">https://example.com</a>"))
+    }
+
+    @Test
     fun aNoteThatIsOnlyARulePrintsTheRule() {
         val body = bodyOf(ExportPdf.renderDocument(note("---"), "Untitled"))
 

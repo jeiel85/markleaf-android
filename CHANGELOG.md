@@ -4,6 +4,21 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.60.0 - Links you can tap, and callout titles - 2026-10-01
+
+No permission or storage-format changes. The Markdown library Markleaf uses (commonmark-java) moves from 0.24 to 0.30.
+
+### Added
+- **Bare addresses are links.** A web address (`https://…` or `www.…`) or an email address written straight into a note is now a link in Preview and in PDF export, as on GitHub. Tapping it opens it the way a written link does. An address inside code stays code, and punctuation at the end of a sentence stays out of the link. An address inside a wikilink (`[[www.example.com notes]]`) stays part of the wikilink.
+- **Callout titles.** Words after the type on a callout's first line become its title, as in Obsidian: `> [!TIP] Before you start` shows *Before you start* where *Tip* would be. Find-in-note finds it.
+
+### Fixed
+- **Obsidian's fold marker no longer leaks into the callout.** `> [!NOTE]-` showed a stray `-` as the first line of the body. The marker is now ignored; the callout shows open, since Markleaf does not fold callouts.
+
+### Changed
+- **PDF export prints callouts as callouts.** They used to print as a quote starting with the literal `[!NOTE]`; they now print as a tinted box under their title (or the type's name), and `[[wikilinks]]` print as their words rather than in brackets.
+- **Two library changes you may notice in existing notes.** A table no longer needs a blank line above it, which matches GitHub. And a table of more than a million cells is shown as plain text rather than parsed.
+
 ## v2.59.1 - Nothing in a note goes missing in Preview - 2026-10-01
 
 Fixes only. No permission or storage-format changes.

@@ -229,6 +229,10 @@
     <string name="show_note_previews_description">Muestra un fragmento y la hora de edición bajo cada título. Desactívalo para ver más notas en pantalla.</string>
     <string name="reopen_last_note">Reabrir la última nota al iniciar</string>
     <string name="reopen_last_note_description">Empieza en la nota que editaste por última vez en lugar de la lista de notas.</string>
+    <string name="recent_notes_in_shortcuts">Notas recientes en los accesos directos</string>
+    <string name="recent_notes_in_shortcuts_description">Mantén pulsado el icono de Markleaf para ver tus dos notas editadas más recientemente. Sus títulos aparecen en la pantalla de inicio. Las notas bloqueadas y las de la papelera nunca se muestran.</string>
+    <string name="shortcut_note_unavailable">Esta nota ya no está disponible</string>
+    <string name="shortcut_note_hidden_label">No disponible</string>
     <string name="open_notes_in_preview">Abrir notas en vista previa</string>
     <string name="open_notes_in_preview_description">Muestra la vista previa renderizada al abrir una nota en lugar de la vista de edición. Las notas nuevas se abren para editar. Consejo: mantén pulsado el icono de vista previa/editar en una nota para cambiarlo.</string>
     <string name="open_notes_at">Abrir notas en</string>

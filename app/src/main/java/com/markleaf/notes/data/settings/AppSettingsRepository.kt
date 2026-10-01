@@ -80,6 +80,7 @@ class AppSettingsRepository internal constructor(
             notesShowPreview = preferences[NOTES_SHOW_PREVIEW] ?: true,
             showFormattingButton = preferences[SHOW_FORMATTING_BUTTON] ?: true,
             reopenLastNote = preferences[REOPEN_LAST_NOTE] ?: false,
+            recentNotesInShortcuts = preferences[RECENT_NOTES_IN_SHORTCUTS] ?: false,
             notesSortMode = preferences[NOTES_SORT_MODE]
                 ?.let { value -> enumValueOrDefault(value, NotesSortMode.UPDATED_DESC) }
                 ?: NotesSortMode.UPDATED_DESC,
@@ -298,6 +299,12 @@ class AppSettingsRepository internal constructor(
         }
     }
 
+    suspend fun setRecentNotesInShortcuts(enabled: Boolean) {
+        persist { preferences ->
+            preferences[RECENT_NOTES_IN_SHORTCUTS] = enabled
+        }
+    }
+
     suspend fun setNotesSortMode(mode: NotesSortMode) {
         persist { preferences ->
             preferences[NOTES_SORT_MODE] = mode.name
@@ -462,6 +469,7 @@ class AppSettingsRepository internal constructor(
         val NOTES_SHOW_PREVIEW = booleanPreferencesKey("notes_show_preview")
         val SHOW_FORMATTING_BUTTON = booleanPreferencesKey("show_formatting_button")
         val REOPEN_LAST_NOTE = booleanPreferencesKey("reopen_last_note")
+        val RECENT_NOTES_IN_SHORTCUTS = booleanPreferencesKey("recent_notes_in_shortcuts")
         val NOTES_SORT_MODE = stringPreferencesKey("notes_sort_mode")
         val NOTES_LAYOUT = stringPreferencesKey("notes_layout")
         val NOTE_TITLE_SOURCE = stringPreferencesKey("note_title_source")

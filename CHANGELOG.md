@@ -4,6 +4,14 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.59.0 - Shortcuts on the Markleaf icon - 2026-10-01
+
+One addition. No permission or storage-format changes.
+
+### Added
+- **Long-press the Markleaf icon for a new note or search.** Your launcher's menu on Markleaf's icon now offers **New Note**, which opens a blank note like the widget's + button, and **Search**, which opens straight on the Search screen. Like any app shortcut, either can be dragged onto the home screen. The menu appears once Markleaf has been opened after installing or updating it; how it looks, and whether you can drag entries out, depends on your launcher.
+- **Optionally, your two most recent notes as well.** Turn on *Recent notes in app shortcuts* in Settings → Privacy to add the two notes you edited last. It is off by default, because a shortcut shows the note's title on the home screen and some launchers also include shortcuts in their search. Locked notes and notes in the Trash are never listed. If you dragged a note's shortcut onto the home screen and later lock it, move it to the Trash or delete it, the shortcut is greyed out, renamed *Unavailable* so its title is no longer shown, and opens nothing until the note is back. That happens the next time Markleaf is open, since that is where a note gets locked or deleted.
+
 ## v2.58.0 - Open the app right after it updates - 2026-09-30
 
 This only changes the sideload APK from GitHub Releases. The store and F-Droid builds carry no new code and no new permission.

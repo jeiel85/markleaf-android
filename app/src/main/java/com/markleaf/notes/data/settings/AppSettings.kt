@@ -46,6 +46,11 @@ data class AppSettings(
     /** Reopen the last-edited note on a plain launch instead of landing on the
      *  notes list. Opt-in (#192). */
     val reopenLastNote: Boolean = false,
+    /** Add the two most recently edited notes to the launcher's long-press menu
+     *  on Markleaf's icon. Off by default: a shortcut's label is the note's title,
+     *  shown on the home screen and, by some launchers, in their search
+     *  (`docs/ANDROID_PLATFORM_PLAN.md` Q1). */
+    val recentNotesInShortcuts: Boolean = false,
     /** Sort order of the notes list, driven by the top-bar sort menu (#191). */
     val notesSortMode: NotesSortMode = NotesSortMode.UPDATED_DESC,
     /** How the notes list arranges its rows. Defaults to [NotesLayout.LIST],

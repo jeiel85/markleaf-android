@@ -229,6 +229,10 @@
     <string name="show_note_previews_description">Affiche un extrait et l\'heure de modification sous chaque titre. Désactivez pour afficher plus de notes à l\'écran.</string>
     <string name="reopen_last_note">Rouvrir la dernière note au démarrage</string>
     <string name="reopen_last_note_description">Démarre dans la dernière note modifiée plutôt que dans la liste des notes.</string>
+    <string name="recent_notes_in_shortcuts">Notes récentes dans les raccourcis de l\'appli</string>
+    <string name="recent_notes_in_shortcuts_description">Appuyez longuement sur l\'icône de Markleaf pour voir vos deux dernières notes modifiées. Leurs titres apparaissent sur l\'écran d\'accueil. Les notes verrouillées et celles de la corbeille ne sont jamais affichées.</string>
+    <string name="shortcut_note_unavailable">Cette note n\'est plus disponible</string>
+    <string name="shortcut_note_hidden_label">Indisponible</string>
     <string name="open_notes_in_preview">Ouvrir les notes en aperçu</string>
     <string name="open_notes_in_preview_description">Afficher l\'aperçu rendu à l\'ouverture d\'une note au lieu de la vue d\'édition. Les nouvelles notes s\'ouvrent toujours en édition. Astuce : appui long sur l\'icône aperçu/modifier dans une note pour basculer.</string>
     <string name="open_notes_at">Ouvrir les notes à</string>

@@ -30,6 +30,13 @@ class AppSettingsTest {
         assertNull(settings.lastOpenedNoteId)
     }
 
+    /** A shortcut's label is the note's title, shown on the home screen, so the
+     *  recent notes join the launcher menu only once the user asks for it (Q1). */
+    @Test
+    fun recentNotesStayOffTheLauncherUntilAskedFor() {
+        assertFalse(AppSettings().recentNotesInShortcuts)
+    }
+
     /**
      * The grid (#279) and the title rule (#280) are both choices laid over
      * behaviour people already have. A default of anything else would rearrange

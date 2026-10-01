@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- An adaptive icon so every launcher masks the shortcut the same way it masks
+     Markleaf's own icon; the background is the app icon's. -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/ic_launcher_background" />
+    <foreground android:drawable="@drawable/ic_shortcut_new_note_foreground" />
+</adaptive-icon>

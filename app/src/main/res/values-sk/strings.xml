@@ -230,6 +230,10 @@
     <string name="show_note_previews_description">Pod každým nadpisom zobrazte úryvok a čas úpravy. Vypnite túto funkciu, aby sa na obrazovku zmestilo viac poznámok.</string>
     <string name="reopen_last_note">Pri spustení otvoriť poslednú poznámku</string>
     <string name="reopen_last_note_description">Začať v poznámke, ktorú ste naposledy upravili, namiesto zoznamu poznámok.</string>
+    <string name="recent_notes_in_shortcuts">Nedávne poznámky v skratkách aplikácie</string>
+    <string name="recent_notes_in_shortcuts_description">Podržte ikonu Markleaf a zobrazia sa vaše dve naposledy upravené poznámky. Ich názvy sa zobrazia na ploche. Uzamknuté poznámky a poznámky v koši sa nikdy nezobrazia.</string>
+    <string name="shortcut_note_unavailable">Táto poznámka už nie je k dispozícii</string>
+    <string name="shortcut_note_hidden_label">Nedostupné</string>
     <string name="open_notes_in_preview">Otvoriť poznámky v náhľade</string>
     <string name="open_notes_in_preview_description">Pri otvorení poznámky sa namiesto zobrazenia v editore zobrazí jej náhľad. Nové poznámky sa naďalej otvárajú v režime editora. Tip: Týmto nastavením môžete prepínať dlhým stlačením ikony náhľadu/editora v poznámke.</string>
     <string name="open_notes_at">Otvoriť poznámky</string>

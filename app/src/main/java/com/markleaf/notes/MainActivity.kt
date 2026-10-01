@@ -35,6 +35,7 @@ import com.markleaf.notes.data.sync.mirrorMetadata
 import com.markleaf.notes.feature.lock.BiometricLockGate
 import com.markleaf.notes.feature.onboarding.WelcomeOnboardingSheet
 import com.markleaf.notes.navigation.MarkleafNavHost
+import com.markleaf.notes.shortcut.LauncherShortcuts
 import com.markleaf.notes.ui.theme.MarkleafTheme
 import com.markleaf.notes.ui.theme.bodyFontFamily
 import com.markleaf.notes.ui.viewmodel.MarkleafViewModelFactory
@@ -197,6 +198,25 @@ class MainActivity : FragmentActivity() {
             }
         }
 
+        // The launcher's long-press menu (F1): new note and search always, and the
+        // two most recently edited notes when the user has turned that on. Only
+        // while started, because every note change happens in this activity; the
+        // pinned shortcuts a user dragged out are re-checked on each change too, so
+        // a note locked or trashed here stops being reachable from the home screen.
+        lifecycleScope.launch {
+            val noteRepository = LocalNoteRepository(database)
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                LauncherShortcuts.follow(
+                    context = applicationContext,
+                    recentEnabled = settingsRepository.settings
+                        .map { it.recentNotesInShortcuts }
+                        .distinctUntilChanged(),
+                    notes = noteRepository.observeNotes(),
+                    lookUp = { id -> withContext(Dispatchers.IO) { noteRepository.getNote(id) } }
+                )
+            }
+        }
+
         // The launching intent is a one-shot request: a widget tap, a share, a file
         // to open. A recreation — rotation, a theme change, the process coming back —
         // hands the activity the same intent again, and acting on it a second time
@@ -219,6 +239,8 @@ class MainActivity : FragmentActivity() {
         val launchAlreadyDispatched = entryIntent == null
         entryIntentConsumed = launchAlreadyDispatched
         val shouldCreateNote = entryIntent?.requestsNewNote() == true
+        val openSearch = entryIntent?.action == LauncherShortcuts.ACTION_SEARCH
+        if (entryIntent != null) LauncherShortcuts.reportUsed(applicationContext, entryIntent)
         val openNoteId = if (entryIntent?.action == QuickNoteWidget.ACTION_OPEN_NOTE) {
             entryIntent.getStringExtra(QuickNoteWidget.EXTRA_NOTE_ID)
         } else null
@@ -251,6 +273,7 @@ class MainActivity : FragmentActivity() {
                         windowSizeClass = windowSizeClass,
                         viewModelFactory = viewModelFactory,
                         shouldCreateNote = shouldCreateNote,
+                        openSearch = openSearch,
                         sharedText = sharedContent?.body,
                         sharedCreatedAt = sharedContent?.createdAt,
                         sharedUpdatedAt = sharedContent?.updatedAt,
@@ -328,6 +351,7 @@ class MainActivity : FragmentActivity() {
         val isEntryRequest = when {
             intent.requestsNewNote() -> true
             intent.action == QuickNoteWidget.ACTION_OPEN_NOTE -> true
+            intent.action == LauncherShortcuts.ACTION_SEARCH -> true
             intent.action == Intent.ACTION_SEND &&
                 (intent.streamUri() != null || extractSharedText(intent) != null) -> true
             intent.action == Intent.ACTION_VIEW && intent.data != null -> true

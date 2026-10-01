@@ -225,6 +225,10 @@
     <string name="show_note_previews_description">Hiện một đoạn trích và thời gian sửa dưới mỗi tiêu đề. Tắt đi để hiển thị được nhiều ghi chú hơn trên màn hình.</string>
     <string name="reopen_last_note">Mở lại ghi chú gần nhất khi khởi động</string>
     <string name="reopen_last_note_description">Bắt đầu ở ghi chú bạn sửa gần nhất thay vì danh sách ghi chú.</string>
+    <string name="recent_notes_in_shortcuts">Ghi chú gần đây trong lối tắt ứng dụng</string>
+    <string name="recent_notes_in_shortcuts_description">Nhấn giữ biểu tượng Markleaf để xem hai ghi chú bạn chỉnh sửa gần đây nhất. Tiêu đề của chúng hiển thị trên màn hình chính. Ghi chú đã khóa và ghi chú trong thùng rác không bao giờ được hiển thị.</string>
+    <string name="shortcut_note_unavailable">Ghi chú này không còn khả dụng</string>
+    <string name="shortcut_note_hidden_label">Không khả dụng</string>
     <string name="open_notes_in_preview">Mở ghi chú ở chế độ xem trước</string>
     <string name="open_notes_in_preview_description">Hiện bản xem trước đã hiển thị định dạng khi mở ghi chú, thay vì chế độ sửa. Ghi chú mới vẫn mở để sửa. Mẹo: nhấn giữ biểu tượng xem trước/sửa trong ghi chú để bật hoặc tắt tùy chọn này.</string>
     <string name="open_notes_at">Mở ghi chú tại</string>

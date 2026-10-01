@@ -1533,6 +1533,42 @@ Implications:
 - No permission, network access, or schema change. The sideload manifest copy carries the same
   filter (`SideloadManifestParityTest`).
 
+### D080 - Recent Notes Join The Launcher Menu Only When Asked, And A Pinned Copy Loses Its Title With The Note
+
+The launcher's long-press menu on Markleaf's icon always offers New Note and Search. The two
+most recently edited notes join it only when *Recent notes in app shortcuts* (Settings →
+Privacy) is on, which it is not by default. Everything is published from code
+(`LauncherShortcuts`), never from a static `shortcuts.xml`.
+
+Why:
+- **A shortcut's label is the note's title, and the launcher is not Markleaf.** It is drawn on
+  the home screen, seen by anyone who sees the unlocked phone, and some launchers index
+  shortcuts into their own search. Nothing leaves the device, but the title leaves the app's
+  own surfaces, where App lock and Locked notes apply. That is a choice for the user to make,
+  so the default keeps today's behaviour (the plan's Q1; the issue routine's "option, existing
+  behaviour as default").
+- **A dragged-out copy outlives the menu.** A dynamic shortcut dropped on the home screen
+  becomes a pinned one that `setDynamicShortcuts` no longer controls (review of #488). Each
+  change re-checks pinned note shortcuts against the note: while it is locked, trashed or
+  deleted the shortcut is relabelled *Unavailable* and then disabled, because a disabled
+  shortcut is only greyed out and would otherwise keep showing the title. When the note comes
+  back it is enabled again under its current title. Pinned shortcuts are reconciled before the
+  dynamic set is republished, since the platform refuses a dynamic shortcut under a disabled id.
+- **No static XML.** `shortcuts.xml` needs a literal `targetPackage`, and the debug build is
+  `com.markleaf.notes.debug` (#319). The cost is that the menu exists only after the app has
+  been opened once since install or update.
+
+Implications:
+- Updates run while `MainActivity` is started, from `observeNotes()` and the setting, debounced
+  by a second. Every note change happens inside the app, so there is nothing to catch while it
+  is stopped; a pinned shortcut to a note locked in the app is handled before the user is back
+  on the home screen.
+- Robolectric's `ShortcutManager` keeps disabled pinned shortcuts in a separate map without
+  flagging them, so the disable decision is tested as a pure function (`pinnedChanges`) and the
+  platform behaviour on a device.
+- No permission, network, schema or dependency change (`androidx.core` was already on the
+  classpath).
+
 ### D006 - Documentation Baseline Integration
 
 템플릿 기반 운영 문서를 프로젝트 루트에 통합한다.

@@ -224,6 +224,10 @@
     <string name="show_note_previews_description">제목 아래에 본문 일부와 수정 시각을 표시합니다. 끄면 화면에 더 많은 노트가 보입니다.</string>
     <string name="reopen_last_note">시작 시 마지막 노트 열기</string>
     <string name="reopen_last_note_description">앱을 열 때 노트 목록 대신 마지막으로 편집한 노트에서 시작합니다.</string>
+    <string name="recent_notes_in_shortcuts">앱 바로가기에 최근 노트 표시</string>
+    <string name="recent_notes_in_shortcuts_description">Markleaf 아이콘을 길게 누르면 최근에 편집한 노트 두 개가 보입니다. 노트 제목이 홈 화면에 표시됩니다. 잠긴 노트와 휴지통의 노트는 표시되지 않습니다.</string>
+    <string name="shortcut_note_unavailable">더 이상 열 수 없는 노트입니다</string>
+    <string name="shortcut_note_hidden_label">열 수 없음</string>
     <string name="open_notes_in_preview">노트를 미리보기로 열기</string>
     <string name="open_notes_in_preview_description">노트를 열 때 편집 화면 대신 미리보기를 표시합니다. 새 노트는 편집으로 열립니다. 노트에서 미리보기/편집 아이콘을 길게 누르면 이 설정을 바꿀 수 있습니다.</string>
     <string name="open_notes_at">노트를 열 위치</string>

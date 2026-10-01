@@ -6,6 +6,7 @@ import android.print.PrintManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.markleaf.notes.R
+import com.markleaf.notes.core.markdown.CommonMarkPreviewAdapter
 import com.markleaf.notes.core.markdown.preview.unresolvedImageText
 import com.markleaf.notes.domain.model.Note
 import kotlinx.coroutines.Dispatchers
@@ -14,6 +15,7 @@ import org.commonmark.node.AbstractVisitor
 import org.commonmark.node.Image
 import org.commonmark.node.Text
 import org.commonmark.ext.footnotes.FootnotesExtension
+import org.commonmark.ext.front.matter.YamlFrontMatterExtension
 import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
 import org.commonmark.ext.gfm.tables.TablesExtension
 import org.commonmark.ext.task.list.items.TaskListItemsExtension
@@ -28,6 +30,11 @@ import org.commonmark.renderer.html.HtmlRenderer
  */
 object ExportPdf {
     private val extensions = listOf(
+        // Front matter is metadata, as it is in the preview (which shows it in
+        // its own muted block). Without this extension the PDF parsed it as
+        // Markdown: the opening `---` printed as a rule and the YAML under it,
+        // closed by the second `---`, as a Setext H2 heading.
+        YamlFrontMatterExtension.create(),
         StrikethroughExtension.create(),
         TablesExtension.create(),
         TaskListItemsExtension.create(),
@@ -35,6 +42,14 @@ object ExportPdf {
     )
 
     private val parser: Parser = Parser.builder().extensions(extensions).build()
+
+    // `---` that nothing closes is a rule, not front matter: the extension
+    // would swallow the rest of the note. Same rule as the preview
+    // (CommonMarkPreviewAdapter.opensUnclosedFrontMatter, review of #491).
+    private val parserWithoutFrontMatter: Parser = Parser.builder()
+        .extensions(extensions.filterNot { it is YamlFrontMatterExtension })
+        .build()
+
     private val renderer: HtmlRenderer = HtmlRenderer.builder().extensions(extensions).build()
 
     /**
@@ -89,7 +104,8 @@ object ExportPdf {
         untitled: String,
         imageSource: (destination: String) -> String? = { null }
     ): String {
-        val document = parser.parse(note.contentMarkdown)
+        val markdown = note.contentMarkdown
+        val document = (if (CommonMarkPreviewAdapter.opensUnclosedFrontMatter(markdown)) parserWithoutFrontMatter else parser).parse(markdown)
         inlineImages(document, imageSource)
         val bodyHtml = renderer.render(document)
         val title = note.title.ifBlank { untitled }

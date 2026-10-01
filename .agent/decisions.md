@@ -948,7 +948,10 @@ Advanced Markdown preview should stay local and dependency-light.
 Implications:
 
 - Tables are parsed and rendered directly in Compose.
-- Inline `$...$` and display `$$...$$` math notation are shown as readable local math blocks/segments.
+- ~~Inline `$...$` and display `$$...$$` math notation are shown as readable local math blocks/segments.~~
+  **Corrected 2026-10-01 (D081):** no math handling exists. Whatever the hand-rolled parser did, it
+  left with it in v2.3.0 (commonmark-java); `$…$` renders as the text it is. Math stays unsupported
+  rather than half-styled, because a `$` pattern also matches prices (`$5 and $10`).
 - A full KaTeX-compatible rendering engine is deferred until it can be added without network access, proprietary SDKs, or F-Droid compatibility risk.
 
 ### D023 - Fixed Production Signing Certificate
@@ -1569,6 +1572,38 @@ Implications:
   platform behaviour on a device.
 - No permission, network, schema or dependency change (`androidx.core` was already on the
   classpath).
+
+### D081 - The Preview Never Drops What A Note Says; Quotes And Callouts Are Rows
+
+Date: 2026-10-01. Plan: `docs/MARKDOWN_SYNTAX_PLAN.md` (M1). The maintainer took every
+recommendation: no non-standard syntax (`==highlight==`, math, Mermaid), an image beside text splits
+its paragraph, callout types stay as they are (GFM five, their aliases, and any other word shown
+under its own label), math only gets this record corrected (D024).
+
+Decision:
+- A quote's children are rendered by the same block renderer as the document and stamped with
+  `quoteDepth`; the renderer draws one bar per level down every such row. A callout is a header row
+  plus its body as ordinary rows stamped with `callout`, and the renderer draws one box across them.
+  Flattening children to text is what lost a fenced block (no text node), a list (`ab`) and every
+  link inside a callout.
+- An HTML block that is not `<details>` is shown as its text: tags removed, `<br>` and block-level
+  closing tags as line breaks, a few entities decoded, `<img>` as an image row; comments, `<script>`
+  and `<style>` stay hidden. HTML is not rendered. Inline `<br>` is a line break.
+- A paragraph is split at each direct-child image (Markdown or `<img>`), so the image is drawn
+  instead of leaving only its alt text. An image inside a link stays the link.
+- PDF export parses front matter as front matter, as the preview does.
+
+Implications:
+- Rows nest without indenting inside a quote, so the depth ceiling counts containers (`nesting`)
+  rather than list `depth`.
+- `containerDepth` keeps a list inside a callout from indenting the box itself.
+- The callout box spans several `LazyColumn` items; a long callout scrolls like any text.
+- Callout parsing stays in the adapter rather than commonmark's `gfm-alerts` extension (0.28+): that
+  extension needs every accepted type listed up front, and today any `[!word]` is a callout.
+- Review of #491 added two rules: inside a callout every accent (headings, done tasks, links,
+  inline code, footnote labels, summaries, a missing image's text) takes the box's content colour
+  (`previewAccent`), and `---` that nothing closes is a thematic break, not front matter, in the
+  preview and the PDF (`opensUnclosedFrontMatter`).
 
 ### D006 - Documentation Baseline Integration
 

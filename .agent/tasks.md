@@ -3,6 +3,19 @@
 이 파일은 랄프 루프에서 사용할 작업 목록입니다.  
 에이전트는 매 루프마다 가장 위의 unchecked task 하나만 선택해 구현합니다.
 
+## Markdown syntax coverage (2026-10-01)
+
+계획·실행 근거: `docs/MARKDOWN_SYNTAX_PLAN.md`. Q1–Q4 권고안 확정(D081): 비표준 확장(M5) 없음.
+각 M은 단독 PR + 릴리스.
+
+- [x] M1 내용 소실 복구: 인용·콜아웃 재귀 렌더(`quoteDepth`·`callout`), HTML 블록 텍스트 폴백,
+  `<br>`, 문단 속 이미지 분할, PDF front matter
+- [ ] M2 commonmark 0.24 → 0.30, GFM autolink(프리뷰·PDF), 콜아웃 사용자 제목·접기 표식,
+  PDF 콜아웃·위키링크, 깊이 방어 재평가
+- [ ] M3 순서 목록 할 일 체크박스(탭 토글), 문서 내 `#앵커` 링크 → 제목으로 스크롤
+- [ ] M4 에디터 하이라이트: 들여쓴·`*`/`+`/`1.` 체크박스, `~~~` 펜스, 코드 안 인라인 서식 제외,
+  `__굵게__`·`***`·위키링크·맨 URL
+
 ## Android platform integration (Planned, 2026-10-01)
 
 계획·근거·버전 매트릭스: `docs/ANDROID_PLATFORM_PLAN.md`. 기능 트랙(F)은 현재 도구로 진행하고

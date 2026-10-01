@@ -1,0 +1,1 @@
+Preview no longer drops parts of a note: code blocks, lists and headings inside quotes and callouts show, and links and bold in callouts work. HTML blocks show their text, <br> breaks the line (also in tables), and an image in the middle of text is drawn. PDF export no longer prints front matter as a big heading, and a note that starts with an unclosed --- keeps its text.

@@ -6,7 +6,6 @@ import com.markleaf.notes.core.markdown.CommonMarkPreviewAdapter
 import com.markleaf.notes.core.markdown.PreviewInlineSegment
 import com.markleaf.notes.core.markdown.PreviewLine
 import com.markleaf.notes.core.markdown.PreviewLineType
-import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
 
 /**
  * One find-in-note hit in the preview (#417): the [lineIndex]-th row of the
@@ -43,9 +42,9 @@ internal fun previewFindParts(
     PreviewLineType.BULLET, PreviewLineType.CHECKBOX_DONE, PreviewLineType.CHECKBOX_TODO,
     PreviewLineType.ORDERED_LIST, PreviewLineType.BODY, PreviewLineType.BLOCKQUOTE,
     PreviewLineType.FOOTNOTE_DEF -> listOf(inlineDisplayText(line.segments, line.text))
-    PreviewLineType.CALLOUT -> calloutBodyLines(line.text).map {
-        inlineDisplayText(SimpleMarkdownPreview.parseInlineSegments(it), it)
-    }
+    // The header row draws the callout's label, not the note's text; its body
+    // is ordinary rows below it and is searched as those.
+    PreviewLineType.CALLOUT -> listOf(line.text).filter { it.isNotBlank() }
     PreviewLineType.TABLE -> line.tableData?.let { data ->
         data.headers.mapIndexed { col, cell ->
             inlineDisplayText(data.headerSegments.getOrElse(col) { emptyList() }, cell)
@@ -62,10 +61,6 @@ internal fun previewFindParts(
 
 /** What the preview draws for an image whose attachment cannot be found. */
 internal fun unresolvedImageText(alt: String, path: String): String = "![$alt]($path)"
-
-/** A callout's body lines as its renderer draws them: blank lines are spacers, not text. */
-internal fun calloutBodyLines(text: String): List<String> =
-    if (text.isBlank()) emptyList() else text.split("\n").filter { it.isNotBlank() }
 
 /** Mirrors `InlineMarkdownText`'s fallback: no segments means the raw text is drawn. */
 private fun inlineDisplayText(segments: List<PreviewInlineSegment>, fallback: String): String =

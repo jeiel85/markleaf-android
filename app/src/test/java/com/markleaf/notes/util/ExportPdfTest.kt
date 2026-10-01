@@ -107,4 +107,39 @@ class ExportPdfTest {
         assertFalse(body.contains("<img"))
         assertTrue(body, body.contains("![Diagram](https://example.com/d.png)"))
     }
+
+    @Test
+    fun frontMatterIsNotPrintedAsAHeading() {
+        // Without the front-matter extension the closing `---` turned the YAML
+        // above it into a Setext H2, and the opening one into a rule.
+        val body = bodyOf(ExportPdf.renderDocument(note("---\ntitle: Hello\ntags: [a]\n---\n\nBody text"), "Untitled"))
+
+        assertFalse(body, body.contains("<h2"))
+        assertFalse(body, body.contains("<hr"))
+        assertFalse(body, body.contains("title: Hello"))
+        assertTrue(body, body.contains("<p>Body text</p>"))
+    }
+
+    @Test
+    fun anOpeningRuleThatNothingClosesStillPrintsWhatFollows() {
+        val body = bodyOf(ExportPdf.renderDocument(note("---\nJust some prose"), "Untitled"))
+
+        assertTrue(body, body.contains("<hr"))
+        assertTrue(body, body.contains("<p>Just some prose</p>"))
+    }
+
+    @Test
+    fun aNoteThatIsOnlyARulePrintsTheRule() {
+        val body = bodyOf(ExportPdf.renderDocument(note("---"), "Untitled"))
+
+        assertTrue(body, body.contains("<hr"))
+    }
+
+    @Test
+    fun aLoneRuleIsStillARule() {
+        val body = bodyOf(ExportPdf.renderDocument(note("Above\n\n---\n\nBelow"), "Untitled"))
+
+        assertTrue(body, body.contains("<hr"))
+        assertTrue(body, body.contains("<p>Below</p>"))
+    }
 }

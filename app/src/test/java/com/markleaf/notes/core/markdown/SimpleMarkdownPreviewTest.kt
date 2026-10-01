@@ -264,9 +264,14 @@ class SimpleMarkdownPreviewTest {
 
         val lines = SimpleMarkdownPreview.parse(markdown)
 
+        // The header row carries the type; the body is an ordinary row below
+        // it, stamped as part of the callout so the box spans both.
         assertEquals(PreviewLineType.CALLOUT, lines[0].type)
         assertEquals("NOTE", lines[0].extra)
-        assertEquals("A useful note.\nSecond line.", lines[0].text)
+        assertEquals(PreviewLineType.BODY, lines[1].type)
+        assertEquals("A useful note.\nSecond line.", lines[1].segments.joinToString("") { it.text })
+        assertEquals("NOTE", lines[1].callout)
+        assertTrue(lines[1].calloutEnd)
         val afterIndex = lines.indexOfFirst { it.type == PreviewLineType.BODY && it.text == "After" }
         assertTrue("expected an 'After' BODY line", afterIndex > 0)
     }

@@ -162,7 +162,32 @@ data class PreviewLine(
      * places a caret, where "the start of the block you were reading" is the
      * right answer and a row it cannot place simply leaves the caret alone.
      */
-    val startLine: Int? = null
+    val startLine: Int? = null,
+    /**
+     * How many plain `>` quotes this row sits inside. Every block a quote holds
+     * — a paragraph, but also a list, a code block, a heading, another quote —
+     * becomes its own row carrying this, and the renderer draws one bar per
+     * level down the left of each. Folding a quote's children into flat text
+     * instead was how `> - a` / `> - b` rendered as `ab` and a fenced block
+     * inside a quote rendered as nothing at all.
+     */
+    val quoteDepth: Int = 0,
+    /**
+     * The raw type (`NOTE`, `tip`, …) of the innermost GitHub-style callout
+     * this row belongs to, or null. Set on the [PreviewLineType.CALLOUT] header
+     * and on every row of its body, so the renderer can draw one box across
+     * rows that are laid out separately.
+     */
+    val callout: String? = null,
+    /** True on the last row of a callout's box — where its bottom edge is drawn. */
+    val calloutEnd: Boolean = false,
+    /**
+     * The list [depth] at which the outermost quote or callout around this row
+     * begins. The quote bars and callout box are drawn at this indent; only the
+     * rest of [depth] indents the row's content inside them. Without it a list
+     * inside a callout would indent the box itself and leave it jagged.
+     */
+    val containerDepth: Int = 0
 )
 
 object SimpleMarkdownPreview {

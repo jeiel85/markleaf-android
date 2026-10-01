@@ -1,0 +1,1 @@
+Las direcciones web y de correo escritas tal cual en una nota ahora son enlaces que se pueden tocar, como en GitHub (el código sigue siendo código). Las palabras tras el [!TIP] de un aviso pasan a ser su título, y el marcador de plegado de Obsidian ya no aparece como un guion suelto. El PDF imprime los avisos como cajas con título y los wikilinks como texto normal.

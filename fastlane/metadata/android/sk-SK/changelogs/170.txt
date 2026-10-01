@@ -1,0 +1,1 @@
+Webové a e-mailové adresy napísané priamo v poznámke sú teraz odkazy, na ktoré sa dá ťuknúť, ako na GitHube (kód zostáva kódom). Slová za [!TIP] vo zvýraznenom bloku sa stanú jeho nadpisom a Obsidian značka zbalenia sa už nezobrazuje ako samotná pomlčka. Export do PDF tlačí zvýraznené bloky ako rámčeky s nadpisom a wiki odkazy ako bežný text.

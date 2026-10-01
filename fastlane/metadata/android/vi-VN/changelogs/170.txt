@@ -1,0 +1,1 @@
+Địa chỉ web và email viết thẳng trong ghi chú giờ là liên kết có thể chạm, giống GitHub (trong mã vẫn giữ nguyên). Chữ sau [!TIP] của hộp chú thích trở thành tiêu đề của nó, và dấu thu gọn của Obsidian không còn hiện thành dấu gạch lẻ. Xuất PDF in hộp chú thích thành khung có tiêu đề và wikilink thành chữ thường.

@@ -1622,6 +1622,8 @@ Decision:
   as Obsidian does, and drops a fold marker (`-`/`+`). Folding is not offered.
 - The PDF prints a callout as a tinted box under its title (localized type label when untitled) and
   a wikilink as its label.
+- Wikilinks become `WikilinkNode`s in a parser post-processor registered before autolink, so an
+  address inside `[[…]]` stays part of the wikilink (self-review of #492).
 
 Alternatives considered:
 - `gfm-alerts` (0.28+) instead of `CalloutHead`: rejected in D081 — it needs the types listed.

@@ -1,10 +1,11 @@
-## 2026-10-01 — Autolinks and callout titles (M2 of the syntax plan)
+## 2026-10-01 — Autolinks and callout titles (M2 of the syntax plan, v2.60.0)
 
 - **Dependency (D082).** commonmark-java 0.24.0 → 0.30.0 plus `commonmark-ext-autolink` (`org.nibor.autolink` 0.11.0, MIT). Bare `https://…`, `www.…` and email addresses are links in the preview and the PDF; code spans are left alone.
 - **Two 0.30 behaviours handled.** Its default `maxOpenBlockParsers` (100) flattened lists deeper than ~50 levels into text — under the preview's own visible cut at 64 — which `NestedListPreviewTest` caught; it is now `MAX_BLOCK_DEPTH * 2 + 16`. A table past a million cells throws `IllegalArgumentException`; only the parse call is guarded (preview: the note's lines; PDF: `<pre>` text).
 - **Callout heads (`CalloutHead`, shared by preview and PDF).** The rest of the `[!TYPE]` line is the title (Obsidian), shown instead of the type label and searchable; a fold marker `-`/`+` no longer leaks into the body. Folding itself is not offered.
 - **PDF.** Callouts print as a tinted box under their title (localized type label when untitled); wikilinks print as their label.
 - **Tests.** `AutolinkAndCalloutTitleTest` (14), `ExportPdfTest` +6. One test expectation of mine was wrong and changed: a callout title with `<b>` in it — that is an inline HTML tag, dropped as everywhere else, so the escaping test now uses `1 < 2`. Full `./gradlew test` (three variants), `lintRelease`, `assembleDebug` passed.
+- **Review of #492.** Codex was over its usage limit, so the branch went through `/code-review` (high) instead: four findings, all fixed — autolinks cut the address out of `[[www.x.com notes]]` before wikilinks were found (now `WikilinkExtension` turns wikilinks into nodes first, one regex for preview, PDF and backlinks); `.callout blockquote` painted a nested plain quote as a second box (now `.callout > blockquote`); the PDF parser kept the 100 block-parser default (now the preview's cap).
 - **Emulator (`markleaf-phone-api36`).** Preview: three autolink kinds styled, a URL in inline code not; tapping `https://example.com` opened Chrome; a titled TIP, a NOTE with `-` and an untitled WARNING. PDF print preview: three tinted callout boxes with titles, `[[Some Note]]` printed as "Some Note", links green. The email link's tap was not checked (no mail app on the image).
 
 ## 2026-10-01 — Markdown preview never drops content (M1 of the syntax plan, v2.59.1)

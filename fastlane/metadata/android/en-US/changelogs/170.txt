@@ -1,0 +1,1 @@
+Bare web and email addresses in a note are now links you can tap, as on GitHub (code stays code). Words after a callout's [!TIP] become its title, and Obsidian's fold marker no longer shows as a stray dash. PDF export prints callouts as titled boxes and wikilinks as plain words.

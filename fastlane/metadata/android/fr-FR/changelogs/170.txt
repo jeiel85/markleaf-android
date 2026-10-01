@@ -1,0 +1,1 @@
+Les adresses web et e-mail écrites telles quelles dans une note sont désormais des liens cliquables, comme sur GitHub (le code reste du code). Les mots après le [!TIP] d’un encadré deviennent son titre, et le marqueur de repli d’Obsidian n’apparaît plus comme un tiret isolé. L’export PDF imprime les encadrés comme des cadres titrés et les wikiliens comme du texte normal.

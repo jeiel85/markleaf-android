@@ -1,0 +1,1 @@
+Počas písania editor zvýrazňuje to isté, čo ukazuje náhľad: všetky druhy úloh (vnorené, číslované, v citáte), bloky kódu ~~~, __tučné__ a ***tučná kurzíva***, [[wiki odkazy]] a priamo napísané webové a e-mailové adresy. Obsah kódu zostáva kódom, takže komentár # v skripte už nevyzerá ako nadpis.

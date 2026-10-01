@@ -1,0 +1,1 @@
+Dok pišete, uređivač sada ističe ono što prikazuje pregled: sve vrste zadataka (uvučene, numerirane, unutar citata), ~~~ blokove koda, __podebljano__ i ***podebljani kurziv***, [[wiki-poveznice]] te izravno napisane web i e-mail adrese. Sve unutar koda ostaje običan kod, pa komentar # u skripti više ne izgleda kao naslov.

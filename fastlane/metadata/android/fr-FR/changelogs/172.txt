@@ -1,0 +1,1 @@
+Pendant la saisie, l’éditeur met en forme ce que montre l’aperçu : toutes les tâches (imbriquées, numérotées, dans une citation), les blocs de code ~~~, __gras__ et ***gras italique***, les [[wikiliens]] et les adresses web ou e-mail écrites telles quelles. Ce qui est dans du code reste du code : un commentaire # dans un script ne ressemble plus à un titre.

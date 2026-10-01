@@ -1,4 +1,4 @@
-## 2026-10-01 — Editor highlighting catches up with the preview (M4 of the syntax plan)
+## 2026-10-01 — Editor highlighting catches up with the preview (M4 of the syntax plan, v2.62.0)
 
 - **Tasks.** `CHECKBOX_REGEX` matched only `- [ ]` at column 0, so a nested sub-task, `* [ ]`, `1. [ ]` and `> - [ ]` read as plain text while the preview drew boxes for all of them. It now takes the same markers the preview and the toggle (M3) do.
 - **Fences.** The single ```` ```…``` ```` regex knew no `~~~` and needed a closing fence. `fencedCodeRanges` reads fences by CommonMark's rules (backticks or tildes, three or more, closed by the same character at least as long, unclosed runs to the end — as the preview reads it).

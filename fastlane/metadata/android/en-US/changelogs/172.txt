@@ -1,0 +1,1 @@
+While you type, the editor now styles what Preview shows: every kind of task (nested, numbered, inside a quote), ~~~ code blocks, __bold__ and ***bold italic***, [[wikilinks]] and bare web or email addresses. Anything inside code stays plain code, so a # comment in a shell snippet no longer looks like a heading.

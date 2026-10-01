@@ -4,6 +4,16 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.62.0 - The editor highlights what Preview shows - 2026-10-01
+
+No permission or storage-format changes. This completes the Markdown series started in v2.59.1.
+
+### Changed
+- **Live highlighting while you type now matches Preview.** Every task Preview draws a checkbox for is coloured in the editor too — indented sub-tasks, `* [ ]`, `1. [ ]` and tasks inside a quote, not only `- [ ]` at the start of a line. Code blocks fenced with `~~~` are styled as code, and so is a block whose closing fence you have not typed yet, as Preview reads it. `__bold__`, `***bold italic***`, `[[wikilinks]]` and bare web or email addresses are styled as well.
+
+### Fixed
+- **Text inside code is no longer styled as Markdown.** A `# comment` in a shell snippet came out heading-sized, and `**` or `_` inside a code block or an inline code span turned the text bold or italic. Inside code everything now stays plain code.
+
 ## v2.61.0 - Numbered tasks and links to headings - 2026-10-01
 
 No permission or storage-format changes.

@@ -1,0 +1,1 @@
+Mientras escribes, el editor resalta lo mismo que muestra la vista previa: todo tipo de tareas (anidadas, numeradas, dentro de una cita), bloques de código ~~~, __negrita__ y ***negrita cursiva***, [[wikilinks]] y direcciones web o de correo escritas tal cual. Lo que está dentro de código sigue siendo código, así que un comentario # de un script ya no parece un título.

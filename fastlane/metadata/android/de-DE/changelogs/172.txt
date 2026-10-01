@@ -1,0 +1,1 @@
+Beim Schreiben hebt der Editor jetzt hervor, was die Vorschau zeigt: jede Art von Aufgabe (eingerückt, nummeriert, im Zitat), ~~~-Codeblöcke, __fett__ und ***fett kursiv***, [[Wikilinks]] sowie einfach hingeschriebene Web- und E-Mail-Adressen. Alles in Code bleibt reiner Code, ein #-Kommentar in einem Shell-Schnipsel sieht nicht mehr wie eine Überschrift aus.

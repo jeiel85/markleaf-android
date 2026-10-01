@@ -1,0 +1,1 @@
+Khi bạn gõ, trình soạn thảo giờ tô sáng đúng những gì bản xem trước hiển thị: mọi loại việc cần làm (lồng nhau, có số, trong trích dẫn), khối mã ~~~, __đậm__ và ***đậm nghiêng***, [[wikilink]] và địa chỉ web, email viết thẳng. Nội dung trong mã vẫn là mã, nên chú thích # trong đoạn script không còn trông như tiêu đề.

@@ -77,6 +77,26 @@ class TasksAndAnchorsTest {
         assertNull(MarkdownEditActions.toggleTaskAtLine("[ ] no marker", 0))
     }
 
+    @Test
+    fun enterAfterANumberedTaskContinuesWithABox() {
+        val before = androidx.compose.ui.text.input.TextFieldValue("1. [ ] milk", selection = androidx.compose.ui.text.TextRange(11))
+        val typed = androidx.compose.ui.text.input.TextFieldValue("1. [ ] milk\n", selection = androidx.compose.ui.text.TextRange(12))
+
+        val result = MarkdownEditActions.applyAutoContinuation(before, typed, pendingGuard = null)
+
+        assertEquals("1. [ ] milk\n2. [ ] ", result.value.text)
+    }
+
+    @Test
+    fun enterOnAnEmptyNumberedTaskEndsTheList() {
+        val before = androidx.compose.ui.text.input.TextFieldValue("1. [ ] milk\n2. [ ] ", selection = androidx.compose.ui.text.TextRange(19))
+        val typed = androidx.compose.ui.text.input.TextFieldValue("1. [ ] milk\n2. [ ] \n", selection = androidx.compose.ui.text.TextRange(20))
+
+        val result = MarkdownEditActions.applyAutoContinuation(before, typed, pendingGuard = null)
+
+        assertEquals("1. [ ] milk\n\n", result.value.text)
+    }
+
     // ---- anchors -------------------------------------------------------------
 
     @Test

@@ -483,6 +483,18 @@ object MarkdownEditActions {
                 bodyEmpty = body.isEmpty()
             )
         }
+        // Numbered checklist: `1. [ ] body` -> `2. [ ] `. Without this the
+        // ordered branch below continued it as `2. `, dropping the box the
+        // preview draws for a numbered task (review of #494).
+        val orderedChecklist = Regex("""^(\s*)(\d+)\.\s\[[ xX]]\s(.*)$""").matchEntire(line)
+        if (orderedChecklist != null) {
+            val indent = orderedChecklist.groupValues[1]
+            val n = orderedChecklist.groupValues[2].toIntOrNull() ?: 1
+            return Continuation(
+                nextPrefix = "$indent${n + 1}. [ ] ",
+                bodyEmpty = orderedChecklist.groupValues[3].isEmpty()
+            )
+        }
         // Ordered: `1. body` -> `2. body`
         val ordered = Regex("""^(\s*)(\d+)\.\s(.*)$""").matchEntire(line)
         if (ordered != null) {

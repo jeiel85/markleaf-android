@@ -233,12 +233,16 @@ fun MarkdownPreviewList(
     // Slugs are counted over every row, collapsed or not, so a duplicate
     // heading's `-1` suffix matches what GitHub gives it; a target inside a
     // collapsed section is not laid out and the tap does nothing.
-    val onAnchorClick: (String) -> Unit = onAnchorClick@{ fragment ->
-        val lineIndex = findHeadingAnchorIndex(scaledLines, fragment)
-        val target = visibleIndices.indexOf(lineIndex)
-        if (lineIndex < 0 || target < 0) return@onAnchorClick
-        scope.launch {
-            listState.animateScrollToItem(target)
+    // Remembered: it is handed down through a CompositionLocal, and a fresh
+    // lambda on every recomposition would re-run every row that reads it.
+    val onAnchorClick: (String) -> Unit = remember(scaledLines, visibleIndices, listState, scope) {
+        onAnchorClick@{ fragment ->
+            val lineIndex = findHeadingAnchorIndex(scaledLines, fragment)
+            val target = visibleIndices.indexOf(lineIndex)
+            if (lineIndex < 0 || target < 0) return@onAnchorClick
+            scope.launch {
+                listState.animateScrollToItem(target)
+            }
         }
     }
     val onFootnoteRefClick: (String) -> Unit = onFootnoteRefClick@{ label ->
@@ -1323,10 +1327,6 @@ private fun hrefAt(
 private const val FOOTNOTE_REF_TAG = "footnote_ref"
 private const val TASK_MARKER_TAG = "task_marker"
 
-/**
- * Returns the index of the first `FOOTNOTE_DEF` line whose label matches [label],
- * or -1 if none. Lifted out of [MarkdownPreviewList] so it can be unit-tested.
- */
 /** `"3. "` for a numbered task (`3. [ ] …`), nothing for a bulleted one. */
 private fun taskNumber(line: PreviewLine): String = line.extra?.let { "$it. " }.orEmpty()
 
@@ -1399,6 +1399,10 @@ private fun percentDecode(text: String): String {
     return bytes.toString(Charsets.UTF_8.name())
 }
 
+/**
+ * Returns the index of the first `FOOTNOTE_DEF` line whose label matches [label],
+ * or -1 if none. Lifted out of [MarkdownPreviewList] so it can be unit-tested.
+ */
 internal fun findFootnoteDefIndex(lines: List<PreviewLine>, label: String): Int =
     lines.indexOfFirst { line ->
         line.type == PreviewLineType.FOOTNOTE_DEF && line.extra == label

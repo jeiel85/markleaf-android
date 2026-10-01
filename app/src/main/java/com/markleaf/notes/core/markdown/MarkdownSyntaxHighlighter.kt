@@ -73,9 +73,9 @@ object MarkdownSyntaxHighlighter {
      * Above this many characters the document is handed back unstyled without
      * being scanned at all.
      *
-     * The scan is linear and cheap — 11 regex passes over 200,000 characters
-     * measure ~12 ms on desktop-class hardware — but it runs on the UI thread
-     * once per text change, so on a phone a document this size costs a visible
+     * The scan is linear and cheap — the 11 regex passes it had when this was
+     * measured took ~12 ms over 200,000 characters on desktop-class
+     * hardware — but it runs on the UI thread once per text change, so on a phone a document this size costs a visible
      * fraction of a second on every keystroke for styling nobody can read all
      * of at once. Past this length the cheapest correct answer is no answer.
      */
@@ -124,7 +124,7 @@ object MarkdownSyntaxHighlighter {
     // Single-entry memo. The editor's `BasicTextField` runs this through a
     // `VisualTransformation` on the UI thread, and Compose invokes that filter on
     // every recomposition / measure pass — often more than once per keystroke.
-    // Each uncached call re-scans the whole document with 11 regex passes, so on a
+    // Each uncached call re-scans the whole document once per syntax, so on a
     // large note that O(n) work lands repeatedly on the main thread and drops
     // frames. Caching the last (text, colors) keeps it to once per actual change.
     // `highlight` is a pure function of its inputs and the result is an immutable
@@ -157,8 +157,11 @@ object MarkdownSyntaxHighlighter {
             plain(text)
         } else {
             val spans = ArrayList<PendingSpan>(64)
-            addLineStyles(spans, text, colors, fontScale)
-            addInlineStyles(spans, text, colors)
+            val fences = fencedCodeRanges(text)
+            val code = BooleanArray(text.length)
+            for (fence in fences) java.util.Arrays.fill(code, fence.first, fence.last + 1, true)
+            addLineStyles(spans, text, colors, fontScale, fences, code)
+            addInlineStyles(spans, text, colors, code)
             if (spans.size > MAX_SPAN_COUNT) plain(text) else styled(text, spans)
         }
 
@@ -185,9 +188,13 @@ object MarkdownSyntaxHighlighter {
         spans: MutableList<PendingSpan>,
         text: String,
         colors: MarkdownSyntaxColors,
-        fontScale: Float
+        fontScale: Float,
+        fences: List<IntRange>,
+        code: BooleanArray
     ) {
-        HEADING_REGEX.findAll(text).forEach { match ->
+        // Inside a fenced block a `#`, `>` or `- [ ]` is code, not structure:
+        // a shell comment used to come out heading-sized.
+        HEADING_REGEX.findAll(text).filterNot { code[it.range.first] }.forEach { match ->
             val markerLen = match.value.takeWhile { it == '#' }.length
             val (size, weight) = headingMetrics(markerLen, fontScale)
 
@@ -215,7 +222,7 @@ object MarkdownSyntaxHighlighter {
             )
         }
 
-        CHECKBOX_REGEX.findAll(text).forEach { match ->
+        CHECKBOX_REGEX.findAll(text).filterNot { code[it.range.first] }.forEach { match ->
             spans.addStyle(
                 SpanStyle(color = colors.checkbox),
                 match.range.first,
@@ -232,19 +239,19 @@ object MarkdownSyntaxHighlighter {
             }
         }
 
-        CODE_BLOCK_REGEX.findAll(text).forEach { match ->
+        fences.forEach { range ->
             spans.addStyle(
                 SpanStyle(
                     color = colors.code,
                     background = colors.codeBlock.copy(alpha = 0.1f),
                     fontFamily = FontFamily.Monospace
                 ),
-                match.range.first,
-                match.range.last + 1
+                range.first,
+                range.last + 1
             )
         }
 
-        BLOCKQUOTE_REGEX.findAll(text).forEach { match ->
+        BLOCKQUOTE_REGEX.findAll(text).filterNot { code[it.range.first] }.forEach { match ->
             spans.addStyle(
                 SpanStyle(color = colors.blockquote),
                 match.range.first,
@@ -258,7 +265,7 @@ object MarkdownSyntaxHighlighter {
             )
         }
 
-        HORIZONTAL_RULE_REGEX.findAll(text).forEach { match ->
+        HORIZONTAL_RULE_REGEX.findAll(text).filterNot { code[it.range.first] }.forEach { match ->
             spans.addStyle(
                 SpanStyle(color = colors.horizontalRule, fontWeight = FontWeight.Bold),
                 match.range.first,
@@ -270,9 +277,15 @@ object MarkdownSyntaxHighlighter {
     private fun addInlineStyles(
         spans: MutableList<PendingSpan>,
         text: String,
-        colors: MarkdownSyntaxColors
+        colors: MarkdownSyntaxColors,
+        code: BooleanArray
     ) {
-        INLINE_CODE_REGEX.findAll(text).forEach { match ->
+        // A span of code is code: emphasis, links and wikilinks inside it are
+        // not styled, which `**` or `_` in a snippet used to be.
+        fun MatchResult.inCode() = code[range.first] || code[range.last]
+
+        INLINE_CODE_REGEX.findAll(text).filterNot { it.inCode() }.forEach { match ->
+            for (i in match.range) code[i] = true
             spans.addStyle(
                 SpanStyle(
                     color = colors.code,
@@ -285,7 +298,7 @@ object MarkdownSyntaxHighlighter {
             muteMarker(spans, colors, match.range.last, 1)
         }
 
-        STRIKETHROUGH_REGEX.findAll(text).forEach { match ->
+        STRIKETHROUGH_REGEX.findAll(text).filterNot { it.inCode() }.forEach { match ->
             spans.addStyle(
                 SpanStyle(
                     color = colors.emphasis,
@@ -298,7 +311,17 @@ object MarkdownSyntaxHighlighter {
             muteMarker(spans, colors, match.range.last - 1, 2)
         }
 
-        BOLD_REGEX.findAll(text).forEach { match ->
+        BOLD_ITALIC_REGEX.findAll(text).filterNot { it.inCode() }.forEach { match ->
+            spans.addStyle(
+                SpanStyle(color = colors.emphasis, fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic),
+                match.range.first,
+                match.range.last + 1
+            )
+            muteMarker(spans, colors, match.range.first, 3)
+            muteMarker(spans, colors, match.range.last - 2, 3)
+        }
+
+        (BOLD_REGEX.findAll(text) + BOLD_UNDERSCORE_REGEX.findAll(text)).filterNot { it.inCode() }.forEach { match ->
             // Bear-class: real bold weight on `**bold**` content.
             spans.addStyle(
                 SpanStyle(color = colors.emphasis, fontWeight = FontWeight.Bold),
@@ -309,7 +332,7 @@ object MarkdownSyntaxHighlighter {
             muteMarker(spans, colors, match.range.last - 1, 2)
         }
 
-        ITALIC_REGEX.findAll(text).forEach { match ->
+        ITALIC_REGEX.findAll(text).filterNot { it.inCode() }.forEach { match ->
             spans.addStyle(
                 SpanStyle(color = colors.emphasis, fontStyle = FontStyle.Italic),
                 match.range.first,
@@ -319,7 +342,7 @@ object MarkdownSyntaxHighlighter {
             muteMarker(spans, colors, match.range.last, 1)
         }
 
-        ITALIC_UNDERSCORE_REGEX.findAll(text).forEach { match ->
+        ITALIC_UNDERSCORE_REGEX.findAll(text).filterNot { it.inCode() }.forEach { match ->
             spans.addStyle(
                 SpanStyle(color = colors.emphasis, fontStyle = FontStyle.Italic),
                 match.range.first,
@@ -329,7 +352,9 @@ object MarkdownSyntaxHighlighter {
             muteMarker(spans, colors, match.range.last, 1)
         }
 
-        MARKDOWN_LINK_REGEX.findAll(text).forEach { match ->
+        val linked = BooleanArray(text.length)
+        MARKDOWN_LINK_REGEX.findAll(text).filterNot { it.inCode() }.forEach { match ->
+            for (i in match.range) linked[i] = true
             spans.addStyle(
                 SpanStyle(color = colors.link, textDecoration = TextDecoration.Underline),
                 match.range.first,
@@ -341,6 +366,71 @@ object MarkdownSyntaxHighlighter {
             }
             muteMarker(spans, colors, match.range.last, 1)
         }
+
+        WIKILINK_REGEX.findAll(text).filterNot { it.inCode() }.forEach { match ->
+            // An address inside a wikilink is part of it, as in the preview.
+            for (i in match.range) linked[i] = true
+            spans.addStyle(
+                SpanStyle(color = colors.link, textDecoration = TextDecoration.Underline),
+                match.range.first,
+                match.range.last + 1
+            )
+            muteMarker(spans, colors, match.range.first, 2)
+            muteMarker(spans, colors, match.range.last - 1, 2)
+        }
+
+        // A bare web or email address is a link in the preview (GFM autolink),
+        // so it reads as one here too. Not the destination of a written link or the
+        // target of a wikilink, which the passes above already styled.
+        (BARE_URL_REGEX.findAll(text) + BARE_EMAIL_REGEX.findAll(text))
+            .filterNot { it.inCode() || linked[it.range.first] }
+            .forEach { match ->
+                spans.addStyle(
+                    SpanStyle(color = colors.link, textDecoration = TextDecoration.Underline),
+                    match.range.first,
+                    match.range.last + 1
+                )
+            }
+    }
+
+    /**
+     * Character ranges of fenced code blocks, by CommonMark's rules for the
+     * part that matters here: a fence is three or more backticks or tildes,
+     * indented at most three spaces, closed by a fence of the same character
+     * at least as long, and a fence nobody closes runs to the end of the note
+     * — as the preview reads it. The old single regex knew only ``` and needed
+     * a closing fence, so `~~~` blocks were never styled.
+     */
+    internal fun fencedCodeRanges(text: String): List<IntRange> {
+        val ranges = mutableListOf<IntRange>()
+        var openAt = -1
+        var fenceChar = ' '
+        var fenceLength = 0
+        var lineStart = 0
+        while (lineStart <= text.length) {
+            val newline = text.indexOf('\n', lineStart)
+            val lineEnd = if (newline < 0) text.length else newline
+            val fence = FENCE_LINE_REGEX.matchEntire(text.substring(lineStart, lineEnd))
+            if (fence != null) {
+                val run = fence.groupValues[1]
+                val info = fence.groupValues[2]
+                if (openAt < 0) {
+                    // A backtick fence's info string may not contain a backtick.
+                    if (run[0] == '~' || '`' !in info) {
+                        openAt = lineStart
+                        fenceChar = run[0]
+                        fenceLength = run.length
+                    }
+                } else if (run[0] == fenceChar && run.length >= fenceLength && info.isBlank()) {
+                    ranges += openAt until lineEnd
+                    openAt = -1
+                }
+            }
+            if (newline < 0) break
+            lineStart = newline + 1
+        }
+        if (openAt >= 0 && openAt < text.length) ranges += openAt until text.length
+        return ranges
     }
 
     private fun headingMetrics(level: Int, fontScale: Float): Pair<TextUnit, FontWeight> = when (level) {
@@ -374,13 +464,21 @@ object MarkdownSyntaxHighlighter {
     }
 
     private val HEADING_REGEX = Regex("""(?m)^#{1,6}\s.+$""")
-    private val CHECKBOX_REGEX = Regex("""(?m)^-\s\[[ xX]]\s.+$""")
-    private val CODE_BLOCK_REGEX = Regex("""(?sm)^```.*?```""")
+    // Any task the preview draws a box for: `-`, `*`, `+` or `1.`/`1)`, at any
+    // indent and inside `>` quotes. Only `- [ ]` at the very start of a line
+    // used to be coloured, so a nested sub-task read as plain text.
+    private val CHECKBOX_REGEX = Regex("""(?m)^[ \t]*(?:>[ \t]*)*(?:[-*+]|\d{1,9}[.)])[ \t]+\[[ xX]](?:[ \t].*)?$""")
+    private val FENCE_LINE_REGEX = Regex("""^ {0,3}(`{3,}|~{3,})(.*)$""")
     private val BLOCKQUOTE_REGEX = Regex("""(?m)^>.*$""")
     private val HORIZONTAL_RULE_REGEX = Regex("""(?m)^(\*\*\*|---|___)\s*$""")
     private val INLINE_CODE_REGEX = Regex("""`[^`\n]+?`""")
     private val STRIKETHROUGH_REGEX = Regex("""~~[^~\n]+?~~""")
     private val BOLD_REGEX = Regex("""\*\*[^*\n]+?\*\*""")
+    private val BOLD_ITALIC_REGEX = Regex("""\*\*\*[^*\n]+?\*\*\*""")
+    private val BOLD_UNDERSCORE_REGEX = Regex("""(?<!\w)__[^_\n]+?__(?!\w)""")
+    private val WIKILINK_REGEX = Regex("""\[\[[^\[\]\n]+?]]""")
+    private val BARE_EMAIL_REGEX = Regex("""(?<![\w.+-])[\w.+-]+@[\w-]+(?:\.[\w-]+)+(?![\w-])""")
+    private val BARE_URL_REGEX = Regex("""(?<![\w/@.(<\[])(?:https?://|www\.)[^\s<>()\[\]]*[^\s<>()\[\].,;:!?'"*_~]""")
     private val ITALIC_REGEX = Regex("""(?<!\*)\*[^*\n]+?\*(?!\*)""")
     private val ITALIC_UNDERSCORE_REGEX = Regex("""(?<!\w)_[^_\n]+?_(?!\w)""")
     private val MARKDOWN_LINK_REGEX = Regex("""\[[^\]\n]+]\([^) \n][^)\n]*\)""")

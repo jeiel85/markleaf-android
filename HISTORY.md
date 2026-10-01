@@ -1,3 +1,13 @@
+## 2026-10-01 — Editor highlighting catches up with the preview (M4 of the syntax plan, v2.62.0)
+
+- **Tasks.** `CHECKBOX_REGEX` matched only `- [ ]` at column 0, so a nested sub-task, `* [ ]`, `1. [ ]` and `> - [ ]` read as plain text while the preview drew boxes for all of them. It now takes the same markers the preview and the toggle (M3) do.
+- **Fences.** The single ```` ```…``` ```` regex knew no `~~~` and needed a closing fence. `fencedCodeRanges` reads fences by CommonMark's rules (backticks or tildes, three or more, closed by the same character at least as long, unclosed runs to the end — as the preview reads it).
+- **Code is code.** Headings, quotes, rules and tasks inside a fence, and emphasis, links and wikilinks inside a fence or an inline code span, are no longer styled: a `# comment` in a shell block came out heading-sized and `**` in a snippet turned bold.
+- **New styles.** `__bold__`, `***bold italic***`, `[[wikilinks]]` and bare URLs (not a written link's destination, which the link pass already styles).
+- **Budget.** More passes, so more spans per marked-up note; the `MAX_SPAN_COUNT` guard (#437) is unchanged and `MarkdownSyntaxHighlightCostTest` (rich note under half the budget, linear scan) still passes. Code-masking removes spans as well as adding them.
+- **Review of #496.** Codex still over its limit; `/code-review` (high) found five. Fixed: bare email addresses were links in Preview but unstyled here (now styled), the code mask was filled through boxed `IntRange.forEach` (now `Arrays.fill`), a KDoc line ran long. Kept: an unclosed fence unstyles the rest of the note, as the preview renders it. Moved to #262: a fence indented four or more spaces (inside a nested list item) is still not seen, as before.
+- **Tests.** `EditorHighlightCoverageTest` (14). An address inside a wikilink is styled once, as the wikilink (the same rule the preview got in #492).
+
 ## 2026-10-01 — Numbered tasks and in-note anchors (M3 of the syntax plan, v2.61.0)
 
 - **Numbered tasks.** `1. [ ] task` (GFM allows it) rendered as a plain numbered item with no box. It is now a checkbox row that keeps its number (`extra`) and its source line, so a tap flips it.

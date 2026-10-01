@@ -121,6 +121,13 @@ class ExportPdfTest {
     }
 
     @Test
+    fun aNoteThatIsOnlyARulePrintsTheRule() {
+        val body = bodyOf(ExportPdf.renderDocument(note("---"), "Untitled"))
+
+        assertTrue(body, body.contains("<hr"))
+    }
+
+    @Test
     fun aLoneRuleIsStillARule() {
         val body = bodyOf(ExportPdf.renderDocument(note("Above\n\n---\n\nBelow"), "Untitled"))
 

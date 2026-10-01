@@ -41,6 +41,14 @@ object ExportPdf {
     )
 
     private val parser: Parser = Parser.builder().extensions(extensions).build()
+
+    // A note that is nothing but `---` is a rule, not an unclosed front-matter
+    // block — the same special case the preview makes in
+    // CommonMarkPreviewAdapter.parseStructured (review of #491).
+    private val parserWithoutFrontMatter: Parser = Parser.builder()
+        .extensions(extensions.filterNot { it is YamlFrontMatterExtension })
+        .build()
+
     private val renderer: HtmlRenderer = HtmlRenderer.builder().extensions(extensions).build()
 
     /**
@@ -95,7 +103,8 @@ object ExportPdf {
         untitled: String,
         imageSource: (destination: String) -> String? = { null }
     ): String {
-        val document = parser.parse(note.contentMarkdown)
+        val markdown = note.contentMarkdown
+        val document = (if (markdown.trim() == "---") parserWithoutFrontMatter else parser).parse(markdown)
         inlineImages(document, imageSource)
         val bodyHtml = renderer.render(document)
         val title = note.title.ifBlank { untitled }

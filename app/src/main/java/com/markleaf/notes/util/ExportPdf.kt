@@ -6,12 +6,17 @@ import android.print.PrintManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.markleaf.notes.R
+import com.markleaf.notes.core.markdown.CalloutHead
+import com.markleaf.notes.core.markdown.CalloutKind
 import com.markleaf.notes.core.markdown.CommonMarkPreviewAdapter
 import com.markleaf.notes.core.markdown.preview.unresolvedImageText
 import com.markleaf.notes.domain.model.Note
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.commonmark.ext.autolink.AutolinkExtension
 import org.commonmark.node.AbstractVisitor
+import org.commonmark.node.BlockQuote
+import org.commonmark.node.HtmlBlock
 import org.commonmark.node.Image
 import org.commonmark.node.Text
 import org.commonmark.ext.footnotes.FootnotesExtension
@@ -38,7 +43,9 @@ object ExportPdf {
         StrikethroughExtension.create(),
         TablesExtension.create(),
         TaskListItemsExtension.create(),
-        FootnotesExtension.builder().build()
+        FootnotesExtension.builder().build(),
+        // Bare URLs print as links, as the preview shows them (D082).
+        AutolinkExtension.create()
     )
 
     private val parser: Parser = Parser.builder().extensions(extensions).build()
@@ -63,7 +70,12 @@ object ExportPdf {
         val untitled = context.getString(R.string.untitled)
         val title = note.title.ifBlank { untitled }
         val html = withContext(Dispatchers.IO) {
-            renderDocument(note, untitled, PdfImageInliner(context)::dataUri)
+            renderDocument(
+                note,
+                untitled,
+                calloutLabel = { kind, raw -> calloutLabel(context, kind, raw) },
+                imageSource = PdfImageInliner(context)::dataUri
+            )
         }
 
         // WebView must outlive this call until the print adapter is created.
@@ -102,14 +114,85 @@ object ExportPdf {
     internal fun renderDocument(
         note: Note,
         untitled: String,
+        // Before imageSource so a trailing lambda still means the image source.
+        calloutLabel: (kind: CalloutKind?, raw: String) -> String = { _, raw -> raw },
         imageSource: (destination: String) -> String? = { null }
     ): String {
         val markdown = note.contentMarkdown
-        val document = (if (CommonMarkPreviewAdapter.opensUnclosedFrontMatter(markdown)) parserWithoutFrontMatter else parser).parse(markdown)
-        inlineImages(document, imageSource)
-        val bodyHtml = renderer.render(document)
         val title = note.title.ifBlank { untitled }
+        val document = try {
+            (if (CommonMarkPreviewAdapter.opensUnclosedFrontMatter(markdown)) parserWithoutFrontMatter else parser)
+                .parse(markdown)
+        } catch (tooManyCells: IllegalArgumentException) {
+            // commonmark 0.30 aborts a table past a million cells; print the
+            // note as its text rather than fail the export (D082).
+            return wrapHtml(title, "<pre>${escape(markdown)}</pre>")
+        }
+        inlineImages(document, imageSource)
+        markCallouts(document, calloutLabel)
+        flattenWikilinks(document)
+        val bodyHtml = renderer.render(document)
         return wrapHtml(title, bodyHtml)
+    }
+
+    /**
+     * Prints a callout as the preview draws it — a tinted box under its own
+     * title — instead of a quote that starts with the literal `[!NOTE]`.
+     *
+     * The head line is read by [CalloutHead.take], the same code the preview
+     * uses, so the two agree on what is a callout and what its title is. The
+     * box is a `<div>` around the quote, written as raw HTML blocks beside it,
+     * because the renderer is shared and a per-call attribute would have to
+     * live outside the tree.
+     */
+    private fun markCallouts(
+        document: org.commonmark.node.Node,
+        calloutLabel: (CalloutKind?, String) -> String
+    ) {
+        val quotes = mutableListOf<BlockQuote>()
+        document.accept(object : AbstractVisitor() {
+            override fun visit(blockQuote: BlockQuote) {
+                quotes += blockQuote
+                visitChildren(blockQuote)
+            }
+        })
+        for (quote in quotes) {
+            val head = CalloutHead.take(quote) ?: continue
+            val kind = CalloutKind.parse(head.type)
+            val css = kind?.name?.lowercase() ?: "other"
+            val title = head.title.ifBlank { calloutLabel(kind, head.type) }
+            quote.insertBefore(htmlBlock("<div class=\"callout callout-$css\">"))
+            quote.insertAfter(htmlBlock("</div>"))
+            quote.prependChild(htmlBlock("<p class=\"callout-title\">${escape(title)}</p>"))
+        }
+    }
+
+    private fun htmlBlock(html: String) = HtmlBlock().apply { literal = html }
+
+    /**
+     * `[[Target]]` and `[[Target|Label]]` print as the words the preview shows
+     * (the label), not the brackets — a PDF has nothing to link them to.
+     * Code spans are separate nodes and keep their brackets.
+     */
+    private fun flattenWikilinks(document: org.commonmark.node.Node) {
+        document.accept(object : AbstractVisitor() {
+            override fun visit(text: Text) {
+                if (WikilinkExtractor.hasAny(text.literal)) {
+                    text.literal = WIKILINK_REGEX.replace(text.literal) { WikilinkExtractor.label(it.groupValues[1]) }
+                }
+            }
+        })
+    }
+
+    private val WIKILINK_REGEX = Regex("""\[\[([^\[\]\n]+?)]]""")
+
+    private fun calloutLabel(context: Context, kind: CalloutKind?, raw: String): String = when (kind) {
+        CalloutKind.NOTE -> context.getString(R.string.callout_note)
+        CalloutKind.TIP -> context.getString(R.string.callout_tip)
+        CalloutKind.IMPORTANT -> context.getString(R.string.callout_important)
+        CalloutKind.WARNING -> context.getString(R.string.callout_warning)
+        CalloutKind.CAUTION -> context.getString(R.string.callout_caution)
+        null -> raw
     }
 
     /**
@@ -234,6 +317,22 @@ object ExportPdf {
                 border-radius: 0 6px 6px 0;
                 page-break-inside: avoid;
               }
+              .callout blockquote {
+                border-left-color: var(--callout-accent);
+                background: var(--callout-fill);
+                color: #2c3531;
+              }
+              .callout-title {
+                font-weight: 700;
+                color: var(--callout-accent);
+                margin: 0.3em 0 0.4em;
+              }
+              .callout-note { --callout-accent: #3d6b49; --callout-fill: #eef5ef; }
+              .callout-tip { --callout-accent: #3f6a85; --callout-fill: #edf3f7; }
+              .callout-important { --callout-accent: #6a4f86; --callout-fill: #f3eff7; }
+              .callout-warning { --callout-accent: #9a6514; --callout-fill: #fbf4e6; }
+              .callout-caution { --callout-accent: #a63a2c; --callout-fill: #fbecea; }
+              .callout-other { --callout-accent: #5d6762; --callout-fill: #f2f4f2; }
               details {
                 display: block;
                 margin: 1.2em 0;

@@ -1,5 +1,6 @@
 package com.markleaf.notes.core.markdown
 
+import org.commonmark.ext.autolink.AutolinkExtension
 import org.commonmark.ext.footnotes.FootnoteDefinition
 import org.commonmark.ext.footnotes.FootnoteReference
 import org.commonmark.ext.footnotes.FootnotesExtension
@@ -90,6 +91,13 @@ internal object CommonMarkPreviewAdapter {
      */
     internal const val DEPTH_CUT_MARKER = "…"
 
+    /**
+     * Open block parsers commonmark may stack while parsing: two per list
+     * level (list + item) up to [MAX_BLOCK_DEPTH], with room to spare so the
+     * structure reaches the renderer's cut rather than turning to text first.
+     */
+    private const val MAX_PARSER_BLOCK_DEPTH = MAX_BLOCK_DEPTH * 2 + 16
+
     private val parser: Parser = buildParser(frontMatter = true)
     private val parserWithoutFrontMatter: Parser = buildParser(frontMatter = false)
 
@@ -99,13 +107,24 @@ internal object CommonMarkPreviewAdapter {
         // Block-level is enough — we never need to locate an inline node — and
         // it keeps the extra bookkeeping off every piece of text.
         .includeSourceSpans(IncludeSourceSpans.BLOCKS)
+        // commonmark 0.30 caps open block parsers at 100 by default, and every
+        // list level opens two (the list and its item) — so the default would
+        // flatten a list deeper than ~50 levels into text, under this file's
+        // own ceiling. Sized so the renderer's MAX_BLOCK_DEPTH stays the one
+        // that cuts, visibly; the cap still keeps commonmark's own recursion
+        // thousands of levels short of where it overflowed (D082).
+        .maxOpenBlockParsers(MAX_PARSER_BLOCK_DEPTH)
         .extensions(
             listOfNotNull(
                 YamlFrontMatterExtension.create().takeIf { frontMatter },
                 StrikethroughExtension.create(),
                 FootnotesExtension.builder().inlineFootnotes(false).build(),
                 TaskListItemsExtension.create(),
-                TablesExtension.create()
+                TablesExtension.create(),
+                // Bare `https://…`, `www.…` and email addresses become links,
+                // as they do on GitHub (D082). Code spans and existing links
+                // are left alone by the extension.
+                AutolinkExtension.create()
             )
         )
         .build()
@@ -136,8 +155,10 @@ internal object CommonMarkPreviewAdapter {
      * bound: commonmark walks the same tree with its own recursive visitors —
      * the task-list post-processor faults first, measured at 3,000 nesting
      * levels — and a note deep enough to overflow it never reaches the
-     * renderer at all. There is no depth limit to configure on the parser, so
-     * the only place left to stand is here.
+     * renderer at all. Since commonmark 0.30 the parser caps open blocks
+     * ([MAX_PARSER_BLOCK_DEPTH] here) and inline nesting (100), which keeps its
+     * own visitors off that edge; the catch stays because a cap in someone else's
+     * library is not a guarantee this file can see from here (D082).
      *
      * `StackOverflowError` is an `Error`, and catching one is normally wrong
      * because the JVM's state after it is not worth trusting. This is the case
@@ -170,8 +191,16 @@ internal object CommonMarkPreviewAdapter {
 
     private fun parseStructured(markdown: String): List<PreviewLine> {
 
-        val document = (if (opensUnclosedFrontMatter(markdown)) parserWithoutFrontMatter else parser)
-            .parse(markdown) as Document
+        val document = try {
+            (if (opensUnclosedFrontMatter(markdown)) parserWithoutFrontMatter else parser)
+                .parse(markdown) as Document
+        } catch (tooManyCells: IllegalArgumentException) {
+            // commonmark 0.30 aborts a table past a million cells rather than
+            // spend memory on it. Only the parse is guarded, so an
+            // IllegalArgumentException from this file's own code still fails
+            // loudly; the note itself is shown as its lines (D082).
+            return plainTextRows(markdown)
+        }
         val out = mutableListOf<PreviewLine>()
         val frontmatter = collectFrontmatter(document)
         if (frontmatter != null) {
@@ -539,11 +568,14 @@ internal object CommonMarkPreviewAdapter {
      * callout's body lost its links, bold, lists and code the same way.
      */
     private fun renderBlockQuote(node: BlockQuote, out: MutableList<PreviewLine>, depth: Int, nesting: Int) {
-        val calloutType = takeCalloutHead(node)
+        val head = CalloutHead.take(node)
+        val calloutType = head?.type
         val first = out.size
-        if (calloutType != null) {
+        if (head != null) {
             out += PreviewLine(
-                text = "",
+                // The title, when the head line has one; the renderer labels
+                // an untitled callout by its type.
+                text = head.title,
                 type = PreviewLineType.CALLOUT,
                 extra = calloutType,
                 depth = depth
@@ -574,33 +606,6 @@ internal object CommonMarkPreviewAdapter {
         if (calloutType != null) {
             out[out.lastIndex] = out[out.lastIndex].copy(calloutEnd = true)
         }
-    }
-
-    /**
-     * When [quote] opens with a callout head — `[!TYPE]` at the very start of
-     * its first line — removes that head from the tree and returns the type.
-     * What follows the head on the same line stays as the first line of the
-     * body, and a head on a line of its own takes its line break with it, so
-     * the body starts where the author's text does.
-     *
-     * The head is matched on the paragraph's leading text node: commonmark
-     * merges the bracket and the word around it back into one node after
-     * failing to read them as a link, so `[!NOTE]` arrives whole.
-     */
-    private fun takeCalloutHead(quote: BlockQuote): String? {
-        val paragraph = quote.firstChild as? Paragraph ?: return null
-        val lead = paragraph.firstChild as? Text ?: return null
-        val match = CALLOUT_HEAD_PREFIX_REGEX.find(lead.literal) ?: return null
-        val rest = lead.literal.substring(match.range.last + 1)
-        if (rest.isBlank()) {
-            val after = lead.next
-            lead.unlink()
-            if (after is SoftLineBreak || after is HardLineBreak) after.unlink()
-        } else {
-            lead.literal = rest.trimStart()
-        }
-        if (paragraph.firstChild == null) paragraph.unlink()
-        return match.groupValues[1]
     }
 
     private fun renderTable(block: TableBlock, depth: Int): PreviewLine {
@@ -1139,7 +1144,6 @@ internal object CommonMarkPreviewAdapter {
 
     private enum class TaskState { NONE, TODO, DONE }
 
-    private val CALLOUT_HEAD_PREFIX_REGEX = Regex("""^\[!([A-Za-z]+)]""")
 
     // #403 collapsible sections. IGNORE_CASE because HTML tag names are
     // case-insensitive; DOT_MATCHES_ALL on the summary body because it can

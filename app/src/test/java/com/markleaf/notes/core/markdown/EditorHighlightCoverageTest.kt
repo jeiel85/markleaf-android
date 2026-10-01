@@ -156,6 +156,14 @@ class EditorHighlightCoverageTest {
     }
 
     @Test
+    fun aBareEmailIsALinkAsInThePreview() {
+        val text = "mail me@example.com today"
+        val result = highlight(text)
+
+        assertEquals(listOf("me@example.com"), result.spansWith { it.color == Color.Green }.map { text.substring(it.start, it.end) })
+    }
+
+    @Test
     fun aWrittenLinksDestinationIsNotStyledTwice() {
         val text = "[docs](https://example.com)"
         val result = highlight(text)

@@ -5,7 +5,8 @@
 - **Code is code.** Headings, quotes, rules and tasks inside a fence, and emphasis, links and wikilinks inside a fence or an inline code span, are no longer styled: a `# comment` in a shell block came out heading-sized and `**` in a snippet turned bold.
 - **New styles.** `__bold__`, `***bold italic***`, `[[wikilinks]]` and bare URLs (not a written link's destination, which the link pass already styles).
 - **Budget.** More passes, so more spans per marked-up note; the `MAX_SPAN_COUNT` guard (#437) is unchanged and `MarkdownSyntaxHighlightCostTest` (rich note under half the budget, linear scan) still passes. Code-masking removes spans as well as adding them.
-- **Tests.** `EditorHighlightCoverageTest` (13). An address inside a wikilink is styled once, as the wikilink (the same rule the preview got in #492).
+- **Review of #496.** Codex still over its limit; `/code-review` (high) found five. Fixed: bare email addresses were links in Preview but unstyled here (now styled), the code mask was filled through boxed `IntRange.forEach` (now `Arrays.fill`), a KDoc line ran long. Kept: an unclosed fence unstyles the rest of the note, as the preview renders it. Moved to #262: a fence indented four or more spaces (inside a nested list item) is still not seen, as before.
+- **Tests.** `EditorHighlightCoverageTest` (14). An address inside a wikilink is styled once, as the wikilink (the same rule the preview got in #492).
 
 ## 2026-10-01 — Numbered tasks and in-note anchors (M3 of the syntax plan, v2.61.0)
 

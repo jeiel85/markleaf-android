@@ -74,8 +74,8 @@ object MarkdownSyntaxHighlighter {
      * being scanned at all.
      *
      * The scan is linear and cheap — the 11 regex passes it had when this was
-     * measured took ~12 ms over 200,000 characters on desktop-class hardware — but it runs on the UI thread
-     * once per text change, so on a phone a document this size costs a visible
+     * measured took ~12 ms over 200,000 characters on desktop-class
+     * hardware — but it runs on the UI thread once per text change, so on a phone a document this size costs a visible
      * fraction of a second on every keystroke for styling nobody can read all
      * of at once. Past this length the cheapest correct answer is no answer.
      */
@@ -158,7 +158,8 @@ object MarkdownSyntaxHighlighter {
         } else {
             val spans = ArrayList<PendingSpan>(64)
             val fences = fencedCodeRanges(text)
-            val code = BooleanArray(text.length).also { mask -> fences.forEach { it.forEach { i -> mask[i] = true } } }
+            val code = BooleanArray(text.length)
+            for (fence in fences) java.util.Arrays.fill(code, fence.first, fence.last + 1, true)
             addLineStyles(spans, text, colors, fontScale, fences, code)
             addInlineStyles(spans, text, colors, code)
             if (spans.size > MAX_SPAN_COUNT) plain(text) else styled(text, spans)
@@ -378,10 +379,10 @@ object MarkdownSyntaxHighlighter {
             muteMarker(spans, colors, match.range.last - 1, 2)
         }
 
-        // A bare address is a link in the preview (GFM autolink), so it reads
-        // as one here too. Not the destination of a written link or the
+        // A bare web or email address is a link in the preview (GFM autolink),
+        // so it reads as one here too. Not the destination of a written link or the
         // target of a wikilink, which the passes above already styled.
-        BARE_URL_REGEX.findAll(text)
+        (BARE_URL_REGEX.findAll(text) + BARE_EMAIL_REGEX.findAll(text))
             .filterNot { it.inCode() || linked[it.range.first] }
             .forEach { match ->
                 spans.addStyle(
@@ -476,6 +477,7 @@ object MarkdownSyntaxHighlighter {
     private val BOLD_ITALIC_REGEX = Regex("""\*\*\*[^*\n]+?\*\*\*""")
     private val BOLD_UNDERSCORE_REGEX = Regex("""(?<!\w)__[^_\n]+?__(?!\w)""")
     private val WIKILINK_REGEX = Regex("""\[\[[^\[\]\n]+?]]""")
+    private val BARE_EMAIL_REGEX = Regex("""(?<![\w.+-])[\w.+-]+@[\w-]+(?:\.[\w-]+)+(?![\w-])""")
     private val BARE_URL_REGEX = Regex("""(?<![\w/@.(<\[])(?:https?://|www\.)[^\s<>()\[\]]*[^\s<>()\[\].,;:!?'"*_~]""")
     private val ITALIC_REGEX = Regex("""(?<!\*)\*[^*\n]+?\*(?!\*)""")
     private val ITALIC_UNDERSCORE_REGEX = Regex("""(?<!\w)_[^_\n]+?_(?!\w)""")

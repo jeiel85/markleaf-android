@@ -727,6 +727,18 @@ fun SettingsScreen(
                             }
                         )
                         Spacer(Modifier.height(12.dp))
+                        SettingsSwitchRow(
+                            title = stringResource(R.string.recent_notes_in_shortcuts),
+                            description = stringResource(R.string.recent_notes_in_shortcuts_description),
+                            checked = appSettings.recentNotesInShortcuts,
+                            onCheckedChange = { checked ->
+                                HapticFeedback.light(context)
+                                scope.launch {
+                                    settingsRepository.setRecentNotesInShortcuts(checked)
+                                }
+                            }
+                        )
+                        Spacer(Modifier.height(12.dp))
                         val biometricAvailable = remember(context) { context.canUseBiometric() }
                         SettingsSwitchRow(
                             title = stringResource(R.string.biometric_lock_setting),

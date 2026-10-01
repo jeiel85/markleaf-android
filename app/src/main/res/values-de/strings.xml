@@ -229,6 +229,10 @@
     <string name="show_note_previews_description">Zeigt unter jedem Titel einen Ausschnitt und die Bearbeitungszeit. Ausschalten, um mehr Notizen auf dem Bildschirm zu sehen.</string>
     <string name="reopen_last_note">Letzte Notiz beim Start öffnen</string>
     <string name="reopen_last_note_description">Beim Start direkt in der zuletzt bearbeiteten Notiz beginnen statt in der Notizenliste.</string>
+    <string name="recent_notes_in_shortcuts">Letzte Notizen in App-Verknüpfungen</string>
+    <string name="recent_notes_in_shortcuts_description">Halte das Markleaf-Symbol gedrückt, um deine zwei zuletzt bearbeiteten Notizen zu sehen. Ihre Titel erscheinen auf dem Startbildschirm. Gesperrte Notizen und Notizen im Papierkorb werden nie angezeigt.</string>
+    <string name="shortcut_note_unavailable">Diese Notiz ist nicht mehr verfügbar</string>
+    <string name="shortcut_note_hidden_label">Nicht verfügbar</string>
     <string name="open_notes_in_preview">Notizen in der Vorschau öffnen</string>
     <string name="open_notes_in_preview_description">Beim Öffnen einer Notiz die gerenderte Vorschau statt der Bearbeitungsansicht anzeigen. Neue Notizen öffnen weiterhin zum Bearbeiten. Tipp: Vorschau-/Bearbeiten-Symbol in einer Notiz lange drücken, um dies umzuschalten.</string>
     <string name="open_notes_at">Notizen öffnen bei</string>

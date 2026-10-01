@@ -1,0 +1,1 @@
+Long-press the Markleaf icon for New Note or Search. To also see your two most recently edited notes there, turn on "Recent notes in app shortcuts" in Settings → Privacy (off by default, since titles appear on the home screen). Locked and trashed notes are never shown, and a note shortcut you pinned is renamed "Unavailable" and greyed out once that note is locked or deleted.

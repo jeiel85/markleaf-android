@@ -6,6 +6,7 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
@@ -48,6 +49,7 @@ class LaunchDispatchTest {
 
     private lateinit var database: AppDatabase
     private var dispatched = 0
+    private lateinit var navController: NavHostController
 
     @Before
     fun setUp() {
@@ -62,15 +64,21 @@ class LaunchDispatchTest {
         database.close()
     }
 
-    private fun setHost(dispatchLaunchRequest: Boolean, shouldCreateNote: Boolean = false) {
+    private fun setHost(
+        dispatchLaunchRequest: Boolean,
+        shouldCreateNote: Boolean = false,
+        openSearch: Boolean = false
+    ) {
         val factory = MarkleafViewModelFactory(LocalNoteRepository(database))
         composeRule.setContent {
+            navController = rememberNavController()
             MarkleafTheme(darkTheme = false, dynamicColor = false) {
                 MarkleafNavHost(
-                    navController = rememberNavController(),
+                    navController = navController,
                     windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(360.dp, 800.dp)),
                     viewModelFactory = factory,
                     shouldCreateNote = shouldCreateNote,
+                    openSearch = openSearch,
                     dispatchLaunchRequest = dispatchLaunchRequest,
                     onEntryDispatched = { dispatched++ }
                 )
@@ -128,6 +136,27 @@ class LaunchDispatchTest {
 
         settle()
 
+        assertEquals(0, dispatched)
+    }
+
+    @Test
+    fun theLauncherSearchShortcutStartsOnTheSearchScreenAndReportsIt() {
+        setHost(dispatchLaunchRequest = true, openSearch = true)
+
+        composeRule.waitUntil(timeoutMillis = 10_000) { dispatched == 1 }
+        settle()
+
+        assertEquals(NavRoutes.SEARCH, navController.currentDestination?.route?.substringBefore('?'))
+        assertEquals("no note made on the way", 0, blankNotes())
+    }
+
+    @Test
+    fun aRecreationOfASearchLaunchDoesNotPushSearchAgain() {
+        setHost(dispatchLaunchRequest = false, openSearch = true)
+
+        settle()
+
+        assertEquals(NavRoutes.NOTES, navController.currentDestination?.route)
         assertEquals(0, dispatched)
     }
 }

@@ -224,6 +224,10 @@
     <string name="show_note_previews_description">タイトルの下に本文の一部と編集時刻を表示します。オフにすると画面により多くのノートが収まります。</string>
     <string name="reopen_last_note">起動時に最後のノートを開く</string>
     <string name="reopen_last_note_description">起動時にノート一覧ではなく、最後に編集したノートから始めます。</string>
+    <string name="recent_notes_in_shortcuts">アプリのショートカットに最近のノートを表示</string>
+    <string name="recent_notes_in_shortcuts_description">Markleaf のアイコンを長押しすると、最近編集したノートが 2 件表示されます。ノートのタイトルがホーム画面に表示されます。ロックされたノートとゴミ箱のノートは表示されません。</string>
+    <string name="shortcut_note_unavailable">このノートは利用できなくなりました</string>
+    <string name="shortcut_note_hidden_label">利用不可</string>
     <string name="open_notes_in_preview">ノートをプレビューで開く</string>
     <string name="open_notes_in_preview_description">ノートを開いたときに編集画面ではなくプレビューを表示します。新しいノートは編集で開きます。ノート内でプレビュー/編集アイコンを長押しすると切り替えられます。</string>
     <string name="open_notes_at">ノートを開く位置</string>

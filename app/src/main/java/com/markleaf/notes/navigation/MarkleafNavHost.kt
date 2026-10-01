@@ -112,6 +112,8 @@ fun MarkleafNavHost(
     windowSizeClass: WindowSizeClass,
     viewModelFactory: ViewModelProvider.Factory,
     shouldCreateNote: Boolean = false,
+    /** The launcher's "Search" shortcut: start on the Search screen. */
+    openSearch: Boolean = false,
     sharedText: String? = null,
     sharedCreatedAt: Instant? = null,
     sharedUpdatedAt: Instant? = null,
@@ -165,6 +167,7 @@ fun MarkleafNavHost(
                 val newNote = intentEntryViewModel.createNote()
                 navController.navigateOnMain(NavRoutes.editorRoute(newNote.id))
             }
+            openSearch -> navController.navigateOnMain(NavRoutes.SEARCH)
             !viewFileUri.isNullOrBlank() -> {
                 // A file tapped in a file manager opens for reading, not as a
                 // new note (#326). Nothing is written until the reader asks for

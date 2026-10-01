@@ -25,7 +25,7 @@
      바꾸는 결정이 필요하다(Q2).
 - 이 문서는 `docs/ROADMAP.md`의 보류된 **Phase 32 — Capture Everywhere** 중 런처 바로가기와
   `ACTION_PROCESS_TEXT`를 다시 꺼내고, 대화면 입력(F3·F4)과 위젯 미리보기(F5)를 더한다.
-- Status: **계획 확정, 미착수.** Q1–Q3은 메인테이너 결정 대기.
+- Status: **F1 구현 완료(v2.59.0).** Q1은 제안대로 확정(D080). Q2·Q3은 메인테이너 결정 대기.
 
 ## 확인한 사실 — 버전 매트릭스 (2026-10-01, Google Maven aar 메타데이터)
 
@@ -81,8 +81,9 @@
   즉시 제거한다. App lock은 `BiometricLockGate`가 그대로 막는다.
 - **고정된 사본(PR #488 리뷰).** 사용자가 메뉴 항목을 홈 화면에 끌어 놓으면 pinned
   shortcut이 되고, `setDynamicShortcuts`에서 ID를 빼도 그 사본은 남는다. 노트가 바뀔 때마다
-  pinned 노트 바로가기를 노트 자체와 대조해 잠김·휴지통·삭제면 `disableShortcuts`(제목 대신
-  "더 이상 열 수 없는 노트" 안내)하고, 돌아오면 `enableShortcuts` + 현재 제목으로 갱신한다.
+  pinned 노트 바로가기를 노트 자체와 대조해 잠김·휴지통·삭제면 라벨을 "열 수 없음"으로 덮어쓴
+  뒤 `disableShortcuts`(탭하면 "더 이상 열 수 없는 노트" 안내)하고 — 비활성화만으로는 회색이 될
+  뿐 제목이 남는다 —, 돌아오면 `enableShortcuts` + 현재 제목으로 갱신한다.
   비활성화한 ID는 다시 활성화하기 전에는 동적 목록에 올릴 수 없으므로 pinned 정리를 먼저 한다.
 
 테스트: 바로가기 목록 생성 규칙(잠김·휴지통 제외, 개수 상한) 순수 함수 단위 테스트, pinned
@@ -167,7 +168,7 @@ Android 15의 생성 미리보기(`setWidgetPreview`, 사용자 색 반영)는 r
 
 ### 결정이 필요한 항목
 
-- **Q1. 최근 노트 바로가기의 기본값.** 노트 제목이 런처에 보이고, 일부 런처(Pixel 등)는
+- **Q1. 최근 노트 바로가기의 기본값. → 확정(2026-10-01, D080): 설정 토글, 기본 꺼짐.** 노트 제목이 런처에 보이고, 일부 런처(Pixel 등)는
   바로가기를 런처 검색에도 노출한다. 데이터가 기기를 떠나지는 않지만 잠금 해제된 홈 화면에서는
   보인다. **제안:** 새 노트·검색은 항상 켜고, 최근 노트는 설정 토글을 두어 기본 꺼짐으로 한다
   (이슈 대응 루틴의 "옵션화 + 기존 동작 기본값").
@@ -192,9 +193,10 @@ Android 15의 생성 미리보기(`setWidgetPreview`, 사용자 색 반영)는 r
 
 | 버전 | 내용 | CHANGELOG 제목 후보 |
 |---|---|---|
-| v2.59.0 | F1 + F2 | Markleaf from anywhere |
-| v2.60.0 | F3 | Your keyboard knows Markleaf |
-| v2.61.0 | F4 (+F4b) | Drag it in |
+| v2.59.0 | F1 | Shortcuts on the Markleaf icon |
+| v2.60.0 | F2 | — |
+| v2.61.0 | F3 | Your keyboard knows Markleaf |
+| v2.62.0 | F4 (+F4b) | Drag it in |
 | v2.61.x 또는 F1에 동반 | F5 | — |
 
 S1–S3는 기능 릴리스와 섞지 않고 별도 PR로 넣는다. 각 릴리스는 `ROADMAP.md`의 공통 전달 게이트와

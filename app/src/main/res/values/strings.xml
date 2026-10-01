@@ -240,6 +240,10 @@
     <string name="show_note_previews_description">Show a snippet and edit time under each title. Turn off to fit more notes on screen.</string>
     <string name="reopen_last_note">Reopen last note on launch</string>
     <string name="reopen_last_note_description">Start in the note you last edited instead of the notes list.</string>
+    <string name="recent_notes_in_shortcuts">Recent notes in app shortcuts</string>
+    <string name="recent_notes_in_shortcuts_description">Long-press the Markleaf icon to see your two most recently edited notes. Their titles appear on the home screen. Locked notes and notes in the Trash are never shown.</string>
+    <string name="shortcut_note_unavailable">This note is no longer available</string>
+    <string name="shortcut_note_hidden_label">Unavailable</string>
     <string name="open_notes_in_preview">Open notes in preview</string>
     <string name="open_notes_in_preview_description">Show a note\'s rendered preview when you open it instead of the edit view. New notes still open for editing. Tip: long-press the preview/edit icon in a note to toggle this.</string>
     <string name="open_notes_at">Open notes at</string>

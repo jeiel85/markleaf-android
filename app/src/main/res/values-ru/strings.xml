@@ -250,6 +250,10 @@
     <string name="show_note_previews_description">Показывать фрагмент текста и время изменения под каждым заголовком. Выключите, чтобы на экране помещалось больше заметок.</string>
     <string name="reopen_last_note">Открывать последнюю заметку при запуске</string>
     <string name="reopen_last_note_description">Начинать с последней редактировавшейся заметки, а не со списка заметок.</string>
+    <string name="recent_notes_in_shortcuts">Недавние заметки в ярлыках приложения</string>
+    <string name="recent_notes_in_shortcuts_description">Нажмите и удерживайте значок Markleaf, чтобы увидеть две последние изменённые заметки. Их заголовки видны на главном экране. Защищённые заметки и заметки из корзины никогда не показываются.</string>
+    <string name="shortcut_note_unavailable">Эта заметка больше недоступна</string>
+    <string name="shortcut_note_hidden_label">Недоступно</string>
     <string name="open_notes_in_preview">Открывать заметки в предпросмотре</string>
     <string name="open_notes_in_preview_description">При открытии показывать заметку в режиме предпросмотра, а не редактирования. Новые заметки по-прежнему открываются для редактирования. Совет: нажмите и удерживайте значок предпросмотра/редактирования в заметке, чтобы переключить этот параметр.</string>
     <string name="open_notes_at">Открывать заметки</string>

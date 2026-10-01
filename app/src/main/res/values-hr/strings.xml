@@ -244,6 +244,10 @@
     <string name="show_note_previews_description">Prikaži isječak i vrijeme uređivanja ispod svakog naslova bilješke. Isključite ovo da bi se prikazalo više bilješki na zaslonu.</string>
     <string name="reopen_last_note">Ponovno otvori posljednju bilješku pri pokretanju</string>
     <string name="reopen_last_note_description">Pokretanje s posljednjom uređivanom bilješkom umjesto popisa bilješki.</string>
+    <string name="recent_notes_in_shortcuts">Nedavne bilješke u prečacima aplikacije</string>
+    <string name="recent_notes_in_shortcuts_description">Dugo pritisnite ikonu Markleafa da biste vidjeli dvije nedavno uređene bilješke. Njihovi naslovi prikazuju se na početnom zaslonu. Zaključane bilješke i bilješke u smeću nikad se ne prikazuju.</string>
+    <string name="shortcut_note_unavailable">Ova bilješka više nije dostupna</string>
+    <string name="shortcut_note_hidden_label">Nedostupno</string>
     <string name="open_notes_in_preview">Otvori bilješke u pretpregledu</string>
     <string name="open_notes_in_preview_description">Pri otvaranju prikazuje bilješke u pretpregledu umjesto u načinu za uređivanje. Nove bilješke će se i dalje otvarati u načinu za uređivanje. Savjet: dugo pritisnite ikonu pretpregleda/uređivanja u bilješci za promjenu ove postavke.</string>
     <string name="open_notes_at">Otvori bilješke u položaju</string>

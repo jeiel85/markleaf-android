@@ -1,3 +1,12 @@
+## 2026-10-01 — Editor highlighting catches up with the preview (M4 of the syntax plan)
+
+- **Tasks.** `CHECKBOX_REGEX` matched only `- [ ]` at column 0, so a nested sub-task, `* [ ]`, `1. [ ]` and `> - [ ]` read as plain text while the preview drew boxes for all of them. It now takes the same markers the preview and the toggle (M3) do.
+- **Fences.** The single ```` ```…``` ```` regex knew no `~~~` and needed a closing fence. `fencedCodeRanges` reads fences by CommonMark's rules (backticks or tildes, three or more, closed by the same character at least as long, unclosed runs to the end — as the preview reads it).
+- **Code is code.** Headings, quotes, rules and tasks inside a fence, and emphasis, links and wikilinks inside a fence or an inline code span, are no longer styled: a `# comment` in a shell block came out heading-sized and `**` in a snippet turned bold.
+- **New styles.** `__bold__`, `***bold italic***`, `[[wikilinks]]` and bare URLs (not a written link's destination, which the link pass already styles).
+- **Budget.** More passes, so more spans per marked-up note; the `MAX_SPAN_COUNT` guard (#437) is unchanged and `MarkdownSyntaxHighlightCostTest` (rich note under half the budget, linear scan) still passes. Code-masking removes spans as well as adding them.
+- **Tests.** `EditorHighlightCoverageTest` (12).
+
 ## 2026-10-01 — Numbered tasks and in-note anchors (M3 of the syntax plan, v2.61.0)
 
 - **Numbered tasks.** `1. [ ] task` (GFM allows it) rendered as a plain numbered item with no box. It is now a checkbox row that keeps its number (`extra`) and its source line, so a tap flips it.

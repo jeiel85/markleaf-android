@@ -1,0 +1,1 @@
+Numbered task lists work: 1. [ ] shows a checkbox with its number, a tap ticks it, and Enter continues with 2. [ ]. Tasks inside a quote can be ticked too. A link to a heading in the same note, like [Setup](#setup), now scrolls to that heading instead of opening the browser.

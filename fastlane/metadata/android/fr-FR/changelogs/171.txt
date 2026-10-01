@@ -1,0 +1,1 @@
+Les listes de tâches numérotées fonctionnent : 1. [ ] affiche une case avec son numéro, un appui la coche, et Entrée continue avec 2. [ ]. Les tâches dans une citation se cochent aussi. Un lien vers un titre de la même note, comme [Réglages](#réglages), fait désormais défiler jusqu’à ce titre au lieu d’ouvrir le navigateur.

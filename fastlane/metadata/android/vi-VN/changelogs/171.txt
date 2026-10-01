@@ -1,0 +1,1 @@
+Danh sách việc cần làm có đánh số đã hoạt động: 1. [ ] hiện hộp chọn kèm số, chạm để đánh dấu và Enter sẽ tiếp tục với 2. [ ]. Việc cần làm trong trích dẫn cũng đánh dấu được. Liên kết tới một tiêu đề trong cùng ghi chú, như [Cài đặt](#cài-đặt), giờ cuộn tới tiêu đề đó thay vì mở trình duyệt.

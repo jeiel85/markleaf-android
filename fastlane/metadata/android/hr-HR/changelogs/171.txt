@@ -1,0 +1,1 @@
+Numerirani popisi zadataka rade: 1. [ ] prikazuje potvrdni okvir s brojem, dodir ga označava, a Enter nastavlja s 2. [ ]. I zadaci unutar citata mogu se označiti. Poveznica na naslov u istoj bilješci, poput [Postavke](#postavke), sada se pomiče do tog naslova umjesto da otvori preglednik.

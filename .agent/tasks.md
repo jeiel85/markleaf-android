@@ -3,6 +3,48 @@
 이 파일은 랄프 루프에서 사용할 작업 목록입니다.  
 에이전트는 매 루프마다 가장 위의 unchecked task 하나만 선택해 구현합니다.
 
+## Android platform integration (Planned, 2026-10-01)
+
+계획·근거·버전 매트릭스: `docs/ANDROID_PLATFORM_PLAN.md`. 기능 트랙(F)은 현재 도구로 진행하고
+SDK 트랙(S)을 기다리지 않는다. Q1–Q3은 메인테이너 결정 대기 — 결정 전에는 Q가 걸린 task를
+건너뛴다.
+
+F1 + F2 → v2.59.0
+
+- [ ] F1 바로가기 목록 규칙을 순수 함수로: 새 노트·검색 고정, 최근 노트(Q1 설정 반영) 최대 2개, 잠긴·휴지통 노트 제외 + 단위 테스트
+- [ ] F1 검색 entry action: `MainActivity` entry 판별·`onNewIntent`, `MarkleafNavHost` dispatch에 `NavRoutes.SEARCH` 추가 — 회전 재생 없음 테스트(`LaunchDispatchTest` 패턴)
+- [ ] F1 `ShortcutManagerCompat.setDynamicShortcuts` 게시(정적 xml 금지 — debug `.debug` 패키지), `WidgetRefresh.notesChanged` 옆에서 갱신, 노트 열 때 `reportShortcutUsed`, 잠김·휴지통 이동 시 즉시 제거
+- [ ] F1 (Q1 결정 후) 최근 노트 바로가기 설정 토글 + 문자열 11개 로케일
+- [ ] F2 `PROCESS_TEXT` 필터(+필터 라벨) — `MainActivity`와 사이드로드 매니페스트 사본, `EXTRA_PROCESS_TEXT` → `ImportedContent` 경로, `onNewIntent` 포함 + 추출·매니페스트 테스트
+- [ ] F1·F2 기기 검증(런처 길게 누르기 3경로, 잠금 후 바로가기 제거, Chrome 선택 메뉴 → 새 노트 1회) — debug 빌드 검증 후 제거
+- [ ] v2.59.0 릴리스 문서(CHANGELOG 2판, fastlane 11개 로케일, 랜딩·README 버전 표기)
+
+F3 → v2.60.0
+
+- [ ] 키보드 단축키 표 한 곳으로 통합(`formattingShortcutFor`·`undoShortcutFor`·목록 Ctrl+K) + Ctrl+N·Ctrl+F 추가
+- [ ] `MainActivity.onProvideKeyboardShortcuts` 그룹(앱/편집기) + "도우미의 모든 키에 핸들러가 있다" 테스트
+- [ ] 태블릿/에뮬레이터 + 물리 키보드에서 Meta+/ 확인
+
+F4 → v2.61.0
+
+- [ ] `Modifier.contentReceiver` 스파이크(붙여넣기·드롭·키보드 이미지 삽입 한 경로) — 안 되면 `dragAndDropTarget`
+- [ ] `EditorScreen` 이미지 선택 콜백 몸체를 `insertImageAtCursor(uri)`로 추출해 선택기·드롭 공용화 + 테스트
+- [ ] F4b 목록 노트 끌어내기(Markdown 텍스트, 잠긴 노트 불가)
+- [ ] 태블릿 분할 화면 검증(사진 → 편집기, 브라우저 텍스트 → 편집기)
+
+F5
+
+- [ ] 두 위젯에 `android:previewLayout`(API 31+) + 번역된 예시 문자열, `previewImage`는 API 26–30용으로 유지
+
+SDK 트랙 (기능과 독립, 단독 PR)
+
+- [ ] S1 AGP 8.13.x / Gradle / Robolectric 4.16+ / `compileSdk = 36` (`docs/TARGET_API_36_EVALUATION.md` PR 1)
+- [ ] S2 `targetSdk = 36` + 기기 검증 (같은 문서 PR 2)
+- [ ] S3 Compose BOM 2026.06.01 + Kotlin 2.1.x — AGP 8로 갈 수 있는 마지막 BOM
+- [ ] S4 (Q2 "도입"일 때만) AGP 9.1+ / `compileSdk = 37` / BOM 2026.08+
+
+---
+
 ## Interaction motion - one container transform for opening a note (Done, 2026-09-30)
 
 사용자 요청: 노트를 열 때(그리고 다른 인터랙션에서) iOS처럼 부드럽게 펼쳐지는 느낌. 코드에 이미 있던

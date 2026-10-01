@@ -9,6 +9,8 @@ import com.markleaf.notes.R
 import com.markleaf.notes.core.markdown.CalloutHead
 import com.markleaf.notes.core.markdown.CalloutKind
 import com.markleaf.notes.core.markdown.CommonMarkPreviewAdapter
+import com.markleaf.notes.core.markdown.WikilinkExtension
+import com.markleaf.notes.core.markdown.WikilinkNode
 import com.markleaf.notes.core.markdown.preview.unresolvedImageText
 import com.markleaf.notes.domain.model.Note
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +18,7 @@ import kotlinx.coroutines.withContext
 import org.commonmark.ext.autolink.AutolinkExtension
 import org.commonmark.node.AbstractVisitor
 import org.commonmark.node.BlockQuote
+import org.commonmark.node.CustomNode
 import org.commonmark.node.HtmlBlock
 import org.commonmark.node.Image
 import org.commonmark.node.Text
@@ -44,16 +47,25 @@ object ExportPdf {
         TablesExtension.create(),
         TaskListItemsExtension.create(),
         FootnotesExtension.builder().build(),
+        // Ahead of autolinks, as in the preview: an address inside `[[…]]`
+        // belongs to the wikilink.
+        WikilinkExtension,
         // Bare URLs print as links, as the preview shows them (D082).
         AutolinkExtension.create()
     )
 
-    private val parser: Parser = Parser.builder().extensions(extensions).build()
+    // The preview's block-nesting cap, so a deep outline prints with the
+    // structure the preview shows rather than flattening sooner (D082).
+    private val parser: Parser = Parser.builder()
+        .maxOpenBlockParsers(CommonMarkPreviewAdapter.MAX_PARSER_BLOCK_DEPTH)
+        .extensions(extensions)
+        .build()
 
     // `---` that nothing closes is a rule, not front matter: the extension
     // would swallow the rest of the note. Same rule as the preview
     // (CommonMarkPreviewAdapter.opensUnclosedFrontMatter, review of #491).
     private val parserWithoutFrontMatter: Parser = Parser.builder()
+        .maxOpenBlockParsers(CommonMarkPreviewAdapter.MAX_PARSER_BLOCK_DEPTH)
         .extensions(extensions.filterNot { it is YamlFrontMatterExtension })
         .build()
 
@@ -175,16 +187,17 @@ object ExportPdf {
      * Code spans are separate nodes and keep their brackets.
      */
     private fun flattenWikilinks(document: org.commonmark.node.Node) {
+        val links = mutableListOf<WikilinkNode>()
         document.accept(object : AbstractVisitor() {
-            override fun visit(text: Text) {
-                if (WikilinkExtractor.hasAny(text.literal)) {
-                    text.literal = WIKILINK_REGEX.replace(text.literal) { WikilinkExtractor.label(it.groupValues[1]) }
-                }
+            override fun visit(customNode: CustomNode) {
+                if (customNode is WikilinkNode) links += customNode else visitChildren(customNode)
             }
         })
+        for (link in links) {
+            link.insertBefore(Text(link.label))
+            link.unlink()
+        }
     }
-
-    private val WIKILINK_REGEX = Regex("""\[\[([^\[\]\n]+?)]]""")
 
     private fun calloutLabel(context: Context, kind: CalloutKind?, raw: String): String = when (kind) {
         CalloutKind.NOTE -> context.getString(R.string.callout_note)
@@ -317,7 +330,7 @@ object ExportPdf {
                 border-radius: 0 6px 6px 0;
                 page-break-inside: avoid;
               }
-              .callout blockquote {
+              .callout > blockquote {
                 border-left-color: var(--callout-accent);
                 background: var(--callout-fill);
                 color: #2c3531;

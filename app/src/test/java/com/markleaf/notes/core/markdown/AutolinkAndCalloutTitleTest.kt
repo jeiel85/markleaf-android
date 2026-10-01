@@ -68,6 +68,34 @@ class AutolinkAndCalloutTitleTest {
         assertEquals("https://example.com", cell.single().href)
     }
 
+    /**
+     * Autolinks used to run first and cut the address out of a wikilink,
+     * leaving `[[`, a link and `]]` (review of #492).
+     */
+    @Test
+    fun anAddressInsideAWikilinkStaysPartOfIt() {
+        val segments = parse("See [[www.example.com notes]] and [[Contacts|me@example.com]].").single().segments
+
+        val wikilinks = segments.filter { it.type == PreviewInlineType.WIKILINK }
+        assertEquals(listOf("www.example.com notes", "me@example.com"), wikilinks.map { it.text })
+        assertEquals(listOf("www.example.com notes", "Contacts"), wikilinks.map { it.href })
+        assertTrue(segments.none { it.type == PreviewInlineType.LINK })
+    }
+
+    @Test
+    fun aWikilinkKeepsItsSourceInTheFlatText() {
+        // The outline lists a heading by its flat text, which has always shown
+        // the wikilink as written.
+        assertEquals("About [[Topic]]", parse("# About [[Topic]]").single().text)
+    }
+
+    @Test
+    fun aWikilinkInsideCodeStaysCode() {
+        val segments = parse("`[[not a link]]`").single().segments
+
+        assertEquals(PreviewInlineType.INLINE_CODE, segments.single().type)
+    }
+
     // ---- callout heads ---------------------------------------------------------
 
     @Test

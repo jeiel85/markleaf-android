@@ -185,6 +185,22 @@ class ExportPdfTest {
     }
 
     @Test
+    fun anAddressInsideAWikilinkPrintsAsTheLabel() {
+        val body = bodyOf(ExportPdf.renderDocument(note("See [[www.example.com notes]] now"), "Untitled"))
+
+        assertTrue(body, body.contains("See www.example.com notes now"))
+        assertFalse(body, body.contains("<a "))
+    }
+
+    @Test
+    fun aPlainQuoteInsideACalloutIsNotStyledAsTheCallout() {
+        val html = ExportPdf.renderDocument(note("> [!NOTE]\n> > inner"), "Untitled")
+
+        assertTrue(html.contains(".callout > blockquote"))
+        assertFalse(html.contains(".callout blockquote"))
+    }
+
+    @Test
     fun aBareUrlPrintsAsALink() {
         val body = bodyOf(ExportPdf.renderDocument(note("Visit https://example.com today"), "Untitled"))
 

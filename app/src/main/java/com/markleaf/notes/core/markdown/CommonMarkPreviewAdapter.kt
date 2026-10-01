@@ -21,6 +21,7 @@ import org.commonmark.node.AbstractVisitor
 import org.commonmark.node.BlockQuote
 import org.commonmark.node.BulletList
 import org.commonmark.node.Code
+import org.commonmark.node.CustomNode
 import org.commonmark.node.Document
 import org.commonmark.node.Emphasis
 import org.commonmark.node.FencedCodeBlock
@@ -41,7 +42,6 @@ import org.commonmark.node.Text
 import org.commonmark.node.ThematicBreak
 import org.commonmark.parser.IncludeSourceSpans
 import org.commonmark.parser.Parser
-import com.markleaf.notes.util.WikilinkExtractor
 
 /**
  * Adapts the commonmark-java AST to Markleaf's [PreviewLine] / [PreviewInlineSegment]
@@ -96,7 +96,7 @@ internal object CommonMarkPreviewAdapter {
      * level (list + item) up to [MAX_BLOCK_DEPTH], with room to spare so the
      * structure reaches the renderer's cut rather than turning to text first.
      */
-    private const val MAX_PARSER_BLOCK_DEPTH = MAX_BLOCK_DEPTH * 2 + 16
+    internal const val MAX_PARSER_BLOCK_DEPTH = MAX_BLOCK_DEPTH * 2 + 16
 
     private val parser: Parser = buildParser(frontMatter = true)
     private val parserWithoutFrontMatter: Parser = buildParser(frontMatter = false)
@@ -121,6 +121,9 @@ internal object CommonMarkPreviewAdapter {
                 FootnotesExtension.builder().inlineFootnotes(false).build(),
                 TaskListItemsExtension.create(),
                 TablesExtension.create(),
+                // Before autolinks: post-processors run in the order added,
+                // and an address inside `[[…]]` is part of the wikilink.
+                WikilinkExtension,
                 // Bare `https://…`, `www.…` and email addresses become links,
                 // as they do on GitHub (D082). Code spans and existing links
                 // are left alone by the extension.
@@ -994,6 +997,11 @@ internal object CommonMarkPreviewAdapter {
                 if (HTML_BR_TAG_REGEX.matches(htmlInline.literal.trim())) sb.append(' ')
             }
 
+            // As written, the way the text node it used to be read as was.
+            override fun visit(customNode: CustomNode) {
+                if (customNode is WikilinkNode) sb.append(customNode.source) else visitChildren(customNode)
+            }
+
             override fun visit(code: Code) {
                 sb.append(code.literal)
             }
@@ -1025,7 +1033,13 @@ internal object CommonMarkPreviewAdapter {
         default: PreviewInlineType
     ) {
         when (child) {
-            is Text -> appendTextSplittingWikilinks(child.literal, default, out)
+            is Text -> out += PreviewInlineSegment(child.literal, default)
+            // Found by WikilinkExtension before autolinks run; see Wikilinks.kt.
+            is WikilinkNode -> out += PreviewInlineSegment(
+                child.label,
+                PreviewInlineType.WIKILINK,
+                href = child.target
+            )
             // Raw inline HTML is not drawn, but `<br>` is a line break the
             // author asked for — most often inside a table cell, where a
             // real newline would end the row. Dropping it ran the two lines
@@ -1074,41 +1088,6 @@ internal object CommonMarkPreviewAdapter {
             is HardLineBreak -> out += PreviewInlineSegment("\n", default)
             is TaskListItemMarker -> { /* checkbox marker styled at line level */ }
             else -> appendInlineSegments(child, out, default)
-        }
-    }
-
-    /**
-     * commonmark-java emits raw text nodes that don't know about Bear/Obsidian
-     * `[[Title]]` syntax. We split each Text node on the wikilink regex and
-     * emit alternating TEXT and WIKILINK segments. The WIKILINK segment's
-     * `text` is the link target (e.g. `Title`), which the renderer can use
-     * both as label and click handler input.
-     */
-    private fun appendTextSplittingWikilinks(
-        literal: String,
-        default: PreviewInlineType,
-        out: MutableList<PreviewInlineSegment>
-    ) {
-        if (!WikilinkExtractor.hasAny(literal)) {
-            out += PreviewInlineSegment(literal, default)
-            return
-        }
-        val regex = Regex("""\[\[([^\[\]\n]+?)]]""")
-        var cursor = 0
-        regex.findAll(literal).forEach { match ->
-            if (match.range.first > cursor) {
-                out += PreviewInlineSegment(literal.substring(cursor, match.range.first), default)
-            }
-            val body = match.groupValues[1]
-            out += PreviewInlineSegment(
-                WikilinkExtractor.label(body),
-                PreviewInlineType.WIKILINK,
-                href = WikilinkExtractor.target(body)
-            )
-            cursor = match.range.last + 1
-        }
-        if (cursor < literal.length) {
-            out += PreviewInlineSegment(literal.substring(cursor), default)
         }
     }
 

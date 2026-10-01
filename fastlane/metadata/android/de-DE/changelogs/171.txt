@@ -1,0 +1,1 @@
+Nummerierte Aufgabenlisten funktionieren: 1. [ ] zeigt ein Kästchen mit Nummer, ein Tippen hakt es ab, und Enter setzt mit 2. [ ] fort. Auch Aufgaben in einem Zitat lassen sich abhaken. Ein Link auf eine Überschrift in derselben Notiz wie [Setup](#setup) scrollt jetzt zu ihr, statt den Browser zu öffnen.

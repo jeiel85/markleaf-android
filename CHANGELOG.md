@@ -4,6 +4,17 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.61.0 - Numbered tasks and links to headings - 2026-10-01
+
+No permission or storage-format changes.
+
+### Added
+- **Numbered task lists.** `1. [ ] task` now shows a checkbox with its number, just as `- [ ] task` shows a plain one, and a tap in Preview ticks it in your note. Pressing Enter at the end of a numbered task starts the next one as `2. [ ] `; Enter on an empty one ends the list.
+- **Links to headings in the same note.** A link like `[Setup](#setup)` scrolls Preview to the heading it names, using the same anchor names GitHub gives headings (lower-case, punctuation removed, spaces as `-`; a repeated heading becomes `setup-1`). It used to be handed to the browser, which could not open it. A heading inside a collapsed section is not scrolled to.
+
+### Fixed
+- **A task inside a quote can be ticked.** Preview drew a checkbox for `> - [ ] task`, but tapping it did nothing. The editor's checklist button now recognises numbered and quoted tasks as well.
+
 ## v2.60.0 - Links you can tap, and callout titles - 2026-10-01
 
 No permission or storage-format changes. The Markdown library Markleaf uses (commonmark-java) moves from 0.24 to 0.30.

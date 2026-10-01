@@ -481,13 +481,21 @@ internal object CommonMarkPreviewAdapter {
         var index = node.markerStartNumber ?: 1
         while (item != null) {
             if (item is ListItem) {
+                // `1. [ ] task` is a task like `- [ ] task` (GFM allows both);
+                // it used to lose its checkbox and read as a plain item. The
+                // number rides along in `extra` so the row keeps it.
+                val marker = detectTaskMarker(item)
                 renderListItem(
                     item = item,
                     out = out,
                     depth = depth,
-                    type = PreviewLineType.ORDERED_LIST,
+                    type = when (marker) {
+                        TaskState.DONE -> PreviewLineType.CHECKBOX_DONE
+                        TaskState.TODO -> PreviewLineType.CHECKBOX_TODO
+                        TaskState.NONE -> PreviewLineType.ORDERED_LIST
+                    },
                     extra = index.toString(),
-                    sourceLine = null,
+                    sourceLine = if (marker == TaskState.NONE) null else sourceLineOf(item),
                     looseList = loose,
                     nesting = nesting
                 )

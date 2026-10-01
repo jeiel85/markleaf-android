@@ -1,0 +1,1 @@
+Číslované zoznamy úloh fungujú: 1. [ ] sa zobrazí ako začiarkavacie pole s číslom, ťuknutím sa označí a Enter pokračuje s 2. [ ]. Označiť sa dajú aj úlohy v citáte. Odkaz na nadpis v tej istej poznámke, napríklad [Nastavenie](#nastavenie), teraz posunie na tento nadpis namiesto otvorenia prehliadača.

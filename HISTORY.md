@@ -1,3 +1,11 @@
+## 2026-10-01 — Numbered tasks and in-note anchors (M3 of the syntax plan, v2.61.0)
+
+- **Numbered tasks.** `1. [ ] task` (GFM allows it) rendered as a plain numbered item with no box. It is now a checkbox row that keeps its number (`extra`) and its source line, so a tap flips it.
+- **Toggle pattern.** `MarkdownEditActions.checkboxPattern` accepted only `- [ ]`/`* [ ]`/`+ [ ]` at the start of a line, so the box drawn for `1. [ ]` — and, since M1, for a task inside a quote (`> - [ ]`) — could not be flipped (the toggle returned null, safely). It now takes `1.`/`1)` markers and any number of `>` before the marker. The editor's own checklist button uses the same pattern and follows suit.
+- **Anchors.** `[text](#heading)` went to the browser as `https://#heading`. It now scrolls the preview to the heading whose GitHub-style slug matches (`headingSlug`: lower-cased, punctuation dropped, spaces to `-`; repeats numbered `-1`, `-2`), percent-decoded and case-insensitive. A heading inside a collapsed `<details>` is not laid out, so that tap does nothing; PDF anchors are unchanged (headings there carry no ids).
+- **Review of #494.** Codex over its limit again, so `/code-review` (high): three findings, all fixed — Enter after `1. [ ] a` continued as `2. ` (now `2. [ ] `, and an empty numbered task ends the list); the anchor handler was a fresh lambda on every recomposition, handed down through a CompositionLocal (now remembered); `findFootnoteDefIndex`'s KDoc had been orphaned by the insertion.
+- **Tests.** `TasksAndAnchorsTest` (16).
+
 ## 2026-10-01 — Autolinks and callout titles (M2 of the syntax plan, v2.60.0)
 
 - **Dependency (D082).** commonmark-java 0.24.0 → 0.30.0 plus `commonmark-ext-autolink` (`org.nibor.autolink` 0.11.0, MIT). Bare `https://…`, `www.…` and email addresses are links in the preview and the PDF; code spans are left alone.

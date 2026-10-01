@@ -36,7 +36,12 @@ object MarkdownEditActions {
     private val bulletPattern = Regex("""^([-*+])\s+""")
     private val orderedPattern = Regex("""^(\d+)\.\s+""")
     private val blockquotePattern = Regex("""^(>+)\s+""")
-    private val checkboxPattern = Regex("""^(\s*[-*+]) \[([ xX])]""")
+    // A task item as the preview draws one (M3 of docs/MARKDOWN_SYNTAX_PLAN.md):
+    // a bullet or a numbered item (`1.` or `1)`), at any indent, and inside
+    // any number of `>` quotes. The preview gives each of these a checkbox, so
+    // a tap on it must find the `[ ]` to flip — before this, `1. [ ]` and
+    // `> - [ ]` drew boxes that a tap could not change.
+    private val checkboxPattern = Regex("""^((?:[ \t]*>)*[ \t]*(?:[-*+]|\d{1,9}[.)])) \[([ xX])]""")
 
     /** A `> [!NOTE]` head on its own line — see [callout]. */
     private val calloutHeadPattern = Regex("""^\s*>\s*\[![A-Za-z]+]""", RegexOption.MULTILINE)
@@ -476,6 +481,18 @@ object MarkdownEditActions {
             return Continuation(
                 nextPrefix = "$indent$marker ",
                 bodyEmpty = body.isEmpty()
+            )
+        }
+        // Numbered checklist: `1. [ ] body` -> `2. [ ] `. Without this the
+        // ordered branch below continued it as `2. `, dropping the box the
+        // preview draws for a numbered task (review of #494).
+        val orderedChecklist = Regex("""^(\s*)(\d+)\.\s\[[ xX]]\s(.*)$""").matchEntire(line)
+        if (orderedChecklist != null) {
+            val indent = orderedChecklist.groupValues[1]
+            val n = orderedChecklist.groupValues[2].toIntOrNull() ?: 1
+            return Continuation(
+                nextPrefix = "$indent${n + 1}. [ ] ",
+                bodyEmpty = orderedChecklist.groupValues[3].isEmpty()
             )
         }
         // Ordered: `1. body` -> `2. body`

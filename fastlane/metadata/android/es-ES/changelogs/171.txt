@@ -1,0 +1,1 @@
+Las listas de tareas numeradas funcionan: 1. [ ] muestra una casilla con su número, un toque la marca y Enter continúa con 2. [ ]. Las tareas dentro de una cita también se pueden marcar. Un enlace a un encabezado de la misma nota, como [Ajustes](#ajustes), ahora se desplaza hasta él en vez de abrir el navegador.

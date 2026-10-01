@@ -148,6 +148,14 @@ class EditorHighlightCoverageTest {
     }
 
     @Test
+    fun anAddressInsideAWikilinkIsStyledOnceAsTheWikilink() {
+        val text = "[[www.example.com notes]]"
+        val result = highlight(text)
+
+        assertEquals(1, result.spansWith { it.color == Color.Green }.size)
+    }
+
+    @Test
     fun aWrittenLinksDestinationIsNotStyledTwice() {
         val text = "[docs](https://example.com)"
         val result = highlight(text)

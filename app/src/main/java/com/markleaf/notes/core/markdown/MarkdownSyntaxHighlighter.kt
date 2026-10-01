@@ -367,6 +367,8 @@ object MarkdownSyntaxHighlighter {
         }
 
         WIKILINK_REGEX.findAll(text).filterNot { it.inCode() }.forEach { match ->
+            // An address inside a wikilink is part of it, as in the preview.
+            for (i in match.range) linked[i] = true
             spans.addStyle(
                 SpanStyle(color = colors.link, textDecoration = TextDecoration.Underline),
                 match.range.first,
@@ -377,8 +379,8 @@ object MarkdownSyntaxHighlighter {
         }
 
         // A bare address is a link in the preview (GFM autolink), so it reads
-        // as one here too. Not the destination of a written link, which the
-        // pass above already styled.
+        // as one here too. Not the destination of a written link or the
+        // target of a wikilink, which the passes above already styled.
         BARE_URL_REGEX.findAll(text)
             .filterNot { it.inCode() || linked[it.range.first] }
             .forEach { match ->

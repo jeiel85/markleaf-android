@@ -319,6 +319,10 @@ Bear는 기능·상호작용 품질의 벤치마크일 뿐 시각 계약이 아�
 
 ### Phase 32 / v2.26 — Capture Everywhere
 
+> 2026-10-01: 이 중 런처 바로가기와 `ACTION_PROCESS_TEXT`(새 노트)는
+> [`ANDROID_PLATFORM_PLAN.md`](ANDROID_PLATFORM_PLAN.md)의 F1·F2로 다시 꺼냈다.
+> 나머지 항목은 여전히 보류다.
+
 목표: Android 어디에서든 선택한 내용을 Markleaf에 빠르게 담되 데이터 이동은 사용자의 명시적
 동작으로만 일어나게 한다.
 

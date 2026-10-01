@@ -1,3 +1,13 @@
+## 2026-10-01 — Plan: Android platform integration (no code)
+
+The maintainer asked what modern Android features would make Markleaf "the Android Bear", then asked for that answer to be turned into an executable plan. Written as `docs/ANDROID_PLATFORM_PLAN.md`, with tasks at the top of `.agent/tasks.md` and a pointer from ROADMAP Phase 32.
+
+- **Already there (checked on main `51e85143`).** Dynamic colour, themed icon, edge-to-edge, per-app language, shared-element transitions, predictive back opt-in, biometric lock, two widgets, the Notes role (#481). The editor is a `BasicTextField`, so stylus handwriting should already work on Android 14+ (not checked on a device).
+- **Version facts that shaped the order (read from Google Maven aar metadata).** Compose UI 1.12 (BOM 2026.08.00+) and material3 1.5.0-alpha require compileSdk 37 and AGP 9.1.0; BOM 2026.06.01 (Compose 1.11.4, material3 1.4.0) is the newest reachable on AGP 8. In material3 1.4.0 `MaterialExpressiveTheme` and `MotionScheme.expressive()` are `internal`.
+- **Conflict found.** DESIGN.md §6 says nothing bounces or overshoots; Material 3 Expressive is built on exactly that. Adopting it is a design-contract decision (Q2), not a dependency bump.
+- **Shape of the plan.** Feature track F1–F5 (launcher shortcuts, `PROCESS_TEXT`, keyboard shortcut helper, drag and drop, widget picker previews) runs on today's toolchain. SDK track S1–S4 is separate, S1–S2 being the existing `TARGET_API_36_EVALUATION.md` plan. Static `shortcuts.xml` is ruled out because `targetPackage` must be a literal and the debug build is `.debug` (#319).
+- **Open for the maintainer.** Q1 recent-note shortcuts default, Q2 Expressive, Q3 lock-screen capture (D078 already requires a separate activity and decision).
+
 ## 2026-09-30 — Sideload update ends on "App updated — Open" (v2.58.0)
 
 The maintainer noticed that an in-app update closed Markleaf and left nothing behind, while Telegram's sideload update ends on the system's "Done / Open" screen.

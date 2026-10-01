@@ -36,7 +36,12 @@ object MarkdownEditActions {
     private val bulletPattern = Regex("""^([-*+])\s+""")
     private val orderedPattern = Regex("""^(\d+)\.\s+""")
     private val blockquotePattern = Regex("""^(>+)\s+""")
-    private val checkboxPattern = Regex("""^(\s*[-*+]) \[([ xX])]""")
+    // A task item as the preview draws one (M3 of docs/MARKDOWN_SYNTAX_PLAN.md):
+    // a bullet or a numbered item (`1.` or `1)`), at any indent, and inside
+    // any number of `>` quotes. The preview gives each of these a checkbox, so
+    // a tap on it must find the `[ ]` to flip — before this, `1. [ ]` and
+    // `> - [ ]` drew boxes that a tap could not change.
+    private val checkboxPattern = Regex("""^((?:[ \t]*>)*[ \t]*(?:[-*+]|\d{1,9}[.)])) \[([ xX])]""")
 
     /** A `> [!NOTE]` head on its own line — see [callout]. */
     private val calloutHeadPattern = Regex("""^\s*>\s*\[![A-Za-z]+]""", RegexOption.MULTILINE)

@@ -228,6 +228,19 @@ fun MarkdownPreviewList(
     // jumping to a wrong section). Looked up in visibleLines, not lines: the
     // index this scrolls to is a LazyColumn item index, and the list actually
     // laid out there is the filtered one.
+    // `[text](#heading)`: scroll to that heading, the way a page jumps to an
+    // anchor. It used to fall through to the browser as `https://#heading`.
+    // Slugs are counted over every row, collapsed or not, so a duplicate
+    // heading's `-1` suffix matches what GitHub gives it; a target inside a
+    // collapsed section is not laid out and the tap does nothing.
+    val onAnchorClick: (String) -> Unit = onAnchorClick@{ fragment ->
+        val lineIndex = findHeadingAnchorIndex(scaledLines, fragment)
+        val target = visibleIndices.indexOf(lineIndex)
+        if (lineIndex < 0 || target < 0) return@onAnchorClick
+        scope.launch {
+            listState.animateScrollToItem(target)
+        }
+    }
     val onFootnoteRefClick: (String) -> Unit = onFootnoteRefClick@{ label ->
         val targetIndex = findFootnoteDefIndex(visibleLines, label)
         if (targetIndex < 0) return@onFootnoteRefClick
@@ -264,6 +277,7 @@ fun MarkdownPreviewList(
     CompositionLocalProvider(
         LocalPreviewSelectionReset provides resetSelection,
         LocalNoteLinkHandler provides onLocalLinkClick,
+        LocalAnchorHandler provides onAnchorClick,
         LocalConsumedFindRevealKey provides consumedFindRevealKey
     ) {
         key(selectionEpoch) {
@@ -691,7 +705,7 @@ private fun PreviewLineContent(
         )
         PreviewLineType.CHECKBOX_DONE -> InlineMarkdownText(
             line = line,
-            leadingMarker = "☑ ",
+            leadingMarker = taskNumber(line) + "☑ ",
             verticalPadding = listRowSpacing(line),
             color = previewAccent(MaterialTheme.colorScheme.onSurfaceVariant),
             onWikilinkClick = onWikilinkClick,
@@ -700,7 +714,7 @@ private fun PreviewLineContent(
         )
         PreviewLineType.CHECKBOX_TODO -> InlineMarkdownText(
             line = line,
-            leadingMarker = "☐ ",
+            leadingMarker = taskNumber(line) + "☐ ",
             verticalPadding = listRowSpacing(line),
             onWikilinkClick = onWikilinkClick,
             onFootnoteRefClick = onFootnoteRefClick,
@@ -888,6 +902,7 @@ private fun inlineAnnotatedString(
     // resolved before buildAnnotatedString rather than at the Text call site.
     val context = LocalContext.current
     val onLocalLinkClick = LocalNoteLinkHandler.current
+    val onAnchorClick = LocalAnchorHandler.current
     return buildAnnotatedString {
         if (leadingMarker.isNotEmpty()) {
             if (onMarkerClick == null) {
@@ -984,7 +999,10 @@ private fun inlineAnnotatedString(
                             ),
                             linkInteractionListener = {
                                 val localName = LocalMarkdownLink.fileName(href)
-                                if (localName != null && onLocalLinkClick != null) {
+                                if (href.startsWith("#")) {
+                                    // In-note anchor: never a web address.
+                                    onAnchorClick?.invoke(href.substring(1))
+                                } else if (localName != null && onLocalLinkClick != null) {
                                     onLocalLinkClick(localName)
                                 } else {
                                     openExternalLink(context, href)
@@ -1020,6 +1038,9 @@ private const val LINK_TAG = "link"
  */
 private const val LINK_HREF_TAG = "link_href"
 private val LocalNoteLinkHandler = compositionLocalOf<((String) -> Unit)?> { null }
+
+/** Scrolls the preview to the heading a `#fragment` link names. */
+private val LocalAnchorHandler = compositionLocalOf<((String) -> Unit)?> { null }
 
 /**
  * The find highlight for the row being drawn (#417), or null while find is
@@ -1306,6 +1327,78 @@ private const val TASK_MARKER_TAG = "task_marker"
  * Returns the index of the first `FOOTNOTE_DEF` line whose label matches [label],
  * or -1 if none. Lifted out of [MarkdownPreviewList] so it can be unit-tested.
  */
+/** `"3. "` for a numbered task (`3. [ ] …`), nothing for a bulleted one. */
+private fun taskNumber(line: PreviewLine): String = line.extra?.let { "$it. " }.orEmpty()
+
+/**
+ * The index in [lines] of the heading a `#fragment` link points at, or -1.
+ *
+ * Headings are named the way GitHub names them ([headingSlug]), numbering
+ * repeats in document order (`intro`, `intro-1`, …), so a link written for a
+ * README on GitHub lands on the same heading here. The fragment may arrive
+ * percent-encoded (`#%ED%95%9C`), and is compared case-insensitively.
+ */
+internal fun findHeadingAnchorIndex(lines: List<PreviewLine>, fragment: String): Int {
+    val wanted = percentDecode(fragment).lowercase()
+    if (wanted.isEmpty()) return -1
+    val seen = HashMap<String, Int>()
+    lines.forEachIndexed { index, line ->
+        if (line.type !in HEADING_TYPES) return@forEachIndexed
+        val base = headingSlug(line.text)
+        val count = seen[base] ?: 0
+        seen[base] = count + 1
+        val slug = if (count == 0) base else "$base-$count"
+        if (slug == wanted) return index
+    }
+    return -1
+}
+
+private val HEADING_TYPES = setOf(
+    PreviewLineType.H1, PreviewLineType.H2, PreviewLineType.H3,
+    PreviewLineType.H4, PreviewLineType.H5, PreviewLineType.H6
+)
+
+/**
+ * GitHub's anchor for a heading: lower-cased, every character that is not a
+ * letter, digit, mark, space, `-` or `_` dropped, and each space turned into
+ * `-` (runs are not collapsed — `a  b` is `a--b` there too).
+ */
+internal fun headingSlug(text: String): String = buildString {
+    for (c in text.trim().lowercase()) {
+        when {
+            c == ' ' -> append('-')
+            c == '-' || c == '_' || c.isLetterOrDigit() -> append(c)
+            Character.getType(c) == Character.NON_SPACING_MARK.toInt() ||
+                Character.getType(c) == Character.COMBINING_SPACING_MARK.toInt() -> append(c)
+        }
+    }
+}
+
+/** `%XX` sequences as UTF-8; anything malformed is left as written. */
+private fun percentDecode(text: String): String {
+    if ('%' !in text) return text
+    val bytes = java.io.ByteArrayOutputStream()
+    var i = 0
+    while (i < text.length) {
+        val c = text[i]
+        val hex = if (c == '%' && i + 2 < text.length) {
+            text.substring(i + 1, i + 3)
+                .takeIf { pair -> pair.all { it in '0'..'9' || it.lowercaseChar() in 'a'..'f' } }
+                ?.toInt(16)
+        } else {
+            null
+        }
+        if (hex != null) {
+            bytes.write(hex)
+            i += 3
+        } else {
+            bytes.write(c.toString().toByteArray(Charsets.UTF_8))
+            i++
+        }
+    }
+    return bytes.toString(Charsets.UTF_8.name())
+}
+
 internal fun findFootnoteDefIndex(lines: List<PreviewLine>, label: String): Int =
     lines.indexOfFirst { line ->
         line.type == PreviewLineType.FOOTNOTE_DEF && line.extra == label

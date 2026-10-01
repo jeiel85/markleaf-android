@@ -607,7 +607,8 @@ private val LocalPreviewBodyColor = compositionLocalOf { Color.Unspecified }
 
 /**
  * [default] outside a callout; inside one, the box's own content colour.
- * Headings, completed tasks, links and footnote labels pick their own accent
+ * Headings, completed tasks, links, inline code, footnote labels, a
+ * `<details>` summary and a missing image's fallback text pick their own accent
  * colour, and an accent that reads on the page can vanish on a callout's fill
  * — the Monochrome scheme's NOTE fill is as dark as its primary (#473). Inside
  * a callout everything takes the one colour the fill is paired with; links
@@ -784,14 +785,14 @@ private fun CollapsibleSummaryRow(text: String, expanded: Boolean, onClick: () -
         // reaching for the icon library.
         Text(
             text = if (expanded) "▾" else "▸",
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = previewAccent(MaterialTheme.colorScheme.onSurfaceVariant),
             modifier = Modifier.padding(end = 8.dp)
         )
         FindableText(
             text = text,
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurface
+            color = previewAccent(MaterialTheme.colorScheme.onSurface)
         )
     }
 }
@@ -927,7 +928,7 @@ private fun inlineAnnotatedString(
                 PreviewInlineType.INLINE_CODE -> withStyle(
                     SpanStyle(
                         fontFamily = FontFamily.Monospace,
-                        color = MaterialTheme.colorScheme.tertiary
+                        color = previewAccent(MaterialTheme.colorScheme.tertiary)
                     )
                 ) {
                     append(segment.text)
@@ -1673,7 +1674,7 @@ private fun AttachmentImage(
         FindableText(
             text = unresolvedImageText(line.text, destination),
             style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = previewAccent(MaterialTheme.colorScheme.onSurfaceVariant),
             modifier = Modifier.padding(vertical = 4.dp)
         )
     }

@@ -214,7 +214,9 @@ class MarkdownPreviewSnapshotTest {
                         """
                         > [!NOTE]
                         > # Heading in a callout
-                        > A [link](https://example.com) and **bold**.
+                        > A [link](https://example.com), **bold** and `code`.
+                        >
+                        > ![missing picture](attachments/none.png)
                         >
                         > - [x] done task
                         > - [ ] open task

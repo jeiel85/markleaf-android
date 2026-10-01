@@ -79,9 +79,16 @@
 - **프라이버시 규칙(위젯과 동일, `SingleNoteWidget`의 `note.locked -> null` 선례):** 잠긴
   노트·휴지통 노트는 바로가기에 절대 싣지 않는다. 이미 실린 노트가 잠기거나 휴지통으로 가면
   즉시 제거한다. App lock은 `BiometricLockGate`가 그대로 막는다.
+- **고정된 사본(PR #488 리뷰).** 사용자가 메뉴 항목을 홈 화면에 끌어 놓으면 pinned
+  shortcut이 되고, `setDynamicShortcuts`에서 ID를 빼도 그 사본은 남는다. 노트가 바뀔 때마다
+  pinned 노트 바로가기를 노트 자체와 대조해 잠김·휴지통·삭제면 `disableShortcuts`(제목 대신
+  "더 이상 열 수 없는 노트" 안내)하고, 돌아오면 `enableShortcuts` + 현재 제목으로 갱신한다.
+  비활성화한 ID는 다시 활성화하기 전에는 동적 목록에 올릴 수 없으므로 pinned 정리를 먼저 한다.
 
-테스트: 바로가기 목록 생성 규칙(잠김·휴지통 제외, 개수 상한) 순수 함수 단위 테스트, 검색
-action 라우팅 테스트(`NotesRoleIntentTest`·`LaunchDispatchTest` 패턴), 회전 시 재생 없음.
+테스트: 바로가기 목록 생성 규칙(잠김·휴지통 제외, 개수 상한) 순수 함수 단위 테스트, pinned
+사본의 비활성화·재활성화 판단 테스트, 검색 action 라우팅 테스트(`NotesRoleIntentTest`·
+`LaunchDispatchTest` 패턴), 회전 시 재생 없음. 기기: 노트를 홈 화면에 고정 → 잠금 → 회색 처리,
+잠금 해제 → 복구.
 기기: 런처 길게 누르기 → 3개 경로, 노트 잠금 후 최근 노트 바로가기 사라짐.
 
 ### F2. 텍스트 선택 메뉴 "Markleaf에 추가" (`ACTION_PROCESS_TEXT`)
@@ -129,7 +136,12 @@ Ctrl+F(노트 안 찾기 / 목록에서는 검색)를 더한다.
 동작:
 - 넣기: 편집기에 이미지(`image/*`)를 놓으면 기존 첨부 규칙대로 복사되고 `![](…)`가 커서
   위치에 들어간다. 텍스트는 그대로 들어간다.
-- 꺼내기(F4b): 목록의 노트를 끌어 다른 앱에 Markdown 텍스트로 놓는다. 잠긴 노트는 끌 수 없다.
+- 꺼내기(F4b): 목록의 노트를 끌어 다른 앱에 Markdown으로 놓는다. 잠긴 노트는 끌 수 없다.
+  **본문을 `ClipData` 텍스트로 싣지 않는다(PR #488 리뷰).** 노트는 최대 200만 자
+  (`ExternalFile.MAX_CHARS`)까지 들어오고 `ClipData`는 Binder로 건너가므로 ~1MB 한도를 넘으면
+  드래그가 실패하거나 `TransactionTooLargeException`이 난다(위젯이 같은 이유로 본문을 자른다).
+  기존 `FileProvider`로 임시 `.md`의 content URI를 만들어 `DRAG_FLAG_GLOBAL_URI_READ`로
+  읽기 권한만 넘긴다. 텍스트만 받는 앱을 위한 평문 미리보기는 길이를 제한해 함께 싣는다.
 
 구현:
 - 먼저 `Modifier.contentReceiver`(foundation 1.7, experimental)를 스파이크한다. 붙여넣기·드롭·

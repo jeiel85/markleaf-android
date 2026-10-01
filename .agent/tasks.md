@@ -21,13 +21,13 @@ F1 → v2.59.0 (Q1 확정: 최근 노트는 설정 → 개인정보 토글, 기�
 - [ ] F2 기기 검증(Chrome 선택 메뉴 → 새 노트 1회)
 - [x] v2.59.0 릴리스 문서(CHANGELOG 2판, fastlane 11개 로케일, 랜딩·README 버전 표기)
 
-F3 → v2.60.0
+F3 → v2.61.0
 
 - [ ] 키보드 단축키 표 한 곳으로 통합(`formattingShortcutFor`·`undoShortcutFor`·목록 Ctrl+K) + Ctrl+N·Ctrl+F 추가
 - [ ] `MainActivity.onProvideKeyboardShortcuts` 그룹(앱/편집기) + "도우미의 모든 키에 핸들러가 있다" 테스트
 - [ ] 태블릿/에뮬레이터 + 물리 키보드에서 Meta+/ 확인
 
-F4 → v2.61.0
+F4 → v2.62.0
 
 - [ ] `Modifier.contentReceiver` 스파이크(붙여넣기·드롭·키보드 이미지 삽입 한 경로) — 안 되면 `dragAndDropTarget`
 - [ ] `EditorScreen` 이미지 선택 콜백 몸체를 `insertImageAtCursor(uri)`로 추출해 선택기·드롭 공용화 + 테스트

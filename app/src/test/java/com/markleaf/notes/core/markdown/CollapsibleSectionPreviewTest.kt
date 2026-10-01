@@ -177,13 +177,17 @@ class CollapsibleSectionPreviewTest {
     }
 
     @Test
-    fun ordinaryHtmlBlockWithoutDetailsIsStillDroppedUnchanged() {
-        // Pre-#403 behaviour for any other raw HTML block is untouched.
+    fun ordinaryHtmlBlockWithoutDetailsShowsItsText() {
+        // #403 left every other raw HTML block dropped, and this test pinned
+        // that so the collapsible work stayed in its lane. Dropping was the
+        // bug, though: a `<div>` in a note vanished from the preview. Its text
+        // is now shown (tags removed), still outside any collapsible section.
         val markdown = "before\n\n<div>raw html</div>\n\nafter"
 
         val lines = SimpleMarkdownPreview.parse(markdown)
 
-        assertEquals(listOf("before", "after"), lines.map { it.text })
+        assertEquals(listOf("before", "raw html", "after"), lines.map { it.text })
+        assertTrue(lines.all { it.collapsibleIds.isEmpty() })
     }
 
     @Test

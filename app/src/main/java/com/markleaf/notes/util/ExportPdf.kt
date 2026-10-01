@@ -14,6 +14,7 @@ import org.commonmark.node.AbstractVisitor
 import org.commonmark.node.Image
 import org.commonmark.node.Text
 import org.commonmark.ext.footnotes.FootnotesExtension
+import org.commonmark.ext.front.matter.YamlFrontMatterExtension
 import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
 import org.commonmark.ext.gfm.tables.TablesExtension
 import org.commonmark.ext.task.list.items.TaskListItemsExtension
@@ -28,6 +29,11 @@ import org.commonmark.renderer.html.HtmlRenderer
  */
 object ExportPdf {
     private val extensions = listOf(
+        // Front matter is metadata, as it is in the preview (which shows it in
+        // its own muted block). Without this extension the PDF parsed it as
+        // Markdown: the opening `---` printed as a rule and the YAML under it,
+        // closed by the second `---`, as a Setext H2 heading.
+        YamlFrontMatterExtension.create(),
         StrikethroughExtension.create(),
         TablesExtension.create(),
         TaskListItemsExtension.create(),

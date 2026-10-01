@@ -26,6 +26,7 @@ import org.commonmark.node.FencedCodeBlock
 import org.commonmark.node.HardLineBreak
 import org.commonmark.node.Heading
 import org.commonmark.node.HtmlBlock
+import org.commonmark.node.HtmlInline
 import org.commonmark.node.Image
 import org.commonmark.node.IndentedCodeBlock
 import org.commonmark.node.Link
@@ -178,16 +179,21 @@ internal object CommonMarkPreviewAdapter {
      * item we descend into, so a nested list — or a continuation paragraph,
      * quote or code block written underneath a list item — arrives as its own
      * row that knows how far in it belongs (#339).
+     *
+     * [nesting] counts every container descended through — list items *and*
+     * quotes — and is what [MAX_BLOCK_DEPTH] bounds. It is separate from
+     * [depth] because a quote nests without indenting: `>>>>` keeps [depth] at
+     * 0 while recursing just as deeply as a list does.
      */
-    private fun renderBlock(node: Node, out: MutableList<PreviewLine>, depth: Int) {
-        if (depth > MAX_BLOCK_DEPTH) {
+    private fun renderBlock(node: Node, out: MutableList<PreviewLine>, depth: Int, nesting: Int = depth) {
+        if (nesting > MAX_BLOCK_DEPTH) {
             // One marker per cut, not one per sibling: consecutive siblings
             // below the ceiling all mean the same thing to the reader.
             if (out.lastOrNull()?.text != DEPTH_CUT_MARKER) {
                 out += PreviewLine(
                     text = DEPTH_CUT_MARKER,
                     type = PreviewLineType.BODY,
-                    depth = MAX_BLOCK_DEPTH
+                    depth = minOf(depth, MAX_BLOCK_DEPTH)
                 )
             }
             return
@@ -196,10 +202,10 @@ internal object CommonMarkPreviewAdapter {
         when (node) {
             is YamlFrontMatterBlock -> { /* already consumed by collectFrontmatter */ }
             is Heading -> out += renderHeading(node)
-            is Paragraph -> out += renderParagraph(node, depth)
-            is BulletList -> renderBulletList(node, out, depth)
-            is OrderedList -> renderOrderedList(node, out, depth)
-            is BlockQuote -> renderBlockQuote(node, out, depth)
+            is Paragraph -> renderParagraph(node, out, depth, PreviewLineType.BODY)
+            is BulletList -> renderBulletList(node, out, depth, nesting)
+            is OrderedList -> renderOrderedList(node, out, depth, nesting)
+            is BlockQuote -> renderBlockQuote(node, out, depth, nesting)
             is FencedCodeBlock -> out += PreviewLine(
                 text = node.literal.trimEnd(),
                 type = PreviewLineType.CODE_BLOCK,
@@ -276,31 +282,125 @@ internal object CommonMarkPreviewAdapter {
         )
     }
 
-    private fun renderParagraph(node: Paragraph, depth: Int): PreviewLine {
-        // Promote `![alt](path)` to a top-level IMAGE block when it stands
-        // alone in the paragraph. We don't try to handle inline images
-        // mixed with text — they fall through to BODY where the markdown
-        // syntax is rendered as-is (still a fine experience).
-        val firstChild = node.firstChild
-        if (firstChild is Image && firstChild.next == null) {
-            val alt = collectText(firstChild)
-            return PreviewLine(
-                text = alt,
-                type = PreviewLineType.IMAGE,
-                extra = firstChild.destination,
+    /**
+     * A paragraph as one [type] row — or, when it carries images, as the text
+     * and image rows it reads as in order.
+     *
+     * An image is drawn as a block of its own (IMAGE), so a paragraph that
+     * mixes one with text is split at each image: the text before it, the
+     * image, the text after. This used to happen only for a paragraph that was
+     * *nothing but* an image; any other image fell through to the inline walk,
+     * which kept its alt text and dropped the picture — `see ![chart](a.png)
+     * below` read as "see chart below" with no image and no sign one was meant
+     * to be there. Same for an `<img>` tag written inline.
+     */
+    private fun renderParagraph(node: Paragraph, out: MutableList<PreviewLine>, depth: Int, type: PreviewLineType) {
+        val pieces = paragraphPieces(node)
+        if (pieces.size == 1 && pieces[0] is ParagraphPiece.Inline) {
+            // The common case, kept exactly as it was: the flat text comes from
+            // the whole paragraph, not from the pieces.
+            out += PreviewLine(
+                text = collectText(node),
+                type = type,
+                segments = collectInlineSegments(node),
+                depth = depth
+            )
+            return
+        }
+        for (piece in pieces) out += piece.toRow(type, depth)
+    }
+
+    /** One run of a paragraph between its images, or one of the images. */
+    private sealed interface ParagraphPiece {
+        fun toRow(textType: PreviewLineType, depth: Int): PreviewLine
+
+        data class Inline(val segments: List<PreviewInlineSegment>) : ParagraphPiece {
+            override fun toRow(textType: PreviewLineType, depth: Int) = PreviewLine(
+                text = segments.joinToString("") { it.text }.replace('\n', ' ').trim(),
+                type = textType,
+                segments = segments,
                 depth = depth
             )
         }
-        val text = collectText(node)
-        return PreviewLine(
-            text = text,
-            type = PreviewLineType.BODY,
-            segments = collectInlineSegments(node),
-            depth = depth
-        )
+
+        data class Picture(val alt: String, val destination: String) : ParagraphPiece {
+            override fun toRow(textType: PreviewLineType, depth: Int) = PreviewLine(
+                text = alt,
+                type = PreviewLineType.IMAGE,
+                extra = destination,
+                depth = depth
+            )
+        }
     }
 
-    private fun renderBulletList(node: BulletList, out: MutableList<PreviewLine>, depth: Int) {
+    /**
+     * Splits [node]'s inline children at every image. Only images that are
+     * direct children split — one nested inside a link (a linked badge) stays
+     * part of that link, whose label is what the reader taps. Runs left blank
+     * by the split (the line break beside an image on its own line) are
+     * dropped; a paragraph with no image comes back as one [ParagraphPiece.Inline].
+     */
+    private fun paragraphPieces(node: Node): List<ParagraphPiece> {
+        val pieces = mutableListOf<ParagraphPiece>()
+        var run = mutableListOf<PreviewInlineSegment>()
+        fun flush() {
+            val trimmed = run.coalesce().trimBlankEdges()
+            if (trimmed.isNotEmpty()) pieces += ParagraphPiece.Inline(trimmed)
+            run = mutableListOf()
+        }
+        var child: Node? = node.firstChild
+        while (child != null) {
+            val picture = when (child) {
+                is Image -> ParagraphPiece.Picture(collectText(child), child.destination.orEmpty())
+                is HtmlInline -> htmlImage(child.literal)
+                else -> null
+            }
+            if (picture != null) {
+                flush()
+                pieces += picture
+            } else {
+                appendInlineNode(child, run, PreviewInlineType.TEXT)
+            }
+            child = child.next
+        }
+        flush()
+        // A paragraph made only of whitespace still renders the way it did.
+        return pieces.ifEmpty { listOf(ParagraphPiece.Inline(collectInlineSegments(node))) }
+    }
+
+    /** `<img src="…" alt="…">` as a picture, or null for any other tag or one without a source. */
+    private fun htmlImage(tag: String): ParagraphPiece.Picture? {
+        if (!HTML_IMG_TAG_REGEX.matches(tag.trim())) return null
+        val src = htmlAttribute(tag, "src") ?: return null
+        return ParagraphPiece.Picture(alt = htmlAttribute(tag, "alt").orEmpty(), destination = src)
+    }
+
+    private fun htmlAttribute(tag: String, name: String): String? =
+        Regex("""(?:^|\s)$name\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))""", RegexOption.IGNORE_CASE)
+            .find(tag)
+            ?.groupValues
+            ?.drop(1)
+            ?.firstOrNull { it.isNotEmpty() }
+            ?.let(::decodeHtmlEntities)
+
+    /** Drops whitespace-only runs (line breaks, spaces) from both ends of a run. */
+    private fun List<PreviewInlineSegment>.trimBlankEdges(): List<PreviewInlineSegment> {
+        var start = 0
+        var end = size
+        while (start < end && this[start].type == PreviewInlineType.TEXT && this[start].text.isBlank()) start++
+        while (end > start && this[end - 1].type == PreviewInlineType.TEXT && this[end - 1].text.isBlank()) end--
+        if (start == end) return emptyList()
+        val trimmed = subList(start, end).toMutableList()
+        trimmed[0].takeIf { it.type == PreviewInlineType.TEXT }?.let {
+            trimmed[0] = it.copy(text = it.text.trimStart())
+        }
+        trimmed[trimmed.lastIndex].takeIf { it.type == PreviewInlineType.TEXT }?.let {
+            trimmed[trimmed.lastIndex] = it.copy(text = it.text.trimEnd())
+        }
+        return trimmed
+    }
+
+    private fun renderBulletList(node: BulletList, out: MutableList<PreviewLine>, depth: Int, nesting: Int) {
         val loose = !node.isTight
         var item: Node? = node.firstChild
         while (item != null) {
@@ -319,14 +419,15 @@ internal object CommonMarkPreviewAdapter {
                     extra = null,
                     // Only task items need it, and only they can be tapped.
                     sourceLine = if (marker == TaskState.NONE) null else sourceLineOf(item),
-                    looseList = loose
+                    looseList = loose,
+                    nesting = nesting
                 )
             }
             item = item.next
         }
     }
 
-    private fun renderOrderedList(node: OrderedList, out: MutableList<PreviewLine>, depth: Int) {
+    private fun renderOrderedList(node: OrderedList, out: MutableList<PreviewLine>, depth: Int, nesting: Int) {
         val loose = !node.isTight
         var item: Node? = node.firstChild
         var index = node.markerStartNumber ?: 1
@@ -339,7 +440,8 @@ internal object CommonMarkPreviewAdapter {
                     type = PreviewLineType.ORDERED_LIST,
                     extra = index.toString(),
                     sourceLine = null,
-                    looseList = loose
+                    looseList = loose,
+                    nesting = nesting
                 )
                 index++
             }
@@ -365,16 +467,23 @@ internal object CommonMarkPreviewAdapter {
         type: PreviewLineType,
         extra: String?,
         sourceLine: Int?,
-        looseList: Boolean
+        looseList: Boolean,
+        nesting: Int
     ) {
         // The task-list extension puts its marker ahead of the paragraph, so
         // the item's own text starts one node later for a checklist row.
         val lead = item.firstChild.let { if (it is TaskListItemMarker) it.next else it } as? Paragraph
-        out += PreviewLine(
-            text = lead?.let { collectText(it) }.orEmpty(),
+        // The item's own row takes the lead paragraph's first run of text; an
+        // image in it, and whatever follows that image, go underneath like any
+        // other block the item carries.
+        val leadPieces = lead?.let { paragraphPieces(it) }.orEmpty()
+        val plainLead = leadPieces.isEmpty() || (leadPieces.size == 1 && leadPieces[0] is ParagraphPiece.Inline)
+        val ownText = leadPieces.firstOrNull() as? ParagraphPiece.Inline
+        val itemRow = PreviewLine(
+            text = if (plainLead) lead?.let { collectText(it) }.orEmpty() else ownText?.toRow(type, depth)?.text.orEmpty(),
             type = type,
             extra = extra,
-            segments = lead?.let { collectInlineSegments(it) }.orEmpty(),
+            segments = if (plainLead) lead?.let { collectInlineSegments(it) }.orEmpty() else ownText?.segments.orEmpty(),
             sourceLine = sourceLine,
             depth = depth,
             looseList = looseList,
@@ -382,6 +491,13 @@ internal object CommonMarkPreviewAdapter {
             // hand every item the first item's line (#464).
             startLine = sourceLineOf(item)
         )
+        out += itemRow
+        if (!plainLead) {
+            val rest = if (ownText != null) leadPieces.drop(1) else leadPieces
+            for (piece in rest) {
+                out += piece.toRow(PreviewLineType.BODY, depth + 1).copy(startLine = itemRow.startLine)
+            }
+        }
         // An item can open straight into a sublist (`-` on its own line), in
         // which case there is no lead paragraph to walk past. Written long-hand
         // rather than with an elvis: `lead?.next ?: item.firstChild` also falls
@@ -390,74 +506,85 @@ internal object CommonMarkPreviewAdapter {
         var child: Node? = if (lead != null) lead.next else item.firstChild
         while (child != null) {
             if (child !is TaskListItemMarker) {
-                renderBlock(child, out, depth + 1)
+                renderBlock(child, out, depth + 1, nesting + 1)
             }
             child = child.next
         }
     }
 
-    private fun renderBlockQuote(node: BlockQuote, out: MutableList<PreviewLine>, depth: Int) {
-        // commonmark-java collapses a multi-line `> ...` blockquote into a
-        // single Paragraph child whose text contains all the body lines
-        // separated by spaces (because soft breaks). For GitHub-style
-        // callouts, the Paragraph's text begins with `[!TYPE]` followed by
-        // the body. We detect that prefix instead of looking at the first
-        // child node alone.
-        val combined = collectBlockQuoteText(node)
-        val calloutMatch = CALLOUT_HEAD_PREFIX_REGEX.find(combined)
-        if (calloutMatch != null) {
-            val type = calloutMatch.groupValues[1]
-            val body = combined.substring(calloutMatch.range.last + 1).trim()
+    /**
+     * A `>` quote, or a GitHub-style callout (`> [!NOTE]`), as rows.
+     *
+     * Every block the quote holds is rendered by [renderBlock] like any other,
+     * then stamped as belonging to the quote — so a list, a code block or a
+     * heading inside one keeps its own shape. This used to flatten each child
+     * to its text instead: a list inside a quote became one row `ab`, a fenced
+     * block (which has no text node to collect) became nothing at all, and a
+     * callout's body lost its links, bold, lists and code the same way.
+     */
+    private fun renderBlockQuote(node: BlockQuote, out: MutableList<PreviewLine>, depth: Int, nesting: Int) {
+        val calloutType = takeCalloutHead(node)
+        val first = out.size
+        if (calloutType != null) {
             out += PreviewLine(
-                text = body,
+                text = "",
                 type = PreviewLineType.CALLOUT,
-                extra = type,
+                extra = calloutType,
                 depth = depth
             )
-        } else {
-            // Fall back to one BLOCKQUOTE PreviewLine per child paragraph.
-            var child: Node? = node.firstChild
-            while (child != null) {
-                val text = collectText(child)
-                if (text.isNotBlank()) {
-                    out += PreviewLine(
-                        text = text,
-                        type = PreviewLineType.BLOCKQUOTE,
-                        segments = collectInlineSegments(child),
-                        depth = depth
-                    )
-                }
-                child = child.next
+        }
+        var child: Node? = node.firstChild
+        while (child != null) {
+            val next = child.next
+            when {
+                // A plain quote's paragraphs keep their own row type so they
+                // read as quoted prose; inside a callout the box says that.
+                child is Paragraph && calloutType == null ->
+                    renderParagraph(child, out, depth, PreviewLineType.BLOCKQUOTE)
+                else -> renderBlock(child, out, depth, nesting + 1)
             }
+            child = next
+        }
+        for (i in first until out.size) {
+            val row = out[i]
+            out[i] = if (calloutType != null) {
+                // Innermost callout wins: a callout nested in this one already
+                // stamped its own rows before this loop reached them.
+                row.copy(callout = row.callout ?: calloutType, containerDepth = depth)
+            } else {
+                row.copy(quoteDepth = row.quoteDepth + 1, containerDepth = depth)
+            }
+        }
+        if (calloutType != null) {
+            out[out.lastIndex] = out[out.lastIndex].copy(calloutEnd = true)
         }
     }
 
     /**
-     * Collect a blockquote's body as a single string with line breaks preserved
-     * across SoftLineBreak nodes — this is what we need to find a callout head
-     * `[!NOTE]` that sits on its own source line even though commonmark turned
-     * the soft break into a space.
+     * When [quote] opens with a callout head — `[!TYPE]` at the very start of
+     * its first line — removes that head from the tree and returns the type.
+     * What follows the head on the same line stays as the first line of the
+     * body, and a head on a line of its own takes its line break with it, so
+     * the body starts where the author's text does.
+     *
+     * The head is matched on the paragraph's leading text node: commonmark
+     * merges the bracket and the word around it back into one node after
+     * failing to read them as a link, so `[!NOTE]` arrives whole.
      */
-    private fun collectBlockQuoteText(node: BlockQuote): String {
-        val sb = StringBuilder()
-        node.accept(object : AbstractVisitor() {
-            override fun visit(text: Text) {
-                sb.append(text.literal)
-            }
-
-            override fun visit(softLineBreak: SoftLineBreak) {
-                sb.append('\n')
-            }
-
-            override fun visit(hardLineBreak: HardLineBreak) {
-                sb.append('\n')
-            }
-
-            override fun visit(code: Code) {
-                sb.append('`').append(code.literal).append('`')
-            }
-        })
-        return sb.toString()
+    private fun takeCalloutHead(quote: BlockQuote): String? {
+        val paragraph = quote.firstChild as? Paragraph ?: return null
+        val lead = paragraph.firstChild as? Text ?: return null
+        val match = CALLOUT_HEAD_PREFIX_REGEX.find(lead.literal) ?: return null
+        val rest = lead.literal.substring(match.range.last + 1)
+        if (rest.isBlank()) {
+            val after = lead.next
+            lead.unlink()
+            if (after is SoftLineBreak || after is HardLineBreak) after.unlink()
+        } else {
+            lead.literal = rest.trimStart()
+        }
+        if (paragraph.firstChild == null) paragraph.unlink()
+        return match.groupValues[1]
     }
 
     private fun renderTable(block: TableBlock, depth: Int): PreviewLine {
@@ -577,11 +704,17 @@ internal object CommonMarkPreviewAdapter {
                 ?: run {
                     // No <details>/</details> tag anywhere in the rest of this
                     // literal. At cursor == 0 that means none exists at all —
-                    // an ordinary HTML block, dropped exactly as it was before
-                    // #403. Past that, a tag was already processed earlier in
-                    // this same literal, and what remains is real trailing
-                    // content sitting outside any section boundary.
-                    if (cursor > 0) emitPlainHtmlBlockText(literal.substring(cursor), out, depth)
+                    // an ordinary HTML block, whose text is shown rather than
+                    // dropped (it used to be dropped, so a `<div>` or a
+                    // `<p align="center">` simply vanished from the preview).
+                    // Past that, a tag was already processed earlier in this
+                    // same literal, and what remains is real trailing content
+                    // sitting outside any section boundary.
+                    if (cursor > 0) {
+                        emitPlainHtmlBlockText(literal.substring(cursor), out, depth)
+                    } else {
+                        emitHtmlBlockContent(literal, out, depth)
+                    }
                     return
                 }
             if (next === closeMatch) {
@@ -655,6 +788,64 @@ internal object CommonMarkPreviewAdapter {
     }
 
     /**
+     * An HTML block that is not a collapsible section, as the text and images
+     * it holds. The preview does not render HTML; it reads it the way a reader
+     * would — tags removed, `<br>` and the end of a block-level element as line
+     * breaks, entities decoded, `<img>` as an image row. A comment, a
+     * `<script>` or a `<style>` is not something a reader sees in a browser,
+     * so it stays hidden here too. Markdown inside the block is left as
+     * written, as CommonMark does for an HTML block.
+     */
+    private fun emitHtmlBlockContent(literal: String, out: MutableList<PreviewLine>, depth: Int) {
+        val html = HTML_HIDDEN_CONTENT_REGEX.replace(literal, "")
+        var cursor = 0
+        for (img in HTML_IMG_TAG_REGEX.findAll(html)) {
+            emitHtmlText(html.substring(cursor, img.range.first), out, depth)
+            htmlImage(img.value)?.let { out += it.toRow(PreviewLineType.BODY, depth) }
+            cursor = img.range.last + 1
+        }
+        emitHtmlText(html.substring(cursor), out, depth)
+    }
+
+    private fun emitHtmlText(fragment: String, out: MutableList<PreviewLine>, depth: Int) {
+        val withBreaks = HTML_LINE_BREAK_TAG_REGEX.replace(fragment, "\n")
+        val text = decodeHtmlEntities(HTML_TAG_REGEX.replace(withBreaks, ""))
+            .lines()
+            .map { it.replace(HORIZONTAL_SPACE_RUN_REGEX, " ").trim() }
+            .filter { it.isNotEmpty() }
+            .joinToString("\n")
+        if (text.isNotEmpty()) {
+            out += PreviewLine(
+                text = text,
+                type = PreviewLineType.BODY,
+                segments = listOf(PreviewInlineSegment(text, PreviewInlineType.TEXT)),
+                depth = depth
+            )
+        }
+    }
+
+    /**
+     * The handful of entities hand-written HTML actually uses, plus numeric
+     * references. Not a full HTML5 table: anything unknown is left as written,
+     * which is still readable.
+     */
+    private fun decodeHtmlEntities(text: String): String {
+        if ('&' !in text) return text
+        return HTML_ENTITY_REGEX.replace(text) { match ->
+            val body = match.groupValues[1]
+            when {
+                body.startsWith("#x", ignoreCase = true) ->
+                    body.drop(2).toIntOrNull(16)?.let(::codePointString)
+                body.startsWith("#") -> body.drop(1).toIntOrNull()?.let(::codePointString)
+                else -> NAMED_HTML_ENTITIES[body]
+            } ?: match.value
+        }
+    }
+
+    private fun codePointString(codePoint: Int): String? =
+        if (Character.isValidCodePoint(codePoint) && codePoint != 0) String(Character.toChars(codePoint)) else null
+
+    /**
      * Whatever text is left in an [HtmlBlock] literal once every `<details>`
      * / `</details>` tag in it has been consumed: a stray `</details>` can
      * still share its literal with real content that follows it (no blank
@@ -705,7 +896,16 @@ internal object CommonMarkPreviewAdapter {
             val tagged = if (openIds.isEmpty()) {
                 line
             } else {
-                line.copy(collapsibleIds = openIds.toList(), depth = line.depth + openIds.size)
+                line.copy(
+                    collapsibleIds = openIds.toList(),
+                    depth = line.depth + openIds.size,
+                    // A quote or callout inside the section moves in with it.
+                    containerDepth = if (line.quoteDepth > 0 || line.callout != null) {
+                        line.containerDepth + openIds.size
+                    } else {
+                        line.containerDepth
+                    }
+                )
             }
             if (line.type == PreviewLineType.COLLAPSIBLE_SUMMARY) {
                 val id = nextId++
@@ -767,6 +967,12 @@ internal object CommonMarkPreviewAdapter {
                 sb.append('\n')
             }
 
+            // The flat form of a `<br>`, for the same reason a soft break is a
+            // space here: see the comment above.
+            override fun visit(htmlInline: HtmlInline) {
+                if (HTML_BR_TAG_REGEX.matches(htmlInline.literal.trim())) sb.append(' ')
+            }
+
             override fun visit(code: Code) {
                 sb.append(code.literal)
             }
@@ -787,50 +993,66 @@ internal object CommonMarkPreviewAdapter {
     ) {
         var child: Node? = node.firstChild
         while (child != null) {
-            when (child) {
-                is Text -> appendTextSplittingWikilinks(child.literal, default, out)
-                is StrongEmphasis -> appendInlineSegments(child, out, mergeBold(default))
-                is Emphasis -> appendInlineSegments(child, out, mergeItalic(default))
-                is Strikethrough -> appendInlineSegments(child, out, PreviewInlineType.STRIKETHROUGH)
-                is Code -> out += PreviewInlineSegment(child.literal, PreviewInlineType.INLINE_CODE)
-                is FootnoteReference -> out += PreviewInlineSegment(child.label, PreviewInlineType.FOOTNOTE_REF)
-                is Link -> {
-                    // Standard `[label](url)` — emit as a single LINK segment so
-                    // the renderer can decorate it (primary color + underline)
-                    // and dispatch the URL on tap via ACTION_VIEW. Inner emphasis
-                    // (`[**bold**](url)`) collapses to the link's plain text.
-                    val link = child
-                    val label = collectText(link).ifEmpty { link.destination.orEmpty() }
-                    out += PreviewInlineSegment(
-                        text = label,
-                        type = PreviewInlineType.LINK,
-                        href = link.destination
-                    )
-                }
-                // A single newline inside a paragraph breaks the line here,
-                // where CommonMark folds it into a space (#394). The spec is
-                // written for documents that are typeset after the fact; this
-                // is a notes app whose editor shows the raw text, so a line the
-                // author broke and then sees rejoined in preview reads as the
-                // preview losing it. It is also worst exactly where it is least
-                // expected: between CJK characters the inserted space is a
-                // visible gap inside a sentence.
-                //
-                // Trailing two spaces still produce a HardLineBreak, which has
-                // always broken the line — the two now agree instead of
-                // disagreeing, and a blank line still starts a new paragraph
-                // with the wider spacing that carries.
-                //
-                // The preview's own callouts have rendered one row per source
-                // line since they were added (`CalloutBox` splits on "\n"), so
-                // this brings the rest of the preview to what that half of it
-                // already did.
-                is SoftLineBreak -> out += PreviewInlineSegment("\n", default)
-                is HardLineBreak -> out += PreviewInlineSegment("\n", default)
-                is TaskListItemMarker -> { /* checkbox marker styled at line level */ }
-                else -> appendInlineSegments(child, out, default)
-            }
+            appendInlineNode(child, out, default)
             child = child.next
+        }
+    }
+
+    private fun appendInlineNode(
+        child: Node,
+        out: MutableList<PreviewInlineSegment>,
+        default: PreviewInlineType
+    ) {
+        when (child) {
+            is Text -> appendTextSplittingWikilinks(child.literal, default, out)
+            // Raw inline HTML is not drawn, but `<br>` is a line break the
+            // author asked for — most often inside a table cell, where a
+            // real newline would end the row. Dropping it ran the two lines
+            // together ("l1<br>l2" read as "l1l2"). Any other tag is left
+            // out and the text around it stays, as before.
+            is HtmlInline -> if (HTML_BR_TAG_REGEX.matches(child.literal.trim())) {
+                out += PreviewInlineSegment("\n", default)
+            }
+            is StrongEmphasis -> appendInlineSegments(child, out, mergeBold(default))
+            is Emphasis -> appendInlineSegments(child, out, mergeItalic(default))
+            is Strikethrough -> appendInlineSegments(child, out, PreviewInlineType.STRIKETHROUGH)
+            is Code -> out += PreviewInlineSegment(child.literal, PreviewInlineType.INLINE_CODE)
+            is FootnoteReference -> out += PreviewInlineSegment(child.label, PreviewInlineType.FOOTNOTE_REF)
+            is Link -> {
+                // Standard `[label](url)` — emit as a single LINK segment so
+                // the renderer can decorate it (primary color + underline)
+                // and dispatch the URL on tap via ACTION_VIEW. Inner emphasis
+                // (`[**bold**](url)`) collapses to the link's plain text.
+                val link = child
+                val label = collectText(link).ifEmpty { link.destination.orEmpty() }
+                out += PreviewInlineSegment(
+                    text = label,
+                    type = PreviewInlineType.LINK,
+                    href = link.destination
+                )
+            }
+            // A single newline inside a paragraph breaks the line here,
+            // where CommonMark folds it into a space (#394). The spec is
+            // written for documents that are typeset after the fact; this
+            // is a notes app whose editor shows the raw text, so a line the
+            // author broke and then sees rejoined in preview reads as the
+            // preview losing it. It is also worst exactly where it is least
+            // expected: between CJK characters the inserted space is a
+            // visible gap inside a sentence.
+            //
+            // Trailing two spaces still produce a HardLineBreak, which has
+            // always broken the line — the two now agree instead of
+            // disagreeing, and a blank line still starts a new paragraph
+            // with the wider spacing that carries.
+            //
+            // The preview's own callouts have rendered one row per source
+            // line since they were added (`CalloutBox` splits on "\n"), so
+            // this brings the rest of the preview to what that half of it
+            // already did.
+            is SoftLineBreak -> out += PreviewInlineSegment("\n", default)
+            is HardLineBreak -> out += PreviewInlineSegment("\n", default)
+            is TaskListItemMarker -> { /* checkbox marker styled at line level */ }
+            else -> appendInlineSegments(child, out, default)
         }
     }
 
@@ -921,6 +1143,25 @@ internal object CommonMarkPreviewAdapter {
         setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)
     )
     private val HTML_TAG_REGEX = Regex("""<[^>]+>""")
+    private val HTML_IMG_TAG_REGEX = Regex("""<img\b[^>]*>""", RegexOption.IGNORE_CASE)
+    private val HTML_BR_TAG_REGEX = Regex("""<br\s*/?>""", RegexOption.IGNORE_CASE)
+    /** `<br>`, and the closing tag of an element a browser starts a new line after. */
+    private val HTML_LINE_BREAK_TAG_REGEX = Regex(
+        """<br\s*/?>|</(?:p|div|li|h[1-6]|tr|blockquote|pre|table|ul|ol|dt|dd|section|article|header|footer)\s*>""",
+        RegexOption.IGNORE_CASE
+    )
+    /** Comments, and the bodies of elements whose text never shows on a page. */
+    private val HTML_HIDDEN_CONTENT_REGEX = Regex(
+        """<!--.*?-->|<(script|style)\b[^>]*>.*?</\1\s*>""",
+        setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)
+    )
+    private val HTML_ENTITY_REGEX = Regex("""&(#[0-9]{1,7}|#[xX][0-9a-fA-F]{1,6}|[a-zA-Z]{2,8});""")
+    private val NAMED_HTML_ENTITIES = mapOf(
+        "amp" to "&", "lt" to "<", "gt" to ">", "quot" to "\"", "apos" to "'", "nbsp" to "\u00A0",
+        "copy" to "\u00A9", "reg" to "\u00AE", "trade" to "\u2122", "mdash" to "\u2014",
+        "ndash" to "\u2013", "hellip" to "\u2026", "middot" to "\u00B7", "times" to "\u00D7"
+    )
+    private val HORIZONTAL_SPACE_RUN_REGEX = Regex("""[ \t\u00A0]+""")
 
     /** Sentinel [PreviewLine.extra] marking a `<details open>` section (#403). */
     internal const val OPEN_MARKER = "open"

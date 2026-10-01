@@ -60,8 +60,11 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.positionChange
@@ -96,7 +99,6 @@ import com.markleaf.notes.core.markdown.PreviewInlineSegment
 import com.markleaf.notes.core.markdown.PreviewInlineType
 import com.markleaf.notes.core.markdown.PreviewLine
 import com.markleaf.notes.core.markdown.PreviewLineType
-import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
 import com.markleaf.notes.core.markdown.TableAlignment
 import com.markleaf.notes.core.markdown.TableData
 import com.markleaf.notes.core.markdown.syntax.SyntaxHighlighter
@@ -123,6 +125,19 @@ private val ParagraphSpacing = 8.dp
 // cap keeps a pathological note from squeezing its own text off the screen.
 private val ListIndentPerLevel = 16.dp
 private const val MaxIndentDepth = 6
+
+// One bar per quote level down the left of every row a quote holds, so a list
+// or a code block inside a quote reads as part of it. Capped like list indent.
+private val QuoteBarWidth = 3.dp
+private val QuoteBarStep = 12.dp
+private const val MaxQuoteBars = 4
+
+// A callout is drawn as one box across the rows it holds: rounded at the
+// header's top and the last row's bottom, square where rows meet.
+private val CalloutCorner = 8.dp
+private val CalloutMargin = 6.dp
+private val CalloutPaddingHorizontal = 12.dp
+private val CalloutPaddingVertical = 10.dp
 
 /**
  * A heading's top margin separates it from the block above it. The first block
@@ -503,9 +518,9 @@ fun PreviewLineRenderer(
     isSectionToggled: (Int) -> Boolean = { false },
     onToggleSection: (Int) -> Unit = {}
 ) {
+    val inQuoteOrCallout = line.quoteDepth > 0 || line.callout != null
     val indent = ListIndentPerLevel * min(line.depth, MaxIndentDepth)
-    if (indent == 0.dp) {
-        // The common case pays for no extra layout node.
+    val content: @Composable () -> Unit = {
         PreviewLineContent(
             line = line,
             isFirstBlock = isFirstBlock,
@@ -516,25 +531,79 @@ fun PreviewLineRenderer(
             isSectionToggled = isSectionToggled,
             onToggleSection = onToggleSection
         )
-    } else {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = indent)
-        ) {
-            PreviewLineContent(
-                line = line,
-                isFirstBlock = isFirstBlock,
-                onWikilinkClick = onWikilinkClick,
-                onImageLongPress = onImageLongPress,
-                onFootnoteRefClick = onFootnoteRefClick,
-                onToggleTask = onToggleTask,
-                isSectionToggled = isSectionToggled,
-                onToggleSection = onToggleSection
+    }
+    if (!inQuoteOrCallout) {
+        if (indent == 0.dp) {
+            // The common case pays for no extra layout node.
+            content()
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = indent)
+            ) {
+                content()
+            }
+        }
+        return
+    }
+    // Inside a quote or callout the list indent splits in two: the part the
+    // container starts at moves the bars and the box, and only the rest
+    // indents the row inside them (see PreviewLine.containerDepth).
+    val outerIndent = ListIndentPerLevel * min(line.containerDepth, MaxIndentDepth)
+    val innerIndent = ListIndentPerLevel * min((line.depth - line.containerDepth).coerceAtLeast(0), MaxIndentDepth)
+    val bars = min(line.quoteDepth, MaxQuoteBars)
+    val barColor = MaterialTheme.colorScheme.outlineVariant
+    val calloutKind = line.callout?.let { CalloutKind.parse(it) }
+    val callout = line.callout?.let { calloutVisuals(calloutKind, it) }
+    var modifier = Modifier
+        .fillMaxWidth()
+        .padding(start = outerIndent)
+    if (bars > 0) {
+        modifier = modifier
+            .drawBehind {
+                val width = QuoteBarWidth.toPx()
+                val step = QuoteBarStep.toPx()
+                for (level in 0 until bars) {
+                    drawRect(
+                        color = barColor,
+                        topLeft = Offset(level * step, 0f),
+                        size = Size(width, size.height)
+                    )
+                }
+            }
+            .padding(start = QuoteBarStep * bars)
+    }
+    if (callout != null) {
+        val isHeader = line.type == PreviewLineType.CALLOUT
+        val top = if (isHeader) CalloutCorner else 0.dp
+        val bottom = if (line.calloutEnd) CalloutCorner else 0.dp
+        modifier = modifier
+            .padding(top = if (isHeader) CalloutMargin else 0.dp, bottom = if (line.calloutEnd) CalloutMargin else 0.dp)
+            .clip(RoundedCornerShape(topStart = top, topEnd = top, bottomStart = bottom, bottomEnd = bottom))
+            .background(callout.containerColor)
+            .padding(
+                start = CalloutPaddingHorizontal,
+                end = CalloutPaddingHorizontal,
+                top = if (isHeader) CalloutPaddingVertical else 0.dp,
+                bottom = if (line.calloutEnd) CalloutPaddingVertical else 0.dp
             )
+    }
+    Column(modifier = modifier.padding(start = innerIndent)) {
+        if (callout != null) {
+            CompositionLocalProvider(LocalPreviewBodyColor provides callout.contentColor) { content() }
+        } else {
+            content()
         }
     }
 }
+
+/**
+ * The colour body text takes when nothing more specific is asked for. Unset
+ * outside a callout; inside one it is the box's own content colour, the only
+ * colour a scheme promises stays legible on that fill (#473).
+ */
+private val LocalPreviewBodyColor = compositionLocalOf { Color.Unspecified }
 
 @Composable
 private fun PreviewLineContent(
@@ -632,25 +701,15 @@ private fun PreviewLineContent(
             onWikilinkClick = onWikilinkClick,
             onFootnoteRefClick = onFootnoteRefClick
         )
-        PreviewLineType.BLOCKQUOTE -> {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-            ) {
-                InlineMarkdownText(
-                    line = line,
-                    onWikilinkClick = onWikilinkClick,
-                    onFootnoteRefClick = onFootnoteRefClick
-                )
-                HorizontalDivider(
-                    modifier = Modifier.padding(top = 4.dp),
-                    thickness = 2.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant
-                )
-            }
-        }
-        PreviewLineType.CALLOUT -> CalloutBox(line, onFootnoteRefClick = onFootnoteRefClick)
+        // The bar down the left is drawn by PreviewLineRenderer, for every row
+        // the quote holds; this row is only the quoted paragraph's text.
+        PreviewLineType.BLOCKQUOTE -> InlineMarkdownText(
+            line = line,
+            verticalPadding = 4.dp,
+            onWikilinkClick = onWikilinkClick,
+            onFootnoteRefClick = onFootnoteRefClick
+        )
+        PreviewLineType.CALLOUT -> CalloutHeader(line)
         PreviewLineType.FRONTMATTER -> FrontmatterBlock(line.text)
         PreviewLineType.FOOTNOTE_DEF -> FootnoteDefRow(line)
         PreviewLineType.IMAGE -> AttachmentImage(line, onLongPress = onImageLongPress)
@@ -744,7 +803,7 @@ internal fun InlineMarkdownText(
      * pulling list items apart from each other.
      */
     verticalPadding: Dp = ListRowSpacing,
-    color: Color = MaterialTheme.colorScheme.onBackground,
+    color: Color = LocalPreviewBodyColor.current.takeOrElse { MaterialTheme.colorScheme.onBackground },
     /**
      * When set, [leadingMarker] becomes a clickable region. Carried inside the
      * same AnnotatedString as the text rather than split into its own composable
@@ -1352,63 +1411,27 @@ private fun openExternalLink(context: android.content.Context, href: String) {
     runCatching { context.startActivity(intent) }
 }
 
+/**
+ * A callout's header: its icon and label. The box around it and around the
+ * body rows below is drawn by [PreviewLineRenderer], so the body is ordinary
+ * rows — links, lists and code inside a callout render as they do anywhere.
+ */
 @Composable
-private fun CalloutBox(
-    line: PreviewLine,
-    onFootnoteRefClick: (String) -> Unit = {}
-) {
-    val kind = CalloutKind.parse(line.extra.orEmpty())
-    val visuals = calloutVisuals(kind, line.extra.orEmpty())
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(visuals.containerColor)
-            .padding(horizontal = 12.dp, vertical = 10.dp)
+private fun CalloutHeader(line: PreviewLine) {
+    val raw = line.extra.orEmpty()
+    val visuals = calloutVisuals(CalloutKind.parse(raw), raw)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(bottom = if (line.calloutEnd) 0.dp else 4.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = visuals.icon, color = visuals.contentColor)
-            Spacer(Modifier.width(8.dp))
-            Text(
-                text = visuals.label,
-                style = MaterialTheme.typography.labelLarge,
-                color = visuals.contentColor,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-        if (line.text.isNotBlank()) {
-            Spacer(Modifier.height(4.dp))
-            // Each body line is its own Text, so the callout's current match is
-            // re-counted from the line it falls in (#417).
-            val highlight = LocalPreviewFindHighlight.current
-            var consumed = 0
-            line.text.split("\n").forEach { bodyLine ->
-                if (bodyLine.isBlank()) {
-                    Spacer(Modifier.height(4.dp))
-                } else {
-                    val bodyPreviewLine = PreviewLine(
-                        text = bodyLine,
-                        type = PreviewLineType.BODY,
-                        segments = SimpleMarkdownPreview.parseInlineSegments(bodyLine)
-                    )
-                    CompositionLocalProvider(
-                        LocalPreviewFindHighlight provides highlight?.after(consumed)
-                    ) {
-                        InlineMarkdownText(
-                            line = bodyPreviewLine,
-                            onFootnoteRefClick = onFootnoteRefClick,
-                            color = visuals.contentColor
-                        )
-                    }
-                    if (highlight != null) {
-                        consumed += previewFindParts(bodyPreviewLine)
-                            .sumOf { findOccurrences(it, highlight.query).size }
-                    }
-                }
-            }
-        }
+        Text(text = visuals.icon, color = visuals.contentColor)
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = visuals.label,
+            style = MaterialTheme.typography.labelLarge,
+            color = visuals.contentColor,
+            fontWeight = FontWeight.SemiBold
+        )
     }
 }
 

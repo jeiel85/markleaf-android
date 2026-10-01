@@ -52,6 +52,10 @@ import kotlinx.coroutines.withContext
 import java.time.Instant
 
 class MainActivity : FragmentActivity() {
+    // For the launcher-shortcut pass in onStop, which runs after onCreate's locals are gone.
+    private val shortcutNotes by lazy { LocalNoteRepository(AppDatabase.getInstance(applicationContext)) }
+    private val shortcutSettings by lazy { AppSettingsRepository(applicationContext) }
+
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         // Make the app edge-to-edge across all Android versions and devices.
@@ -341,6 +345,19 @@ class MainActivity : FragmentActivity() {
         // note may still be shown: one moved into the Locked space while the app
         // was open must stop rendering (#351).
         WidgetRefresh.notesChanged(applicationContext)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // The started-only collector in onCreate debounces, and stopping cancels a
+        // pending update; this last pass makes sure a note locked or trashed just
+        // before leaving is off the launcher by the time the home screen shows.
+        LauncherShortcuts.syncWhenLeaving(
+            context = applicationContext,
+            recentEnabled = { shortcutSettings.settings.first().recentNotesInShortcuts },
+            notes = { shortcutNotes.observeNotes().first() },
+            lookUp = { id -> shortcutNotes.getNote(id) }
+        )
     }
 
     // androidx.activity 1.9 tightened this override to a non-null Intent (it

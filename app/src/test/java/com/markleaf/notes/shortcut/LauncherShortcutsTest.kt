@@ -242,6 +242,39 @@ class LauncherShortcutsTest {
         job.cancel()
     }
 
+    @Test
+    fun leavingTheAppRightAfterLockingANoteStillTakesItOffTheLauncher() {
+        // Review of #489: the started-only collector debounces, so Home pressed inside
+        // that second cancelled the update. The pass run on stop does not depend on it.
+        LauncherShortcuts.publish(
+            context,
+            listOf(LauncherShortcuts.RecentNote("n1", "Diary"), LauncherShortcuts.RecentNote("n2", "Other"))
+        )
+        // A separate pinned note: Robolectric's ShortcutManager updates only one of
+        // its maps when an id is both dynamic and pinned, which a device does not.
+        pin("note:n3", "Journal")
+        val now = listOf(
+            note("n1", 3, title = "Diary", locked = true),
+            note("n2", 1, title = "Other"),
+            note("n3", 2, title = "Journal", trashed = true)
+        )
+
+        kotlinx.coroutines.runBlocking {
+            LauncherShortcuts.syncWhenLeaving(
+                context,
+                recentEnabled = { true },
+                notes = { now },
+                lookUp = { id -> now.firstOrNull { it.id == id } }
+            ).join()
+        }
+
+        assertEquals(listOf("new_note", "search", "note:n2"), dynamicIds())
+        assertEquals(
+            context.getString(R.string.shortcut_note_hidden_label),
+            pinned("note:n3").shortLabel.toString()
+        )
+    }
+
     private fun pin(id: String, title: String) {
         val manager = context.getSystemService(ShortcutManager::class.java)
         val info = ShortcutInfo.Builder(context, id)

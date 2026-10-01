@@ -9,10 +9,15 @@ import com.markleaf.notes.MainActivity
 import com.markleaf.notes.R
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.widget.QuickNoteWidget
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.launch
 
 /**
  * The menu a launcher shows on a long press of Markleaf's icon
@@ -81,9 +86,18 @@ internal object LauncherShortcuts {
         note != null && !note.locked && !note.trashed
 
     /**
+     * Outlives the activity, for [syncWhenLeaving]: the pass that runs as the app
+     * stops must not be cancelled by the stop it is reacting to.
+     */
+    private val leavingScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    /**
      * Keeps the menu and any pinned note shortcuts current for as long as the
      * caller collects — `MainActivity` does while it is started, which is the only
      * time notes change: every write path runs inside the app's own screens.
+     *
+     * The second of debounce means a change made just before leaving the app would
+     * be dropped with the collection; [syncWhenLeaving] is what covers that.
      */
     @OptIn(FlowPreview::class)
     suspend fun follow(
@@ -96,17 +110,40 @@ internal object LauncherShortcuts {
         combine(recentEnabled, notes) { enabled, list -> recentNotes(list, enabled) }
             .debounce(SETTLE_MS)
             .collect { recent ->
-                // Pinned first: a note that has just been unlocked still has its
-                // disabled pinned shortcut, and the platform refuses to publish a
-                // dynamic shortcut under a disabled id until it is enabled again.
-                reconcilePinned(context, lookUp)
                 // Republished once per collection as well, so a language change
                 // (which recreates the activity) relabels the fixed entries.
-                if (recent != published) {
-                    publish(context, recent)
-                    published = recent
-                }
+                sync(context, recent, lookUp, publishMenu = recent != published)
+                published = recent
             }
+    }
+
+    /**
+     * One full pass, started as the app stops (review of #489). Locking a note and
+     * pressing Home inside [follow]'s debounce would otherwise cancel the pending
+     * update with the collection, and leave the note's title — and, for a pinned
+     * shortcut, a usable entry — on the home screen until the next visit. Reads the
+     * notes and the setting afresh rather than trusting what [follow] last saw.
+     */
+    fun syncWhenLeaving(
+        context: Context,
+        recentEnabled: suspend () -> Boolean,
+        notes: suspend () -> List<Note>,
+        lookUp: suspend (String) -> Note?
+    ): Job = leavingScope.launch {
+        runCatching { sync(context, recentNotes(notes(), recentEnabled()), lookUp) }
+    }
+
+    private suspend fun sync(
+        context: Context,
+        recent: List<RecentNote>,
+        lookUp: suspend (String) -> Note?,
+        publishMenu: Boolean = true
+    ) {
+        // Pinned first: a note that has just been unlocked still has its disabled
+        // pinned shortcut, and the platform refuses to publish a dynamic shortcut
+        // under a disabled id until it is enabled again.
+        reconcilePinned(context, lookUp)
+        if (publishMenu) publish(context, recent)
     }
 
     /**

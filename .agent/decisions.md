@@ -1561,8 +1561,9 @@ Why:
 Implications:
 - Updates run while `MainActivity` is started, from `observeNotes()` and the setting, debounced
   by a second. Every note change happens inside the app, so there is nothing to catch while it
-  is stopped; a pinned shortcut to a note locked in the app is handled before the user is back
-  on the home screen.
+  is stopped. Stopping cancels a pending debounced update, so `onStop` also starts one full pass
+  in a scope that outlives the activity (`syncWhenLeaving`, review of #489): a note locked or
+  trashed just before Home is off the launcher by the time the home screen shows.
 - Robolectric's `ShortcutManager` keeps disabled pinned shortcuts in a separate map without
   flagging them, so the disable decision is tested as a pure function (`pinnedChanges`) and the
   platform behaviour on a device.

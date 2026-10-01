@@ -90,15 +90,18 @@ internal object CommonMarkPreviewAdapter {
      */
     internal const val DEPTH_CUT_MARKER = "…"
 
-    private val parser: Parser = Parser.builder()
+    private val parser: Parser = buildParser(frontMatter = true)
+    private val parserWithoutFrontMatter: Parser = buildParser(frontMatter = false)
+
+    private fun buildParser(frontMatter: Boolean): Parser = Parser.builder()
         // Block spans give each ListItem the line it started on, which is what
         // lets a preview checkbox tap flip the right `[ ]` in the source (#219).
         // Block-level is enough — we never need to locate an inline node — and
         // it keeps the extra bookkeeping off every piece of text.
         .includeSourceSpans(IncludeSourceSpans.BLOCKS)
         .extensions(
-            listOf(
-                YamlFrontMatterExtension.create(),
+            listOfNotNull(
+                YamlFrontMatterExtension.create().takeIf { frontMatter },
                 StrikethroughExtension.create(),
                 FootnotesExtension.builder().inlineFootnotes(false).build(),
                 TaskListItemsExtension.create(),
@@ -106,6 +109,24 @@ internal object CommonMarkPreviewAdapter {
             )
         )
         .build()
+
+    /**
+     * True when [markdown] opens with `---` that nothing closes. The
+     * front-matter extension reads such a block to the end of the note, keeps
+     * only `key: value` lines and drops everything else — so `---` followed by
+     * prose rendered nothing, and a note that was only `---` lost its rule.
+     * CommonMark reads both as a thematic break, which is what they are; the
+     * PDF export asks the same question (review of #491).
+     */
+    internal fun opensUnclosedFrontMatter(markdown: String): Boolean {
+        val lines = markdown.lineSequence().iterator()
+        if (!lines.hasNext() || lines.next().trimEnd() != "---") return false
+        while (lines.hasNext()) {
+            val line = lines.next().trimEnd()
+            if (line == "---" || line == "...") return false
+        }
+        return true
+    }
 
     /**
      * Parses [markdown] into preview rows, degrading to plain text rather than
@@ -148,14 +169,9 @@ internal object CommonMarkPreviewAdapter {
             .map { PreviewLine(text = it.trimEnd(), type = PreviewLineType.BODY) }
 
     private fun parseStructured(markdown: String): List<PreviewLine> {
-        // Special case: a document that is just `---` should render as a
-        // horizontal rule, not be eaten by the YAML front-matter extension as
-        // an unclosed block.
-        if (markdown.trim() == "---") {
-            return listOf(PreviewLine(text = "", type = PreviewLineType.HORIZONTAL_RULE))
-        }
 
-        val document = parser.parse(markdown) as Document
+        val document = (if (opensUnclosedFrontMatter(markdown)) parserWithoutFrontMatter else parser)
+            .parse(markdown) as Document
         val out = mutableListOf<PreviewLine>()
         val frontmatter = collectFrontmatter(document)
         if (frontmatter != null) {

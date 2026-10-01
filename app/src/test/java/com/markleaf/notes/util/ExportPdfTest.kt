@@ -121,6 +121,14 @@ class ExportPdfTest {
     }
 
     @Test
+    fun anOpeningRuleThatNothingClosesStillPrintsWhatFollows() {
+        val body = bodyOf(ExportPdf.renderDocument(note("---\nJust some prose"), "Untitled"))
+
+        assertTrue(body, body.contains("<hr"))
+        assertTrue(body, body.contains("<p>Just some prose</p>"))
+    }
+
+    @Test
     fun aNoteThatIsOnlyARulePrintsTheRule() {
         val body = bodyOf(ExportPdf.renderDocument(note("---"), "Untitled"))
 

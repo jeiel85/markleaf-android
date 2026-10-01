@@ -6,6 +6,7 @@ import android.print.PrintManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.markleaf.notes.R
+import com.markleaf.notes.core.markdown.CommonMarkPreviewAdapter
 import com.markleaf.notes.core.markdown.preview.unresolvedImageText
 import com.markleaf.notes.domain.model.Note
 import kotlinx.coroutines.Dispatchers
@@ -42,9 +43,9 @@ object ExportPdf {
 
     private val parser: Parser = Parser.builder().extensions(extensions).build()
 
-    // A note that is nothing but `---` is a rule, not an unclosed front-matter
-    // block — the same special case the preview makes in
-    // CommonMarkPreviewAdapter.parseStructured (review of #491).
+    // `---` that nothing closes is a rule, not front matter: the extension
+    // would swallow the rest of the note. Same rule as the preview
+    // (CommonMarkPreviewAdapter.opensUnclosedFrontMatter, review of #491).
     private val parserWithoutFrontMatter: Parser = Parser.builder()
         .extensions(extensions.filterNot { it is YamlFrontMatterExtension })
         .build()
@@ -104,7 +105,7 @@ object ExportPdf {
         imageSource: (destination: String) -> String? = { null }
     ): String {
         val markdown = note.contentMarkdown
-        val document = (if (markdown.trim() == "---") parserWithoutFrontMatter else parser).parse(markdown)
+        val document = (if (CommonMarkPreviewAdapter.opensUnclosedFrontMatter(markdown)) parserWithoutFrontMatter else parser).parse(markdown)
         inlineImages(document, imageSource)
         val bodyHtml = renderer.render(document)
         val title = note.title.ifBlank { untitled }

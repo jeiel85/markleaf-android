@@ -605,6 +605,17 @@ fun PreviewLineRenderer(
  */
 private val LocalPreviewBodyColor = compositionLocalOf { Color.Unspecified }
 
+/**
+ * [default] outside a callout; inside one, the box's own content colour.
+ * Headings, completed tasks, links and footnote labels pick their own accent
+ * colour, and an accent that reads on the page can vanish on a callout's fill
+ * — the Monochrome scheme's NOTE fill is as dark as its primary (#473). Inside
+ * a callout everything takes the one colour the fill is paired with; links
+ * keep their underline.
+ */
+@Composable
+private fun previewAccent(default: Color): Color = LocalPreviewBodyColor.current.takeOrElse { default }
+
 @Composable
 private fun PreviewLineContent(
     line: PreviewLine,
@@ -628,21 +639,21 @@ private fun PreviewLineContent(
             text = line.text,
             style = if (scaled) MaterialTheme.typography.headlineMedium.scaledBy(scale)
             else MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.primary,
+            color = previewAccent(MaterialTheme.colorScheme.primary),
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 24.dp), bottom = 8.dp)
         )
         PreviewLineType.H2 -> FindableText(
             text = line.text,
             style = if (scaled) MaterialTheme.typography.headlineSmall.scaledBy(scale)
             else MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.secondary,
+            color = previewAccent(MaterialTheme.colorScheme.secondary),
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 20.dp), bottom = 6.dp)
         )
         PreviewLineType.H3 -> FindableText(
             text = line.text,
             style = if (scaled) MaterialTheme.typography.titleLarge.scaledBy(scale)
             else MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.secondary,
+            color = previewAccent(MaterialTheme.colorScheme.secondary),
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 16.dp), bottom = 4.dp)
         )
         // H4–H6 continue down the same type scale rather than getting a
@@ -653,21 +664,21 @@ private fun PreviewLineContent(
             text = line.text,
             style = if (scaled) MaterialTheme.typography.titleMedium.scaledBy(scale)
             else MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.secondary,
+            color = previewAccent(MaterialTheme.colorScheme.secondary),
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 12.dp), bottom = 4.dp)
         )
         PreviewLineType.H5 -> FindableText(
             text = line.text,
             style = if (scaled) MaterialTheme.typography.titleSmall.scaledBy(scale)
             else MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = previewAccent(MaterialTheme.colorScheme.onSurfaceVariant),
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 10.dp), bottom = 2.dp)
         )
         PreviewLineType.H6 -> FindableText(
             text = line.text,
             style = if (scaled) MaterialTheme.typography.labelLarge.scaledBy(scale)
             else MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = previewAccent(MaterialTheme.colorScheme.onSurfaceVariant),
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 8.dp), bottom = 2.dp)
         )
         PreviewLineType.BULLET -> InlineMarkdownText(
@@ -681,7 +692,7 @@ private fun PreviewLineContent(
             line = line,
             leadingMarker = "☑ ",
             verticalPadding = listRowSpacing(line),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = previewAccent(MaterialTheme.colorScheme.onSurfaceVariant),
             onWikilinkClick = onWikilinkClick,
             onFootnoteRefClick = onFootnoteRefClick,
             onMarkerClick = toggle
@@ -928,7 +939,7 @@ private fun inlineAnnotatedString(
                             tag = FOOTNOTE_REF_TAG,
                             styles = TextLinkStyles(
                                 SpanStyle(
-                                    color = MaterialTheme.colorScheme.primary,
+                                    color = previewAccent(MaterialTheme.colorScheme.primary),
                                     // Superscript refs scale with the text-size
                                     // setting (#346); 11.sp is the theme's own
                                     // labelSmall, so the default is unchanged.
@@ -949,7 +960,7 @@ private fun inlineAnnotatedString(
                             tag = WIKILINK_TAG,
                             styles = TextLinkStyles(
                                 SpanStyle(
-                                    color = MaterialTheme.colorScheme.primary,
+                                    color = previewAccent(MaterialTheme.colorScheme.primary),
                                     textDecoration = TextDecoration.Underline
                                 )
                             ),
@@ -966,7 +977,7 @@ private fun inlineAnnotatedString(
                             tag = LINK_TAG,
                             styles = TextLinkStyles(
                                 SpanStyle(
-                                    color = MaterialTheme.colorScheme.primary,
+                                    color = previewAccent(MaterialTheme.colorScheme.primary),
                                     textDecoration = TextDecoration.Underline
                                 )
                             ),
@@ -1674,7 +1685,7 @@ private fun FootnoteDefRow(line: PreviewLine) {
         Text(
             text = "[^${line.extra}]",
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary,
+            color = previewAccent(MaterialTheme.colorScheme.primary),
             modifier = Modifier.padding(end = 6.dp)
         )
         InlineMarkdownText(line.copy(type = PreviewLineType.BODY))

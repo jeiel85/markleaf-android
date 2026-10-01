@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.dp
@@ -190,6 +192,52 @@ class MarkdownPreviewSnapshotTest {
             """.trimIndent()
         )
     }
+
+    /**
+     * A callout's body is ordinary rows now, so a heading, a done task and a
+     * link inside it must take the box's content colour, not their own accent.
+     * The Monochrome scheme is where that shows: its NOTE fill is as dark as
+     * its primary (#473, review of #491). Tones copied from
+     * `CalloutColorContrastTest`.
+     */
+    @Test
+    fun callout_structured_monochrome_light() {
+        composeRule.setContent {
+            MaterialTheme(colorScheme = monochromeLight) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                        .padding(8.dp)
+                ) {
+                    Renders(
+                        """
+                        > [!NOTE]
+                        > # Heading in a callout
+                        > A [link](https://example.com) and **bold**.
+                        >
+                        > - [x] done task
+                        > - [ ] open task
+                        """.trimIndent()
+                    )
+                }
+            }
+        }
+        composeRule.onRoot().captureRoboImage(filePath = "src/test/snapshots/roborazzi/callout_structured_monochrome_light.png")
+    }
+
+    private val monochromeLight = lightColorScheme(
+        primary = Color(0xFF000000),
+        primaryContainer = Color(0xFF3B3B3B),
+        onPrimaryContainer = Color(0xFFFFFFFF),
+        secondary = Color(0xFF303030),
+        secondaryContainer = Color(0xFFD4D4D4),
+        onSecondaryContainer = Color(0xFF1B1B1B),
+        background = Color(0xFFF9F9F9),
+        onBackground = Color(0xFF1B1B1B),
+        surfaceVariant = Color(0xFFE2E2E2),
+        onSurfaceVariant = Color(0xFF3B3B3B)
+    )
 
     @Test
     fun frontmatter_light() = snapshot("frontmatter_light", darkTheme = false) {

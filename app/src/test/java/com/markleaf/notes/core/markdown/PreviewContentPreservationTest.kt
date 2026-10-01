@@ -133,6 +133,37 @@ class PreviewContentPreservationTest {
         assertNull(lines.single().callout)
     }
 
+    // ---- front matter ----------------------------------------------------------
+
+    @Test
+    fun anOpeningRuleThatNothingClosesIsARuleNotFrontMatter() {
+        // The front-matter extension read everything after an unclosed `---`
+        // as metadata and kept only `key: value` lines, so this note rendered
+        // empty (review of #491).
+        val lines = parse("---\nJust some prose\n\nand more")
+
+        assertEquals(PreviewLineType.HORIZONTAL_RULE, lines[0].type)
+        assertEquals(listOf("Just some prose", "and more"), lines.drop(1).map { it.text })
+    }
+
+    @Test
+    fun aNoteThatIsOnlyARuleIsARule() {
+        assertEquals(listOf(PreviewLineType.HORIZONTAL_RULE), parse("---").map { it.type })
+    }
+
+    @Test
+    fun closedFrontMatterIsStillFrontMatter() {
+        val lines = parse("---\ntitle: Hello\n---\n\nbody")
+
+        assertEquals(PreviewLineType.FRONTMATTER, lines[0].type)
+        assertEquals("body", lines[1].text)
+    }
+
+    @Test
+    fun frontMatterClosedByDotsIsStillFrontMatter() {
+        assertEquals(PreviewLineType.FRONTMATTER, parse("---\ntitle: Hello\n...\n\nbody")[0].type)
+    }
+
     // ---- HTML --------------------------------------------------------------
 
     @Test

@@ -1600,6 +1600,10 @@ Implications:
 - The callout box spans several `LazyColumn` items; a long callout scrolls like any text.
 - Callout parsing stays in the adapter rather than commonmark's `gfm-alerts` extension (0.28+): that
   extension needs every accepted type listed up front, and today any `[!word]` is a callout.
+- Review of #491 added two rules: inside a callout every accent (headings, done tasks, links,
+  inline code, footnote labels, summaries, a missing image's text) takes the box's content colour
+  (`previewAccent`), and `---` that nothing closes is a thematic break, not front matter, in the
+  preview and the PDF (`opensUnclosedFrontMatter`).
 
 ### D006 - Documentation Baseline Integration
 

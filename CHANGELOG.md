@@ -4,6 +4,18 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.59.1 - Nothing in a note goes missing in Preview - 2026-10-01
+
+Fixes only. No permission or storage-format changes.
+
+### Fixed
+- **A code block inside a quote or a callout now shows in Preview.** It used to render as nothing at all. Lists, headings and nested quotes inside a quote also keep their shape instead of running together (a quote holding `- a` and `- b` read as "ab"). A quote is now drawn with a bar down its left side, so everything it holds reads as one block.
+- **Callouts show what is inside them.** A link in a callout is tappable again, and bold text, lists and code blocks keep their formatting. Inside the box, headings, links and checkmarks take the callout's own text colour, so they stay readable in every theme.
+- **HTML in a note is shown as its text.** A `<div>`, a `<p align="center">` or a similar block used to vanish from Preview. Its text now shows (the tags themselves are not rendered), an `<img>` shows as the image, and `<br>` breaks the line, including inside a table cell, where `l1<br>l2` read as "l1l2". Comments, `<script>` and `<style>` stay hidden.
+- **An image in the middle of a sentence is shown.** `see ![chart](a.png) below` showed only the word "chart"; the paragraph now splits around the image. The same goes for an image in a list item.
+- **PDF export no longer prints front matter as a big heading.** The YAML block at the top of a note is left out of the PDF, as it is set apart in Preview.
+- **A note that opens with `---` and never closes it keeps its text.** It is a horizontal rule followed by your text, in Preview and in PDF; it used to be read as unfinished front matter, and the text after it disappeared.
+
 ## v2.59.0 - Shortcuts on the Markleaf icon - 2026-10-01
 
 One addition. No permission or storage-format changes.

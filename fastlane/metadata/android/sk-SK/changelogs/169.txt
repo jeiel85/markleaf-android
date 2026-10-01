@@ -1,0 +1,1 @@
+Náhľad už nevynecháva časti poznámky: bloky kódu, zoznamy a nadpisy v citátoch a zvýraznených blokoch sa zobrazia a odkazy a tučné písmo v nich fungujú. HTML bloky zobrazia svoj text, <br> zalomí riadok (aj v tabuľkách) a obrázok uprostred textu sa vykreslí. Export do PDF už netlačí front matter ako veľký nadpis a poznámka začínajúca neuzavretým --- si zachová svoj text.

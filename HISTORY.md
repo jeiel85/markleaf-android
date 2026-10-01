@@ -1,4 +1,4 @@
-## 2026-10-01 — Markdown preview never drops content (M1 of the syntax plan)
+## 2026-10-01 — Markdown preview never drops content (M1 of the syntax plan, v2.59.1)
 
 The maintainer asked whether Markleaf supports all of Markdown. A temporary probe (57 inputs through `SimpleMarkdownPreview.parse` and `ExportPdf.renderDocument`, not committed) showed the parser reads CommonMark/GFM correctly but the preview lost content while turning the tree into rows. Written up as `docs/MARKDOWN_SYNTAX_PLAN.md`; the maintainer took every recommendation (D081): no non-standard syntax, M1–M4 each as its own PR and release.
 
@@ -7,6 +7,8 @@ The maintainer asked whether Markleaf supports all of Markdown. A temporary prob
 - **Visible change.** A plain quote is now a left bar instead of a rule under each paragraph, so a quote holding a list or code block reads as one block.
 - **Tests.** `PreviewContentPreservationTest` (26), `ExportPdfTest` +2. Two tests that pinned old behaviour were updated with the reason in place (`ordinaryHtmlBlockWithoutDetails…`, `parse_parsesCalloutBlocks`). Full `./gradlew test` (debug/release/benchmark, 0 failures) and `lintRelease` passed.
 - **Emulator (`markleaf-phone-api36`).** A shared note with every case above rendered as intended in light and dark: quote bars with list, code and nested quote; NOTE box with link, bold, list and code; empty WARNING box; `<div>` text; `<br>` in a paragraph and a table cell; a quote under a list item. Not checked on a device: an image beside text with a real attachment (unit-tested), and a quote *inside* a callout, whose bar is drawn outside the box (left as is — rare).
+- **Review of #491 (Codex, four P2, all fixed).** (1) A note that is only `---` lost its rule in the PDF once front matter was parsed there. (2) Wider than that: `---` that nothing closes made the front-matter extension swallow the rest of the note — in the preview too, where `---` + prose rendered nothing. `opensUnclosedFrontMatter` now picks a parser without the extension for both, replacing the exact-`---` special case. (3, 4) Inside a callout, headings, done tasks, links, inline code, footnote labels, `<details>` summaries and a missing image's fallback text kept their own accent, which can match the fill (Monochrome NOTE, #473); `previewAccent()` gives them the box's content colour. New golden `callout_structured_monochrome_light` with the Monochrome tones from `CalloutColorContrastTest`.
+- **Goldens.** Re-recorded on the Linux runner three times as the PR moved: eight (quote bar, callout box), then the new monochrome one, then three for inline code inside callouts.
 
 ## 2026-10-01 — Launcher shortcuts (F1, v2.59.0)
 

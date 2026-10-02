@@ -1,3 +1,11 @@
+## 2026-10-02 - v2.63.1 hotfix: rotation keeps Preview for a note opened from a row (#499)
+
+Selected task: the maintainer asked to tag and deploy v2.63.0, then to ship a hotfix after the release APK failed an on-device check.
+Changed: see the HISTORY.md entry of the same date. In short — `noteOrigin` is saved across recreation (`rememberNoteOrigin`, `NoteOriginSaver`) because it decides whether the editor is composed inside `NoteContainerTarget`, which `rememberSaveable` keys by composition path; the wrapper-or-not branch is now `NoteEditorDestination`, shared with the test. v2.63.1 / versionCode 174, eleven fastlane changelogs, README and landing versions, D084.
+Verification: `testDebugUnitTest` 1183 (1175 + 8 new; the new ones pass every run), `testReleaseUnitTest` / `testBenchmarkUnitTest` 976 each, 0 failures, `lintRelease` 0 errors, `verify-release-notes.ps1` and `verify-landing-versions.ps1` pass for v2.63.1 / 174. A full debug run on this machine also fails one or two existing tests (`EditorPreviewFindTest`, `EditorSurvivesRotationTest`; each passes alone) — 2 of 4 runs without the new test files too, so not this change. On a device (emulator API 36, debug build): list, search and new-note paths keep Preview across rotations, 4 of 4 cold starts for the list; no crash in the log. The restoration test fails against the unfixed code and passes with it.
+Not verified: archive and grid-tile sources, the tablet two-pane layout, back to an editor after its origin changed (see HISTORY.md).
+Lesson: the v2.63.0 tests passed on `EditorScreen` alone while the device failed; a restoration fix needs a host-level test and a rotation on the real app. A `StateRestorationTester` test on a paused clock passes without rotating anything — it needs the clock running, and it must be seen failing against the broken code before it counts.
+
 ## 2026-10-02 - Issues #499 and #500 (rotation keeps Preview; zoomed pan glides)
 
 Selected task: "respond to the latest GitHub issues" — #499 (rotating switches Preview back to Edit, scroll lost) and #500 (no momentum when panning a zoomed Preview), both from kise82, no comments yet. Acknowledged both in English, then fixed both in one release: v2.63.0 / versionCode 173.

@@ -4,6 +4,17 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.63.0 - Rotating keeps your place, and zoomed Preview glides - 2026-10-02
+
+No permission or storage-format changes.
+
+### Fixed
+- **Rotating the phone no longer throws you out of Preview.** A note you were reading in Preview came back in the editor when the screen rotated, and Preview forgot how far you had scrolled. The note now stays in the mode you were in, at the same place, including any `<details>` sections you had opened. The reverse holds too: with "Open notes in preview" on, a note you had switched to Edit stays in Edit. The zoom level is not carried across a rotation. (#499, thanks @kise82)
+- **Every second tap on a zoomed-in Preview was lost.** A tap on a link or checkbox worked, and the next one straight after it did nothing. Found while fixing #500.
+
+### Added
+- **Panning a zoomed-in Preview has momentum.** A quick swipe now keeps the note gliding and slows it to a stop, instead of halting the instant your finger lifts. It ends at the edge of the note, and touching the screen stops it. (#500, thanks @kise82)
+
 ## v2.62.0 - The editor highlights what Preview shows - 2026-10-01
 
 No permission or storage-format changes. This completes the Markdown series started in v2.59.1.

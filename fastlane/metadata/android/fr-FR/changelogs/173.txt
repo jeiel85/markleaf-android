@@ -1,0 +1,1 @@
+Faire pivoter le téléphone ne vous renvoie plus de l'aperçu vers l'éditeur : la note reste dans le même mode, au même endroit. L'aperçu agrandi a désormais de l'inertie : un balayage rapide continue de glisser puis ralentit. Corrigé aussi : en mode zoom, un appui sur deux sur un lien ou une case à cocher était perdu.

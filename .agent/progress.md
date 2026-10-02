@@ -1,3 +1,11 @@
+## 2026-10-02 - Issues #499 and #500 (rotation keeps Preview; zoomed pan glides)
+
+Selected task: "respond to the latest GitHub issues" — #499 (rotating switches Preview back to Edit, scroll lost) and #500 (no momentum when panning a zoomed Preview), both from kise82, no comments yet. Acknowledged both in English, then fixed both in one release: v2.63.0 / versionCode 173.
+Changed: see the HISTORY.md entry of the same date. In short — `isPreviewMode`, `openingModeDecided` and the toggled `<details>` ids survive recreation (`rememberSaveable`) and the load no longer re-decides the mode; `previewZoomGesture` tracks velocity and `flingZoomedPan` carries the pan on after release; a lift now ends the gesture, which fixes second taps being swallowed while zoomed (found on the way, probed on the unmodified handler).
+Verification: `testDebugUnitTest` 1175 and `testReleaseUnitTest` 971, 0 failures; `verifyRoborazziDebug` (no golden changed), `assembleDebug` (`app-debug.apk`, 21.2 MB) and `lintRelease` (0 issues) passed. The new tests were checked by mutation (see HISTORY.md); the one line that no test could tell apart (an explicit consume of a stopping touch) was removed rather than kept on an unproven claim.
+Not verified: glide feel on a device; back-from-link returning to the left-off mode (expected from per-entry saved state, untested); tablet two-pane. The editor caret and scroll after rotating in Edit mode are unchanged (still reloaded per "Open notes at").
+Environment note: this cloud session had no Android SDK; installed command-line tools + platform 35 + build-tools 35.0.0 by hand. Maven Central answered the first Gradle run with 429; a retry resolved it. Non-English fastlane changelogs (ja, zh-CN, de, fr, es, hr, ru, vi, sk) were written by the agent and are not native-reviewed.
+
 ## 2026-09-30 - Note-open motion (container transform, sources, press feedback)
 
 Selected task: the maintainer asked for note opening and other interactions to feel smoother, "like the way iOS unfolds". The container transform already existed (#145), so the work was to make it one motion and widen it, not to add another.

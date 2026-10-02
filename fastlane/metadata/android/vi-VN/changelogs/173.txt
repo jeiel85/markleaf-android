@@ -1,0 +1,1 @@
+Xoay điện thoại không còn đưa bạn từ chế độ xem trước về trình soạn thảo: ghi chú giữ nguyên chế độ và vị trí. Xem trước đã phóng to giờ có quán tính — vuốt nhanh sẽ tiếp tục trượt rồi dừng dần. Đã sửa lỗi khi phóng to, cứ hai lần chạm vào liên kết hoặc ô đánh dấu thì mất một lần.

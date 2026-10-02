@@ -1849,3 +1849,24 @@ Implications:
   vc167의 `MainActivity`가 떴다. 두 번째 실행 때 `cache/updates/`는 비어 있었다(남은 파일 정리 확인).
   Samsung·Play 프로텍트 경고는 세션 API 때도 기기 설정에 따라 나오는 시스템 몫이다. 다운로드 +
   SHA-256 대조 구간은 바뀌지 않아 이번에 다시 타지 않았다(훅으로 대조된 파일 자리에 직접 넣었다).
+
+### D083 - A Recreated Editor Keeps Its Mode And Place Through Saved Instance State, Not The Database
+
+Date: 2026-10-02. Issues: #499, #500.
+
+Decision:
+- `EditorScreen` keeps `isPreviewMode`, the `openingModeDecided` flag and the toggled `<details>` ids in
+  `rememberSaveable`. The load that follows a recreation skips the setting-driven mode and scroll once the
+  flag is set; the preview list's own scroll comes back with `rememberLazyListState`.
+- Not `NoteViewStateEntity`: that row is written only while "Open notes at: where I left off" is selected,
+  and the promise to users is that with it off Markleaf records nothing about where anyone was. A saved
+  instance state bundle lives for the activity (and process-death restore), never in the app's database.
+- A zoomed pan's momentum runs inside `listState.scroll {}` as one 2-D `splineBasedDecay`, converting
+  screen pixels the way a drag does (`x` clamped translation, `y` as `-dy / scale` list pixels). A later
+  drag, find jump or outline jump interrupts it like any other scroll.
+
+Implications:
+- `shouldPreparePreview` waits for `isLoaded`, so a screen restored already in Preview does not compare
+  its toggle set against the empty text it holds before the load.
+- Zoom level, an open find bar and the editor caret are not part of the saved state. Adding them is a
+  separate choice; the zoom would also need to be reconciled with the new viewport width.

@@ -1,6 +1,7 @@
 package com.markleaf.notes.core.markdown.preview
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -55,9 +56,10 @@ class PreviewZoomGestureTest {
 
     private var reportedScale = 1f
     private var reportedTranslationX = 0f
+    private var clicks = 0
     private lateinit var hostListState: LazyListState
 
-    private fun renderHost() {
+    private fun renderHost(itemCount: Int = 50) {
         composeRule.setContent {
             var scale by remember { mutableFloatStateOf(1f) }
             var translationX by remember { mutableFloatStateOf(0f) }
@@ -104,8 +106,11 @@ class PreviewZoomGestureTest {
                             }
                         }
                 ) {
-                    items(50) { index ->
-                        Text("Line $index", modifier = Modifier.fillMaxWidth().height(48.dp))
+                    items(itemCount) { index ->
+                        Text(
+                            "Line $index",
+                            modifier = Modifier.fillMaxWidth().height(48.dp).clickable { clicks++ }
+                        )
                     }
                 }
             }
@@ -279,5 +284,136 @@ class PreviewZoomGestureTest {
 
         assertEquals(scaleAfterZoom, reportedScale, 0.001f)
         assertEquals(translationAfterZoom, reportedTranslationX, 0.001f)
+    }
+
+    // ---- momentum on a zoomed pan (#500) ----
+
+    /** Rows are 48dp tall at the mdpi density this test runs at, so dp == px. */
+    private fun scrolledPx(): Int =
+        hostListState.firstVisibleItemIndex * 48 + hostListState.firstVisibleItemScrollOffset
+
+    private fun zoomInTwofold() {
+        composeRule.onRoot().performTouchInput {
+            down(0, Offset(150f, 300f))
+            down(1, Offset(250f, 300f))
+            moveTo(0, Offset(100f, 300f))
+            moveTo(1, Offset(300f, 300f))
+            up(0)
+            up(1)
+        }
+        assertTrue("expected to be zoomed in, was $reportedScale", reportedScale > 1.8f)
+    }
+
+    /** Six quick upward moves of 64px, 16ms apart: ~4000px/s, a flick rather than a drag. */
+    private fun androidx.compose.ui.test.TouchInjectionScope.flickUp(restBeforeLifting: Boolean = false) {
+        down(0, Offset(200f, 700f))
+        repeat(6) { moveBy(0, Offset(0f, -64f)) }
+        if (restBeforeLifting) advanceEventTime(300)
+        up(0)
+    }
+
+    /** What the six moves alone scroll the list by, with no glide after them. */
+    private fun dragOnlyScrollPx(): Float = 6 * 64f / reportedScale
+
+    @Test
+    fun aFastPanWhileZoomed_keepsGlidingAfterTheFingerLifts() {
+        // #500: the pan used to move the content by exactly the distance the
+        // finger travelled and stop the instant it lifted. A flick now carries
+        // on, so it has to end far past where a finger that stopped would.
+        renderHost()
+        zoomInTwofold()
+        val before = scrolledPx()
+
+        composeRule.onRoot().performTouchInput { flickUp() }
+        composeRule.waitForIdle()
+
+        val travelled = scrolledPx() - before
+        assertTrue(
+            "expected the flick to glide well past the ${dragOnlyScrollPx()}px the finger covered, travelled $travelled",
+            travelled > dragOnlyScrollPx() * 2
+        )
+    }
+
+    @Test
+    fun aPanThatRestsBeforeTheFingerLifts_doesNotGlide() {
+        // The release sample is what makes this read as slow: without it the
+        // tracker would still report the speed of the last move 300ms ago.
+        renderHost()
+        zoomInTwofold()
+        val before = scrolledPx()
+
+        composeRule.onRoot().performTouchInput { flickUp(restBeforeLifting = true) }
+        composeRule.waitForIdle()
+
+        val travelled = scrolledPx() - before
+        assertTrue(
+            "expected only the ${dragOnlyScrollPx()}px the finger covered, travelled $travelled",
+            travelled <= dragOnlyScrollPx() + 1
+        )
+    }
+
+    @Test
+    fun aGlideStopsAtTheEndOfTheNote() {
+        // 20 rows of 48px against a 400px window at 2x leaves 560px to scroll;
+        // a flick carries well past that, so the glide has to end on the last
+        // row rather than ask the list for more than it has.
+        renderHost(itemCount = 20)
+        zoomInTwofold()
+
+        composeRule.onRoot().performTouchInput { flickUp() }
+        composeRule.waitForIdle()
+
+        assertTrue("expected to have reached the end of the list", !hostListState.canScrollForward)
+    }
+
+    @Test
+    fun aTouchThatStopsAGlide_stopsIt_andIsNotATapOnTheRowUnderIt() {
+        // A touch meant as "stop" must not also tick the checkbox or open the
+        // link under the finger. Clock stepped by hand so the glide is still
+        // running when the finger comes down.
+        //
+        // Not something previewZoomGesture does itself: with the glide inside the
+        // list's own scroll, the lazy list consumes the touch before a row sees
+        // it (checked by taking that handler's own consume away — nothing
+        // changed). So this is the pin on that Compose behaviour, which the
+        // feature quietly depends on.
+        renderHost()
+        zoomInTwofold()
+        composeRule.mainClock.autoAdvance = false
+
+        composeRule.onRoot().performTouchInput { flickUp() }
+        composeRule.mainClock.advanceTimeBy(100)
+        val earlyInGlide = scrolledPx()
+        composeRule.mainClock.advanceTimeBy(100)
+        assertTrue("expected the glide to be still moving", scrolledPx() > earlyInGlide)
+
+        composeRule.onRoot().performTouchInput { down(0, Offset(200f, 400f)); up(0) }
+        val atStop = scrolledPx()
+        composeRule.mainClock.autoAdvance = true
+        composeRule.waitForIdle()
+
+        assertEquals("the touch that stopped the glide must not click the row", 0, clicks)
+        assertEquals("expected the glide to have stopped where it was touched", atStop, scrolledPx())
+
+        // With nothing gliding, the same tap reaches the row: the consumption
+        // above is for a stopping touch only.
+        composeRule.onRoot().performTouchInput { down(0, Offset(200f, 400f)); up(0) }
+        assertEquals(1, clicks)
+    }
+
+    @Test
+    fun twoTapsInARowWhileZoomed_bothReachTheRow() {
+        // Regression guard for a #423 defect found while adding the glide: the
+        // race that tells a long press from a pan read the release of a tap and
+        // left the gesture waiting, so the *next* touch's first event was taken
+        // as a continuation and consumed as a pan — every second tap on a link
+        // or checkbox was swallowed while zoomed.
+        renderHost()
+        zoomInTwofold()
+
+        composeRule.onRoot().performTouchInput { down(0, Offset(200f, 400f)); up(0) }
+        assertEquals(1, clicks)
+        composeRule.onRoot().performTouchInput { down(0, Offset(200f, 400f)); up(0) }
+        assertEquals(2, clicks)
     }
 }

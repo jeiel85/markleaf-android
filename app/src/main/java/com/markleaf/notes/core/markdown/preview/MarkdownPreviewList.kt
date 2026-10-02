@@ -2,6 +2,11 @@ package com.markleaf.notes.core.markdown.preview
 
 import android.os.Build
 import android.widget.Toast
+import androidx.compose.animation.core.AnimationState
+import androidx.compose.animation.core.DecayAnimationSpec
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.animateDecay
+import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,6 +36,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -71,6 +77,7 @@ import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationException
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
@@ -91,6 +98,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.sp
 import com.markleaf.notes.R
 import com.markleaf.notes.core.markdown.CalloutKind
@@ -103,6 +111,7 @@ import com.markleaf.notes.core.markdown.TableAlignment
 import com.markleaf.notes.core.markdown.TableData
 import com.markleaf.notes.core.markdown.syntax.SyntaxHighlighter
 import com.markleaf.notes.util.LocalMarkdownLink
+import kotlin.math.hypot
 import kotlin.math.min
 import kotlin.math.roundToInt
 
@@ -398,6 +407,18 @@ fun MarkdownPreviewList(
  * class doc for why); horizontal movement and the scale itself are plain
  * state this composable owns and applies via `graphicsLayer`.
  *
+ * A pan has momentum (#500). The list's own fling can never run for it: while
+ * zoomed this handler consumes the single-finger drag on the Initial pass, so
+ * the list never sees the gesture it would measure a velocity from. The handler
+ * therefore measures the velocity itself and, on release, keeps the content
+ * moving with [flingZoomedPan]. A touch that lands on content still gliding
+ * stops it. It does not also tick the checkbox or follow the link under the
+ * finger: the glide runs inside the list's own `scroll`, and a lazy list that is
+ * mid-scroll consumes a touch before its rows see it. That is what
+ * `PreviewZoomGestureTest` observed, and it is not something this handler does
+ * (taking this handler's own consume away changed nothing) — the test pins it
+ * from the outside, so a Compose change that stops it fails there.
+ *
  * [scale] and [translationX] are read through [rememberUpdatedState] rather
  * than captured directly: `pointerInput(Unit)` never restarts this coroutine
  * (the key never changes, deliberately — restarting mid-gesture would drop
@@ -420,11 +441,35 @@ internal fun Modifier.previewZoomGesture(
     val scope = rememberCoroutineScope()
     val latestScale = rememberUpdatedState(scale)
     val latestTranslationX = rememberUpdatedState(translationX)
+    // The platform's own fling limits, so a flick has to be as fast as it does
+    // in any other scrolling surface on this device before it glides.
+    val platformConfig = android.view.ViewConfiguration.get(LocalContext.current)
+    val minimumFlingVelocity = platformConfig.scaledMinimumFlingVelocity.toFloat()
+    val maximumFlingVelocity = platformConfig.scaledMaximumFlingVelocity.toFloat()
     return this.pointerInput(Unit) {
+        var flingJob: Job? = null
+        // The translation this handler last wrote. A fling writes it every frame,
+        // and `latestTranslationX` only catches up after the next recomposition —
+        // a touch that stops the fling in between would otherwise start from a
+        // baseline a frame stale and make the content jump back.
+        var writtenTranslationX = Float.NaN
+        val publishTranslationX: (Float) -> Unit = {
+            writtenTranslationX = it
+            onTranslationXChange(it)
+        }
         awaitEachGesture {
             val firstDown = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+            // A touch on a gliding preview stops the glide.
+            flingJob?.cancel()
+            flingJob = null
             var currentScale = latestScale.value
-            var currentTranslationX = latestTranslationX.value
+            var currentTranslationX =
+                if (writtenTranslationX.isNaN()) latestTranslationX.value else writtenTranslationX
+            // Samples only while one finger pans: a pinch's movement is not a
+            // throw, so a second finger joining discards what was collected.
+            val velocityTracker = VelocityTracker()
+            velocityTracker.addPosition(firstDown.uptimeMillis, firstDown.position)
+            var panning = false
 
             // A single finger while already zoomed is ambiguous: it could be
             // the start of a pan, or of a long-press text selection --
@@ -448,13 +493,17 @@ internal fun Modifier.previewZoomGesture(
             // this was rewritten by hand, the same way `linkPressGestures`
             // below already does its own long-press race.
             if (currentScale > 1.01f) {
+                var lifted = false
                 try {
                     withTimeout(viewConfiguration.longPressTimeoutMillis) {
                         while (true) {
                             val event = awaitPointerEvent(PointerEventPass.Initial)
                             val pressed = event.changes.filter { it.pressed }
                             if (pressed.size >= 2) return@withTimeout // a pinch starting
-                            val change = pressed.firstOrNull() ?: return@withTimeout // lifted
+                            val change = pressed.firstOrNull() ?: run {
+                                lifted = true
+                                return@withTimeout // lifted
+                            }
                             if ((change.position - firstDown.position).getDistance() > viewConfiguration.touchSlop) {
                                 return@withTimeout // moved: a pan, not a long press
                             }
@@ -467,12 +516,21 @@ internal fun Modifier.previewZoomGesture(
                     // takes it from here.
                     return@awaitEachGesture
                 }
-                // Cancelled by a second finger joining (a pinch), by movement
-                // (a pan starting), or by lifting (a tap, e.g. on a link) --
-                // any of the three falls through to the ordinary per-event
+                // A lift is the whole gesture: the release was read by the race
+                // above, so the do-while below would wait for an event that
+                // belongs to the *next* touch and treat it as a continuation of
+                // this one — consuming that touch's first event as a pan and
+                // swallowing every second tap on a link or checkbox while zoomed
+                // (found while adding #500's glide, which a stopping touch hits
+                // immediately). The release itself is left unconsumed, so the
+                // tap reaches the row under it either way.
+                if (lifted) return@awaitEachGesture
+                // Cancelled by a second finger joining (a pinch) or by movement
+                // (a pan starting): both fall through to the ordinary per-event
                 // handling below, unconsumed so far either way. The do-while
-                // loop's next awaitPointerEvent call reads whichever of those
-                // is now true.
+                // loop's next awaitPointerEvent call reads the event *after* the
+                // one that ended the race — a few pixels of slop, or one frame
+                // of a pinch's start, are all that gets skipped.
             }
 
             do {
@@ -500,7 +558,9 @@ internal fun Modifier.previewZoomGesture(
                             scope.launch { listState.scrollBy(-panChange.y / currentScale) }
                         }
                         onScaleChange(currentScale)
-                        onTranslationXChange(currentTranslationX)
+                        publishTranslationX(currentTranslationX)
+                        velocityTracker.resetTracking()
+                        panning = false
                         event.changes.forEach { it.consume() }
                     }
                     pressed.size == 1 && currentScale > 1.01f -> {
@@ -512,15 +572,100 @@ internal fun Modifier.previewZoomGesture(
                         if (drag.y != 0f) {
                             scope.launch { listState.scrollBy(-drag.y / currentScale) }
                         }
-                        onTranslationXChange(currentTranslationX)
+                        publishTranslationX(currentTranslationX)
+                        velocityTracker.addPosition(change.uptimeMillis, change.position)
+                        panning = true
                         change.consume()
+                    }
+                    // The finger that was panning lifts. Its release is a sample
+                    // too: a finger that stopped and rested before lifting has to
+                    // read as slow, and without this point the tracker would still
+                    // be reporting the speed of the last move.
+                    pressed.isEmpty() && panning -> {
+                        event.changes.firstOrNull()?.let {
+                            velocityTracker.addPosition(it.uptimeMillis, it.position)
+                        }
                     }
                     // At rest: scale 1, a single pointer. Nothing is consumed,
                     // so the list's own scroll and every row's own tap/link/
                     // selection handling see this exactly as before #423.
                 }
             } while (event.changes.any { it.pressed })
+
+            if (panning) {
+                val velocity = velocityTracker.calculateVelocity(
+                    Velocity(maximumFlingVelocity, maximumFlingVelocity)
+                )
+                if (hypot(velocity.x, velocity.y) >= minimumFlingVelocity) {
+                    val decay = splineBasedDecay<Offset>(this)
+                    val flingScale = currentScale
+                    val flingFrom = currentTranslationX
+                    flingJob = scope.launch {
+                        flingZoomedPan(
+                            velocity = velocity,
+                            decay = decay,
+                            scale = flingScale,
+                            startTranslationX = flingFrom,
+                            viewportWidth = viewportWidth(),
+                            listState = listState,
+                            onTranslationXChange = publishTranslationX
+                        )
+                    }
+                }
+            }
         }
+    }
+}
+
+/**
+ * Keeps a zoomed preview moving after the finger that panned it lifts (#500).
+ *
+ * Input: the release [velocity] in screen px/s, the [decay] curve, the [scale]
+ * and horizontal translation the pan ended at, the [viewportWidth] that clamps
+ * the translation, and the [listState] that owns the vertical axis.
+ * Output: nothing returned; each frame moves the content through
+ * [onTranslationXChange] (horizontal) and [listState] (vertical), and the call
+ * returns when the glide has stopped on its own or been cancelled.
+ *
+ * Core logic: one two-dimensional decay over the screen-pixel distance, applied
+ * per frame with the same arithmetic a drag uses — x as a clamped translation,
+ * y as a scroll of `-dy / scale` list pixels. Reusing the drag's conversion is
+ * the point: a glide must cover the distance a finger covering it would have, or
+ * the content would visibly change speed at the moment of release.
+ *
+ * It stops early only when a frame moved nothing on either axis, i.e. the content
+ * has hit the corner it was thrown toward. Stopping when one axis ends would cut
+ * a diagonal throw short, and never stopping would spend frames on a decay that
+ * can no longer show.
+ *
+ * The scroll runs inside [listState]'s own `scroll` block rather than through
+ * `dispatchRawDelta`, so it takes the list's scroll lock and a later drag, find
+ * jump or outline jump interrupts it the way it interrupts any other scroll
+ * instead of fighting it for the position.
+ */
+internal suspend fun flingZoomedPan(
+    velocity: Velocity,
+    decay: DecayAnimationSpec<Offset>,
+    scale: Float,
+    startTranslationX: Float,
+    viewportWidth: Float,
+    listState: LazyListState,
+    onTranslationXChange: (Float) -> Unit
+) {
+    var translationX = startTranslationX
+    var previous = Offset.Zero
+    listState.scroll {
+        AnimationState(Offset.VectorConverter, Offset.Zero, Offset(velocity.x, velocity.y))
+            .animateDecay(decay) {
+                val step = value - previous
+                previous = value
+                val nextX = PreviewZoom.clampTranslationX(translationX + step.x, scale, viewportWidth)
+                val movedX = nextX != translationX
+                translationX = nextX
+                if (movedX) onTranslationXChange(nextX)
+                val consumedY = if (step.y != 0f) scrollBy(-step.y / scale) else 0f
+                if (step != Offset.Zero && !movedX && consumedY == 0f) cancelAnimation()
+            }
     }
 }
 

@@ -1,0 +1,1 @@
+Girar el teléfono ya no te saca de la vista previa al editor: la nota se mantiene en el mismo modo y en el mismo lugar. La vista previa ampliada ahora tiene inercia: un deslizamiento rápido sigue avanzando y se detiene poco a poco. También se corrigió que, con zoom, se perdía uno de cada dos toques en un enlace o una casilla.

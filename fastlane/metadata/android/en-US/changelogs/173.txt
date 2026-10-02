@@ -1,0 +1,1 @@
+Rotating the phone no longer throws you out of Preview: the note stays in the mode you were in, at the same place. Zoomed-in Preview now has momentum — a quick swipe keeps gliding and slows to a stop. Also fixed: every second tap on a link or checkbox was lost while zoomed in.

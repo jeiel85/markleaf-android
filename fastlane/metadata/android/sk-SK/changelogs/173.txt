@@ -1,0 +1,1 @@
+Otočenie telefónu vás už nevráti z náhľadu do editora: poznámka zostane v rovnakom režime a na rovnakom mieste. Priblížený náhľad má teraz zotrvačnosť — rýchle potiahnutie pokračuje a postupne sa zastaví. Opravené je aj to, že pri priblížení sa každé druhé ťuknutie na odkaz alebo políčko stratilo.

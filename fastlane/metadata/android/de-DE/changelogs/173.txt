@@ -1,0 +1,1 @@
+Beim Drehen des Telefons springt die Vorschau nicht mehr zurück in den Editor: Die Notiz bleibt im selben Modus und an derselben Stelle. Die vergrößerte Vorschau gleitet nach einem schnellen Wisch jetzt nach und bremst sanft ab. Außerdem behoben: Beim Zoomen ging jeder zweite Tipp auf einen Link oder ein Kontrollkästchen verloren.

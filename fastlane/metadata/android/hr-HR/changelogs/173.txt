@@ -1,0 +1,1 @@
+Rotiranje telefona više vas ne vraća iz pregleda u uređivač: bilješka ostaje u istom načinu rada i na istom mjestu. Povećani pregled sada ima tromost — brzo povlačenje nastavlja klizati i postupno staje. Ispravljeno je i da se pri povećanju svaki drugi dodir na poveznicu ili potvrdni okvir gubio.

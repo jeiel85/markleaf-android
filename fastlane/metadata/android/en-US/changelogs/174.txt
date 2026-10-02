@@ -1,0 +1,1 @@
+Fixed: a note opened from the list or from search still jumped back to the editor when you rotated the phone — v2.63.0 missed that case. Rotating now keeps the mode you were in, at the same place.

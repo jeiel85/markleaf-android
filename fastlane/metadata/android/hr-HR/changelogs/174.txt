@@ -1,0 +1,1 @@
+Ispravljeno: bilješka otvorena s popisa ili iz pretraživanja i dalje se pri rotiranju telefona vraćala u uređivač — taj je slučaj v2.63.0 propustila. Rotiranje sada zadržava način rada i mjesto na kojem ste bili.

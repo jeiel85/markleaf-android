@@ -21,8 +21,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -105,6 +109,36 @@ internal enum class NoteSource {
 }
 
 internal data class NoteOrigin(val noteId: String, val source: NoteSource)
+
+/**
+ * Input: a [NoteOrigin] or null. Output: an `ArrayList<String>` the saved-instance-state
+ * bundle accepts, and back; a pair that no longer parses (a source renamed since it was
+ * saved) restores as null, which is the "no tapped row" state the host already handles.
+ */
+internal val NoteOriginSaver: Saver<NoteOrigin?, ArrayList<String>> = Saver(
+    save = { origin -> origin?.let { arrayListOf(it.noteId, it.source.name) } },
+    restore = { saved ->
+        val noteId = saved.getOrNull(0)
+        val source = NoteSource.entries.firstOrNull { it.name == saved.getOrNull(1) }
+        if (noteId != null && source != null) NoteOrigin(noteId, source) else null
+    }
+)
+
+/**
+ * The origin of the note being opened, kept across a recreation of the activity.
+ *
+ * Why it is saved (#499, v2.63.1): the origin is not only read by the transition
+ * specs, it decides whether the editor is composed inside [NoteContainerTarget]
+ * (see [NoteEditorDestination]). `rememberSaveable` keys what it stores by the
+ * composition path, so an editor that was opened from a tapped row — wrapped —
+ * and is rebuilt after a rotation without its origin — unwrapped — looks for its
+ * saved state under a path it never wrote to, and finds nothing: the reading
+ * mode, the scroll position and every other saved value in the editor were lost
+ * on the first rotation. Saving the origin rebuilds the same tree.
+ */
+@Composable
+internal fun rememberNoteOrigin(): MutableState<NoteOrigin?> =
+    rememberSaveable(stateSaver = NoteOriginSaver) { mutableStateOf<NoteOrigin?>(null) }
 
 /**
  * Input: the two ends of a navigation (route + `noteId` argument each) and the
@@ -407,5 +441,38 @@ internal fun NoteContainerTarget(
                     .graphicsLayer { alpha = if (sharedState.isMatchFound) contentAlpha else 1f }
             ) { content() }
         }
+    }
+}
+
+/**
+ * The editor destination's shell: the editor grows out of the row that was
+ * tapped when [origin] names this note, and is composed plainly otherwise.
+ *
+ * Target half of the container transform: the editor surface grows out of the
+ * spot the user tapped (matched by the origin's key). Only the origin note gets
+ * it — an editor reached any other way (wikilink, widget, share) has no source
+ * to grow from and keeps the plain slide.
+ *
+ * Why this is one function the host and the tests both call: whether [content]
+ * sits inside [NoteContainerTarget] is part of the composition path that
+ * `rememberSaveable` keys its values by, so the editor's saved state is only
+ * found again when this branch is taken the same way after a recreation. That is
+ * [rememberNoteOrigin]'s job, and the restoration test pins the pair.
+ */
+@Composable
+internal fun NoteEditorDestination(
+    noteId: String?,
+    origin: NoteOrigin?,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    content: @Composable () -> Unit
+) {
+    if (noteId != null && origin != null && origin.noteId == noteId) {
+        NoteContainerTarget(
+            sharedKey = origin.source.keyFor(noteId),
+            startSurface = origin.source.startSurface(MaterialTheme.colorScheme),
+            animatedVisibilityScope = animatedVisibilityScope
+        ) { content() }
+    } else {
+        content()
     }
 }

@@ -240,10 +240,11 @@ fun MarkleafNavHost(
     val navOffsetMotion = tween<IntOffset>(durationMillis = 280)
     // The note (and the screen it was tapped on) the editor is growing out of.
     // Set by the click handlers immediately before navigating and read by the
-    // transition specs below and by the EDITOR destination. Not saved across
-    // recreation on purpose: without it the editor simply falls back to the plain
-    // slide, which is a correct — only less pretty — way to open a note.
-    var noteOrigin by remember { mutableStateOf<NoteOrigin?>(null) }
+    // transition specs below and by the EDITOR destination. Saved across
+    // recreation: it also decides whether the editor is composed inside the
+    // container, and `rememberSaveable` finds the editor's state again only when
+    // that is decided the same way after a rotation (#499).
+    var noteOrigin by rememberNoteOrigin()
     // SharedTransitionLayout wraps the graph so a tapped note card can morph into
     // the editor (container transform). `this` is the SharedTransitionScope; it is
     // published via LocalSharedTransitionScope so the deeply-nested NoteRow (source)
@@ -481,27 +482,17 @@ fun MarkleafNavHost(
         }
         composable(NavRoutes.EDITOR) {
             val noteId = it.arguments?.getString("noteId")
-            val editorContent = @Composable {
+            NoteEditorDestination(
+                noteId = noteId,
+                origin = noteOrigin,
+                animatedVisibilityScope = this
+            ) {
                 EditorScreen(
                     noteId = noteId,
                     onBack = { navController.popBackStack() },
                     onNavigateToNote = { id -> navController.navigate(NavRoutes.editorRoute(id)) },
                     hostScope = hostScope
                 )
-            }
-            // Target half of the container transform: the editor surface grows out
-            // of the spot the user tapped (matched by the origin's key). Only the
-            // origin note gets it — an editor reached any other way (wikilink,
-            // widget, share) has no source to grow from and keeps the plain slide.
-            val origin = noteOrigin
-            if (noteId != null && origin != null && origin.noteId == noteId) {
-                NoteContainerTarget(
-                    sharedKey = origin.source.keyFor(noteId),
-                    startSurface = origin.source.startSurface(MaterialTheme.colorScheme),
-                    animatedVisibilityScope = this
-                ) { editorContent() }
-            } else {
-                editorContent()
             }
         }
         composable(NavRoutes.TAGS) {

@@ -1870,3 +1870,35 @@ Implications:
   its toggle set against the empty text it holds before the load.
 - Zoom level, an open find bar and the editor caret are not part of the saved state. Adding them is a
   separate choice; the zoom would also need to be reconciled with the new viewport width.
+
+### D084 - The Note Origin Is Saved Across Recreation, Because It Shapes The Editor's Composition Path
+
+Date: 2026-10-02. Issue: #499 (v2.63.1). Reverses the "not saved on purpose" clause of D077.
+
+Decision:
+- `MarkleafNavHost` keeps the tapped row's origin with `rememberNoteOrigin()`: `rememberSaveable` plus
+  `NoteOriginSaver`, an `ArrayList<String>` of the note id and the source's name. A pair that no longer
+  parses restores as no origin.
+- The branch that composes the editor inside `NoteContainerTarget` (origin names this note) or plainly
+  (anything else) is one function, `NoteEditorDestination`, called by the host and by
+  `NoteOriginRestorationTest`, so the test exercises the code the app runs rather than a copy of it.
+
+Why:
+- D077 left the origin unsaved because losing it only costs the container motion, and that holds for the
+  animation. It does not hold for state: `rememberSaveable` keys what it stores by the composition path,
+  and the wrapper is part of that path. A note opened from a row was saved wrapped and rebuilt unwrapped
+  after a rotation, so the editor looked for its mode and scroll under a key it never wrote to and found
+  nothing. On a device, list -> open -> Preview -> rotate returned Edit in 3 of 3 cold starts; an editor
+  that had already been through one rotation (rebuilt unwrapped, saved unwrapped) kept Preview.
+- v2.63.0 tested the editor screen alone, which cannot see where its host puts it. The release was tagged
+  before that was known; it was found by running the release APK on an emulator.
+
+Implications:
+- After a rotation, closing the editor morphs back into its row as it would have without one, instead of
+  the plain slide. If the row is no longer composed, the existing unpaired fade applies.
+- The same mechanism still applies whenever the origin changes while an editor sits under another
+  destination (an editor, then Search, then a different note, then back): the first editor is rebuilt with
+  a different wrapper decision and can lose its saved state. Not part of #499; recorded in the hardening
+  tracker. The structural cure is an editor path that does not depend on the origin at all.
+- `StateRestorationTester` does nothing while `mainClock.autoAdvance` is false: its dispose-then-restore
+  needs a frame between the two steps. A restoration test on a paused clock passes vacuously.

@@ -1,0 +1,1 @@
+Opravené: poznámka otvorená zo zoznamu alebo z vyhľadávania sa pri otočení telefónu stále vracala do editora — tento prípad verzia v2.63.0 prehliadla. Otočenie teraz zachová režim aj miesto, kde ste boli.

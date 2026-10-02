@@ -1,0 +1,1 @@
+Đã sửa: ghi chú mở từ danh sách hoặc từ tìm kiếm vẫn nhảy về trình soạn thảo khi xoay điện thoại — trường hợp mà v2.63.0 đã bỏ sót. Giờ xoay máy vẫn giữ nguyên chế độ và vị trí bạn đang xem.

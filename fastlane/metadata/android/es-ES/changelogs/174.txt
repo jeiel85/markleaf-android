@@ -1,0 +1,1 @@
+Corregido: una nota abierta desde la lista o desde la búsqueda seguía volviendo al editor al girar el teléfono; la v2.63.0 no cubrió ese caso. Ahora, al girar, se mantiene el modo y el lugar en que estabas.

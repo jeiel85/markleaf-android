@@ -1,0 +1,1 @@
+Behoben: Eine aus der Liste oder der Suche geöffnete Notiz sprang beim Drehen des Telefons weiterhin zurück in den Editor – diesen Fall hatte v2.63.0 übersehen. Beim Drehen bleiben jetzt Modus und Stelle erhalten.

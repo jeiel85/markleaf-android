@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.63.1 - Rotating keeps Preview for notes opened from the list too - 2026-10-02
+
+No permission or storage-format changes.
+
+### Fixed
+- **A note opened from the list or from search now keeps its mode when you rotate the phone.** v2.63.0 was meant to stop a rotation from throwing you out of Preview, but a note you had just opened by tapping it still came back in the editor the first time the screen rotated, and Preview forgot its place. It now stays in the mode you were in, at the same place, including any `<details>` sections you had opened. (#499, thanks @kise82)
+
 ## v2.63.0 - Rotating keeps your place, and zoomed Preview glides - 2026-10-02
 
 No permission or storage-format changes.

@@ -1,0 +1,1 @@
+Corrigé : une note ouverte depuis la liste ou la recherche revenait encore à l'éditeur quand on faisait pivoter le téléphone — un cas que la v2.63.0 avait manqué. La rotation conserve désormais le mode et l'endroit où vous étiez.

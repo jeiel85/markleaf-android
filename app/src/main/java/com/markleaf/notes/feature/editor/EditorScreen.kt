@@ -48,6 +48,8 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
@@ -185,6 +187,19 @@ internal fun editorLiveRefreshText(
     onScreen != agreed -> null
     else -> incoming
 }
+
+/**
+ * Input: the `<details>` ids toggled away from their parsed default. Output: an
+ * `ArrayList<Int>` the saved-instance-state bundle accepts, and back.
+ *
+ * Spelled out instead of relying on the automatic saver because that one accepts
+ * a `Set` only when its runtime class happens to be `Serializable`, and a class
+ * that is not would fail at the first rotation instead of here (#499).
+ */
+private val toggledSectionIdsSaver: Saver<Set<Int>, ArrayList<Int>> = Saver(
+    save = { ArrayList(it) },
+    restore = { it.toSet() }
+)
 
 /** The production settings repository — the process-wide DataStore singleton. */
 @Composable
@@ -449,7 +464,16 @@ fun EditorScreen(
         editorState = next
     }
     val editorFocusRequester = remember(noteId) { FocusRequester() }
-    var isPreviewMode by remember(noteId) { mutableStateOf(false) }
+    // Saveable, unlike the rest of this screen's transient state: rotating the
+    // phone recreates the activity, and a note that was in Preview came back in
+    // Edit because the load below decided the mode afresh (#499).
+    var isPreviewMode by rememberSaveable(noteId) { mutableStateOf(false) }
+    // Whether the load below has already chosen how this note opens — the
+    // setting-driven mode and the "open notes at" scroll. It is what tells a
+    // first open apart from a recreation: after a rotation the load runs again
+    // from the database, and letting it choose again would overwrite the mode
+    // and the preview position the reader was actually in (#499).
+    var openingModeDecided by rememberSaveable(noteId) { mutableStateOf(false) }
     // True when the settings read timed out and the note opened on defaults.
     // The position recorder consults it — see [recordsPosition] (#204).
     var openedOnFallbackSettings by remember(noteId) { mutableStateOf(false) }
@@ -469,7 +493,11 @@ fun EditorScreen(
     var showInfo by remember(noteId) { mutableStateOf(false) }
     var showOutline by remember(noteId) { mutableStateOf(false) }
     var pendingPreviewScroll by remember(noteId) { mutableStateOf<PreviewScrollRequest?>(null) }
-    val shouldPreparePreview = isPreviewMode || showOutline
+    // Not before the note has loaded: a recreated screen can come back already
+    // in Preview (#499), and parsing the still-empty text then would record "no
+    // `<details>` sections" as the baseline the toggle set below is compared
+    // with, wiping the restored toggles the moment the real text arrived.
+    val shouldPreparePreview = isLoaded && (isPreviewMode || showOutline)
     val previewLines = remember(editorState.text, shouldPreparePreview) {
         if (shouldPreparePreview) SimpleMarkdownPreview.parse(editorState.text) else emptyList()
     }
@@ -477,7 +505,13 @@ fun EditorScreen(
     // see `visiblePreviewLines`'s own doc for why this is a delta rather than
     // the absolute collapsed set. Reset per note like the rest of this
     // screen's transient UI state.
-    var toggledSectionIds by remember(noteId) { mutableStateOf<Set<Int>>(emptySet()) }
+    //
+    // Saveable because the preview scroll position is: the list index kept
+    // across a rotation (#499) counts the rows that are *visible*, so restoring
+    // it against a different set of open sections would land on another row.
+    var toggledSectionIds by rememberSaveable(noteId, stateSaver = toggledSectionIdsSaver) {
+        mutableStateOf<Set<Int>>(emptySet())
+    }
     // collapsibleId is assigned by a section's position among every
     // <details> in the note, reassigned from zero on every reparse — so
     // inserting, removing, or reordering a section above an already-toggled
@@ -817,17 +851,25 @@ fun EditorScreen(
             // The loaded note is the floor: undo must not walk back past it
             // into the empty text the field held while the row was being read.
             undoHistory.reset(editorState)
-            pendingPreviewScroll = when (persistedSettings.openNotesAt) {
-                OpenNotesAt.TOP -> null
-                // Clamped against the rendered list when the scroll runs, so
-                // "as far as it goes" is all this has to say.
-                OpenNotesAt.BOTTOM -> PreviewScrollRequest(Int.MAX_VALUE, animate = false)
-                OpenNotesAt.LAST_POSITION ->
-                    lastPosition?.let {
-                        PreviewScrollRequest(it.previewIndex, animate = false, restore = true)
-                    }
+            // Only the first load of this screen decides how the note opens.
+            // A load that follows a recreation (rotation, #499) keeps the mode
+            // and the list position that came back with the saved state — the
+            // list's own scroll is restored by `rememberLazyListState` — rather
+            // than reading the settings as if the note had just been tapped.
+            if (!openingModeDecided) {
+                pendingPreviewScroll = when (persistedSettings.openNotesAt) {
+                    OpenNotesAt.TOP -> null
+                    // Clamped against the rendered list when the scroll runs, so
+                    // "as far as it goes" is all this has to say.
+                    OpenNotesAt.BOTTOM -> PreviewScrollRequest(Int.MAX_VALUE, animate = false)
+                    OpenNotesAt.LAST_POSITION ->
+                        lastPosition?.let {
+                            PreviewScrollRequest(it.previewIndex, animate = false, restore = true)
+                        }
+                }
+                isPreviewMode = opensInPreview(openInPreview, content)
+                openingModeDecided = true
             }
-            isPreviewMode = opensInPreview(openInPreview, content)
             shouldRequestEditorFocus = content.isEmpty()
             isLoaded = true
             // Remember this note as the launch target for the opt-in

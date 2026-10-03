@@ -1,3 +1,10 @@
+## 2026-10-03 - v2.63.2: tablet keeps its open note; fenced `# comment` is not a title (#262)
+
+Selected task: "verify the merge, push the tag, then work any open issues or discussions through review, merge and release". v2.63.1 was already merged, tagged, released (5 assets, Latest) and announced (#503). Open issues all wait on reporters or product decisions, so two user-facing defects from #262 were taken instead.
+Changed: see HISTORY.md of the same date — `selectedNoteId` saveable and outside the layout branch, carried into the full-screen editor when the window narrows; `FencedCodeBlocks` shared by the highlighter and `TitleExtractor`.
+Verification: new tests fail against the unfixed code and pass with it; emulator check with a tablet-sized display (see HISTORY.md). Gate results are in the PR.
+Lesson: a `LaunchedEffect` that clears its own key before a suspension cancels itself; clear it in the same main-thread step as the action.
+
 ## 2026-10-02 - v2.63.1 hotfix: rotation keeps Preview for a note opened from a row (#499)
 
 Selected task: the maintainer asked to tag and deploy v2.63.0, then to ship a hotfix after the release APK failed an on-device check.

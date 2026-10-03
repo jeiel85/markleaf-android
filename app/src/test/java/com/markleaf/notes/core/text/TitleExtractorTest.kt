@@ -133,4 +133,51 @@ class TitleExtractorTest {
             TitleExtractor.generateExcerpt(content, NoteTitleSource.FIRST_HEADING)
         )
     }
+
+    // ---- fenced code (#262, v2.63.2) ----------------------------------------
+
+    /** A shell comment is code: the preview draws it as code, so it must not name the note. */
+    @Test
+    fun `a hash comment inside a fence is not a heading`() {
+        val content = "```bash\n# install the tools\nmake\n```\n# Setup notes\nbody"
+        assertEquals("Setup notes", TitleExtractor.extractTitle(content))
+    }
+
+    @Test
+    fun `a tilde fence hides its comments too`() {
+        val content = "~~~\n# not a title\n~~~\n## Real one"
+        assertEquals("Real one", TitleExtractor.extractTitle(content))
+    }
+
+    @Test
+    fun `a heading after an unclosed fence is still inside it`() {
+        // An unclosed fence runs to the end of the note, as the preview reads it,
+        // so there is no heading and the first non-empty line is the title.
+        val content = "Intro line\n```\n# inside\n# still inside"
+        assertEquals("Intro line", TitleExtractor.extractTitle(content))
+    }
+
+    @Test
+    fun `fences on either side of a heading are skipped one by one`() {
+        val between = "```\n# a\n```\n\n~~~\n# b\n~~~\n# Between\n```\n# c\n```"
+        assertEquals("Between", TitleExtractor.extractTitle(between))
+        val after = "```\n# a\n```\ntext\n```\n# b\n```\n# After"
+        assertEquals("After", TitleExtractor.extractTitle(after))
+    }
+
+    @Test
+    fun `a heading before a fence still wins`() {
+        val content = "# Top\n```\n# comment\n```"
+        assertEquals("Top", TitleExtractor.extractTitle(content))
+    }
+
+    /** The excerpt now drops the real title line and keeps the fenced comment. */
+    @Test
+    fun `the excerpt drops the real title rather than the fenced comment`() {
+        val content = "```\n# comment\n```\n# Title\nbody"
+        assertEquals(
+            "comment\n\nbody",
+            TitleExtractor.generateExcerpt(content, NoteTitleSource.FIRST_HEADING)
+        )
+    }
 }

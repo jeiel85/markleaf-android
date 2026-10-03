@@ -1,0 +1,1 @@
+Đã sửa: trên máy tính bảng, ghi chú đang mở cạnh danh sách bị đóng khi xoay, khi vào Cài đặt hoặc khi dựng máy theo chiều dọc. Giờ ghi chú vẫn mở (ở chiều dọc sẽ mở toàn màn hình). Chú thích # trong khối mã không còn trở thành tiêu đề ghi chú.

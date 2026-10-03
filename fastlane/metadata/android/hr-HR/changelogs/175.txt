@@ -1,0 +1,1 @@
+Ispravljeno: na tabletu se bilješka otvorena pokraj popisa zatvarala pri rotiranju, odlasku u Postavke ili okretanju tableta uspravno. Sada ostaje otvorena (uspravno se otvara preko cijelog zaslona). Komentar # unutar bloka koda više ne postaje naslov bilješke.

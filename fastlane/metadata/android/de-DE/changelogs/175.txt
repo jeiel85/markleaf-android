@@ -1,0 +1,1 @@
+Behoben: Auf dem Tablet schloss sich die neben der Liste geöffnete Notiz beim Drehen, beim Besuch der Einstellungen oder im Hochformat. Sie bleibt jetzt offen (im Hochformat als Vollbild). Ein #-Kommentar in einem Codeblock wird nicht mehr zum Titel einer Notiz.

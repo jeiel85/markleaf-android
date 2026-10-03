@@ -1,0 +1,1 @@
+Fixed: on a tablet, the note open beside the list closed when you rotated, visited Settings or turned the tablet upright. It now stays open (upright, it opens full-screen). A # comment inside a code block no longer becomes a note's title.

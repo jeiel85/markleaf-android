@@ -4,6 +4,14 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.63.2 - The tablet keeps the note you had open - 2026-10-03
+
+No permission or storage-format changes.
+
+### Fixed
+- **On a tablet, the note open beside the list stays open.** Rotating the tablet, opening Settings and coming back, or turning the tablet upright used to close it and leave "Select a note to view". Upright, most tablets are too narrow for the side-by-side layout, so the note now opens full-screen there instead; Back returns to the list. Going the other way — from upright back to landscape with a note open full-screen — still shows it full-screen, as before. Locking or trashing that note from the list now closes it in the side pane too, so a locked note never stays on screen past the passcode.
+- **A `#` comment inside a code block no longer becomes a note's title.** A note that starts with a code block such as ```` ```bash ```` holding `# install the tools` was titled "install the tools"; the first heading outside the code block is used now. A note with no heading at all is still titled by its first line, which can be the code block's opening line. Existing titles update the next time the note is saved.
+
 ## v2.63.1 - Rotating keeps Preview for notes opened from the list too - 2026-10-02
 
 No permission or storage-format changes.

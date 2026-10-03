@@ -1,5 +1,7 @@
 package com.markleaf.notes.core.text
 
+import com.markleaf.notes.core.markdown.FencedCodeBlocks
+
 /**
  * Which line of a note becomes its title (#280).
  *
@@ -38,10 +40,30 @@ object TitleExtractor {
      */
     private fun titleLineIndex(lines: List<String>, source: NoteTitleSource): Int {
         if (source == NoteTitleSource.FIRST_HEADING) {
-            val headingIndex = lines.indexOfFirst { isHeadingLine(it.trim()) }
-            if (headingIndex >= 0) return headingIndex
+            // A `# comment` inside a fenced block is code, not a heading — the
+            // preview draws it as code, so it must not name the note either.
+            val fenced = fencedLines(lines)
+            val headingIndex = lines.indices.firstOrNull { !fenced[it] && isHeadingLine(lines[it].trim()) }
+            if (headingIndex != null) return headingIndex
         }
         return lines.indexOfFirst { it.trim().isNotEmpty() }
+    }
+
+    /** For each line, whether it lies inside (or is a fence of) a fenced code block. */
+    private fun fencedLines(lines: List<String>): BooleanArray {
+        val inFence = BooleanArray(lines.size)
+        val ranges = FencedCodeBlocks.ranges(lines.joinToString("\n"))
+        if (ranges.isEmpty()) return inFence
+        // The ranges come in text order, so one pointer walks them alongside the
+        // lines: this runs on every edit, and a code-heavy note has many blocks.
+        var range = 0
+        var lineStart = 0
+        for (index in lines.indices) {
+            while (range < ranges.size && ranges[range].last < lineStart) range++
+            inFence[index] = range < ranges.size && lineStart >= ranges[range].first
+            lineStart += lines[index].length + 1
+        }
+        return inFence
     }
 
     /**

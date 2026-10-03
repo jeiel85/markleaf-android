@@ -50,6 +50,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -83,6 +84,7 @@ import com.markleaf.notes.data.settings.NotesLayout
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.sync.LocalNoteLinkResult
 import com.markleaf.notes.data.sync.NoteFolderMirror
+import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.data.sync.mirrorMetadata
 import com.markleaf.notes.data.sync.resolveLocalNoteLink
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
@@ -293,10 +295,30 @@ fun MarkleafNavHost(
             // recent-note tap) are handled once at the host scope above, not here
             // — see the LaunchedEffect in MarkleafNavHost's body (#142).
 
+            // The note open in the tablet's editor pane. Saved, and held outside the
+            // layout branch below, because a plain `remember` inside it lost the note
+            // three ways: a rotation, a trip to Settings and back, and a tablet turned
+            // upright — which is narrower than the two-pane layout needs, so the
+            // branch itself switched and took the state with it.
+            var selectedNoteId by rememberSaveable { mutableStateOf<String?>(null) }
+            // Keeping the id means it can outlive what made it valid to show:
+            // - Leaving for Settings disposes the pane's editor, and an editor left
+            //   blank deletes its note as it goes (#405); the id would reopen an
+            //   editor on a missing row, where nothing typed is saved.
+            // - The list pane's Lock and Trash act on the row beside the open
+            //   editor. A locked note restored straight into the pane would skip the
+            //   passcode gate that every other way in goes through.
+            // So the selection is dropped whenever its row is gone, locked or
+            // trashed — on return, or the moment the change lands.
+            LaunchedEffect(selectedNoteId) {
+                val id = selectedNoteId ?: return@LaunchedEffect
+                viewModel.observeNote(id).first { !isPaneSelectable(it) }
+                if (selectedNoteId == id) selectedNoteId = null
+            }
+
             if (isExpanded) {
-                var selectedNoteId by remember { mutableStateOf<String?>(null) }
-                var isNoteListCollapsed by remember { mutableStateOf(false) }
-                var isTagRailCollapsed by remember { mutableStateOf(false) }
+                var isNoteListCollapsed by rememberSaveable { mutableStateOf(false) }
+                var isTagRailCollapsed by rememberSaveable { mutableStateOf(false) }
                 val selectedTag by viewModel.selectedTag.collectAsState()
                 val listPaneColor = MaterialTheme.colorScheme.surfaceVariant
                 val listPaneContentColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -438,6 +460,26 @@ fun MarkleafNavHost(
                     }
                 }
             } else {
+                // A note left open in the editor pane when the window narrowed (a
+                // tablet turned upright) is opened in the full-screen editor, where
+                // the narrow layout shows an open note, rather than dropped. Through
+                // resolveOpenNoteRoute because the note may have been locked since it
+                // was selected. The selection is cleared so Back from that editor
+                // lands on the list instead of reopening it — in the same main-thread
+                // step as the navigation: it is this effect's key, so clearing it any
+                // earlier cancels the effect before it navigates, and clearing it
+                // after a suspension can be skipped by that same cancellation.
+                LaunchedEffect(selectedNoteId) {
+                    val carried = selectedNoteId ?: return@LaunchedEffect
+                    // One no longer selectable is left to the effect above to clear.
+                    if (!isPaneSelectable(viewModel.observeNote(carried).first())) return@LaunchedEffect
+                    val route = resolveOpenNoteRoute(carried, noteRepository)
+                    withContext(Dispatchers.Main.immediate) {
+                        selectedNoteId = null
+                        noteOrigin = null
+                        navController.navigate(route)
+                    }
+                }
                 // Publish this NOTES destination's AnimatedVisibilityScope so its
                 // rows can act as the shared-element source for the card->editor
                 // morph. Phone path only — the tablet branch above opens the editor
@@ -669,6 +711,13 @@ fun MarkleafNavHost(
  * second entry those files are greyed out in the picker and cannot be opened at
  * all. A file that turns out not to be text is caught on read and reported.
  */
+/**
+ * Whether a note may stay open in the tablet's editor pane: it still exists, and
+ * it is neither locked (the passcode gate guards those) nor in the trash.
+ */
+internal fun isPaneSelectable(note: Note?): Boolean =
+    note != null && !note.locked && !note.trashed
+
 private val OPEN_FILE_MIME_TYPES = arrayOf("text/*", "application/octet-stream")
 
 /**

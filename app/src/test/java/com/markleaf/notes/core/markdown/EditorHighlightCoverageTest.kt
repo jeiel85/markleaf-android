@@ -93,7 +93,7 @@ class EditorHighlightCoverageTest {
     @Test
     fun aFenceClosesOnlyOnTheSameCharacterAndLength() {
         val text = "````\n```\nstill inside\n````\nafter"
-        val ranges = MarkdownSyntaxHighlighter.fencedCodeRanges(text)
+        val ranges = FencedCodeBlocks.ranges(text)
 
         assertEquals(listOf(0 until text.indexOf("\nafter")), ranges)
     }

@@ -157,7 +157,7 @@ object MarkdownSyntaxHighlighter {
             plain(text)
         } else {
             val spans = ArrayList<PendingSpan>(64)
-            val fences = fencedCodeRanges(text)
+            val fences = FencedCodeBlocks.ranges(text)
             val code = BooleanArray(text.length)
             for (fence in fences) java.util.Arrays.fill(code, fence.first, fence.last + 1, true)
             addLineStyles(spans, text, colors, fontScale, fences, code)
@@ -393,46 +393,6 @@ object MarkdownSyntaxHighlighter {
             }
     }
 
-    /**
-     * Character ranges of fenced code blocks, by CommonMark's rules for the
-     * part that matters here: a fence is three or more backticks or tildes,
-     * indented at most three spaces, closed by a fence of the same character
-     * at least as long, and a fence nobody closes runs to the end of the note
-     * — as the preview reads it. The old single regex knew only ``` and needed
-     * a closing fence, so `~~~` blocks were never styled.
-     */
-    internal fun fencedCodeRanges(text: String): List<IntRange> {
-        val ranges = mutableListOf<IntRange>()
-        var openAt = -1
-        var fenceChar = ' '
-        var fenceLength = 0
-        var lineStart = 0
-        while (lineStart <= text.length) {
-            val newline = text.indexOf('\n', lineStart)
-            val lineEnd = if (newline < 0) text.length else newline
-            val fence = FENCE_LINE_REGEX.matchEntire(text.substring(lineStart, lineEnd))
-            if (fence != null) {
-                val run = fence.groupValues[1]
-                val info = fence.groupValues[2]
-                if (openAt < 0) {
-                    // A backtick fence's info string may not contain a backtick.
-                    if (run[0] == '~' || '`' !in info) {
-                        openAt = lineStart
-                        fenceChar = run[0]
-                        fenceLength = run.length
-                    }
-                } else if (run[0] == fenceChar && run.length >= fenceLength && info.isBlank()) {
-                    ranges += openAt until lineEnd
-                    openAt = -1
-                }
-            }
-            if (newline < 0) break
-            lineStart = newline + 1
-        }
-        if (openAt >= 0 && openAt < text.length) ranges += openAt until text.length
-        return ranges
-    }
-
     private fun headingMetrics(level: Int, fontScale: Float): Pair<TextUnit, FontWeight> = when (level) {
         1 -> (24.sp * fontScale) to FontWeight.Bold
         2 -> (20.sp * fontScale) to FontWeight.SemiBold
@@ -468,7 +428,6 @@ object MarkdownSyntaxHighlighter {
     // indent and inside `>` quotes. Only `- [ ]` at the very start of a line
     // used to be coloured, so a nested sub-task read as plain text.
     private val CHECKBOX_REGEX = Regex("""(?m)^[ \t]*(?:>[ \t]*)*(?:[-*+]|\d{1,9}[.)])[ \t]+\[[ xX]](?:[ \t].*)?$""")
-    private val FENCE_LINE_REGEX = Regex("""^ {0,3}(`{3,}|~{3,})(.*)$""")
     private val BLOCKQUOTE_REGEX = Regex("""(?m)^>.*$""")
     private val HORIZONTAL_RULE_REGEX = Regex("""(?m)^(\*\*\*|---|___)\s*$""")
     private val INLINE_CODE_REGEX = Regex("""`[^`\n]+?`""")

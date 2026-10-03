@@ -50,6 +50,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -293,10 +294,16 @@ fun MarkleafNavHost(
             // recent-note tap) are handled once at the host scope above, not here
             // — see the LaunchedEffect in MarkleafNavHost's body (#142).
 
+            // The note open in the tablet's editor pane. Saved, and held outside the
+            // layout branch below, because a plain `remember` inside it lost the note
+            // three ways: a rotation, a trip to Settings and back, and a tablet turned
+            // upright — which is narrower than the two-pane layout needs, so the
+            // branch itself switched and took the state with it.
+            var selectedNoteId by rememberSaveable { mutableStateOf<String?>(null) }
+
             if (isExpanded) {
-                var selectedNoteId by remember { mutableStateOf<String?>(null) }
-                var isNoteListCollapsed by remember { mutableStateOf(false) }
-                var isTagRailCollapsed by remember { mutableStateOf(false) }
+                var isNoteListCollapsed by rememberSaveable { mutableStateOf(false) }
+                var isTagRailCollapsed by rememberSaveable { mutableStateOf(false) }
                 val selectedTag by viewModel.selectedTag.collectAsState()
                 val listPaneColor = MaterialTheme.colorScheme.surfaceVariant
                 val listPaneContentColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -438,6 +445,24 @@ fun MarkleafNavHost(
                     }
                 }
             } else {
+                // A note left open in the editor pane when the window narrowed (a
+                // tablet turned upright) is opened in the full-screen editor, where
+                // the narrow layout shows an open note, rather than dropped. Through
+                // resolveOpenNoteRoute because the note may have been locked since it
+                // was selected. The selection is cleared so Back from that editor
+                // lands on the list instead of reopening it — in the same main-thread
+                // step as the navigation: it is this effect's key, so clearing it any
+                // earlier cancels the effect before it navigates, and clearing it
+                // after a suspension can be skipped by that same cancellation.
+                LaunchedEffect(selectedNoteId) {
+                    val carried = selectedNoteId ?: return@LaunchedEffect
+                    val route = resolveOpenNoteRoute(carried, noteRepository)
+                    withContext(Dispatchers.Main.immediate) {
+                        selectedNoteId = null
+                        noteOrigin = null
+                        navController.navigate(route)
+                    }
+                }
                 // Publish this NOTES destination's AnimatedVisibilityScope so its
                 // rows can act as the shared-element source for the card->editor
                 // morph. Phone path only — the tablet branch above opens the editor

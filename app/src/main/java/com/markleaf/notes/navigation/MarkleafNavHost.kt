@@ -300,6 +300,17 @@ fun MarkleafNavHost(
             // upright — which is narrower than the two-pane layout needs, so the
             // branch itself switched and took the state with it.
             var selectedNoteId by rememberSaveable { mutableStateOf<String?>(null) }
+            // Keeping the id means it can outlive its note. Leaving for Settings
+            // disposes the pane's editor, and an editor left blank deletes its note
+            // as it goes (#405); the saved id would then reopen an editor on a row
+            // that no longer exists, where nothing typed is saved. So the selection
+            // is dropped whenever its row is gone — on return, or the moment the
+            // delete lands if it is still in flight.
+            LaunchedEffect(selectedNoteId) {
+                val id = selectedNoteId ?: return@LaunchedEffect
+                viewModel.observeNote(id).first { it == null }
+                if (selectedNoteId == id) selectedNoteId = null
+            }
 
             if (isExpanded) {
                 var isNoteListCollapsed by rememberSaveable { mutableStateOf(false) }
@@ -456,6 +467,8 @@ fun MarkleafNavHost(
                 // after a suspension can be skipped by that same cancellation.
                 LaunchedEffect(selectedNoteId) {
                     val carried = selectedNoteId ?: return@LaunchedEffect
+                    // A deleted note is left to the effect above to clear.
+                    if (viewModel.observeNote(carried).first() == null) return@LaunchedEffect
                     val route = resolveOpenNoteRoute(carried, noteRepository)
                     withContext(Dispatchers.Main.immediate) {
                         selectedNoteId = null

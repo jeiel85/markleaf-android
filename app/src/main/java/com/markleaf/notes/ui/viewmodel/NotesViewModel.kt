@@ -7,6 +7,7 @@ import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.domain.repository.NoteRepository
 import com.markleaf.notes.util.TagParser
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -41,6 +42,9 @@ class NotesViewModel(
     fun selectTag(tag: String?) {
         _selectedTag.value = tag
     }
+
+    /** One note's row, or null once it no longer exists. */
+    fun observeNote(noteId: String): Flow<Note?> = noteRepository.observeNote(noteId)
 
     init {
         observeNotes()

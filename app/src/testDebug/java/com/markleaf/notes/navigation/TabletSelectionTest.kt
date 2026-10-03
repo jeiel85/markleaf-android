@@ -190,6 +190,43 @@ class TabletSelectionTest {
         assertEquals(NavRoutes.NOTES, currentRoute())
     }
 
+    /**
+     * Review of #504: leaving for Settings disposes the pane's editor, which
+     * deletes a note left blank. The kept id must not reopen an editor on a row
+     * that is gone, where typing would save nothing.
+     */
+    @Test
+    fun aNoteDeletedWhileAwayIsNotReopened() {
+        showHost()
+        selectTheNote()
+
+        composeRule.runOnUiThread { navController.navigate(NavRoutes.SETTINGS) }
+        composeRule.waitForIdle()
+        runBlocking { LocalNoteRepository(database).deleteForever(NOTE_ID) }
+        composeRule.runOnUiThread { navController.popBackStack() }
+
+        composeRule.waitUntil(timeoutMillis = 10_000) {
+            composeRule.onAllNodesWithText(EMPTY_PANE).fetchSemanticsNodes().isNotEmpty()
+        }
+    }
+
+    @Test
+    fun aNoteDeletedWhileOpenClosesThePaneAndIsNotCarriedUpright() {
+        showHost()
+        selectTheNote()
+
+        runBlocking { LocalNoteRepository(database).deleteForever(NOTE_ID) }
+        composeRule.waitUntil(timeoutMillis = 10_000) {
+            composeRule.onAllNodesWithText(EMPTY_PANE).fetchSemanticsNodes().isNotEmpty()
+        }
+        windowSize = PORTRAIT
+        composeRule.waitForIdle()
+        Thread.sleep(500)
+        composeRule.waitForIdle()
+
+        assertEquals(NavRoutes.NOTES, currentRoute())
+    }
+
     @Test
     fun withNothingSelectedTurningUprightStaysOnTheList() {
         showHost()

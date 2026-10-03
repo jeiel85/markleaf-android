@@ -1,0 +1,1 @@
+Đã sửa: vuốt nhanh trên Xem trước đang phóng to giờ trượt xa bằng cùng thao tác trên ghi chú không phóng to. Trước đây, vuốt dọc chỉ trượt khoảng một nửa và vuốt ngang hầu như không di chuyển, vì tốc độ vuốt được đo khác với cách cuộn của Android.

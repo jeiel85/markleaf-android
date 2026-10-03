@@ -1,0 +1,1 @@
+Corregido: un deslizamiento rápido en la vista previa ampliada ahora se desliza tanto como el mismo gesto en una nota sin ampliar. Antes, en vertical se detenía a mitad de camino y de lado apenas se movía, porque la velocidad del gesto se medía de forma distinta al desplazamiento de Android.

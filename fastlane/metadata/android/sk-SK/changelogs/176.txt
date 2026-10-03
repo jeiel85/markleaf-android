@@ -1,0 +1,1 @@
+Opravené: rýchle potiahnutie v zväčšenom náhľade sa teraz posunie rovnako ďaleko ako to isté potiahnutie v nezväčšenej poznámke. Predtým sa zvislo zastavilo asi v polovici a do strany sa takmer nepohlo, pretože rýchlosť potiahnutia sa merala inak ako pri posúvaní v Androide.

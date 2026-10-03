@@ -334,10 +334,83 @@ class PreviewZoomGestureTest {
         )
     }
 
+    /**
+     * The flick a real touchscreen reports: the release arrives a few
+     * milliseconds after the last move, at the position that move left. The
+     * synthetic [flickUp] lifts at the very instant of its last move, which
+     * hid the bug below — an extra stationary sample with no time between it
+     * and the move before it barely moves a fitted velocity.
+     */
+    private fun androidx.compose.ui.test.TouchInjectionScope.deviceLikeFlickUp() {
+        down(0, Offset(200f, 700f))
+        repeat(6) { moveBy(0, Offset(0f, -64f)) }
+        advanceEventTime(8)
+        up(0)
+    }
+
+    /** How far, in screen pixels, [deviceLikeFlickUp] carries the list from the top: drag plus glide. */
+    private fun screenTravelOfAFlickFromTheTop(): Float {
+        composeRule.runOnIdle { hostListState.requestScrollToItem(0) }
+        composeRule.waitForIdle()
+        val scale = reportedScale
+        composeRule.onRoot().performTouchInput { deviceLikeFlickUp() }
+        composeRule.waitForIdle()
+        return scrolledPx() * scale
+    }
+
+    @Test
+    fun aFlickWhileZoomed_carriesAsFarOnScreenAsTheSameFlickAtRest() {
+        // #500, second report: "it still feels like there's no momentum." The
+        // glide measured the throw differently from the list it stands in for.
+        // It added the release itself as a velocity sample — a stationary point
+        // a few milliseconds after a fast move, which a least-squares fit reads
+        // as the finger braking — where Compose's own tracker (and the
+        // platform's) leaves the release out. The same flick then glided far
+        // less zoomed than unzoomed. A zoomed glide converts its distance back
+        // through the scale, so on screen the two must travel alike.
+        renderHost(itemCount = 400)
+        val atRest = screenTravelOfAFlickFromTheTop()
+        zoomInTwofold()
+        val zoomed = screenTravelOfAFlickFromTheTop()
+        val ratio = zoomed / atRest
+        assertTrue(
+            "expected a zoomed flick to travel about as far on screen as at rest ($atRest px), travelled $zoomed px (ratio $ratio)",
+            ratio in 0.8f..1.25f
+        )
+    }
+
+    @Test
+    fun aSidewaysFlickWhileZoomed_keepsGlidingAfterTheFingerLifts() {
+        // #500, second report: sideways strokes still felt rigid. The glide is
+        // two-dimensional, so a sideways throw carries on like a vertical one
+        // until it reaches the side of the magnified note. At 2x on a 400px
+        // window that side is 400px away; the finger itself covers 90px.
+        //
+        // A guard, not the regression test: this passed before the fix too,
+        // because even the under-measured throw reached that side. Both axes
+        // come from one tracker, so the measurement itself is pinned by
+        // aFlickWhileZoomed_carriesAsFarOnScreenAsTheSameFlickAtRest.
+        renderHost()
+        zoomInTwofold()
+        val before = reportedTranslationX
+
+        composeRule.onRoot().performTouchInput {
+            down(0, Offset(300f, 400f))
+            repeat(3) { moveBy(0, Offset(-30f, 0f)) }
+            advanceEventTime(8)
+            up(0)
+        }
+        composeRule.waitForIdle()
+
+        val travelled = before - reportedTranslationX
+        assertTrue("expected the sideways flick to glide well past the 90px the finger covered, travelled $travelled", travelled > 180f)
+    }
+
     @Test
     fun aPanThatRestsBeforeTheFingerLifts_doesNotGlide() {
-        // The release sample is what makes this read as slow: without it the
-        // tracker would still report the speed of the last move 300ms ago.
+        // A finger that stopped before lifting reads as slow: a release that
+        // comes long after the last move resets the tracker, as Compose's own
+        // scrolling does.
         renderHost()
         zoomInTwofold()
         val before = scrolledPx()

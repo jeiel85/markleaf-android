@@ -1,0 +1,1 @@
+Corrigé : sur tablette, la note ouverte à côté de la liste se fermait lors d'une rotation, d'un passage par les Réglages ou en mode portrait. Elle reste désormais ouverte (en portrait, en plein écran). Un commentaire # dans un bloc de code ne devient plus le titre d'une note.

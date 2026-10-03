@@ -1,0 +1,1 @@
+Corregido: en tableta, la nota abierta junto a la lista se cerraba al girar, al pasar por Ajustes o al poner la tableta en vertical. Ahora sigue abierta (en vertical, a pantalla completa). Un comentario # dentro de un bloque de código ya no se convierte en el título de la nota.

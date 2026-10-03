@@ -1,0 +1,1 @@
+Opravené: na tablete sa poznámka otvorená vedľa zoznamu zatvorila pri otočení, návšteve Nastavení alebo pri otočení tabletu na výšku. Teraz zostane otvorená (na výšku sa otvorí na celú obrazovku). Komentár # v bloku kódu sa už nestane názvom poznámky.

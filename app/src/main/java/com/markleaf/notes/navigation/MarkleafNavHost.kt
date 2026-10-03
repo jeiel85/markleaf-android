@@ -84,6 +84,7 @@ import com.markleaf.notes.data.settings.NotesLayout
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.sync.LocalNoteLinkResult
 import com.markleaf.notes.data.sync.NoteFolderMirror
+import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.data.sync.mirrorMetadata
 import com.markleaf.notes.data.sync.resolveLocalNoteLink
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
@@ -300,15 +301,18 @@ fun MarkleafNavHost(
             // upright — which is narrower than the two-pane layout needs, so the
             // branch itself switched and took the state with it.
             var selectedNoteId by rememberSaveable { mutableStateOf<String?>(null) }
-            // Keeping the id means it can outlive its note. Leaving for Settings
-            // disposes the pane's editor, and an editor left blank deletes its note
-            // as it goes (#405); the saved id would then reopen an editor on a row
-            // that no longer exists, where nothing typed is saved. So the selection
-            // is dropped whenever its row is gone — on return, or the moment the
-            // delete lands if it is still in flight.
+            // Keeping the id means it can outlive what made it valid to show:
+            // - Leaving for Settings disposes the pane's editor, and an editor left
+            //   blank deletes its note as it goes (#405); the id would reopen an
+            //   editor on a missing row, where nothing typed is saved.
+            // - The list pane's Lock and Trash act on the row beside the open
+            //   editor. A locked note restored straight into the pane would skip the
+            //   passcode gate that every other way in goes through.
+            // So the selection is dropped whenever its row is gone, locked or
+            // trashed — on return, or the moment the change lands.
             LaunchedEffect(selectedNoteId) {
                 val id = selectedNoteId ?: return@LaunchedEffect
-                viewModel.observeNote(id).first { it == null }
+                viewModel.observeNote(id).first { !isPaneSelectable(it) }
                 if (selectedNoteId == id) selectedNoteId = null
             }
 
@@ -467,8 +471,8 @@ fun MarkleafNavHost(
                 // after a suspension can be skipped by that same cancellation.
                 LaunchedEffect(selectedNoteId) {
                     val carried = selectedNoteId ?: return@LaunchedEffect
-                    // A deleted note is left to the effect above to clear.
-                    if (viewModel.observeNote(carried).first() == null) return@LaunchedEffect
+                    // One no longer selectable is left to the effect above to clear.
+                    if (!isPaneSelectable(viewModel.observeNote(carried).first())) return@LaunchedEffect
                     val route = resolveOpenNoteRoute(carried, noteRepository)
                     withContext(Dispatchers.Main.immediate) {
                         selectedNoteId = null
@@ -707,6 +711,13 @@ fun MarkleafNavHost(
  * second entry those files are greyed out in the picker and cannot be opened at
  * all. A file that turns out not to be text is caught on read and reported.
  */
+/**
+ * Whether a note may stay open in the tablet's editor pane: it still exists, and
+ * it is neither locked (the passcode gate guards those) nor in the trash.
+ */
+internal fun isPaneSelectable(note: Note?): Boolean =
+    note != null && !note.locked && !note.trashed
+
 private val OPEN_FILE_MIME_TYPES = arrayOf("text/*", "application/octet-stream")
 
 /**

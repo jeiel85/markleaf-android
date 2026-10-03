@@ -227,6 +227,43 @@ class TabletSelectionTest {
         assertEquals(NavRoutes.NOTES, currentRoute())
     }
 
+    /**
+     * Review of #504: Lock from the list pane leaves the row in place, so only
+     * watching for a missing row kept the selection — and a rotation then put
+     * the locked note straight back in the pane, past the passcode gate.
+     */
+    @Test
+    fun aNoteLockedWhileOpenClosesThePaneAndStaysClosedAcrossARotation() {
+        showHost()
+        selectTheNote()
+
+        changeTheNote { it.copy(locked = true) }
+        composeRule.waitUntil(timeoutMillis = 10_000) {
+            composeRule.onAllNodesWithText(EMPTY_PANE).fetchSemanticsNodes().isNotEmpty()
+        }
+        restoration.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(EMPTY_PANE).fetchSemanticsNode()
+    }
+
+    @Test
+    fun aNoteTrashedWhileOpenClosesThePane() {
+        showHost()
+        selectTheNote()
+
+        changeTheNote { it.copy(trashed = true, deletedAt = Instant.parse("2026-10-03T01:00:00Z")) }
+
+        composeRule.waitUntil(timeoutMillis = 10_000) {
+            composeRule.onAllNodesWithText(EMPTY_PANE).fetchSemanticsNodes().isNotEmpty()
+        }
+    }
+
+    private fun changeTheNote(change: (Note) -> Note) = runBlocking {
+        val repository = LocalNoteRepository(database)
+        repository.updateNote(change(requireNotNull(repository.getNote(NOTE_ID))))
+    }
+
     @Test
     fun withNothingSelectedTurningUprightStaysOnTheList() {
         showHost()

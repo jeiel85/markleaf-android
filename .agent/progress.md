@@ -1,3 +1,10 @@
+## 2026-10-04 - v2.63.3: zoomed glide measures the throw like the list (#500)
+
+Selected task: "check GitHub issues and discussions, respond, get PR review, merge and release". Only #500 had new reporter feedback (glide still feels absent, sideways rigid); the rest wait on reporters or product decisions, and every discussion's last reply is ours.
+Changed: see HISTORY.md of the same date — the zoomed pan's velocity samples go through `addPointerInputChange`, as the list's own scroll does.
+Verification: the new comparison test fails against the unfixed handler (ratio 0.59) and passes with it; emulator log of both trackers on the same real input events (see HISTORY.md). Gate results are in the PR.
+Lesson: a synthetic touch that lifts at the instant of its last move hides release-timing bugs; give the release the few milliseconds a touchscreen does.
+
 ## 2026-10-03 - v2.63.2: tablet keeps its open note; fenced `# comment` is not a title (#262)
 
 Selected task: "verify the merge, push the tag, then work any open issues or discussions through review, merge and release". v2.63.1 was already merged, tagged, released (5 assets, Latest) and announced (#503). Open issues all wait on reporters or product decisions, so two user-facing defects from #262 were taken instead.

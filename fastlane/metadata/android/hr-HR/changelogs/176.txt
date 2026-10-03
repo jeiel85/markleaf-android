@@ -1,0 +1,1 @@
+Ispravljeno: brzi potez na uvećanom pregledu sada klizi jednako daleko kao isti potez na neuvećanoj bilješci. Prije se okomito zaustavljao otprilike na pola puta, a bočno se gotovo nije micao, jer se brzina poteza mjerila drukčije nego kod Androidova pomicanja.

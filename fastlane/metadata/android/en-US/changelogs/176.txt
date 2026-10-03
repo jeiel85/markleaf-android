@@ -1,0 +1,1 @@
+Fixed: a flick on a zoomed-in Preview now glides as far as the same flick on an unzoomed note. Vertical flicks used to stop about halfway and sideways ones barely moved, because the speed of the throw was measured differently from Android's own scrolling.

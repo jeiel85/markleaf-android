@@ -1,0 +1,1 @@
+Behoben: Ein Wischen in der vergrößerten Vorschau gleitet jetzt so weit wie dasselbe Wischen in einer nicht vergrößerten Notiz. Bisher stoppte es vertikal etwa auf halber Strecke und seitlich kaum, weil die Wischgeschwindigkeit anders gemessen wurde als beim Scrollen von Android.

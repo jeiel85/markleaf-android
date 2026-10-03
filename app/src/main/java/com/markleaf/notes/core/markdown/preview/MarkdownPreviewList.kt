@@ -73,11 +73,13 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationException
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.input.pointer.util.addPointerInputChange
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
@@ -410,8 +412,8 @@ fun MarkdownPreviewList(
  * A pan has momentum (#500). The list's own fling can never run for it: while
  * zoomed this handler consumes the single-finger drag on the Initial pass, so
  * the list never sees the gesture it would measure a velocity from. The handler
- * therefore measures the velocity itself and, on release, keeps the content
- * moving with [flingZoomedPan]. A touch that lands on content still gliding
+ * therefore measures the velocity itself, sampled exactly as the list would
+ * sample it, and on release keeps the content moving with [flingZoomedPan]. A touch that lands on content still gliding
  * stops it. It does not also tick the checkbox or follow the link under the
  * finger: the glide runs inside the list's own `scroll`, and a lazy list that is
  * mid-scroll consumes a touch before its rows see it. That is what
@@ -467,8 +469,18 @@ internal fun Modifier.previewZoomGesture(
                 if (writtenTranslationX.isNaN()) latestTranslationX.value else writtenTranslationX
             // Samples only while one finger pans: a pinch's movement is not a
             // throw, so a second finger joining discards what was collected.
+            //
+            // Fed through `addPointerInputChange`, the same entry point the
+            // list's own scroll uses, so a throw measures the same here as it
+            // does at scale 1 (#500, second report). It keeps the batched
+            // in-between samples a fast touchscreen delivers, leaves the release
+            // position out, and resets when the release comes long after the
+            // last move. Adding the release as a sample by hand had made the
+            // tracker read every flick as braking: a stationary point a few
+            // milliseconds after a fast move pulls a least-squares fit down, and
+            // the same flick glided about half as far zoomed as unzoomed.
             val velocityTracker = VelocityTracker()
-            velocityTracker.addPosition(firstDown.uptimeMillis, firstDown.position)
+            velocityTracker.addPointerInputChange(firstDown)
             var panning = false
 
             // A single finger while already zoomed is ambiguous: it could be
@@ -504,6 +516,8 @@ internal fun Modifier.previewZoomGesture(
                                 lifted = true
                                 return@withTimeout // lifted
                             }
+                            // The slop a pan crosses is part of the throw.
+                            velocityTracker.addPointerInputChange(change)
                             if ((change.position - firstDown.position).getDistance() > viewConfiguration.touchSlop) {
                                 return@withTimeout // moved: a pan, not a long press
                             }
@@ -573,17 +587,17 @@ internal fun Modifier.previewZoomGesture(
                             scope.launch { listState.scrollBy(-drag.y / currentScale) }
                         }
                         publishTranslationX(currentTranslationX)
-                        velocityTracker.addPosition(change.uptimeMillis, change.position)
+                        velocityTracker.addPointerInputChange(change)
                         panning = true
                         change.consume()
                     }
-                    // The finger that was panning lifts. Its release is a sample
-                    // too: a finger that stopped and rested before lifting has to
-                    // read as slow, and without this point the tracker would still
-                    // be reporting the speed of the last move.
+                    // The finger that was panning lifts. The tracker is told so
+                    // it can tell a finger that rested before lifting from one
+                    // that was thrown: a release long after the last move resets
+                    // it to zero. The release position itself is not a sample.
                     pressed.isEmpty() && panning -> {
-                        event.changes.firstOrNull()?.let {
-                            velocityTracker.addPosition(it.uptimeMillis, it.position)
+                        event.changes.firstOrNull { it.changedToUpIgnoreConsumed() }?.let {
+                            velocityTracker.addPointerInputChange(it)
                         }
                     }
                     // At rest: scale 1, a single pointer. Nothing is consumed,

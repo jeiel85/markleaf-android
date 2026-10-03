@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.63.3 - Zoomed Preview glides as far as the list does - 2026-10-04
+
+No permission or storage-format changes.
+
+### Fixed
+- **A flick on a zoomed-in Preview now carries as far as the same flick on an unzoomed note.** The glide added in v2.63.0 measured how fast your finger was moving differently from the way Android's own scrolling does: it counted the moment you lifted as a sample, which reads a fast flick as a finger that was braking. A quick vertical flick glided about half as far as it should, and a sideways one often barely moved at all. It now measures the throw exactly the way the unzoomed list does. Sideways glides still stop at the edge of the magnified note, which is close by at low zoom levels. A finger that stops before lifting still stops the note where it is. (#500, thanks @kise82)
+
 ## v2.63.2 - The tablet keeps the note you had open - 2026-10-03
 
 No permission or storage-format changes.

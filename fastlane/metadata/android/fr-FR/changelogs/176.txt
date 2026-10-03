@@ -1,0 +1,1 @@
+Corrigé : un balayage sur l'aperçu agrandi glisse désormais aussi loin que le même geste sur une note non agrandie. Auparavant, il s'arrêtait à mi-chemin à la verticale et bougeait à peine sur le côté, car la vitesse du geste était mesurée autrement que par le défilement d'Android.

@@ -158,6 +158,14 @@ class TitleExtractorTest {
     }
 
     @Test
+    fun `fences on either side of a heading are skipped one by one`() {
+        val between = "```\n# a\n```\n\n~~~\n# b\n~~~\n# Between\n```\n# c\n```"
+        assertEquals("Between", TitleExtractor.extractTitle(between))
+        val after = "```\n# a\n```\ntext\n```\n# b\n```\n# After"
+        assertEquals("After", TitleExtractor.extractTitle(after))
+    }
+
+    @Test
     fun `a heading before a fence still wins`() {
         val content = "# Top\n```\n# comment\n```"
         assertEquals("Top", TitleExtractor.extractTitle(content))

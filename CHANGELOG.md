@@ -12,6 +12,8 @@ No permission or storage-format changes.
 - **On a tablet, the note open beside the list stays open.** Rotating the tablet, opening Settings and coming back, or turning the tablet upright used to close it and leave "Select a note to view". Upright, most tablets are too narrow for the side-by-side layout, so the note now opens full-screen there instead; Back returns to the list. Going the other way — from upright back to landscape with a note open full-screen — still shows it full-screen, as before.
 - **A `#` comment inside a code block no longer becomes a note's title.** A note that starts with a code block such as ```` ```bash ```` holding `# install the tools` was titled "install the tools"; the first heading outside the code block is used now. A note with no heading at all is still titled by its first line, which can be the code block's opening line. Existing titles update the next time the note is saved.
 
+## v2.63.1 - Rotating keeps Preview for notes opened from the list too - 2026-10-02
+
 No permission or storage-format changes.
 
 ### Fixed

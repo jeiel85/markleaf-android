@@ -54,9 +54,13 @@ object TitleExtractor {
         val inFence = BooleanArray(lines.size)
         val ranges = FencedCodeBlocks.ranges(lines.joinToString("\n"))
         if (ranges.isEmpty()) return inFence
+        // The ranges come in text order, so one pointer walks them alongside the
+        // lines: this runs on every edit, and a code-heavy note has many blocks.
+        var range = 0
         var lineStart = 0
         for (index in lines.indices) {
-            inFence[index] = ranges.any { lineStart in it }
+            while (range < ranges.size && ranges[range].last < lineStart) range++
+            inFence[index] = range < ranges.size && lineStart >= ranges[range].first
             lineStart += lines[index].length + 1
         }
         return inFence

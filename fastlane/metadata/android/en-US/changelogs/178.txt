@@ -1,0 +1,1 @@
+Fixed: on a phone with animations reduced or turned off (Developer options, Accessibility, some battery savers), a flick on a zoomed-in Preview jumped instead of gliding. The glide now runs at the speed you threw it, as unzoomed scrolling always did.

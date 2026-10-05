@@ -1,3 +1,10 @@
+## 2026-10-06 - v2.63.5: zoomed glide ignores the animator duration scale (#500)
+
+Selected task: "check for anything more to respond to". New since v2.63.3: kise82's v2.63.4 feedback on #500 (zoomed glide jumps and halts, unzoomed fine), #510 (custom fonts, no reply yet), and a +1 on Discussion #481.
+Changed: see HISTORY.md of the same date — the glide runs under a fixed 1f `MotionDurationScale`, as Compose's list fling does.
+Verification: the new test fails against the unfixed handler and passes with it; emulator glide duration identical at animator scale 1.0 / 0.5 / 0. Gate results are in the PR.
+Lesson: an animation that stands in for a scroll must opt out of the animator duration scale, or "Remove animations" turns it into a jump. And stop the test clock only after the state the gesture reads has recomposed.
+
 ## 2026-10-05 - v2.63.4: zoomed glide keeps the throw's direction (#500)
 
 Selected task: "respond to remaining issues and discussions, get PR review, merge and release". Only #500 had new reporter feedback; every discussion's last reply is ours and the other issues wait on reporters or product decisions.

@@ -1,0 +1,1 @@
+Corregido: en un teléfono con animaciones reducidas o desactivadas (Opciones para desarrolladores, Accesibilidad, algunos modos de ahorro de batería), deslizar en la vista previa ampliada daba un salto en lugar de deslizarse. Ahora se desliza a la velocidad del gesto, como el desplazamiento sin zoom.

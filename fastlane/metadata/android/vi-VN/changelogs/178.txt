@@ -1,0 +1,1 @@
+Đã sửa: trên điện thoại giảm hoặc tắt hiệu ứng động (Tùy chọn cho nhà phát triển, Hỗ trợ tiếp cận, một số chế độ tiết kiệm pin), vuốt nhanh trên Xem trước đang phóng to bị nhảy thay vì trượt. Giờ nó trượt theo tốc độ bạn vuốt, như khi cuộn không phóng to.

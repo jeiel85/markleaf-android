@@ -1,0 +1,1 @@
+Ispravljeno: na telefonu sa smanjenim ili isključenim animacijama (Opcije za razvojne programere, Pristupačnost, neki načini štednje baterije) brzi potez na uvećanom pregledu skakao je umjesto da klizi. Sada klizi brzinom poteza, kao pomicanje bez uvećanja.

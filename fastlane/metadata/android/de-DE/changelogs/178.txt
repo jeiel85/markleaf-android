@@ -1,0 +1,1 @@
+Behoben: Auf Geräten mit reduzierten oder ausgeschalteten Animationen (Entwickleroptionen, Bedienungshilfen, manche Energiesparmodi) sprang die vergrößerte Vorschau beim Wischen, statt zu gleiten. Sie gleitet jetzt mit der Geschwindigkeit des Wischens, wie das Scrollen ohne Zoom.

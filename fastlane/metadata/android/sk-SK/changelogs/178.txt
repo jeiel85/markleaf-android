@@ -1,0 +1,1 @@
+Opravené: na telefóne so zníženými alebo vypnutými animáciami (Možnosti pre vývojárov, Dostupnosť, niektoré režimy šetrenia batérie) rýchle potiahnutie v zväčšenom náhľade skočilo namiesto plynulého posunu. Teraz sa posúva rýchlosťou potiahnutia, ako posúvanie bez zväčšenia.

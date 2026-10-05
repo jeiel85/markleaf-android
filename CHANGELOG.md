@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.63.5 - Zoomed Preview glides at full speed with animations reduced - 2026-10-06
+
+No permission or storage-format changes.
+
+### Fixed
+- **On a phone with animations reduced or turned off, a flick on a zoomed-in Preview now glides at the speed you threw it.** The glide followed Android's animation speed setting (Developer options, "Remove animations" in Accessibility, and some battery-saving modes). At half speed it played twice as fast; with animations off it jumped to where it would stop in a single frame, so a flick looked like a sudden jump. Scrolling a note that isn't zoomed ignores that setting, which is why only the zoomed Preview felt wrong. The glide now does the same. (#500, thanks @kise82)
+
 ## v2.63.4 - Zoomed Preview glides the way you threw it - 2026-10-05
 
 No permission or storage-format changes.

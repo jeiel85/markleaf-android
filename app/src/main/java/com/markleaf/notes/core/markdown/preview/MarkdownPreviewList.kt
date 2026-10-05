@@ -64,6 +64,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -613,7 +614,7 @@ internal fun Modifier.previewZoomGesture(
                     val decay = splineBasedDecay<Float>(this)
                     val flingScale = currentScale
                     val flingFrom = currentTranslationX
-                    flingJob = scope.launch {
+                    flingJob = scope.launch(GlideMotionDurationScale) {
                         flingZoomedPan(
                             velocity = velocity,
                             decay = decay,
@@ -628,6 +629,23 @@ internal fun Modifier.previewZoomGesture(
             }
         }
     }
+}
+
+/**
+ * The time scale a zoomed glide runs under: always real time, as the list's own
+ * fling does (Compose's `DefaultFlingBehavior` runs under a scale fixed at 1).
+ *
+ * Without it the glide inherited the device's animator duration scale through
+ * the composition's coroutine context — Developer options, Accessibility's
+ * "Remove animations", some battery savers. At 0.5 the glide played twice as
+ * fast; at 0 it jumped to where it would end in a single frame. That is the
+ * "very quick movements that come to an instant halt" of #500's fourth report,
+ * on a phone where the unzoomed list, immune to the setting, glided normally.
+ * A glide is the content following a throw, not a decorative animation, so it
+ * keeps the finger's own speed whatever that setting says.
+ */
+private object GlideMotionDurationScale : MotionDurationScale {
+    override val scaleFactor: Float = 1f
 }
 
 /**

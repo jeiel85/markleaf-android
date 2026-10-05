@@ -1,0 +1,1 @@
+Corrigé : sur un téléphone aux animations réduites ou désactivées (Options pour les développeurs, Accessibilité, certains modes d'économie d'énergie), un balayage sur l'aperçu agrandi faisait un saut au lieu de glisser. Il glisse désormais à la vitesse du geste, comme le défilement sans zoom.

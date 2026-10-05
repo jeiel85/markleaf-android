@@ -1,0 +1,1 @@
+Ispravljeno: potez u uvećanom pregledu sada nastavlja kliziti u smjeru u kojem ste ga bacili, kao uvećana stranica u pregledniku. Okomiti i bočni dio usporavali su se odvojeno, pa se blago kosi potez savijao u klizanje samo prema gore, a dijagonalni je bočno išao znatno prekratko.

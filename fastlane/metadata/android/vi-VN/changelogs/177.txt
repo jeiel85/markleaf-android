@@ -1,0 +1,1 @@
+Đã sửa: khi vuốt nhanh trên bản xem trước đã phóng to, nội dung giờ trượt tiếp theo đúng hướng bạn vuốt, như trang đã phóng to trong trình duyệt. Trước đây phần dọc và phần ngang giảm tốc riêng, nên cú vuốt hơi xiên bị bẻ thành trượt thẳng lên và cú vuốt chéo đi ngang ngắn hơn nhiều.

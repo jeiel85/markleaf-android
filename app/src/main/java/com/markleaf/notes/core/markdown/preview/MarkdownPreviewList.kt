@@ -4,7 +4,6 @@ import android.os.Build
 import android.widget.Toast
 import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.DecayAnimationSpec
-import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -611,7 +610,7 @@ internal fun Modifier.previewZoomGesture(
                     Velocity(maximumFlingVelocity, maximumFlingVelocity)
                 )
                 if (hypot(velocity.x, velocity.y) >= minimumFlingVelocity) {
-                    val decay = splineBasedDecay<Offset>(this)
+                    val decay = splineBasedDecay<Float>(this)
                     val flingScale = currentScale
                     val flingFrom = currentTranslationX
                     flingJob = scope.launch {
@@ -641,15 +640,24 @@ internal fun Modifier.previewZoomGesture(
  * [onTranslationXChange] (horizontal) and [listState] (vertical), and the call
  * returns when the glide has stopped on its own or been cancelled.
  *
- * Core logic: one two-dimensional decay over the screen-pixel distance, applied
- * per frame with the same arithmetic a drag uses — x as a clamped translation,
- * y as a scroll of `-dy / scale` list pixels. Reusing the drag's conversion is
- * the point: a glide must cover the distance a finger covering it would have, or
- * the content would visibly change speed at the moment of release.
+ * Core logic: one decay over the throw's speed, spread along the direction it
+ * was thrown — the way `android.widget.Scroller` flings in two dimensions, and
+ * the way a zoomed page in a browser glides. Each frame is applied
+ * with the same arithmetic a drag uses — x as a clamped translation, y as a scroll
+ * of `-dy / scale` list pixels. Reusing the drag's conversion is the point: a
+ * glide must cover the distance a finger covering it would have, or the content
+ * would visibly change speed at the moment of release.
+ *
+ * One decay rather than one per axis (#500, third report). The spline's distance
+ * grows faster than its speed, so decaying x and y separately cut the smaller
+ * component short: a mostly vertical flick's sideways part stopped after a
+ * fraction of the glide, bending the path, and a diagonal flick covered well
+ * under half the sideways distance a browser gives the same throw.
  *
  * It stops early only when a frame moved nothing on either axis, i.e. the content
- * has hit the corner it was thrown toward. Stopping when one axis ends would cut
- * a diagonal throw short, and never stopping would spend frames on a decay that
+ * has hit the corner it was thrown toward. Stopping when one axis reaches its edge
+ * would cut a diagonal throw short — the other axis keeps the rest of the glide,
+ * as a browser's does — and never stopping would spend frames on a decay that
  * can no longer show.
  *
  * The scroll runs inside [listState]'s own `scroll` block rather than through
@@ -659,26 +667,32 @@ internal fun Modifier.previewZoomGesture(
  */
 internal suspend fun flingZoomedPan(
     velocity: Velocity,
-    decay: DecayAnimationSpec<Offset>,
+    decay: DecayAnimationSpec<Float>,
     scale: Float,
     startTranslationX: Float,
     viewportWidth: Float,
     listState: LazyListState,
     onTranslationXChange: (Float) -> Unit
 ) {
+    val speed = hypot(velocity.x, velocity.y)
+    if (speed == 0f) return
+    val directionX = velocity.x / speed
+    val directionY = velocity.y / speed
     var translationX = startTranslationX
-    var previous = Offset.Zero
+    var previous = 0f
     listState.scroll {
-        AnimationState(Offset.VectorConverter, Offset.Zero, Offset(velocity.x, velocity.y))
+        AnimationState(initialValue = 0f, initialVelocity = speed)
             .animateDecay(decay) {
-                val step = value - previous
+                val travelled = value - previous
                 previous = value
-                val nextX = PreviewZoom.clampTranslationX(translationX + step.x, scale, viewportWidth)
+                val stepX = travelled * directionX
+                val stepY = travelled * directionY
+                val nextX = PreviewZoom.clampTranslationX(translationX + stepX, scale, viewportWidth)
                 val movedX = nextX != translationX
                 translationX = nextX
                 if (movedX) onTranslationXChange(nextX)
-                val consumedY = if (step.y != 0f) scrollBy(-step.y / scale) else 0f
-                if (step != Offset.Zero && !movedX && consumedY == 0f) cancelAnimation()
+                val consumedY = if (stepY != 0f) scrollBy(-stepY / scale) else 0f
+                if (travelled != 0f && !movedX && consumedY == 0f) cancelAnimation()
             }
     }
 }

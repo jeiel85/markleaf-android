@@ -407,6 +407,41 @@ class PreviewZoomGestureTest {
     }
 
     @Test
+    fun aSlantedFlickWhileZoomed_glidesAlongTheLineItWasThrown() {
+        // #500, third report: the glide was compared to panning a zoomed page in
+        // a browser. A browser (and android.widget.Scroller) decays the throw's
+        // speed once and moves along its direction; this glide decayed x and y
+        // separately. The spline's distance grows faster than its speed, so the
+        // smaller component died early: a flick mostly upward and slightly
+        // sideways bent into a straight-up glide, its sideways part about an
+        // eighth of what the direction asks for. Along one line, the whole
+        // movement — drag and glide — keeps the 1:16 slant the finger had.
+        //
+        // At 2x the pinch leaves the translation at -200 with 200px of room to
+        // the right, which the 24px drag plus ~135px of glide stays inside.
+        renderHost(itemCount = 400)
+        zoomInTwofold()
+        val startX = reportedTranslationX
+        val startY = scrolledPx()
+
+        composeRule.onRoot().performTouchInput {
+            down(0, Offset(200f, 700f))
+            repeat(6) { moveBy(0, Offset(4f, -64f)) }
+            advanceEventTime(8)
+            up(0)
+        }
+        composeRule.waitForIdle()
+
+        val sideways = reportedTranslationX - startX
+        val upward = (scrolledPx() - startY) * reportedScale
+        val slant = sideways / upward
+        assertTrue(
+            "expected the glide to keep the flick's 1:16 slant (0.0625), moved $sideways px sideways for $upward px up (slant $slant)",
+            slant in 0.05f..0.075f
+        )
+    }
+
+    @Test
     fun aPanThatRestsBeforeTheFingerLifts_doesNotGlide() {
         // A finger that stopped before lifting reads as slow: a release that
         // comes long after the last move resets the tracker, as Compose's own

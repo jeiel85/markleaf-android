@@ -1,0 +1,1 @@
+Corrigé : un balayage dans l'aperçu zoomé glisse désormais dans la direction où vous l'avez lancé, comme une page zoomée dans un navigateur. Les parts verticale et latérale ralentissaient séparément : un balayage légèrement oblique se courbait en glissement vertical et un balayage diagonal allait bien moins loin sur le côté.

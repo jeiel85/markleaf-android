@@ -1,3 +1,10 @@
+## 2026-10-05 - v2.63.4: zoomed glide keeps the throw's direction (#500)
+
+Selected task: "respond to remaining issues and discussions, get PR review, merge and release". Only #500 had new reporter feedback; every discussion's last reply is ours and the other issues wait on reporters or product decisions.
+Changed: see HISTORY.md of the same date — one decay along the throw's direction instead of one per axis.
+Verification: new test fails against the per-axis decay (slant 0.015) and passes with the fix; emulator per-frame logs before and after (see HISTORY.md). Gate results are in the PR.
+Lesson: measure the reporter's claim against the platform's own formula before changing physics — speed and curve matched Android exactly here, so the only defensible change was the one that differed from the browser they compared against.
+
 ## 2026-10-04 - v2.63.3: zoomed glide measures the throw like the list (#500)
 
 Selected task: "check GitHub issues and discussions, respond, get PR review, merge and release". Only #500 had new reporter feedback (glide still feels absent, sideways rigid); the rest wait on reporters or product decisions, and every discussion's last reply is ours.

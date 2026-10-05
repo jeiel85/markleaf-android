@@ -1,0 +1,1 @@
+Fixed: a flick on a zoomed-in Preview now glides along the line you threw it, like a zoomed page in a browser. The up-down and sideways parts used to slow separately, so a slightly slanted flick bent into a straight-up glide and a diagonal one fell well short sideways.

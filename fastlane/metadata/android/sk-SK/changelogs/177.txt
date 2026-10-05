@@ -1,0 +1,1 @@
+Opravené: rýchle potiahnutie vo zväčšenom náhľade teraz kĺže ďalej v smere, ktorým ste ho hodili, ako zväčšená stránka v prehliadači. Zvislá a bočná časť sa doteraz brzdili oddelene, takže mierne šikmé potiahnutie sa zalomilo len smerom hore a diagonálne išlo do strany oveľa menej.

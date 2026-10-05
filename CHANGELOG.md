@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.63.4 - Zoomed Preview glides the way you threw it - 2026-10-05
+
+No permission or storage-format changes.
+
+### Fixed
+- **A flick on a zoomed-in Preview now glides along the line you threw it, the way a zoomed page in a browser does.** The glide slowed the up-down and sideways parts of a throw separately. A faster throw carries disproportionately farther, so the smaller part died early: a mostly upward flick with a slight sideways lean bent into a straight-up glide, and a diagonal flick covered less than half the sideways distance it should have. The glide now slows the whole throw at once and keeps its direction; when it reaches the side of the magnified note, it carries on up or down. How far and how fast a straight up-down glide runs is unchanged — it is Android's standard fling, the same one the unzoomed note uses. (#500, thanks @kise82)
+
 ## v2.63.3 - Zoomed Preview glides as far as the list does - 2026-10-04
 
 No permission or storage-format changes.

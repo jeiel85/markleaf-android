@@ -1,0 +1,1 @@
+Corregido: un deslizamiento rápido en la vista previa ampliada ahora sigue en la dirección en que lo lanzaste, como una página ampliada en el navegador. Las partes vertical y lateral se frenaban por separado, así que un gesto algo inclinado se torcía hacia arriba y uno diagonal se quedaba muy corto de lado.

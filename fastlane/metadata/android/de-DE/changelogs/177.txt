@@ -1,0 +1,1 @@
+Behoben: Ein Wischen in der vergrößerten Vorschau gleitet jetzt in die Richtung weiter, in die du gewischt hast – wie eine vergrößerte Seite im Browser. Bisher wurden der senkrechte und der seitliche Anteil getrennt abgebremst, sodass ein leicht schräges Wischen in ein reines Hochgleiten abknickte und ein diagonales seitlich deutlich zu kurz kam.

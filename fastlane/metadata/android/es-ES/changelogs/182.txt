@@ -1,0 +1,1 @@
+Novedad: Ajustes tiene arriba una fila de accesos a cada sección (Apariencia, Notas y búsqueda, Privacidad, Sincronización y más). Toca uno para ir directo a esa sección; todas las opciones siguen en su sitio.

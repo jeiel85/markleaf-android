@@ -1,0 +1,1 @@
+Nouveau : les Paramètres ont en haut une rangée de raccourcis vers chaque section (Apparence, Notes et recherche, Confidentialité, Synchronisation, etc.). Touchez-en un pour y aller directement ; chaque option reste à sa place.

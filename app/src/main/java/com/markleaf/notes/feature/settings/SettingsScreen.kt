@@ -5,15 +5,21 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.material3.SuggestionChip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.platform.LocalDensity
+import kotlin.math.roundToInt
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -266,6 +272,11 @@ fun SettingsScreen(
         appSettings = appSettings
     )
 
+    val settingsScroll = rememberScrollState()
+    val anchors = remember { SectionAnchors() }
+    val sectionTopGap = 16.dp
+    val sectionTopGapPx = with(LocalDensity.current) { sectionTopGap.toPx() }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -288,20 +299,33 @@ fun SettingsScreen(
                 .padding(padding),
             color = MaterialTheme.colorScheme.background
         ) {
-            Box(
+            Column(
                 modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.TopCenter
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // The page is one long scroll of every section, so a row of
+                // shortcuts stays above it and jumps to each heading (#517).
+                SettingsSectionShortcuts(
+                    onJump = { section ->
+                        val target = anchors.scrollTarget(section, settingsScroll.value, sectionTopGapPx)
+                        if (target != null) scope.launch { settingsScroll.animateScrollTo(target) }
+                    },
+                    modifier = Modifier.widthIn(max = 640.dp)
+                )
                 Column(
                     modifier = Modifier
                         .widthIn(max = 640.dp)
                         .fillMaxWidth()
-                        .fillMaxHeight()
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 20.dp, vertical = 16.dp),
+                        .weight(1f)
+                        .onPlaced { anchors.viewport = it }
+                        .verticalScroll(settingsScroll)
+                        .padding(horizontal = 20.dp, vertical = sectionTopGap),
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
-                    SettingsSection(title = stringResource(R.string.settings_appearance)) {
+                    SettingsSection(
+                        title = stringResource(R.string.settings_appearance),
+                        modifier = anchors.anchor(SettingsShortcut.APPEARANCE)
+                    ) {
                         Text(
                             text = stringResource(R.string.theme_label),
                             style = MaterialTheme.typography.bodyMedium,
@@ -408,7 +432,10 @@ fun SettingsScreen(
                         )
                     }
 
-                    SettingsSection(title = stringResource(R.string.settings_markdown)) {
+                    SettingsSection(
+                        title = stringResource(R.string.settings_markdown),
+                        modifier = anchors.anchor(SettingsShortcut.MARKDOWN)
+                    ) {
                         SettingsSwitchRow(
                             title = stringResource(R.string.show_markdown_syntax),
                             description = stringResource(R.string.show_markdown_syntax_description),
@@ -575,7 +602,10 @@ fun SettingsScreen(
                         )
                     }
 
-                    SettingsSection(title = stringResource(R.string.settings_notes_section)) {
+                    SettingsSection(
+                        title = stringResource(R.string.settings_notes_section),
+                        modifier = anchors.anchor(SettingsShortcut.NOTES)
+                    ) {
                         SettingsSwitchRow(
                             title = stringResource(R.string.show_note_previews),
                             description = stringResource(R.string.show_note_previews_description),
@@ -806,7 +836,10 @@ fun SettingsScreen(
                         )
                     }
 
-                    SettingsSection(title = stringResource(R.string.settings_privacy)) {
+                    SettingsSection(
+                        title = stringResource(R.string.settings_privacy),
+                        modifier = anchors.anchor(SettingsShortcut.PRIVACY)
+                    ) {
                         SettingLine(stringResource(R.string.privacy_no_tracking))
                         SettingLine(stringResource(R.string.privacy_no_internet))
                         SettingLine(stringResource(R.string.privacy_local_first))
@@ -886,7 +919,10 @@ fun SettingsScreen(
                         }
                     }
 
-                    SettingsSection(title = stringResource(R.string.settings_data)) {
+                    SettingsSection(
+                        title = stringResource(R.string.settings_data),
+                        modifier = anchors.anchor(SettingsShortcut.DATA)
+                    ) {
                         Text(
                             text = stringResource(R.string.export_all_notes_description),
                             style = MaterialTheme.typography.bodySmall,
@@ -912,6 +948,7 @@ fun SettingsScreen(
                     }
 
                     SyncSection(
+                        modifier = anchors.anchor(SettingsShortcut.SYNC),
                         folderUri = appSettings.syncFolderUri,
                         lastSyncedAt = appSettings.syncLastSyncedAt,
                         metadataMode = appSettings.syncMetadataMode,
@@ -1065,7 +1102,10 @@ fun SettingsScreen(
                         onSyncCenterClick = onSyncCenterClick
                     )
 
-                    SettingsSection(title = stringResource(R.string.settings_open_source)) {
+                    SettingsSection(
+                        title = stringResource(R.string.settings_open_source),
+                        modifier = anchors.anchor(SettingsShortcut.OPEN_SOURCE)
+                    ) {
                         Text(
                             text = stringResource(R.string.oss_explainer),
                             style = MaterialTheme.typography.bodySmall,
@@ -1127,7 +1167,10 @@ fun SettingsScreen(
                         }
                     }
 
-                    SettingsSection(title = stringResource(R.string.settings_app)) {
+                    SettingsSection(
+                        title = stringResource(R.string.settings_app),
+                        modifier = anchors.anchor(SettingsShortcut.APP)
+                    ) {
                         SettingLine(stringResource(R.string.version_format, BuildConfig.VERSION_NAME))
                         SettingLine(stringResource(R.string.application_id_format, BuildConfig.APPLICATION_ID))
                         // 사이드로드 빌드에서만 행이 생긴다. 스토어 빌드가 얻는 구현은
@@ -1159,9 +1202,10 @@ internal fun SyncSection(
     onPickFolder: () -> Unit,
     onSyncNow: () -> Unit,
     onStopSync: () -> Unit,
-    onSyncCenterClick: () -> Unit
+    onSyncCenterClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    SettingsSection(title = stringResource(R.string.sync_title)) {
+    SettingsSection(title = stringResource(R.string.sync_title), modifier = modifier) {
         Text(
             text = stringResource(R.string.sync_explainer),
             style = MaterialTheme.typography.bodySmall,
@@ -1489,12 +1533,68 @@ internal fun SettingsSwitchRow(
     }
 }
 
+/** The sections the shortcut row jumps to, in page order (#517). */
+internal enum class SettingsShortcut(@StringRes val label: Int) {
+    APPEARANCE(R.string.settings_appearance),
+    MARKDOWN(R.string.settings_markdown),
+    NOTES(R.string.settings_notes_section),
+    PRIVACY(R.string.settings_privacy),
+    DATA(R.string.settings_data),
+    // The section's own heading is a phrase; a chip needs a word.
+    SYNC(R.string.settings_shortcut_sync),
+    OPEN_SOURCE(R.string.settings_open_source),
+    APP(R.string.settings_app)
+}
+
+/**
+ * Where each section sits, so a shortcut can scroll its heading to the top.
+ * Positions are read when a shortcut is tapped rather than kept as offsets: a
+ * section's height changes with its state (a sync folder chosen, a passcode
+ * set), and every section below it moves.
+ */
+private class SectionAnchors {
+    var viewport: LayoutCoordinates? = null
+    private val sections = mutableMapOf<SettingsShortcut, LayoutCoordinates>()
+
+    fun anchor(section: SettingsShortcut): Modifier = Modifier.onPlaced { sections[section] = it }
+
+    /** The scroll value that puts [section]'s heading [gapPx] below the top, or null before layout. */
+    fun scrollTarget(section: SettingsShortcut, scroll: Int, gapPx: Float): Int? {
+        val viewport = viewport?.takeIf { it.isAttached } ?: return null
+        val anchor = sections[section]?.takeIf { it.isAttached } ?: return null
+        val headingTop = viewport.localPositionOf(anchor, Offset.Zero).y
+        return (scroll + headingTop - gapPx).roundToInt().coerceAtLeast(0)
+    }
+}
+
+@Composable
+private fun SettingsSectionShortcuts(
+    onJump: (SettingsShortcut) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        SettingsShortcut.entries.forEach { section ->
+            SuggestionChip(
+                onClick = { onJump(section) },
+                label = { Text(stringResource(section.label)) }
+            )
+        }
+    }
+}
+
 @Composable
 private fun SettingsSection(
     title: String,
+    modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,

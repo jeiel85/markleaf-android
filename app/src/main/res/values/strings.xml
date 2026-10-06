@@ -293,6 +293,7 @@
     </plurals>
 
     <string name="sync_title">Multi-device sync (folder mirror)</string>
+    <string name="settings_shortcut_sync">Sync</string>
     <string name="sync_explainer">Markleaf never goes online itself. Instead, you choose a folder and Markleaf saves each note as a `.md` file in it. If that folder is synced by another app — Dropbox, Drive, Syncthing, OneDrive, a NAS — your notes follow your other devices.</string>
     <string name="sync_recommended_locations">Good places to point Markleaf at:\n· /Internal storage/Dropbox/Markleaf\n· /Internal storage/Drive/Markleaf\n· /Internal storage/Sync/Markleaf  (Syncthing)</string>
     <string name="sync_status_unset">No folder selected.</string>

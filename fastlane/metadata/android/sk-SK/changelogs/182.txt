@@ -1,0 +1,1 @@
+Novinka: Nastavenia majú hore rad skratiek k sekciám (Vzhľad, Poznámky a vyhľadávanie, Ochrana osobných údajov, Synchronizácia a ďalšie). Ťuknutím prejdete priamo na danú sekciu; všetky možnosti zostávajú na svojom mieste.

@@ -1,0 +1,1 @@
+New: Settings has a row of section shortcuts at the top (Appearance, Notes & search, Privacy, Sync and more). Tap one to jump straight to that section; every option stays where it was.

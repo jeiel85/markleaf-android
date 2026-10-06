@@ -1,0 +1,1 @@
+Novo: Postavke na vrhu imaju red prečaca do odjeljaka (Izgled, Bilješke i pretraživanje, Privatnost, Sinkronizacija i drugi). Dodirnite jedan za izravan skok na taj odjeljak; sve opcije ostaju na svojem mjestu.

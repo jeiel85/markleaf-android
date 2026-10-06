@@ -310,10 +310,21 @@ fun MarkleafNavHost(
             //   passcode gate that every other way in goes through.
             // So the selection is dropped whenever its row is gone, locked or
             // trashed — on return, or the moment the change lands.
+            //
+            // The write goes through the main thread explicitly, as the
+            // carry-over effect below does. In the app the effect already runs
+            // there, so nothing changes. Under the Compose test rule, effects
+            // run on an unconfined dispatcher and resume on whatever thread
+            // Room emitted from (`arch_disk_io_*`, seen in 2 of 4 runs). The
+            // selection was then written off the main thread, and on CI the
+            // pane sometimes never recomposed: TabletSelectionTest timed out
+            // in three different tests over two days (#262 `## v2.63.5`).
             LaunchedEffect(selectedNoteId) {
                 val id = selectedNoteId ?: return@LaunchedEffect
                 viewModel.observeNote(id).first { !isPaneSelectable(it) }
-                if (selectedNoteId == id) selectedNoteId = null
+                withContext(Dispatchers.Main.immediate) {
+                    if (selectedNoteId == id) selectedNoteId = null
+                }
             }
 
             if (isExpanded) {

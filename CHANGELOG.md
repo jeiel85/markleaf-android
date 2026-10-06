@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.66.1 - Settings shortcuts move TalkBack focus too - 2026-10-07
+
+An accessibility fix for the section shortcuts added in v2.66.0. No permission or storage-format changes.
+
+### Fixed
+- **A settings section shortcut now takes TalkBack to the section.** The page scrolled to the section, but TalkBack focus stayed behind (on a device it went back to the top bar), so you had to swipe through the page to reach what you asked for. Focus now lands on the section's heading once the scroll ends, and a keyboard's focus follows the same way.
+
 ## v2.66.0 - Jump to a settings section - 2026-10-06
 
 Settings is one long page, so it now has a row of shortcuts at the top. No permission or storage-format changes.

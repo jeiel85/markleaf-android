@@ -1,0 +1,1 @@
+Corregido: un acceso a una sección de Ajustes ahora también lleva el foco de TalkBack al título de esa sección, en lugar de dejarlo arriba de la página.

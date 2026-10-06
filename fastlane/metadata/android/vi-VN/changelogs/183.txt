@@ -1,0 +1,1 @@
+Đã sửa: lối tắt đến một mục trong Cài đặt giờ cũng chuyển tiêu điểm TalkBack tới tiêu đề của mục đó, thay vì để nó ở đầu trang.

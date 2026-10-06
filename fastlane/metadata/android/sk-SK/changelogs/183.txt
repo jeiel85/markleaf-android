@@ -1,0 +1,1 @@
+Opravené: skratka k sekcii v Nastaveniach teraz presunie aj fokus TalkBack na nadpis sekcie, namiesto toho, aby zostal hore na stránke.

@@ -1,3 +1,10 @@
+## 2026-10-07 — Settings shortcuts move focus to the heading (#262, v2.66.1)
+
+- **Why.** Tracked in #262 under v2.66.0: a shortcut scrolled the page but left TalkBack behind. On the emulator with TalkBack on, the baseline build (the change commented out) scrolled to Privacy while the TalkBack box sat on the top bar's back button.
+- **How.** Each section heading gets a `FocusRequester` and `focusable()`; after `animateScrollTo` finishes, the jump requests focus on the heading. TalkBack follows input focus, so its box lands on the heading, and swiping right continues into that section. `SettingsSection` and `SyncSection` take an optional `headingFocus`; headings outside the shortcut path stay unfocusable. Headings become keyboard tab stops, which is also where a keyboard user wants to land after a jump. No visual change, so no golden moved.
+- **Tests.** `SettingsSectionShortcutsTest` +2 (focus on the heading after a jump; focus follows a second jump back up). Both fail with the request commented out.
+- **On a device.** Emulator, TalkBack on: tapping, then double-tapping the Privacy chip put the TalkBack box on the Privacy heading. TalkBack turned off afterwards.
+
 ## 2026-10-06 — Settings gets section shortcuts (#517, v2.66.0)
 
 - **Why.** On the v2.65.0 announcement (#517) a user found Settings long and suggested collapsible groups or search. The maintainer picked the smallest of three options: a row of shortcuts above the page. It adds a way in without hiding anything (collapsing would) or indexing every label in 11 languages (search would). The same comment's other idea, tasks with timed reminders, was declined with the #199 reasoning.

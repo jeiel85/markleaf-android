@@ -2,6 +2,7 @@ package com.markleaf.notes.core.font
 
 import android.content.ContentResolver
 import android.content.Context
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
 import android.provider.OpenableColumns
@@ -10,6 +11,10 @@ import java.io.IOException
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.util.UUID
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 /**
  * The one font file a reader can bring for the writing surface (#510).
@@ -80,6 +85,30 @@ object CustomFontStore {
     }
 
     /**
+     * Imports [uri] and, if it is a font, hands it to [use] (which records it
+     * as the font in use) and then removes every other stored font.
+     *
+     * One replacement at a time, app-wide (#513 review). A second pick while
+     * the first is still copying or being recorded would otherwise interleave:
+     * the first one's cleanup, keeping only its own file, could run after the
+     * second was recorded and delete the font the setting now points at.
+     */
+    suspend fun replace(
+        context: Context,
+        uri: Uri,
+        use: suspend (ImportResult.Imported) -> Unit
+    ): ImportResult = replaceLock.withLock {
+        val result = withContext(Dispatchers.IO) { import(context, uri) }
+        if (result is ImportResult.Imported) {
+            use(result)
+            withContext(Dispatchers.IO) { deleteAllExcept(context, result.fileName) }
+        }
+        result
+    }
+
+    private val replaceLock = Mutex()
+
+    /**
      * Removes every stored font except [keep]: a replaced font is not kept
      * around, so the folder only ever holds the one in use.
      */
@@ -90,9 +119,10 @@ object CustomFontStore {
     }
 
     /**
-     * Whether [file] is a font Android can draw. The structure check below runs
-     * on every supported API level; from Android 10 the platform's own parser
-     * also has to accept it.
+     * Whether [file] is a font Android can draw: the structure check below,
+     * then the platform's own parser on every supported API level (#513
+     * review — a file can carry every required table record and still hold
+     * broken table data).
      */
     fun isFont(file: File): Boolean {
         val bytes = try {
@@ -101,7 +131,17 @@ object CustomFontStore {
             return false
         }
         if (!hasFontStructure(bytes)) return false
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return true
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            // Android 8–9 have no Font.Builder. With no fallback family set,
+            // Typeface.Builder returns null for a file it can't load rather
+            // than the default face (checked against a font whose table data
+            // was zeroed), so null is a reliable "not a font".
+            return try {
+                Typeface.Builder(file).build() != null
+            } catch (e: RuntimeException) {
+                false
+            }
+        }
         // From the bytes already read, not the file: a font built from a file
         // maps it, and a mapped file can't be deleted on every platform the
         // tests run on — replacing a font must be able to remove the old one.

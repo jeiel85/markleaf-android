@@ -190,12 +190,13 @@ fun SettingsScreen(
     ) { fontUri ->
         if (fontUri != null) {
             scope.launch {
-                val result = withContext(Dispatchers.IO) { CustomFontStore.import(context, fontUri) }
+                // Import, record and clean up as one replacement, serialised
+                // with any other pick still in flight.
+                val result = CustomFontStore.replace(context, fontUri) { imported ->
+                    settingsRepository.setCustomFont(imported.fileName, imported.displayName)
+                }
                 when (result) {
-                    is CustomFontStore.ImportResult.Imported -> {
-                        settingsRepository.setCustomFont(result.fileName, result.displayName)
-                        withContext(Dispatchers.IO) { CustomFontStore.deleteAllExcept(context, result.fileName) }
-                    }
+                    is CustomFontStore.ImportResult.Imported -> Unit
                     CustomFontStore.ImportResult.NotAFont ->
                         Toast.makeText(context, R.string.font_custom_not_a_font, Toast.LENGTH_LONG).show()
                     CustomFontStore.ImportResult.TooLarge ->

@@ -15,6 +15,11 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.io.File
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 
 /**
  * Importing a reader's own font file (#510). The real font is Roboto, read from
@@ -80,6 +85,48 @@ class CustomFontStoreTest {
         assertEquals(emptyList<String>(), storedFiles())
     }
 
+    /**
+     * Every table record intact, every table's data zeroed: the structure check
+     * passes it, so only the platform parser can refuse it (#513 review).
+     */
+    private fun fontWithZeroedTables(): ByteArray {
+        val bytes = realFontBytes()
+        val tableCount = ((bytes[4].toInt() and 0xFF) shl 8) or (bytes[5].toInt() and 0xFF)
+        for (index in 12 + tableCount * 16 until bytes.size) bytes[index] = 0
+        return bytes
+    }
+
+    @Test
+    fun aFontWithBrokenTableDataIsRejected() {
+        val result = CustomFontStore.import(context, pickable("broken-tables.ttf", fontWithZeroedTables()))
+
+        assertEquals(CustomFontStore.ImportResult.NotAFont, result)
+        assertEquals(emptyList<String>(), storedFiles())
+    }
+
+    /** Android 8–9 have no Font.Builder; Typeface.Builder has to do the refusing there. */
+    @Test
+    @Config(sdk = [28])
+    fun onAndroid9AFontWithBrokenTableDataIsRejected() {
+        val result = CustomFontStore.import(context, pickable("broken-tables.ttf", fontWithZeroedTables()))
+
+        assertEquals(CustomFontStore.ImportResult.NotAFont, result)
+        // The Android 9 loader keeps the file mapped after refusing it. Android
+        // and the Linux CI delete a mapped file; a Windows host can't, so only
+        // there is the leftover check skipped — the refusal above still runs.
+        if (!System.getProperty("os.name").orEmpty().startsWith("Windows")) {
+            assertEquals(emptyList<String>(), storedFiles())
+        }
+    }
+
+    @Test
+    @Config(sdk = [28])
+    fun onAndroid9ARealFontStillImports() {
+        val result = CustomFontStore.import(context, pickable("Reader.ttf", realFontBytes()))
+
+        assertTrue("expected the font to import, got $result", result is CustomFontStore.ImportResult.Imported)
+    }
+
     @Test
     fun aFontOverTheSizeLimitIsRejectedAndNotKept() {
         val result = CustomFontStore.import(
@@ -110,6 +157,37 @@ class CustomFontStoreTest {
         assertEquals(listOf(second.fileName), storedFiles())
         assertNull(CustomFontStore.file(context, first.fileName))
         assertFalse(first.fileName == second.fileName)
+    }
+
+    @Test
+    fun twoOverlappingReplacementsLeaveTheRecordedFontOnDisk() = runBlocking {
+        // #513 review: a second pick while the first import is still being
+        // recorded. Without serialising the two, the first one's cleanup ran
+        // after the second was recorded and deleted the font in use, so the
+        // setting pointed at a file that no longer existed.
+        val bytes = realFontBytes()
+        var recorded: String? = null
+        val firstRecording = CompletableDeferred<Unit>()
+
+        val first = async(Dispatchers.Default) {
+            CustomFontStore.replace(context, pickable("A.ttf", bytes)) { imported ->
+                firstRecording.complete(Unit)
+                delay(300) // a slow preference write
+                recorded = imported.fileName
+            }
+        }
+        firstRecording.await()
+        val second = async(Dispatchers.Default) {
+            CustomFontStore.replace(context, pickable("B.ttf", bytes)) { imported ->
+                recorded = imported.fileName
+            }
+        }
+        first.await()
+        second.await()
+
+        val stored = storedFiles()
+        assertEquals("expected exactly the recorded font to remain", listOf(recorded), stored)
+        assertNotNull(CustomFontStore.file(context, recorded))
     }
 
     @Test

@@ -12,6 +12,7 @@ import java.io.InputStream
 import java.nio.ByteBuffer
 import java.util.UUID
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -98,12 +99,19 @@ object CustomFontStore {
         uri: Uri,
         use: suspend (ImportResult.Imported) -> Unit
     ): ImportResult = replaceLock.withLock {
-        val result = withContext(Dispatchers.IO) { import(context, uri) }
-        if (result is ImportResult.Imported) {
-            use(result)
-            withContext(Dispatchers.IO) { deleteAllExcept(context, result.fileName) }
+        // Once started, a replacement finishes even if the caller goes away
+        // (leaving Settings cancels its scope): otherwise the copied file was
+        // neither recorded nor removed, an orphan of up to MAX_BYTES each time
+        // (#513 review). The picked font is what the reader asked for, so
+        // finishing it is the expected outcome, not a leak.
+        withContext(NonCancellable) {
+            val result = withContext(Dispatchers.IO) { import(context, uri) }
+            if (result is ImportResult.Imported) {
+                use(result)
+                withContext(Dispatchers.IO) { deleteAllExcept(context, result.fileName) }
+            }
+            result
         }
-        result
     }
 
     private val replaceLock = Mutex()
@@ -170,7 +178,7 @@ object CustomFontStore {
             SFNT_TRUETYPE, "true", "OTTO" -> 0L
             else -> return false
         }
-        if (fontOffset > Int.MAX_VALUE) return false
+        if (fontOffset > bytes.size) return false
         return hasTableDirectory(bytes, fontOffset.toInt())
     }
 
@@ -181,28 +189,35 @@ object CustomFontStore {
         if (tableCount == 0) return false
         val tags = HashSet<String>()
         for (index in 0 until tableCount) {
-            val record = start + 12 + index * 16
-            val tableTag = tagAt(bytes, record) ?: return false
-            val offset = uint32At(bytes, record + 8) ?: return false
-            val length = uint32At(bytes, record + 12) ?: return false
+            val record = start.toLong() + 12 + index * 16L
+            if (record > bytes.size) return false
+            val tableTag = tagAt(bytes, record.toInt()) ?: return false
+            val offset = uint32At(bytes, record.toInt() + 8) ?: return false
+            val length = uint32At(bytes, record.toInt() + 12) ?: return false
             if (offset + length > bytes.size) return false
             tags += tableTag
         }
         return tags.containsAll(REQUIRED_TABLES)
     }
 
+    // Bounds are compared as Long: an offset read from the file can sit near
+    // Int.MAX_VALUE, where `at + 4` wraps negative and slips past an Int
+    // comparison into an out-of-range read (#513 review).
+    private fun fits(bytes: ByteArray, at: Int, length: Int): Boolean =
+        at >= 0 && at.toLong() + length <= bytes.size
+
     private fun tagAt(bytes: ByteArray, at: Int): String? =
-        if (at < 0 || at + 4 > bytes.size) null else String(bytes, at, 4, Charsets.ISO_8859_1)
+        if (!fits(bytes, at, 4)) null else String(bytes, at, 4, Charsets.ISO_8859_1)
 
     private fun uint16At(bytes: ByteArray, at: Int): Int? =
-        if (at < 0 || at + 2 > bytes.size) {
+        if (!fits(bytes, at, 2)) {
             null
         } else {
             ((bytes[at].toInt() and 0xFF) shl 8) or (bytes[at + 1].toInt() and 0xFF)
         }
 
     private fun uint32At(bytes: ByteArray, at: Int): Long? =
-        if (at < 0 || at + 4 > bytes.size) {
+        if (!fits(bytes, at, 4)) {
             null
         } else {
             (0 until 4).fold(0L) { value, i -> (value shl 8) or (bytes[at + i].toLong() and 0xFF) }

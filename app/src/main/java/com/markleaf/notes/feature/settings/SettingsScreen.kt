@@ -97,6 +97,7 @@ import com.markleaf.notes.widget.WidgetRefresh
 import java.text.NumberFormat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -191,9 +192,14 @@ fun SettingsScreen(
         if (fontUri != null) {
             scope.launch {
                 // Import, record and clean up as one replacement, serialised
-                // with any other pick still in flight.
+                // with any other pick still in flight. A large file can take a
+                // while; if the reader picks Sans/Serif/Monospace meanwhile,
+                // that later choice wins and the new file is only recorded
+                // (#513 review).
+                val fontAtPick = appSettings.editorFont
                 val result = CustomFontStore.replace(context, fontUri) { imported ->
-                    settingsRepository.setCustomFont(imported.fileName, imported.displayName)
+                    val unchanged = settingsRepository.settings.first().editorFont == fontAtPick
+                    settingsRepository.setCustomFont(imported.fileName, imported.displayName, select = unchanged)
                 }
                 when (result) {
                     is CustomFontStore.ImportResult.Imported -> Unit

@@ -18,7 +18,9 @@ import java.io.File
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -188,6 +190,41 @@ class CustomFontStoreTest {
         val stored = storedFiles()
         assertEquals("expected exactly the recorded font to remain", listOf(recorded), stored)
         assertNotNull(CustomFontStore.file(context, recorded))
+    }
+
+    @Test
+    fun aCollectionPointingFarOutsideTheFileIsRefusedNotACrash() {
+        // #513 review: `ttcf` with a first-font offset of 0x7fffffff overflowed
+        // the bounds check (`at + 4` went negative) and threw from String().
+        val bytes = "ttcf".toByteArray(Charsets.ISO_8859_1) +
+            byteArrayOf(0, 1, 0, 0, 0, 0, 0, 1, 0x7f, 0xff.toByte(), 0xff.toByte(), 0xff.toByte()) +
+            ByteArray(64)
+
+        val result = CustomFontStore.import(context, pickable("huge-offset.ttc", bytes))
+
+        assertEquals(CustomFontStore.ImportResult.NotAFont, result)
+        assertEquals(emptyList<String>(), storedFiles())
+    }
+
+    @Test
+    fun leavingWhileAFontIsBeingRecordedStillFinishesTheReplacement() = runBlocking {
+        // #513 review: leaving Settings cancels the screen's scope. The import
+        // had already written its file; cancelling then skipped both recording
+        // it and cleaning up, leaving an orphan of up to 32 MB per attempt.
+        val recordingStarted = CompletableDeferred<Unit>()
+        var recorded: String? = null
+        val replacement = launch(Dispatchers.Default) {
+            CustomFontStore.replace(context, pickable("Reader.ttf", realFontBytes())) { imported ->
+                recordingStarted.complete(Unit)
+                delay(200) // a slow preference write
+                recorded = imported.fileName
+            }
+        }
+        recordingStarted.await()
+        replacement.cancelAndJoin()
+
+        assertNotNull("expected the picked font to be recorded despite the cancellation", recorded)
+        assertEquals(listOf(recorded), storedFiles())
     }
 
     @Test

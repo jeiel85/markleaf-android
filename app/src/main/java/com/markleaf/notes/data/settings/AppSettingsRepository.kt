@@ -255,15 +255,17 @@ class AppSettingsRepository internal constructor(
     }
 
     /**
-     * Records a newly imported font file and switches the writing surface to it
-     * in one write, so the theme never sees [EditorFont.CUSTOM] pointing at the
-     * previous file or the new file under a built-in choice (#510).
+     * Records a newly imported font file and, with [select], switches the
+     * writing surface to it in the same write, so the theme never sees
+     * [EditorFont.CUSTOM] pointing at the previous file (#510). Without
+     * [select] the file is only recorded: a built-in font the reader chose
+     * while the import was still running stays chosen (#513 review).
      */
-    suspend fun setCustomFont(fileName: String, displayName: String) {
+    suspend fun setCustomFont(fileName: String, displayName: String, select: Boolean = true) {
         persist { preferences ->
             preferences[CUSTOM_FONT_FILE] = fileName
             preferences[CUSTOM_FONT_NAME] = displayName
-            preferences[EDITOR_FONT] = EditorFont.CUSTOM.name
+            if (select) preferences[EDITOR_FONT] = EditorFont.CUSTOM.name
         }
     }
 

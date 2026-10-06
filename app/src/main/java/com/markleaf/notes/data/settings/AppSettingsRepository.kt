@@ -99,6 +99,9 @@ class AppSettingsRepository internal constructor(
             openNotesAt = preferences[OPEN_NOTES_AT]
                 ?.let { value -> enumValueOrDefault(value, OpenNotesAt.TOP) }
                 ?: OpenNotesAt.TOP,
+            newNoteShortcut = preferences[NEW_NOTE_SHORTCUT]
+                ?.let { value -> enumValueOrDefault(value, NewNoteShortcut.NEW_NOTE) }
+                ?: NewNoteShortcut.NEW_NOTE,
             syncMetadataMode = preferences[SYNC_METADATA_MODE]
                 ?.let { value -> enumValueOrDefault(value, SyncMetadataMode.FRONTMATTER) }
                 ?: SyncMetadataMode.FRONTMATTER,
@@ -389,6 +392,12 @@ class AppSettingsRepository internal constructor(
         }
     }
 
+    suspend fun setNewNoteShortcut(target: NewNoteShortcut) {
+        persist { preferences ->
+            preferences[NEW_NOTE_SHORTCUT] = target.name
+        }
+    }
+
     suspend fun setSyncMetadataMode(mode: SyncMetadataMode) {
         persist { preferences ->
             preferences[SYNC_METADATA_MODE] = mode.name
@@ -497,6 +506,7 @@ class AppSettingsRepository internal constructor(
         val LAST_OPENED_NOTE_ID = stringPreferencesKey("last_opened_note_id")
         val OPEN_NOTES_IN_PREVIEW = booleanPreferencesKey("open_notes_in_preview")
         val OPEN_NOTES_AT = stringPreferencesKey("open_notes_at")
+        val NEW_NOTE_SHORTCUT = stringPreferencesKey("new_note_shortcut")
         val SYNC_METADATA_MODE = stringPreferencesKey("sync_metadata_mode")
         val SIDECAR_MIGRATION_PENDING = booleanPreferencesKey("sidecar_migration_pending")
         val SYNC_DEVICE_ID = stringPreferencesKey("sync_device_id")

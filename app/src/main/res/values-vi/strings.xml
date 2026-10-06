@@ -243,6 +243,10 @@
     <string name="open_notes_at_bottom">Cuối trang</string>
     <string name="open_notes_at_last_position">Vị trí lần trước</string>
     <string name="open_notes_at_description">Vị trí hiển thị khi bạn mở một ghi chú. Cuối trang phù hợp với ghi chú bạn chỉ viết thêm vào. “Vị trí lần trước” chỉ ghi nhớ vị trí của từng ghi chú trong ứng dụng — không có gì được ghi vào tệp của bạn.</string>
+    <string name="new_note_shortcut">Lối tắt ghi chú mới sẽ mở</string>
+    <string name="new_note_shortcut_new">Một ghi chú mới</string>
+    <string name="new_note_shortcut_today">Ghi chú hôm nay</string>
+    <string name="new_note_shortcut_description">Áp dụng cho nút + của tiện ích, lối tắt ứng dụng “Ghi chú mới” và lối tắt ghi chú của Android. Ghi chú hôm nay lấy ngày làm tiêu đề, như 2026-10-06, mở ở cuối để viết thêm và được tạo khi dùng lần đầu trong ngày. Ngày mới bắt đầu lúc nửa đêm.</string>
     <string name="notes_layout">Bố cục danh sách ghi chú</string>
     <string name="notes_layout_list">Danh sách</string>
     <string name="notes_layout_grid">Lưới</string>

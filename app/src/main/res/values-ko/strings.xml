@@ -242,6 +242,10 @@
     <string name="open_notes_at_bottom">맨 아래</string>
     <string name="open_notes_at_last_position">마지막 위치</string>
     <string name="open_notes_at_description">노트를 열었을 때 표시할 위치입니다. \'맨 아래\'는 계속 이어 쓰는 노트에 적합합니다. \'마지막 위치\'는 노트별 위치를 앱 안에만 기억하며 파일에는 아무것도 쓰지 않습니다.</string>
+    <string name="new_note_shortcut">새 노트 바로가기가 여는 것</string>
+    <string name="new_note_shortcut_new">새 노트</string>
+    <string name="new_note_shortcut_today">오늘의 노트</string>
+    <string name="new_note_shortcut_description">위젯의 + 버튼, “새 노트” 앱 바로가기, 안드로이드 노트 바로가기에 적용됩니다. 오늘의 노트는 2026-10-06처럼 날짜가 제목이고, 끝에서 열려 바로 이어 쓸 수 있으며, 그날 처음 쓸 때 만들어집니다. 날짜는 자정에 바뀝니다.</string>
     <string name="notes_layout">노트 목록 배치</string>
     <string name="notes_layout_list">목록</string>
     <string name="notes_layout_grid">바둑판</string>

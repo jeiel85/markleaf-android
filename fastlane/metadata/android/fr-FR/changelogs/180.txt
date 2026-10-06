@@ -1,0 +1,1 @@
+Nouveau : le bouton + du widget, le raccourci « Nouvelle note » et les raccourcis de notes d'Android peuvent ouvrir la note du jour au lieu d'une nouvelle. Paramètres → Les raccourcis de nouvelle note ouvrent → La note du jour : datée, ouverte à la fin pour y ajouter, nouvelle chaque jour.

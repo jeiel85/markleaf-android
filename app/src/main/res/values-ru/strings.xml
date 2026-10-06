@@ -268,6 +268,10 @@
     <string name="open_notes_at_bottom">В конце</string>
     <string name="open_notes_at_last_position">Там, где вы остановились</string>
     <string name="open_notes_at_description">Место, где открывается заметка. «В конце» подходит для заметок, которые вы только дополняете. «Там, где вы остановились» запоминает позицию в каждой заметке только внутри приложения — в ваши файлы ничего не записывается.</string>
+    <string name="new_note_shortcut">Ярлыки новой заметки открывают</string>
+    <string name="new_note_shortcut_new">Новую заметку</string>
+    <string name="new_note_shortcut_today">Заметку на сегодня</string>
+    <string name="new_note_shortcut_description">Для кнопки + виджета, ярлыка приложения «Новая заметка» и ярлыков заметок Android. Заметка на сегодня называется датой, например 2026-10-06, открывается в конце, чтобы дописывать, и создаётся при первом использовании за день. Новый день начинается в полночь.</string>
     <string name="notes_layout">Вид списка заметок</string>
     <string name="notes_layout_list">Список</string>
     <string name="notes_layout_grid">Сетка</string>

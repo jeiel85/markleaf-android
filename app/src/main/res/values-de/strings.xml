@@ -247,6 +247,10 @@
     <string name="open_notes_at_bottom">Ende</string>
     <string name="open_notes_at_last_position">Letzter Stand</string>
     <string name="open_notes_at_description">Wo eine Notiz beim Öffnen landet. „Ende“ passt zu Notizen, an die du nur anfügst. „Letzter Stand“ merkt sich die Position jeder Notiz nur in der App — in deine Dateien wird nichts geschrieben.</string>
+    <string name="new_note_shortcut">Kurzbefehle für neue Notizen öffnen</string>
+    <string name="new_note_shortcut_new">Eine neue Notiz</string>
+    <string name="new_note_shortcut_today">Die heutige Notiz</string>
+    <string name="new_note_shortcut_description">Gilt für die +-Schaltfläche des Widgets, die App-Verknüpfung „Neue Notiz“ und die Notiz-Kurzbefehle von Android. Die heutige Notiz trägt das Datum als Titel, etwa 2026-10-06, öffnet am Ende zum Weiterschreiben und wird bei der ersten Nutzung des Tages angelegt. Ein neuer Tag beginnt um Mitternacht.</string>
     <string name="notes_layout">Layout der Notizliste</string>
     <string name="notes_layout_list">Liste</string>
     <string name="notes_layout_grid">Raster</string>

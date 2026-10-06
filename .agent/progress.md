@@ -1,3 +1,10 @@
+## 2026-10-06 - v2.65.0: today's note for the new-note shortcuts (Discussion #481)
+
+Selected task: "check GitHub issues and discussions again". New: abinjoyal described the daily-note behaviour on #481. The maintainer chose to build it as a setting (default unchanged). #510's release comment was corrected after the merge auto-closed the issue.
+Changed: see HISTORY.md of the same date — `NewNoteShortcut`, `DailyNote`, `EDITOR_APPEND` + `EditorScreen(openForAppend)`, Settings row, 4 strings in 11 languages.
+Verification: new tests (9) and an emulator run of the Notes-role intent twice; the gate results are in the PR.
+Lesson: `Closes #N` in a commit closes the issue at merge time. If the release comment says the issue stays open, either leave `Closes` out or word the comment for a closed issue.
+
 ## 2026-10-06 - v2.64.0: your own font (#510)
 
 Selected task: "continue — check GitHub issues and discussions". kise82 confirmed v2.63.5 fixed #500 (closed with thanks); ClockGen answered the #510 questions (look and readability, one file, code stays monospace), so the feature was built.

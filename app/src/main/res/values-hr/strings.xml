@@ -262,6 +262,10 @@
     <string name="open_notes_at_bottom">na dnu</string>
     <string name="open_notes_at_last_position">na posljednjoj lokaciji</string>
     <string name="open_notes_at_description">Na kojem položaju u bilješci će se ona otvoriti. Dno odgovara za bilješke u koje samo dodajete tekst. „Na posljednoj lokaciji” pamti gdje ste se unutar bilješke posljednji puta nalazili (samo u aplikaciji, lokacija se ne zapisuje u bilješku).</string>
+    <string name="new_note_shortcut">Prečaci za novu bilješku otvaraju</string>
+    <string name="new_note_shortcut_new">Novu bilješku</string>
+    <string name="new_note_shortcut_today">Današnju bilješku</string>
+    <string name="new_note_shortcut_description">Za gumb + na widgetu, prečac aplikacije „Nova bilješka” i Androidove prečace za bilješke. Današnja bilješka ima datum kao naslov, npr. 2026-10-06, otvara se na kraju za dopisivanje i stvara se pri prvoj upotrebi u danu. Novi dan počinje u ponoć.</string>
     <string name="notes_layout">Raspored popisa bilješki</string>
     <string name="notes_layout_list">Popis</string>
     <string name="notes_layout_grid">Mreža</string>

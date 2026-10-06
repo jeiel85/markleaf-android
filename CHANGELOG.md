@@ -4,6 +4,16 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.65.0 - Today's note - 2026-10-06
+
+One addition from Discussions. No permission or storage-format changes.
+
+### Added
+- **The new-note shortcuts can open today's note instead of a new one.** Settings → Notes & search → **New-note shortcuts open** now offers **Today's note**. It applies to the home-screen widget's + button, the New Note app shortcut and Android's Notes shortcuts (a stylus button, a Quick Settings or lock-screen shortcut). Each opens the day's note, titled with the date (for example `2026-10-06`), in the editor with the caret at its end and the keyboard up, so you can add a line straight away. The note is created the first time you use it each day, and a new day starts at local midnight. The default is unchanged: a fresh note every time. ([#481](https://github.com/jeiel85/markleaf-android/discussions/481), thanks @abinjoyal and @PaxonF)
+  - A note counts as the day's note by its title. Renaming it, archiving it or moving it to the Trash means the next use starts a new one.
+  - If the day's note is locked, the shortcut asks for the passcode first and then opens the note as usual, not at its end.
+  - Markleaf still doesn't open over the lock screen; Android asks you to unlock first.
+
 ## v2.64.0 - Your own font - 2026-10-06
 
 One addition from Issues. No permission or storage-format changes.

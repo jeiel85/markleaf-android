@@ -87,6 +87,9 @@ data class AppSettings(
     /** Where a note is positioned when it opens. Defaults to [OpenNotesAt.TOP],
      *  which is how Markleaf has always behaved (#214). */
     val openNotesAt: OpenNotesAt = OpenNotesAt.TOP,
+    /** What the new-note shortcuts open. Defaults to [NewNoteShortcut.NEW_NOTE],
+     *  a fresh note each time, which is what they have always done (#481). */
+    val newNoteShortcut: NewNoteShortcut = NewNoteShortcut.NEW_NOTE,
     /** Where the note↔file mapping is kept. Defaults to
      *  [SyncMetadataMode.FRONTMATTER], the original behaviour (#216). */
     val syncMetadataMode: SyncMetadataMode = SyncMetadataMode.FRONTMATTER,
@@ -144,6 +147,23 @@ enum class OpenNotesAt {
      * value is selected — turning the setting off stops Markleaf remembering.
      */
     LAST_POSITION
+}
+
+/**
+ * What the new-note shortcuts open (#481): the home-screen widget's + button,
+ * the "New note" app shortcut, and Android's Notes role (a stylus button, a
+ * Quick Settings or lock-screen shortcut).
+ */
+enum class NewNoteShortcut {
+    /** A fresh, empty note every time — the original behaviour, and the default. */
+    NEW_NOTE,
+
+    /**
+     * Today's note, titled with the date (`2026-10-06`) and opened at its end
+     * for adding to; created on the first use of the day. The day turns at
+     * local midnight. See [com.markleaf.notes.core.text.DailyNote].
+     */
+    TODAYS_NOTE
 }
 
 /**

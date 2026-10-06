@@ -228,7 +228,12 @@ fun EditorScreen(
     // its own cancellation. The caller passes down a scope tied to an ancestor
     // (the NavHost); the default here only covers tests and previews that never
     // exercise disposal.
-    hostScope: CoroutineScope = rememberCoroutineScope()
+    hostScope: CoroutineScope = rememberCoroutineScope(),
+    // Opened by the "Today's note" shortcut (#481): the note is for adding to,
+    // so it opens in edit mode with the caret at its end and the keyboard up,
+    // whatever "Open notes at" and "Open notes in preview" say. Only the first
+    // load reads it; a recreation keeps the mode and caret it came back with.
+    openForAppend: Boolean = false
 ) {
     val context = LocalContext.current
     val db = remember { AppDatabase.getInstance(context) }
@@ -822,7 +827,7 @@ fun EditorScreen(
             }
             lastCaretOffset = lastPosition?.caretOffset
             lastPreviewIndex = lastPosition?.previewIndex
-            val caret = when (persistedSettings.openNotesAt) {
+            val caret = if (openForAppend) content.length else when (persistedSettings.openNotesAt) {
                 OpenNotesAt.TOP -> 0
                 OpenNotesAt.BOTTOM -> content.length
                 OpenNotesAt.LAST_POSITION -> {
@@ -857,7 +862,7 @@ fun EditorScreen(
             // list's own scroll is restored by `rememberLazyListState` — rather
             // than reading the settings as if the note had just been tapped.
             if (!openingModeDecided) {
-                pendingPreviewScroll = when (persistedSettings.openNotesAt) {
+                pendingPreviewScroll = if (openForAppend) null else when (persistedSettings.openNotesAt) {
                     OpenNotesAt.TOP -> null
                     // Clamped against the rendered list when the scroll runs, so
                     // "as far as it goes" is all this has to say.
@@ -867,10 +872,16 @@ fun EditorScreen(
                             PreviewScrollRequest(it.previewIndex, animate = false, restore = true)
                         }
                 }
-                isPreviewMode = opensInPreview(openInPreview, content)
+                isPreviewMode = !openForAppend && opensInPreview(openInPreview, content)
+                if (openForAppend) {
+                    // The keyboard arrives after the caret is placed, and a text
+                    // field only scrolls to its caret when the caret moves: the
+                    // same step #464 takes keeps the end of a long note in view.
+                    pendingPreviewCaret = PendingCaret(content.length, content)
+                }
                 openingModeDecided = true
             }
-            shouldRequestEditorFocus = content.isEmpty()
+            shouldRequestEditorFocus = content.isEmpty() || openForAppend
             isLoaded = true
             // Remember this note as the launch target for the opt-in
             // "Reopen last note on launch" setting (#192) — but only when the

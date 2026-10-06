@@ -73,6 +73,40 @@ class AppSettingsRepositoryAppearanceTest {
         }
     }
 
+    /** #510: a picked font is recorded and selected in one write, and survives switching away. */
+    @Test
+    fun `a custom font is selected with its file and kept when switching away`() = runTest {
+        repo.setCustomFont(fileName = "custom-1", displayName = "Atkinson.ttf")
+        val picked = repo.settings.first()
+        assertEquals(EditorFont.CUSTOM, picked.editorFont)
+        assertEquals("custom-1", picked.customFontFile)
+        assertEquals("Atkinson.ttf", picked.customFontName)
+
+        repo.setEditorFont(EditorFont.SERIF)
+        val switched = repo.settings.first()
+        assertEquals(EditorFont.SERIF, switched.editorFont)
+        assertEquals("custom-1", switched.customFontFile)
+
+        repo.setEditorFont(EditorFont.CUSTOM)
+        assertEquals("custom-1", repo.settings.first().customFontFile)
+    }
+
+    /**
+     * #513 review: a built-in font chosen while an import was still running
+     * must survive the import finishing — the file is recorded, not selected.
+     */
+    @Test
+    fun `a font recorded without selecting it leaves the current choice alone`() = runTest {
+        repo.setEditorFont(EditorFont.SERIF)
+
+        repo.setCustomFont(fileName = "custom-2", displayName = "Late.ttf", select = false)
+
+        val settings = repo.settings.first()
+        assertEquals(EditorFont.SERIF, settings.editorFont)
+        assertEquals("custom-2", settings.customFontFile)
+        assertEquals("Late.ttf", settings.customFontName)
+    }
+
     /** Each preference has its own key — writing one must not disturb the other. */
     @Test
     fun `the two settings are stored independently`() = runTest {

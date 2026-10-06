@@ -4,6 +4,15 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.64.0 - Your own font - 2026-10-06
+
+One addition from Issues. No permission or storage-format changes.
+
+### Added
+- **Write and read in a font of your own.** Settings → Markdown → Font now has a fourth choice, **Your font**. Tap it and pick a `.ttf` or `.otf` file with Android's file picker. Markleaf keeps its own copy inside the app and uses it for the whole app, editor and Preview included. Code blocks and inline code stay monospaced. Choose another file at any time with **Choose a font file**; the previous copy is removed. Nothing leaves your device, and no storage permission is needed. ([#510](https://github.com/jeiel85/markleaf-android/issues/510), thanks @ClockGen)
+  - It takes one font file. Bold and italic are drawn from that file by thickening and slanting it, so a font that has its own bold or italic file will look rougher than in apps that load those files.
+  - A file that isn't a TrueType/OpenType font, or one over 32 MB, is refused with a message, and your current font stays as it was.
+
 ## v2.63.5 - Zoomed Preview glides at full speed with animations reduced - 2026-10-06
 
 No permission or storage-format changes.

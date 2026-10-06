@@ -1,0 +1,1 @@
+Nouveau : utilisez votre propre fichier de police. Paramètres → Police → Ma police permet de choisir un fichier .ttf ou .otf ; Markleaf en garde une copie sur l'appareil et l'utilise dans l'éditeur et l'aperçu. Le code reste à chasse fixe. Aucune autorisation requise.

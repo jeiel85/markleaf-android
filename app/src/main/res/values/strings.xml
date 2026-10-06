@@ -50,6 +50,13 @@
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>
     <string name="font_monospace">Monospace</string>
+    <string name="font_custom">Your font</string>
+    <string name="font_custom_file_format">Using %1$s. Markleaf keeps its own copy on this device.</string>
+    <string name="font_custom_missing">The font file is missing. Choose it again.</string>
+    <string name="font_custom_choose">Choose a font file</string>
+    <string name="font_custom_not_a_font">That file isn\'t a font Markleaf can use. Choose a .ttf or .otf file.</string>
+    <string name="font_custom_too_large">That font file is too large (over 32 MB).</string>
+    <string name="font_custom_unreadable">Couldn\'t read that file. Try choosing it again.</string>
     <string name="font_description">Serif gives notes a classic, book-like feel. Code always stays monospaced.</string>
     <string name="all_notes">All notes</string>
     <string name="no_notes_for_tag">No notes with this tag</string>

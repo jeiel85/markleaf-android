@@ -64,7 +64,7 @@
 
 **Markleaf** je aplikácia na poznámky v Markdowne pre Android, ktorá odstraňuje všetko zbytočné, aby ste sa mohli sústrediť len na dve veci: zapisovanie a usporiadanie. Vaše údaje sa ukladajú iba vo vašom zariadení a štandardný Markdown zaručuje, že vám plne patria a dajú sa ľahko preniesť. Aj synchronizácia prebieha výhradne cez *priečinok, ktorý si sami vyberiete* — Markleaf sám nič nesynchronizuje ani nikam neodosiela.
 
-[**Zobraziť stránku projektu**](https://jeiel85.github.io/markleaf-android/index.sk.html) · [Aktuálna verzia: v2.63.5](https://github.com/jeiel85/markleaf-android/releases/tag/v2.63.5) · [Zásady ochrany osobných údajov](https://jeiel85.github.io/markleaf-android/privacy.sk.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**Zobraziť stránku projektu**](https://jeiel85.github.io/markleaf-android/index.sk.html) · [Aktuálna verzia: v2.64.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.64.0) · [Zásady ochrany osobných údajov](https://jeiel85.github.io/markleaf-android/privacy.sk.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -80,7 +80,7 @@
 - **Inteligentné prepínanie formátovania Markdownu** — obaľte výber alebo slovo pri kurzore do tučného písma/kurzívy/prečiarknutia/kódu v riadku a ďalším ťuknutím formátovanie čisto odstránite
 - **Klávesové skratky** — Ctrl/Cmd+B, I, K, Shift+S pre tučné písmo, kurzívu, odkaz a prečiarknutie na hardvérovej klávesnici
 - **Obsah (TOC)** — v režime náhľadu preskočte na nadpisy H1–H3 a ľahko sa zorientujte v dlhých poznámkach
-- **Výber písma Serif / Sans** — prepnite plochu na písanie na pätkové písmo pre dojem knihy; bloky kódu vždy zostávajú s pevnou šírkou znakov
+- **Výber písma** — bezpätkové, pätkové alebo s pevnou šírkou, alebo vlastný súbor písma `.ttf`/`.otf` (zostáva v zariadení); bloky kódu vždy zostávajú s pevnou šírkou znakov
 - **Režim čistého písania / štatistiky slov, znakov a času čítania / vyhľadávanie a nahrádzanie v poznámke**
 
 ### Usporiadanie a navigácia
@@ -171,7 +171,7 @@ com.markleaf.notes
 > **Aktualizácie v Google Play sú momentálne pozastavené.** Nové verzie sa do Obchodu Play nedostanú, kým sa nevyrieši požiadavka kórejských predpisov na registráciu podnikania samostatného vývojára. Aktuálne vydanie nájdete v **GitHub Releases**. F-Droid zostáva odporúčaným spôsobom aktualizácií, keď jeho build dobehne aktuálnu verziu. (Ak ste aplikáciu už nainštalovali z Obchodu Play, bude naďalej fungovať.)
 
 - **F-Droid** *(odporúča sa pre automatické aktualizácie)*: [Markleaf na F-Droide](https://f-droid.org/packages/com.markleaf.notes/) — vyhľadajte aplikáciu v klientovi F-Droid alebo ju nainštalujte cez odkaz vyššie. Katalóg sa môže aktualizovať neskôr ako GitHub; ak v ňom ešte nie je aktuálna verzia, použite GitHub Releases nižšie. Používa rovnaký podpisový kľúč (SHA-256 `0be97352…f91a`), takže aktualizácie budú plynule pokračovať, aj keď ste najprv ručne nainštalovali APK z GitHubu.
-- **Priama inštalácia APK**: [vydanie v2.63.5 na GitHube](https://github.com/jeiel85/markleaf-android/releases/tag/v2.63.5) obsahuje dva súbory APK — `markleaf-v2.63.5.apk` zodpovedá buildu z F-Droidu/Play (bez automatických aktualizácií, bez ďalších povolení) a `markleaf-v2.63.5-sideload.apk` pridáva voliteľnú kontrolu aktualizácií v aplikácii (`INTERNET`, `REQUEST_INSTALL_PACKAGES`). Ak chcete aktualizácie priamo v aplikácii, vyberte verziu sideload, stiahnite ju a spustite v zariadení s Androidom — obe majú rovnaký podpisový kľúč, takže neskorší prechod medzi nimi je bežná aktualizácia, nie preinštalovanie.
+- **Priama inštalácia APK**: [vydanie v2.64.0 na GitHube](https://github.com/jeiel85/markleaf-android/releases/tag/v2.64.0) obsahuje dva súbory APK — `markleaf-v2.64.0.apk` zodpovedá buildu z F-Droidu/Play (bez automatických aktualizácií, bez ďalších povolení) a `markleaf-v2.64.0-sideload.apk` pridáva voliteľnú kontrolu aktualizácií v aplikácii (`INTERNET`, `REQUEST_INSTALL_PACKAGES`). Ak chcete aktualizácie priamo v aplikácii, vyberte verziu sideload, stiahnite ju a spustite v zariadení s Androidom — obe majú rovnaký podpisový kľúč, takže neskorší prechod medzi nimi je bežná aktualizácia, nie preinštalovanie.
 - **Google Play**: [Markleaf v Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **aktualizácie sú pozastavené** (pozri poznámku vyššie). Ak aplikáciu už máte, bude naďalej fungovať; aktuálnu verziu získate v GitHub Releases alebo na F-Droide, keď tam bude dostupná.
 
 ### Zostavenie zo zdrojového kódu

@@ -44,6 +44,13 @@
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>
     <string name="font_monospace">Fiksne širine</string>
+    <string name="font_custom">Vlastiti font</string>
+    <string name="font_custom_file_format">Koristi se %1$s. Markleaf čuva vlastitu kopiju na ovom uređaju.</string>
+    <string name="font_custom_missing">Datoteka fonta nedostaje. Odaberite je ponovno.</string>
+    <string name="font_custom_choose">Odaberi datoteku fonta</string>
+    <string name="font_custom_not_a_font">Ta datoteka nije font koji Markleaf može koristiti. Odaberite .ttf ili .otf datoteku.</string>
+    <string name="font_custom_too_large">Datoteka fonta je prevelika (više od 32 MB).</string>
+    <string name="font_custom_unreadable">Datoteku nije moguće pročitati. Odaberite je ponovno.</string>
     <string name="font_description">Serif daje bilješkama klasični izgled knjige. Kôd uvijek koristi font fiksne širine.</string>
     <string name="font_size_label">Veličina teksta</string>
     <string name="font_size_small">Mala</string>

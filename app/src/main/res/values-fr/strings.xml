@@ -42,6 +42,13 @@
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>
     <string name="font_monospace">Chasse fixe</string>
+    <string name="font_custom">Ma police</string>
+    <string name="font_custom_file_format">%1$s est utilisée. Markleaf en garde une copie sur cet appareil.</string>
+    <string name="font_custom_missing">Le fichier de police est introuvable. Choisissez-le à nouveau.</string>
+    <string name="font_custom_choose">Choisir un fichier de police</string>
+    <string name="font_custom_not_a_font">Ce fichier n\'est pas une police utilisable par Markleaf. Choisissez un fichier .ttf ou .otf.</string>
+    <string name="font_custom_too_large">Ce fichier de police est trop volumineux (plus de 32 Mo).</string>
+    <string name="font_custom_unreadable">Impossible de lire ce fichier. Choisissez-le à nouveau.</string>
     <string name="font_description">Le serif donne aux notes une allure classique, comme un livre. Le code reste toujours à chasse fixe.</string>
     <string name="all_notes">Toutes les notes</string>
     <string name="no_notes_for_tag">Aucune note avec cette étiquette</string>

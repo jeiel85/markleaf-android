@@ -26,6 +26,11 @@ data class AppSettings(
     /** Editor and preview text scale. Defaults to [EditorFontSize.MEDIUM]
      *  (scale 1.0), which renders exactly as before (#346). */
     val editorFontSize: EditorFontSize = EditorFontSize.MEDIUM,
+    /** The stored font file [EditorFont.CUSTOM] draws with, by its name inside
+     *  `CustomFontStore.directory`; null until one is picked (#510). */
+    val customFontFile: String? = null,
+    /** What the picker called that file, shown in Settings. */
+    val customFontName: String? = null,
     val onboardingCompleted: Boolean = false,
     val biometricLockEnabled: Boolean = false,
     /** True when a "Locked notes" passcode has been set (#155). The passcode
@@ -253,9 +258,10 @@ enum class MarkdownSyntaxVisibility {
 }
 
 /**
- * Typeface for the editor and preview writing surface. Every option uses the
- * platform's built-in generic font families, so nothing is bundled with the
- * app — it stays F-Droid-reproducible and works fully offline.
+ * Typeface for the editor and preview writing surface. The built-in options use
+ * the platform's generic font families and [CUSTOM] uses a file the reader
+ * picks, so nothing is bundled with the app — it stays F-Droid-reproducible
+ * and works fully offline.
  */
 enum class EditorFont {
     /** The system sans-serif (FontFamily.Default) — Markleaf's original look. */
@@ -268,7 +274,14 @@ enum class EditorFont {
      * The system monospace, for the whole writing surface rather than only
      * code (#432) — it keeps table columns and indent levels aligned.
      */
-    MONOSPACE
+    MONOSPACE,
+
+    /**
+     * A `.ttf`/`.otf` file the reader picked (#510), stored by
+     * [com.markleaf.notes.core.font.CustomFontStore] and named by
+     * [AppSettings.customFontFile]. With no such file it draws as [SANS].
+     */
+    CUSTOM
 }
 
 enum class EditorLineWidth(

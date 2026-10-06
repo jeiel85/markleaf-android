@@ -64,7 +64,7 @@
 
 **Markleaf** est une application Android de prise de notes Markdown conçue pour éliminer le superflu afin que vous puissiez vous concentrer sur seulement deux choses : capturer et organiser. Vos données sont stockées uniquement sur votre appareil, et le format Markdown standard garantit une propriété et une portabilité complètes. Même la synchronisation ne passe que par *un dossier que vous choisissez* — Markleaf ne synchronise et n'envoie jamais rien de lui-même.
 
-[**Voir la page de branding**](https://jeiel85.github.io/markleaf-android/) · [Version actuelle : v2.63.5](https://github.com/jeiel85/markleaf-android/releases/tag/v2.63.5) · [Politique de confidentialité](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**Voir la page de branding**](https://jeiel85.github.io/markleaf-android/) · [Version actuelle : v2.64.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.64.0) · [Politique de confidentialité](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -80,7 +80,7 @@
 - **Bascule de mise en forme Markdown intelligente** — entourez la sélection ou le mot autour du curseur de Gras/Italique/Barré/Code en ligne, et appuyez à nouveau pour retirer proprement la mise en forme d'un texte déjà entouré
 - **Raccourcis clavier** — Ctrl/Cmd+B, I, K, Maj+S pour le gras, l'italique, le lien et le barré sur un clavier physique
 - **Table des matières (TOC)** — en mode aperçu, sautez vers les titres H1–H3 pour naviguer dans les notes longues
-- **Choix de police Serif / Sans** — basculez la surface d'écriture vers une police avec empattements pour un rendu proche du livre ; les blocs de code restent toujours à chasse fixe
+- **Choix de police** — sans empattements, avec empattements ou à chasse fixe, ou un fichier de police `.ttf`/`.otf` de votre choix (conservé sur l'appareil) ; les blocs de code restent toujours à chasse fixe
 - **Mode concentration / statistiques de mots, caractères et temps de lecture / recherche et remplacement dans une note**
 
 ### Organisation et navigation
@@ -171,7 +171,7 @@ com.markleaf.notes
 > **Les mises à jour sur Google Play sont actuellement en pause.** Aucune nouvelle version ne sera publiée sur le Play Store tant qu'une exigence de politique d'enregistrement d'entreprise en Corée pour le développeur indépendant ne sera pas résolue. Pour la version actuelle, utilisez **GitHub Releases**. Une fois que la compilation F-Droid est à jour, F-Droid reste le canal de mise à jour recommandé. (Si vous l'avez déjà installée depuis le Play Store, elle continue de fonctionner.)
 
 - **F-Droid** *(recommandé pour les mises à jour automatiques)* : [Markleaf sur F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — recherchez-le dans le client F-Droid ou installez-le via le lien ci-dessus. Le catalogue peut être publié après GitHub ; s'il n'affiche pas encore la version actuelle, utilisez GitHub Releases ci-dessous. Il utilise la même clé de signature (SHA-256 `0be97352…f91a`), donc les mises à jour continuent sans interruption même si vous installez d'abord un APK GitHub par sideload.
-- **Installation directe de l'APK** : la [release GitHub v2.63.5](https://github.com/jeiel85/markleaf-android/releases/tag/v2.63.5) contient deux APK — `markleaf-v2.63.5.apk` correspond à la version F-Droid/Play (pas de mise à jour automatique, aucune permission supplémentaire), et `markleaf-v2.63.5-sideload.apk` ajoute une vérification de mise à jour intégrée à l'application, activable (`INTERNET`, `REQUEST_INSTALL_PACKAGES`). Pour les mises à jour intégrées, choisissez la version sideload, téléchargez-la, puis exécutez-la sur votre appareil Android — les deux partagent la même clé de signature, donc passer de l'une à l'autre plus tard compte comme une mise à jour normale, pas comme une réinstallation.
+- **Installation directe de l'APK** : la [release GitHub v2.64.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.64.0) contient deux APK — `markleaf-v2.64.0.apk` correspond à la version F-Droid/Play (pas de mise à jour automatique, aucune permission supplémentaire), et `markleaf-v2.64.0-sideload.apk` ajoute une vérification de mise à jour intégrée à l'application, activable (`INTERNET`, `REQUEST_INSTALL_PACKAGES`). Pour les mises à jour intégrées, choisissez la version sideload, téléchargez-la, puis exécutez-la sur votre appareil Android — les deux partagent la même clé de signature, donc passer de l'une à l'autre plus tard compte comme une mise à jour normale, pas comme une réinstallation.
 - **Google Play** : [Markleaf sur Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **les mises à jour sont en pause** (voir la note ci-dessus). Si vous l'avez déjà, elle continue de fonctionner ; obtenez la version actuelle via GitHub Releases ou via F-Droid une fois publiée.
 
 ### Compilation depuis les sources

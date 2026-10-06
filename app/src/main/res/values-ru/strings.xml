@@ -50,6 +50,13 @@
     <string name="font_sans">Без засечек</string>
     <string name="font_serif">С засечками</string>
     <string name="font_monospace">Моноширинный</string>
+    <string name="font_custom">Свой шрифт</string>
+    <string name="font_custom_file_format">Используется %1$s. Markleaf хранит свою копию на этом устройстве.</string>
+    <string name="font_custom_missing">Файл шрифта не найден. Выберите его снова.</string>
+    <string name="font_custom_choose">Выбрать файл шрифта</string>
+    <string name="font_custom_not_a_font">Этот файл не является шрифтом, который может использовать Markleaf. Выберите файл .ttf или .otf.</string>
+    <string name="font_custom_too_large">Файл шрифта слишком большой (более 32 МБ).</string>
+    <string name="font_custom_unreadable">Не удалось прочитать файл. Выберите его снова.</string>
     <string name="font_description">Шрифт с засечками придаёт заметкам классический, книжный вид. Код всегда остаётся моноширинным.</string>
     <string name="all_notes">Все заметки</string>
     <string name="no_notes_for_tag">Нет заметок с этим тегом</string>

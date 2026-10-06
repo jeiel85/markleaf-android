@@ -46,6 +46,13 @@
     <string name="font_sans">无衬线体</string>
     <string name="font_serif">衬线体</string>
     <string name="font_monospace">等宽体</string>
+    <string name="font_custom">我的字体</string>
+    <string name="font_custom_file_format">正在使用 %1$s。Markleaf 会在本设备上保存一份副本。</string>
+    <string name="font_custom_missing">找不到字体文件，请重新选择。</string>
+    <string name="font_custom_choose">选择字体文件</string>
+    <string name="font_custom_not_a_font">该文件不是 Markleaf 可用的字体，请选择 .ttf 或 .otf 文件。</string>
+    <string name="font_custom_too_large">字体文件太大（超过 32 MB）。</string>
+    <string name="font_custom_unreadable">无法读取该文件，请重新选择。</string>
     <string name="font_description">衬线体让笔记呈现经典的书籍风格。代码始终使用等宽字体。</string>
     <string name="all_notes">全部笔记</string>
     <string name="no_notes_for_tag">没有使用此标签的笔记</string>

@@ -1,0 +1,1 @@
+Nuevo: el botón + del widget, el acceso «Nueva nota» y los accesos de notas de Android pueden abrir la nota de hoy en lugar de una nueva. Ajustes → Los accesos de nota nueva abren → La nota de hoy: con la fecha como título, abierta al final para seguir escribiendo, nueva cada día.

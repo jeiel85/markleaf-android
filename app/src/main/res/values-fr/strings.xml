@@ -247,6 +247,10 @@
     <string name="open_notes_at_bottom">Fin</string>
     <string name="open_notes_at_last_position">Là où je me suis arrêté</string>
     <string name="open_notes_at_description">L\'endroit où une note s\'ouvre. « Fin » convient aux notes que vous ne faites que compléter. « Là où je me suis arrêté » retient la position de chaque note dans l\'application uniquement : rien n\'est écrit dans vos fichiers.</string>
+    <string name="new_note_shortcut">Les raccourcis de nouvelle note ouvrent</string>
+    <string name="new_note_shortcut_new">Une nouvelle note</string>
+    <string name="new_note_shortcut_today">La note du jour</string>
+    <string name="new_note_shortcut_description">Pour le bouton + du widget, le raccourci d\'app « Nouvelle note » et les raccourcis de notes d\'Android. La note du jour a la date pour titre, comme 2026-10-06, s\'ouvre à la fin pour y ajouter du texte et est créée à la première utilisation de la journée. Un nouveau jour commence à minuit.</string>
     <string name="notes_layout">Disposition de la liste de notes</string>
     <string name="notes_layout_list">Liste</string>
     <string name="notes_layout_grid">Grille</string>

@@ -247,6 +247,10 @@
     <string name="open_notes_at_bottom">Final</string>
     <string name="open_notes_at_last_position">Donde lo dejé</string>
     <string name="open_notes_at_description">Dónde queda una nota al abrirla. «Final» va bien con notas a las que solo añades. «Donde lo dejé» recuerda la posición de cada nota solo en la app: no se escribe nada en tus archivos.</string>
+    <string name="new_note_shortcut">Los accesos de nota nueva abren</string>
+    <string name="new_note_shortcut_new">Una nota nueva</string>
+    <string name="new_note_shortcut_today">La nota de hoy</string>
+    <string name="new_note_shortcut_description">Para el botón + del widget, el acceso directo «Nueva nota» y los accesos de notas de Android. La nota de hoy lleva la fecha como título, como 2026-10-06, se abre al final para seguir escribiendo y se crea la primera vez que la usas cada día. El día cambia a medianoche.</string>
     <string name="notes_layout">Diseño de la lista de notas</string>
     <string name="notes_layout_list">Lista</string>
     <string name="notes_layout_grid">Cuadrícula</string>

@@ -1,0 +1,1 @@
+Nové: tlačidlo + na miniaplikácii, skratka „Nová poznámka“ a skratky poznámok systému Android môžu namiesto novej otvoriť dnešnú poznámku. Nastavenia → Skratky novej poznámky otvoria → Dnešnú poznámku: s dátumom ako názvom, otvorí sa na konci na dopisovanie, každý deň nová.

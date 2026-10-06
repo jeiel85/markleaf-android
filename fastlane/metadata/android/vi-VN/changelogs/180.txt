@@ -1,0 +1,1 @@
+Mới: nút + của tiện ích, lối tắt Ghi chú mới và lối tắt ghi chú của Android có thể mở ghi chú hôm nay thay vì ghi chú mới. Cài đặt → Lối tắt ghi chú mới sẽ mở → Ghi chú hôm nay: lấy ngày làm tiêu đề, mở ở cuối để viết thêm, mỗi ngày một ghi chú mới.

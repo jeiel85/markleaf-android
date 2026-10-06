@@ -248,6 +248,10 @@
     <string name="open_notes_at_bottom">Dole</string>
     <string name="open_notes_at_last_position">Tam, kde som skončil</string>
     <string name="open_notes_at_description">Určuje, kde sa poznámka otvorí. Možnosť Dole sa hodí pre poznámky, do ktorých len dopĺňate text. Možnosť Tam, kde som skončil si pamätá pozíciu v každej poznámke len v rámci aplikácie – do vašich súborov sa nič neukladá.</string>
+    <string name="new_note_shortcut">Skratky novej poznámky otvoria</string>
+    <string name="new_note_shortcut_new">Novú poznámku</string>
+    <string name="new_note_shortcut_today">Dnešnú poznámku</string>
+    <string name="new_note_shortcut_description">Platí pre tlačidlo + na miniaplikácii, skratku aplikácie „Nová poznámka“ a skratky poznámok systému Android. Dnešná poznámka má ako názov dátum, napríklad 2026-10-06, otvorí sa na konci na dopisovanie a vytvorí sa pri prvom použití v daný deň. Nový deň začína o polnoci.</string>
     <string name="notes_layout">Rozloženie zoznamu poznámok</string>
     <string name="notes_layout_list">Zoznam</string>
     <string name="notes_layout_grid">Mriežka</string>

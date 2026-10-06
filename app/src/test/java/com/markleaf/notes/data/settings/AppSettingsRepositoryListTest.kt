@@ -24,6 +24,18 @@ class AppSettingsRepositoryListTest {
         assertEquals(NoteTitleSource.FIRST_HEADING, settings.noteTitleSource)
     }
 
+    /** #481: the shortcuts keep opening a fresh note until the reader opts in. */
+    @Test
+    fun `new-note shortcuts default to a new note and round-trip`() = runTest {
+        assertEquals(NewNoteShortcut.NEW_NOTE, repo.settings.first().newNoteShortcut)
+
+        repo.setNewNoteShortcut(NewNoteShortcut.TODAYS_NOTE)
+        assertEquals(NewNoteShortcut.TODAYS_NOTE, repo.settings.first().newNoteShortcut)
+
+        repo.setNewNoteShortcut(NewNoteShortcut.NEW_NOTE)
+        assertEquals(NewNoteShortcut.NEW_NOTE, repo.settings.first().newNoteShortcut)
+    }
+
     @Test
     fun `notes layout round-trips`() = runTest {
         repo.setNotesLayout(NotesLayout.GRID)

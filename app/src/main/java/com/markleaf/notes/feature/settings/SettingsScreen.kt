@@ -77,6 +77,7 @@ import com.markleaf.notes.data.settings.EditorFontSize
 import com.markleaf.notes.data.settings.EditorLineWidth
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import com.markleaf.notes.data.settings.NotesLayout
+import com.markleaf.notes.data.settings.NewNoteShortcut
 import com.markleaf.notes.data.settings.OpenNotesAt
 import com.markleaf.notes.data.settings.SyncMetadataMode
 import com.markleaf.notes.data.settings.ThemeMode
@@ -653,6 +654,43 @@ fun SettingsScreen(
                         Spacer(Modifier.height(6.dp))
                         Text(
                             text = stringResource(R.string.open_notes_at_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        // #481: what the widget's +, the "New note" app shortcut
+                        // and Android's Notes shortcuts open. Wraps: "Today's note"
+                        // runs long in several languages.
+                        Text(
+                            text = stringResource(R.string.new_note_shortcut),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            NewNoteShortcut.entries.forEach { target ->
+                                if (appSettings.newNoteShortcut == target) {
+                                    Button(onClick = {}) {
+                                        Text(target.localizedLabel())
+                                    }
+                                } else {
+                                    OutlinedButton(
+                                        onClick = {
+                                            scope.launch { settingsRepository.setNewNoteShortcut(target) }
+                                        }
+                                    ) {
+                                        Text(target.localizedLabel())
+                                    }
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        Text(
+                            text = stringResource(R.string.new_note_shortcut_description),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -1487,6 +1525,14 @@ private fun EditorLineWidth.localizedLabel(): String {
         EditorLineWidth.NARROW -> stringResource(R.string.line_width_narrow)
         EditorLineWidth.COMFORTABLE -> stringResource(R.string.line_width_comfortable)
         EditorLineWidth.WIDE -> stringResource(R.string.line_width_wide)
+    }
+}
+
+@Composable
+private fun NewNoteShortcut.localizedLabel(): String {
+    return when (this) {
+        NewNoteShortcut.NEW_NOTE -> stringResource(R.string.new_note_shortcut_new)
+        NewNoteShortcut.TODAYS_NOTE -> stringResource(R.string.new_note_shortcut_today)
     }
 }
 

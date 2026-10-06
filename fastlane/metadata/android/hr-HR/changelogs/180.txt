@@ -1,0 +1,1 @@
+Novo: gumb + na widgetu, prečac „Nova bilješka” i Androidovi prečaci za bilješke mogu otvoriti današnju bilješku umjesto nove. Postavke → Prečaci za novu bilješku otvaraju → Današnju bilješku: s datumom kao naslovom, otvara se na kraju za dopisivanje, nova svaki dan.

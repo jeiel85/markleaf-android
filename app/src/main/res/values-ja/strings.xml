@@ -242,6 +242,10 @@
     <string name="open_notes_at_bottom">末尾</string>
     <string name="open_notes_at_last_position">前回の位置</string>
     <string name="open_notes_at_description">ノートを開いたときに表示する位置です。「末尾」は書き足していくノートに向いています。「前回の位置」はノートごとの位置をアプリ内にのみ記憶し、ファイルには何も書き込みません。</string>
+    <string name="new_note_shortcut">新規ノートのショートカットで開くもの</string>
+    <string name="new_note_shortcut_new">新しいノート</string>
+    <string name="new_note_shortcut_today">今日のノート</string>
+    <string name="new_note_shortcut_description">ウィジェットの＋ボタン、「新規ノート」アプリショートカット、Android のメモのショートカットに適用されます。今日のノートは 2026-10-06 のように日付がタイトルになり、末尾から開いてそのまま書き足せます。その日に初めて使ったときに作成され、日付は午前 0 時に変わります。</string>
     <string name="notes_layout">ノート一覧のレイアウト</string>
     <string name="notes_layout_list">リスト</string>
     <string name="notes_layout_grid">グリッド</string>

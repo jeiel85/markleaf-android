@@ -1,0 +1,1 @@
+New: the widget's + button, the New Note shortcut and Android's Notes shortcuts can open today's note instead of a new one. Settings → New-note shortcuts open → Today's note: titled with the date, opened at its end for adding to, a new one each day.

@@ -258,6 +258,10 @@
     <string name="open_notes_at_bottom">Bottom</string>
     <string name="open_notes_at_last_position">Where I left off</string>
     <string name="open_notes_at_description">Where a note lands when you open it. Bottom suits notes you only add to. "Where I left off" remembers each note\'s position in the app only — nothing is written into your files.</string>
+    <string name="new_note_shortcut">New-note shortcuts open</string>
+    <string name="new_note_shortcut_new">A new note</string>
+    <string name="new_note_shortcut_today">Today\'s note</string>
+    <string name="new_note_shortcut_description">For the widget\'s + button, the New Note app shortcut and Android\'s Notes shortcuts. Today\'s note is titled with the date, like 2026-10-06, opens at its end so you can add to it, and is created the first time you use it each day. A new day starts at midnight.</string>
     <string name="notes_layout">Notes list layout</string>
     <string name="notes_layout_list">List</string>
     <string name="notes_layout_grid">Grid</string>

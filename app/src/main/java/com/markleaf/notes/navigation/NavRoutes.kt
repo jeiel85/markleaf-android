@@ -4,6 +4,14 @@ object NavRoutes {
     const val NOTES = "notes"
     const val EDITOR = "editor/{noteId}"
     const val EDITOR_NEW = "editor"
+
+    /**
+     * The editor opened for adding to the end of a note: edit mode, caret at
+     * the end, keyboard up, whatever "Open notes at" and "Open notes in
+     * preview" say (#481). A route of its own rather than an argument on
+     * [EDITOR], whose route string the card transition compares.
+     */
+    const val EDITOR_APPEND = "editor/{noteId}/append"
     const val TAGS = "tags"
     const val SEARCH = "search"
     const val TRASH = "trash"
@@ -20,6 +28,8 @@ object NavRoutes {
      * Navigation decodes it once when it parses the argument back out.
      */
     fun viewerRoute(uri: String): String = "viewer/${android.net.Uri.encode(uri)}"
+
+    fun editorAppendRoute(noteId: String): String = "editor/$noteId/append"
 
     fun editorRoute(noteId: String? = null): String {
         return if (noteId != null) {

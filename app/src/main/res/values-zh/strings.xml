@@ -248,6 +248,10 @@
     <string name="open_notes_at_bottom">底部</string>
     <string name="open_notes_at_last_position">上次离开的位置</string>
     <string name="open_notes_at_description">设置打开笔记时的定位位置。“底部”适合只在末尾追加内容的笔记。“上次离开的位置”仅在应用中记住每篇笔记的位置，不会向文件写入任何内容。</string>
+    <string name="new_note_shortcut">新建笔记快捷方式打开</string>
+    <string name="new_note_shortcut_new">新笔记</string>
+    <string name="new_note_shortcut_today">今天的笔记</string>
+    <string name="new_note_shortcut_description">适用于小部件的 + 按钮、“新建笔记”应用快捷方式和 Android 的笔记快捷方式。今天的笔记以日期为标题（如 2026-10-06），从末尾打开以便继续书写，当天第一次使用时创建。日期在午夜更替。</string>
     <string name="notes_layout">笔记列表布局</string>
     <string name="notes_layout_list">列表</string>
     <string name="notes_layout_grid">网格</string>

@@ -79,7 +79,9 @@ import com.markleaf.notes.feature.sync.SyncCenterScreen
 import com.markleaf.notes.feature.viewer.FileViewerScreen
 import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.repository.LocalNoteRepository
+import com.markleaf.notes.core.text.DailyNote
 import com.markleaf.notes.data.settings.AppSettings
+import com.markleaf.notes.data.settings.NewNoteShortcut
 import com.markleaf.notes.data.settings.NotesLayout
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.sync.LocalNoteLinkResult
@@ -99,6 +101,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Instant
+import java.time.LocalDate
 
 // Scopes for the list-card -> editor shared-element (container transform). They
 // are only non-null on the phone navigation path (provided around the NavHost
@@ -166,8 +169,29 @@ fun MarkleafNavHost(
         if (!dispatchLaunchRequest) return@LaunchedEffect
         when {
             shouldCreateNote -> {
-                val newNote = intentEntryViewModel.createNote()
-                navController.navigateOnMain(NavRoutes.editorRoute(newNote.id))
+                // Read from the store, as the shared-text branch below does: the
+                // collected settings are still the defaults on this first pass.
+                val settings = settingsRepository.settings.first()
+                if (settings.newNoteShortcut == NewNoteShortcut.TODAYS_NOTE) {
+                    // #481: the shortcut adds to the day's note instead. A locked
+                    // one goes through the passcode gate like every other way in.
+                    val today = DailyNote.findOrCreate(
+                        repository = noteRepository,
+                        date = LocalDate.now(),
+                        now = Instant.now(),
+                        titleSource = settings.noteTitleSource
+                    )
+                    navController.navigateOnMain(
+                        if (today.locked) {
+                            resolveOpenNoteRoute(today.id, noteRepository)
+                        } else {
+                            NavRoutes.editorAppendRoute(today.id)
+                        }
+                    )
+                } else {
+                    val newNote = intentEntryViewModel.createNote()
+                    navController.navigateOnMain(NavRoutes.editorRoute(newNote.id))
+                }
             }
             openSearch -> navController.navigateOnMain(NavRoutes.SEARCH)
             !viewFileUri.isNullOrBlank() -> {
@@ -547,6 +571,16 @@ fun MarkleafNavHost(
                     hostScope = hostScope
                 )
             }
+        }
+        composable(NavRoutes.EDITOR_APPEND) {
+            val noteId = it.arguments?.getString("noteId")
+            EditorScreen(
+                noteId = noteId,
+                onBack = { navController.popBackStack() },
+                onNavigateToNote = { id -> navController.navigate(NavRoutes.editorRoute(id)) },
+                hostScope = hostScope,
+                openForAppend = true
+            )
         }
         composable(NavRoutes.TAGS) {
             TagsScreen(

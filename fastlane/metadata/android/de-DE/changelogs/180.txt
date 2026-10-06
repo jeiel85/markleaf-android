@@ -1,0 +1,1 @@
+Neu: Die +-Schaltfläche des Widgets, die Verknüpfung „Neue Notiz“ und die Notiz-Kurzbefehle von Android können statt einer neuen die heutige Notiz öffnen. Einstellungen → Kurzbefehle für neue Notizen öffnen → Die heutige Notiz: mit dem Datum als Titel, am Ende geöffnet, jeden Tag neu.

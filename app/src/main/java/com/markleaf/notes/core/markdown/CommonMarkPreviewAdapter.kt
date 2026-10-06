@@ -1149,13 +1149,16 @@ internal object CommonMarkPreviewAdapter {
         """<summary\b[^>]*>(.*?)</summary\s*>""",
         setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)
     )
-    // What counts as a tag when a section's text is cleaned to plain text: a
-    // comment, or `<` followed by a letter (or `/` and a letter), up to the `>`
-    // that is not inside a quoted attribute. The old `<[^>]+>` took any `<`…`>`
-    // span, so "1 < 2 > 0" lost its middle and `title="a > b"` ended the tag
-    // early, leaving `b">` on screen (#262). A bare `<` or `>` in prose — the
-    // way people write comparisons — is text, as browsers treat it.
-    private val HTML_TAG_REGEX = Regex("""<!--[\s\S]*?-->|</?[A-Za-z](?:[^>"']|"[^"]*"|'[^']*')*>""")
+    // What counts as markup when a section's text is cleaned to plain text: the
+    // raw-HTML constructs CommonMark itself recognises — a comment, a CDATA
+    // section, a processing instruction (`<?xml …?>`), a declaration
+    // (`<!DOCTYPE …>`), or an element tag: `<` followed by a letter (or `/` and
+    // a letter), up to the `>` that is not inside a quoted attribute. The old
+    // `<[^>]+>` took any `<`…`>` span, so "1 < 2 > 0" lost its middle and
+    // `title="a > b"` ended the tag early, leaving `b">` on screen (#262). A
+    // bare `<` or `>` in prose — the way people write comparisons — is text, as
+    // browsers treat it. The non-element forms were added after the #518 review.
+    private val HTML_TAG_REGEX = Regex("""<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<\?[\s\S]*?\?>|<![A-Za-z][^>]*>|</?[A-Za-z](?:[^>"']|"[^"]*"|'[^']*')*>""")
     private val HTML_IMG_TAG_REGEX = Regex("""<img\b[^>]*>""", RegexOption.IGNORE_CASE)
     private val HTML_BR_TAG_REGEX = Regex("""<br\s*/?>""", RegexOption.IGNORE_CASE)
     /** `<br>`, and the closing tag of an element a browser starts a new line after. */

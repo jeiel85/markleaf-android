@@ -119,6 +119,17 @@ class CollapsibleSectionPreviewTest {
     }
 
     @Test
+    fun declarationsProcessingInstructionsAndCdataAreStillStripped() {
+        // #518 review: the narrower tag pattern stopped matching `<!DOCTYPE>`,
+        // `<?xml ?>` and CDATA, which the old `<[^>]+>` had removed.
+        val markdown = "<details>\n<summary>T</summary>\nA<!DOCTYPE html> B<?xml version=\"1.0\"?> C<![CDATA[raw]]> D\n</details>"
+
+        val body = SimpleMarkdownPreview.parse(markdown)[1]
+
+        assertEquals("A B C D", body.text)
+    }
+
+    @Test
     fun selfContainedDetailsBodyStillGetsInlineFormatting() {
         val markdown = "<details><summary>T</summary>a **bold** word</details>"
 

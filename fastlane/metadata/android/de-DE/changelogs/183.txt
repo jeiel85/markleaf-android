@@ -1,0 +1,1 @@
+Behoben: Eine Abschnitts-Verknüpfung in den Einstellungen setzt jetzt auch den TalkBack-Fokus auf die Überschrift des Abschnitts, statt ihn oben auf der Seite zu lassen.

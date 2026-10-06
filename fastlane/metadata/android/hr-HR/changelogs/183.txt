@@ -1,0 +1,1 @@
+Ispravljeno: prečac do odjeljka u Postavkama sada premješta i TalkBack fokus na naslov tog odjeljka, umjesto da ostane na vrhu stranice.

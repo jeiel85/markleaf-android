@@ -1,0 +1,1 @@
+Fixed: a Settings section shortcut now moves TalkBack focus to that section's heading, so screen-reader users land where they asked instead of being left at the top of the page.

@@ -1,3 +1,8 @@
+## 2026-10-07 - v2.66.1: settings shortcuts move focus to the heading (#262)
+
+Selected task: the maintainer picked the first v2.66.0 item from #262.
+Verification: 2 new tests fail-first, TalkBack check on the emulator against a baseline build. Gate results are in the PR.
+
 ## 2026-10-06 - v2.66.0: settings section shortcuts (#517)
 
 Selected task: a Discussions suggestion (#517); the maintainer chose option (a), shortcuts over collapsing or search.

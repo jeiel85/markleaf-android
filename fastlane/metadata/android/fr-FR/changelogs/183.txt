@@ -1,0 +1,1 @@
+Corrigé : un raccourci de section des Paramètres déplace désormais aussi le focus TalkBack sur le titre de la section, au lieu de le laisser en haut de la page.

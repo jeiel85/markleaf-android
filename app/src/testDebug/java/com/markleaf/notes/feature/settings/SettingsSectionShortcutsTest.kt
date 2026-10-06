@@ -2,6 +2,7 @@ package com.markleaf.notes.feature.settings
 
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
@@ -53,6 +54,29 @@ class SettingsSectionShortcutsTest {
 
         heading("Privacy").assertIsDisplayed()
         assertEquals(pageTop, heading("Privacy").top(), 1f)
+    }
+
+    @Test
+    fun focusMovesToTheHeadingAfterTheJump() {
+        // #262: the page scrolled, but TalkBack stayed on the chip (on a device,
+        // it went back to the top bar), so a screen-reader user had to swipe
+        // through the whole page to reach the section they asked for. Focus on
+        // the heading is what TalkBack follows.
+        showSettings()
+
+        jump("Privacy")
+
+        heading("Privacy").assertIsFocused()
+    }
+
+    @Test
+    fun focusFollowsEachJumpNotJustTheFirst() {
+        showSettings()
+        jump("Data")
+
+        jump("Appearance")
+
+        heading("Appearance").assertIsFocused()
     }
 
     @Test

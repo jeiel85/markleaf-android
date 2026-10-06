@@ -7,6 +7,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.foundation.focusable
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -308,7 +311,13 @@ fun SettingsScreen(
                 SettingsSectionShortcuts(
                     onJump = { section ->
                         val target = anchors.scrollTarget(section, settingsScroll.value, sectionTopGapPx)
-                        if (target != null) scope.launch { settingsScroll.animateScrollTo(target) }
+                        if (target != null) scope.launch {
+                            settingsScroll.animateScrollTo(target)
+                            // Focus follows the jump, so TalkBack (and a
+                            // keyboard) carries on from the heading instead
+                            // of the chip (#262).
+                            anchors.focus(section).requestFocus()
+                        }
                     },
                     modifier = Modifier.widthIn(max = 640.dp)
                 )
@@ -324,7 +333,8 @@ fun SettingsScreen(
                 ) {
                     SettingsSection(
                         title = stringResource(R.string.settings_appearance),
-                        modifier = anchors.anchor(SettingsShortcut.APPEARANCE)
+                        modifier = anchors.anchor(SettingsShortcut.APPEARANCE),
+                        headingFocus = anchors.focus(SettingsShortcut.APPEARANCE)
                     ) {
                         Text(
                             text = stringResource(R.string.theme_label),
@@ -434,7 +444,8 @@ fun SettingsScreen(
 
                     SettingsSection(
                         title = stringResource(R.string.settings_markdown),
-                        modifier = anchors.anchor(SettingsShortcut.MARKDOWN)
+                        modifier = anchors.anchor(SettingsShortcut.MARKDOWN),
+                        headingFocus = anchors.focus(SettingsShortcut.MARKDOWN)
                     ) {
                         SettingsSwitchRow(
                             title = stringResource(R.string.show_markdown_syntax),
@@ -604,7 +615,8 @@ fun SettingsScreen(
 
                     SettingsSection(
                         title = stringResource(R.string.settings_notes_section),
-                        modifier = anchors.anchor(SettingsShortcut.NOTES)
+                        modifier = anchors.anchor(SettingsShortcut.NOTES),
+                        headingFocus = anchors.focus(SettingsShortcut.NOTES)
                     ) {
                         SettingsSwitchRow(
                             title = stringResource(R.string.show_note_previews),
@@ -838,7 +850,8 @@ fun SettingsScreen(
 
                     SettingsSection(
                         title = stringResource(R.string.settings_privacy),
-                        modifier = anchors.anchor(SettingsShortcut.PRIVACY)
+                        modifier = anchors.anchor(SettingsShortcut.PRIVACY),
+                        headingFocus = anchors.focus(SettingsShortcut.PRIVACY)
                     ) {
                         SettingLine(stringResource(R.string.privacy_no_tracking))
                         SettingLine(stringResource(R.string.privacy_no_internet))
@@ -921,7 +934,8 @@ fun SettingsScreen(
 
                     SettingsSection(
                         title = stringResource(R.string.settings_data),
-                        modifier = anchors.anchor(SettingsShortcut.DATA)
+                        modifier = anchors.anchor(SettingsShortcut.DATA),
+                        headingFocus = anchors.focus(SettingsShortcut.DATA)
                     ) {
                         Text(
                             text = stringResource(R.string.export_all_notes_description),
@@ -949,6 +963,7 @@ fun SettingsScreen(
 
                     SyncSection(
                         modifier = anchors.anchor(SettingsShortcut.SYNC),
+                        headingFocus = anchors.focus(SettingsShortcut.SYNC),
                         folderUri = appSettings.syncFolderUri,
                         lastSyncedAt = appSettings.syncLastSyncedAt,
                         metadataMode = appSettings.syncMetadataMode,
@@ -1104,7 +1119,8 @@ fun SettingsScreen(
 
                     SettingsSection(
                         title = stringResource(R.string.settings_open_source),
-                        modifier = anchors.anchor(SettingsShortcut.OPEN_SOURCE)
+                        modifier = anchors.anchor(SettingsShortcut.OPEN_SOURCE),
+                        headingFocus = anchors.focus(SettingsShortcut.OPEN_SOURCE)
                     ) {
                         Text(
                             text = stringResource(R.string.oss_explainer),
@@ -1169,7 +1185,8 @@ fun SettingsScreen(
 
                     SettingsSection(
                         title = stringResource(R.string.settings_app),
-                        modifier = anchors.anchor(SettingsShortcut.APP)
+                        modifier = anchors.anchor(SettingsShortcut.APP),
+                        headingFocus = anchors.focus(SettingsShortcut.APP)
                     ) {
                         SettingLine(stringResource(R.string.version_format, BuildConfig.VERSION_NAME))
                         SettingLine(stringResource(R.string.application_id_format, BuildConfig.APPLICATION_ID))
@@ -1203,9 +1220,14 @@ internal fun SyncSection(
     onSyncNow: () -> Unit,
     onStopSync: () -> Unit,
     onSyncCenterClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    headingFocus: FocusRequester? = null
 ) {
-    SettingsSection(title = stringResource(R.string.sync_title), modifier = modifier) {
+    SettingsSection(
+        title = stringResource(R.string.sync_title),
+        modifier = modifier,
+        headingFocus = headingFocus
+    ) {
         Text(
             text = stringResource(R.string.sync_explainer),
             style = MaterialTheme.typography.bodySmall,
@@ -1555,8 +1577,12 @@ internal enum class SettingsShortcut(@StringRes val label: Int) {
 private class SectionAnchors {
     var viewport: LayoutCoordinates? = null
     private val sections = mutableMapOf<SettingsShortcut, LayoutCoordinates>()
+    private val headings = SettingsShortcut.entries.associateWith { FocusRequester() }
 
     fun anchor(section: SettingsShortcut): Modifier = Modifier.onPlaced { sections[section] = it }
+
+    /** The section's heading, which takes focus once a jump to it lands. */
+    fun focus(section: SettingsShortcut): FocusRequester = headings.getValue(section)
 
     /** The scroll value that puts [section]'s heading [gapPx] below the top, or null before layout. */
     fun scrollTarget(section: SettingsShortcut, scroll: Int, gapPx: Float): Int? {
@@ -1592,6 +1618,7 @@ private fun SettingsSectionShortcuts(
 private fun SettingsSection(
     title: String,
     modifier: Modifier = Modifier,
+    headingFocus: FocusRequester? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -1600,7 +1627,12 @@ private fun SettingsSection(
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.semantics { heading() }
+            modifier = Modifier
+                .semantics { heading() }
+                .then(
+                    if (headingFocus == null) Modifier
+                    else Modifier.focusRequester(headingFocus).focusable()
+                )
         )
         Spacer(Modifier.height(8.dp))
         Column(content = content)

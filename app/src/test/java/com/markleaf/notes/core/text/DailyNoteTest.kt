@@ -7,9 +7,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.repository.LocalNoteRepository
 import com.markleaf.notes.domain.model.Note
+import com.markleaf.notes.domain.repository.NoteRepository
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -111,6 +115,23 @@ class DailyNoteTest {
         val recent = existing("2026-10-06", updatedAt = Instant.parse("2026-10-06T09:00:00Z"))
 
         assertEquals(recent.id, todaysNote().id)
+    }
+
+    /** Reads the notes, then waits, so two overlapping callers both see "none yet". */
+    private class SlowLookup(private val inner: NoteRepository) : NoteRepository by inner {
+        override suspend fun getAllNotes(): List<Note> = inner.getAllNotes().also { delay(200) }
+    }
+
+    @Test
+    fun twoOverlappingUsesStillMakeOneNote() = runBlocking {
+        // #516 review: two shortcut launches overlapping both found no note and
+        // each created one, breaking one-note-per-day.
+        val slow = SlowLookup(repository)
+        val first = async(Dispatchers.Default) { DailyNote.findOrCreate(slow, today, morning, NoteTitleSource.FIRST_HEADING) }
+        val second = async(Dispatchers.Default) { DailyNote.findOrCreate(slow, today, morning, NoteTitleSource.FIRST_HEADING) }
+
+        assertEquals(first.await().id, second.await().id)
+        assertEquals(1, repository.getAllNotes().size)
     }
 
     @Test

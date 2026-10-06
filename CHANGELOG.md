@@ -13,6 +13,7 @@ One addition from Discussions. No permission or storage-format changes.
   - A note counts as the day's note by its title. Renaming it, archiving it or moving it to the Trash means the next use starts a new one.
   - If the day's note is locked, the shortcut asks for the passcode first and then opens the note as usual, not at its end.
   - Markleaf still doesn't open over the lock screen; Android asks you to unlock first.
+  - With folder sync, if another device's note for the day arrives after you started one here, you'll have two; the shortcut adds to the one edited most recently.
 
 ## v2.64.0 - Your own font - 2026-10-06
 

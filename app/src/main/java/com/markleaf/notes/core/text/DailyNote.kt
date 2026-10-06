@@ -5,6 +5,8 @@ import com.markleaf.notes.domain.repository.NoteRepository
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * Today's note, for the "Today's note" choice of the new-note shortcuts (#481).
@@ -37,13 +39,22 @@ object DailyNote {
             .maxByOrNull { it.updatedAt }
     }
 
+    /**
+     * One lookup-and-create at a time, app-wide (#516 review): two shortcut
+     * launches overlapping each found no note and each made one. This covers
+     * the app's own callers. A note with the same title arriving from the sync
+     * folder is a separate path that a lock here can't reach (titles aren't
+     * unique); [find] then picks the most recently edited of the two.
+     */
+    private val lookupLock = Mutex()
+
     suspend fun findOrCreate(
         repository: NoteRepository,
         date: LocalDate,
         now: Instant,
         titleSource: NoteTitleSource
-    ): Note {
-        find(repository.getAllNotes(), date)?.let { return it }
+    ): Note = lookupLock.withLock {
+        find(repository.getAllNotes(), date)?.let { return@withLock it }
         val content = initialContent(date)
         val note = Note(
             id = UUID.randomUUID().toString(),
@@ -54,6 +65,6 @@ object DailyNote {
             updatedAt = now
         )
         repository.createNote(note)
-        return note
+        note
     }
 }

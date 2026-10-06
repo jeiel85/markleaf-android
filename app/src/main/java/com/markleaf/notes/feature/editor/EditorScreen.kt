@@ -479,6 +479,12 @@ fun EditorScreen(
     // from the database, and letting it choose again would overwrite the mode
     // and the preview position the reader was actually in (#499).
     var openingModeDecided by rememberSaveable(noteId) { mutableStateOf(false) }
+    // Where the caret was in an editor opened for appending (#481), kept across
+    // a recreation. Without it the reload after a rotation put the caret back
+    // at the end and the keyboard back up, over wherever the reader had moved
+    // it (#516 review). Other notes reload at their "Open notes at" position,
+    // as they always have; only this one opens somewhere the settings don't say.
+    var appendCaret by rememberSaveable(noteId) { mutableStateOf<Int?>(null) }
     // True when the settings read timed out and the note opened on defaults.
     // The position recorder consults it — see [recordsPosition] (#204).
     var openedOnFallbackSettings by remember(noteId) { mutableStateOf(false) }
@@ -827,7 +833,10 @@ fun EditorScreen(
             }
             lastCaretOffset = lastPosition?.caretOffset
             lastPreviewIndex = lastPosition?.previewIndex
-            val caret = if (openForAppend) content.length else when (persistedSettings.openNotesAt) {
+            val firstOpen = !openingModeDecided
+            val caret = if (openForAppend) {
+                (if (firstOpen) null else appendCaret) ?: content.length
+            } else when (persistedSettings.openNotesAt) {
                 OpenNotesAt.TOP -> 0
                 OpenNotesAt.BOTTOM -> content.length
                 OpenNotesAt.LAST_POSITION -> {
@@ -881,7 +890,7 @@ fun EditorScreen(
                 }
                 openingModeDecided = true
             }
-            shouldRequestEditorFocus = content.isEmpty() || openForAppend
+            shouldRequestEditorFocus = content.isEmpty() || (openForAppend && firstOpen)
             isLoaded = true
             // Remember this note as the launch target for the opt-in
             // "Reopen last note on launch" setting (#192) — but only when the
@@ -940,6 +949,12 @@ fun EditorScreen(
 
     LaunchedEffect(noteId, isLoaded) {
         if (noteId != null && isLoaded) saver.run()
+    }
+
+    // See appendCaret: what a recreation of this append editor restores.
+    LaunchedEffect(noteId, isLoaded, openForAppend) {
+        if (!openForAppend || !isLoaded) return@LaunchedEffect
+        snapshotFlow { editorState.selection.start }.collect { appendCaret = it }
     }
 
     LaunchedEffect(shouldRequestEditorFocus, isLoaded, isPreviewMode) {

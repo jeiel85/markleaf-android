@@ -6,9 +6,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.text.TextRange
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -36,6 +39,7 @@ import org.robolectric.annotation.GraphicsMode
  * same note opened without [openForAppend] is checked to obey them, so a pass
  * means the flag overrode them rather than that they were never in effect.
  */
+@OptIn(ExperimentalTestApi::class)
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [33], qualifiers = "w360dp-h640dp-mdpi")
@@ -94,6 +98,43 @@ class EditorOpenForAppendTest {
         val field = composeRule.onNodeWithContentDescription(context.getString(R.string.note_content))
             .fetchSemanticsNode()
         assertEquals(TextRange(content.length), field.config[SemanticsProperties.TextSelectionRange])
+    }
+
+    /**
+     * #516 review: a rotation reloads the note, and the append flag used to put
+     * the caret back at the end (and the keyboard back up) over wherever the
+     * reader had moved it. The clock keeps running here: a StateRestorationTester
+     * on a paused clock never actually rebuilds anything.
+     */
+    @Test
+    fun aRotationKeepsTheCaretWhereTheReaderMovedIt() {
+        val noteId = createNote()
+        val settings = readingSettings()
+        val restoration = StateRestorationTester(composeRule)
+        restoration.setContent {
+            Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                EditorScreen(noteId = noteId, onBack = {}, settingsRepository = settings, openForAppend = true)
+            }
+        }
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            composeRule.onAllNodesWithText("call the dentist", substring = true).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.waitForIdle()
+        val field = composeRule.onNodeWithContentDescription(context.getString(R.string.note_content))
+        field.performTextInputSelection(TextRange(3))
+        composeRule.waitForIdle()
+
+        restoration.emulateSavedInstanceStateRestore()
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            composeRule.onAllNodesWithText("call the dentist", substring = true).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.waitForIdle()
+
+        assertEquals(
+            TextRange(3),
+            composeRule.onNodeWithContentDescription(context.getString(R.string.note_content))
+                .fetchSemanticsNode().config[SemanticsProperties.TextSelectionRange]
+        )
     }
 
     @Test

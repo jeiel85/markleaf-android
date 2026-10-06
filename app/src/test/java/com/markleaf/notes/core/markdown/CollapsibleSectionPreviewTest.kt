@@ -130,6 +130,19 @@ class CollapsibleSectionPreviewTest {
     }
 
     @Test
+    fun aVeryLongTagIsStrippedWithoutOverflowingTheRegexEngine() {
+        // Review of #518: one engine step per character inside a tag overflowed
+        // the JVM's stack at ~10k characters (Android's engine instead gave up
+        // and left the tag on screen). Possessive runs keep it flat.
+        val longAttribute = "x".repeat(50_000)
+        val markdown = "<details>\n<summary>T</summary>\nA <span data-v=$longAttribute>B</span> C\n</details>"
+
+        val body = SimpleMarkdownPreview.parse(markdown)[1]
+
+        assertEquals("A B C", body.text)
+    }
+
+    @Test
     fun selfContainedDetailsBodyStillGetsInlineFormatting() {
         val markdown = "<details><summary>T</summary>a **bold** word</details>"
 

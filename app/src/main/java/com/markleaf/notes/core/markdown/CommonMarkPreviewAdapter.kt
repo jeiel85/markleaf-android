@@ -1158,7 +1158,11 @@ internal object CommonMarkPreviewAdapter {
     // `title="a > b"` ended the tag early, leaving `b">` on screen (#262). A
     // bare `<` or `>` in prose — the way people write comparisons — is text, as
     // browsers treat it. The non-element forms were added after the #518 review.
-    private val HTML_TAG_REGEX = Regex("""<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<\?[\s\S]*?\?>|<![A-Za-z][^>]*>|</?[A-Za-z](?:[^>"']|"[^"]*"|'[^']*')*>""")
+    // The tag body is matched in possessive runs: its three branches start on
+    // different characters, so nothing is lost by never backtracking, and one
+    // engine step per character used to overflow the JVM's stack on a tag of
+    // ~10k characters (Android's engine instead gave up and left it on screen).
+    private val HTML_TAG_REGEX = Regex("""<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<\?[\s\S]*?\?>|<![A-Za-z][^>]*>|</?[A-Za-z](?:[^>"']++|"[^"]*+"|'[^']*+')*+>""")
     private val HTML_IMG_TAG_REGEX = Regex("""<img\b[^>]*>""", RegexOption.IGNORE_CASE)
     private val HTML_BR_TAG_REGEX = Regex("""<br\s*/?>""", RegexOption.IGNORE_CASE)
     /** `<br>`, and the closing tag of an element a browser starts a new line after. */

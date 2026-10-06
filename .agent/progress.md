@@ -1,3 +1,8 @@
+## 2026-10-06 - v2.66.0: settings section shortcuts (#517)
+
+Selected task: a Discussions suggestion (#517); the maintainer chose option (a), shortcuts over collapsing or search.
+Verification: `SettingsSectionShortcutsTest` (4) with a mutation check, emulator check; Settings goldens re-recorded from CI. Gate results are in the PR.
+
 ## 2026-10-06 - v2.65.1: find focus; section text keeps comparisons (#262)
 
 Selected task: "continue" — no outside activity; the maintainer chose user-facing items from #262. Fixed two; a third was already fixed (`64a8987f`) and only needed its box ticked.

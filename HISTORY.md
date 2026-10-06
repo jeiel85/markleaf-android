@@ -1,3 +1,10 @@
+## 2026-10-06 — Settings gets section shortcuts (#517, v2.66.0)
+
+- **Why.** On the v2.65.0 announcement (#517) a user found Settings long and suggested collapsible groups or search. The maintainer picked the smallest of three options: a row of shortcuts above the page. It adds a way in without hiding anything (collapsing would) or indexing every label in 11 languages (search would). The same comment's other idea, tasks with timed reminders, was declined with the #199 reasoning.
+- **How.** `SettingsSectionShortcuts` is a sideways-scrolling row of `SuggestionChip`s pinned above the scrolling column (the old `Box` became a `Column`, the scroller takes `weight(1f)`). Each section records its `LayoutCoordinates` through `onPlaced`. The tap reads the heading's offset from the viewport at that moment, then `animateScrollTo`s it to the same 16dp gap the first section has. Offsets are not cached because sections change height with state (a sync folder chosen, a passcode set). Sync gets a one-word chip label, `settings_shortcut_sync`, in 11 locales; the rest reuse the section titles.
+- **Tests.** `SettingsSectionShortcutsTest` (4, phone size): Privacy and Sync land where Appearance starts, jumping back up from Data works, and App, too short to reach the top, ends on screen. Dropping the gap from the target makes 3 of them fail. The 4 tablet Settings goldens move down by the new row and are re-recorded from CI.
+- **On a device.** Emulator, debug build: Privacy, Sync and App chips each jumped as described, and the row scrolled sideways.
+
 ## 2026-10-06 — Find focuses its field; the section text cleaner keeps comparisons (#262, v2.65.1)
 
 - **Why these.** Nothing new from outside, so the maintainer picked user-facing defects from the tracker. A third candidate, wikilink vs local-link verdict order, turned out to be fixed already in `64a8987f`; only the tracker box was left open.

@@ -1,0 +1,1 @@
+Mới: Cài đặt có một hàng lối tắt đến từng mục ở trên cùng (Giao diện, Ghi chú & tìm kiếm, Quyền riêng tư, Đồng bộ và hơn nữa). Chạm một lối tắt để đến thẳng mục đó; mọi tùy chọn vẫn ở chỗ cũ.

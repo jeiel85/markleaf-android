@@ -1,0 +1,1 @@
+Neu: Oben in den Einstellungen gibt es jetzt eine Leiste mit Abschnitts-Verknüpfungen (Darstellung, Notizen & Suche, Datenschutz, Synchronisation und mehr). Ein Tipp springt direkt zum Abschnitt; alle Optionen bleiben, wo sie waren.

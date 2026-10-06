@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.66.0 - Jump to a settings section - 2026-10-06
+
+Settings is one long page, so it now has a row of shortcuts at the top. No permission or storage-format changes.
+
+### Added
+- **Section shortcuts in Settings.** A row of chips above the page (Appearance, Markdown, Notes & search, Privacy, Data, Sync, Open source, App) stays in place while you scroll, and tapping one brings that section's heading to the top. On a phone the row scrolls sideways. Every option stays where it was. Suggested in Discussions (#517).
+
 ## v2.65.1 - Find is ready to type, and comparisons stay in sections - 2026-10-06
 
 Two small fixes from the hardening tracker (#262). No permission or storage-format changes.

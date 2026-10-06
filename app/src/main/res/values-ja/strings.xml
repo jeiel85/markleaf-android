@@ -275,6 +275,7 @@
     </plurals>
 
     <string name="sync_title">マルチデバイス同期 (フォルダミラー)</string>
+    <string name="settings_shortcut_sync">同期</string>
     <string name="sync_explainer">Markleaf 自体はオンラインに出ません。代わりに任意のフォルダを選ぶと、各ノートを `.md` ファイルとしてそこへ保存します。そのフォルダを他のアプリ — Dropbox、Drive、Syncthing、OneDrive、NAS — が同期していれば、ノートも他の端末へ追従します。</string>
     <string name="sync_recommended_locations">推奨フォルダの例:\n· /内部ストレージ/Dropbox/Markleaf\n· /内部ストレージ/Drive/Markleaf\n· /内部ストレージ/Sync/Markleaf  (Syncthing)</string>
     <string name="sync_status_unset">フォルダが選択されていません。</string>

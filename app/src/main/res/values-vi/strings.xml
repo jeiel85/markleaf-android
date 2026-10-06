@@ -276,6 +276,7 @@
     </plurals>
 
     <string name="sync_title">Đồng bộ nhiều thiết bị (phản chiếu thư mục)</string>
+    <string name="settings_shortcut_sync">Đồng bộ</string>
     <string name="sync_explainer">Bản thân Markleaf không bao giờ kết nối mạng. Thay vào đó, bạn chọn một thư mục và Markleaf lưu mỗi ghi chú thành một tệp `.md` trong đó. Nếu thư mục ấy được một ứng dụng khác đồng bộ — Dropbox, Drive, Syncthing, OneDrive, NAS — ghi chú của bạn sẽ có trên các thiết bị khác.</string>
     <string name="sync_recommended_locations">Những vị trí nên chọn cho Markleaf:\n· /Bộ nhớ trong/Dropbox/Markleaf\n· /Bộ nhớ trong/Drive/Markleaf\n· /Bộ nhớ trong/Sync/Markleaf  (Syncthing)</string>
     <string name="sync_status_unset">Chưa chọn thư mục.</string>

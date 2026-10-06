@@ -282,6 +282,7 @@
     </plurals>
 
     <string name="sync_title">Synchronisierung über mehrere Geräte (Ordner-Spiegel)</string>
+    <string name="settings_shortcut_sync">Synchronisation</string>
     <string name="sync_explainer">Markleaf selbst geht nicht online. Stattdessen wählst du einen Ordner, und Markleaf speichert jede Notiz dort als `.md`-Datei. Wenn dieser Ordner von einer anderen App synchronisiert wird – Dropbox, Drive, Syncthing, OneDrive, NAS – folgen deine Notizen deinen anderen Geräten.</string>
     <string name="sync_recommended_locations">Geeignete Orte für Markleaf:\n· /Interner Speicher/Dropbox/Markleaf\n· /Interner Speicher/Drive/Markleaf\n· /Interner Speicher/Sync/Markleaf  (Syncthing)</string>
     <string name="sync_status_unset">Kein Ordner ausgewählt.</string>

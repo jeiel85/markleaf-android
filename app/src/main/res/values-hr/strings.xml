@@ -299,6 +299,7 @@
     </plurals>
 
     <string name="sync_title">Sinkr. na više uređaja (zrcaljenje mape)</string>
+    <string name="settings_shortcut_sync">Sinkronizacija</string>
     <string name="sync_explainer">Markleaf nikada ne pristupa mreži. Umjesto toga, odaberite mapu i Markleaf će u njoj spremati svaku bilješku kao „.md” datoteku. Ako tu mapu sinkronizira druga aplikacija (Dropbox, Drive, Syncthing, OneDrive, NAS), Vaše bilješke će se pojaviti na Vašim drugim uređajima.</string>
     <string name="sync_recommended_locations">Dobre lokacije za odabrati u Markleafu:\n· /Unutarnja pohrana/Dropbox/Markleaf\n· /Unutarnja pohrana/Drive/Markleaf\n· /Unutarnja pohrana/Sync/Markleaf  (Syncthing)</string>
     <string name="sync_status_unset">Mapa nije odabrana.</string>

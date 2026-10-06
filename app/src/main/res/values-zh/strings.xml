@@ -281,6 +281,7 @@
     </plurals>
 
     <string name="sync_title">多设备同步（文件夹镜像）</string>
+    <string name="settings_shortcut_sync">同步</string>
     <string name="sync_explainer">Markleaf 本身不会联网。你可以选择一个文件夹，Markleaf 会将每篇笔记以 `.md` 文件保存到其中。如果该文件夹由其他应用同步，例如 Dropbox、Google 云端硬盘、Syncthing、OneDrive 或 NAS，你的笔记也会同步到其他设备。</string>
     <string name="sync_recommended_locations">建议将 Markleaf 指向以下位置：\n· /内部存储/Dropbox/Markleaf\n· /内部存储/Drive/Markleaf\n· /内部存储/Sync/Markleaf  (Syncthing)</string>
     <string name="sync_status_unset">尚未选择文件夹。</string>

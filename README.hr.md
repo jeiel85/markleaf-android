@@ -64,7 +64,7 @@
 
 **Markleaf** je Android aplikacija za Markdown bilješke osmišljena tako da ukloni nered kako biste se mogli usredotočiti na samo dvije stvari: bilježenje i organiziranje. Vaši se podaci pohranjuju isključivo na vašem uređaju, a standardni Markdown jamči potpuno vlasništvo i prenosivost. Čak se i sinkronizacija odvija samo kroz *mapu koju sami odaberete* — Markleaf sam nikada ništa ne sinkronizira ni ne šalje.
 
-[**Pogledajte stranicu projekta**](https://jeiel85.github.io/markleaf-android/) · [Trenutačna verzija: v2.63.5](https://github.com/jeiel85/markleaf-android/releases/tag/v2.63.5) · [Pravila privatnosti](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**Pogledajte stranicu projekta**](https://jeiel85.github.io/markleaf-android/) · [Trenutačna verzija: v2.64.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.64.0) · [Pravila privatnosti](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -80,7 +80,7 @@
 - **Pametno prebacivanje Markdown formatiranja** — omotajte odabir ili riječ oko pokazivača u podebljano/kurziv/precrtano/kod, a ponovnim dodirom uredno uklonite već postojeće oznake
 - **Tipkovni prečaci** — Ctrl/Cmd+B, I, K, Shift+S za podebljano, kurziv, poveznicu i precrtano na hardverskoj tipkovnici
 - **Sadržaj (TOC)** — u načinu pretpregleda skočite na naslove H1–H3 i tako se krećite kroz duge bilješke
-- **Izbor serifnog / beserifnog pisma** — prebacite površinu za pisanje na serifno pismo za dojam knjige; blokovi koda uvijek ostaju jednoširinski
+- **Izbor pisma** — beserifno, serifno ili jednoširinsko, ili vlastita datoteka fonta `.ttf`/`.otf` (ostaje na uređaju); blokovi koda uvijek ostaju jednoširinski
 - **Način fokusa / statistika riječi, znakova i vremena čitanja / pronalaženje i zamjena unutar bilješke**
 
 ### Organiziranje i kretanje
@@ -171,7 +171,7 @@ com.markleaf.notes
 > **Ažuriranja na Google Playu trenutačno su zaustavljena.** Nove verzije neće se objavljivati na Play Storeu dok se ne riješi korejski propis o registraciji obrta za samostalnog razvijatelja. Za trenutačno izdanje koristite **GitHub Releases**. F-Droid ostaje preporučeni put ažuriranja kad njegov build dostigne izdanje. (Ako ste je već instalirali s Play Storea, nastavlja raditi.)
 
 - **F-Droid** *(preporučeno za automatska ažuriranja)*: [Markleaf na F-Droidu](https://f-droid.org/packages/com.markleaf.notes/) — potražite u F-Droid klijentu ili instalirajte putem poveznice iznad. Njegov katalog može objaviti nakon GitHuba; ako još ne prikazuje trenutačnu verziju, koristite GitHub Releases ispod. Koristi isti ključ za potpisivanje (SHA-256 `0be97352…f91a`), pa se ažuriranja nastavljaju bez prekida i ako prvo ručno instalirate APK s GitHuba.
-- **Izravna instalacija APK-a**: [GitHub izdanje v2.63.5](https://github.com/jeiel85/markleaf-android/releases/tag/v2.63.5) sadrži dva APK-a — `markleaf-v2.63.5.apk` odgovara F-Droid/Play inačici (bez automatskog ažuriranja, bez dodatnih dopuštenja), a `markleaf-v2.63.5-sideload.apk` dodaje neobavezno ažuriranje unutar aplikacije (dopuštenja `INTERNET` i `REQUEST_INSTALL_PACKAGES`). Za ažuriranje unutar aplikacije preuzmite sideload inačicu i pokrenite je na svom Android uređaju — obje koriste isti ključ za potpisivanje, pa je kasnija zamjena jedne drugom obično ažuriranje, a ne ponovna instalacija.
+- **Izravna instalacija APK-a**: [GitHub izdanje v2.64.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.64.0) sadrži dva APK-a — `markleaf-v2.64.0.apk` odgovara F-Droid/Play inačici (bez automatskog ažuriranja, bez dodatnih dopuštenja), a `markleaf-v2.64.0-sideload.apk` dodaje neobavezno ažuriranje unutar aplikacije (dopuštenja `INTERNET` i `REQUEST_INSTALL_PACKAGES`). Za ažuriranje unutar aplikacije preuzmite sideload inačicu i pokrenite je na svom Android uređaju — obje koriste isti ključ za potpisivanje, pa je kasnija zamjena jedne drugom obično ažuriranje, a ne ponovna instalacija.
 - **Google Play**: [Markleaf na Google Playu](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **ažuriranja su zaustavljena** (vidi napomenu iznad). Ako je već imate, nastavlja raditi; za trenutačnu verziju koristite GitHub Releases ili F-Droid kad ondje postane dostupna.
 
 ### Izgradnja iz izvornog koda

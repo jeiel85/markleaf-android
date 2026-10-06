@@ -1,3 +1,10 @@
+## 2026-10-06 - v2.64.0: your own font (#510)
+
+Selected task: "continue — check GitHub issues and discussions". kise82 confirmed v2.63.5 fixed #500 (closed with thanks); ClockGen answered the #510 questions (look and readability, one file, code stays monospace), so the feature was built.
+Changed: see HISTORY.md of the same date — `EditorFont.CUSTOM`, `CustomFontStore` (import, structural validation, replace), `setCustomFont`, Settings chip and picker, 7 strings in 11 languages, README feature line in 11 languages.
+Verification: new unit tests (11) fail-first where it mattered (the header-only file passed the first validation); emulator flow for a non-font, a real font, persistence and replacement. Gate results are in the PR.
+Lesson: Android's font loaders fall back silently, so "it loaded" proves nothing; validate the font's structure yourself before keeping a file.
+
 ## 2026-10-06 - v2.63.5: zoomed glide ignores the animator duration scale (#500)
 
 Selected task: "check for anything more to respond to". New since v2.63.3: kise82's v2.63.4 feedback on #500 (zoomed glide jumps and halts, unzoomed fine), #510 (custom fonts, no reply yet), and a +1 on Discussion #481.

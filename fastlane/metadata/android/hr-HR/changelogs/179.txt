@@ -1,0 +1,1 @@
+Novo: koristite vlastitu datoteku fonta. Postavke → Font → Vlastiti font omogućuje odabir .ttf ili .otf datoteke; Markleaf čuva kopiju na uređaju i koristi je u uređivaču i pregledu. Kod ostaje jednoširinski. Nije potrebno nikakvo dopuštenje.

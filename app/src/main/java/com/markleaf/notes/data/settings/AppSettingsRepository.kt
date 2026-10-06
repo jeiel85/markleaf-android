@@ -55,6 +55,8 @@ class AppSettingsRepository internal constructor(
             editorFont = preferences[EDITOR_FONT]
                 ?.let { value -> enumValueOrDefault(value, EditorFont.SANS) }
                 ?: EditorFont.SANS,
+            customFontFile = preferences[CUSTOM_FONT_FILE],
+            customFontName = preferences[CUSTOM_FONT_NAME],
             screenshotProtection = preferences[SCREENSHOT_PROTECTION] ?: false,
             syncFolderUri = preferences[SYNC_FOLDER_URI],
             syncLastSyncedAt = preferences[SYNC_LAST_SYNCED_AT],
@@ -249,6 +251,19 @@ class AppSettingsRepository internal constructor(
     suspend fun setEditorFont(font: EditorFont) {
         persist { preferences ->
             preferences[EDITOR_FONT] = font.name
+        }
+    }
+
+    /**
+     * Records a newly imported font file and switches the writing surface to it
+     * in one write, so the theme never sees [EditorFont.CUSTOM] pointing at the
+     * previous file or the new file under a built-in choice (#510).
+     */
+    suspend fun setCustomFont(fileName: String, displayName: String) {
+        persist { preferences ->
+            preferences[CUSTOM_FONT_FILE] = fileName
+            preferences[CUSTOM_FONT_NAME] = displayName
+            preferences[EDITOR_FONT] = EditorFont.CUSTOM.name
         }
     }
 
@@ -451,6 +466,8 @@ class AppSettingsRepository internal constructor(
         val MARKDOWN_SYNTAX_VISIBILITY = stringPreferencesKey("markdown_syntax_visibility")
         val LINE_WIDTH = stringPreferencesKey("line_width")
         val EDITOR_FONT = stringPreferencesKey("editor_font")
+        val CUSTOM_FONT_FILE = stringPreferencesKey("custom_font_file")
+        val CUSTOM_FONT_NAME = stringPreferencesKey("custom_font_name")
         val SCREENSHOT_PROTECTION = booleanPreferencesKey("screenshot_protection")
         val SYNC_FOLDER_URI = stringPreferencesKey("sync_folder_uri")
         val SYNC_LAST_SYNCED_AT = longPreferencesKey("sync_last_synced_at")

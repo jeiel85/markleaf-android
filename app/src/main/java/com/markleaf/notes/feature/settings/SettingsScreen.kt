@@ -71,6 +71,7 @@ import com.markleaf.notes.data.repository.NoteRetitler
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.ColorPalette
+import com.markleaf.notes.core.font.CustomFontStore
 import com.markleaf.notes.data.settings.EditorFont
 import com.markleaf.notes.data.settings.EditorFontSize
 import com.markleaf.notes.data.settings.EditorLineWidth
@@ -178,6 +179,30 @@ fun SettingsScreen(
             } finally {
                 settingsRepository.setRetitlePending(false)
                 retitleBusy = false
+            }
+        }
+    }
+    // #510: a font file of the reader's own. The picker needs no storage
+    // permission; the file is copied into app storage and checked before the
+    // writing surface switches to it.
+    val customFontLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { fontUri ->
+        if (fontUri != null) {
+            scope.launch {
+                val result = withContext(Dispatchers.IO) { CustomFontStore.import(context, fontUri) }
+                when (result) {
+                    is CustomFontStore.ImportResult.Imported -> {
+                        settingsRepository.setCustomFont(result.fileName, result.displayName)
+                        withContext(Dispatchers.IO) { CustomFontStore.deleteAllExcept(context, result.fileName) }
+                    }
+                    CustomFontStore.ImportResult.NotAFont ->
+                        Toast.makeText(context, R.string.font_custom_not_a_font, Toast.LENGTH_LONG).show()
+                    CustomFontStore.ImportResult.TooLarge ->
+                        Toast.makeText(context, R.string.font_custom_too_large, Toast.LENGTH_LONG).show()
+                    CustomFontStore.ImportResult.Unreadable ->
+                        Toast.makeText(context, R.string.font_custom_unreadable, Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
@@ -462,14 +487,40 @@ fun SettingsScreen(
                                 } else {
                                     OutlinedButton(
                                         onClick = {
-                                            scope.launch {
-                                                settingsRepository.setEditorFont(font)
+                                            // Your font with no file yet goes
+                                            // straight to the picker; picking
+                                            // one is what selects it.
+                                            if (font == EditorFont.CUSTOM &&
+                                                CustomFontStore.file(context, appSettings.customFontFile) == null
+                                            ) {
+                                                customFontLauncher.launch(CustomFontMimeTypes)
+                                            } else {
+                                                scope.launch {
+                                                    settingsRepository.setEditorFont(font)
+                                                }
                                             }
                                         }
                                     ) {
                                         Text(font.localizedLabel())
                                     }
                                 }
+                            }
+                        }
+                        if (appSettings.editorFont == EditorFont.CUSTOM) {
+                            Spacer(Modifier.height(6.dp))
+                            val fontName = appSettings.customFontName
+                                ?.takeIf { CustomFontStore.file(context, appSettings.customFontFile) != null }
+                            Text(
+                                text = if (fontName != null) {
+                                    stringResource(R.string.font_custom_file_format, fontName)
+                                } else {
+                                    stringResource(R.string.font_custom_missing)
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            TextButton(onClick = { customFontLauncher.launch(CustomFontMimeTypes) }) {
+                                Text(stringResource(R.string.font_custom_choose))
                             }
                         }
                         Spacer(Modifier.height(6.dp))
@@ -1508,5 +1559,23 @@ private fun EditorFont.localizedLabel(): String {
         EditorFont.SANS -> stringResource(R.string.font_sans)
         EditorFont.SERIF -> stringResource(R.string.font_serif)
         EditorFont.MONOSPACE -> stringResource(R.string.font_monospace)
+        EditorFont.CUSTOM -> stringResource(R.string.font_custom)
     }
 }
+
+/**
+ * What the font picker offers. Providers disagree on a font's MIME type — many
+ * file managers report `.ttf` as `application/octet-stream` — so the generic
+ * binary type is included, and [CustomFontStore] checks the file itself.
+ */
+private val CustomFontMimeTypes = arrayOf(
+    "font/ttf",
+    "font/otf",
+    "font/sfnt",
+    "font/collection",
+    "application/x-font-ttf",
+    "application/x-font-otf",
+    "application/font-sfnt",
+    "application/vnd.ms-opentype",
+    "application/octet-stream"
+)

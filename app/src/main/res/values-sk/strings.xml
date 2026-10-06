@@ -41,6 +41,13 @@
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>
     <string name="font_monospace">Monospace</string>
+    <string name="font_custom">Vlastné písmo</string>
+    <string name="font_custom_file_format">Používa sa %1$s. Markleaf si uchováva vlastnú kópiu v tomto zariadení.</string>
+    <string name="font_custom_missing">Súbor písma chýba. Vyberte ho znova.</string>
+    <string name="font_custom_choose">Vybrať súbor písma</string>
+    <string name="font_custom_not_a_font">Tento súbor nie je písmo, ktoré môže Markleaf použiť. Vyberte súbor .ttf alebo .otf.</string>
+    <string name="font_custom_too_large">Súbor písma je príliš veľký (viac ako 32 MB).</string>
+    <string name="font_custom_unreadable">Súbor sa nepodarilo prečítať. Vyberte ho znova.</string>
     <string name="font_description">Písmo Serif dodáva poznámkam klasický vzhľad pripomínajúci knihu. Kód sa vždy zobrazuje s pevnou šírkou znakov.</string>
     <string name="all_notes">Všetky poznámky</string>
     <string name="no_notes_for_tag">K tejto značke nie sú priradené žiadne poznámky</string>

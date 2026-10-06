@@ -1,0 +1,1 @@
+Nové: použite vlastný súbor písma. Nastavenia → Písmo → Vlastné písmo vám dovolí vybrať súbor .ttf alebo .otf; Markleaf si uloží kópiu v zariadení a použije ju v editore aj náhľade. Kód zostáva s pevnou šírkou. Netreba žiadne povolenie.

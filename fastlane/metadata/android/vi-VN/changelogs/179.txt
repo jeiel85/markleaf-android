@@ -1,0 +1,1 @@
+Mới: dùng tệp phông chữ của riêng bạn. Cài đặt → Phông chữ → Phông chữ của bạn cho phép chọn tệp .ttf hoặc .otf; Markleaf giữ một bản sao trên thiết bị và dùng trong trình soạn thảo và Xem trước. Mã vẫn giữ phông đơn cách. Không cần quyền nào.

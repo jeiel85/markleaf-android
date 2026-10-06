@@ -1,0 +1,1 @@
+Nuevo: usa un archivo de fuente propio. Ajustes → Fuente → Tu fuente te deja elegir un archivo .ttf u .otf; Markleaf guarda una copia en el dispositivo y la usa en el editor y la vista previa. El código sigue en monoespaciado. Sin permisos.

@@ -64,7 +64,7 @@
 
 **Markleaf** is an Android Markdown note app designed to strip away the clutter so you can focus on just two things: capturing and organizing. Your data is stored only on your device, and standard Markdown guarantees full ownership and portability. Even sync happens only through *a folder you choose* — Markleaf never syncs or uploads anything itself.
 
-[**View the branding page**](https://jeiel85.github.io/markleaf-android/) · [Current version: v2.63.5](https://github.com/jeiel85/markleaf-android/releases/tag/v2.63.5) · [Privacy Policy](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
+[**View the branding page**](https://jeiel85.github.io/markleaf-android/) · [Current version: v2.64.0](https://github.com/jeiel85/markleaf-android/releases/tag/v2.64.0) · [Privacy Policy](https://jeiel85.github.io/markleaf-android/privacy.html) · [F-Droid](https://f-droid.org/packages/com.markleaf.notes/) · [Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes)
 
 ---
 
@@ -80,7 +80,7 @@
 - **Smart Markdown formatting toggle** — wrap the selection or the word around the cursor in Bold/Italic/Strikethrough/Inline Code, and tap again to cleanly unwrap text that's already wrapped
 - **Keyboard shortcuts** — Ctrl/Cmd+B, I, K, Shift+S for bold, italic, link and strikethrough on a hardware keyboard
 - **Table of contents (TOC)** — in preview mode, jump to H1–H3 headings to navigate long notes
-- **Serif / Sans font choice** — switch the writing surface to a serif face for a book-like feel; code blocks always stay monospaced
+- **Font choice** — Sans, Serif or Monospace, or a `.ttf`/`.otf` font file of your own (kept on the device); code blocks always stay monospaced
 - **Focus mode / word, character & reading-time stats / find & replace within a note**
 
 ### Organizing & Navigating
@@ -171,7 +171,7 @@ com.markleaf.notes
 > **Google Play updates are currently on hold.** New versions won't be pushed to the Play Store until a Korean business-registration policy requirement for the solo developer is resolved. For the current release, use **GitHub Releases**. F-Droid remains the recommended update path when its build has caught up. (If you already installed it from the Play Store, it keeps working.)
 
 - **F-Droid** *(recommended for automatic updates)*: [Markleaf on F-Droid](https://f-droid.org/packages/com.markleaf.notes/) — search in the F-Droid client or install via the link above. Its catalog may publish after GitHub; if it does not yet show the current version, use GitHub Releases below. It uses the same signing key (SHA-256 `0be97352…f91a`), so updates continue seamlessly even if you first sideload a GitHub APK.
-- **Direct APK install**: the [GitHub v2.63.5 release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.63.5) carries two APKs — `markleaf-v2.63.5.apk` matches the F-Droid/Play build (no auto-update, no extra permission), and `markleaf-v2.63.5-sideload.apk` adds an opt-in in-app update check (`INTERNET`, `REQUEST_INSTALL_PACKAGES`). Pick the sideload one for in-app updates, download it, then run it on your Android device — both share the same signing key, so switching between them later is a normal update, not a reinstall.
+- **Direct APK install**: the [GitHub v2.64.0 release](https://github.com/jeiel85/markleaf-android/releases/tag/v2.64.0) carries two APKs — `markleaf-v2.64.0.apk` matches the F-Droid/Play build (no auto-update, no extra permission), and `markleaf-v2.64.0-sideload.apk` adds an opt-in in-app update check (`INTERNET`, `REQUEST_INSTALL_PACKAGES`). Pick the sideload one for in-app updates, download it, then run it on your Android device — both share the same signing key, so switching between them later is a normal update, not a reinstall.
 - **Google Play**: [Markleaf on Google Play](https://play.google.com/store/apps/details?id=com.markleaf.notes) — **updates are paused** (see the note above). If you already have it, it keeps working; use GitHub Releases for the current version or F-Droid once it is available there.
 
 ### Building from source

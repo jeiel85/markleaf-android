@@ -37,7 +37,7 @@ import com.markleaf.notes.feature.onboarding.WelcomeOnboardingSheet
 import com.markleaf.notes.navigation.MarkleafNavHost
 import com.markleaf.notes.shortcut.LauncherShortcuts
 import com.markleaf.notes.ui.theme.MarkleafTheme
-import com.markleaf.notes.ui.theme.bodyFontFamily
+import com.markleaf.notes.ui.theme.rememberBodyFontFamily
 import com.markleaf.notes.ui.viewmodel.MarkleafViewModelFactory
 import com.markleaf.notes.util.ExternalFile
 import com.markleaf.notes.widget.QuickNoteWidget
@@ -268,7 +268,7 @@ class MainActivity : FragmentActivity() {
                     ThemeMode.DARK -> true
                 },
                 dynamicColor = appSettings.colorPalette == ColorPalette.MATERIAL_YOU,
-                bodyFontFamily = appSettings.editorFont.bodyFontFamily()
+                bodyFontFamily = rememberBodyFontFamily(appSettings)
             ) {
                 BiometricLockGate(enabled = appSettings.biometricLockEnabled) {
                     val navController = rememberNavController()

@@ -1,0 +1,1 @@
+Neu: eigene Schriftdatei verwenden. Unter Einstellungen → Schriftart → Eigene Schrift wählst du eine .ttf- oder .otf-Datei; Markleaf speichert eine Kopie auf dem Gerät und nutzt sie im Editor und in der Vorschau. Code bleibt in Monospace. Keine Berechtigung nötig.

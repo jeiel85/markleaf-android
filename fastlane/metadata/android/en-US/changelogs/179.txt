@@ -1,0 +1,1 @@
+New: use a font file of your own. Settings → Font → Your font lets you pick a .ttf or .otf file; Markleaf keeps a copy on your device and uses it in the editor and Preview. Code stays monospaced. No permission needed.

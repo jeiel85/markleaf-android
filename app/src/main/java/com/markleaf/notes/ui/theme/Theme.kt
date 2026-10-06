@@ -11,17 +11,22 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import com.markleaf.notes.core.font.CustomFontStore
+import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.EditorFont
+import java.io.File
 
 /** Internal rather than private so `EditorColorContrastTest` can assert the
  *  editor's colours against the backgrounds they are actually drawn on. */
@@ -197,11 +202,33 @@ private fun androidx.compose.material3.Typography.withFontFamily(
 /**
  * The family [MarkleafTheme] applies for this choice; null leaves the original
  * Typography untouched, which is what keeps sans byte-for-byte what it always was.
+ * [EditorFont.CUSTOM] draws [customFont] and falls back to sans (null) when
+ * there is no such file — never imported, or gone (#510).
  */
-fun EditorFont.bodyFontFamily(): FontFamily? = when (this) {
+fun EditorFont.bodyFontFamily(customFont: File? = null): FontFamily? = when (this) {
     EditorFont.SANS -> null
     EditorFont.SERIF -> FontFamily.Serif
     EditorFont.MONOSPACE -> FontFamily.Monospace
+    EditorFont.CUSTOM -> customFont?.let { FontFamily(Font(it)) }
+}
+
+/**
+ * [bodyFontFamily] for [settings], remembered so a recomposition doesn't build
+ * a new family (and make every text re-resolve its font) each time. The stored
+ * font's file name changes whenever a new one is imported, which is what keys
+ * the reload.
+ */
+@Composable
+fun rememberBodyFontFamily(settings: AppSettings): FontFamily? {
+    val context = LocalContext.current
+    return remember(settings.editorFont, settings.customFontFile) {
+        val customFont = if (settings.editorFont == EditorFont.CUSTOM) {
+            CustomFontStore.file(context, settings.customFontFile)
+        } else {
+            null
+        }
+        settings.editorFont.bodyFontFamily(customFont)
+    }
 }
 
 @Composable

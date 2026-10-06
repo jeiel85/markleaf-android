@@ -4,6 +4,14 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.65.1 - Find is ready to type, and comparisons stay in sections - 2026-10-06
+
+Two small fixes from the hardening tracker (#262). No permission or storage-format changes.
+
+### Fixed
+- **Find in note puts the caret in its search field.** Opening Find, in the editor or in Preview, used to leave the field unfocused, so you had to tap it before typing. It now takes focus and brings up the keyboard straight away.
+- **Text like `1 < 2 > 0` inside a collapsible section no longer loses its middle.** In Preview, a `<details>` section's text was cleaned of HTML by deleting everything from any `<` to the next `>`, so a comparison read "1  0". The same cleanup cut a tag short when an attribute held a `>`, and the rest showed on screen. Only real tags and comments are removed now; a bare `<` or `>` in your text stays.
+
 ## v2.65.0 - Today's note - 2026-10-06
 
 One addition from Discussions. No permission or storage-format changes.

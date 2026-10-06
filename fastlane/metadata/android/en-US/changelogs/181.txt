@@ -1,0 +1,1 @@
+Fixed: Find in note now puts the caret in its search field and brings up the keyboard, so you can type straight away. Text like 1 < 2 > 0 inside a collapsible section no longer loses its middle in Preview.

@@ -1,3 +1,9 @@
+## 2026-10-06 - v2.65.1: find focus; section text keeps comparisons (#262)
+
+Selected task: "continue" — no outside activity; the maintainer chose user-facing items from #262. Fixed two; a third was already fixed (`64a8987f`) and only needed its box ticked.
+Verification: new tests fail-first (5 of 6, plus a guard), core.markdown suite green, emulator check of both. Gate results are in the PR.
+Lesson: check the code before taking a tracker item; one of three was already done.
+
 ## 2026-10-06 - v2.65.0: today's note for the new-note shortcuts (Discussion #481)
 
 Selected task: "check GitHub issues and discussions again". New: abinjoyal described the daily-note behaviour on #481. The maintainer chose to build it as a setting (default unchanged). #510's release comment was corrected after the merge auto-closed the issue.

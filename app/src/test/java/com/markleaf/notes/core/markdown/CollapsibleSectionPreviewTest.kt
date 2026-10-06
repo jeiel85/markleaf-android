@@ -87,6 +87,38 @@ class CollapsibleSectionPreviewTest {
     }
 
     @Test
+    fun aComparisonInsideASectionIsNotMistakenForATag() {
+        // #262: the tag stripper took everything from a `<` to the next `>` as
+        // a tag, so "1 < 2 > 0" lost " 2 " and read "1  0".
+        val markdown = "<details>\n<summary>Maths</summary>\nIt holds: 1 < 2 > 0, and a<b too.\n</details>"
+
+        val body = SimpleMarkdownPreview.parse(markdown)[1]
+
+        assertEquals("It holds: 1 < 2 > 0, and a<b too.", body.text)
+    }
+
+    @Test
+    fun aQuotedAngleBracketInsideATagDoesNotEndIt() {
+        // An attribute holding ">" used to end the "tag" early and leave the
+        // rest of the attribute on screen.
+        val markdown = "<details>\n<summary>T</summary>\nSee <span title=\"a > b\">this</span> note.\n</details>"
+
+        val body = SimpleMarkdownPreview.parse(markdown)[1]
+
+        assertEquals("See this note.", body.text)
+    }
+
+    @Test
+    fun realTagsAndCommentsAreStillStripped() {
+        val markdown = "<details>\n<summary><b>Bold</b> title</summary>\nOne<!-- hidden --> two <i>three</i>\n</details>"
+
+        val lines = SimpleMarkdownPreview.parse(markdown)
+
+        assertEquals("Bold title", lines[0].text)
+        assertEquals("One two three", lines[1].text)
+    }
+
+    @Test
     fun selfContainedDetailsBodyStillGetsInlineFormatting() {
         val markdown = "<details><summary>T</summary>a **bold** word</details>"
 

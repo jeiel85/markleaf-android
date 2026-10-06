@@ -1,0 +1,1 @@
+Opravené: Hľadať v poznámke teraz hneď vloží kurzor do vyhľadávacieho poľa a otvorí klávesnicu, takže môžete hneď písať. Text ako 1 < 2 > 0 v zbaliteľnej sekcii už v náhľade nestráca svoj stred.

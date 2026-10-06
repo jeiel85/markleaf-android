@@ -1,0 +1,1 @@
+Corrigé : « Rechercher dans la note » place désormais le curseur dans le champ de recherche et ouvre le clavier, pour taper aussitôt. Un texte comme 1 < 2 > 0 dans une section repliable ne perd plus son milieu dans l'aperçu.

@@ -19,8 +19,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
@@ -45,6 +49,11 @@ internal fun FindBar(
     onReplaceOne: () -> Unit = {},
     onReplaceAll: () -> Unit = {}
 ) {
+    // The bar exists only while Find is open, so composing it is opening it:
+    // put the caret in the search field then, instead of making the reader tap
+    // it before typing (#262).
+    val searchFocus = remember { FocusRequester() }
+    LaunchedEffect(Unit) { searchFocus.requestFocus() }
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -67,7 +76,7 @@ internal fun FindBar(
                     onValueChange = onQueryChange,
                     placeholder = { Text(stringResource(R.string.find_in_note_hint)) },
                     singleLine = true,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f).focusRequester(searchFocus)
                 )
                 Text(
                     text = if (totalMatches == 0) "0/0"

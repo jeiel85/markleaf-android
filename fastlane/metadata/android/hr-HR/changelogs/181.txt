@@ -1,0 +1,1 @@
+Ispravljeno: Pretraživanje bilješke sada stavlja pokazivač u polje za pretraživanje i otvara tipkovnicu pa možete odmah tipkati. Tekst poput 1 < 2 > 0 u sažimajućem odjeljku više ne gubi sredinu u pregledu.

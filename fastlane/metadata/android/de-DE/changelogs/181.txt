@@ -1,0 +1,1 @@
+Behoben: „In Notiz suchen“ setzt den Cursor jetzt direkt ins Suchfeld und öffnet die Tastatur, sodass du sofort tippen kannst. Text wie 1 < 2 > 0 in einem ausklappbaren Abschnitt verliert in der Vorschau nicht mehr seine Mitte.

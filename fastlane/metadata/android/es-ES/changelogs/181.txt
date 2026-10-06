@@ -1,0 +1,1 @@
+Corregido: Buscar en la nota ahora pone el cursor en el campo de búsqueda y abre el teclado, para escribir enseguida. Un texto como 1 < 2 > 0 dentro de una sección plegable ya no pierde su parte central en la vista previa.

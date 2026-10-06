@@ -1,0 +1,1 @@
+Đã sửa: Tìm trong ghi chú giờ đặt con trỏ vào ô tìm kiếm và mở bàn phím để bạn gõ ngay. Văn bản như 1 < 2 > 0 trong một phần có thể thu gọn không còn bị mất phần giữa trong Xem trước.

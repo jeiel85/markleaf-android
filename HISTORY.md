@@ -1,3 +1,10 @@
+## 2026-10-06 — Find focuses its field; the section text cleaner keeps comparisons (#262, v2.65.1)
+
+- **Why these.** Nothing new from outside, so the maintainer picked user-facing defects from the tracker. A third candidate, wikilink vs local-link verdict order, turned out to be fixed already in `64a8987f`; only the tracker box was left open.
+- **Find focus.** `FindBar` exists only while Find is open, so a `FocusRequester` requested in `LaunchedEffect(Unit)` on the search field covers both modes. The editor's own focus request runs only on load, so the two don't compete. `FindBarFocusTest` (2: editor layout with the Replace row, Preview without it) failed before the change.
+- **Tag cleaner.** `CommonMarkPreviewAdapter.HTML_TAG_REGEX` was `<[^>]+>`. It is now a comment or `</?` + letter up to the first `>` outside quotes. "1 < 2 > 0" no longer loses " 2 ", and `title="a > b"` no longer ends the tag early. Entity decoding still runs after the strip, so `&lt;` was already safe. `CollapsibleSectionPreviewTest` +3: comparison, quoted `>` (both failed before) and a guard that real tags and comments are still removed. The whole `core.markdown` suite passes (390 with the find tests).
+- **On a device.** Emulator, debug build. Opening Find focused the search field with the IME shown, and typing at once matched 1/1. In Preview, the `<details>` body read "It holds: 1 < 2 > 0 here.". Animation scales restored.
+
 ## 2026-10-06 — Today's note for the new-note shortcuts (Discussion #481, v2.65.0)
 
 - **Request.** abinjoyal on #481: "one Daily Note per day, with the shortcut appending to that same note throughout the day", titled with the date (`2026-10-06`), turning at midnight, "very similar to an Obsidian Daily Note workflow". The maintainer chose a setting with today's behaviour as the default.

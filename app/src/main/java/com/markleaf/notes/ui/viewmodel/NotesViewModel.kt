@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -42,6 +43,17 @@ class NotesViewModel(
     fun selectTag(tag: String?) {
         _selectedTag.value = tag
     }
+
+    /**
+     * How many conflict copies are waiting — the Conflict Center's own list,
+     * counted. The list screen shows a banner while this is above zero, so a
+     * copy the folder reconcile took in the background is seen the next time
+     * the list is, rather than found by chance (#434).
+     */
+    val conflictCopyCount: StateFlow<Int> =
+        noteRepository.observeConflictNotes()
+            .map { it.size }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0)
 
     /** One note's row, or null once it no longer exists. */
     fun observeNote(noteId: String): Flow<Note?> = noteRepository.observeNote(noteId)

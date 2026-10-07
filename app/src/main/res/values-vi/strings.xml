@@ -449,6 +449,9 @@
     <string name="conflict_delete_confirm_title">Xóa bản sao xung đột?</string>
     <string name="conflict_delete_confirm_desc">Bản sao xung đột này sẽ bị xóa vĩnh viễn.</string>
     <string name="conflict_note_updated_format">Đã cập nhật: %1$s</string>
+    <plurals name="conflict_copies_banner">
+        <item quantity="other">Có %1$d bản sao xung đột cần xem trong Trung tâm xung đột</item>
+    </plurals>
 
     <!-- Preview mode -->
     <string name="preview_link_address_copied">Đã sao chép địa chỉ liên kết</string>

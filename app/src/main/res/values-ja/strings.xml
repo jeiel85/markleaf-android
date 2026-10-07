@@ -448,6 +448,9 @@
     <string name="conflict_delete_confirm_title">競合コピーを削除しますか？</string>
     <string name="conflict_delete_confirm_desc">この競合コピーは完全に削除されます。</string>
     <string name="conflict_note_updated_format">更新: %1$s</string>
+    <plurals name="conflict_copies_banner">
+        <item quantity="other">競合センターで確認が必要なコピーが %1$d 件あります</item>
+    </plurals>
 
     <!-- Preview mode -->
     <string name="preview_link_address_copied">リンクのアドレスをコピーしました</string>

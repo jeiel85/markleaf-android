@@ -445,6 +445,12 @@
     <string name="conflict_delete_confirm_title">Odstrániť konfliktnú kópiu?</string>
     <string name="conflict_delete_confirm_desc">Táto konfliktná kópia bude natrvalo odstránená.</string>
     <string name="conflict_note_updated_format">Aktualizované: %1$s</string>
+    <plurals name="conflict_copies_banner">
+        <item quantity="one">%1$d kópia v konflikte čaká na kontrolu v centre pre riešenie konfliktov</item>
+        <item quantity="few">%1$d kópie v konflikte čakajú na kontrolu v centre pre riešenie konfliktov</item>
+        <item quantity="many">%1$d kópií v konflikte čaká na kontrolu v centre pre riešenie konfliktov</item>
+        <item quantity="other">%1$d kópií v konflikte čaká na kontrolu v centre pre riešenie konfliktov</item>
+    </plurals>
     <string name="preview_link_address_copied">Adresa odkazu bola skopírovaná</string>
     <string name="app_name">Markleaf</string>
     <string name="sync_metadata_mode_frontmatter">V súbore</string>

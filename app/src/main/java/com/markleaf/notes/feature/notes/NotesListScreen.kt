@@ -125,6 +125,7 @@ fun NotesListScreen(
     onTrashClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     onOpenFileClick: () -> Unit = {},
+    onConflictCopiesClick: () -> Unit = {},
     lockPasscodeSet: Boolean = false,
     onRequestSetPasscode: () -> Unit = {},
     onCollapseClick: (() -> Unit)? = null,
@@ -147,6 +148,7 @@ fun NotesListScreen(
     // Shown when the user taps "Move to Locked" but hasn't set a passcode yet —
     // locking a note is only meaningful once there's a passcode to gate it (#155).
     var showSetPasscodePrompt by remember { mutableStateOf(false) }
+    val conflictCopyCount by viewModel.conflictCopyCount.collectAsState()
     LaunchedEffect(Unit) {
         viewModel.notes.collect { noteList ->
             notesState.value = noteList
@@ -491,6 +493,15 @@ fun NotesListScreen(
                     item(key = "update-banner") {
                         UpdateSurface.Banner(Modifier.padding(horizontal = 12.dp, vertical = 4.dp))
                     }
+                    if (conflictCopyCount > 0) {
+                        item(key = "conflict-banner") {
+                            ConflictCopiesBanner(
+                                count = conflictCopyCount,
+                                onClick = onConflictCopiesClick,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
                     sections.forEach { section ->
                         if (section.titleResId != null) {
                             item(key = "header-${section.titleResId}") {
@@ -531,6 +542,15 @@ fun NotesListScreen(
                 ) {
                     item(key = "update-banner", span = { GridItemSpan(maxLineSpan) }) {
                         UpdateSurface.Banner(Modifier.padding(vertical = 4.dp))
+                    }
+                    if (conflictCopyCount > 0) {
+                        item(key = "conflict-banner", span = { GridItemSpan(maxLineSpan) }) {
+                            ConflictCopiesBanner(
+                                count = conflictCopyCount,
+                                onClick = onConflictCopiesClick,
+                                modifier = Modifier.padding(vertical = 4.dp)
+                            )
+                        }
                     }
                     sections.forEach { section ->
                         if (section.titleResId != null) {

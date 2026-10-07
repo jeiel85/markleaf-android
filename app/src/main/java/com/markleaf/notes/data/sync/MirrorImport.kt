@@ -42,6 +42,16 @@ internal object MirrorImport {
      * `.md` files in a user's subdirectories, which are invisible to Markleaf
      * at depth 0; what it does **not** yet do is remember where they were, so
      * see [MirrorTraversal] before raising it anywhere real.
+     *
+     * [currentNote] reads one note's row as it is *now*, and every decision is
+     * made against that rather than against [existing]. The two differ whenever
+     * the editor saves while the pass is running — which on a slow provider is
+     * not a corner: the pass reads every file in the folder, and the user is
+     * typing in the note they just came back to. A decision made against the
+     * snapshot then takes a version this phone wrote a moment ago for "another
+     * device's edit" and copies it in, and the write that follows puts the
+     * snapshot's stale row back over the newer one (#434). Null falls back to
+     * [existing], which is what the tests that build a folder by hand want.
      */
     internal suspend fun importChangesFrom(
         context: Context,
@@ -51,12 +61,16 @@ internal object MirrorImport {
         applyCreate: suspend (Note) -> Unit,
         metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
         titleSource: NoteTitleSource = NoteTitleSource.FIRST_HEADING,
-        maxDepth: Int = 0
+        maxDepth: Int = 0,
+        currentNote: (suspend (String) -> Note?)? = null
     ): NoteFolderMirror.ImportResult {
         if (!folder.canRead()) return NoteFolderMirror.ImportResult(0, 0, 0, 1)
+        val byId = existing.associateBy { it.id }
+        val lookup: suspend (String) -> Note? = currentNote ?: { id -> byId[id] }
         if (metadata is MirrorMetadata.Sidecar) {
             return importChangesSidecar(
-                context, folder, existing, applyUpdate, applyCreate, metadata, titleSource, maxDepth
+                context, folder, existing, applyUpdate, applyCreate, metadata, titleSource, maxDepth,
+                lookup
             )
         }
 
@@ -66,7 +80,6 @@ internal object MirrorImport {
         var errors = 0
         var conflicts = 0
 
-        val byId = existing.associateBy { it.id }
         val files = MirrorTraversal
             .walk(folder, MirrorTraversal.effectiveDepth(metadata, maxDepth))
             .files
@@ -83,7 +96,12 @@ internal object MirrorImport {
             }
 
             val parsed = SyncFrontmatter.decode(raw)
-            val existingNote = parsed.markleafId?.let(byId::get)
+            val live = liveNote(parsed.markleafId, byId, lookup)
+            if (live is LiveNote.GoneDuringPass) {
+                skipped++
+                continue
+            }
+            val existingNote = (live as LiveNote.Current).note
             val bodyChanged = existingNote != null && parsed.body != existingNote.contentMarkdown
             val fileTs = MirrorReconcile.effectiveFileTimestamp(
                 frontmatterUpdatedAt = parsed.updatedAt,
@@ -216,7 +234,8 @@ internal object MirrorImport {
         applyCreate: suspend (Note) -> Unit,
         metadata: MirrorMetadata.Sidecar,
         titleSource: NoteTitleSource,
-        maxDepth: Int
+        maxDepth: Int,
+        lookup: suspend (String) -> Note?
     ): NoteFolderMirror.ImportResult {
         val deviceId = metadata.deviceId
         var updated = 0
@@ -267,7 +286,15 @@ internal object MirrorImport {
             val parsed = SyncFrontmatter.decode(body)
             val text = parsed.body
             val entry = byFileName[fileName]
-            val existingNote = (entry?.noteId ?: parsed.markleafId)?.let(byId::get)
+            // The same live read as the frontmatter pass, for the same reason:
+            // the Overwrite below writes `note.copy(...)` back, and a row from
+            // the start of the pass would undo a save made since (#434).
+            val live = liveNote(entry?.noteId ?: parsed.markleafId, byId, lookup)
+            if (live is LiveNote.GoneDuringPass) {
+                skipped++
+                continue
+            }
+            val existingNote = (live as LiveNote.Current).note
             val hash = SidecarIndex.hashOf(text)
             val matchesLastWrite = entry != null && entry.contentHash == hash
 
@@ -387,6 +414,40 @@ internal object MirrorImport {
             errors = errors,
             conflicts = conflicts
         )
+    }
+
+    /** What [liveNote] found for one file. */
+    internal sealed interface LiveNote {
+        /** The note's row as it is now, or null when no note has this id. */
+        data class Current(val note: Note?) : LiveNote
+
+        /**
+         * The pass started with this note and it has since been deleted for
+         * good. The file is left alone: reading it as new would bring back a
+         * note the user deleted while the pass ran (#148).
+         */
+        data object GoneDuringPass : LiveNote
+    }
+
+    /**
+     * In: the id a file points at (null when it carries none), the note set the
+     * pass started with, and a reader for the current row. Out: the row to
+     * decide against (#434).
+     *
+     * The current row is read even for an id the snapshot never had. A note
+     * created after the pass started — typed into the editor and written out
+     * while the pass was reading other files — would otherwise come back as
+     * Create, and the insert replaces the row that is already there.
+     */
+    internal suspend fun liveNote(
+        id: String?,
+        snapshot: Map<String, Note>,
+        lookup: suspend (String) -> Note?
+    ): LiveNote {
+        if (id == null) return LiveNote.Current(null)
+        val current = lookup(id)
+        if (current == null && id in snapshot) return LiveNote.GoneDuringPass
+        return LiveNote.Current(current)
     }
 
     /**

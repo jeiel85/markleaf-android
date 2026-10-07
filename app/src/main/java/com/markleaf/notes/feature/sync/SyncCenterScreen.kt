@@ -4,6 +4,9 @@ import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -47,7 +50,8 @@ import kotlinx.coroutines.withContext
 fun SyncCenterScreen(
     viewModel: SyncCenterViewModel,
     onBack: () -> Unit,
-    onNoteClick: (String) -> Unit
+    onNoteClick: (String) -> Unit,
+    startAtConflicts: Boolean = false
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -62,6 +66,19 @@ fun SyncCenterScreen(
     var noteToDelete by remember { mutableStateOf<Note?>(null) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
     var isSyncing by remember { mutableStateOf(false) }
+
+    // Arriving from the note list's conflict banner lands on the Conflict
+    // Center rather than on the folder card above it, which fills a phone
+    // screen (#434). Once per visit: coming back from a copy opened below
+    // keeps wherever the list was left, which the saved list state restores.
+    val listState = rememberLazyListState()
+    var landedOnConflicts by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(startAtConflicts) {
+        if (startAtConflicts && !landedOnConflicts) {
+            listState.scrollToItem(CONFLICT_CENTER_ITEM_INDEX)
+            landedOnConflicts = true
+        }
+    }
 
     // Same picker, same question, same link as Settings — see
     // [rememberSyncFolderLinker]. Keeping one copy is what stopped the two
@@ -99,6 +116,7 @@ fun SyncCenterScreen(
             color = MaterialTheme.colorScheme.background
         ) {
             LazyColumn(
+                state = listState,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 16.dp, vertical = 12.dp),
@@ -199,6 +217,9 @@ fun SyncCenterScreen(
                                                     },
                                                     applyCreate = { created ->
                                                         noteImporter.create(created)
+                                                    },
+                                                    currentNote = { id ->
+                                                        noteImporter.current(id)
                                                     },
                                                     metadata = appSettings.mirrorMetadata(),
                                                     titleSource = appSettings.noteTitleSource
@@ -317,8 +338,8 @@ fun SyncCenterScreen(
                     }
                 }
 
-                // Conflict Center Section Title
-                item {
+                // Conflict Center Section Title — at [CONFLICT_CENTER_ITEM_INDEX].
+                item(key = CONFLICT_CENTER_ITEM_KEY) {
                     Text(
                         text = stringResource(R.string.conflict_center_title),
                         style = MaterialTheme.typography.titleMedium,
@@ -492,3 +513,14 @@ private fun humanReadableTreePath(uriString: String): String {
     val afterColon = afterTree.substringAfter(":", afterTree)
     return afterColon.ifBlank { afterTree }
 }
+
+/**
+ * Where the Conflict Center starts in the Sync Center's list: after the one
+ * folder card. A fixed position because every item above it is unconditional;
+ * `SyncCenterConflictLandingTest` opens the screen this way and checks the
+ * folder card is scrolled away and the Conflict Center is on screen, so an item
+ * added above it fails there instead of landing the banner's visitors on the
+ * wrong row (#434).
+ */
+internal const val CONFLICT_CENTER_ITEM_INDEX = 1
+internal const val CONFLICT_CENTER_ITEM_KEY = "conflict-center"

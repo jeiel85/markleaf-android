@@ -37,6 +37,12 @@ class NoteImporter(
         reindex(note)
     }
 
+    /**
+     * The note's row as it is now — what the import pass decides against, so a
+     * save made while it runs is not mistaken for another device's (#434).
+     */
+    suspend fun current(id: String): Note? = notes.getNote(id)
+
     /** Update an imported note and re-index its tags + links from the new body. */
     suspend fun update(note: Note) {
         notes.updateNote(note)

@@ -71,10 +71,16 @@ fun SyncCenterScreen(
     // Center rather than on the folder card above it, which fills a phone
     // screen (#434). Once per visit: coming back from a copy opened below
     // keeps wherever the list was left, which the saved list state restores.
+    //
+    // Keyed on the copies having arrived, not on entering the screen. They
+    // come from a database query that finishes after the first frame, and a
+    // scroll made before then is clamped to the short list it found and stays
+    // there once the copies fill it in — which is what a device did.
     val listState = rememberLazyListState()
     var landedOnConflicts by rememberSaveable { mutableStateOf(false) }
-    LaunchedEffect(startAtConflicts) {
-        if (startAtConflicts && !landedOnConflicts) {
+    val conflictsLoaded = conflictNotes.isNotEmpty()
+    LaunchedEffect(startAtConflicts, conflictsLoaded) {
+        if (startAtConflicts && conflictsLoaded && !landedOnConflicts) {
             listState.scrollToItem(CONFLICT_CENTER_ITEM_INDEX)
             landedOnConflicts = true
         }

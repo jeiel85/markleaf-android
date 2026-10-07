@@ -14,6 +14,7 @@ import com.markleaf.notes.ui.theme.MarkleafTheme
 import com.markleaf.notes.ui.viewmodel.SyncCenterViewModel
 import java.time.Instant
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Rule
 import org.junit.Test
@@ -29,7 +30,10 @@ import org.robolectric.annotation.GraphicsMode
  *
  * Enough copies are listed for the content to be taller than the screen;
  * otherwise there is nowhere to scroll and the landing can't be told apart from
- * an ordinary open.
+ * an ordinary open. They arrive only after the screen has drawn, as they do
+ * from Room on a device: the first version scrolled on entry, was clamped to
+ * the short list it found, and stayed at the top — and a test that handed the
+ * copies over before the first frame passed regardless.
  */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -40,7 +44,8 @@ class SyncCenterConflictLandingTest {
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     private fun open(startAtConflicts: Boolean) {
-        val viewModel = SyncCenterViewModel(FakeNoteRepository(copies(12)))
+        val conflicts = MutableStateFlow<List<Note>>(emptyList())
+        val viewModel = SyncCenterViewModel(FakeNoteRepository(conflicts))
         composeRule.setContent {
             MarkleafTheme(dynamicColor = false) {
                 SyncCenterScreen(
@@ -51,8 +56,11 @@ class SyncCenterConflictLandingTest {
                 )
             }
         }
-        // The copies arrive through the ViewModel's flow; land only once
-        // they are there to scroll past.
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            composeRule.onAllNodesWithText(composeRule.activity.getString(R.string.sync_title))
+                .fetchSemanticsNodes().isNotEmpty()
+        }
+        conflicts.value = copies(12)
         composeRule.waitUntil(timeoutMillis = 5_000) {
             composeRule.onAllNodesWithText("Copy 1", substring = true)
                 .fetchSemanticsNodes().isNotEmpty()
@@ -89,7 +97,7 @@ class SyncCenterConflictLandingTest {
         )
     }
 
-    private class FakeNoteRepository(private val conflicts: List<Note>) : NoteRepository {
+    private class FakeNoteRepository(private val conflicts: Flow<List<Note>>) : NoteRepository {
         override fun observeNotes(): Flow<List<Note>> = flowOf(emptyList())
         override suspend fun getNote(noteId: String): Note? = null
         override fun observeNote(noteId: String): Flow<Note?> = flowOf(null)
@@ -113,6 +121,6 @@ class SyncCenterConflictLandingTest {
         override suspend fun setLocked(noteId: String, locked: Boolean) = Unit
         override suspend fun unlockAllLocked() = Unit
         override fun searchNotes(query: String): Flow<List<Note>> = flowOf(emptyList())
-        override fun observeConflictNotes(): Flow<List<Note>> = flowOf(conflicts)
+        override fun observeConflictNotes(): Flow<List<Note>> = conflicts
     }
 }

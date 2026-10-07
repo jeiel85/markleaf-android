@@ -1,0 +1,1 @@
+Corrigé : écrire pendant que Markleaf vérifie un dossier de synchronisation lent dans le cloud ne transforme plus votre propre texte en note « copie d'un autre appareil ». Nouveau : un bandeau au-dessus de la liste indique combien de copies en conflit attendent et ouvre le Centre des conflits.

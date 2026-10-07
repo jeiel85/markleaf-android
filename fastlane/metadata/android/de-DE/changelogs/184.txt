@@ -1,0 +1,1 @@
+Behoben: Wer tippt, während Markleaf einen langsamen Cloud-Sync-Ordner prüft, bekommt seinen eigenen Text nicht mehr als „Kopie von anderem Gerät“-Notiz. Neu: Ein Banner über der Notizliste zeigt, wie viele Konfliktkopien warten, und öffnet das Konfliktcenter.

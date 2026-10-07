@@ -1,3 +1,8 @@
+## 2026-10-07 - v2.67.0: import pass reads the live row; conflict-copy banner (#434)
+
+Selected task: the #434 reporter's follow-up (copy still appearing, whole older note; asked to be notified). The maintainer picked the list banner.
+Verification: the new tests run the snapshot path to show the race, and the landing test fails with the wrong index. Gate results are in the PR.
+
 ## 2026-10-07 - v2.66.1: settings shortcuts move focus to the heading (#262)
 
 Selected task: the maintainer picked the first v2.66.0 item from #262.

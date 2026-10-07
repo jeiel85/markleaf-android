@@ -4,6 +4,20 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.67.0 - Conflict copies get a banner, and fewer false ones - 2026-10-07
+
+A sync fix and a small addition, both from #434. No permission or storage-format changes.
+
+### Fixed
+- **Typing while Markleaf checks the sync folder no longer turns your own text into a "(copy from another device …)" note.** When the app comes back to the foreground it reads every file in the sync folder, which takes a while on a slow cloud provider. Each file was judged against your notes as they were when that check *started*, so a save you made in the meantime looked like another device's edit: the check copied in a version you had just written, and could put the note's earlier text back over your newer save. Each file is now judged against the note as it is when the check reaches it. (#434)
+
+### Added
+- **A banner on the note list while conflict copies are waiting.** It says how many there are and opens the Sync Center at the Conflict Center. It doesn't open anything by itself, and it goes away when the copies are deleted. (#434)
+
+### Limits
+- Copies made before this release stay until you delete them.
+- A copy can still appear when a write to the folder is cut off partway, or when the note's file was last written before v2.51.0 and the write that replaces it doesn't finish. Both are the limits named in #434; neither loses text — the copy holds the older version.
+
 ## v2.66.1 - Settings shortcuts move TalkBack focus too - 2026-10-07
 
 An accessibility fix for the section shortcuts added in v2.66.0. No permission or storage-format changes.

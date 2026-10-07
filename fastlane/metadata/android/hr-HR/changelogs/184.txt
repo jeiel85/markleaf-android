@@ -1,0 +1,1 @@
+Ispravljeno: tipkanje dok Markleaf provjerava spori oblak za sinkronizaciju više ne pretvara vaš tekst u bilješku „kopija s drugog uređaja”. Novo: natpis iznad popisa bilježaka pokazuje koliko kopija u sukobu čeka i otvara Centar za sukobe.

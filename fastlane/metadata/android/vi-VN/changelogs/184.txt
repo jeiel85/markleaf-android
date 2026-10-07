@@ -1,0 +1,1 @@
+Đã sửa: gõ trong lúc Markleaf kiểm tra thư mục đồng bộ đám mây chậm không còn biến chính nội dung của bạn thành ghi chú "bản sao từ thiết bị khác". Mới: biểu ngữ trên danh sách ghi chú cho biết còn bao nhiêu bản sao xung đột và mở Trung tâm xung đột.

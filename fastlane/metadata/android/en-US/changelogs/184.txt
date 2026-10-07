@@ -1,0 +1,1 @@
+Fixed: typing while Markleaf checks the sync folder no longer turns your own text into a "copy from another device" note on slow cloud folders. New: a banner on the note list shows how many conflict copies are waiting and opens the Conflict Center.

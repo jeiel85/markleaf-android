@@ -1077,6 +1077,7 @@ fun SettingsScreen(
                                         applyCreate = { created ->
                                             noteImporter.create(created)
                                         },
+                                        currentNote = { id -> noteImporter.current(id) },
                                         metadata = appSettings.mirrorMetadata(),
                                         titleSource = appSettings.noteTitleSource
                                     )

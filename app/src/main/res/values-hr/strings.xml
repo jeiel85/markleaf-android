@@ -476,6 +476,11 @@
     <string name="conflict_delete_confirm_title">Izbrisati sukobljenu kopiju?</string>
     <string name="conflict_delete_confirm_desc">Ova sukobljena kopija bit će trajno izbrisana.</string>
     <string name="conflict_note_updated_format">Ažurirano: %1$s</string>
+    <plurals name="conflict_copies_banner">
+        <item quantity="one">%1$d kopija u sukobu čeka pregled u Centru za sukobe</item>
+        <item quantity="few">%1$d kopije u sukobu čekaju pregled u Centru za sukobe</item>
+        <item quantity="other">%1$d kopija u sukobu čeka pregled u Centru za sukobe</item>
+    </plurals>
 
     <!-- Preview mode -->
     <string name="preview_link_address_copied">Adresa poveznice kopirana</string>

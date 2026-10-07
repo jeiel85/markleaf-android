@@ -125,6 +125,7 @@ fun NotesListScreen(
     onTrashClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     onOpenFileClick: () -> Unit = {},
+    onConflictCopiesClick: () -> Unit = {},
     lockPasscodeSet: Boolean = false,
     onRequestSetPasscode: () -> Unit = {},
     onCollapseClick: (() -> Unit)? = null,
@@ -147,6 +148,7 @@ fun NotesListScreen(
     // Shown when the user taps "Move to Locked" but hasn't set a passcode yet —
     // locking a note is only meaningful once there's a passcode to gate it (#155).
     var showSetPasscodePrompt by remember { mutableStateOf(false) }
+    val conflictCopyCount by viewModel.conflictCopyCount.collectAsState()
     LaunchedEffect(Unit) {
         viewModel.notes.collect { noteList ->
             notesState.value = noteList
@@ -216,139 +218,150 @@ fun NotesListScreen(
         containerColor = containerColor,
         contentColor = contentColor,
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.notes_title),
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-                },
-                navigationIcon = {
-                    // Re-show the tag rail after it was hidden (tablet only — the
-                    // host passes this just when the rail is collapsed). Paired with
-                    // the rail's own "<" hide button.
-                    if (onShowTagRail != null) {
-                        IconButton(onClick = onShowTagRail) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                contentDescription = stringResource(R.string.show_tags)
-                            )
+            Column {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = stringResource(R.string.notes_title),
+                            style = MaterialTheme.typography.headlineMedium
+                        )
+                    },
+                    navigationIcon = {
+                        // Re-show the tag rail after it was hidden (tablet only — the
+                        // host passes this just when the rail is collapsed). Paired with
+                        // the rail's own "<" hide button.
+                        if (onShowTagRail != null) {
+                            IconButton(onClick = onShowTagRail) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                    contentDescription = stringResource(R.string.show_tags)
+                                )
+                            }
                         }
-                    }
-                },
-                actions = {
-                    if (onCollapseClick != null) {
-                        IconButton(onClick = onCollapseClick) {
-                            Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(R.string.collapse_note_list))
+                    },
+                    actions = {
+                        if (onCollapseClick != null) {
+                            IconButton(onClick = onCollapseClick) {
+                                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(R.string.collapse_note_list))
+                            }
                         }
-                    }
-                    Box {
-                        IconButton(onClick = { sortMenuExpanded = true }) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.Sort,
-                                contentDescription = stringResource(R.string.sort_notes)
-                            )
+                        Box {
+                            IconButton(onClick = { sortMenuExpanded = true }) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.Sort,
+                                    contentDescription = stringResource(R.string.sort_notes)
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = sortMenuExpanded,
+                                onDismissRequest = { sortMenuExpanded = false }
+                            ) {
+                                NotesSortMode.entries.forEach { mode ->
+                                    DropdownMenuItem(
+                                        leadingIcon = {
+                                            if (mode == sortMode) {
+                                                Icon(Icons.Default.Check, contentDescription = null)
+                                            }
+                                        },
+                                        text = { Text(stringResource(mode.labelResId())) },
+                                        onClick = {
+                                            sortMenuExpanded = false
+                                            scope.launch {
+                                                settingsRepository.setNotesSortMode(mode)
+                                            }
+                                        }
+                                    )
+                                }
+                            }
                         }
-                        DropdownMenu(
-                            expanded = sortMenuExpanded,
-                            onDismissRequest = { sortMenuExpanded = false }
-                        ) {
-                            NotesSortMode.entries.forEach { mode ->
+                        IconButton(onClick = onSearchClick) {
+                            Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
+                        }
+                        IconButton(onClick = onTagsClick) {
+                            Icon(Icons.AutoMirrored.Filled.Label, contentDescription = stringResource(R.string.tags))
+                        }
+                        Box {
+                            IconButton(onClick = { overflowExpanded = true }) {
+                                Icon(
+                                    Icons.Default.MoreVert,
+                                    contentDescription = stringResource(R.string.more_options)
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = overflowExpanded,
+                                onDismissRequest = { overflowExpanded = false }
+                            ) {
                                 DropdownMenuItem(
-                                    leadingIcon = {
-                                        if (mode == sortMode) {
-                                            Icon(Icons.Default.Check, contentDescription = null)
-                                        }
-                                    },
-                                    text = { Text(stringResource(mode.labelResId())) },
+                                    leadingIcon = { Icon(Icons.Default.KeyboardCommandKey, contentDescription = null) },
+                                    text = { Text(stringResource(R.string.quick_switcher_title)) },
                                     onClick = {
-                                        sortMenuExpanded = false
-                                        scope.launch {
-                                            settingsRepository.setNotesSortMode(mode)
-                                        }
+                                        overflowExpanded = false
+                                        showQuickSwitcher = true
+                                    }
+                                )
+                                // Reading a file that is not a note (#326). It sits
+                                // above the note destinations because it is the one
+                                // entry here that leaves the note library alone.
+                                DropdownMenuItem(
+                                    leadingIcon = { Icon(Icons.Default.FileOpen, contentDescription = null) },
+                                    text = { Text(stringResource(R.string.open_file)) },
+                                    onClick = {
+                                        overflowExpanded = false
+                                        onOpenFileClick()
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    leadingIcon = { Icon(Icons.Default.Inventory2, contentDescription = null) },
+                                    text = { Text(stringResource(R.string.archive)) },
+                                    onClick = {
+                                        overflowExpanded = false
+                                        onArchiveClick()
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = null) },
+                                    text = { Text(stringResource(R.string.locked_notes_title)) },
+                                    onClick = {
+                                        overflowExpanded = false
+                                        onLockedClick()
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null) },
+                                    text = { Text(stringResource(R.string.trash)) },
+                                    onClick = {
+                                        overflowExpanded = false
+                                        onTrashClick()
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    leadingIcon = { Icon(Icons.Default.Settings, contentDescription = null) },
+                                    text = { Text(stringResource(R.string.settings)) },
+                                    onClick = {
+                                        overflowExpanded = false
+                                        onSettingsClick()
                                     }
                                 )
                             }
                         }
-                    }
-                    IconButton(onClick = onSearchClick) {
-                        Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
-                    }
-                    IconButton(onClick = onTagsClick) {
-                        Icon(Icons.AutoMirrored.Filled.Label, contentDescription = stringResource(R.string.tags))
-                    }
-                    Box {
-                        IconButton(onClick = { overflowExpanded = true }) {
-                            Icon(
-                                Icons.Default.MoreVert,
-                                contentDescription = stringResource(R.string.more_options)
-                            )
-                        }
-                        DropdownMenu(
-                            expanded = overflowExpanded,
-                            onDismissRequest = { overflowExpanded = false }
-                        ) {
-                            DropdownMenuItem(
-                                leadingIcon = { Icon(Icons.Default.KeyboardCommandKey, contentDescription = null) },
-                                text = { Text(stringResource(R.string.quick_switcher_title)) },
-                                onClick = {
-                                    overflowExpanded = false
-                                    showQuickSwitcher = true
-                                }
-                            )
-                            // Reading a file that is not a note (#326). It sits
-                            // above the note destinations because it is the one
-                            // entry here that leaves the note library alone.
-                            DropdownMenuItem(
-                                leadingIcon = { Icon(Icons.Default.FileOpen, contentDescription = null) },
-                                text = { Text(stringResource(R.string.open_file)) },
-                                onClick = {
-                                    overflowExpanded = false
-                                    onOpenFileClick()
-                                }
-                            )
-                            DropdownMenuItem(
-                                leadingIcon = { Icon(Icons.Default.Inventory2, contentDescription = null) },
-                                text = { Text(stringResource(R.string.archive)) },
-                                onClick = {
-                                    overflowExpanded = false
-                                    onArchiveClick()
-                                }
-                            )
-                            DropdownMenuItem(
-                                leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = null) },
-                                text = { Text(stringResource(R.string.locked_notes_title)) },
-                                onClick = {
-                                    overflowExpanded = false
-                                    onLockedClick()
-                                }
-                            )
-                            DropdownMenuItem(
-                                leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null) },
-                                text = { Text(stringResource(R.string.trash)) },
-                                onClick = {
-                                    overflowExpanded = false
-                                    onTrashClick()
-                                }
-                            )
-                            DropdownMenuItem(
-                                leadingIcon = { Icon(Icons.Default.Settings, contentDescription = null) },
-                                text = { Text(stringResource(R.string.settings)) },
-                                onClick = {
-                                    overflowExpanded = false
-                                    onSettingsClick()
-                                }
-                            )
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = containerColor,
-                    titleContentColor = contentColor,
-                    actionIconContentColor = contentColor,
-                    navigationIconContentColor = contentColor
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = containerColor,
+                        titleContentColor = contentColor,
+                        actionIconContentColor = contentColor,
+                        navigationIconContentColor = contentColor
+                    )
                 )
-            )
+                // Under the app bar rather than an item in the list: it appears
+                // once the conflict count arrives, after the list has laid out,
+                // and an item inserted above the first visible row is scrolled
+                // out of view by the list keeping that row where it was (#434).
+                ConflictCopiesBanner(
+                    count = conflictCopyCount,
+                    onClick = onConflictCopiesClick,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                )
+            }
         },
         floatingActionButton = {
             FloatingActionButton(

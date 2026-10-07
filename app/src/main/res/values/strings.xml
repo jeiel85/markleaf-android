@@ -468,6 +468,10 @@
     <string name="conflict_delete_confirm_title">Delete conflict copy?</string>
     <string name="conflict_delete_confirm_desc">This conflict copy will be permanently deleted.</string>
     <string name="conflict_note_updated_format">Updated: %1$s</string>
+    <plurals name="conflict_copies_banner">
+        <item quantity="one">%1$d conflict copy to review in the Conflict Center</item>
+        <item quantity="other">%1$d conflict copies to review in the Conflict Center</item>
+    </plurals>
 
     <!-- Preview mode -->
     <string name="preview_link_address_copied">Link address copied</string>

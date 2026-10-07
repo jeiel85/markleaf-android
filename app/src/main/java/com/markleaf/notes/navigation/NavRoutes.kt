@@ -20,6 +20,13 @@ object NavRoutes {
     const val SETTINGS = "settings"
     const val PRIVACY = "privacy"
     const val SYNC_CENTER = "sync_center"
+
+    /**
+     * The Sync Center scrolled to its Conflict Center list — where the note
+     * list's conflict-copy banner leads (#434). A route of its own for the same
+     * reason as [EDITOR_APPEND]: one destination, entered at a different place.
+     */
+    const val SYNC_CENTER_CONFLICTS = "sync_center/conflicts"
     const val VIEWER = "viewer/{uri}"
 
     /**

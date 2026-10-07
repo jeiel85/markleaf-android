@@ -457,6 +457,10 @@
     <string name="conflict_delete_confirm_title">¿Eliminar copia en conflicto?</string>
     <string name="conflict_delete_confirm_desc">Esta copia en conflicto será eliminada permanentemente.</string>
     <string name="conflict_note_updated_format">Actualizado: %1$s</string>
+    <plurals name="conflict_copies_banner">
+        <item quantity="one">%1$d copia en conflicto por revisar en el Centro de conflictos</item>
+        <item quantity="other">%1$d copias en conflicto por revisar en el Centro de conflictos</item>
+    </plurals>
 
     <!-- Preview mode -->
     <string name="preview_link_address_copied">Dirección del enlace copiada</string>

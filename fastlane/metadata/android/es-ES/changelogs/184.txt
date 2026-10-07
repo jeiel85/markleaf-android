@@ -1,0 +1,1 @@
+Corregido: escribir mientras Markleaf revisa una carpeta de sincronización lenta en la nube ya no convierte tu propio texto en una nota de "copia de otro dispositivo". Nuevo: un aviso sobre la lista de notas indica cuántas copias en conflicto quedan y abre el Centro de conflictos.

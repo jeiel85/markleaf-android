@@ -239,6 +239,10 @@ object NoteFolderMirror {
      * two files. Two such files also carry one `markleaf_id`, which nothing
      * downstream expects. Every caller passes 0; see
      * `docs/NESTED_FOLDER_SPIKE.md` before any of them stops.
+     *
+     * [currentNote] has no default here on purpose: it is what keeps a save
+     * made while the pass runs from being taken for another device's edit
+     * (#434), and every real caller has a database to read it from.
      */
     suspend fun importChanges(
         context: Context,
@@ -246,6 +250,7 @@ object NoteFolderMirror {
         existing: List<Note>,
         applyUpdate: suspend (Note) -> Unit,
         applyCreate: suspend (Note) -> Unit,
+        currentNote: suspend (String) -> Note?,
         metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
         titleSource: NoteTitleSource = NoteTitleSource.FIRST_HEADING,
         maxDepth: Int = 0
@@ -253,7 +258,8 @@ object NoteFolderMirror {
         val folder = DocumentFile.fromTreeUri(context, folderUri)
             ?: return ImportResult(0, 0, 0, 1)
         return MirrorImport.importChangesFrom(
-            context, folder, existing, applyUpdate, applyCreate, metadata, titleSource, maxDepth
+            context, folder, existing, applyUpdate, applyCreate, metadata, titleSource, maxDepth,
+            currentNote
         )
     }
 
@@ -296,9 +302,11 @@ object NoteFolderMirror {
         applyCreate: suspend (Note) -> Unit,
         metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
         titleSource: NoteTitleSource = NoteTitleSource.FIRST_HEADING,
-        maxDepth: Int = 0
+        maxDepth: Int = 0,
+        currentNote: (suspend (String) -> Note?)? = null
     ): ImportResult = MirrorImport.importChangesFrom(
-        context, folder, existing, applyUpdate, applyCreate, metadata, titleSource, maxDepth
+        context, folder, existing, applyUpdate, applyCreate, metadata, titleSource, maxDepth,
+        currentNote
     )
 
     /** See [MirrorFileLookup.matchByName]. */

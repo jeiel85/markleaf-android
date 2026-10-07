@@ -448,6 +448,9 @@
     <string name="conflict_delete_confirm_title">충돌 사본을 삭제할까요?</string>
     <string name="conflict_delete_confirm_desc">이 충돌 사본은 영구히 삭제되며 복구할 수 없습니다.</string>
     <string name="conflict_note_updated_format">수정: %1$s</string>
+    <plurals name="conflict_copies_banner">
+        <item quantity="other">충돌 센터에서 확인할 사본이 %1$d개 있습니다</item>
+    </plurals>
 
     <!-- Preview mode -->
     <string name="preview_link_address_copied">링크 주소를 복사했습니다</string>

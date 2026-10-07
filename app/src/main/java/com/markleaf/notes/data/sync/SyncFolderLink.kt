@@ -70,6 +70,7 @@ object SyncFolderLink {
             existing = all,
             applyUpdate = { updated -> noteImporter.update(updated) },
             applyCreate = { created -> noteImporter.create(created) },
+            currentNote = { id -> noteImporter.current(id) },
             metadata = metadata,
             titleSource = titleSource
         )

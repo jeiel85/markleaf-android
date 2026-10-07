@@ -425,6 +425,9 @@ fun MarkleafNavHost(
                                 onTrashClick = { navController.navigate(NavRoutes.TRASH) },
                                 onSettingsClick = { navController.navigate(NavRoutes.SETTINGS) },
                                 onOpenFileClick = onOpenFile,
+                                onConflictCopiesClick = {
+                                    navController.navigate(NavRoutes.SYNC_CENTER_CONFLICTS)
+                                },
                                 lockPasscodeSet = appSettings.lockPasscodeSet,
                                 onRequestSetPasscode = { navController.navigate(NavRoutes.SETTINGS) },
                                 onCollapseClick = { isNoteListCollapsed = true },
@@ -551,6 +554,9 @@ fun MarkleafNavHost(
                     onTrashClick = { navController.navigate(NavRoutes.TRASH) },
                     onSettingsClick = { navController.navigate(NavRoutes.SETTINGS) },
                     onOpenFileClick = onOpenFile,
+                    onConflictCopiesClick = {
+                        navController.navigate(NavRoutes.SYNC_CENTER_CONFLICTS)
+                    },
                     lockPasscodeSet = appSettings.lockPasscodeSet,
                     onRequestSetPasscode = { navController.navigate(NavRoutes.SETTINGS) }
                 )
@@ -654,6 +660,16 @@ fun MarkleafNavHost(
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() },
                 onNoteClick = { noteId -> navController.navigate(NavRoutes.editorRoute(noteId)) }
+            )
+        }
+
+        composable(NavRoutes.SYNC_CENTER_CONFLICTS) {
+            val viewModel = viewModel<SyncCenterViewModel>(factory = viewModelFactory)
+            SyncCenterScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() },
+                onNoteClick = { noteId -> navController.navigate(NavRoutes.editorRoute(noteId)) },
+                startAtConflicts = true
             )
         }
 

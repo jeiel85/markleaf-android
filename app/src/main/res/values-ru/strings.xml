@@ -486,6 +486,12 @@
     <string name="conflict_delete_confirm_title">Удалить копию конфликта?</string>
     <string name="conflict_delete_confirm_desc">Эта копия конфликта будет удалена навсегда.</string>
     <string name="conflict_note_updated_format">Обновлено: %1$s</string>
+    <plurals name="conflict_copies_banner">
+        <item quantity="one">%1$d копия с конфликтом ждёт проверки в Центре конфликтов</item>
+        <item quantity="few">%1$d копии с конфликтом ждут проверки в Центре конфликтов</item>
+        <item quantity="many">%1$d копий с конфликтом ждут проверки в Центре конфликтов</item>
+        <item quantity="other">%1$d копии с конфликтом ждут проверки в Центре конфликтов</item>
+    </plurals>
 
     <!-- Preview mode -->
     <string name="preview_link_address_copied">Адрес ссылки скопирован</string>

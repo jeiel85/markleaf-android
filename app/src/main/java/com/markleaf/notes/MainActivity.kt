@@ -102,6 +102,7 @@ class MainActivity : FragmentActivity() {
                         existing = notes,
                         applyUpdate = { updated -> importer.update(updated) },
                         applyCreate = { created -> importer.create(created) },
+                        currentNote = { id -> importer.current(id) },
                         metadata = settings.mirrorMetadata(),
                         titleSource = settings.noteTitleSource
                     )

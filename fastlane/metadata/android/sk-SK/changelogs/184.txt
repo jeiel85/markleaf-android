@@ -1,0 +1,1 @@
+Opravené: písanie počas toho, ako Markleaf kontroluje pomalý cloudový priečinok synchronizácie, už nezmení váš vlastný text na poznámku „kópia z iného zariadenia“. Nové: pruh nad zoznamom poznámok ukáže, koľko kópií v konflikte čaká, a otvorí centrum pre riešenie konfliktov.

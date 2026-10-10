@@ -3,10 +3,18 @@ package com.markleaf.notes.feature.settings
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.TextField
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.foundation.focusable
@@ -280,6 +288,42 @@ fun SettingsScreen(
     val sectionTopGap = 16.dp
     val sectionTopGapPx = with(LocalDensity.current) { sectionTopGap.toPx() }
 
+    // #517: the shortcut row gets you to a section; search gets you to the
+    // setting when you know its name but not which section holds it.
+    var searching by rememberSaveable { mutableStateOf(false) }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    val closeSearch = {
+        searching = false
+        searchQuery = ""
+    }
+    BackHandler(enabled = searching) { closeSearch() }
+    val resources = context.resources
+    val configuration = LocalConfiguration.current
+    // Resolved again when the language changes, not on every keystroke.
+    val searchEntries = remember(configuration) {
+        SettingsSearch.entries(
+            text = resources::getString,
+            sectionTitle = { resources.getString(it.headingRes()) }
+        )
+    }
+    val searchResults = remember(searchQuery, searchEntries) {
+        SettingsSearch.search(searchQuery, searchEntries)
+    }
+    val jumpTo: (SettingsSearchEntry) -> Unit = { entry ->
+        closeSearch()
+        val item = entry.item
+        val target = if (item != null) {
+            anchors.scrollTarget(item, settingsScroll.value, sectionTopGapPx)
+        } else {
+            anchors.scrollTarget(entry.section, settingsScroll.value, sectionTopGapPx)
+        }
+        if (target != null) scope.launch {
+            settingsScroll.animateScrollTo(target)
+            if (item != null) anchors.focus(item).requestFocus()
+            else anchors.focus(entry.section).requestFocus()
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -287,6 +331,16 @@ fun SettingsScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(painterResource(R.drawable.ic_back), contentDescription = stringResource(R.string.back))
+                    }
+                },
+                actions = {
+                    if (!searching) {
+                        IconButton(onClick = { searching = true }) {
+                            Icon(
+                                Icons.Default.Search,
+                                contentDescription = stringResource(R.string.settings_search_hint)
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -308,892 +362,943 @@ fun SettingsScreen(
             ) {
                 // The page is one long scroll of every section, so a row of
                 // shortcuts stays above it and jumps to each heading (#517).
-                SettingsSectionShortcuts(
-                    onJump = { section ->
-                        val target = anchors.scrollTarget(section, settingsScroll.value, sectionTopGapPx)
-                        if (target != null) scope.launch {
-                            settingsScroll.animateScrollTo(target)
-                            // Focus follows the jump, so TalkBack (and a
-                            // keyboard) carries on from the heading instead
-                            // of the chip (#262).
-                            anchors.focus(section).requestFocus()
-                        }
-                    },
-                    modifier = Modifier.widthIn(max = 640.dp)
-                )
-                Column(
+                if (searching) {
+                    SettingsSearchField(
+                        query = searchQuery,
+                        onQueryChange = { searchQuery = it },
+                        onClose = closeSearch,
+                        modifier = Modifier.widthIn(max = 640.dp)
+                    )
+                } else {
+                    SettingsSectionShortcuts(
+                        onJump = { section ->
+                            val target = anchors.scrollTarget(section, settingsScroll.value, sectionTopGapPx)
+                            if (target != null) scope.launch {
+                                settingsScroll.animateScrollTo(target)
+                                // Focus follows the jump, so TalkBack (and a
+                                // keyboard) carries on from the heading instead
+                                // of the chip (#262).
+                                anchors.focus(section).requestFocus()
+                            }
+                        },
+                        modifier = Modifier.widthIn(max = 640.dp)
+                    )
+                }
+                // Results cover the page instead of replacing it: the page
+                // stays laid out underneath, so the anchors a picked result
+                // scrolls to are already measured when the results close.
+                val showResults = searching && searchQuery.isNotBlank()
+                Box(
                     modifier = Modifier
                         .widthIn(max = 640.dp)
                         .fillMaxWidth()
                         .weight(1f)
-                        .onPlaced { anchors.viewport = it }
-                        .verticalScroll(settingsScroll)
-                        .padding(horizontal = 20.dp, vertical = sectionTopGap),
-                    verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
-                    SettingsSection(
-                        title = stringResource(R.string.settings_appearance),
-                        modifier = anchors.anchor(SettingsShortcut.APPEARANCE),
-                        headingFocus = anchors.focus(SettingsShortcut.APPEARANCE)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            // Hidden under the results, so not read by TalkBack
+                            // either.
+                            .then(if (showResults) Modifier.clearAndSetSemantics {} else Modifier)
+                            .onPlaced { anchors.viewport = it }
+                            .verticalScroll(settingsScroll)
+                            .padding(horizontal = 20.dp, vertical = sectionTopGap),
+                        verticalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
-                        Text(
-                            text = stringResource(R.string.theme_label),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            ThemeMode.entries.forEach { mode ->
-                                val selected = appSettings.themeMode == mode
-                                if (selected) {
-                                    Button(onClick = {}) {
-                                        Text(mode.localizedLabel())
-                                    }
-                                } else {
-                                    OutlinedButton(
-                                        onClick = {
-                                            scope.launch { settingsRepository.setThemeMode(mode) }
-                                        }
-                                    ) {
-                                        Text(mode.localizedLabel())
-                                    }
-                                }
-                            }
-                        }
-                        Spacer(Modifier.height(6.dp))
-                        Text(
-                            text = stringResource(R.string.theme_mode_description),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        Text(
-                            text = stringResource(R.string.color_palette_label),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            ColorPalette.entries.forEach { palette ->
-                                val selected = appSettings.colorPalette == palette
-                                if (selected) {
-                                    Button(onClick = {}) {
-                                        Text(palette.localizedLabel())
-                                    }
-                                } else {
-                                    OutlinedButton(
-                                        onClick = {
-                                            scope.launch { settingsRepository.setColorPalette(palette) }
-                                        }
-                                    ) {
-                                        Text(palette.localizedLabel())
-                                    }
-                                }
-                            }
-                        }
-                        Spacer(Modifier.height(6.dp))
-                        Text(
-                            text = stringResource(R.string.theme_description),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        Text(
-                            text = stringResource(R.string.widget_opacity_label),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        // Five percentages don't fit one row on a narrow phone,
-                        // so they wrap like the font sizes below.
-                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            WidgetOpacity.entries.forEach { opacity ->
-                                val selected = appSettings.widgetOpacity == opacity
-                                if (selected) {
-                                    Button(onClick = {}) {
-                                        Text(opacity.localizedLabel())
-                                    }
-                                } else {
-                                    OutlinedButton(
-                                        onClick = {
-                                            scope.launch { settingsRepository.setWidgetOpacity(opacity) }
-                                        }
-                                    ) {
-                                        Text(opacity.localizedLabel())
-                                    }
-                                }
-                            }
-                        }
-                        Spacer(Modifier.height(6.dp))
-                        Text(
-                            text = stringResource(R.string.widget_opacity_description),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        WidgetColorSetting(
-                            customColor = appSettings.widgetCustomColor,
-                            onChange = { color ->
-                                scope.launch { settingsRepository.setWidgetCustomColor(color) }
-                            }
-                        )
-                    }
-
-                    SettingsSection(
-                        title = stringResource(R.string.settings_markdown),
-                        modifier = anchors.anchor(SettingsShortcut.MARKDOWN),
-                        headingFocus = anchors.focus(SettingsShortcut.MARKDOWN)
-                    ) {
-                        SettingsSwitchRow(
-                            title = stringResource(R.string.show_markdown_syntax),
-                            description = stringResource(R.string.show_markdown_syntax_description),
-                            checked = appSettings.markdownSyntaxVisibility == MarkdownSyntaxVisibility.SHOW,
-                            onCheckedChange = { checked ->
-                                HapticFeedback.light(context)
-                                scope.launch {
-                                    settingsRepository.setMarkdownSyntaxVisibility(
-                                        if (checked) MarkdownSyntaxVisibility.SHOW else MarkdownSyntaxVisibility.HIDE
-                                    )
-                                }
-                            }
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        SettingsSwitchRow(
-                            title = stringResource(R.string.show_formatting_button),
-                            description = stringResource(R.string.show_formatting_button_description),
-                            checked = appSettings.showFormattingButton,
-                            onCheckedChange = { checked ->
-                                HapticFeedback.light(context)
-                                scope.launch {
-                                    settingsRepository.setShowFormattingButton(checked)
-                                }
-                            }
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        Text(
-                            text = stringResource(R.string.line_width),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            EditorLineWidth.entries.forEach { lineWidth ->
-                                val selected = appSettings.lineWidth == lineWidth
-                                if (selected) {
-                                    Button(onClick = {}) {
-                                        Text(lineWidth.localizedLabel())
-                                    }
-                                } else {
-                                    OutlinedButton(
-                                        onClick = {
-                                            scope.launch {
-                                                settingsRepository.setLineWidth(lineWidth)
-                                            }
-                                        }
-                                    ) {
-                                        Text(lineWidth.localizedLabel())
-                                    }
-                                }
-                            }
-                        }
-                        Spacer(Modifier.height(6.dp))
-                        // The cap only binds on a wide layout (the tablet editor
-                        // pane, the file viewer); an upright phone is narrower than
-                        // every option, so the label alone read as line spacing that
-                        // "did nothing" (#465).
-                        Text(
-                            text = stringResource(R.string.line_width_description),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        Text(
-                            text = stringResource(R.string.font_label),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        // Three options with long translations (ru "Моноширинный")
-                        // overflow one row on a narrow screen, so they wrap.
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        SettingsSection(
+                            title = stringResource(R.string.settings_appearance),
+                            modifier = anchors.anchor(SettingsShortcut.APPEARANCE),
+                            headingFocus = anchors.focus(SettingsShortcut.APPEARANCE)
                         ) {
-                            EditorFont.entries.forEach { font ->
-                                val selected = appSettings.editorFont == font
-                                if (selected) {
-                                    Button(onClick = {}) {
-                                        Text(font.localizedLabel())
-                                    }
-                                } else {
-                                    OutlinedButton(
-                                        onClick = {
-                                            // Your font with no file yet goes
-                                            // straight to the picker; picking
-                                            // one is what selects it.
-                                            if (font == EditorFont.CUSTOM &&
-                                                CustomFontStore.file(context, appSettings.customFontFile) == null
-                                            ) {
-                                                customFontLauncher.launch(CustomFontMimeTypes)
-                                            } else {
-                                                scope.launch {
-                                                    settingsRepository.setEditorFont(font)
-                                                }
-                                            }
+                            Text(
+                                text = stringResource(R.string.theme_label),
+                                modifier = anchors.item(SettingsItem.THEME),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                ThemeMode.entries.forEach { mode ->
+                                    val selected = appSettings.themeMode == mode
+                                    if (selected) {
+                                        Button(onClick = {}) {
+                                            Text(mode.localizedLabel())
                                         }
-                                    ) {
-                                        Text(font.localizedLabel())
+                                    } else {
+                                        OutlinedButton(
+                                            onClick = {
+                                                scope.launch { settingsRepository.setThemeMode(mode) }
+                                            }
+                                        ) {
+                                            Text(mode.localizedLabel())
+                                        }
                                     }
                                 }
                             }
-                        }
-                        if (appSettings.editorFont == EditorFont.CUSTOM) {
                             Spacer(Modifier.height(6.dp))
-                            val fontName = appSettings.customFontName
-                                ?.takeIf { CustomFontStore.file(context, appSettings.customFontFile) != null }
                             Text(
-                                text = if (fontName != null) {
-                                    stringResource(R.string.font_custom_file_format, fontName)
-                                } else {
-                                    stringResource(R.string.font_custom_missing)
-                                },
+                                text = stringResource(R.string.theme_mode_description),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                            TextButton(onClick = { customFontLauncher.launch(CustomFontMimeTypes) }) {
-                                Text(stringResource(R.string.font_custom_choose))
-                            }
-                        }
-                        Spacer(Modifier.height(6.dp))
-                        Text(
-                            text = stringResource(R.string.font_description),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        Text(
-                            text = stringResource(R.string.font_size_label),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        // Four options with long translations (de "Sehr groß")
-                        // overflow one row at some widths, so they wrap.
-                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            EditorFontSize.entries.forEach { size ->
-                                val selected = appSettings.editorFontSize == size
-                                if (selected) {
-                                    Button(onClick = {}) {
-                                        Text(size.localizedLabel())
-                                    }
-                                } else {
-                                    OutlinedButton(
-                                        onClick = {
-                                            scope.launch {
-                                                settingsRepository.setEditorFontSize(size)
-                                            }
+                            Spacer(Modifier.height(12.dp))
+                            Text(
+                                text = stringResource(R.string.color_palette_label),
+                                modifier = anchors.item(SettingsItem.COLOR_PALETTE),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                ColorPalette.entries.forEach { palette ->
+                                    val selected = appSettings.colorPalette == palette
+                                    if (selected) {
+                                        Button(onClick = {}) {
+                                            Text(palette.localizedLabel())
                                         }
-                                    ) {
-                                        Text(size.localizedLabel())
+                                    } else {
+                                        OutlinedButton(
+                                            onClick = {
+                                                scope.launch { settingsRepository.setColorPalette(palette) }
+                                            }
+                                        ) {
+                                            Text(palette.localizedLabel())
+                                        }
                                     }
                                 }
                             }
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                text = stringResource(R.string.theme_description),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            Text(
+                                text = stringResource(R.string.widget_opacity_label),
+                                modifier = anchors.item(SettingsItem.WIDGET_OPACITY),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            // Five percentages don't fit one row on a narrow phone,
+                            // so they wrap like the font sizes below.
+                            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                WidgetOpacity.entries.forEach { opacity ->
+                                    val selected = appSettings.widgetOpacity == opacity
+                                    if (selected) {
+                                        Button(onClick = {}) {
+                                            Text(opacity.localizedLabel())
+                                        }
+                                    } else {
+                                        OutlinedButton(
+                                            onClick = {
+                                                scope.launch { settingsRepository.setWidgetOpacity(opacity) }
+                                            }
+                                        ) {
+                                            Text(opacity.localizedLabel())
+                                        }
+                                    }
+                                }
+                            }
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                text = stringResource(R.string.widget_opacity_description),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            WidgetColorSetting(
+                                customColor = appSettings.widgetCustomColor,
+                                titleModifier = anchors.item(SettingsItem.WIDGET_COLOR),
+                                onChange = { color ->
+                                    scope.launch { settingsRepository.setWidgetCustomColor(color) }
+                                }
+                            )
                         }
-                        Spacer(Modifier.height(6.dp))
-                        Text(
-                            text = stringResource(R.string.font_size_description),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
 
-                    SettingsSection(
-                        title = stringResource(R.string.settings_notes_section),
-                        modifier = anchors.anchor(SettingsShortcut.NOTES),
-                        headingFocus = anchors.focus(SettingsShortcut.NOTES)
-                    ) {
-                        SettingsSwitchRow(
-                            title = stringResource(R.string.show_note_previews),
-                            description = stringResource(R.string.show_note_previews_description),
-                            checked = appSettings.notesShowPreview,
-                            onCheckedChange = { checked ->
-                                HapticFeedback.light(context)
-                                scope.launch {
-                                    settingsRepository.setNotesShowPreview(checked)
-                                }
-                            }
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        SettingsSwitchRow(
-                            title = stringResource(R.string.reopen_last_note),
-                            description = stringResource(R.string.reopen_last_note_description),
-                            checked = appSettings.reopenLastNote,
-                            onCheckedChange = { checked ->
-                                HapticFeedback.light(context)
-                                scope.launch {
-                                    settingsRepository.setReopenLastNote(checked)
-                                }
-                            }
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        SettingsSwitchRow(
-                            title = stringResource(R.string.open_notes_in_preview),
-                            description = stringResource(R.string.open_notes_in_preview_description),
-                            checked = appSettings.openNotesInPreview,
-                            onCheckedChange = { checked ->
-                                HapticFeedback.light(context)
-                                scope.launch {
-                                    settingsRepository.setOpenNotesInPreview(checked)
-                                }
-                            }
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        Text(
-                            text = stringResource(R.string.open_notes_at),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OpenNotesAt.entries.forEach { where ->
-                                val selected = appSettings.openNotesAt == where
-                                if (selected) {
-                                    Button(onClick = {}) {
-                                        Text(where.localizedLabel())
+                        SettingsSection(
+                            title = stringResource(R.string.settings_markdown),
+                            modifier = anchors.anchor(SettingsShortcut.MARKDOWN),
+                            headingFocus = anchors.focus(SettingsShortcut.MARKDOWN)
+                        ) {
+                            SettingsSwitchRow(
+                                title = stringResource(R.string.show_markdown_syntax),
+                                titleModifier = anchors.item(SettingsItem.MARKDOWN_SYNTAX),
+                                description = stringResource(R.string.show_markdown_syntax_description),
+                                checked = appSettings.markdownSyntaxVisibility == MarkdownSyntaxVisibility.SHOW,
+                                onCheckedChange = { checked ->
+                                    HapticFeedback.light(context)
+                                    scope.launch {
+                                        settingsRepository.setMarkdownSyntaxVisibility(
+                                            if (checked) MarkdownSyntaxVisibility.SHOW else MarkdownSyntaxVisibility.HIDE
+                                        )
                                     }
-                                } else {
-                                    OutlinedButton(
-                                        onClick = {
-                                            scope.launch {
-                                                settingsRepository.setOpenNotesAt(where)
-                                                // Switching away from "where I left off"
-                                                // orphans every recorded position — the
-                                                // setting no longer reads them, but the
-                                                // rows would sit there forever, and
-                                                // turning the setting back on later would
-                                                // restore stale positions for notes that
-                                                // moved in the meantime (#262).
-                                                if (where != OpenNotesAt.LAST_POSITION) {
-                                                    withContext(Dispatchers.IO) {
-                                                        db.noteViewStateDao().clearAll()
+                                }
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            SettingsSwitchRow(
+                                title = stringResource(R.string.show_formatting_button),
+                                titleModifier = anchors.item(SettingsItem.FORMATTING_BUTTON),
+                                description = stringResource(R.string.show_formatting_button_description),
+                                checked = appSettings.showFormattingButton,
+                                onCheckedChange = { checked ->
+                                    HapticFeedback.light(context)
+                                    scope.launch {
+                                        settingsRepository.setShowFormattingButton(checked)
+                                    }
+                                }
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            Text(
+                                text = stringResource(R.string.line_width),
+                                modifier = anchors.item(SettingsItem.LINE_WIDTH),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                EditorLineWidth.entries.forEach { lineWidth ->
+                                    val selected = appSettings.lineWidth == lineWidth
+                                    if (selected) {
+                                        Button(onClick = {}) {
+                                            Text(lineWidth.localizedLabel())
+                                        }
+                                    } else {
+                                        OutlinedButton(
+                                            onClick = {
+                                                scope.launch {
+                                                    settingsRepository.setLineWidth(lineWidth)
+                                                }
+                                            }
+                                        ) {
+                                            Text(lineWidth.localizedLabel())
+                                        }
+                                    }
+                                }
+                            }
+                            Spacer(Modifier.height(6.dp))
+                            // The cap only binds on a wide layout (the tablet editor
+                            // pane, the file viewer); an upright phone is narrower than
+                            // every option, so the label alone read as line spacing that
+                            // "did nothing" (#465).
+                            Text(
+                                text = stringResource(R.string.line_width_description),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            Text(
+                                text = stringResource(R.string.font_label),
+                                modifier = anchors.item(SettingsItem.FONT),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            // Three options with long translations (ru "Моноширинный")
+                            // overflow one row on a narrow screen, so they wrap.
+                            FlowRow(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                EditorFont.entries.forEach { font ->
+                                    val selected = appSettings.editorFont == font
+                                    if (selected) {
+                                        Button(onClick = {}) {
+                                            Text(font.localizedLabel())
+                                        }
+                                    } else {
+                                        OutlinedButton(
+                                            onClick = {
+                                                // Your font with no file yet goes
+                                                // straight to the picker; picking
+                                                // one is what selects it.
+                                                if (font == EditorFont.CUSTOM &&
+                                                    CustomFontStore.file(context, appSettings.customFontFile) == null
+                                                ) {
+                                                    customFontLauncher.launch(CustomFontMimeTypes)
+                                                } else {
+                                                    scope.launch {
+                                                        settingsRepository.setEditorFont(font)
                                                     }
                                                 }
                                             }
+                                        ) {
+                                            Text(font.localizedLabel())
                                         }
-                                    ) {
-                                        Text(where.localizedLabel())
                                     }
                                 }
                             }
-                        }
-                        Spacer(Modifier.height(6.dp))
-                        Text(
-                            text = stringResource(R.string.open_notes_at_description),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        // #481: what the widget's +, the "New note" app shortcut
-                        // and Android's Notes shortcuts open. Wraps: "Today's note"
-                        // runs long in several languages.
-                        Text(
-                            text = stringResource(R.string.new_note_shortcut),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            NewNoteShortcut.entries.forEach { target ->
-                                if (appSettings.newNoteShortcut == target) {
-                                    Button(onClick = {}) {
-                                        Text(target.localizedLabel())
-                                    }
-                                } else {
-                                    OutlinedButton(
-                                        onClick = {
-                                            scope.launch { settingsRepository.setNewNoteShortcut(target) }
-                                        }
-                                    ) {
-                                        Text(target.localizedLabel())
-                                    }
+                            if (appSettings.editorFont == EditorFont.CUSTOM) {
+                                Spacer(Modifier.height(6.dp))
+                                val fontName = appSettings.customFontName
+                                    ?.takeIf { CustomFontStore.file(context, appSettings.customFontFile) != null }
+                                Text(
+                                    text = if (fontName != null) {
+                                        stringResource(R.string.font_custom_file_format, fontName)
+                                    } else {
+                                        stringResource(R.string.font_custom_missing)
+                                    },
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                TextButton(onClick = { customFontLauncher.launch(CustomFontMimeTypes) }) {
+                                    Text(stringResource(R.string.font_custom_choose))
                                 }
                             }
-                        }
-                        Spacer(Modifier.height(6.dp))
-                        Text(
-                            text = stringResource(R.string.new_note_shortcut_description),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        Text(
-                            text = stringResource(R.string.notes_layout),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            NotesLayout.entries.forEach { layout ->
-                                val selected = appSettings.notesLayout == layout
-                                if (selected) {
-                                    Button(onClick = {}) {
-                                        Text(layout.localizedLabel())
-                                    }
-                                } else {
-                                    OutlinedButton(
-                                        onClick = {
-                                            scope.launch {
-                                                settingsRepository.setNotesLayout(layout)
-                                            }
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                text = stringResource(R.string.font_description),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            Text(
+                                text = stringResource(R.string.font_size_label),
+                                modifier = anchors.item(SettingsItem.FONT_SIZE),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            // Four options with long translations (de "Sehr groß")
+                            // overflow one row at some widths, so they wrap.
+                            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                EditorFontSize.entries.forEach { size ->
+                                    val selected = appSettings.editorFontSize == size
+                                    if (selected) {
+                                        Button(onClick = {}) {
+                                            Text(size.localizedLabel())
                                         }
-                                    ) {
-                                        Text(layout.localizedLabel())
-                                    }
-                                }
-                            }
-                        }
-                        Spacer(Modifier.height(6.dp))
-                        Text(
-                            text = stringResource(R.string.notes_layout_description),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        Text(
-                            text = stringResource(R.string.note_title_source),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            NoteTitleSource.entries.forEach { source ->
-                                val selected = appSettings.noteTitleSource == source
-                                if (selected) {
-                                    Button(onClick = {}, enabled = !retitleBusy) {
-                                        Text(source.localizedLabel())
-                                    }
-                                } else {
-                                    OutlinedButton(
-                                        enabled = !retitleBusy,
-                                        onClick = {
-                                            retitleBusy = true
-                                            scope.launch {
-                                                // Stored titles are derived once, at save
-                                                // time, so without this pass the setting
-                                                // would appear to do nothing (#280).
-                                                // NonCancellable: leaving the screen
-                                                // mid-pass would otherwise strand half the
-                                                // notes under the old rule. The rule and
-                                                // its pending flag are written together —
-                                                // a death between two writes would select
-                                                // the rule with nothing to resume — and
-                                                // the flag survives a process death
-                                                // mid-pass, so this screen's
-                                                // LaunchedEffect resumes it next time
-                                                // (#262).
-                                                settingsRepository.beginRetitle(source)
-                                                try {
-                                                    val changed = withContext(
-                                                        Dispatchers.IO + NonCancellable
-                                                    ) {
-                                                        NoteRetitler.retitleAll(noteRepository, source)
-                                                    }
-                                                    Toast.makeText(
-                                                        context,
-                                                        context.resources.getQuantityString(
-                                                            R.plurals.note_title_retitled_format,
-                                                            changed,
-                                                            changed
-                                                        ),
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                } finally {
-                                                    // Order matters, and it is the same
-                                                    // order the resume effect uses: the
-                                                    // busy guard is what stops that effect
-                                                    // seeing `retitlePending && !busy` and
-                                                    // launching a second full pass, so it
-                                                    // must outlive the pending flag rather
-                                                    // than be released while the flag is
-                                                    // still true (#262).
-                                                    settingsRepository.setRetitlePending(false)
-                                                    retitleBusy = false
+                                    } else {
+                                        OutlinedButton(
+                                            onClick = {
+                                                scope.launch {
+                                                    settingsRepository.setEditorFontSize(size)
                                                 }
                                             }
+                                        ) {
+                                            Text(size.localizedLabel())
                                         }
-                                    ) {
-                                        Text(source.localizedLabel())
                                     }
                                 }
                             }
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                text = stringResource(R.string.font_size_description),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
-                        Spacer(Modifier.height(6.dp))
-                        Text(
-                            text = stringResource(R.string.note_title_source_description),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
 
-                    SettingsSection(
-                        title = stringResource(R.string.settings_privacy),
-                        modifier = anchors.anchor(SettingsShortcut.PRIVACY),
-                        headingFocus = anchors.focus(SettingsShortcut.PRIVACY)
-                    ) {
-                        SettingLine(stringResource(R.string.privacy_no_tracking))
-                        SettingLine(stringResource(R.string.privacy_no_internet))
-                        SettingLine(stringResource(R.string.privacy_local_first))
-                        Spacer(Modifier.height(12.dp))
-                        SettingsSwitchRow(
-                            title = stringResource(R.string.screenshot_protection),
-                            description = stringResource(R.string.screenshot_protection_description),
-                            checked = appSettings.screenshotProtection,
-                            onCheckedChange = { checked ->
-                                HapticFeedback.light(context)
-                                scope.launch {
-                                    settingsRepository.setScreenshotProtection(checked)
-                                }
-                            }
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        SettingsSwitchRow(
-                            title = stringResource(R.string.recent_notes_in_shortcuts),
-                            description = stringResource(R.string.recent_notes_in_shortcuts_description),
-                            checked = appSettings.recentNotesInShortcuts,
-                            onCheckedChange = { checked ->
-                                HapticFeedback.light(context)
-                                scope.launch {
-                                    settingsRepository.setRecentNotesInShortcuts(checked)
-                                }
-                            }
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        val biometricAvailable = remember(context) { context.canUseBiometric() }
-                        SettingsSwitchRow(
-                            title = stringResource(R.string.biometric_lock_setting),
-                            description = if (biometricAvailable) {
-                                stringResource(R.string.biometric_lock_description)
-                            } else {
-                                stringResource(R.string.biometric_lock_unavailable)
-                            },
-                            checked = appSettings.biometricLockEnabled && biometricAvailable,
-                            onCheckedChange = { checked ->
-                                if (!biometricAvailable && checked) return@SettingsSwitchRow
-                                HapticFeedback.light(context)
-                                scope.launch {
-                                    settingsRepository.setBiometricLockEnabled(checked)
-                                }
-                            }
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        LockedNotesPasscodeSetting(
-                            passcodeSet = appSettings.lockPasscodeSet,
-                            onSetPasscode = { passcode ->
-                                scope.launch {
-                                    settingsRepository.setLockPasscode(passcode)
-                                    Toast.makeText(
-                                        context,
-                                        R.string.locked_passcode_set_done,
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            },
-                            onRemovePasscode = {
-                                scope.launch {
-                                    settingsRepository.clearLockPasscode()
-                                    withContext(Dispatchers.IO) { noteRepository.unlockAllLocked() }
-                                    Toast.makeText(
-                                        context,
-                                        R.string.locked_passcode_removed_done,
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        Button(
-                            onClick = onPrivacyClick,
-                            modifier = Modifier.fillMaxWidth()
+                        SettingsSection(
+                            title = stringResource(R.string.settings_notes_section),
+                            modifier = anchors.anchor(SettingsShortcut.NOTES),
+                            headingFocus = anchors.focus(SettingsShortcut.NOTES)
                         ) {
-                            Text(stringResource(R.string.privacy_dashboard_button))
+                            SettingsSwitchRow(
+                                title = stringResource(R.string.show_note_previews),
+                                titleModifier = anchors.item(SettingsItem.NOTE_PREVIEWS),
+                                description = stringResource(R.string.show_note_previews_description),
+                                checked = appSettings.notesShowPreview,
+                                onCheckedChange = { checked ->
+                                    HapticFeedback.light(context)
+                                    scope.launch {
+                                        settingsRepository.setNotesShowPreview(checked)
+                                    }
+                                }
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            SettingsSwitchRow(
+                                title = stringResource(R.string.reopen_last_note),
+                                titleModifier = anchors.item(SettingsItem.REOPEN_LAST_NOTE),
+                                description = stringResource(R.string.reopen_last_note_description),
+                                checked = appSettings.reopenLastNote,
+                                onCheckedChange = { checked ->
+                                    HapticFeedback.light(context)
+                                    scope.launch {
+                                        settingsRepository.setReopenLastNote(checked)
+                                    }
+                                }
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            SettingsSwitchRow(
+                                title = stringResource(R.string.open_notes_in_preview),
+                                titleModifier = anchors.item(SettingsItem.OPEN_IN_PREVIEW),
+                                description = stringResource(R.string.open_notes_in_preview_description),
+                                checked = appSettings.openNotesInPreview,
+                                onCheckedChange = { checked ->
+                                    HapticFeedback.light(context)
+                                    scope.launch {
+                                        settingsRepository.setOpenNotesInPreview(checked)
+                                    }
+                                }
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            Text(
+                                text = stringResource(R.string.open_notes_at),
+                                modifier = anchors.item(SettingsItem.OPEN_NOTES_AT),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                OpenNotesAt.entries.forEach { where ->
+                                    val selected = appSettings.openNotesAt == where
+                                    if (selected) {
+                                        Button(onClick = {}) {
+                                            Text(where.localizedLabel())
+                                        }
+                                    } else {
+                                        OutlinedButton(
+                                            onClick = {
+                                                scope.launch {
+                                                    settingsRepository.setOpenNotesAt(where)
+                                                    // Switching away from "where I left off"
+                                                    // orphans every recorded position — the
+                                                    // setting no longer reads them, but the
+                                                    // rows would sit there forever, and
+                                                    // turning the setting back on later would
+                                                    // restore stale positions for notes that
+                                                    // moved in the meantime (#262).
+                                                    if (where != OpenNotesAt.LAST_POSITION) {
+                                                        withContext(Dispatchers.IO) {
+                                                            db.noteViewStateDao().clearAll()
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ) {
+                                            Text(where.localizedLabel())
+                                        }
+                                    }
+                                }
+                            }
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                text = stringResource(R.string.open_notes_at_description),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            // #481: what the widget's +, the "New note" app shortcut
+                            // and Android's Notes shortcuts open. Wraps: "Today's note"
+                            // runs long in several languages.
+                            Text(
+                                text = stringResource(R.string.new_note_shortcut),
+                                modifier = anchors.item(SettingsItem.NEW_NOTE_SHORTCUT),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            FlowRow(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                NewNoteShortcut.entries.forEach { target ->
+                                    if (appSettings.newNoteShortcut == target) {
+                                        Button(onClick = {}) {
+                                            Text(target.localizedLabel())
+                                        }
+                                    } else {
+                                        OutlinedButton(
+                                            onClick = {
+                                                scope.launch { settingsRepository.setNewNoteShortcut(target) }
+                                            }
+                                        ) {
+                                            Text(target.localizedLabel())
+                                        }
+                                    }
+                                }
+                            }
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                text = stringResource(R.string.new_note_shortcut_description),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            Text(
+                                text = stringResource(R.string.notes_layout),
+                                modifier = anchors.item(SettingsItem.NOTES_LAYOUT),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                NotesLayout.entries.forEach { layout ->
+                                    val selected = appSettings.notesLayout == layout
+                                    if (selected) {
+                                        Button(onClick = {}) {
+                                            Text(layout.localizedLabel())
+                                        }
+                                    } else {
+                                        OutlinedButton(
+                                            onClick = {
+                                                scope.launch {
+                                                    settingsRepository.setNotesLayout(layout)
+                                                }
+                                            }
+                                        ) {
+                                            Text(layout.localizedLabel())
+                                        }
+                                    }
+                                }
+                            }
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                text = stringResource(R.string.notes_layout_description),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            Text(
+                                text = stringResource(R.string.note_title_source),
+                                modifier = anchors.item(SettingsItem.NOTE_TITLE_SOURCE),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                NoteTitleSource.entries.forEach { source ->
+                                    val selected = appSettings.noteTitleSource == source
+                                    if (selected) {
+                                        Button(onClick = {}, enabled = !retitleBusy) {
+                                            Text(source.localizedLabel())
+                                        }
+                                    } else {
+                                        OutlinedButton(
+                                            enabled = !retitleBusy,
+                                            onClick = {
+                                                retitleBusy = true
+                                                scope.launch {
+                                                    // Stored titles are derived once, at save
+                                                    // time, so without this pass the setting
+                                                    // would appear to do nothing (#280).
+                                                    // NonCancellable: leaving the screen
+                                                    // mid-pass would otherwise strand half the
+                                                    // notes under the old rule. The rule and
+                                                    // its pending flag are written together —
+                                                    // a death between two writes would select
+                                                    // the rule with nothing to resume — and
+                                                    // the flag survives a process death
+                                                    // mid-pass, so this screen's
+                                                    // LaunchedEffect resumes it next time
+                                                    // (#262).
+                                                    settingsRepository.beginRetitle(source)
+                                                    try {
+                                                        val changed = withContext(
+                                                            Dispatchers.IO + NonCancellable
+                                                        ) {
+                                                            NoteRetitler.retitleAll(noteRepository, source)
+                                                        }
+                                                        Toast.makeText(
+                                                            context,
+                                                            context.resources.getQuantityString(
+                                                                R.plurals.note_title_retitled_format,
+                                                                changed,
+                                                                changed
+                                                            ),
+                                                            Toast.LENGTH_SHORT
+                                                        ).show()
+                                                    } finally {
+                                                        // Order matters, and it is the same
+                                                        // order the resume effect uses: the
+                                                        // busy guard is what stops that effect
+                                                        // seeing `retitlePending && !busy` and
+                                                        // launching a second full pass, so it
+                                                        // must outlive the pending flag rather
+                                                        // than be released while the flag is
+                                                        // still true (#262).
+                                                        settingsRepository.setRetitlePending(false)
+                                                        retitleBusy = false
+                                                    }
+                                                }
+                                            }
+                                        ) {
+                                            Text(source.localizedLabel())
+                                        }
+                                    }
+                                }
+                            }
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                text = stringResource(R.string.note_title_source_description),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
-                    }
 
-                    SettingsSection(
-                        title = stringResource(R.string.settings_data),
-                        modifier = anchors.anchor(SettingsShortcut.DATA),
-                        headingFocus = anchors.focus(SettingsShortcut.DATA)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.export_all_notes_description),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        OutlinedButton(
-                            onClick = {
-                                exportTag = null
-                                exportAllLauncher.launch(null)
-                            },
-                            modifier = Modifier.fillMaxWidth()
+                        SettingsSection(
+                            title = stringResource(R.string.settings_privacy),
+                            modifier = anchors.anchor(SettingsShortcut.PRIVACY),
+                            headingFocus = anchors.focus(SettingsShortcut.PRIVACY)
                         ) {
-                            Text(stringResource(R.string.export_all_notes))
+                            SettingLine(stringResource(R.string.privacy_no_tracking))
+                            SettingLine(stringResource(R.string.privacy_no_internet))
+                            SettingLine(stringResource(R.string.privacy_local_first))
+                            Spacer(Modifier.height(12.dp))
+                            SettingsSwitchRow(
+                                title = stringResource(R.string.screenshot_protection),
+                                titleModifier = anchors.item(SettingsItem.SCREENSHOT_PROTECTION),
+                                description = stringResource(R.string.screenshot_protection_description),
+                                checked = appSettings.screenshotProtection,
+                                onCheckedChange = { checked ->
+                                    HapticFeedback.light(context)
+                                    scope.launch {
+                                        settingsRepository.setScreenshotProtection(checked)
+                                    }
+                                }
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            SettingsSwitchRow(
+                                title = stringResource(R.string.recent_notes_in_shortcuts),
+                                titleModifier = anchors.item(SettingsItem.RECENT_NOTES_IN_SHORTCUTS),
+                                description = stringResource(R.string.recent_notes_in_shortcuts_description),
+                                checked = appSettings.recentNotesInShortcuts,
+                                onCheckedChange = { checked ->
+                                    HapticFeedback.light(context)
+                                    scope.launch {
+                                        settingsRepository.setRecentNotesInShortcuts(checked)
+                                    }
+                                }
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            val biometricAvailable = remember(context) { context.canUseBiometric() }
+                            SettingsSwitchRow(
+                                title = stringResource(R.string.biometric_lock_setting),
+                                titleModifier = anchors.item(SettingsItem.BIOMETRIC_LOCK),
+                                description = if (biometricAvailable) {
+                                    stringResource(R.string.biometric_lock_description)
+                                } else {
+                                    stringResource(R.string.biometric_lock_unavailable)
+                                },
+                                checked = appSettings.biometricLockEnabled && biometricAvailable,
+                                onCheckedChange = { checked ->
+                                    if (!biometricAvailable && checked) return@SettingsSwitchRow
+                                    HapticFeedback.light(context)
+                                    scope.launch {
+                                        settingsRepository.setBiometricLockEnabled(checked)
+                                    }
+                                }
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            LockedNotesPasscodeSetting(
+                                passcodeSet = appSettings.lockPasscodeSet,
+                                titleModifier = anchors.item(SettingsItem.LOCKED_PASSCODE),
+                                onSetPasscode = { passcode ->
+                                    scope.launch {
+                                        settingsRepository.setLockPasscode(passcode)
+                                        Toast.makeText(
+                                            context,
+                                            R.string.locked_passcode_set_done,
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                },
+                                onRemovePasscode = {
+                                    scope.launch {
+                                        settingsRepository.clearLockPasscode()
+                                        withContext(Dispatchers.IO) { noteRepository.unlockAllLocked() }
+                                        Toast.makeText(
+                                            context,
+                                            R.string.locked_passcode_removed_done,
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            Button(
+                                onClick = onPrivacyClick,
+                                modifier = anchors.item(SettingsItem.PRIVACY_DASHBOARD, focusable = false).fillMaxWidth()
+                            ) {
+                                Text(stringResource(R.string.privacy_dashboard_button))
+                            }
                         }
-                        OutlinedButton(
-                            onClick = { showExportTagPicker = true },
-                            enabled = exportTags.isNotEmpty(),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(stringResource(R.string.export_tag_notes))
-                        }
-                    }
 
-                    SyncSection(
-                        modifier = anchors.anchor(SettingsShortcut.SYNC),
-                        headingFocus = anchors.focus(SettingsShortcut.SYNC),
-                        folderUri = appSettings.syncFolderUri,
-                        lastSyncedAt = appSettings.syncLastSyncedAt,
-                        metadataMode = appSettings.syncMetadataMode,
-                        metadataBusy = metadataSwitchBusy,
-                        onMetadataModeChange = { mode ->
-                            if (mode == appSettings.syncMetadataMode) return@SyncSection
-                            val uri = appSettings.syncFolderUriOrNull()
-                            if (uri == null) {
-                                // No folder yet: no files carry a header and no
-                                // index exists, so there is nothing to migrate
-                                // and the setting is the whole change. This is
-                                // the cheap moment to choose, and the only one
-                                // that costs nothing.
+                        SettingsSection(
+                            title = stringResource(R.string.settings_data),
+                            modifier = anchors.anchor(SettingsShortcut.DATA),
+                            headingFocus = anchors.focus(SettingsShortcut.DATA)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.export_all_notes_description),
+                                modifier = anchors.item(SettingsItem.EXPORT_ALL),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            OutlinedButton(
+                                onClick = {
+                                    exportTag = null
+                                    exportAllLauncher.launch(null)
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(stringResource(R.string.export_all_notes))
+                            }
+                            OutlinedButton(
+                                onClick = { showExportTagPicker = true },
+                                enabled = exportTags.isNotEmpty(),
+                                modifier = anchors.item(SettingsItem.EXPORT_TAG, focusable = false).fillMaxWidth()
+                            ) {
+                                Text(stringResource(R.string.export_tag_notes))
+                            }
+                        }
+
+                        SyncSection(
+                            modifier = anchors.anchor(SettingsShortcut.SYNC),
+                            headingFocus = anchors.focus(SettingsShortcut.SYNC),
+                            itemAnchor = { item, focusable -> anchors.item(item, focusable) },
+                            folderUri = appSettings.syncFolderUri,
+                            lastSyncedAt = appSettings.syncLastSyncedAt,
+                            metadataMode = appSettings.syncMetadataMode,
+                            metadataBusy = metadataSwitchBusy,
+                            onMetadataModeChange = { mode ->
+                                if (mode == appSettings.syncMetadataMode) return@SyncSection
+                                val uri = appSettings.syncFolderUriOrNull()
+                                if (uri == null) {
+                                    // No folder yet: no files carry a header and no
+                                    // index exists, so there is nothing to migrate
+                                    // and the setting is the whole change. This is
+                                    // the cheap moment to choose, and the only one
+                                    // that costs nothing.
+                                    scope.launch {
+                                        // Sidecar mode needs a device id to name the
+                                        // index it owns; without one mirrorMetadata()
+                                        // falls back to Frontmatter and the choice
+                                        // would be silently undone at link time.
+                                        if (mode == SyncMetadataMode.SIDECAR) {
+                                            settingsRepository.getOrCreateSyncDeviceId()
+                                        }
+                                        settingsRepository.setSyncMetadataMode(mode)
+                                    }
+                                    return@SyncSection
+                                }
                                 scope.launch {
-                                    // Sidecar mode needs a device id to name the
-                                    // index it owns; without one mirrorMetadata()
-                                    // falls back to Frontmatter and the choice
-                                    // would be silently undone at link time.
+                                    metadataSwitchBusy = true
+                                    // The two directions flip the setting at
+                                    // opposite ends of the conversion, and the rule
+                                    // behind both is the same: a mirror file with no
+                                    // header must never be read by a mode that has
+                                    // only the header to identify it by, or the
+                                    // import mints a fresh id and the note comes
+                                    // back as a second copy (#140).
+                                    //
+                                    // To SIDECAR, flip first. A pass that dies
+                                    // halfway leaves stripped files behind, and the
+                                    // frontmatter import has nothing to match them
+                                    // with; the sidecar import has the index entry,
+                                    // which `toSidecar` makes durable before it
+                                    // strips anything. The older comment here said
+                                    // the opposite order was needed because an
+                                    // import in that window "would read each header
+                                    // as note text" — that stopped being true when
+                                    // the sidecar import learned to strip a stray
+                                    // header and use the id inside it
+                                    // (`NoteFolderMirror`, "A file may still carry a
+                                    // header").
+                                    //
+                                    // To FRONTMATTER, flip last, for the mirror
+                                    // reason: the conversion is what *adds* the
+                                    // header, so until it has run the files are
+                                    // identifiable only by the sidecar index, which
+                                    // only the sidecar mode reads.
+                                    // Selecting the mode also records that the folder
+                                    // conversion is owed, in one write — otherwise a
+                                    // death between the two leaves the mode switched
+                                    // with nothing saying the folder is unconverted,
+                                    // and the guard above this block refuses to run
+                                    // it again.
                                     if (mode == SyncMetadataMode.SIDECAR) {
-                                        settingsRepository.getOrCreateSyncDeviceId()
+                                        settingsRepository.beginSidecarMigration()
                                     }
-                                    settingsRepository.setSyncMetadataMode(mode)
-                                }
-                                return@SyncSection
-                            }
-                            scope.launch {
-                                metadataSwitchBusy = true
-                                // The two directions flip the setting at
-                                // opposite ends of the conversion, and the rule
-                                // behind both is the same: a mirror file with no
-                                // header must never be read by a mode that has
-                                // only the header to identify it by, or the
-                                // import mints a fresh id and the note comes
-                                // back as a second copy (#140).
-                                //
-                                // To SIDECAR, flip first. A pass that dies
-                                // halfway leaves stripped files behind, and the
-                                // frontmatter import has nothing to match them
-                                // with; the sidecar import has the index entry,
-                                // which `toSidecar` makes durable before it
-                                // strips anything. The older comment here said
-                                // the opposite order was needed because an
-                                // import in that window "would read each header
-                                // as note text" — that stopped being true when
-                                // the sidecar import learned to strip a stray
-                                // header and use the id inside it
-                                // (`NoteFolderMirror`, "A file may still carry a
-                                // header").
-                                //
-                                // To FRONTMATTER, flip last, for the mirror
-                                // reason: the conversion is what *adds* the
-                                // header, so until it has run the files are
-                                // identifiable only by the sidecar index, which
-                                // only the sidecar mode reads.
-                                // Selecting the mode also records that the folder
-                                // conversion is owed, in one write — otherwise a
-                                // death between the two leaves the mode switched
-                                // with nothing saying the folder is unconverted,
-                                // and the guard above this block refuses to run
-                                // it again.
-                                if (mode == SyncMetadataMode.SIDECAR) {
-                                    settingsRepository.beginSidecarMigration()
-                                }
-                                val result = withContext(Dispatchers.IO) {
-                                    val deviceId = settingsRepository.getOrCreateSyncDeviceId()
-                                    when (mode) {
-                                        SyncMetadataMode.SIDECAR ->
-                                            SidecarMigration.toSidecar(context, uri, deviceId)
-                                        SyncMetadataMode.FRONTMATTER ->
-                                            SidecarMigration.toFrontmatter(
-                                                context,
-                                                uri,
-                                                deviceId,
-                                                noteRepository.getAllNotes()
-                                            )
+                                    val result = withContext(Dispatchers.IO) {
+                                        val deviceId = settingsRepository.getOrCreateSyncDeviceId()
+                                        when (mode) {
+                                            SyncMetadataMode.SIDECAR ->
+                                                SidecarMigration.toSidecar(context, uri, deviceId)
+                                            SyncMetadataMode.FRONTMATTER ->
+                                                SidecarMigration.toFrontmatter(
+                                                    context,
+                                                    uri,
+                                                    deviceId,
+                                                    noteRepository.getAllNotes()
+                                                )
+                                        }
                                     }
-                                }
-                                if (mode == SyncMetadataMode.FRONTMATTER) {
-                                    settingsRepository.setSyncMetadataMode(mode)
-                                } else {
-                                    settingsRepository.setSidecarMigrationPending(false)
-                                }
-                                metadataSwitchBusy = false
-                                Toast.makeText(
-                                    context,
-                                    context.getString(
-                                        R.string.sync_metadata_switched_format,
-                                        result.converted
-                                    ),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        },
-                        onPickFolder = pickSyncFolder,
-                        onSyncNow = {
-                            val uri = appSettings.syncFolderUriOrNull() ?: return@SyncSection
-                            scope.launch {
-                                val notes = withContext(Dispatchers.IO) {
-                                    // Full set (incl. trashed/archived) so a hidden note
-                                    // isn't re-imported as new — see #148.
-                                    noteRepository.getAllNotes()
-                                }
-                                val result = withContext(Dispatchers.IO) {
-                                    NoteFolderMirror.importChanges(
-                                        context = context,
-                                        folderUri = uri,
-                                        existing = notes,
-                                        applyUpdate = { updated ->
-                                            noteImporter.update(updated)
-                                        },
-                                        applyCreate = { created ->
-                                            noteImporter.create(created)
-                                        },
-                                        currentNote = { id -> noteImporter.current(id) },
-                                        metadata = appSettings.mirrorMetadata(),
-                                        titleSource = appSettings.noteTitleSource
-                                    )
-                                }
-                                // A placed widget hears about an import no
-                                // other way (#262).
-                                if (result.changedAnything()) WidgetRefresh.notesChanged(context)
-                                settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())
-                                val msg = if (result.conflicts > 0) {
-                                    context.getString(
-                                        R.string.sync_done_with_conflicts_format,
-                                        result.updated,
-                                        result.created,
-                                        result.conflicts,
-                                        result.skipped
-                                    )
-                                } else {
-                                    context.getString(
-                                        R.string.sync_done_format,
-                                        result.updated,
-                                        result.created,
-                                        result.skipped
-                                    )
-                                }
-                                Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
-                            }
-                        },
-                        onStopSync = {
-                            scope.launch {
-                                settingsRepository.setSyncFolderUri(null)
-                                Toast.makeText(
-                                    context,
-                                    R.string.sync_stopped,
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        },
-                        onSyncCenterClick = onSyncCenterClick
-                    )
-
-                    SettingsSection(
-                        title = stringResource(R.string.settings_open_source),
-                        modifier = anchors.anchor(SettingsShortcut.OPEN_SOURCE),
-                        headingFocus = anchors.focus(SettingsShortcut.OPEN_SOURCE)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.oss_explainer),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        SettingLine(
-                            stringResource(R.string.oss_license_label) + ": " +
-                                stringResource(R.string.oss_license_value)
-                        )
-                        Spacer(Modifier.height(10.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedButton(
-                                onClick = {
-                                    runCatching {
-                                        context.startActivity(
-                                            Intent(
-                                                Intent.ACTION_VIEW,
-                                                Uri.parse(context.getString(R.string.oss_source_url))
-                                            )
-                                        )
+                                    if (mode == SyncMetadataMode.FRONTMATTER) {
+                                        settingsRepository.setSyncMetadataMode(mode)
+                                    } else {
+                                        settingsRepository.setSidecarMigrationPending(false)
                                     }
-                                },
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text(stringResource(R.string.oss_view_source))
-                            }
-                            OutlinedButton(
-                                onClick = {
-                                    runCatching {
-                                        context.startActivity(
-                                            Intent(
-                                                Intent.ACTION_VIEW,
-                                                Uri.parse(context.getString(R.string.oss_fdroid_url))
-                                            )
-                                        )
-                                    }
-                                },
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text(stringResource(R.string.oss_view_fdroid))
-                            }
-                        }
-                        Spacer(Modifier.height(6.dp))
-                        OutlinedButton(
-                            onClick = {
-                                runCatching {
-                                    context.startActivity(
-                                        Intent(
-                                            Intent.ACTION_VIEW,
-                                            Uri.parse(context.getString(R.string.oss_license_url))
-                                        )
-                                    )
+                                    metadataSwitchBusy = false
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(
+                                            R.string.sync_metadata_switched_format,
+                                            result.converted
+                                        ),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             },
-                            modifier = Modifier.fillMaxWidth()
+                            onPickFolder = pickSyncFolder,
+                            onSyncNow = {
+                                val uri = appSettings.syncFolderUriOrNull() ?: return@SyncSection
+                                scope.launch {
+                                    val notes = withContext(Dispatchers.IO) {
+                                        // Full set (incl. trashed/archived) so a hidden note
+                                        // isn't re-imported as new — see #148.
+                                        noteRepository.getAllNotes()
+                                    }
+                                    val result = withContext(Dispatchers.IO) {
+                                        NoteFolderMirror.importChanges(
+                                            context = context,
+                                            folderUri = uri,
+                                            existing = notes,
+                                            applyUpdate = { updated ->
+                                                noteImporter.update(updated)
+                                            },
+                                            applyCreate = { created ->
+                                                noteImporter.create(created)
+                                            },
+                                            currentNote = { id -> noteImporter.current(id) },
+                                            metadata = appSettings.mirrorMetadata(),
+                                            titleSource = appSettings.noteTitleSource
+                                        )
+                                    }
+                                    // A placed widget hears about an import no
+                                    // other way (#262).
+                                    if (result.changedAnything()) WidgetRefresh.notesChanged(context)
+                                    settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())
+                                    val msg = if (result.conflicts > 0) {
+                                        context.getString(
+                                            R.string.sync_done_with_conflicts_format,
+                                            result.updated,
+                                            result.created,
+                                            result.conflicts,
+                                            result.skipped
+                                        )
+                                    } else {
+                                        context.getString(
+                                            R.string.sync_done_format,
+                                            result.updated,
+                                            result.created,
+                                            result.skipped
+                                        )
+                                    }
+                                    Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                                }
+                            },
+                            onStopSync = {
+                                scope.launch {
+                                    settingsRepository.setSyncFolderUri(null)
+                                    Toast.makeText(
+                                        context,
+                                        R.string.sync_stopped,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            },
+                            onSyncCenterClick = onSyncCenterClick
+                        )
+
+                        SettingsSection(
+                            title = stringResource(R.string.settings_open_source),
+                            modifier = anchors.anchor(SettingsShortcut.OPEN_SOURCE),
+                            headingFocus = anchors.focus(SettingsShortcut.OPEN_SOURCE)
                         ) {
-                            Text(stringResource(R.string.oss_view_license))
+                            Text(
+                                text = stringResource(R.string.oss_explainer),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            SettingLine(
+                                stringResource(R.string.oss_license_label) + ": " +
+                                    stringResource(R.string.oss_license_value)
+                            )
+                            Spacer(Modifier.height(10.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                OutlinedButton(
+                                    onClick = {
+                                        runCatching {
+                                            context.startActivity(
+                                                Intent(
+                                                    Intent.ACTION_VIEW,
+                                                    Uri.parse(context.getString(R.string.oss_source_url))
+                                                )
+                                            )
+                                        }
+                                    },
+                                    modifier = anchors.item(SettingsItem.VIEW_SOURCE, focusable = false).weight(1f)
+                                ) {
+                                    Text(stringResource(R.string.oss_view_source))
+                                }
+                                OutlinedButton(
+                                    onClick = {
+                                        runCatching {
+                                            context.startActivity(
+                                                Intent(
+                                                    Intent.ACTION_VIEW,
+                                                    Uri.parse(context.getString(R.string.oss_fdroid_url))
+                                                )
+                                            )
+                                        }
+                                    },
+                                    modifier = anchors.item(SettingsItem.VIEW_FDROID, focusable = false).weight(1f)
+                                ) {
+                                    Text(stringResource(R.string.oss_view_fdroid))
+                                }
+                            }
+                            Spacer(Modifier.height(6.dp))
+                            OutlinedButton(
+                                onClick = {
+                                    runCatching {
+                                        context.startActivity(
+                                            Intent(
+                                                Intent.ACTION_VIEW,
+                                                Uri.parse(context.getString(R.string.oss_license_url))
+                                            )
+                                        )
+                                    }
+                                },
+                                modifier = anchors.item(SettingsItem.VIEW_LICENSE, focusable = false).fillMaxWidth()
+                            ) {
+                                Text(stringResource(R.string.oss_view_license))
+                            }
+                        }
+
+                        SettingsSection(
+                            title = stringResource(R.string.settings_app),
+                            modifier = anchors.anchor(SettingsShortcut.APP),
+                            headingFocus = anchors.focus(SettingsShortcut.APP)
+                        ) {
+                            SettingLine(stringResource(R.string.version_format, BuildConfig.VERSION_NAME))
+                            SettingLine(stringResource(R.string.application_id_format, BuildConfig.APPLICATION_ID))
+                            // 사이드로드 빌드에서만 행이 생긴다. 스토어 빌드가 얻는 구현은
+                            // 아무것도 그리지 않는 스텁이다(D074, docs/AGENT_SPEC.md §15.9).
+                            UpdateSurface.SettingsRows()
                         }
                     }
-
-                    SettingsSection(
-                        title = stringResource(R.string.settings_app),
-                        modifier = anchors.anchor(SettingsShortcut.APP),
-                        headingFocus = anchors.focus(SettingsShortcut.APP)
-                    ) {
-                        SettingLine(stringResource(R.string.version_format, BuildConfig.VERSION_NAME))
-                        SettingLine(stringResource(R.string.application_id_format, BuildConfig.APPLICATION_ID))
-                        // 사이드로드 빌드에서만 행이 생긴다. 스토어 빌드가 얻는 구현은
-                        // 아무것도 그리지 않는 스텁이다(D074, docs/AGENT_SPEC.md §15.9).
-                        UpdateSurface.SettingsRows()
+                    if (showResults) {
+                        SettingsSearchResults(
+                            results = searchResults,
+                            onPick = jumpTo,
+                            sectionTitle = { it.headingTitle() },
+                            modifier = Modifier.fillMaxSize()
+                        )
                     }
                 }
             }
@@ -1222,7 +1327,8 @@ internal fun SyncSection(
     onStopSync: () -> Unit,
     onSyncCenterClick: () -> Unit,
     modifier: Modifier = Modifier,
-    headingFocus: FocusRequester? = null
+    headingFocus: FocusRequester? = null,
+    itemAnchor: (item: SettingsItem, focusable: Boolean) -> Modifier = { _, _ -> Modifier }
 ) {
     SettingsSection(
         title = stringResource(R.string.sync_title),
@@ -1246,6 +1352,7 @@ internal fun SyncSection(
         if (folderUri.isNullOrBlank()) {
             Text(
                 text = stringResource(R.string.sync_status_unset),
+                modifier = itemAnchor(SettingsItem.SYNC_FOLDER, true),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -1260,6 +1367,7 @@ internal fun SyncSection(
             val displayPath = remember(folderUri) { humanReadableTreePath(folderUri) }
             Text(
                 text = stringResource(R.string.sync_status_folder_format, displayPath),
+                modifier = itemAnchor(SettingsItem.SYNC_FOLDER, true),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onBackground
@@ -1311,6 +1419,7 @@ internal fun SyncSection(
             Spacer(Modifier.height(16.dp))
             Text(
                 text = stringResource(R.string.sync_metadata_mode),
+                modifier = itemAnchor(SettingsItem.SYNC_METADATA, true),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onBackground
@@ -1351,7 +1460,7 @@ internal fun SyncSection(
         Spacer(Modifier.height(12.dp))
         Button(
             onClick = onSyncCenterClick,
-            modifier = Modifier.fillMaxWidth()
+            modifier = itemAnchor(SettingsItem.SYNC_CENTER, false).fillMaxWidth()
         ) {
             Text(stringResource(R.string.sync_center_title))
         }
@@ -1386,7 +1495,8 @@ private fun humanReadableTreePath(uriString: String): String {
 private fun LockedNotesPasscodeSetting(
     passcodeSet: Boolean,
     onSetPasscode: (String) -> Unit,
-    onRemovePasscode: () -> Unit
+    onRemovePasscode: () -> Unit,
+    titleModifier: Modifier = Modifier
 ) {
     var showSetDialog by remember { mutableStateOf(false) }
     var showRemoveConfirm by remember { mutableStateOf(false) }
@@ -1394,6 +1504,7 @@ private fun LockedNotesPasscodeSetting(
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = stringResource(R.string.locked_passcode_setting_title),
+            modifier = titleModifier,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onBackground
@@ -1527,7 +1638,8 @@ internal fun SettingsSwitchRow(
     title: String,
     description: String?,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
+    titleModifier: Modifier = Modifier
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -1536,6 +1648,7 @@ internal fun SettingsSwitchRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
+                modifier = titleModifier,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onBackground
@@ -1579,20 +1692,136 @@ private class SectionAnchors {
     var viewport: LayoutCoordinates? = null
     private val sections = mutableMapOf<SettingsShortcut, LayoutCoordinates>()
     private val headings = SettingsShortcut.entries.associateWith { FocusRequester() }
+    private val items = mutableMapOf<SettingsItem, LayoutCoordinates>()
+    private val itemFocus = SettingsItem.entries.associateWith { FocusRequester() }
 
     fun anchor(section: SettingsShortcut): Modifier = Modifier.onPlaced { sections[section] = it }
+
+    /**
+     * Marks where a search result for [item] lands, and what takes focus there.
+     *
+     * Input: the setting; [focusable] false when the modifier goes on a control
+     * that is focusable already (a button), so it is not made a second stop.
+     * Output: a modifier for the setting's label.
+     *
+     * Why the label takes focus: after a jump, TalkBack and a keyboard should
+     * carry on from the setting that was asked for, the same reason a section
+     * jump focuses its heading (#262).
+     */
+    fun item(item: SettingsItem, focusable: Boolean = true): Modifier {
+        val base = Modifier
+            .onPlaced { items[item] = it }
+            .focusRequester(itemFocus.getValue(item))
+        return if (focusable) base.focusable() else base
+    }
 
     /** The section's heading, which takes focus once a jump to it lands. */
     fun focus(section: SettingsShortcut): FocusRequester = headings.getValue(section)
 
+    fun focus(item: SettingsItem): FocusRequester = itemFocus.getValue(item)
+
     /** The scroll value that puts [section]'s heading [gapPx] below the top, or null before layout. */
-    fun scrollTarget(section: SettingsShortcut, scroll: Int, gapPx: Float): Int? {
+    fun scrollTarget(section: SettingsShortcut, scroll: Int, gapPx: Float): Int? =
+        target(sections[section], scroll, gapPx)
+
+    fun scrollTarget(item: SettingsItem, scroll: Int, gapPx: Float): Int? =
+        target(items[item], scroll, gapPx)
+
+    private fun target(anchor: LayoutCoordinates?, scroll: Int, gapPx: Float): Int? {
         val viewport = viewport?.takeIf { it.isAttached } ?: return null
-        val anchor = sections[section]?.takeIf { it.isAttached } ?: return null
-        val headingTop = viewport.localPositionOf(anchor, Offset.Zero).y
-        return (scroll + headingTop - gapPx).roundToInt().coerceAtLeast(0)
+        val placed = anchor?.takeIf { it.isAttached } ?: return null
+        val top = viewport.localPositionOf(placed, Offset.Zero).y
+        return (scroll + top - gapPx).roundToInt().coerceAtLeast(0)
     }
 }
+
+/**
+ * The query field that takes the shortcut row's place while searching.
+ *
+ * Why it replaces the row instead of sitting above it: on a phone the page
+ * already gives up a row to the shortcuts, and a reader searching has no use
+ * for them until the search is closed.
+ */
+@Composable
+private fun SettingsSearchField(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val focus = remember { FocusRequester() }
+    // Opening search is asking to type, so the keyboard comes up with it.
+    LaunchedEffect(Unit) { focus.requestFocus() }
+    TextField(
+        value = query,
+        onValueChange = onQueryChange,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+            .focusRequester(focus),
+        placeholder = { Text(stringResource(R.string.settings_search_hint)) },
+        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+        trailingIcon = {
+            IconButton(onClick = onClose) {
+                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
+            }
+        },
+        singleLine = true
+    )
+}
+
+/** What a query found, over the page, each row naming its section. */
+@Composable
+private fun SettingsSearchResults(
+    results: List<SettingsSearchEntry>,
+    onPick: (SettingsSearchEntry) -> Unit,
+    sectionTitle: @Composable (SettingsShortcut) -> String,
+    modifier: Modifier = Modifier
+) {
+    Surface(modifier = modifier, color = MaterialTheme.colorScheme.background) {
+        if (results.isEmpty()) {
+            Text(
+                text = stringResource(R.string.settings_search_no_results),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
+            )
+        } else {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(results, key = { it.item?.name ?: it.section.name }) { entry ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onPick(entry) }
+                            .padding(horizontal = 20.dp, vertical = 12.dp)
+                    ) {
+                        Text(
+                            text = entry.title,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        // A section result is its own heading; naming it twice
+                        // says nothing.
+                        if (entry.item != null) {
+                            Text(
+                                text = sectionTitle(entry.section),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** The section's heading as the page prints it — Sync's is a phrase, not the chip's word. */
+@Composable
+private fun SettingsShortcut.headingTitle(): String = stringResource(headingRes())
+
+private fun SettingsShortcut.headingRes(): Int =
+    if (this == SettingsShortcut.SYNC) R.string.sync_title else label
 
 @Composable
 private fun SettingsSectionShortcuts(

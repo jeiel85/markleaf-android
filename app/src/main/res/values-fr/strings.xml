@@ -283,6 +283,8 @@
 
     <string name="sync_title">Synchronisation multi-appareils (dossier miroir)</string>
     <string name="settings_shortcut_sync">Synchronisation</string>
+    <string name="settings_search_hint">Rechercher dans les paramètres</string>
+    <string name="settings_search_no_results">Aucun paramètre ne correspond</string>
     <string name="sync_explainer">Markleaf ne se connecte jamais à Internet lui-même. Au lieu de cela, vous choisissez un dossier et Markleaf y enregistre chaque note sous forme de fichier `.md`. Si ce dossier est synchronisé par une autre application — Dropbox, Drive, Syncthing, OneDrive, un NAS — vos notes suivent vos autres appareils.</string>
     <string name="sync_recommended_locations">Emplacements recommandés pour Markleaf :\n· /Stockage interne/Dropbox/Markleaf\n· /Stockage interne/Drive/Markleaf\n· /Stockage interne/Sync/Markleaf  (Syncthing)</string>
     <string name="sync_status_unset">Aucun dossier sélectionné.</string>

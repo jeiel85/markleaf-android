@@ -287,6 +287,8 @@
     </plurals>
     <string name="sync_title">Synchronizácia viacerých zariadení (zrkadlenie priečinkov)</string>
     <string name="settings_shortcut_sync">Synchronizácia</string>
+    <string name="settings_search_hint">Hľadať v nastaveniach</string>
+    <string name="settings_search_no_results">Žiadne nastavenie sa nezhoduje</string>
     <string name="sync_explainer">Aplikácia Markleaf sa nikdy nepripája k internetu. Ukladá poznámky ako súbory .md do vami zvoleného priečinka. Ak tento priečinok synchronizuje iná aplikácia (Dropbox, Drive, Syncthing, OneDrive, NAS), poznámky sa dostanú aj na vaše ďalšie zariadenia.</string>
     <string name="sync_recommended_locations">Vhodné umiestnenia pre aplikáciu Markleaf:\n· /Internal storage/Dropbox/Markleaf\n· /Internal storage/Drive/Markleaf\n· /Internal storage/Sync/Markleaf (Syncthing)</string>
     <string name="sync_status_unset">Nebol vybraný žiadny priečinok.</string>

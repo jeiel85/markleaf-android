@@ -58,7 +58,7 @@ internal object UpdateSurface {
     /**
      * 설정 → 앱 섹션에 붙는 행들.
      *
-     * Input : 없음 (상태는 [UpdatePreferences]에서 읽는다)
+     * Input : [titleModifier] — 설정 검색이 이 행으로 이동할 때 쓰는 앵커(#517). 상태는 [UpdatePreferences]에서 읽는다
      * Output: 기본 꺼짐 토글 한 줄과 그 아래 설명
      *
      * 핵심 로직: 켜는 순간 무엇이 달라지는지를 **같은 화면에서** 말한다. F-Droid 포함 정책은
@@ -67,7 +67,7 @@ internal object UpdateSurface {
      * 그 요구를 형식적으로만 만족시킨다.
      */
     @Composable
-    fun SettingsRows() {
+    fun SettingsRows(titleModifier: Modifier = Modifier) {
         val context = LocalContext.current
         val preferences = remember(context) { UpdatePreferences(context) }
         var enabled by remember { mutableStateOf(preferences.isEnabled()) }
@@ -75,6 +75,7 @@ internal object UpdateSurface {
         Spacer(Modifier.height(12.dp))
         SettingsSwitchRow(
             title = stringResource(R.string.update_check_title),
+            titleModifier = titleModifier,
             description = stringResource(R.string.update_check_description),
             checked = enabled,
             onCheckedChange = { checked ->

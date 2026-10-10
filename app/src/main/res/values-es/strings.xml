@@ -283,6 +283,8 @@
 
     <string name="sync_title">Sincronización entre dispositivos (carpeta espejo)</string>
     <string name="settings_shortcut_sync">Sincronización</string>
+    <string name="settings_search_hint">Buscar en los ajustes</string>
+    <string name="settings_search_no_results">Ningún ajuste coincide</string>
     <string name="sync_explainer">Markleaf nunca se conecta a internet por sí mismo. En su lugar, tú eliges una carpeta y Markleaf guarda cada nota como archivo .md ahí. Si esa carpeta la sincroniza otra app — Dropbox, Drive, Syncthing, OneDrive, un NAS — tus notas siguen a tus otros dispositivos.</string>
     <string name="sync_recommended_locations">Lugares recomendados:\n· /Almacenamiento interno/Dropbox/Markleaf\n· /Almacenamiento interno/Drive/Markleaf\n· /Almacenamiento interno/Sync/Markleaf  (Syncthing)</string>
     <string name="sync_status_unset">Ninguna carpeta seleccionada.</string>

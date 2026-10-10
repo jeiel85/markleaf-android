@@ -4,6 +4,17 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## v2.68.0 - Search settings - 2026-10-10
+
+A follow-up to the section shortcuts from v2.66.0, asked for in Discussions #517. No permission or storage-format changes.
+
+### Added
+- **Settings has a search button.** Tap the magnifier in the top bar and type: the results list every setting whose name, description or option labels hold all the words you typed, with the section each one is in. Settings named after the query come first. Tap a result and the page scrolls that setting to the top and moves focus to it, so TalkBack carries on from there. Section names work too ("Sync" lands on the sync heading). Case and Latin accents are ignored, so "theme" finds "Thème". Back or the close button ends the search and brings the shortcut row back. (#517)
+
+### Limits
+- Search reads the words already on the page in your language; there are no extra keywords. A setting is found by what it says, not by every word you might call it.
+- The informational lines that aren't settings (the privacy statements, the version and app ID under App) are not results of their own; their section heading is.
+
 ## v2.67.0 - Conflict copies get a banner, and fewer false ones - 2026-10-07
 
 A sync fix and a small addition, both from #434. No permission or storage-format changes.

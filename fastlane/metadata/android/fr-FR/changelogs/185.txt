@@ -1,0 +1,1 @@
+Nouveau : les paramètres ont un bouton de recherche. Tapez le nom, la description ou une option d'un paramètre, puis touchez un résultat pour y aller directement ; le focus TalkBack suit. Les noms de section fonctionnent aussi.

@@ -63,12 +63,14 @@ import com.markleaf.notes.widget.readableTextColorOn
 internal fun WidgetColorSetting(
     customColor: Int?,
     onChange: (Int?) -> Unit,
-    supported: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+    supported: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
+    titleModifier: Modifier = Modifier
 ) {
     var picking by remember { mutableStateOf(false) }
 
     Text(
         text = stringResource(R.string.widget_color_label),
+        modifier = titleModifier,
         style = MaterialTheme.typography.bodyMedium,
         fontWeight = FontWeight.Medium,
         color = MaterialTheme.colorScheme.onBackground

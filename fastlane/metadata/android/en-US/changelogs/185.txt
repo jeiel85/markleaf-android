@@ -1,0 +1,1 @@
+New: Settings has a search button. Type a setting's name, description or one of its options and tap a result to jump straight to it, with focus moved there for TalkBack. Section names work too.

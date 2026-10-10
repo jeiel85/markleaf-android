@@ -308,6 +308,8 @@
 
     <string name="sync_title">Синхронизация между устройствами (зеркало папки)</string>
     <string name="settings_shortcut_sync">Синхронизация</string>
+    <string name="settings_search_hint">Поиск по настройкам</string>
+    <string name="settings_search_no_results">Подходящих настроек нет</string>
     <string name="sync_explainer">Markleaf сам никогда не выходит в интернет. Вместо этого вы выбираете папку, и Markleaf сохраняет в неё каждую заметку как файл `.md`. Если эту папку синхронизирует другое приложение — Dropbox, Drive, Syncthing, OneDrive, NAS, — ваши заметки появятся и на других устройствах.</string>
     <string name="sync_recommended_locations">Подходящие папки для Markleaf:\n· /Внутренняя память/Dropbox/Markleaf\n· /Внутренняя память/Drive/Markleaf\n· /Внутренняя память/Sync/Markleaf  (Syncthing)</string>
     <string name="sync_status_unset">Папка не выбрана.</string>

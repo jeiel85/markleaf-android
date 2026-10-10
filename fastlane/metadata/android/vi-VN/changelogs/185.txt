@@ -1,0 +1,1 @@
+Mới: Cài đặt có nút tìm kiếm. Nhập tên, mô tả hoặc một lựa chọn của cài đặt rồi chạm vào kết quả để đến thẳng cài đặt đó; tiêu điểm TalkBack cũng chuyển theo. Tên mục cũng tìm được.

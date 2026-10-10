@@ -1,0 +1,1 @@
+Neu: Die Einstellungen haben eine Suche. Name, Beschreibung oder eine Option einer Einstellung eingeben und auf ein Ergebnis tippen, um direkt dorthin zu springen – der TalkBack-Fokus folgt. Auch Abschnittsnamen werden gefunden.

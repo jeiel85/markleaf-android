@@ -85,7 +85,10 @@ internal enum class SettingsItem(
     SYNC_CENTER(SettingsShortcut.SYNC, R.string.sync_center_title),
     VIEW_SOURCE(SettingsShortcut.OPEN_SOURCE, R.string.oss_view_source),
     VIEW_FDROID(SettingsShortcut.OPEN_SOURCE, R.string.oss_view_fdroid),
-    VIEW_LICENSE(SettingsShortcut.OPEN_SOURCE, R.string.oss_view_license)
+    VIEW_LICENSE(SettingsShortcut.OPEN_SOURCE, R.string.oss_view_license),
+    // Only on the page in sideload builds (D074); store builds leave it out of
+    // the catalogue through `include`.
+    UPDATE_CHECK(SettingsShortcut.APP, R.string.update_check_title, R.string.update_check_description)
 }
 
 /** One row of search results: a setting, or a whole section when [item] is null. */
@@ -101,9 +104,12 @@ internal object SettingsSearch {
      * Every entry search can return, with its strings resolved.
      *
      * Input: [text], which turns a string resource into the current language's
-     * string; [sectionTitle], the section heading as the page shows it.
-     * Output: one entry per section, then one per [SettingsItem], each in page
-     * order.
+     * string; [sectionTitle], the section heading as the page shows it;
+     * [include], false for a setting this build doesn't show; [extraTexts],
+     * option labels that aren't string resources (the widget opacity
+     * percentages, formatted by the locale).
+     * Output: one entry per section, then one per included [SettingsItem],
+     * each in page order.
      *
      * Why a lambda instead of a Context: the catalogue is plain data, so the
      * unit test can build it from fake strings and check the matching without
@@ -111,20 +117,23 @@ internal object SettingsSearch {
      */
     fun entries(
         text: (Int) -> String,
-        sectionTitle: (SettingsShortcut) -> String
+        sectionTitle: (SettingsShortcut) -> String,
+        include: (SettingsItem) -> Boolean = { true },
+        extraTexts: (SettingsItem) -> List<String> = { emptyList() }
     ): List<SettingsSearchEntry> {
         val sections = SettingsShortcut.entries.map { section ->
             val heading = sectionTitle(section)
             // The chip's short word ("Sync") finds the section too.
             SettingsSearchEntry(section, null, heading, listOf(heading, text(section.label)))
         }
-        val items = SettingsItem.entries.map { item ->
+        val items = SettingsItem.entries.filter(include).map { item ->
             val title = text(item.title)
             SettingsSearchEntry(
                 section = item.section,
                 item = item,
                 title = title,
-                texts = listOf(title) + listOfNotNull(item.description?.let(text)) + item.options.map(text)
+                texts = listOf(title) + listOfNotNull(item.description?.let(text)) +
+                    item.options.map(text) + extraTexts(item)
             )
         }
         return sections + items
@@ -162,17 +171,31 @@ internal object SettingsSearch {
      * Lower case, with Latin accents dropped, so "theme" finds "Thème" and
      * "tieng" finds "tiếng".
      *
-     * Why only U+0300–U+036F rather than every combining mark: decomposing
-     * also splits Japanese kana from their voicing marks, and dropping those
-     * would let か find が — different words, not the same word unaccented.
-     * Hangul decomposes into jamo, which are letters and stay, so a syllable
-     * still being composed on the keyboard already matches.
+     * Input: any string from the page or the search field.
+     * Output: the form both sides are compared in.
+     *
+     * Why decompose, strip, then recompose: only Latin accents are dropped
+     * (U+0300–U+036F after a Latin letter). Every other mark is put back on
+     * its letter, because left decomposed a bare letter would still match it
+     * as a substring — и would find й, か would find が, which are different
+     * letters, not the same letter unaccented.
+     *
+     * Why Hangul is then decomposed again: a syllable still being composed on
+     * the keyboard ("서" on the way to "설") should already match, and that
+     * only works on jamo.
      */
-    fun normalize(text: String): String =
-        Normalizer.normalize(text, Normalizer.Form.NFD)
-            .replace(LATIN_ACCENTS, "")
-            .lowercase(Locale.ROOT)
+    fun normalize(text: String): String {
+        val stripped = Normalizer.normalize(text, Normalizer.Form.NFD).replace(LATIN_ACCENTS, "")
+        val composed = Normalizer.normalize(stripped, Normalizer.Form.NFC).lowercase(Locale.ROOT)
+        return buildString {
+            composed.forEach { c ->
+                if (c in HANGUL_SYLLABLES) append(Normalizer.normalize(c.toString(), Normalizer.Form.NFD))
+                else append(c)
+            }
+        }
+    }
 
-    private val LATIN_ACCENTS = Regex("[\\u0300-\\u036F]")
+    private val HANGUL_SYLLABLES = '\uAC00'..'\uD7A3'
+    private val LATIN_ACCENTS = Regex("(?<=\\p{IsLatin})[\\u0300-\\u036F]+")
     private val WHITESPACE = Regex("\\s+")
 }

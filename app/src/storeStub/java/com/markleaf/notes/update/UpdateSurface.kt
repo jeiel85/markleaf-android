@@ -18,7 +18,8 @@ internal object UpdateSurface {
 
     /** 설정 화면의 앱 섹션에 붙는 행들. 스토어 빌드에서는 아무 행도 그리지 않는다. */
     @Composable
-    fun SettingsRows() = Unit
+    @Suppress("UNUSED_PARAMETER")
+    fun SettingsRows(titleModifier: Modifier = Modifier) = Unit
 
     /** 노트 목록 위의 알림. 스토어 빌드에서는 아무것도 그리지 않는다. */
     @Composable

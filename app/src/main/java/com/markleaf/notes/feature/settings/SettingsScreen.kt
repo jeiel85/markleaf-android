@@ -301,9 +301,18 @@ fun SettingsScreen(
     val configuration = LocalConfiguration.current
     // Resolved again when the language changes, not on every keystroke.
     val searchEntries = remember(configuration) {
+        val percent = NumberFormat.getPercentInstance(configuration.locales[0])
         SettingsSearch.entries(
             text = resources::getString,
-            sectionTitle = { resources.getString(it.headingRes()) }
+            sectionTitle = { resources.getString(it.headingRes()) },
+            include = { it != SettingsItem.UPDATE_CHECK || BuildConfig.UPDATER },
+            extraTexts = { item ->
+                if (item == SettingsItem.WIDGET_OPACITY) {
+                    WidgetOpacity.entries.map { percent.format(it.percent / 100.0) }
+                } else {
+                    emptyList()
+                }
+            }
         )
     }
     val searchResults = remember(searchQuery, searchEntries) {
@@ -1289,7 +1298,9 @@ fun SettingsScreen(
                             SettingLine(stringResource(R.string.application_id_format, BuildConfig.APPLICATION_ID))
                             // 사이드로드 빌드에서만 행이 생긴다. 스토어 빌드가 얻는 구현은
                             // 아무것도 그리지 않는 스텁이다(D074, docs/AGENT_SPEC.md §15.9).
-                            UpdateSurface.SettingsRows()
+                            UpdateSurface.SettingsRows(
+                                titleModifier = anchors.item(SettingsItem.UPDATE_CHECK)
+                            )
                         }
                     }
                     if (showResults) {

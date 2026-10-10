@@ -63,8 +63,8 @@ class SettingsSearchTest {
     @Test
     fun kanaVoicingMarksStillCount() {
         // が and か are different words; dropping the mark would merge them.
-        assertTrue(titles("か", listOf(entry("ガイド"))).isEmpty())
-        assertEquals(listOf("ガイド"), titles("ガ", listOf(entry("ガイド"))))
+        assertTrue(titles("か", listOf(entry("がいど"))).isEmpty())
+        assertEquals(listOf("がいど"), titles("が", listOf(entry("がいど"))))
     }
 
     @Test
@@ -97,5 +97,24 @@ class SettingsSearchTest {
         assertEquals(SettingsShortcut.SYNC, hit.section)
         assertEquals(null, hit.item)
         assertEquals("Multi-device mirror", hit.title)
+    }
+
+    @Test
+    fun cyrillicLettersWithMarksStayDistinct() {
+        // й decomposes to и + breve; it is a letter of its own, not an accented и.
+        assertTrue(titles("и", listOf(entry("Мой"))).isEmpty())
+        assertEquals(listOf("Мой"), titles("й", listOf(entry("Мой"))))
+    }
+
+    @Test
+    fun extraTextsAreSearchedAndExcludedSettingsAreNotListed() {
+        val entries = SettingsSearch.entries(
+            text = { "label" },
+            sectionTitle = { it.name },
+            include = { it != SettingsItem.UPDATE_CHECK },
+            extraTexts = { if (it == SettingsItem.WIDGET_OPACITY) listOf("75 %") else emptyList() }
+        )
+        assertEquals(null, entries.find { it.item == SettingsItem.UPDATE_CHECK })
+        assertEquals(SettingsItem.WIDGET_OPACITY, SettingsSearch.search("75", entries).single().item)
     }
 }

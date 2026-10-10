@@ -1,3 +1,8 @@
+## 2026-10-10 - v2.68.0: settings search (#517)
+
+Selected task: the maintainer asked for settings search, the follow-up promised in Discussions #517 after v2.66.0's section shortcuts.
+Verification: `SettingsSearchTest` and `SettingsSearchScreenTest` pass locally; full `testDebugUnitTest` + `lintRelease` results are in the PR.
+
 ## 2026-10-07 - v2.67.0: import pass reads the live row; conflict-copy banner (#434)
 
 Selected task: the #434 reporter's follow-up (copy still appearing, whole older note; asked to be notified). The maintainer picked the list banner.

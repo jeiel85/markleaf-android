@@ -1,0 +1,1 @@
+Nuevo: los ajustes tienen un botón de búsqueda. Escribe el nombre, la descripción o una opción de un ajuste y toca un resultado para ir directamente a él; el foco de TalkBack lo sigue. También funcionan los nombres de sección.

@@ -1781,9 +1781,15 @@ private fun SettingsSearchField(
     )
 }
 
-/** What a query found, over the page, each row naming its section. */
+/**
+ * What a query found, over the page, each row naming its section.
+ *
+ * `internal` so a test can check the one thing the page relies on: the
+ * results' [Surface] takes every tap over its bounds, even when it holds only
+ * the "no match" line, so nothing reaches the settings drawn underneath.
+ */
 @Composable
-private fun SettingsSearchResults(
+internal fun SettingsSearchResults(
     results: List<SettingsSearchEntry>,
     onPick: (SettingsSearchEntry) -> Unit,
     sectionTitle: @Composable (SettingsShortcut) -> String,

@@ -49,6 +49,7 @@ class EditorDiscardsUntouchedHeadingNoteTest {
     @Test
     fun anUntouchedHeadingNoteIsRemovedWhenTheEditorIsLeft() {
         val noteId = UUID.randomUUID().toString()
+        val now = Instant.now()
         runBlocking {
             repo.createNote(
                 Note(
@@ -56,8 +57,9 @@ class EditorDiscardsUntouchedHeadingNoteTest {
                     title = "",
                     contentMarkdown = "",
                     excerpt = "",
-                    createdAt = Instant.now(),
-                    updatedAt = Instant.now()
+                    // One clock read: a just-created note has createdAt == updatedAt.
+                    createdAt = now,
+                    updatedAt = now
                 )
             )
         }

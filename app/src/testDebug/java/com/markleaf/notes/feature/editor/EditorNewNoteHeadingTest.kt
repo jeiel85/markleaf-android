@@ -44,8 +44,9 @@ class EditorNewNoteHeadingTest {
     private val context: Context get() = ApplicationProvider.getApplicationContext()
     private val repo by lazy { LocalNoteRepository(AppDatabase.getInstance(context)) }
 
-    private fun createNote(content: String): String {
+    private fun createNote(content: String, importedEmpty: Boolean = false): String {
         val noteId = UUID.randomUUID().toString()
+        val now = Instant.now()
         runBlocking {
             repo.createNote(
                 Note(
@@ -53,12 +54,27 @@ class EditorNewNoteHeadingTest {
                     title = "",
                     contentMarkdown = content,
                     excerpt = "",
-                    createdAt = Instant.now(),
-                    updatedAt = Instant.now()
+                    // One clock read: a just-created note has createdAt == updatedAt.
+                    createdAt = now,
+                    updatedAt = now,
+                    // What MirrorImport leaves on a note it brought in empty.
+                    lastImportedAt = if (importedEmpty) now else null
                 )
             )
         }
         return noteId
+    }
+
+    /**
+     * #547 review: only a note the new-note flow just made is seeded. An empty
+     * note imported from the sync folder is one the user kept, and "existing
+     * notes are not changed".
+     */
+    @Test
+    fun anEmptyImportedNoteIsNotSeeded() {
+        show(createNote("", importedEmpty = true), startWithHeading = true)
+
+        assertEquals("", fieldText())
     }
 
     private fun show(noteId: String, startWithHeading: Boolean) {

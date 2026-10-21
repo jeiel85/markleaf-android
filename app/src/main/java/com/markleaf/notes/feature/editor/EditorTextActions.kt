@@ -4,6 +4,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.markleaf.notes.core.markdown.preview.findOccurrences
 import com.markleaf.notes.data.settings.OpenNotesAt
+import com.markleaf.notes.domain.model.Note
 import kotlin.math.ceil
 import kotlin.math.max
 
@@ -60,6 +61,19 @@ internal const val NEW_NOTE_HEADING_SEED = "# "
  */
 internal fun newNoteSeed(content: String, startWithHeading: Boolean): String? =
     if (startWithHeading && content.isEmpty()) NEW_NOTE_HEADING_SEED else null
+
+/**
+ * Whether [note] is one the new-note flow has just made, and so the only kind
+ * "Start new notes with a heading" may seed (#547 review). An empty note is not
+ * enough: one imported empty from the sync folder (`lastImportedAt` set), or a
+ * blank note someone pinned, archived or locked, is a note they kept, and the
+ * setting promises existing notes are not changed. A note never saved since it
+ * was created still has `createdAt == updatedAt`, which every creation path
+ * sets from a single clock read.
+ */
+internal fun isJustCreated(note: Note): Boolean =
+    note.lastImportedAt == null && !note.pinned && !note.archived && !note.locked &&
+        note.createdAt == note.updatedAt
 
 /**
  * The editor's text as the note it stands for: an untouched seed is the

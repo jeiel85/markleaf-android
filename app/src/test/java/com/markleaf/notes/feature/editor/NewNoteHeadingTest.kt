@@ -1,5 +1,7 @@
 package com.markleaf.notes.feature.editor
 
+import com.markleaf.notes.domain.model.Note
+import java.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -29,6 +31,27 @@ class NewNoteHeadingTest {
         assertNull(newNoteSeed(content = "Groceries", startWithHeading = true))
         assertNull(newNoteSeed(content = " ", startWithHeading = true))
         assertNull(newNoteSeed(content = "\n", startWithHeading = true))
+    }
+
+    private val created = Instant.parse("2026-10-21T00:00:00Z")
+    private fun note() = Note(
+        id = "n", title = "", contentMarkdown = "", excerpt = "",
+        createdAt = created, updatedAt = created
+    )
+
+    @Test
+    fun `a note never saved since creation is just created`() {
+        assertTrue(isJustCreated(note()))
+    }
+
+    /** #547 review: these are notes someone kept, so the seed must not touch them. */
+    @Test
+    fun `kept empty notes are not just created`() {
+        assertFalse(isJustCreated(note().copy(lastImportedAt = created)))
+        assertFalse(isJustCreated(note().copy(pinned = true)))
+        assertFalse(isJustCreated(note().copy(archived = true)))
+        assertFalse(isJustCreated(note().copy(locked = true)))
+        assertFalse(isJustCreated(note().copy(updatedAt = created.plusSeconds(60))))
     }
 
     @Test

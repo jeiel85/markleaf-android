@@ -883,7 +883,11 @@ fun EditorScreen(
             // version brought in by sync.
             // "Start new notes with a heading" (#544): an empty note opens on
             // `# ` with the caret after it. Shown, not saved — see newNoteSeed.
-            val seed = newNoteSeed(content, persistedSettings.newNotesStartWithHeading && !openForAppend)
+            val seed = newNoteSeed(
+                content,
+                persistedSettings.newNotesStartWithHeading && !openForAppend &&
+                    loadedNote != null && isJustCreated(loadedNote)
+            )
             editorState = if (seed != null) {
                 seededThisVisit = true
                 TextFieldValue(seed, TextRange(seed.length))

@@ -518,5 +518,7 @@
 
     <!-- Preview mode -->
     <string name="preview_link_address_copied">Адрес ссылки скопирован</string>
+    <string name="copy_code_block">Скопировать блок кода</string>
+    <string name="preview_code_copied">Код скопирован</string>
 
 </resources>

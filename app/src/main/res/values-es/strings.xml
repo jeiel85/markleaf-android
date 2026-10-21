@@ -487,5 +487,7 @@
 
     <!-- Preview mode -->
     <string name="preview_link_address_copied">Dirección del enlace copiada</string>
+    <string name="copy_code_block">Copiar bloque de código</string>
+    <string name="preview_code_copied">Código copiado</string>
 
 </resources>

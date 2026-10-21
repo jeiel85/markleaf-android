@@ -39,8 +39,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import coil.compose.AsyncImage
@@ -1995,6 +1999,11 @@ private fun FootnoteDefRow(line: PreviewLine) {
 @Composable
 private fun MarkdownCodeBlock(text: String, language: String?) {
     val scheme = MaterialTheme.colorScheme
+    val clipboard = LocalClipboardManager.current
+    val context = LocalContext.current
+    val copiedMessage = stringResource(R.string.preview_code_copied)
+    val copyLabel = stringResource(R.string.copy_code_block)
+    val displayLanguage = language?.trim()?.takeIf { it.isNotEmpty() }
     // Token-type → color. Reuses the theme palette so dark / light / Material You
     // all coordinate. Unknown languages fall through to TEXT (onSurfaceVariant).
     val annotated = remember(text, language, scheme) {
@@ -2031,13 +2040,40 @@ private fun MarkdownCodeBlock(text: String, language: String?) {
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(horizontal = 12.dp, vertical = 10.dp)
     ) {
-        if (!language.isNullOrEmpty()) {
-            Text(
-                text = language,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
+        if (displayLanguage != null || text.isNotEmpty()) {
+            DisableSelection {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (displayLanguage != null) {
+                        Text(
+                            text = displayLanguage,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.weight(1f)
+                        )
+                    } else {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                    if (text.isNotEmpty()) {
+                        IconButton(
+                            onClick = {
+                                clipboard.setText(AnnotatedString(text))
+                                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                                    Toast.makeText(context, copiedMessage, Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ContentCopy,
+                                contentDescription = copyLabel,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
         }
         val highlight = LocalPreviewFindHighlight.current
         val layout = remember { TextLayoutHolder() }

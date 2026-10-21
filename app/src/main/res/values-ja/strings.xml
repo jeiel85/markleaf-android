@@ -477,5 +477,7 @@
 
     <!-- Preview mode -->
     <string name="preview_link_address_copied">リンクのアドレスをコピーしました</string>
+    <string name="copy_code_block">コードブロックをコピー</string>
+    <string name="preview_code_copied">コードをコピーしました</string>
 
 </resources>

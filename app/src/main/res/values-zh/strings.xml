@@ -483,5 +483,7 @@
 
     <!-- Preview mode -->
     <string name="preview_link_address_copied">已复制链接地址</string>
+    <string name="copy_code_block">复制代码块</string>
+    <string name="preview_code_copied">已复制代码</string>
 
 </resources>

@@ -478,5 +478,7 @@
 
     <!-- Preview mode -->
     <string name="preview_link_address_copied">Đã sao chép địa chỉ liên kết</string>
+    <string name="copy_code_block">Sao chép khối mã</string>
+    <string name="preview_code_copied">Đã sao chép mã</string>
 
 </resources>

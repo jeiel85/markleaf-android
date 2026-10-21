@@ -475,6 +475,8 @@
         <item quantity="other">%1$d kópií v konflikte čaká na kontrolu v centre pre riešenie konfliktov</item>
     </plurals>
     <string name="preview_link_address_copied">Adresa odkazu bola skopírovaná</string>
+    <string name="copy_code_block">Skopírovať blok kódu</string>
+    <string name="preview_code_copied">Kód bol skopírovaný</string>
     <string name="app_name">Markleaf</string>
     <string name="sync_metadata_mode_frontmatter">V súbore</string>
     <string name="sync_metadata_mode_sidecar">Vedľa súboru</string>

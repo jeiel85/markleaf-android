@@ -507,5 +507,7 @@
 
     <!-- Preview mode -->
     <string name="preview_link_address_copied">Adresa poveznice kopirana</string>
+    <string name="copy_code_block">Kopiraj blok koda</string>
+    <string name="preview_code_copied">Kod kopiran</string>
 
 </resources>

@@ -498,5 +498,7 @@
 
     <!-- Preview mode -->
     <string name="preview_link_address_copied">Link address copied</string>
+    <string name="copy_code_block">Copy code block</string>
+    <string name="preview_code_copied">Code copied</string>
 
 </resources>

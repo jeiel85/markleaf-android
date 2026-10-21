@@ -67,6 +67,7 @@ internal enum class SettingsItem(
         SettingsShortcut.NOTES, R.string.note_title_source, R.string.note_title_source_description,
         listOf(R.string.note_title_source_first_heading, R.string.note_title_source_first_line)
     ),
+    NEW_NOTE_HEADING(SettingsShortcut.NOTES, R.string.new_note_heading, R.string.new_note_heading_description),
     SCREENSHOT_PROTECTION(SettingsShortcut.PRIVACY, R.string.screenshot_protection, R.string.screenshot_protection_description),
     RECENT_NOTES_IN_SHORTCUTS(
         SettingsShortcut.PRIVACY, R.string.recent_notes_in_shortcuts, R.string.recent_notes_in_shortcuts_description

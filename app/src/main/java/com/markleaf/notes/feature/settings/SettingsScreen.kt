@@ -953,6 +953,19 @@ fun SettingsScreen(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+                            Spacer(Modifier.height(12.dp))
+                            SettingsSwitchRow(
+                                title = stringResource(R.string.new_note_heading),
+                                titleModifier = anchors.item(SettingsItem.NEW_NOTE_HEADING),
+                                description = stringResource(R.string.new_note_heading_description),
+                                checked = appSettings.newNotesStartWithHeading,
+                                onCheckedChange = { checked ->
+                                    HapticFeedback.light(context)
+                                    scope.launch {
+                                        settingsRepository.setNewNotesStartWithHeading(checked)
+                                    }
+                                }
+                            )
                         }
 
                         SettingsSection(

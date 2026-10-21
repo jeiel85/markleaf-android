@@ -44,6 +44,32 @@ internal const val SETTINGS_READ_TIMEOUT_MS = 2_000L
 internal fun opensInPreview(openNotesInPreview: Boolean, content: String): Boolean =
     openNotesInPreview && content.isNotEmpty()
 
+/** What "Start new notes with a heading" puts in an empty note (#544). */
+internal const val NEW_NOTE_HEADING_SEED = "# "
+
+/**
+ * The text an opening note shows in place of [content], or null to show the
+ * note as stored.
+ *
+ * Only an empty note gets the heading, which is how a new note is told apart
+ * here: like [opensInPreview], the editor only sees an id. An existing note
+ * that is empty has nothing to lose to a heading either, and it is discarded on
+ * leaving if nothing is typed. The seed is shown, not saved — the note stays
+ * empty in the database until the first keystroke, so opening and leaving
+ * changes nothing.
+ */
+internal fun newNoteSeed(content: String, startWithHeading: Boolean): String? =
+    if (startWithHeading && content.isEmpty()) NEW_NOTE_HEADING_SEED else null
+
+/**
+ * Whether the note holds nothing worth keeping, for the empty-note discard
+ * (#405). A heading marker with no words after it counts as empty: with
+ * "Start new notes with a heading" on, that is what a new note left untouched
+ * holds, and it must not stay in the list as a blank row (#544).
+ */
+internal fun isEmptyNoteText(text: String): Boolean =
+    text.isBlank() || text.trim() == NEW_NOTE_HEADING_SEED.trim()
+
 /**
  * Whether this screen may record where the note was left.
  *

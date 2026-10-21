@@ -278,6 +278,8 @@
     <string name="note_title_source_first_heading">Erste Überschrift</string>
     <string name="note_title_source_first_line">Erste Zeile</string>
     <string name="note_title_source_description">Aus welcher Zeile der Titel in der Liste stammt. „Erste Überschrift“ nimmt die erste Markdown-Überschrift irgendwo in der Notiz, „Erste Zeile“ immer die zuerst geschriebene Zeile. Eine Änderung betitelt vorhandene Notizen neu; die Dateinamen im Sync-Ordner ziehen über „Dateien nach Notiztitel benennen“ im Synchronisationscenter nach.</string>
+    <string name="new_note_heading">Neue Notizen mit einer Überschrift beginnen</string>
+    <string name="new_note_heading_description">Neue Notizen beginnen mit „# “, sodass die erste Zeile eine Überschrift und der Titel der Notiz wird. Bestehende Notizen bleiben unverändert.</string>
     <plurals name="note_title_retitled_format">
         <item quantity="one">%1$d Notiz neu betitelt.</item>
         <item quantity="other">%1$d Notizen neu betitelt.</item>

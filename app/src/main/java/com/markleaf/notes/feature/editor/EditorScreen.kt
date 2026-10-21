@@ -377,7 +377,7 @@ fun EditorScreen(
     DisposableEffect(noteId) {
         onDispose {
             val id = noteId
-            if (id != null && isLoaded && editorState.text.isBlank()) {
+            if (id != null && isLoaded && isEmptyNoteText(editorState.text)) {
                 hostScope.launch {
                     // Best-effort cleanup: a failure here (a revoked SAF grant
                     // on the sync folder, a disk error) must not crash the
@@ -874,7 +874,14 @@ fun EditorScreen(
             // Clamped, never trusted: the note can be shorter than when the
             // position was recorded — edited in another app, or a smaller
             // version brought in by sync.
-            editorState = TextFieldValue(content, TextRange(caret.coerceIn(0, content.length)))
+            // "Start new notes with a heading" (#544): an empty note opens on
+            // `# ` with the caret after it. Shown, not saved — see newNoteSeed.
+            val seed = newNoteSeed(content, persistedSettings.newNotesStartWithHeading && !openForAppend)
+            editorState = if (seed != null) {
+                TextFieldValue(seed, TextRange(seed.length))
+            } else {
+                TextFieldValue(content, TextRange(caret.coerceIn(0, content.length)))
+            }
             // The loaded note is the floor: undo must not walk back past it
             // into the empty text the field held while the row was being read.
             undoHistory.reset(editorState)

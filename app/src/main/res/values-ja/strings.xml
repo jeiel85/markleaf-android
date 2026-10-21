@@ -273,6 +273,8 @@
     <string name="note_title_source_first_heading">最初の見出し</string>
     <string name="note_title_source_first_line">最初の行</string>
     <string name="note_title_source_description">一覧に表示するタイトルをノートのどの行から取るかを決めます。「最初の見出し」はノート内のどこにあっても最初の Markdown 見出しを使い、「最初の行」は常に書き始めた行を使います。変更すると既存ノートのタイトルが付け直され、同期フォルダのファイル名は同期センターの「ファイル名をノートのタイトルに整える」で揃えられます。</string>
+    <string name="new_note_heading">新しいノートを見出しで始める</string>
+    <string name="new_note_heading_description">新しいノートが「# 」で始まり、最初に書いた行が見出しになってノートのタイトルになります。既存のノートは変更されません。</string>
     <plurals name="note_title_retitled_format">
         <item quantity="other">%1$d 件のノートのタイトルを付け直しました。</item>
     </plurals>

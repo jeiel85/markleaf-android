@@ -57,6 +57,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -502,6 +503,9 @@ fun EditorScreen(
     var pendingPreviewCaret by remember(noteId) { mutableStateOf<PendingCaret?>(null) }
     val imeInsets = WindowInsets.ime
     val imeDensity = LocalDensity.current
+    // Read by the keyboard-follow effect below (#542): only a keyboard raised
+    // for the note body should move its caret, not one for find or a dialog.
+    var isEditorFocused by remember(noteId) { mutableStateOf(false) }
     var showInfo by remember(noteId) { mutableStateOf(false) }
     var showOutline by remember(noteId) { mutableStateOf(false) }
     var pendingPreviewScroll by remember(noteId) { mutableStateOf<PreviewScrollRequest?>(null) }
@@ -974,6 +978,24 @@ fun EditorScreen(
         }
     }
 
+    // Steps the caret one character away from [caret] and back, which makes the
+    // field scroll it into the view as it is now (see nudgeOffset). Does nothing
+    // once the note is no longer [text] with the caret at [caret]: a keystroke or
+    // a tap since then has put the caret where the user wants it.
+    suspend fun stepCaretAwayAndBack(text: String, caret: TextRange) {
+        if (editorState.text != text || editorState.selection != caret) return
+        val away = TextRange(nudgeOffset(caret.start, text.length) ?: return)
+        editorState = editorState.copy(selection = away)
+        try {
+            withFrameNanos { }
+            withFrameNanos { }
+        } finally {
+            if (editorState.text == text && editorState.selection == away) {
+                editorState = editorState.copy(selection = caret)
+            }
+        }
+    }
+
     // Puts the caret where the reader was in Preview and keeps it in view as the
     // keyboard arrives (#464). The caret is placed at once, which is right when
     // no keyboard follows. When one does, the field would leave the caret
@@ -999,24 +1021,38 @@ fun EditorScreen(
             if (isPreviewMode || editorState.text != pending.text) return@LaunchedEffect
             val target = TextRange(pending.offset.coerceIn(0, pending.text.length))
             editorState = editorState.copy(selection = target)
-            val untouched = { editorState.text == pending.text && editorState.selection == target }
             withTimeoutOrNull(FOLLOW_KEYBOARD_MS) {
                 awaitKeyboardSettled(keyboardHeight = { imeInsets.getBottom(imeDensity) })
-                if (!untouched()) return@withTimeoutOrNull
-                val away = TextRange(nudgeOffset(target.start, pending.text.length) ?: return@withTimeoutOrNull)
-                editorState = editorState.copy(selection = away)
-                try {
-                    withFrameNanos { }
-                    withFrameNanos { }
-                } finally {
-                    if (editorState.text == pending.text && editorState.selection == away) {
-                        editorState = editorState.copy(selection = target)
-                    }
-                }
+                stepCaretAwayAndBack(pending.text, target)
             }
         } finally {
             if (pendingPreviewCaret === pending) pendingPreviewCaret = null
         }
+    }
+
+    // The same keyboard, raised by the commonest gesture of all (#542): a tap on
+    // a line in the lower half of the note. The tap places the caret while the
+    // view is still full height, so the field judges it visible and does not
+    // scroll; the keyboard then slides over that line and it stays hidden until
+    // the first keystroke. So whenever the keyboard comes up for the note body,
+    // the caret gets the step that the Preview case above gets once the keyboard
+    // is still. A caret that was already in view stays where it is — the step
+    // lands on the same line. Left to the effect above while it has a caret of
+    // its own to place, and skipped for a selection, which a step would collapse.
+    LaunchedEffect(noteId, isLoaded, isPreviewMode) {
+        if (!isLoaded || isPreviewMode) return@LaunchedEffect
+        snapshotFlow { imeInsets.getBottom(imeDensity) > 0 }
+            .distinctUntilChanged()
+            .collectLatest { keyboardUp ->
+                if (!keyboardUp || !isEditorFocused || pendingPreviewCaret != null) return@collectLatest
+                val text = editorState.text
+                val caret = editorState.selection
+                if (!caret.collapsed) return@collectLatest
+                withTimeoutOrNull(FOLLOW_KEYBOARD_MS) {
+                    awaitKeyboardSettled(keyboardHeight = { imeInsets.getBottom(imeDensity) })
+                    stepCaretAwayAndBack(text, caret)
+                }
+            }
     }
 
     // Preview scrolls that have to wait for the preview to exist: the outline's
@@ -1694,6 +1730,7 @@ fun EditorScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .focusRequester(editorFocusRequester)
+                                .onFocusChanged { isEditorFocused = it.isFocused }
                                 .semantics { contentDescription = context.getString(R.string.note_content) }
                                 .onPreviewKeyEvent { event ->
                                     if (event.type != KeyEventType.KeyDown) {

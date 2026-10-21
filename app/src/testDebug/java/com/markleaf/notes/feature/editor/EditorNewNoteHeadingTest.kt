@@ -9,6 +9,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.text.TextRange
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -104,6 +105,52 @@ class EditorNewNoteHeadingTest {
         show(noteId, startWithHeading = true)
         composeRule.waitUntil(timeoutMillis = 5_000) { fieldText() == "# " }
 
+        runBlocking {
+            val note = repo.getNote(noteId)!!
+            repo.updateNote(note.copy(contentMarkdown = "from the folder", updatedAt = Instant.now()))
+        }
+
+        composeRule.waitUntil(timeoutMillis = 5_000) { fieldText() == "from the folder" }
+    }
+
+    /**
+     * #547 review: typing and deleting back to the seed must not save it. The
+     * row goes back to empty, so nothing (a mirror write, a process death)
+     * can keep a blank `# ` note around.
+     */
+    @Test
+    fun deletingBackToTheSeedSavesAnEmptyNote() {
+        val noteId = createNote("")
+        show(noteId, startWithHeading = true)
+        composeRule.waitUntil(timeoutMillis = 5_000) { fieldText() == "# " }
+
+        field().performTextInput("x")
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            runBlocking { repo.getNote(noteId)?.contentMarkdown } == "# x"
+        }
+        field().performTextReplacement("# ")
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            runBlocking { repo.getNote(noteId)?.contentMarkdown } == ""
+        }
+        assertEquals("# ", fieldText())
+    }
+
+    /**
+     * #547 review: once the folder's version is on screen it is the note, even
+     * when that version is exactly `# `, so the next import is adopted rather
+     * than refused as if `# ` were still the seed.
+     */
+    @Test
+    fun anImportedHeadingMarkerIsNoLongerTheSeed() {
+        val noteId = createNote("")
+        show(noteId, startWithHeading = true)
+        composeRule.waitUntil(timeoutMillis = 5_000) { fieldText() == "# " }
+
+        runBlocking {
+            val note = repo.getNote(noteId)!!
+            repo.updateNote(note.copy(contentMarkdown = "# ", updatedAt = Instant.now()))
+        }
+        composeRule.waitForIdle()
         runBlocking {
             val note = repo.getNote(noteId)!!
             repo.updateNote(note.copy(contentMarkdown = "from the folder", updatedAt = Instant.now()))

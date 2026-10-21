@@ -62,13 +62,14 @@ internal fun newNoteSeed(content: String, startWithHeading: Boolean): String? =
     if (startWithHeading && content.isEmpty()) NEW_NOTE_HEADING_SEED else null
 
 /**
- * The editor's text as the live refresh (#428) should weigh it: an untouched
- * seed is the editor's own and not an edit, so it reads as the empty note that
- * is stored. Without this, an empty synced note opened on the seed would look
- * like it had an unsaved edit, an import arriving while it is open would be
- * refused, and the first keystroke could save over it (#547 review).
+ * The editor's text as the note it stands for: an untouched seed is the
+ * editor's own, not the user's, so it reads as the empty note it was put into.
+ * Autosave stores this and the live refresh (#428) weighs it, so the seed is
+ * never written — not even after typing and deleting back to it — and an import
+ * arriving while it is on screen is not refused as if it were an unsaved edit
+ * (#547 review). A `# ` the note already held is text like any other.
  */
-internal fun liveRefreshOnScreen(text: String, seededThisVisit: Boolean): String =
+internal fun storedText(text: String, seededThisVisit: Boolean): String =
     if (seededThisVisit && text == NEW_NOTE_HEADING_SEED) "" else text
 
 /**

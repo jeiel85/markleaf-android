@@ -58,20 +58,20 @@ class NewNoteHeadingTest {
         assertEquals(
             "from the folder",
             editorLiveRefreshText(
-                onScreen = liveRefreshOnScreen("# ", seededThisVisit = true),
+                onScreen = storedText("# ", seededThisVisit = true),
                 agreed = "",
                 incoming = "from the folder"
             )
         )
         assertNull(
             editorLiveRefreshText(
-                onScreen = liveRefreshOnScreen("# Gro", seededThisVisit = true),
+                onScreen = storedText("# Gro", seededThisVisit = true),
                 agreed = "",
                 incoming = "from the folder"
             )
         )
         // A `# ` the note already held is real text, compared as it is.
-        assertEquals("# ", liveRefreshOnScreen("# ", seededThisVisit = false))
+        assertEquals("# ", storedText("# ", seededThisVisit = false))
     }
 
     @Test

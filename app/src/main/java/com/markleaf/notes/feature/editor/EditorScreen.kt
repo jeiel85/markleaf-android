@@ -347,19 +347,21 @@ fun EditorScreen(
     // Debounced autosave gate: every edit and formatting action bumps it, and
     // it coalesces a burst into one save of the latest text (#262). The save
     // body lives in [autosave] so the timing/ordering contract is testable.
+    // Whether the `# ` on screen is the seed this visit put there (#544), rather
+    // than text the note held or the folder sent. While it is, the seed stands
+    // for the empty note it was put into: autosave stores "", the live refresh
+    // weighs "", and the discard treats it as empty (see storedText). Cleared
+    // when the live refresh adopts a stored version. Saveable, so a rotation's
+    // reload of a still-untouched note does not forget it.
+    var seededThisVisit by rememberSaveable(noteId) { mutableStateOf(false) }
     val saver = remember(noteId) {
         DebouncedSaver(
             debounceMillis = SAVE_DEBOUNCE_MS,
-            readContent = { editorState.text },
+            readContent = { storedText(editorState.text, seededThisVisit) },
             save = { content -> autosave(content) }
         )
     }
     var isLoaded by remember(noteId) { mutableStateOf(noteId == null) }
-    // Whether this visit opened the note on the `# ` seed (#544). Only then is a
-    // bare `#` the editor's own and safe for the discard below to treat as
-    // empty; a note that already held one is the user's. Saveable, so a
-    // rotation's reload of a still-untouched note does not forget it.
-    var seededThisVisit by rememberSaveable(noteId) { mutableStateOf(false) }
     // #405: a note that is left with nothing in it -- never typed into, or
     // typed into and then cleared back out -- has nothing worth keeping, so
     // it is removed instead of sitting in the list as a blank row. Gated on
@@ -943,7 +945,7 @@ fun EditorScreen(
         if (noteId == null || !isLoaded) return@LaunchedEffect
         repo.observeNote(noteId).distinctUntilChanged().collect { row ->
             val incoming = editorLiveRefreshText(
-                liveRefreshOnScreen(editorState.text, seededThisVisit),
+                storedText(editorState.text, seededThisVisit),
                 syncedContent,
                 row?.contentMarkdown
             )
@@ -965,6 +967,9 @@ fun EditorScreen(
             )
             editorState = adopted
             syncedContent = incoming
+            // What is on screen is now the stored version, not the seed — even
+            // when the folder sent exactly `# ` (#547 review).
+            seededThisVisit = false
             // The adopted version is the new floor for undo. Recording it
             // instead would leave the pre-import text one undo away, and undoing
             // to it would save it straight back over what just arrived.

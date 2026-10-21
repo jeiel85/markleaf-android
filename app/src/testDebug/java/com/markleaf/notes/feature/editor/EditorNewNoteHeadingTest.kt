@@ -93,6 +93,25 @@ class EditorNewNoteHeadingTest {
         assertEquals("Groceries", runBlocking { repo.getNote(noteId)?.title })
     }
 
+    /**
+     * #547 review: the seed is not an edit, so a version the sync folder imports
+     * into the row while the seeded note is open is shown, not held back as if
+     * the user had unsaved text (#428).
+     */
+    @Test
+    fun anImportWhileTheSeedIsUntouchedIsShown() {
+        val noteId = createNote("")
+        show(noteId, startWithHeading = true)
+        composeRule.waitUntil(timeoutMillis = 5_000) { fieldText() == "# " }
+
+        runBlocking {
+            val note = repo.getNote(noteId)!!
+            repo.updateNote(note.copy(contentMarkdown = "from the folder", updatedAt = Instant.now()))
+        }
+
+        composeRule.waitUntil(timeoutMillis = 5_000) { fieldText() == "from the folder" }
+    }
+
     @Test
     fun withTheSettingOffANewNoteOpensEmpty() {
         show(createNote(""), startWithHeading = false)

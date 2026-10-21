@@ -48,6 +48,32 @@ class NewNoteHeadingTest {
         assertFalse(isEmptyNoteText("#", seededThisVisit = false))
     }
 
+    /**
+     * #547 review: an empty synced note opened on the seed must still adopt a
+     * version the folder imports while it is open (#428), because the seed is
+     * not an edit. Once the user types, the import waits as for any edit.
+     */
+    @Test
+    fun `an untouched seed does not hold back an import`() {
+        assertEquals(
+            "from the folder",
+            editorLiveRefreshText(
+                onScreen = liveRefreshOnScreen("# ", seededThisVisit = true),
+                agreed = "",
+                incoming = "from the folder"
+            )
+        )
+        assertNull(
+            editorLiveRefreshText(
+                onScreen = liveRefreshOnScreen("# Gro", seededThisVisit = true),
+                agreed = "",
+                incoming = "from the folder"
+            )
+        )
+        // A `# ` the note already held is real text, compared as it is.
+        assertEquals("# ", liveRefreshOnScreen("# ", seededThisVisit = false))
+    }
+
     @Test
     fun `blank text is still an empty note`() {
         assertTrue(isEmptyNoteText("", seededThisVisit = false))

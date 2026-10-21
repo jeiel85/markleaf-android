@@ -62,6 +62,16 @@ internal fun newNoteSeed(content: String, startWithHeading: Boolean): String? =
     if (startWithHeading && content.isEmpty()) NEW_NOTE_HEADING_SEED else null
 
 /**
+ * The editor's text as the live refresh (#428) should weigh it: an untouched
+ * seed is the editor's own and not an edit, so it reads as the empty note that
+ * is stored. Without this, an empty synced note opened on the seed would look
+ * like it had an unsaved edit, an import arriving while it is open would be
+ * refused, and the first keystroke could save over it (#547 review).
+ */
+internal fun liveRefreshOnScreen(text: String, seededThisVisit: Boolean): String =
+    if (seededThisVisit && text == NEW_NOTE_HEADING_SEED) "" else text
+
+/**
  * Whether the note holds nothing worth keeping, for the empty-note discard
  * (#405). A heading marker with no words after it counts as empty only when
  * this editor visit put it there ([seededThisVisit]): that is what a new note

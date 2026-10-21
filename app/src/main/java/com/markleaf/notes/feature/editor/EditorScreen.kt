@@ -942,7 +942,11 @@ fun EditorScreen(
     LaunchedEffect(noteId, isLoaded) {
         if (noteId == null || !isLoaded) return@LaunchedEffect
         repo.observeNote(noteId).distinctUntilChanged().collect { row ->
-            val incoming = editorLiveRefreshText(editorState.text, syncedContent, row?.contentMarkdown)
+            val incoming = editorLiveRefreshText(
+                liveRefreshOnScreen(editorState.text, seededThisVisit),
+                syncedContent,
+                row?.contentMarkdown
+            )
             if (incoming == null) {
                 // Not news, but if the row now matches the screen, that is the
                 // new agreement point — our own save, or an import that happened

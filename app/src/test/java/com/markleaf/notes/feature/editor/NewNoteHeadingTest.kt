@@ -32,23 +32,34 @@ class NewNoteHeadingTest {
     }
 
     @Test
-    fun `the seed alone is an empty note`() {
-        assertTrue(isEmptyNoteText("# "))
-        assertTrue(isEmptyNoteText("#"))
-        assertTrue(isEmptyNoteText("#\n\n"))
+    fun `the seed alone is an empty note when this visit put it there`() {
+        assertTrue(isEmptyNoteText("# ", seededThisVisit = true))
+        assertTrue(isEmptyNoteText("#", seededThisVisit = true))
+        assertTrue(isEmptyNoteText("#\n\n", seededThisVisit = true))
+    }
+
+    /**
+     * #547 review: a `#` the user saved, or one the note held when opened, is
+     * theirs — the discard deletes for good, so it must not count as empty.
+     */
+    @Test
+    fun `a bare heading marker this visit did not seed is kept`() {
+        assertFalse(isEmptyNoteText("# ", seededThisVisit = false))
+        assertFalse(isEmptyNoteText("#", seededThisVisit = false))
     }
 
     @Test
     fun `blank text is still an empty note`() {
-        assertTrue(isEmptyNoteText(""))
-        assertTrue(isEmptyNoteText("  \n "))
+        assertTrue(isEmptyNoteText("", seededThisVisit = false))
+        assertTrue(isEmptyNoteText("  \n ", seededThisVisit = false))
+        assertTrue(isEmptyNoteText("", seededThisVisit = true))
     }
 
     @Test
     fun `a heading with words is kept`() {
-        assertFalse(isEmptyNoteText("# Groceries"))
-        assertFalse(isEmptyNoteText("# \nmilk"))
-        assertFalse(isEmptyNoteText("## "))
-        assertFalse(isEmptyNoteText("#tag"))
+        assertFalse(isEmptyNoteText("# Groceries", seededThisVisit = true))
+        assertFalse(isEmptyNoteText("# \nmilk", seededThisVisit = true))
+        assertFalse(isEmptyNoteText("## ", seededThisVisit = true))
+        assertFalse(isEmptyNoteText("#tag", seededThisVisit = true))
     }
 }

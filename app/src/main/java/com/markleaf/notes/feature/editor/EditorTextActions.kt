@@ -63,12 +63,15 @@ internal fun newNoteSeed(content: String, startWithHeading: Boolean): String? =
 
 /**
  * Whether the note holds nothing worth keeping, for the empty-note discard
- * (#405). A heading marker with no words after it counts as empty: with
- * "Start new notes with a heading" on, that is what a new note left untouched
- * holds, and it must not stay in the list as a blank row (#544).
+ * (#405). A heading marker with no words after it counts as empty only when
+ * this editor visit put it there ([seededThisVisit]): that is what a new note
+ * left untouched holds with "Start new notes with a heading" on, and it must
+ * not stay in the list as a blank row (#544). A `#` the user wrote, or one a
+ * note already held when it was opened, is theirs, and the discard deletes
+ * for good.
  */
-internal fun isEmptyNoteText(text: String): Boolean =
-    text.isBlank() || text.trim() == NEW_NOTE_HEADING_SEED.trim()
+internal fun isEmptyNoteText(text: String, seededThisVisit: Boolean): Boolean =
+    text.isBlank() || (seededThisVisit && text.trim() == NEW_NOTE_HEADING_SEED.trim())
 
 /**
  * Whether this screen may record where the note was left.

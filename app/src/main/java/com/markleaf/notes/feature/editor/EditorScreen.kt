@@ -355,6 +355,11 @@ fun EditorScreen(
         )
     }
     var isLoaded by remember(noteId) { mutableStateOf(noteId == null) }
+    // Whether this visit opened the note on the `# ` seed (#544). Only then is a
+    // bare `#` the editor's own and safe for the discard below to treat as
+    // empty; a note that already held one is the user's. Saveable, so a
+    // rotation's reload of a still-untouched note does not forget it.
+    var seededThisVisit by rememberSaveable(noteId) { mutableStateOf(false) }
     // #405: a note that is left with nothing in it -- never typed into, or
     // typed into and then cleared back out -- has nothing worth keeping, so
     // it is removed instead of sitting in the list as a blank row. Gated on
@@ -377,7 +382,7 @@ fun EditorScreen(
     DisposableEffect(noteId) {
         onDispose {
             val id = noteId
-            if (id != null && isLoaded && isEmptyNoteText(editorState.text)) {
+            if (id != null && isLoaded && isEmptyNoteText(editorState.text, seededThisVisit)) {
                 hostScope.launch {
                     // Best-effort cleanup: a failure here (a revoked SAF grant
                     // on the sync folder, a disk error) must not crash the
@@ -878,6 +883,7 @@ fun EditorScreen(
             // `# ` with the caret after it. Shown, not saved — see newNoteSeed.
             val seed = newNoteSeed(content, persistedSettings.newNotesStartWithHeading && !openForAppend)
             editorState = if (seed != null) {
+                seededThisVisit = true
                 TextFieldValue(seed, TextRange(seed.length))
             } else {
                 TextFieldValue(content, TextRange(caret.coerceIn(0, content.length)))

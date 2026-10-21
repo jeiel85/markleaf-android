@@ -347,10 +347,17 @@ fun EditorScreen(
     // Debounced autosave gate: every edit and formatting action bumps it, and
     // it coalesces a burst into one save of the latest text (#262). The save
     // body lives in [autosave] so the timing/ordering contract is testable.
+    // Whether the `# ` on screen is the seed this visit put there (#544), rather
+    // than text the note held or the folder sent. While it is, the seed stands
+    // for the empty note it was put into: autosave stores "", the live refresh
+    // weighs "", and the discard treats it as empty (see storedText). Cleared
+    // when the live refresh adopts a stored version. Saveable, so a rotation's
+    // reload of a still-untouched note does not forget it.
+    var seededThisVisit by rememberSaveable(noteId) { mutableStateOf(false) }
     val saver = remember(noteId) {
         DebouncedSaver(
             debounceMillis = SAVE_DEBOUNCE_MS,
-            readContent = { editorState.text },
+            readContent = { storedText(editorState.text, seededThisVisit) },
             save = { content -> autosave(content) }
         )
     }
@@ -377,7 +384,7 @@ fun EditorScreen(
     DisposableEffect(noteId) {
         onDispose {
             val id = noteId
-            if (id != null && isLoaded && editorState.text.isBlank()) {
+            if (id != null && isLoaded && isEmptyNoteText(editorState.text, seededThisVisit)) {
                 hostScope.launch {
                     // Best-effort cleanup: a failure here (a revoked SAF grant
                     // on the sync folder, a disk error) must not crash the
@@ -874,7 +881,19 @@ fun EditorScreen(
             // Clamped, never trusted: the note can be shorter than when the
             // position was recorded — edited in another app, or a smaller
             // version brought in by sync.
-            editorState = TextFieldValue(content, TextRange(caret.coerceIn(0, content.length)))
+            // "Start new notes with a heading" (#544): an empty note opens on
+            // `# ` with the caret after it. Shown, not saved — see newNoteSeed.
+            val seed = newNoteSeed(
+                content,
+                persistedSettings.newNotesStartWithHeading && !openForAppend &&
+                    loadedNote != null && isJustCreated(loadedNote)
+            )
+            editorState = if (seed != null) {
+                seededThisVisit = true
+                TextFieldValue(seed, TextRange(seed.length))
+            } else {
+                TextFieldValue(content, TextRange(caret.coerceIn(0, content.length)))
+            }
             // The loaded note is the floor: undo must not walk back past it
             // into the empty text the field held while the row was being read.
             undoHistory.reset(editorState)
@@ -929,7 +948,11 @@ fun EditorScreen(
     LaunchedEffect(noteId, isLoaded) {
         if (noteId == null || !isLoaded) return@LaunchedEffect
         repo.observeNote(noteId).distinctUntilChanged().collect { row ->
-            val incoming = editorLiveRefreshText(editorState.text, syncedContent, row?.contentMarkdown)
+            val incoming = editorLiveRefreshText(
+                storedText(editorState.text, seededThisVisit),
+                syncedContent,
+                row?.contentMarkdown
+            )
             if (incoming == null) {
                 // Not news, but if the row now matches the screen, that is the
                 // new agreement point — our own save, or an import that happened
@@ -948,6 +971,9 @@ fun EditorScreen(
             )
             editorState = adopted
             syncedContent = incoming
+            // What is on screen is now the stored version, not the seed — even
+            // when the folder sent exactly `# ` (#547 review).
+            seededThisVisit = false
             // The adopted version is the new floor for undo. Recording it
             // instead would leave the pre-import text one undo away, and undoing
             // to it would save it straight back over what just arrived.

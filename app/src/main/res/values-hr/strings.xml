@@ -293,6 +293,8 @@
     <string name="note_title_source_first_heading">Prvi naslov u tekstu</string>
     <string name="note_title_source_first_line">Prva linija</string>
     <string name="note_title_source_description">Koja će linija bilješke postati njen naslov u popisu. „Prvi naslov u tekstu” uzima prvi Markdown naslov bilo gdje u bilješci; „Prva linija” uvijek uzima prvu napisanu liniju u bilješci. Promjena ove postavke će promijeniti naslove već postojećih bilješki – u centru za sinkronizaciju, „Preimenuj datoteke u naslove bilješki” će ponijeti i Vaše sinkronizirane nazive datoteka.</string>
+    <string name="new_note_heading">Započni nove bilješke naslovom</string>
+    <string name="new_note_heading_description">Nove bilješke počinju s „# “, pa prvi redak koji napišete postaje naslov i naslov bilješke. Postojeće bilješke se ne mijenjaju.</string>
     <plurals name="note_title_retitled_format">
         <item quantity="one">Preimenovana je %1$d bilješka.</item>
         <item quantity="few">Preimenovane su %1$d bilješke.</item>

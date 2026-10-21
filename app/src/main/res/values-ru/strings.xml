@@ -299,6 +299,8 @@
     <string name="note_title_source_first_heading">Первый заголовок</string>
     <string name="note_title_source_first_line">Первая строка</string>
     <string name="note_title_source_description">Какая строка заметки становится её названием в списке. «Первый заголовок» берёт первый заголовок Markdown в любом месте заметки; «Первая строка» всегда берёт первую написанную строку. Изменение переименует существующие заметки — в центре синхронизации пункт «Переименовать файлы по названиям заметок» приведёт в соответствие и имена синхронизируемых файлов.</string>
+    <string name="new_note_heading">Начинать новые заметки с заголовка</string>
+    <string name="new_note_heading_description">Новые заметки начинаются с «# », поэтому первая строка становится заголовком и названием заметки. Существующие заметки не изменяются.</string>
     <plurals name="note_title_retitled_format">
         <item quantity="one">Переименована %1$d заметка.</item>
         <item quantity="few">Переименованы %1$d заметки.</item>

@@ -278,6 +278,8 @@
     <string name="note_title_source_first_heading">Primer encabezado</string>
     <string name="note_title_source_first_line">Primera línea</string>
     <string name="note_title_source_description">De qué línea sale el título que ves en la lista. «Primer encabezado» toma el primer encabezado Markdown esté donde esté en la nota; «Primera línea» toma siempre la primera línea que escribiste. Al cambiarlo se retitulan tus notas actuales; los nombres de archivo de la carpeta sincronizada se ajustan con «Renombrar archivos según el título» en el Centro de sincronización.</string>
+    <string name="new_note_heading">Empezar las notas nuevas con un encabezado</string>
+    <string name="new_note_heading_description">Las notas nuevas empiezan con «# », así la primera línea que escribes es un encabezado y pasa a ser el título de la nota. Las notas existentes no cambian.</string>
     <plurals name="note_title_retitled_format">
         <item quantity="one">%1$d nota retitulada.</item>
         <item quantity="other">%1$d notas retituladas.</item>

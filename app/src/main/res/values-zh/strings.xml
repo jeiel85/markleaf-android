@@ -279,6 +279,8 @@
     <string name="note_title_source_first_heading">第一个标题</string>
     <string name="note_title_source_first_line">第一行</string>
     <string name="note_title_source_description">设置笔记列表中用作标题的行。“第一个标题”会采用笔记中任意位置的第一个 Markdown 标题；“第一行”始终采用你输入的第一行。更改此设置会更新现有笔记的标题；在同步中心使用“将文件重命名为笔记标题”，可同时更新已同步的文件名。</string>
+    <string name="new_note_heading">新笔记以标题开头</string>
+    <string name="new_note_heading_description">新笔记以“# ”开头，你写下的第一行会成为标题，并用作笔记标题。现有笔记不会改变。</string>
     <plurals name="note_title_retitled_format">
         <item quantity="other">已更新 %1$d 篇笔记的标题。</item>
     </plurals>

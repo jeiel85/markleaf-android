@@ -278,6 +278,8 @@
     <string name="note_title_source_first_heading">Premier titre</string>
     <string name="note_title_source_first_line">Première ligne</string>
     <string name="note_title_source_description">La ligne dont provient le titre affiché dans la liste. « Premier titre » prend le premier titre Markdown où qu\'il soit dans la note ; « Première ligne » prend toujours la première ligne que vous avez écrite. Ce changement retitre vos notes existantes ; les noms de fichiers du dossier synchronisé suivent via « Renommer les fichiers selon le titre » dans le Centre de synchronisation.</string>
+    <string name="new_note_heading">Commencer les nouvelles notes par un titre</string>
+    <string name="new_note_heading_description">Les nouvelles notes commencent par « # », la première ligne devient donc un titre et le titre de la note. Les notes existantes ne sont pas modifiées.</string>
     <plurals name="note_title_retitled_format">
         <item quantity="one">%1$d note retitrée.</item>
         <item quantity="other">%1$d notes retitrées.</item>

@@ -279,6 +279,8 @@
     <string name="note_title_source_first_heading">Prvý nadpis</string>
     <string name="note_title_source_first_line">Prvý riadok</string>
     <string name="note_title_source_description">Určuje, ktorý riadok poznámky sa použije ako jej názov v zozname. Možnosť Prvý nadpis vezme prvý nadpis Markdown kdekoľvek v poznámke; možnosť Prvý riadok vždy použije prvý riadok, ktorý ste napísali. Zmena tohto nastavenia premenuje vaše existujúce poznámky – v centre synchronizácie možnosť Premenovať súbory podľa názvov poznámok aktualizuje aj názvy synchronizovaných súborov.</string>
+    <string name="new_note_heading">Začínať nové poznámky nadpisom</string>
+    <string name="new_note_heading_description">Nové poznámky začínajú „# “, takže prvý riadok, ktorý napíšete, je nadpis a stane sa názvom poznámky. Existujúce poznámky sa nemenia.</string>
     <plurals name="note_title_retitled_format">
         <item quantity="one">Premenovaná %1$d poznámka.</item>
         <item quantity="few">Premenované %1$d poznámky.</item>

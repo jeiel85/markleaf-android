@@ -4,6 +4,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.markleaf.notes.core.markdown.preview.findOccurrences
 import com.markleaf.notes.data.settings.OpenNotesAt
+import com.markleaf.notes.domain.model.Note
 import kotlin.math.ceil
 import kotlin.math.max
 
@@ -43,6 +44,59 @@ internal const val SETTINGS_READ_TIMEOUT_MS = 2_000L
  */
 internal fun opensInPreview(openNotesInPreview: Boolean, content: String): Boolean =
     openNotesInPreview && content.isNotEmpty()
+
+/** What "Start new notes with a heading" puts in an empty note (#544). */
+internal const val NEW_NOTE_HEADING_SEED = "# "
+
+/**
+ * The text an opening note shows in place of [content], or null to show the
+ * note as stored.
+ *
+ * Only an empty note gets the heading, which is how a new note is told apart
+ * here: like [opensInPreview], the editor only sees an id. An existing note
+ * that is empty has nothing to lose to a heading either, and it is discarded on
+ * leaving if nothing is typed. The seed is shown, not saved — the note stays
+ * empty in the database until the first keystroke, so opening and leaving
+ * changes nothing.
+ */
+internal fun newNoteSeed(content: String, startWithHeading: Boolean): String? =
+    if (startWithHeading && content.isEmpty()) NEW_NOTE_HEADING_SEED else null
+
+/**
+ * Whether [note] is one the new-note flow has just made, and so the only kind
+ * "Start new notes with a heading" may seed (#547 review). An empty note is not
+ * enough: one imported empty from the sync folder (`lastImportedAt` set), or a
+ * blank note someone pinned, archived or locked, is a note they kept, and the
+ * setting promises existing notes are not changed. A note never saved since it
+ * was created still has `createdAt == updatedAt`, which every creation path
+ * sets from a single clock read.
+ */
+internal fun isJustCreated(note: Note): Boolean =
+    note.lastImportedAt == null && !note.pinned && !note.archived && !note.locked &&
+        note.createdAt == note.updatedAt
+
+/**
+ * The editor's text as the note it stands for: an untouched seed is the
+ * editor's own, not the user's, so it reads as the empty note it was put into.
+ * Autosave stores this and the live refresh (#428) weighs it, so the seed is
+ * never written — not even after typing and deleting back to it — and an import
+ * arriving while it is on screen is not refused as if it were an unsaved edit
+ * (#547 review). A `# ` the note already held is text like any other.
+ */
+internal fun storedText(text: String, seededThisVisit: Boolean): String =
+    if (seededThisVisit && text == NEW_NOTE_HEADING_SEED) "" else text
+
+/**
+ * Whether the note holds nothing worth keeping, for the empty-note discard
+ * (#405). A heading marker with no words after it counts as empty only when
+ * this editor visit put it there ([seededThisVisit]): that is what a new note
+ * left untouched holds with "Start new notes with a heading" on, and it must
+ * not stay in the list as a blank row (#544). A `#` the user wrote, or one a
+ * note already held when it was opened, is theirs, and the discard deletes
+ * for good.
+ */
+internal fun isEmptyNoteText(text: String, seededThisVisit: Boolean): Boolean =
+    text.isBlank() || (seededThisVisit && text.trim() == NEW_NOTE_HEADING_SEED.trim())
 
 /**
  * Whether this screen may record where the note was left.

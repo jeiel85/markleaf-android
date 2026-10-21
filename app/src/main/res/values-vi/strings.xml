@@ -274,6 +274,8 @@
     <string name="note_title_source_first_heading">Tiêu đề mục đầu tiên</string>
     <string name="note_title_source_first_line">Dòng đầu tiên</string>
     <string name="note_title_source_description">Dòng nào trong ghi chú trở thành tiêu đề trong danh sách. “Tiêu đề mục đầu tiên” lấy tiêu đề Markdown đầu tiên ở bất kỳ đâu trong ghi chú; “Dòng đầu tiên” luôn lấy dòng đầu tiên bạn viết. Thay đổi tùy chọn này sẽ đặt lại tiêu đề cho các ghi chú hiện có — trong Trung tâm đồng bộ, “Đổi tên tệp theo tiêu đề ghi chú” sẽ cập nhật tên các tệp đã đồng bộ theo.</string>
+    <string name="new_note_heading">Bắt đầu ghi chú mới bằng tiêu đề mục</string>
+    <string name="new_note_heading_description">Ghi chú mới bắt đầu bằng “# ”, nên dòng đầu tiên bạn viết là tiêu đề mục và trở thành tiêu đề ghi chú. Ghi chú hiện có không bị thay đổi.</string>
     <plurals name="note_title_retitled_format">
         <item quantity="other">Đã đặt lại tiêu đề cho %1$d ghi chú.</item>
     </plurals>

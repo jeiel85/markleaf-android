@@ -289,6 +289,8 @@
     <string name="note_title_source_first_heading">First heading</string>
     <string name="note_title_source_first_line">First line</string>
     <string name="note_title_source_description">Which line of a note becomes its title in the list. "First heading" takes the first Markdown heading anywhere in the note; "First line" always takes the first line you wrote. Changing this retitles your existing notes — in Sync Center, "Rename files to note titles" brings your synced filenames along.</string>
+    <string name="new_note_heading">Start new notes with a heading</string>
+    <string name="new_note_heading_description">New notes open with “# ”, so the first line you type is a heading and becomes the note\'s title. Existing notes are not changed.</string>
     <plurals name="note_title_retitled_format">
         <item quantity="one">Retitled %1$d note.</item>
         <item quantity="other">Retitled %1$d notes.</item>

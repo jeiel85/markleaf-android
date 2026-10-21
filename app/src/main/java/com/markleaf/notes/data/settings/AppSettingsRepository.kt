@@ -93,6 +93,7 @@ class AppSettingsRepository internal constructor(
             noteTitleSource = preferences[NOTE_TITLE_SOURCE]
                 ?.let { value -> enumValueOrDefault(value, NoteTitleSource.FIRST_HEADING) }
                 ?: NoteTitleSource.FIRST_HEADING,
+            newNotesStartWithHeading = preferences[NEW_NOTES_START_WITH_HEADING] ?: false,
             retitlePending = preferences[RETITLE_PENDING] ?: false,
             searchTitlesOnly = preferences[SEARCH_TITLES_ONLY] ?: false,
             lastOpenedNoteId = preferences[LAST_OPENED_NOTE_ID],
@@ -376,6 +377,12 @@ class AppSettingsRepository internal constructor(
         }
     }
 
+    suspend fun setNewNotesStartWithHeading(enabled: Boolean) {
+        persist { preferences ->
+            preferences[NEW_NOTES_START_WITH_HEADING] = enabled
+        }
+    }
+
     suspend fun setSearchTitlesOnly(titlesOnly: Boolean) {
         persist { preferences ->
             preferences[SEARCH_TITLES_ONLY] = titlesOnly
@@ -514,6 +521,7 @@ class AppSettingsRepository internal constructor(
         val NOTES_SORT_MODE = stringPreferencesKey("notes_sort_mode")
         val NOTES_LAYOUT = stringPreferencesKey("notes_layout")
         val NOTE_TITLE_SOURCE = stringPreferencesKey("note_title_source")
+        val NEW_NOTES_START_WITH_HEADING = booleanPreferencesKey("new_notes_start_with_heading")
         val RETITLE_PENDING = booleanPreferencesKey("retitle_pending")
         val SEARCH_TITLES_ONLY = booleanPreferencesKey("search_titles_only")
         val LAST_OPENED_NOTE_ID = stringPreferencesKey("last_opened_note_id")

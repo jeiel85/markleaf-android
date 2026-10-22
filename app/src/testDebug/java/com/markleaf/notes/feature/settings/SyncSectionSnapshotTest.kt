@@ -28,17 +28,14 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /**
- * Goldens for the sync settings block (#255).
+ * Goldens for the Sync page's block (#255).
  *
- * The full-screen Settings capture stops at one viewport — deliberately, so
- * `BuildConfig.VERSION_NAME` in the App section never enters an image — which
- * left everything below the fold visually ungated. This section is the part
- * that gap actually mattered for: its shape depends on whether a folder is
- * chosen and which metadata mode is on (#216), and neither state can be
- * reached from outside the screen.
+ * The other pages are captured through [SettingsScreen] in
+ * [SettingsScreenSnapshotTest]; this one is not, because its shape depends on
+ * whether a folder is chosen and which metadata mode is on (#216), and
+ * neither state can be reached from outside the screen.
  *
- * Rendered on its own rather than scrolled to, so the framing does not move
- * when a section above it changes.
+ * Rendered on its own, without the screen's app bar.
  */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)

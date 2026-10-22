@@ -6,6 +6,9 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotFocused
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
@@ -24,9 +27,10 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
 /**
- * Settings search (#517): the shortcut row reaches a section, search reaches
- * the setting itself — scrolled to the top of the page, with focus on it, the
- * same landing a shortcut gives its heading.
+ * Settings search (#517) on the list of sections: a result opens the page
+ * that holds the setting, with the setting at the top and focus on it — the
+ * same place the page's first setting sits when the page is opened from its
+ * row.
  */
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [33], qualifiers = "w360dp-h640dp-mdpi")
@@ -34,8 +38,9 @@ class SettingsSearchScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
 
-    private fun searchButton() = composeRule.onNode(hasContentDescription("Search settings") and hasClickAction())
     private fun field() = composeRule.onNode(hasSetTextAction())
+    private fun row(text: String) = composeRule.onNode(hasText(text) and hasClickAction() and !isHeading())
+    private fun backArrow() = composeRule.onNode(hasContentDescription("Back") and hasClickAction())
     // A result row merges its title with its section's name, so match on the
     // title alone: "Privacy" is also the section line under every privacy row.
     private fun result(title: String) = composeRule.onNode(
@@ -43,45 +48,83 @@ class SettingsSearchScreenTest {
             it.config.getOrNull(SemanticsProperties.Text)?.firstOrNull()?.text == title
         }
     )
+    private fun label(text: String) = composeRule.onNode(hasText(text) and !hasClickAction())
     private fun SemanticsNodeInteraction.top() = fetchSemanticsNode().boundsInRoot.top
 
-    private fun showSettings(): Float {
+    private fun showSettings() {
         composeRule.setContent {
             MarkleafTheme(dynamicColor = false) { SettingsScreen(onBack = {}) }
         }
-        return composeRule.onNode(hasText("Appearance") and isHeading()).top()
+        composeRule.waitForIdle()
+    }
+
+    /**
+     * Where a page's first setting sits when the page is opened from its row:
+     * the top every landing should match. Leaves the list showing again.
+     */
+    private fun pageTop(section: String, firstLabel: String): Float {
+        row(section).performClick()
+        composeRule.waitForIdle()
+        val top = label(firstLabel).top()
+        backArrow().performClick()
+        composeRule.waitForIdle()
+        return top
     }
 
     private fun search(query: String) {
-        searchButton().performClick()
         field().performTextInput(query)
         composeRule.waitForIdle()
     }
 
-    @Test
-    fun aResultScrollsItsSettingToTheTopAndFocusesIt() {
-        val pageTop = showSettings()
-        search("screenshots")
-
-        result(SCREENSHOTS).performClick()
+    private fun pick(title: String) {
+        result(title).performClick()
         composeRule.waitForIdle()
-
-        val setting = composeRule.onNode(hasText(SCREENSHOTS) and !hasClickAction())
-        setting.assertIsDisplayed()
-        setting.assertIsFocused()
-        assertEquals(pageTop, setting.top(), 1f)
     }
 
+    /**
+     * A setting with more than a screen of page below it, so it can reach the
+     * top. A setting near the end of a page stops where the page ends, as the
+     * old single scroll did for its last section.
+     */
     @Test
-    fun pickingAResultClosesSearchAndBringsTheShortcutsBack() {
+    fun aResultOpensItsPageWithTheSettingAtTheTopAndFocused() {
+        showSettings()
+        val top = pageTop("Notes & search", "Show note previews")
+        search("reopen last note")
+
+        pick(REOPEN)
+
+        val setting = label(REOPEN)
+        setting.assertIsDisplayed()
+        setting.assertIsFocused()
+        assertEquals(top, setting.top(), 1f)
+    }
+
+    /** A page too short to scroll still shows and focuses the setting that was asked for. */
+    @Test
+    fun aResultOnAShortPageIsShownAndFocused() {
         showSettings()
         search("screenshots")
 
-        result(SCREENSHOTS).performClick()
+        pick(SCREENSHOTS)
+
+        val setting = label(SCREENSHOTS)
+        setting.assertIsDisplayed()
+        setting.assertIsFocused()
+    }
+
+    @Test
+    fun pickingAResultClearsTheQueryForTheWayBack() {
+        showSettings()
+        search("screenshots")
+        pick(SCREENSHOTS)
+
+        backArrow().performClick()
         composeRule.waitForIdle()
 
-        assertTrue(composeRule.onAllNodes(hasSetTextAction()).fetchSemanticsNodes().isEmpty())
-        composeRule.onNode(hasText("Markdown") and hasClickAction() and !isHeading()).assertIsDisplayed()
+        // EditableText, not assertTextEquals: Text also holds the placeholder.
+        field().assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("")))
+        row("Markdown").assertIsDisplayed()
     }
 
     @Test
@@ -94,30 +137,47 @@ class SettingsSearchScreenTest {
     }
 
     @Test
-    fun aSectionResultLandsOnItsHeading() {
-        val pageTop = showSettings()
+    fun aSectionResultOpensThePageAtItsTitle() {
+        showSettings()
         search("privacy")
 
-        result("Privacy").performClick()
-        composeRule.waitForIdle()
+        pick("Privacy")
 
-        val heading = composeRule.onNode(hasText("Privacy") and isHeading())
-        heading.assertIsFocused()
-        assertEquals(pageTop, heading.top(), 1f)
+        composeRule.onNode(hasText("Privacy") and isHeading()).assertIsFocused()
+    }
+
+    /** "Folder mirror" is only in Sync's long heading, which search still reads. */
+    @Test
+    fun theLongSyncHeadingStillFindsTheSyncPage() {
+        showSettings()
+
+        search("folder mirror")
+
+        result("Multi-device sync (folder mirror)").assertIsDisplayed()
+    }
+
+    /** A result names the page it opens by that page's title, Sync's short word included. */
+    @Test
+    fun aResultNamesItsPageByThePageTitle() {
+        showSettings()
+
+        search("note metadata")
+
+        composeRule.onNode(hasText("Note metadata") and hasText("Sync")).assertIsDisplayed()
     }
 
     /** Snippet buttons are edited only here, so search is how they're found (#436). */
     @Test
     fun snippetButtonsAreFoundByName() {
-        val pageTop = showSettings()
+        showSettings()
+        val top = pageTop("Markdown", "Show Markdown syntax")
         search("snippet")
 
-        result("Snippet buttons").performClick()
-        composeRule.waitForIdle()
+        pick("Snippet buttons")
 
-        val setting = composeRule.onNode(hasText("Snippet buttons") and !hasClickAction())
+        val setting = label("Snippet buttons")
         setting.assertIsFocused()
-        assertEquals(pageTop, setting.top(), 1f)
+        assertEquals(top, setting.top(), 1f)
     }
 
     @Test
@@ -129,7 +189,28 @@ class SettingsSearchScreenTest {
         composeRule.onNode(hasText("No settings match")).assertIsDisplayed()
     }
 
+    @Test
+    fun clearingTheQueryBringsTheSectionsBack() {
+        showSettings()
+        search("zzzz")
+
+        composeRule.onNode(hasContentDescription("Close") and hasClickAction()).performClick()
+        composeRule.waitForIdle()
+
+        row("Appearance").assertIsDisplayed()
+        assertTrue(composeRule.onAllNodes(hasText("No settings match")).fetchSemanticsNodes().isEmpty())
+    }
+
+    /** The field is on screen every time Settings opens; it must not raise the keyboard by itself. */
+    @Test
+    fun openingSettingsDoesNotFocusTheSearchField() {
+        showSettings()
+
+        field().assertIsNotFocused()
+    }
+
     private companion object {
         const val SCREENSHOTS = "Block screenshots and Recents preview"
+        const val REOPEN = "Reopen last note on launch"
     }
 }

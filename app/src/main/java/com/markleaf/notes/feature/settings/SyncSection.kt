@@ -1,6 +1,6 @@
 package com.markleaf.notes.feature.settings
 
-import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,13 +21,11 @@ import com.markleaf.notes.data.settings.SyncMetadataMode
 import com.markleaf.notes.ui.component.elapsedTimeLabel
 
 /**
- * The multi-device sync block.
+ * The Sync page: the multi-device folder mirror.
  *
  * `internal` rather than private so a snapshot test can render it on its own:
- * it is the one settings section whose appearance depends on state the screen
- * cannot be put into from the outside (a chosen folder, a metadata mode), and
- * the full-screen golden cannot reach it — that capture stops at one viewport
- * so `BuildConfig.VERSION_NAME` never lands in an image (#255).
+ * it is the one settings page whose appearance depends on state the screen
+ * cannot be put into from the outside (a chosen folder, a metadata mode) (#255).
  */
 @Composable
 internal fun SyncSection(
@@ -41,14 +39,9 @@ internal fun SyncSection(
     onStopSync: () -> Unit,
     onSyncCenterClick: () -> Unit,
     modifier: Modifier = Modifier,
-    headingFocus: FocusRequester? = null,
     itemAnchor: (item: SettingsItem, focusable: Boolean) -> Modifier = { _, _ -> Modifier }
 ) {
-    SettingsSection(
-        title = stringResource(R.string.sync_title),
-        modifier = modifier,
-        headingFocus = headingFocus
-    ) {
+    Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = stringResource(R.string.sync_explainer),
             style = MaterialTheme.typography.bodySmall,

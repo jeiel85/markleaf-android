@@ -2,68 +2,57 @@ package com.markleaf.notes.feature.settings
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.TextField
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.foundation.focusable
-import androidx.compose.material3.SuggestionChip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.onPlaced
-import kotlin.math.roundToInt
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
+import kotlin.math.roundToInt
 
-/** The sections the shortcut row jumps to, in page order (#517). */
+/** The sections of Settings, in list order: one row each, one page each. */
 internal enum class SettingsShortcut(@StringRes val label: Int) {
     APPEARANCE(R.string.settings_appearance),
     MARKDOWN(R.string.settings_markdown),
     NOTES(R.string.settings_notes_section),
     PRIVACY(R.string.settings_privacy),
     DATA(R.string.settings_data),
-    // The section's own heading is a phrase; a chip needs a word.
+    // The sync heading is a phrase; a row and an app bar need a word.
     SYNC(R.string.settings_shortcut_sync),
     OPEN_SOURCE(R.string.settings_open_source),
     APP(R.string.settings_app)
 }
 
 /**
- * Where each section sits, so a shortcut can scroll its heading to the top.
- * Positions are read when a shortcut is tapped rather than kept as offsets: a
- * section's height changes with its state (a sync folder chosen, a passcode
- * set), and every section below it moves.
+ * Where each setting sits on its page, so a search result can scroll it to
+ * the top. Positions are read when the page lands rather than kept as
+ * offsets: a setting's place changes with the page's state (a sync folder
+ * chosen, a custom font picked).
  */
 internal class SectionAnchors {
     var viewport: LayoutCoordinates? = null
-    private val sections = mutableMapOf<SettingsShortcut, LayoutCoordinates>()
-    private val headings = SettingsShortcut.entries.associateWith { FocusRequester() }
     private val items = mutableMapOf<SettingsItem, LayoutCoordinates>()
     private val itemFocus = SettingsItem.entries.associateWith { FocusRequester() }
-
-    fun anchor(section: SettingsShortcut): Modifier = Modifier.onPlaced { sections[section] = it }
 
     /**
      * Marks where a search result for [item] lands, and what takes focus there.
@@ -73,8 +62,8 @@ internal class SectionAnchors {
      * Output: a modifier for the setting's label.
      *
      * Why the label takes focus: after a jump, TalkBack and a keyboard should
-     * carry on from the setting that was asked for, the same reason a section
-     * jump focuses its heading (#262).
+     * carry on from the setting that was asked for, the same reason opening a
+     * page focuses its title (#262).
      */
     fun item(item: SettingsItem, focusable: Boolean = true): Modifier {
         val base = Modifier
@@ -83,68 +72,52 @@ internal class SectionAnchors {
         return if (focusable) base.focusable() else base
     }
 
-    /** The section's heading, which takes focus once a jump to it lands. */
-    fun focus(section: SettingsShortcut): FocusRequester = headings.getValue(section)
-
     fun focus(item: SettingsItem): FocusRequester = itemFocus.getValue(item)
 
-    /** The scroll value that puts [section]'s heading [gapPx] below the top, or null before layout. */
-    fun scrollTarget(section: SettingsShortcut, scroll: Int, gapPx: Float): Int? =
-        target(sections[section], scroll, gapPx)
-
-    fun scrollTarget(item: SettingsItem, scroll: Int, gapPx: Float): Int? =
-        target(items[item], scroll, gapPx)
-
-    private fun target(anchor: LayoutCoordinates?, scroll: Int, gapPx: Float): Int? {
+    /** The scroll value that puts [item]'s label [gapPx] below the top, or null before layout. */
+    fun scrollTarget(item: SettingsItem, scroll: Int, gapPx: Float): Int? {
         val viewport = viewport?.takeIf { it.isAttached } ?: return null
-        val placed = anchor?.takeIf { it.isAttached } ?: return null
+        val placed = items[item]?.takeIf { it.isAttached } ?: return null
         val top = viewport.localPositionOf(placed, Offset.Zero).y
         return (scroll + top - gapPx).roundToInt().coerceAtLeast(0)
     }
 }
 
 /**
- * The query field that takes the shortcut row's place while searching.
+ * The query field at the top of the section list.
  *
- * Why it replaces the row instead of sitting above it: on a phone the page
- * already gives up a row to the shortcuts, and a reader searching has no use
- * for them until the search is closed.
+ * Why it does not take focus on its own: it is on screen every time Settings
+ * opens, and most visits are for a row below it, so raising the keyboard
+ * would cover the list for nothing.
  */
 @Composable
 internal fun SettingsSearchField(
     query: String,
     onQueryChange: (String) -> Unit,
-    onClose: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val focus = remember { FocusRequester() }
-    // Opening search is asking to type, so the keyboard comes up with it.
-    LaunchedEffect(Unit) { focus.requestFocus() }
     TextField(
         value = query,
         onValueChange = onQueryChange,
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp)
-            .focusRequester(focus),
+            .padding(horizontal = 20.dp),
         placeholder = { Text(stringResource(R.string.settings_search_hint)) },
         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-        trailingIcon = {
-            IconButton(onClick = onClose) {
-                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
+        trailingIcon = if (query.isEmpty()) {
+            null
+        } else {
+            {
+                IconButton(onClick = { onQueryChange("") }) {
+                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
+                }
             }
         },
         singleLine = true
     )
 }
 
-/**
- * What a query found, over the page, each row naming its section.
- *
- * `internal` so a test can check the one thing the page relies on: the
- * results' [Surface] takes every tap over its bounds, even when it holds only
- * the "no match" line, so nothing reaches the settings drawn underneath.
- */
+/** What a query found, in place of the section list, each row naming its section. */
 @Composable
 internal fun SettingsSearchResults(
     results: List<SettingsSearchEntry>,
@@ -190,30 +163,9 @@ internal fun SettingsSearchResults(
     }
 }
 
-/** The section's heading as the page prints it — Sync's is a phrase, not the chip's word. */
-@Composable
-internal fun SettingsShortcut.headingTitle(): String = stringResource(headingRes())
-
+/**
+ * The section's full heading — Sync's is a phrase, not the row's word. Search
+ * still matches on it, so "folder mirror" finds the Sync page.
+ */
 internal fun SettingsShortcut.headingRes(): Int =
     if (this == SettingsShortcut.SYNC) R.string.sync_title else label
-
-@Composable
-internal fun SettingsSectionShortcuts(
-    onJump: (SettingsShortcut) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        SettingsShortcut.entries.forEach { section ->
-            SuggestionChip(
-                onClick = { onJump(section) },
-                label = { Text(stringResource(section.label)) }
-            )
-        }
-    }
-}

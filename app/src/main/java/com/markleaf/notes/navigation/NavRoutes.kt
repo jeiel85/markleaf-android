@@ -18,6 +18,14 @@ object NavRoutes {
     const val ARCHIVE = "archive"
     const val LOCKED = "locked"
     const val SETTINGS = "settings"
+
+    /**
+     * Settings opened on the Privacy page at the locked-notes passcode, for
+     * every place that asks the reader to set one. The values are the names of
+     * `SettingsShortcut` and `SettingsItem`; the destination reads them back
+     * with `section` and `item` on [SETTINGS].
+     */
+    const val SETTINGS_PASSCODE = "$SETTINGS?section=PRIVACY&item=LOCKED_PASSCODE"
     const val PRIVACY = "privacy"
     const val SYNC_CENTER = "sync_center"
 

@@ -201,6 +201,23 @@
     <string name="move_to_trash_editor_message">将此笔记移至回收站？你可以稍后从回收站恢复。</string>
 
     <string name="settings_appearance">外观</string>
+    <string name="settings_editor">编辑器</string>
+    <string name="settings_notes">笔记</string>
+    <string name="settings_privacy_security">隐私与安全</string>
+    <string name="settings_sync_export">同步与导出</string>
+    <string name="settings_about">关于</string>
+    <string name="settings_group_widget">主屏幕小部件</string>
+    <string name="settings_group_text">文字</string>
+    <string name="settings_group_list">笔记列表</string>
+    <string name="settings_group_opening">打开笔记</string>
+    <string name="settings_group_new_notes">新笔记</string>
+    <string name="settings_group_lock">锁定</string>
+    <string name="settings_group_screen">截屏与快捷方式</string>
+    <string name="settings_group_export">导出</string>
+    <string name="settings_summary_biometric">生物识别锁</string>
+    <string name="settings_summary_screenshots">已禁止截屏</string>
+    <string name="settings_summary_no_locks">未启用锁定</string>
+    <string name="settings_summary_not_syncing">未同步</string>
     <string name="theme_label">主题</string>
     <string name="theme_mode_system">跟随系统</string>
     <string name="theme_mode_light">浅色</string>
@@ -251,7 +268,6 @@
     <string name="line_width_comfortable">适中</string>
     <string name="line_width_wide">宽</string>
     <string name="line_width_description">在平板等宽屏上限制正文宽度，避免每行过长。竖屏手机上正文本就与屏幕同宽，因此不会有变化。此设置不改变行间距。</string>
-    <string name="settings_notes_section">笔记与搜索</string>
     <string name="show_note_previews">显示笔记预览</string>
     <string name="show_note_previews_description">在每个标题下显示内容摘要和编辑时间。关闭后可在屏幕上显示更多笔记。</string>
     <string name="reopen_last_note">启动时重新打开上次的笔记</string>
@@ -289,11 +305,9 @@
     <string name="view_mode_locked">笔记现在默认以预览模式打开</string>
     <string name="view_mode_unlocked">笔记现在默认以编辑模式打开</string>
     <string name="lock_view_mode">锁定查看模式</string>
-    <string name="settings_privacy">隐私</string>
     <string name="privacy_no_tracking">无需账户，不含分析、广告、远程配置或专有崩溃报告 SDK。</string>
     <string name="privacy_no_internet">MVP 版本未声明 INTERNET 权限。</string>
     <string name="privacy_local_first">只有当你明确选择导出或分享时，笔记才会离开设备。</string>
-    <string name="settings_data">数据</string>
     <string name="export_all_notes">导出所有笔记…</string>
     <string name="export_tag_notes">按标签导出笔记…</string>
     <string name="export_all_notes_description">选择一个文件夹，Markleaf 会将每篇笔记分别保存为 .md 文件。回收站中的笔记不会导出。</string>
@@ -302,7 +316,6 @@
     </plurals>
 
     <string name="sync_title">多设备同步（文件夹镜像）</string>
-    <string name="settings_shortcut_sync">同步</string>
     <string name="settings_search_hint">搜索设置</string>
     <string name="settings_search_no_results">没有匹配的设置</string>
     <string name="sync_explainer">Markleaf 本身不会联网。你可以选择一个文件夹，Markleaf 会将每篇笔记以 `.md` 文件保存到其中。如果该文件夹由其他应用同步，例如 Dropbox、Google 云端硬盘、Syncthing、OneDrive 或 NAS，你的笔记也会同步到其他设备。</string>

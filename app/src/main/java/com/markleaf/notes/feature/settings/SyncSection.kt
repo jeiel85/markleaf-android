@@ -21,7 +21,7 @@ import com.markleaf.notes.data.settings.SyncMetadataMode
 import com.markleaf.notes.ui.component.elapsedTimeLabel
 
 /**
- * The Sync page: the multi-device folder mirror.
+ * The sync group on the Sync & export page: the multi-device folder mirror.
  *
  * `internal` rather than private so a snapshot test can render it on its own:
  * it is the one settings page whose appearance depends on state the screen
@@ -184,7 +184,7 @@ private fun SyncMetadataMode.localizedLabel(): String {
 
 /** "content://com.android.externalstorage.documents/tree/primary%3ADropbox%2FMarkleaf"
  *  becomes a friendlier "Dropbox/Markleaf" preview for the Settings status row. */
-private fun humanReadableTreePath(uriString: String): String {
+internal fun humanReadableTreePath(uriString: String): String {
     val decoded = runCatching {
         java.net.URLDecoder.decode(uriString, "UTF-8")
     }.getOrDefault(uriString)

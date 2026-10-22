@@ -15,87 +15,87 @@ import java.util.Locale
  * "Dark" finds Theme because Dark is one of its buttons.
  */
 internal enum class SettingsItem(
-    val section: SettingsShortcut,
+    val section: SettingsCategory,
     @StringRes val title: Int,
     @StringRes val description: Int? = null,
     @StringRes val options: List<Int> = emptyList()
 ) {
     THEME(
-        SettingsShortcut.APPEARANCE, R.string.theme_label, R.string.theme_mode_description,
+        SettingsCategory.APPEARANCE, R.string.theme_label, R.string.theme_mode_description,
         listOf(R.string.theme_mode_system, R.string.theme_mode_light, R.string.theme_mode_dark)
     ),
     COLOR_PALETTE(
-        SettingsShortcut.APPEARANCE, R.string.color_palette_label, R.string.theme_description,
+        SettingsCategory.APPEARANCE, R.string.color_palette_label, R.string.theme_description,
         listOf(R.string.theme_markleaf_green, R.string.theme_material_you)
     ),
-    WIDGET_OPACITY(SettingsShortcut.APPEARANCE, R.string.widget_opacity_label, R.string.widget_opacity_description),
+    WIDGET_OPACITY(SettingsCategory.APPEARANCE, R.string.widget_opacity_label, R.string.widget_opacity_description),
     WIDGET_COLOR(
-        SettingsShortcut.APPEARANCE, R.string.widget_color_label, R.string.widget_color_description,
+        SettingsCategory.APPEARANCE, R.string.widget_color_label, R.string.widget_color_description,
         listOf(R.string.widget_color_app, R.string.widget_color_custom)
     ),
-    MARKDOWN_SYNTAX(SettingsShortcut.MARKDOWN, R.string.show_markdown_syntax, R.string.show_markdown_syntax_description),
-    FORMATTING_BUTTON(SettingsShortcut.MARKDOWN, R.string.show_formatting_button, R.string.show_formatting_button_description),
-    SNIPPET_BUTTONS(SettingsShortcut.MARKDOWN, R.string.snippet_buttons_label, R.string.snippet_buttons_description),
-    LINE_WIDTH(
-        SettingsShortcut.MARKDOWN, R.string.line_width, R.string.line_width_description,
-        listOf(R.string.line_width_narrow, R.string.line_width_comfortable, R.string.line_width_wide)
-    ),
     FONT(
-        SettingsShortcut.MARKDOWN, R.string.font_label, R.string.font_description,
+        SettingsCategory.EDITOR, R.string.font_label, R.string.font_description,
         listOf(R.string.font_sans, R.string.font_serif, R.string.font_monospace, R.string.font_custom)
     ),
     FONT_SIZE(
-        SettingsShortcut.MARKDOWN, R.string.font_size_label, R.string.font_size_description,
+        SettingsCategory.EDITOR, R.string.font_size_label, R.string.font_size_description,
         listOf(R.string.font_size_small, R.string.font_size_medium, R.string.font_size_large, R.string.font_size_extra_large)
     ),
-    NOTE_PREVIEWS(SettingsShortcut.NOTES, R.string.show_note_previews, R.string.show_note_previews_description),
-    REOPEN_LAST_NOTE(SettingsShortcut.NOTES, R.string.reopen_last_note, R.string.reopen_last_note_description),
-    OPEN_IN_PREVIEW(SettingsShortcut.NOTES, R.string.open_notes_in_preview, R.string.open_notes_in_preview_description),
-    OPEN_NOTES_AT(
-        SettingsShortcut.NOTES, R.string.open_notes_at, R.string.open_notes_at_description,
-        listOf(R.string.open_notes_at_top, R.string.open_notes_at_bottom, R.string.open_notes_at_last_position)
+    LINE_WIDTH(
+        SettingsCategory.EDITOR, R.string.line_width, R.string.line_width_description,
+        listOf(R.string.line_width_narrow, R.string.line_width_comfortable, R.string.line_width_wide)
     ),
-    NEW_NOTE_SHORTCUT(
-        SettingsShortcut.NOTES, R.string.new_note_shortcut, R.string.new_note_shortcut_description,
-        listOf(R.string.new_note_shortcut_new, R.string.new_note_shortcut_today)
-    ),
+    MARKDOWN_SYNTAX(SettingsCategory.EDITOR, R.string.show_markdown_syntax, R.string.show_markdown_syntax_description),
+    FORMATTING_BUTTON(SettingsCategory.EDITOR, R.string.show_formatting_button, R.string.show_formatting_button_description),
+    SNIPPET_BUTTONS(SettingsCategory.EDITOR, R.string.snippet_buttons_label, R.string.snippet_buttons_description),
+    NOTE_PREVIEWS(SettingsCategory.NOTES, R.string.show_note_previews, R.string.show_note_previews_description),
     NOTES_LAYOUT(
-        SettingsShortcut.NOTES, R.string.notes_layout, R.string.notes_layout_description,
+        SettingsCategory.NOTES, R.string.notes_layout, R.string.notes_layout_description,
         listOf(R.string.notes_layout_list, R.string.notes_layout_grid)
     ),
     NOTE_TITLE_SOURCE(
-        SettingsShortcut.NOTES, R.string.note_title_source, R.string.note_title_source_description,
+        SettingsCategory.NOTES, R.string.note_title_source, R.string.note_title_source_description,
         listOf(R.string.note_title_source_first_heading, R.string.note_title_source_first_line)
     ),
-    NEW_NOTE_HEADING(SettingsShortcut.NOTES, R.string.new_note_heading, R.string.new_note_heading_description),
-    SCREENSHOT_PROTECTION(SettingsShortcut.PRIVACY, R.string.screenshot_protection, R.string.screenshot_protection_description),
-    RECENT_NOTES_IN_SHORTCUTS(
-        SettingsShortcut.PRIVACY, R.string.recent_notes_in_shortcuts, R.string.recent_notes_in_shortcuts_description
+    REOPEN_LAST_NOTE(SettingsCategory.NOTES, R.string.reopen_last_note, R.string.reopen_last_note_description),
+    OPEN_IN_PREVIEW(SettingsCategory.NOTES, R.string.open_notes_in_preview, R.string.open_notes_in_preview_description),
+    OPEN_NOTES_AT(
+        SettingsCategory.NOTES, R.string.open_notes_at, R.string.open_notes_at_description,
+        listOf(R.string.open_notes_at_top, R.string.open_notes_at_bottom, R.string.open_notes_at_last_position)
     ),
-    BIOMETRIC_LOCK(SettingsShortcut.PRIVACY, R.string.biometric_lock_setting, R.string.biometric_lock_description),
+    NEW_NOTE_SHORTCUT(
+        SettingsCategory.NOTES, R.string.new_note_shortcut, R.string.new_note_shortcut_description,
+        listOf(R.string.new_note_shortcut_new, R.string.new_note_shortcut_today)
+    ),
+    NEW_NOTE_HEADING(SettingsCategory.NOTES, R.string.new_note_heading, R.string.new_note_heading_description),
+    BIOMETRIC_LOCK(SettingsCategory.PRIVACY, R.string.biometric_lock_setting, R.string.biometric_lock_description),
     LOCKED_PASSCODE(
-        SettingsShortcut.PRIVACY, R.string.locked_passcode_setting_title, R.string.locked_passcode_setting_description
+        SettingsCategory.PRIVACY, R.string.locked_passcode_setting_title, R.string.locked_passcode_setting_description
     ),
-    PRIVACY_DASHBOARD(SettingsShortcut.PRIVACY, R.string.privacy_dashboard_button),
-    EXPORT_ALL(SettingsShortcut.DATA, R.string.export_all_notes, R.string.export_all_notes_description),
-    EXPORT_TAG(SettingsShortcut.DATA, R.string.export_tag_notes),
-    SYNC_FOLDER(SettingsShortcut.SYNC, R.string.sync_pick_folder, R.string.sync_explainer),
+    SCREENSHOT_PROTECTION(SettingsCategory.PRIVACY, R.string.screenshot_protection, R.string.screenshot_protection_description),
+    RECENT_NOTES_IN_SHORTCUTS(
+        SettingsCategory.PRIVACY, R.string.recent_notes_in_shortcuts, R.string.recent_notes_in_shortcuts_description
+    ),
+    PRIVACY_DASHBOARD(SettingsCategory.PRIVACY, R.string.privacy_dashboard_button),
+    SYNC_FOLDER(SettingsCategory.SYNC, R.string.sync_pick_folder, R.string.sync_explainer),
     SYNC_METADATA(
-        SettingsShortcut.SYNC, R.string.sync_metadata_mode, R.string.sync_metadata_mode_description,
+        SettingsCategory.SYNC, R.string.sync_metadata_mode, R.string.sync_metadata_mode_description,
         listOf(R.string.sync_metadata_mode_frontmatter, R.string.sync_metadata_mode_sidecar)
     ),
-    SYNC_CENTER(SettingsShortcut.SYNC, R.string.sync_center_title),
-    VIEW_SOURCE(SettingsShortcut.OPEN_SOURCE, R.string.oss_view_source),
-    VIEW_FDROID(SettingsShortcut.OPEN_SOURCE, R.string.oss_view_fdroid),
-    VIEW_LICENSE(SettingsShortcut.OPEN_SOURCE, R.string.oss_view_license),
+    SYNC_CENTER(SettingsCategory.SYNC, R.string.sync_center_title),
+    EXPORT_ALL(SettingsCategory.SYNC, R.string.export_all_notes, R.string.export_all_notes_description),
+    EXPORT_TAG(SettingsCategory.SYNC, R.string.export_tag_notes),
     // Only on the page in sideload builds (D074); store builds leave it out of
     // the catalogue through `include`.
-    UPDATE_CHECK(SettingsShortcut.APP, R.string.update_check_title, R.string.update_check_description)
+    UPDATE_CHECK(SettingsCategory.ABOUT, R.string.update_check_title, R.string.update_check_description),
+    VIEW_SOURCE(SettingsCategory.ABOUT, R.string.oss_view_source),
+    VIEW_FDROID(SettingsCategory.ABOUT, R.string.oss_view_fdroid),
+    VIEW_LICENSE(SettingsCategory.ABOUT, R.string.oss_view_license)
 }
 
 /** One row of search results: a setting, or a whole section when [item] is null. */
 internal data class SettingsSearchEntry(
-    val section: SettingsShortcut,
+    val section: SettingsCategory,
     val item: SettingsItem?,
     val title: String,
     val texts: List<String>
@@ -106,12 +106,12 @@ internal object SettingsSearch {
      * Every entry search can return, with its strings resolved.
      *
      * Input: [text], which turns a string resource into the current language's
-     * string; [sectionTitle], the section heading as the page shows it;
-     * [include], false for a setting this build doesn't show; [extraTexts],
-     * option labels that aren't string resources (the widget opacity
-     * percentages, formatted by the locale).
-     * Output: one entry per section, then one per included [SettingsItem],
-     * each in page order.
+     * string; [include], false for a setting this build doesn't show;
+     * [extraTexts], option labels that aren't string resources (the widget
+     * opacity percentages, formatted by the locale).
+     * Output: one entry per category, found by its name and the group
+     * headings on its page, then one per included [SettingsItem], each in
+     * page order.
      *
      * Why a lambda instead of a Context: the catalogue is plain data, so the
      * unit test can build it from fake strings and check the matching without
@@ -119,14 +119,12 @@ internal object SettingsSearch {
      */
     fun entries(
         text: (Int) -> String,
-        sectionTitle: (SettingsShortcut) -> String,
         include: (SettingsItem) -> Boolean = { true },
         extraTexts: (SettingsItem) -> List<String> = { emptyList() }
     ): List<SettingsSearchEntry> {
-        val sections = SettingsShortcut.entries.map { section ->
-            val heading = sectionTitle(section)
-            // The chip's short word ("Sync") finds the section too.
-            SettingsSearchEntry(section, null, heading, listOf(heading, text(section.label)))
+        val sections = SettingsCategory.entries.map { section ->
+            val title = text(section.label)
+            SettingsSearchEntry(section, null, title, listOf(title) + section.groups.map(text))
         }
         val items = SettingsItem.entries.filter(include).map { item ->
             val title = text(item.title)

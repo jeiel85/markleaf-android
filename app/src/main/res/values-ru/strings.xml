@@ -221,6 +221,23 @@
     <string name="move_to_trash_editor_message">Переместить эту заметку в корзину? Позже её можно будет восстановить из корзины.</string>
 
     <string name="settings_appearance">Оформление</string>
+    <string name="settings_editor">Редактор</string>
+    <string name="settings_notes">Заметки</string>
+    <string name="settings_privacy_security">Конфиденциальность и безопасность</string>
+    <string name="settings_sync_export">Синхронизация и экспорт</string>
+    <string name="settings_about">О приложении</string>
+    <string name="settings_group_widget">Виджет на главном экране</string>
+    <string name="settings_group_text">Текст</string>
+    <string name="settings_group_list">Список заметок</string>
+    <string name="settings_group_opening">Открытие заметок</string>
+    <string name="settings_group_new_notes">Новые заметки</string>
+    <string name="settings_group_lock">Блокировка</string>
+    <string name="settings_group_screen">Скриншоты и ярлыки</string>
+    <string name="settings_group_export">Экспорт</string>
+    <string name="settings_summary_biometric">Биометрическая блокировка</string>
+    <string name="settings_summary_screenshots">Скриншоты запрещены</string>
+    <string name="settings_summary_no_locks">Блокировка не включена</string>
+    <string name="settings_summary_not_syncing">Синхронизация выключена</string>
     <string name="theme_label">Тема</string>
     <string name="theme_mode_system">Системная</string>
     <string name="theme_mode_light">Светлая</string>
@@ -271,7 +288,6 @@
     <string name="line_width_comfortable">Удобная</string>
     <string name="line_width_wide">Широкая</string>
     <string name="line_width_description">Не даёт строкам растягиваться на широких экранах, например на планшете. На телефоне в вертикальном положении текст и так умещается на экране, поэтому там ничего не меняется. Межстрочный интервал не меняется.</string>
-    <string name="settings_notes_section">Заметки и поиск</string>
     <string name="show_note_previews">Показывать превью заметок</string>
     <string name="show_note_previews_description">Показывать фрагмент текста и время изменения под каждым заголовком. Выключите, чтобы на экране помещалось больше заметок.</string>
     <string name="reopen_last_note">Открывать последнюю заметку при запуске</string>
@@ -312,11 +328,9 @@
     <string name="view_mode_locked">Заметки теперь открываются в предпросмотре</string>
     <string name="view_mode_unlocked">Заметки теперь открываются для редактирования</string>
     <string name="lock_view_mode">Зафиксировать режим просмотра</string>
-    <string name="settings_privacy">Конфиденциальность</string>
     <string name="privacy_no_tracking">Без аккаунта, аналитики, рекламы, удалённой конфигурации и проприетарных SDK для отчётов о сбоях.</string>
     <string name="privacy_no_internet">В MVP не объявлено разрешение INTERNET.</string>
     <string name="privacy_local_first">Заметки покидают устройство, только когда вы явно экспортируете их или делитесь ими.</string>
-    <string name="settings_data">Данные</string>
     <string name="export_all_notes">Экспортировать все заметки…</string>
     <string name="export_tag_notes">Экспортировать заметки по тегу…</string>
     <string name="export_all_notes_description">Выберите папку, и Markleaf сохранит каждую заметку в отдельный файл .md. Заметки из корзины пропускаются.</string>
@@ -328,7 +342,6 @@
     </plurals>
 
     <string name="sync_title">Синхронизация между устройствами (зеркало папки)</string>
-    <string name="settings_shortcut_sync">Синхронизация</string>
     <string name="settings_search_hint">Поиск по настройкам</string>
     <string name="settings_search_no_results">Подходящих настроек нет</string>
     <string name="sync_explainer">Markleaf сам никогда не выходит в интернет. Вместо этого вы выбираете папку, и Markleaf сохраняет в неё каждую заметку как файл `.md`. Если эту папку синхронизирует другое приложение — Dropbox, Drive, Syncthing, OneDrive, NAS, — ваши заметки появятся и на других устройствах.</string>

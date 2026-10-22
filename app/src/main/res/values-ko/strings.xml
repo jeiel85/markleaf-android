@@ -195,6 +195,23 @@
     <string name="move_to_trash_editor_message">이 노트를 휴지통으로 옮길까요? 나중에 다시 꺼낼 수 있습니다.</string>
 
     <string name="settings_appearance">외관</string>
+    <string name="settings_editor">편집기</string>
+    <string name="settings_notes">노트</string>
+    <string name="settings_privacy_security">개인정보 및 보안</string>
+    <string name="settings_sync_export">동기화 및 내보내기</string>
+    <string name="settings_about">정보</string>
+    <string name="settings_group_widget">홈 화면 위젯</string>
+    <string name="settings_group_text">글자</string>
+    <string name="settings_group_list">노트 목록</string>
+    <string name="settings_group_opening">노트 열기</string>
+    <string name="settings_group_new_notes">새 노트</string>
+    <string name="settings_group_lock">잠금</string>
+    <string name="settings_group_screen">스크린샷·바로가기</string>
+    <string name="settings_group_export">내보내기</string>
+    <string name="settings_summary_biometric">생체 인증 잠금</string>
+    <string name="settings_summary_screenshots">스크린샷 차단</string>
+    <string name="settings_summary_no_locks">잠금 없음</string>
+    <string name="settings_summary_not_syncing">동기화 안 함</string>
     <string name="theme_label">테마</string>
     <string name="theme_mode_system">시스템</string>
     <string name="theme_mode_light">라이트</string>
@@ -245,7 +262,6 @@
     <string name="line_width_comfortable">편안하게</string>
     <string name="line_width_wide">넓게</string>
     <string name="line_width_description">태블릿처럼 넓은 화면에서 한 줄이 너무 길어지지 않도록 본문 폭을 제한합니다. 세로로 든 휴대폰에서는 본문이 이미 화면에 맞으므로 달라지지 않습니다. 줄 간격은 바꾸지 않습니다.</string>
-    <string name="settings_notes_section">노트 및 검색</string>
     <string name="show_note_previews">노트 미리보기 표시</string>
     <string name="show_note_previews_description">제목 아래에 본문 일부와 수정 시각을 표시합니다. 끄면 화면에 더 많은 노트가 보입니다.</string>
     <string name="reopen_last_note">시작 시 마지막 노트 열기</string>
@@ -283,11 +299,9 @@
     <string name="view_mode_locked">이제 노트가 미리보기로 열립니다</string>
     <string name="view_mode_unlocked">이제 노트가 편집으로 열립니다</string>
     <string name="lock_view_mode">보기 모드 잠금</string>
-    <string name="settings_privacy">개인정보</string>
     <string name="privacy_no_tracking">계정, 분석, 광고, 원격 설정, 독점 크래시 리포팅 SDK가 없습니다.</string>
     <string name="privacy_no_internet">이 앱은 INTERNET 권한을 사용하지 않습니다.</string>
     <string name="privacy_local_first">노트는 사용자가 직접 내보내거나 공유할 때만 기기 밖으로 나갑니다.</string>
-    <string name="settings_data">데이터</string>
     <string name="export_all_notes">전체 노트 내보내기</string>
     <string name="export_tag_notes">태그별 노트 내보내기…</string>
     <string name="export_all_notes_description">폴더를 선택하면 각 노트를 별도의 .md 파일로 저장합니다. 휴지통의 노트는 제외됩니다.</string>
@@ -296,7 +310,6 @@
     </plurals>
 
     <string name="sync_title">다중 기기 동기화 (폴더 미러)</string>
-    <string name="settings_shortcut_sync">동기화</string>
     <string name="settings_search_hint">설정 검색</string>
     <string name="settings_search_no_results">일치하는 설정이 없습니다</string>
     <string name="sync_explainer">Markleaf는 직접 인터넷에 접속하지 않습니다. 대신 사용자가 지정한 폴더에 각 노트를 .md 파일로 저장합니다. 그 폴더를 다른 앱(Dropbox, Drive, Syncthing, OneDrive, NAS 등)이 동기화하면, 노트가 자연스럽게 다른 기기에 따라옵니다.</string>

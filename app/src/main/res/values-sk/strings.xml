@@ -202,6 +202,23 @@
     <string name="move_to_trash_message">Chcete presunúť „%1$s“ do koša? Neskôr ju môžete obnoviť z koša.</string>
     <string name="move_to_trash_editor_message">Chcete túto poznámku presunúť do koša? Neskôr ju môžete obnoviť z koša.</string>
     <string name="settings_appearance">Vzhľad</string>
+    <string name="settings_editor">Editor</string>
+    <string name="settings_notes">Poznámky</string>
+    <string name="settings_privacy_security">Súkromie a zabezpečenie</string>
+    <string name="settings_sync_export">Synchronizácia a export</string>
+    <string name="settings_about">Informácie</string>
+    <string name="settings_group_widget">Miniaplikácia na ploche</string>
+    <string name="settings_group_text">Text</string>
+    <string name="settings_group_list">Zoznam poznámok</string>
+    <string name="settings_group_opening">Otváranie poznámok</string>
+    <string name="settings_group_new_notes">Nové poznámky</string>
+    <string name="settings_group_lock">Zámok</string>
+    <string name="settings_group_screen">Snímky obrazovky a skratky</string>
+    <string name="settings_group_export">Export</string>
+    <string name="settings_summary_biometric">Biometrický zámok</string>
+    <string name="settings_summary_screenshots">Snímky obrazovky zablokované</string>
+    <string name="settings_summary_no_locks">Žiadny zámok</string>
+    <string name="settings_summary_not_syncing">Bez synchronizácie</string>
     <string name="theme_label">Motív</string>
     <string name="theme_mode_system">Systém</string>
     <string name="theme_mode_light">Svetlý</string>
@@ -251,7 +268,6 @@
     <string name="line_width_comfortable">Komfortná</string>
     <string name="line_width_wide">Široká</string>
     <string name="line_width_description">Zabráni tomu, aby sa riadky na širokých obrazovkách, napríklad na tablete, príliš roztiahli. Na telefóne drženom na výšku sa text už zmestí na obrazovku, takže sa tam nič nezmení. Nemení riadkovanie.</string>
-    <string name="settings_notes_section">Poznámky a vyhľadávanie</string>
     <string name="show_note_previews">Zobraziť náhľady poznámok</string>
     <string name="show_note_previews_description">Pod každým nadpisom zobrazte úryvok a čas úpravy. Vypnite túto funkciu, aby sa na obrazovku zmestilo viac poznámok.</string>
     <string name="reopen_last_note">Pri spustení otvoriť poslednú poznámku</string>
@@ -292,11 +308,9 @@
     <string name="view_mode_locked">Poznámky sa teraz otvárajú v náhľade</string>
     <string name="view_mode_unlocked">Poznámky sa teraz otvárajú v režime editora</string>
     <string name="lock_view_mode">Režim uzamknutého zobrazenia</string>
-    <string name="settings_privacy">Ochrana osobných údajov</string>
     <string name="privacy_no_tracking">Bez registrácií, analytických nástrojov, reklám, vzdialenej konfigurácie či proprietárnych hlásení chýb.</string>
     <string name="privacy_no_internet">MVP nemá prístup k internetu.</string>
     <string name="privacy_local_first">Poznámky opúšťajú zariadenie len vtedy, keď ich výslovne exportujete alebo zdieľate.</string>
-    <string name="settings_data">Údaje</string>
     <string name="export_all_notes">Exportovať všetky poznámky…</string>
     <string name="export_tag_notes">Exportovať poznámky podľa značiek…</string>
     <string name="export_all_notes_description">Vyberte priečinok a Markleaf uloží každú poznámku ako samostatný súbor s príponou .md. Poznámky v koši sa vynechajú.</string>
@@ -307,7 +321,6 @@
         <item quantity="other">%1$d poznámok bolo exportovaných.</item>
     </plurals>
     <string name="sync_title">Synchronizácia viacerých zariadení (zrkadlenie priečinkov)</string>
-    <string name="settings_shortcut_sync">Synchronizácia</string>
     <string name="settings_search_hint">Hľadať v nastaveniach</string>
     <string name="settings_search_no_results">Žiadne nastavenie sa nezhoduje</string>
     <string name="sync_explainer">Aplikácia Markleaf sa nikdy nepripája k internetu. Ukladá poznámky ako súbory .md do vami zvoleného priečinka. Ak tento priečinok synchronizuje iná aplikácia (Dropbox, Drive, Syncthing, OneDrive, NAS), poznámky sa dostanú aj na vaše ďalšie zariadenia.</string>

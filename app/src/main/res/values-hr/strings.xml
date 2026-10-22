@@ -215,6 +215,23 @@
     <string name="move_to_trash_editor_message">Premjestiti ovu bilješku u smeće? Možete ju kasnije vratiti iz smeća.</string>
 
     <string name="settings_appearance">Izgled</string>
+    <string name="settings_editor">Uređivač</string>
+    <string name="settings_notes">Bilješke</string>
+    <string name="settings_privacy_security">Privatnost i sigurnost</string>
+    <string name="settings_sync_export">Sinkronizacija i izvoz</string>
+    <string name="settings_about">O aplikaciji</string>
+    <string name="settings_group_widget">Widget početnog zaslona</string>
+    <string name="settings_group_text">Tekst</string>
+    <string name="settings_group_list">Popis bilješki</string>
+    <string name="settings_group_opening">Otvaranje bilješki</string>
+    <string name="settings_group_new_notes">Nove bilješke</string>
+    <string name="settings_group_lock">Zaključavanje</string>
+    <string name="settings_group_screen">Snimke zaslona i prečaci</string>
+    <string name="settings_group_export">Izvoz</string>
+    <string name="settings_summary_biometric">Biometrijsko zaključavanje</string>
+    <string name="settings_summary_screenshots">Snimke zaslona blokirane</string>
+    <string name="settings_summary_no_locks">Bez zaključavanja</string>
+    <string name="settings_summary_not_syncing">Bez sinkronizacije</string>
     <string name="theme_label">Tema</string>
     <string name="theme_markleaf_green">Markleafova zelena</string>
     <string name="theme_material_you">Material You</string>
@@ -265,7 +282,6 @@
     <string name="line_width_comfortable">Udobno</string>
     <string name="line_width_wide">Široko</string>
     <string name="line_width_description">Sprječava da se retci razvuku preko širokih zaslona, poput tableta. Na uspravno držanom telefonu tekst već stane na zaslon, pa se tamo ništa ne mijenja. Ne mijenja razmak između redaka.</string>
-    <string name="settings_notes_section">Bilješke i pretraživanje</string>
     <string name="show_note_previews">Prikaži pretpregled bilješke</string>
     <string name="show_note_previews_description">Prikaži isječak i vrijeme uređivanja ispod svakog naslova bilješke. Isključite ovo da bi se prikazalo više bilješki na zaslonu.</string>
     <string name="reopen_last_note">Ponovno otvori posljednju bilješku pri pokretanju</string>
@@ -305,11 +321,9 @@
     <string name="view_mode_locked">Bilješke se sada otvaraju u pretpregledu</string>
     <string name="view_mode_unlocked">Bilješke se sada otvaraju za uređivanje</string>
     <string name="lock_view_mode">Zaključaj način prikaza</string>
-    <string name="settings_privacy">Privatnost</string>
     <string name="privacy_no_tracking">Nema računa, analitike, oglasa, udaljene konfiguracije ili vlasničkih SDK-ova za prijavu rušenja.</string>
     <string name="privacy_no_internet">Za MVP nema deklariranih dopuštenja za INTERNET.</string>
     <string name="privacy_local_first">Bilješke napuštaju uređaj samo kada ih izričito izvezete ili podijelite.</string>
-    <string name="settings_data">Podaci</string>
     <string name="export_all_notes">Izvezi sve bilješke…</string>
     <string name="export_tag_notes">Izvezi bilješke po oznaci…</string>
     <string name="export_all_notes_description">Odaberite mapu i Markleaf će spremiti svaku bilješku kao zasebnu .md datoteku. Bilješke u smeću se preskaču.</string>
@@ -320,7 +334,6 @@
     </plurals>
 
     <string name="sync_title">Sinkr. na više uređaja (zrcaljenje mape)</string>
-    <string name="settings_shortcut_sync">Sinkronizacija</string>
     <string name="settings_search_hint">Pretraži postavke</string>
     <string name="settings_search_no_results">Nijedna postavka ne odgovara</string>
     <string name="sync_explainer">Markleaf nikada ne pristupa mreži. Umjesto toga, odaberite mapu i Markleaf će u njoj spremati svaku bilješku kao „.md” datoteku. Ako tu mapu sinkronizira druga aplikacija (Dropbox, Drive, Syncthing, OneDrive, NAS), Vaše bilješke će se pojaviti na Vašim drugim uređajima.</string>

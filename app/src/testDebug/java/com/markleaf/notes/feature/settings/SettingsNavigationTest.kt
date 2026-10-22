@@ -20,9 +20,9 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
 /**
- * Settings as a list of sections, each opening its own page. It replaced the
- * single long scroll and its row of shortcut chips, which hid most sections
- * off the side of a phone screen.
+ * Settings as a list of categories, each opening its own page of grouped
+ * settings. It replaced the single long scroll and its row of shortcut chips,
+ * which hid most sections off the side of a phone screen.
  */
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [33], qualifiers = "w360dp-h640dp-mdpi")
@@ -32,8 +32,9 @@ class SettingsNavigationTest {
 
     private var backs = 0
 
+    // A row merges its name with the summary under it; hasText matches either.
     private fun row(text: String) = composeRule.onNode(hasText(text) and hasClickAction() and !isHeading())
-    private fun title(text: String) = composeRule.onNode(hasText(text) and isHeading())
+    private fun heading(text: String) = composeRule.onNode(hasText(text) and isHeading())
     private fun noNode(text: String) =
         assertTrue(composeRule.onAllNodes(hasText(text)).fetchSemanticsNodes().isEmpty())
     private fun backArrow() = composeRule.onNode(hasContentDescription("Back") and hasClickAction())
@@ -43,7 +44,7 @@ class SettingsNavigationTest {
     }
 
     private fun showSettings(
-        initialSection: SettingsShortcut? = null,
+        initialSection: SettingsCategory? = null,
         initialItem: SettingsItem? = null
     ) {
         composeRule.setContent {
@@ -63,36 +64,61 @@ class SettingsNavigationTest {
         composeRule.waitForIdle()
     }
 
-    /** Every section is on the first screen of a phone, which the chip row never managed. */
+    /** Every category is on the first screen of a phone, which the chip row never managed. */
     @Test
-    fun everySectionHasARowOnScreen() {
+    fun everyCategoryHasARowOnScreen() {
         showSettings()
 
-        listOf("Appearance", "Markdown", "Notes & search", "Privacy", "Data", "Sync", "Open source", "App")
+        listOf("Appearance", "Editor", "Notes", "Privacy & security", "Sync & export", "About")
             .forEach { row(it).assertIsDisplayed() }
+    }
+
+    /** Each row says where its main settings stand, from a fresh install's defaults. */
+    @Test
+    fun eachRowSummarisesItsSettings() {
+        showSettings()
+
+        row("Appearance").assertIsDisplayed()
+        composeRule.onNode(hasText("System · Markleaf green")).assertIsDisplayed()
+        composeRule.onNode(hasText("Sans · Medium · Comfortable")).assertIsDisplayed()
+        composeRule.onNode(hasText("List · First heading · Top")).assertIsDisplayed()
+        composeRule.onNode(hasText("No locks on")).assertIsDisplayed()
+        composeRule.onNode(hasText("Not syncing")).assertIsDisplayed()
+        composeRule.onNode(hasText("Open source · Apache License 2.0")).assertIsDisplayed()
     }
 
     @Test
     fun aRowOpensItsPageWithItsTitleFocused() {
         showSettings()
 
-        open("Privacy")
+        open("Privacy & security")
 
         // #262: TalkBack carries on from the page's title, not the row that
         // is gone or the top of the app bar.
-        title("Privacy").assertIsFocused()
+        heading("Privacy & security").assertIsFocused()
         composeRule.onNode(hasText(SCREENSHOTS)).assertIsDisplayed()
         noNode("Appearance")
+    }
+
+    /** Groups on a page carry headings, so the page reads as parts rather than one run. */
+    @Test
+    fun aPageShowsItsGroupHeadings() {
+        showSettings()
+
+        open("Privacy & security")
+
+        heading("Lock").assertIsDisplayed()
+        heading("Screenshots & shortcuts").assertIsDisplayed()
     }
 
     @Test
     fun systemBackFromAPageReturnsToTheList() {
         showSettings()
-        open("Data")
+        open("Sync & export")
 
         systemBack()
 
-        row("Data").assertIsDisplayed()
+        row("Sync & export").assertIsDisplayed()
         row("Appearance").assertIsDisplayed()
         assertEquals(0, backs)
     }
@@ -100,12 +126,12 @@ class SettingsNavigationTest {
     @Test
     fun theBackArrowOnAPageReturnsToTheList() {
         showSettings()
-        open("Markdown")
+        open("Editor")
 
         backArrow().performClick()
         composeRule.waitForIdle()
 
-        row("Markdown").assertIsDisplayed()
+        row("Editor").assertIsDisplayed()
         assertEquals(0, backs)
     }
 
@@ -118,45 +144,46 @@ class SettingsNavigationTest {
         assertEquals(1, backs)
     }
 
-    /** The row and the app bar use the short word; the page still opens on the sync block. */
+    /** Sync and export are one page now: the folder mirror first, export below it. */
     @Test
-    fun syncOpensUnderItsShortName() {
+    fun syncAndExportShareAPage() {
         showSettings()
 
-        open("Sync")
+        open("Sync & export")
 
-        title("Sync").assertIsDisplayed()
+        heading("Multi-device sync (folder mirror)").assertIsDisplayed()
         composeRule.onNode(hasText("Choose sync folder") and hasClickAction()).assertIsDisplayed()
+        composeRule.onNode(hasText("Export notes by tag…")).performScrollTo().assertIsDisplayed()
     }
 
     @Test
     fun eachPageStartsAtItsOwnTop() {
         showSettings()
-        open("Notes & search")
-        val firstSetting = composeRule.onNode(hasText("Show note previews") and !hasClickAction())
-        val top = firstSetting.fetchSemanticsNode().boundsInRoot.top
+        open("Notes")
+        val firstHeading = heading("Notes list")
+        val top = firstHeading.fetchSemanticsNode().boundsInRoot.top
         // Leave this page scrolled well down.
-        composeRule.onNode(hasText("First line")).performScrollTo()
-        assertTrue(firstSetting.fetchSemanticsNode().boundsInRoot.top < top)
+        composeRule.onNode(hasText("Start new notes with a heading")).performScrollTo()
+        assertTrue(firstHeading.fetchSemanticsNode().boundsInRoot.top < top)
         backArrow().performClick()
         composeRule.waitForIdle()
 
-        open("Notes & search")
+        open("Notes")
 
-        assertEquals(top, firstSetting.fetchSemanticsNode().boundsInRoot.top, 1f)
+        assertEquals(top, firstHeading.fetchSemanticsNode().boundsInRoot.top, 1f)
     }
 
     /**
-     * The Locked space's "set a passcode" opens Privacy at the passcode (the
-     * route is `NavRoutes.SETTINGS_PASSCODE`), and Back goes back there rather
-     * than to a list the reader never saw.
+     * The Locked space's "set a passcode" opens Privacy & security at the
+     * passcode (the route is `NavRoutes.SETTINGS_PASSCODE`), and Back goes
+     * back there rather than to a list the reader never saw.
      */
     @Test
     fun aDeepLinkLandsOnItsSettingAndBackLeaves() {
-        showSettings(SettingsShortcut.PRIVACY, SettingsItem.LOCKED_PASSCODE)
+        showSettings(SettingsCategory.PRIVACY, SettingsItem.LOCKED_PASSCODE)
 
         composeRule.onNode(hasText("Locked notes passcode") and !hasClickAction()).assertIsFocused()
-        title("Privacy").assertIsDisplayed()
+        heading("Privacy & security").assertIsDisplayed()
 
         backArrow().performClick()
 

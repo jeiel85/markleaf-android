@@ -71,7 +71,9 @@ import com.markleaf.notes.feature.editor.EditorScreen
 import com.markleaf.notes.feature.lock.LockedNotesScreen
 import com.markleaf.notes.feature.notes.NotesListScreen
 import com.markleaf.notes.feature.search.SearchScreen
+import com.markleaf.notes.feature.settings.SettingsItem
 import com.markleaf.notes.feature.settings.SettingsScreen
+import com.markleaf.notes.feature.settings.SettingsShortcut
 import com.markleaf.notes.feature.tags.TagRail
 import com.markleaf.notes.feature.tags.TagsScreen
 import com.markleaf.notes.feature.trash.TrashScreen
@@ -429,7 +431,7 @@ fun MarkleafNavHost(
                                     navController.navigate(NavRoutes.SYNC_CENTER_CONFLICTS)
                                 },
                                 lockPasscodeSet = appSettings.lockPasscodeSet,
-                                onRequestSetPasscode = { navController.navigate(NavRoutes.SETTINGS) },
+                                onRequestSetPasscode = { navController.navigate(NavRoutes.SETTINGS_PASSCODE) },
                                 onCollapseClick = { isNoteListCollapsed = true },
                                 onShowTagRail = if (isTagRailCollapsed) ({ isTagRailCollapsed = false }) else null,
                                 selectedNoteId = selectedNoteId,
@@ -558,7 +560,7 @@ fun MarkleafNavHost(
                         navController.navigate(NavRoutes.SYNC_CENTER_CONFLICTS)
                     },
                     lockPasscodeSet = appSettings.lockPasscodeSet,
-                    onRequestSetPasscode = { navController.navigate(NavRoutes.SETTINGS) }
+                    onRequestSetPasscode = { navController.navigate(NavRoutes.SETTINGS_PASSCODE) }
                 )
                 }
             }
@@ -643,14 +645,32 @@ fun MarkleafNavHost(
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() },
                 onNoteClick = { noteId -> navController.navigate(NavRoutes.editorRoute(noteId)) },
-                onOpenSettings = { navController.navigate(NavRoutes.SETTINGS) }
+                onOpenSettings = { navController.navigate(NavRoutes.SETTINGS_PASSCODE) }
             )
         }
-        composable(NavRoutes.SETTINGS) {
+        composable(
+            route = "${NavRoutes.SETTINGS}?section={section}&item={item}",
+            arguments = listOf(
+                navArgument("section") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+                navArgument("item") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) {
+            val section = it.arguments?.getString("section")
+            val item = it.arguments?.getString("item")
             SettingsScreen(
                 onBack = { navController.popBackStack() },
                 onPrivacyClick = { navController.navigate(NavRoutes.PRIVACY) },
-                onSyncCenterClick = { navController.navigate(NavRoutes.SYNC_CENTER) }
+                onSyncCenterClick = { navController.navigate(NavRoutes.SYNC_CENTER) },
+                initialSection = SettingsShortcut.entries.firstOrNull { s -> s.name == section },
+                initialItem = SettingsItem.entries.firstOrNull { i -> i.name == item }
             )
         }
 

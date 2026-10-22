@@ -5,9 +5,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.captureRoboImage
@@ -19,22 +23,18 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /**
- * Goldens for the tablet Settings surface — originally the 640dp column
- * centering that shipped without a visual gate in v2.24.0 (#154) and whose
- * re-indent was verified only by `git diff -w` afterwards.
+ * Goldens for the tablet Settings surface: the list of sections and each page
+ * opened from it, all in the 640dp centred column (#154).
  *
- * **One viewport is never the whole screen.** The first golden here captured
- * only what fits at 800×600, which is the Appearance section and part of
- * Markdown. Everything added below that since — the notes-and-search rows, the
- * privacy toggles, the data actions — went in visually ungated, and nobody
- * noticed because the golden kept passing (#255). The scrolled captures below
- * close that.
+ * **One viewport is never the whole page.** A capture shows only what fits at
+ * 800×600, so each page is scrolled to its *last* control first. Settings
+ * added below an earlier anchor once went in visually ungated while the
+ * golden kept passing (#255).
  *
- * The App section is still deliberately excluded: it renders
- * `BuildConfig.VERSION_NAME`, so putting it in an image would break that image
- * on every release bump. The sync section has goldens of its own in
- * [SyncSectionSnapshotTest], because its appearance depends on state this
- * screen cannot be put into from the outside.
+ * The App page is deliberately left out: it renders `BuildConfig.VERSION_NAME`,
+ * so an image of it would break on every release bump. Sync has goldens of its
+ * own in [SyncSectionSnapshotTest], because its appearance depends on state
+ * this screen cannot be put into from the outside.
  */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -44,33 +44,38 @@ class SettingsScreenSnapshotTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun centeredColumnTablet() = capture("settings_centered_tablet")
+    fun sectionListTablet() = capture("settings_home_tablet")
+
+    @Test
+    fun appearancePage() = capture("settings_appearance_tablet", page = "Appearance", scrollTo = "Custom")
+
+    @Test
+    fun markdownPage() = capture("settings_markdown_tablet", page = "Markdown", scrollTo = "Extra large")
 
     /**
-     * Anchored on the section's current last control — "First line", from the
-     * title rule added in #280. It was "Where I left off" until the layout and
-     * title options landed below it, at which point the golden kept passing
-     * while showing none of them: the same blind spot this class was written
-     * for, one section deeper.
+     * Anchored on the page's current last control. It was "First line", from
+     * the title rule added in #280, until the new-note heading switch (#544)
+     * landed below it.
      */
     @Test
-    fun notesAndSearchSection() =
-        capture("settings_notes_search_tablet", scrollTo = "First line")
+    fun notesAndSearchPage() = capture(
+        "settings_notes_search_tablet",
+        page = "Notes & search",
+        scrollTo = "Start new notes with a heading"
+    )
 
     @Test
-    fun privacySection() = capture("settings_privacy_tablet", scrollTo = "View Privacy Dashboard")
+    fun privacyPage() = capture("settings_privacy_tablet", page = "Privacy", scrollTo = "View Privacy Dashboard")
 
     @Test
-    fun dataSection() = capture("settings_data_tablet", scrollTo = "Export all notes…")
+    fun dataPage() = capture("settings_data_tablet", page = "Data", scrollTo = "Export notes by tag…")
 
     /**
-     * Each capture is anchored on its section's *last* control, not its
-     * heading. `performScrollTo` moves a node just far enough to be visible,
-     * so anchoring on a heading leaves the section body below the fold — which
-     * is how the first attempt at this produced a golden byte-identical to the
-     * unscrolled one.
+     * `performScrollTo` moves a node just far enough to be visible, so the
+     * anchor must be the page's last control: anchoring higher leaves the rest
+     * below the fold.
      */
-    private fun capture(name: String, scrollTo: String? = null) {
+    private fun capture(name: String, page: String? = null, scrollTo: String? = null) {
         composeRule.setContent {
             MarkleafTheme(dynamicColor = false) {
                 Surface(
@@ -83,9 +88,10 @@ class SettingsScreenSnapshotTest {
                 }
             }
         }
-        // The sections live in a plain verticalScroll Column, so every one of
-        // them is composed and reachable — no lazy layout to coax into
-        // building the row first.
+        page?.let {
+            composeRule.onNode(hasText(it) and hasClickAction() and !isHeading()).performClick()
+            composeRule.waitForIdle()
+        }
         scrollTo?.let { composeRule.onNodeWithText(it).performScrollTo() }
         composeRule.onNodeWithTag("settingsScreenSurface").captureRoboImage(
             filePath = "src/test/snapshots/roborazzi/$name.png"

@@ -1,5 +1,10 @@
 package com.markleaf.notes.feature.settings
 
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.ui.semantics.heading
@@ -78,7 +83,8 @@ internal fun SettingsScreen(
     onPrivacyClick: () -> Unit = {},
     onSyncCenterClick: () -> Unit = {},
     initialSection: SettingsCategory? = null,
-    initialItem: SettingsItem? = null
+    initialItem: SettingsItem? = null,
+    twoPane: Boolean = false
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val scope = rememberCoroutineScope()
@@ -302,8 +308,8 @@ internal fun SettingsScreen(
     }
     // A page opened straight from elsewhere (the Locked space asking for a
     // passcode) goes back to where it was opened from: that reader never saw
-    // the list.
-    val backReturnsToList = openSection != null && initialSection == null
+    // the list. Side by side, the list is already on screen, so Back leaves.
+    val backReturnsToList = !twoPane && openSection != null && initialSection == null
     val closePage = {
         openSection = null
         landingItem = null
@@ -314,7 +320,7 @@ internal fun SettingsScreen(
     // #517: the list gets you to a section; search gets you to the setting
     // when you know its name but not which section holds it.
     var searchQuery by rememberSaveable { mutableStateOf("") }
-    BackHandler(enabled = openSection == null && searchQuery.isNotEmpty()) { searchQuery = "" }
+    BackHandler(enabled = (twoPane || openSection == null) && searchQuery.isNotEmpty()) { searchQuery = "" }
     val resources = context.resources
     val configuration = LocalConfiguration.current
     // Resolved again when the language changes, not on every keystroke.
@@ -336,17 +342,226 @@ internal fun SettingsScreen(
         SettingsSearch.search(searchQuery, searchEntries)
     }
 
+    // One category's settings: the same in a page of its own and in the
+    // right-hand pane of a wide screen.
+    val pageContent: @Composable (SettingsCategory, SectionAnchors) -> Unit = { section, anchors ->
+            when (section) {
+                SettingsCategory.APPEARANCE ->
+                    AppearanceSettings(appSettings, settingsRepository, scope, anchors)
+                SettingsCategory.EDITOR -> EditorSettings(
+                    appSettings = appSettings,
+                    settingsRepository = settingsRepository,
+                    scope = scope,
+                    anchors = anchors,
+                    onPickCustomFont = { customFontLauncher.launch(CustomFontMimeTypes) }
+                )
+                SettingsCategory.NOTES -> NotesSettings(
+                    appSettings = appSettings,
+                    settingsRepository = settingsRepository,
+                    scope = scope,
+                    db = db,
+                    retitleBusy = retitleBusy,
+                    onNoteTitleSourceChange = changeNoteTitleSource,
+                    anchors = anchors
+                )
+                SettingsCategory.PRIVACY -> PrivacySettings(
+                    appSettings = appSettings,
+                    settingsRepository = settingsRepository,
+                    scope = scope,
+                    noteRepository = noteRepository,
+                    onPrivacyClick = onPrivacyClick,
+                    anchors = anchors
+                )
+                SettingsCategory.SYNC -> {
+                    SettingsGroupHeading(stringResource(R.string.sync_title), first = true)
+                    SyncSection(
+                        itemAnchor = { item, focusable -> anchors.item(item, focusable) },
+                        folderUri = appSettings.syncFolderUri,
+                        lastSyncedAt = appSettings.syncLastSyncedAt,
+                        metadataMode = appSettings.syncMetadataMode,
+                        metadataBusy = metadataSwitchBusy,
+                        onMetadataModeChange = { mode ->
+                            if (mode == appSettings.syncMetadataMode) return@SyncSection
+                            val uri = appSettings.syncFolderUriOrNull()
+                            if (uri == null) {
+                                // No folder yet: no files carry a header and no
+                                // index exists, so there is nothing to migrate
+                                // and the setting is the whole change. This is
+                                // the cheap moment to choose, and the only one
+                                // that costs nothing.
+                                scope.launch {
+                                    // Sidecar mode needs a device id to name the
+                                    // index it owns; without one mirrorMetadata()
+                                    // falls back to Frontmatter and the choice
+                                    // would be silently undone at link time.
+                                    if (mode == SyncMetadataMode.SIDECAR) {
+                                        settingsRepository.getOrCreateSyncDeviceId()
+                                    }
+                                    settingsRepository.setSyncMetadataMode(mode)
+                                }
+                                return@SyncSection
+                            }
+                            scope.launch {
+                                metadataSwitchBusy = true
+                                // The two directions flip the setting at
+                                // opposite ends of the conversion, and the rule
+                                // behind both is the same: a mirror file with no
+                                // header must never be read by a mode that has
+                                // only the header to identify it by, or the
+                                // import mints a fresh id and the note comes
+                                // back as a second copy (#140).
+                                //
+                                // To SIDECAR, flip first. A pass that dies
+                                // halfway leaves stripped files behind, and the
+                                // frontmatter import has nothing to match them
+                                // with; the sidecar import has the index entry,
+                                // which `toSidecar` makes durable before it
+                                // strips anything. The older comment here said
+                                // the opposite order was needed because an
+                                // import in that window "would read each header
+                                // as note text" — that stopped being true when
+                                // the sidecar import learned to strip a stray
+                                // header and use the id inside it
+                                // (`NoteFolderMirror`, "A file may still carry a
+                                // header").
+                                //
+                                // To FRONTMATTER, flip last, for the mirror
+                                // reason: the conversion is what *adds* the
+                                // header, so until it has run the files are
+                                // identifiable only by the sidecar index, which
+                                // only the sidecar mode reads.
+                                // Selecting the mode also records that the folder
+                                // conversion is owed, in one write — otherwise a
+                                // death between the two leaves the mode switched
+                                // with nothing saying the folder is unconverted,
+                                // and the guard above this block refuses to run
+                                // it again.
+                                if (mode == SyncMetadataMode.SIDECAR) {
+                                    settingsRepository.beginSidecarMigration()
+                                }
+                                val result = withContext(Dispatchers.IO) {
+                                    val deviceId = settingsRepository.getOrCreateSyncDeviceId()
+                                    when (mode) {
+                                        SyncMetadataMode.SIDECAR ->
+                                            SidecarMigration.toSidecar(context, uri, deviceId)
+                                        SyncMetadataMode.FRONTMATTER ->
+                                            SidecarMigration.toFrontmatter(
+                                                context,
+                                                uri,
+                                                deviceId,
+                                                noteRepository.getAllNotes()
+                                            )
+                                    }
+                                }
+                                if (mode == SyncMetadataMode.FRONTMATTER) {
+                                    settingsRepository.setSyncMetadataMode(mode)
+                                } else {
+                                    settingsRepository.setSidecarMigrationPending(false)
+                                }
+                                metadataSwitchBusy = false
+                                Toast.makeText(
+                                    context,
+                                    context.getString(
+                                        R.string.sync_metadata_switched_format,
+                                        result.converted
+                                    ),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        },
+                        onPickFolder = pickSyncFolder,
+                        onSyncNow = {
+                            val uri = appSettings.syncFolderUriOrNull() ?: return@SyncSection
+                            scope.launch {
+                                val notes = withContext(Dispatchers.IO) {
+                                    // Full set (incl. trashed/archived) so a hidden note
+                                    // isn't re-imported as new — see #148.
+                                    noteRepository.getAllNotes()
+                                }
+                                val result = withContext(Dispatchers.IO) {
+                                    NoteFolderMirror.importChanges(
+                                        context = context,
+                                        folderUri = uri,
+                                        existing = notes,
+                                        applyUpdate = { updated ->
+                                            noteImporter.update(updated)
+                                        },
+                                        applyCreate = { created ->
+                                            noteImporter.create(created)
+                                        },
+                                        currentNote = { id -> noteImporter.current(id) },
+                                        metadata = appSettings.mirrorMetadata(),
+                                        titleSource = appSettings.noteTitleSource
+                                    )
+                                }
+                                // A placed widget hears about an import no
+                                // other way (#262).
+                                if (result.changedAnything()) WidgetRefresh.notesChanged(context)
+                                settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())
+                                val msg = if (result.conflicts > 0) {
+                                    context.getString(
+                                        R.string.sync_done_with_conflicts_format,
+                                        result.updated,
+                                        result.created,
+                                        result.conflicts,
+                                        result.skipped
+                                    )
+                                } else {
+                                    context.getString(
+                                        R.string.sync_done_format,
+                                        result.updated,
+                                        result.created,
+                                        result.skipped
+                                    )
+                                }
+                                Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                            }
+                        },
+                        onStopSync = {
+                            scope.launch {
+                                settingsRepository.setSyncFolderUri(null)
+                                Toast.makeText(
+                                    context,
+                                    R.string.sync_stopped,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        },
+                        onSyncCenterClick = onSyncCenterClick
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    SettingsGroupHeading(stringResource(R.string.settings_group_export), first = false)
+                    DataSettings(
+                        exportTagsAvailable = exportTags.isNotEmpty(),
+                        onExportAll = {
+                            exportTag = null
+                            exportAllLauncher.launch(null)
+                        },
+                        onExportTag = { showExportTagPicker = true },
+                        anchors = anchors
+                    )
+                }
+                SettingsCategory.ABOUT -> {
+                    SettingsGroupHeading(stringResource(R.string.settings_app), first = true)
+                    AppInfoSettings(anchors)
+                    Spacer(Modifier.height(12.dp))
+                    SettingsGroupHeading(stringResource(R.string.settings_open_source), first = false)
+                    OpenSourceSettings(anchors)
+                }
+            }
+    }
+
     val titleFocus = remember { FocusRequester() }
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     val section = openSection
-                    if (section == null) {
+                    if (section == null || twoPane) {
                         Text(stringResource(R.string.settings))
                     } else {
                         // The page's heading, and where a jump to the section
-                        // puts focus.
+                        // puts focus. Side by side, the pane carries its own.
                         Text(
                             text = stringResource(section.label),
                             modifier = Modifier
@@ -375,7 +590,7 @@ internal fun SettingsScreen(
             color = MaterialTheme.colorScheme.background
         ) {
             val section = openSection
-            if (section == null) {
+            val home: @Composable (SettingsCategory?) -> Unit = { selected ->
                 SettingsHome(
                     query = searchQuery,
                     onQueryChange = { searchQuery = it },
@@ -385,227 +600,47 @@ internal fun SettingsScreen(
                         searchQuery = ""
                         openPage(entry.section, entry.item)
                     },
-                    summary = { settingsSummary(it, appSettings) }
+                    summary = { settingsSummary(it, appSettings) },
+                    selected = selected
                 )
-            } else {
+            }
+            val page: @Composable (SettingsCategory, String?) -> Unit = { shown, paneTitle ->
                 // Each page starts at its own top, not at the last page's
                 // scroll position.
-                key(section) {
+                key(shown) {
                     SettingsPage(
                         landingPending = landingPending,
                         landingItem = landingItem,
                         titleFocus = titleFocus,
+                        title = paneTitle,
                         onLanded = {
                             landingPending = false
                             landingItem = null
                         }
-                    ) { anchors ->
-                        when (section) {
-                            SettingsCategory.APPEARANCE ->
-                                AppearanceSettings(appSettings, settingsRepository, scope, anchors)
-                            SettingsCategory.EDITOR -> EditorSettings(
-                                appSettings = appSettings,
-                                settingsRepository = settingsRepository,
-                                scope = scope,
-                                anchors = anchors,
-                                onPickCustomFont = { customFontLauncher.launch(CustomFontMimeTypes) }
-                            )
-                            SettingsCategory.NOTES -> NotesSettings(
-                                appSettings = appSettings,
-                                settingsRepository = settingsRepository,
-                                scope = scope,
-                                db = db,
-                                retitleBusy = retitleBusy,
-                                onNoteTitleSourceChange = changeNoteTitleSource,
-                                anchors = anchors
-                            )
-                            SettingsCategory.PRIVACY -> PrivacySettings(
-                                appSettings = appSettings,
-                                settingsRepository = settingsRepository,
-                                scope = scope,
-                                noteRepository = noteRepository,
-                                onPrivacyClick = onPrivacyClick,
-                                anchors = anchors
-                            )
-                            SettingsCategory.SYNC -> {
-                                SettingsGroupHeading(stringResource(R.string.sync_title), first = true)
-                                SyncSection(
-                                    itemAnchor = { item, focusable -> anchors.item(item, focusable) },
-                                    folderUri = appSettings.syncFolderUri,
-                                    lastSyncedAt = appSettings.syncLastSyncedAt,
-                                    metadataMode = appSettings.syncMetadataMode,
-                                    metadataBusy = metadataSwitchBusy,
-                                    onMetadataModeChange = { mode ->
-                                        if (mode == appSettings.syncMetadataMode) return@SyncSection
-                                        val uri = appSettings.syncFolderUriOrNull()
-                                        if (uri == null) {
-                                            // No folder yet: no files carry a header and no
-                                            // index exists, so there is nothing to migrate
-                                            // and the setting is the whole change. This is
-                                            // the cheap moment to choose, and the only one
-                                            // that costs nothing.
-                                            scope.launch {
-                                                // Sidecar mode needs a device id to name the
-                                                // index it owns; without one mirrorMetadata()
-                                                // falls back to Frontmatter and the choice
-                                                // would be silently undone at link time.
-                                                if (mode == SyncMetadataMode.SIDECAR) {
-                                                    settingsRepository.getOrCreateSyncDeviceId()
-                                                }
-                                                settingsRepository.setSyncMetadataMode(mode)
-                                            }
-                                            return@SyncSection
-                                        }
-                                        scope.launch {
-                                            metadataSwitchBusy = true
-                                            // The two directions flip the setting at
-                                            // opposite ends of the conversion, and the rule
-                                            // behind both is the same: a mirror file with no
-                                            // header must never be read by a mode that has
-                                            // only the header to identify it by, or the
-                                            // import mints a fresh id and the note comes
-                                            // back as a second copy (#140).
-                                            //
-                                            // To SIDECAR, flip first. A pass that dies
-                                            // halfway leaves stripped files behind, and the
-                                            // frontmatter import has nothing to match them
-                                            // with; the sidecar import has the index entry,
-                                            // which `toSidecar` makes durable before it
-                                            // strips anything. The older comment here said
-                                            // the opposite order was needed because an
-                                            // import in that window "would read each header
-                                            // as note text" — that stopped being true when
-                                            // the sidecar import learned to strip a stray
-                                            // header and use the id inside it
-                                            // (`NoteFolderMirror`, "A file may still carry a
-                                            // header").
-                                            //
-                                            // To FRONTMATTER, flip last, for the mirror
-                                            // reason: the conversion is what *adds* the
-                                            // header, so until it has run the files are
-                                            // identifiable only by the sidecar index, which
-                                            // only the sidecar mode reads.
-                                            // Selecting the mode also records that the folder
-                                            // conversion is owed, in one write — otherwise a
-                                            // death between the two leaves the mode switched
-                                            // with nothing saying the folder is unconverted,
-                                            // and the guard above this block refuses to run
-                                            // it again.
-                                            if (mode == SyncMetadataMode.SIDECAR) {
-                                                settingsRepository.beginSidecarMigration()
-                                            }
-                                            val result = withContext(Dispatchers.IO) {
-                                                val deviceId = settingsRepository.getOrCreateSyncDeviceId()
-                                                when (mode) {
-                                                    SyncMetadataMode.SIDECAR ->
-                                                        SidecarMigration.toSidecar(context, uri, deviceId)
-                                                    SyncMetadataMode.FRONTMATTER ->
-                                                        SidecarMigration.toFrontmatter(
-                                                            context,
-                                                            uri,
-                                                            deviceId,
-                                                            noteRepository.getAllNotes()
-                                                        )
-                                                }
-                                            }
-                                            if (mode == SyncMetadataMode.FRONTMATTER) {
-                                                settingsRepository.setSyncMetadataMode(mode)
-                                            } else {
-                                                settingsRepository.setSidecarMigrationPending(false)
-                                            }
-                                            metadataSwitchBusy = false
-                                            Toast.makeText(
-                                                context,
-                                                context.getString(
-                                                    R.string.sync_metadata_switched_format,
-                                                    result.converted
-                                                ),
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        }
-                                    },
-                                    onPickFolder = pickSyncFolder,
-                                    onSyncNow = {
-                                        val uri = appSettings.syncFolderUriOrNull() ?: return@SyncSection
-                                        scope.launch {
-                                            val notes = withContext(Dispatchers.IO) {
-                                                // Full set (incl. trashed/archived) so a hidden note
-                                                // isn't re-imported as new — see #148.
-                                                noteRepository.getAllNotes()
-                                            }
-                                            val result = withContext(Dispatchers.IO) {
-                                                NoteFolderMirror.importChanges(
-                                                    context = context,
-                                                    folderUri = uri,
-                                                    existing = notes,
-                                                    applyUpdate = { updated ->
-                                                        noteImporter.update(updated)
-                                                    },
-                                                    applyCreate = { created ->
-                                                        noteImporter.create(created)
-                                                    },
-                                                    currentNote = { id -> noteImporter.current(id) },
-                                                    metadata = appSettings.mirrorMetadata(),
-                                                    titleSource = appSettings.noteTitleSource
-                                                )
-                                            }
-                                            // A placed widget hears about an import no
-                                            // other way (#262).
-                                            if (result.changedAnything()) WidgetRefresh.notesChanged(context)
-                                            settingsRepository.setSyncLastSyncedAt(System.currentTimeMillis())
-                                            val msg = if (result.conflicts > 0) {
-                                                context.getString(
-                                                    R.string.sync_done_with_conflicts_format,
-                                                    result.updated,
-                                                    result.created,
-                                                    result.conflicts,
-                                                    result.skipped
-                                                )
-                                            } else {
-                                                context.getString(
-                                                    R.string.sync_done_format,
-                                                    result.updated,
-                                                    result.created,
-                                                    result.skipped
-                                                )
-                                            }
-                                            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
-                                        }
-                                    },
-                                    onStopSync = {
-                                        scope.launch {
-                                            settingsRepository.setSyncFolderUri(null)
-                                            Toast.makeText(
-                                                context,
-                                                R.string.sync_stopped,
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        }
-                                    },
-                                    onSyncCenterClick = onSyncCenterClick
-                                )
-                                Spacer(Modifier.height(12.dp))
-                                SettingsGroupHeading(stringResource(R.string.settings_group_export), first = false)
-                                DataSettings(
-                                    exportTagsAvailable = exportTags.isNotEmpty(),
-                                    onExportAll = {
-                                        exportTag = null
-                                        exportAllLauncher.launch(null)
-                                    },
-                                    onExportTag = { showExportTagPicker = true },
-                                    anchors = anchors
-                                )
-                            }
-                            SettingsCategory.ABOUT -> {
-                                SettingsGroupHeading(stringResource(R.string.settings_app), first = true)
-                                AppInfoSettings(anchors)
-                                Spacer(Modifier.height(12.dp))
-                                SettingsGroupHeading(stringResource(R.string.settings_open_source), first = false)
-                                OpenSourceSettings(anchors)
-                            }
-                        }
-                    }
+                    ) { anchors -> pageContent(shown, anchors) }
                 }
+            }
+            if (twoPane) {
+                // A wide screen shows the list and a page side by side. With
+                // nothing picked yet, the page is the first category's.
+                val shown = section ?: SettingsCategory.entries.first()
+                Row(modifier = Modifier.fillMaxSize()) {
+                    Box(
+                        modifier = Modifier
+                            .width(TWO_PANE_LIST_WIDTH)
+                            .fillMaxHeight()
+                    ) { home(shown) }
+                    VerticalDivider()
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                    ) { page(shown, stringResource(shown.label)) }
+                }
+            } else if (section == null) {
+                home(null)
+            } else {
+                page(section, null)
             }
         }
     }
@@ -627,3 +662,6 @@ private val CustomFontMimeTypes = arrayOf(
     "application/vnd.ms-opentype",
     "application/octet-stream"
 )
+
+/** The list's width beside a page on a wide screen: rows, summaries and search fit. */
+private val TWO_PANE_LIST_WIDTH = 360.dp

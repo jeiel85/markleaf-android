@@ -670,7 +670,8 @@ fun MarkleafNavHost(
                 onPrivacyClick = { navController.navigate(NavRoutes.PRIVACY) },
                 onSyncCenterClick = { navController.navigate(NavRoutes.SYNC_CENTER) },
                 initialSection = SettingsCategory.entries.firstOrNull { s -> s.name == section },
-                initialItem = SettingsItem.entries.firstOrNull { i -> i.name == item }
+                initialItem = SettingsItem.entries.firstOrNull { i -> i.name == item },
+                twoPane = isExpanded
             )
         }
 

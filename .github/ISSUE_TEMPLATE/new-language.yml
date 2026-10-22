@@ -1,0 +1,42 @@
+name: New language
+description: Ask for Markleaf in a language it does not support yet, or offer to translate it.
+title: "i18n: add <language>"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The languages Markleaf ships in are listed in [`config/locales.tsv`](https://github.com/jeiel85/markleaf-android/blob/main/config/locales.tsv). Please check your language is not there already.
+
+        If you want to translate it yourself, [CONTRIBUTING.md](https://github.com/jeiel85/markleaf-android/blob/main/CONTRIBUTING.md#3-add-a-new-language) says which files to send. Opening this issue first means two people will not translate the same language at once.
+  - type: input
+    id: language
+    attributes:
+      label: Language
+      description: Its name, and its code if you know it (e.g. Polish, `pl`).
+    validations:
+      required: true
+  - type: dropdown
+    id: role
+    attributes:
+      label: What would you like to do?
+      options:
+        - I will translate it and send a pull request
+        - I can review a translation someone else makes
+        - I am only requesting it
+    validations:
+      required: true
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: If you are translating, what will you cover?
+      description: Only the app interface is required. The maintainer adds the website, README and the rest.
+      options:
+        - label: App interface (`values-<code>/strings.xml`)
+        - label: Notes shown on first launch (`raw-<code>/starter_notes.md`)
+        - label: Play Store / F-Droid listing
+        - label: I am willing to look over new strings in later releases
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else
+      description: e.g. regional variant (Brazilian vs European Portuguese), right-to-left script, or which other app you use in this language.

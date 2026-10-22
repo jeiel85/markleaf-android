@@ -247,6 +247,17 @@ El funcionamiento exacto de "never leaves your device" está documentado en la [
 
 ---
 
+## 🌐 Ayuda a traducir
+
+La mayoría de las traducciones de Markleaf nunca las ha leído un hablante nativo. Si algo en tu idioma está mal, suena raro o aparece cortado, puedes avisarnos sin tocar código.
+
+- [Reportar una corrección](https://github.com/jeiel85/markleaf-android/issues/new?template=translation-fix.yml)
+- [Pedir o añadir un idioma](https://github.com/jeiel85/markleaf-android/issues/new?template=new-language.yml)
+
+¿Prefieres editar los archivos tú mismo? [CONTRIBUTING.md](CONTRIBUTING.md#translations) (en inglés) explica cuáles son y qué comprueba la compilación.
+
+---
+
 ## 📜 Licencia
 
 Este proyecto está bajo la licencia **Apache License 2.0**. Consulta el archivo `LICENSE` para más detalles.

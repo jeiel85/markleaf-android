@@ -247,6 +247,17 @@ cd markleaf-android
 
 ---
 
+## 🌐 Помочь с переводом
+
+Большинство переводов Markleaf ещё ни разу не читал носитель языка. Если на вашем языке что-то написано неверно, неуклюже или обрезано, сообщите нам — код трогать не нужно.
+
+- [Сообщить об ошибке перевода](https://github.com/jeiel85/markleaf-android/issues/new?template=translation-fix.yml)
+- [Запросить или добавить язык](https://github.com/jeiel85/markleaf-android/issues/new?template=new-language.yml)
+
+Хотите сами править файлы? В [CONTRIBUTING.md](CONTRIBUTING.md#translations) (на английском) сказано, какие именно и что проверяет сборка.
+
+---
+
 ## 📜 Лицензия
 
 Проект распространяется под лицензией **Apache License 2.0**. Подробности — в файле `LICENSE`.

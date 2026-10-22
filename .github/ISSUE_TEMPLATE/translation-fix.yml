@@ -1,0 +1,54 @@
+name: Translation fix
+description: Wording in your language is wrong, awkward, cut off, or still in English.
+title: "i18n(<language>): "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you — most of Markleaf's translations have never been read by a native speaker, so reports like this are how they get better.
+
+        You may write in your own language. A sentence of English helps, but is not required.
+        Prefer to fix it yourself? See [CONTRIBUTING.md](https://github.com/jeiel85/markleaf-android/blob/main/CONTRIBUTING.md#2-fix-an-existing-translation).
+  - type: input
+    id: language
+    attributes:
+      label: Language
+      placeholder: e.g. French, Tiếng Việt, 简体中文
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where does it appear?
+      options:
+        - App screens
+        - Notes shown on first launch
+        - Play Store / F-Droid listing
+        - Website or README
+        - Somewhere else
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: What it says now
+      description: Paste the text exactly as you see it, and say which screen it is on.
+    validations:
+      required: true
+  - type: textarea
+    id: suggested
+    attributes:
+      label: What it should say
+      description: Your suggested wording, and why if it is not obvious (wrong meaning, unnatural, too long for the button, …).
+    validations:
+      required: true
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot (optional)
+      description: Helpful when the same words appear in several places, or when text is cut off.
+  - type: input
+    id: version
+    attributes:
+      label: App version (optional)
+      description: Settings → About.

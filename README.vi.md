@@ -247,6 +247,17 @@ Cơ chế "không bao giờ rời khỏi thiết bị" hoạt động chính xá
 
 ---
 
+## 🌐 Giúp dịch
+
+Phần lớn bản dịch của Markleaf chưa từng được người bản ngữ đọc qua. Nếu thấy chữ nào trong ngôn ngữ của bạn sai, gượng gạo hoặc bị cắt, bạn có thể báo cho chúng tôi mà không cần đụng vào mã.
+
+- [Báo lỗi bản dịch](https://github.com/jeiel85/markleaf-android/issues/new?template=translation-fix.yml)
+- [Yêu cầu hoặc thêm ngôn ngữ](https://github.com/jeiel85/markleaf-android/issues/new?template=new-language.yml)
+
+Muốn tự sửa tệp? [CONTRIBUTING.md](CONTRIBUTING.md#translations) (tiếng Anh) cho biết cần sửa tệp nào và bản dựng kiểm tra những gì.
+
+---
+
 ## 📜 Giấy phép
 
 Dự án này được cấp phép theo **Apache License 2.0**. Xem tệp `LICENSE` để biết chi tiết.

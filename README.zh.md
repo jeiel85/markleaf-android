@@ -247,6 +247,17 @@ Markleaf 没有自己的后端，你的笔记也不会自行离开设备。你�
 
 ---
 
+## 🌐 帮助翻译
+
+Markleaf 的大部分译文还没有经过母语者审阅。如果你在自己的语言中看到错误、生硬或被截断的文字，无需修改代码也能告诉我们。
+
+- [报告翻译问题](https://github.com/jeiel85/markleaf-android/issues/new?template=translation-fix.yml)
+- [请求或添加新语言](https://github.com/jeiel85/markleaf-android/issues/new?template=new-language.yml)
+
+想直接修改文件？[CONTRIBUTING.md](CONTRIBUTING.md#translations)（英文）说明了要改哪些文件以及构建会检查什么。
+
+---
+
 ## 📜 许可证
 
 本项目基于 **Apache License 2.0** 授权。详情请参阅 `LICENSE` 文件。

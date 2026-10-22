@@ -247,6 +247,17 @@ Markleaf には独自のバックエンドがなく、ノートがひとりで�
 
 ---
 
+## 🌐 翻訳に協力する
+
+Markleaf の翻訳の多くは、まだネイティブスピーカーの目を通っていません。お使いの言語で誤り・不自然な表現・途切れた文字があれば、コードに触れずに報告できます。
+
+- [翻訳の修正を報告](https://github.com/jeiel85/markleaf-android/issues/new?template=translation-fix.yml)
+- [言語の追加をリクエスト](https://github.com/jeiel85/markleaf-android/issues/new?template=new-language.yml)
+
+ファイルを直接編集したい場合は、[CONTRIBUTING.md](CONTRIBUTING.md#translations)(英語)に対象ファイルとビルドの検査内容が書かれています。
+
+---
+
 ## 📜 ライセンス
 
 本プロジェクトは **Apache License 2.0** の下でライセンスされています。詳細は `LICENSE` ファイルをご確認ください。

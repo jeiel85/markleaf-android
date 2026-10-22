@@ -247,6 +247,17 @@ Kako točno funkcionira „nikad ne napušta vaš uređaj” dokumentirano je u 
 
 ---
 
+## 🌐 Pomozite s prijevodom
+
+Većinu prijevoda Markleafa nikada nije pročitao izvorni govornik. Ako je nešto na vašem jeziku pogrešno, nespretno ili odrezano, možete nam to javiti bez diranja koda.
+
+- [Prijavite ispravak prijevoda](https://github.com/jeiel85/markleaf-android/issues/new?template=translation-fix.yml)
+- [Zatražite ili dodajte jezik](https://github.com/jeiel85/markleaf-android/issues/new?template=new-language.yml)
+
+Želite sami urediti datoteke? [CONTRIBUTING.md](CONTRIBUTING.md#translations) (na engleskom) objašnjava koje su i što build provjerava.
+
+---
+
 ## 📜 Licenca
 
 Ovaj je projekt licenciran pod **licencom Apache 2.0**. Pojedinosti potražite u datoteci `LICENSE`.

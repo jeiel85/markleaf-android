@@ -247,6 +247,17 @@ Ako presne funguje „nikdy neopustí vaše zariadenie“, je opísané v [Zása
 
 ---
 
+## 🌐 Pomôžte s prekladom
+
+Väčšinu prekladov Markleafu ešte nikdy nečítal rodený hovoriaci. Ak je niečo vo vašom jazyku nesprávne, neprirodzené alebo orezané, môžete nám to oznámiť bez zásahu do kódu.
+
+- [Nahlásiť opravu prekladu](https://github.com/jeiel85/markleaf-android/issues/new?template=translation-fix.yml)
+- [Požiadať o jazyk alebo ho pridať](https://github.com/jeiel85/markleaf-android/issues/new?template=new-language.yml)
+
+Chcete súbory upraviť sami? [CONTRIBUTING.md](CONTRIBUTING.md#translations) (v angličtine) vysvetľuje, ktoré to sú a čo build kontroluje.
+
+---
+
 ## 📜 Licencia
 
 Tento projekt je licencovaný pod **Apache License 2.0**. Podrobnosti nájdete v súbore `LICENSE`.

@@ -247,6 +247,17 @@ Markleaf는 자체 백엔드가 없으며, 노트가 저절로 기기를 떠나�
 
 ---
 
+## 🌐 번역 돕기
+
+Markleaf의 번역은 대부분 원어민이 읽어 본 적이 없습니다. 쓰시는 언어에서 틀리거나 어색하거나 잘린 문구가 있으면, 코드를 건드리지 않고도 알려 주실 수 있습니다.
+
+- [번역 수정 제보](https://github.com/jeiel85/markleaf-android/issues/new?template=translation-fix.yml)
+- [새 언어 요청·추가](https://github.com/jeiel85/markleaf-android/issues/new?template=new-language.yml)
+
+파일을 직접 고치고 싶다면 [CONTRIBUTING.md](CONTRIBUTING.md#translations)(영어)에 어떤 파일을 고치는지와 빌드가 무엇을 검사하는지 적혀 있습니다.
+
+---
+
 ## 📜 라이선스
 
 이 프로젝트는 **Apache License 2.0**에 따라 라이선스가 부여됩니다. 자세한 내용은 `LICENSE` 파일을 확인하세요.

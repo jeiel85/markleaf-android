@@ -23,7 +23,7 @@ import kotlinx.coroutines.withContext
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.CoroutineScope
 
-/** The Privacy page: what is blocked, what is locked, and the dashboard. */
+/** The Privacy & security page: what is promised, what is locked, what is hidden. */
 @Composable
 internal fun PrivacySettings(
     appSettings: AppSettings,
@@ -38,32 +38,7 @@ internal fun PrivacySettings(
     SettingLine(stringResource(R.string.privacy_no_internet))
     SettingLine(stringResource(R.string.privacy_local_first))
     Spacer(Modifier.height(12.dp))
-    SettingsSwitchRow(
-        title = stringResource(R.string.screenshot_protection),
-        titleModifier = anchors.item(SettingsItem.SCREENSHOT_PROTECTION),
-        description = stringResource(R.string.screenshot_protection_description),
-        checked = appSettings.screenshotProtection,
-        onCheckedChange = { checked ->
-            HapticFeedback.light(context)
-            scope.launch {
-                settingsRepository.setScreenshotProtection(checked)
-            }
-        }
-    )
-    Spacer(Modifier.height(12.dp))
-    SettingsSwitchRow(
-        title = stringResource(R.string.recent_notes_in_shortcuts),
-        titleModifier = anchors.item(SettingsItem.RECENT_NOTES_IN_SHORTCUTS),
-        description = stringResource(R.string.recent_notes_in_shortcuts_description),
-        checked = appSettings.recentNotesInShortcuts,
-        onCheckedChange = { checked ->
-            HapticFeedback.light(context)
-            scope.launch {
-                settingsRepository.setRecentNotesInShortcuts(checked)
-            }
-        }
-    )
-    Spacer(Modifier.height(12.dp))
+    SettingsGroupHeading(stringResource(R.string.settings_group_lock), first = false)
     val biometricAvailable = remember(context) { context.canUseBiometric() }
     SettingsSwitchRow(
         title = stringResource(R.string.biometric_lock_setting),
@@ -105,6 +80,33 @@ internal fun PrivacySettings(
                     R.string.locked_passcode_removed_done,
                     Toast.LENGTH_SHORT
                 ).show()
+            }
+        }
+    )
+    Spacer(Modifier.height(12.dp))
+    SettingsGroupHeading(stringResource(R.string.settings_group_screen), first = false)
+    SettingsSwitchRow(
+        title = stringResource(R.string.screenshot_protection),
+        titleModifier = anchors.item(SettingsItem.SCREENSHOT_PROTECTION),
+        description = stringResource(R.string.screenshot_protection_description),
+        checked = appSettings.screenshotProtection,
+        onCheckedChange = { checked ->
+            HapticFeedback.light(context)
+            scope.launch {
+                settingsRepository.setScreenshotProtection(checked)
+            }
+        }
+    )
+    Spacer(Modifier.height(12.dp))
+    SettingsSwitchRow(
+        title = stringResource(R.string.recent_notes_in_shortcuts),
+        titleModifier = anchors.item(SettingsItem.RECENT_NOTES_IN_SHORTCUTS),
+        description = stringResource(R.string.recent_notes_in_shortcuts_description),
+        checked = appSettings.recentNotesInShortcuts,
+        onCheckedChange = { checked ->
+            HapticFeedback.light(context)
+            scope.launch {
+                settingsRepository.setRecentNotesInShortcuts(checked)
             }
         }
     )

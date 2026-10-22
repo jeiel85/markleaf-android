@@ -1,5 +1,7 @@
 package com.markleaf.notes.feature.settings
 
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.focus.focusRequester
@@ -75,7 +77,7 @@ internal fun SettingsScreen(
     onBack: () -> Unit,
     onPrivacyClick: () -> Unit = {},
     onSyncCenterClick: () -> Unit = {},
-    initialSection: SettingsShortcut? = null,
+    initialSection: SettingsCategory? = null,
     initialItem: SettingsItem? = null
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -293,7 +295,7 @@ internal fun SettingsScreen(
     // recomposes, or comes back from a rotation, does not take focus again.
     var landingItem by rememberSaveable { mutableStateOf(initialItem) }
     var landingPending by rememberSaveable { mutableStateOf(initialSection != null) }
-    val openPage: (SettingsShortcut, SettingsItem?) -> Unit = { section, item ->
+    val openPage: (SettingsCategory, SettingsItem?) -> Unit = { section, item ->
         openSection = section
         landingItem = item
         landingPending = true
@@ -320,7 +322,6 @@ internal fun SettingsScreen(
         val percent = NumberFormat.getPercentInstance(configuration.locales[0])
         SettingsSearch.entries(
             text = resources::getString,
-            sectionTitle = { resources.getString(it.headingRes()) },
             include = { it != SettingsItem.UPDATE_CHECK || BuildConfig.UPDATER },
             extraTexts = { item ->
                 if (item == SettingsItem.WIDGET_OPACITY) {
@@ -383,7 +384,8 @@ internal fun SettingsScreen(
                     onPickResult = { entry ->
                         searchQuery = ""
                         openPage(entry.section, entry.item)
-                    }
+                    },
+                    summary = { settingsSummary(it, appSettings) }
                 )
             } else {
                 // Each page starts at its own top, not at the last page's
@@ -399,16 +401,16 @@ internal fun SettingsScreen(
                         }
                     ) { anchors ->
                         when (section) {
-                            SettingsShortcut.APPEARANCE ->
+                            SettingsCategory.APPEARANCE ->
                                 AppearanceSettings(appSettings, settingsRepository, scope, anchors)
-                            SettingsShortcut.MARKDOWN -> MarkdownSettings(
+                            SettingsCategory.EDITOR -> EditorSettings(
                                 appSettings = appSettings,
                                 settingsRepository = settingsRepository,
                                 scope = scope,
                                 anchors = anchors,
                                 onPickCustomFont = { customFontLauncher.launch(CustomFontMimeTypes) }
                             )
-                            SettingsShortcut.NOTES -> NotesSettings(
+                            SettingsCategory.NOTES -> NotesSettings(
                                 appSettings = appSettings,
                                 settingsRepository = settingsRepository,
                                 scope = scope,
@@ -417,7 +419,7 @@ internal fun SettingsScreen(
                                 onNoteTitleSourceChange = changeNoteTitleSource,
                                 anchors = anchors
                             )
-                            SettingsShortcut.PRIVACY -> PrivacySettings(
+                            SettingsCategory.PRIVACY -> PrivacySettings(
                                 appSettings = appSettings,
                                 settingsRepository = settingsRepository,
                                 scope = scope,
@@ -425,16 +427,8 @@ internal fun SettingsScreen(
                                 onPrivacyClick = onPrivacyClick,
                                 anchors = anchors
                             )
-                            SettingsShortcut.DATA -> DataSettings(
-                                exportTagsAvailable = exportTags.isNotEmpty(),
-                                onExportAll = {
-                                    exportTag = null
-                                    exportAllLauncher.launch(null)
-                                },
-                                onExportTag = { showExportTagPicker = true },
-                                anchors = anchors
-                            )
-                            SettingsShortcut.SYNC ->
+                            SettingsCategory.SYNC -> {
+                                SettingsGroupHeading(stringResource(R.string.sync_title), first = true)
                                 SyncSection(
                                     itemAnchor = { item, focusable -> anchors.item(item, focusable) },
                                     folderUri = appSettings.syncFolderUri,
@@ -590,8 +584,25 @@ internal fun SettingsScreen(
                                     },
                                     onSyncCenterClick = onSyncCenterClick
                                 )
-                            SettingsShortcut.OPEN_SOURCE -> OpenSourceSettings(anchors)
-                            SettingsShortcut.APP -> AppInfoSettings(anchors)
+                                Spacer(Modifier.height(12.dp))
+                                SettingsGroupHeading(stringResource(R.string.settings_group_export), first = false)
+                                DataSettings(
+                                    exportTagsAvailable = exportTags.isNotEmpty(),
+                                    onExportAll = {
+                                        exportTag = null
+                                        exportAllLauncher.launch(null)
+                                    },
+                                    onExportTag = { showExportTagPicker = true },
+                                    anchors = anchors
+                                )
+                            }
+                            SettingsCategory.ABOUT -> {
+                                SettingsGroupHeading(stringResource(R.string.settings_app), first = true)
+                                AppInfoSettings(anchors)
+                                Spacer(Modifier.height(12.dp))
+                                SettingsGroupHeading(stringResource(R.string.settings_open_source), first = false)
+                                OpenSourceSettings(anchors)
+                            }
                         }
                     }
                 }

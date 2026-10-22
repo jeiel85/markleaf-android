@@ -11,7 +11,7 @@ import org.junit.Test
  */
 class SettingsSearchTest {
     private fun entry(title: String, vararg more: String, item: SettingsItem? = SettingsItem.THEME) =
-        SettingsSearchEntry(SettingsShortcut.APPEARANCE, item, title, listOf(title) + more)
+        SettingsSearchEntry(SettingsCategory.APPEARANCE, item, title, listOf(title) + more)
 
     private fun titles(query: String, entries: List<SettingsSearchEntry>) =
         SettingsSearch.search(query, entries).map { it.title }
@@ -75,28 +75,31 @@ class SettingsSearchTest {
 
     @Test
     fun theCatalogueHasEverySectionAndEverySettingInPageOrder() {
-        val entries = SettingsSearch.entries(
-            text = { "s$it" },
-            sectionTitle = { "heading ${it.name}" }
-        )
+        val entries = SettingsSearch.entries(text = { "s$it" })
         val sections = entries.filter { it.item == null }.map { it.section }
         val items = entries.mapNotNull { it.item }
-        assertEquals(SettingsShortcut.entries, sections)
+        assertEquals(SettingsCategory.entries, sections)
         assertEquals(SettingsItem.entries, items)
         // A setting's section only moves forward down the page.
         assertEquals(items.map { it.section.ordinal }.sorted(), items.map { it.section.ordinal })
     }
 
     @Test
-    fun aSectionIsFoundByItsChipWordToo() {
+    fun aCategoryIsFoundByAGroupHeadingOnItsPage() {
+        val lock = SettingsCategory.PRIVACY.groups.first()
         val entries = SettingsSearch.entries(
-            text = { if (it == SettingsShortcut.SYNC.label) "Sync" else "x$it" },
-            sectionTitle = { if (it == SettingsShortcut.SYNC) "Multi-device mirror" else it.name }
+            text = {
+                when (it) {
+                    SettingsCategory.PRIVACY.label -> "Privacy & security"
+                    lock -> "Lock"
+                    else -> "x$it"
+                }
+            }
         )
-        val hit = SettingsSearch.search("sync", entries).first()
-        assertEquals(SettingsShortcut.SYNC, hit.section)
+        val hit = SettingsSearch.search("lock", entries).first()
+        assertEquals(SettingsCategory.PRIVACY, hit.section)
         assertEquals(null, hit.item)
-        assertEquals("Multi-device mirror", hit.title)
+        assertEquals("Privacy & security", hit.title)
     }
 
     @Test
@@ -110,7 +113,6 @@ class SettingsSearchTest {
     fun extraTextsAreSearchedAndExcludedSettingsAreNotListed() {
         val entries = SettingsSearch.entries(
             text = { "label" },
-            sectionTitle = { it.name },
             include = { it != SettingsItem.UPDATE_CHECK },
             extraTexts = { if (it == SettingsItem.WIDGET_OPACITY) listOf("75 %") else emptyList() }
         )

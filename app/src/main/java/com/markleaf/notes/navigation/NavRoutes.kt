@@ -22,7 +22,7 @@ object NavRoutes {
     /**
      * Settings opened on the Privacy page at the locked-notes passcode, for
      * every place that asks the reader to set one. The values are the names of
-     * `SettingsShortcut` and `SettingsItem`; the destination reads them back
+     * `SettingsCategory` and `SettingsItem`; the destination reads them back
      * with `section` and `item` on [SETTINGS].
      */
     const val SETTINGS_PASSCODE = "$SETTINGS?section=PRIVACY&item=LOCKED_PASSCODE"

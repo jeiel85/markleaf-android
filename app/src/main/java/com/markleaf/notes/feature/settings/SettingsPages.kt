@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 /**
@@ -45,8 +46,9 @@ internal fun SettingsHome(
     query: String,
     onQueryChange: (String) -> Unit,
     results: List<SettingsSearchEntry>,
-    onOpenSection: (SettingsShortcut) -> Unit,
-    onPickResult: (SettingsSearchEntry) -> Unit
+    onOpenSection: (SettingsCategory) -> Unit,
+    onPickResult: (SettingsSearchEntry) -> Unit,
+    summary: @Composable (SettingsCategory) -> String
 ) {
     val keyboard = LocalSoftwareKeyboardController.current
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
@@ -66,9 +68,10 @@ internal fun SettingsHome(
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
                 ) {
-                    SettingsShortcut.entries.forEach { section ->
+                    SettingsCategory.entries.forEach { section ->
                         SettingsSectionRow(
                             section = section,
+                            summary = summary(section),
                             onClick = { onOpenSection(section) }
                         )
                     }
@@ -92,7 +95,8 @@ internal fun SettingsHome(
 
 @Composable
 private fun SettingsSectionRow(
-    section: SettingsShortcut,
+    section: SettingsCategory,
+    summary: String,
     onClick: () -> Unit
 ) {
     Row(
@@ -103,12 +107,22 @@ private fun SettingsSectionRow(
             .padding(horizontal = 20.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = stringResource(section.label),
-            modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onBackground
-        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(section.label),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            // One line: the row is for finding a category, and a long folder
+            // path would push the rows below off a phone screen.
+            Text(
+                text = summary,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
         Icon(
             Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = null,

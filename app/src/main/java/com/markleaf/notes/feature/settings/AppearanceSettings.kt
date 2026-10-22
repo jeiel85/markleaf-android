@@ -99,6 +99,7 @@ internal fun AppearanceSettings(
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
     Spacer(Modifier.height(12.dp))
+    SettingsGroupHeading(stringResource(R.string.settings_group_widget), first = false)
     Text(
         text = stringResource(R.string.widget_opacity_label),
         modifier = anchors.item(SettingsItem.WIDGET_OPACITY),

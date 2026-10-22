@@ -195,6 +195,23 @@
     <string name="move_to_trash_editor_message">このノートをゴミ箱へ移動しますか？あとでゴミ箱から復元できます。</string>
 
     <string name="settings_appearance">外観</string>
+    <string name="settings_editor">エディタ</string>
+    <string name="settings_notes">ノート</string>
+    <string name="settings_privacy_security">プライバシーとセキュリティ</string>
+    <string name="settings_sync_export">同期と書き出し</string>
+    <string name="settings_about">このアプリについて</string>
+    <string name="settings_group_widget">ホーム画面ウィジェット</string>
+    <string name="settings_group_text">文字</string>
+    <string name="settings_group_list">ノート一覧</string>
+    <string name="settings_group_opening">ノートを開くとき</string>
+    <string name="settings_group_new_notes">新しいノート</string>
+    <string name="settings_group_lock">ロック</string>
+    <string name="settings_group_screen">スクリーンショットとショートカット</string>
+    <string name="settings_group_export">書き出し</string>
+    <string name="settings_summary_biometric">生体認証ロック</string>
+    <string name="settings_summary_screenshots">スクリーンショット禁止</string>
+    <string name="settings_summary_no_locks">ロックなし</string>
+    <string name="settings_summary_not_syncing">同期していません</string>
     <string name="theme_label">テーマ</string>
     <string name="theme_mode_system">システム</string>
     <string name="theme_mode_light">ライト</string>
@@ -245,7 +262,6 @@
     <string name="line_width_comfortable">標準</string>
     <string name="line_width_wide">広め</string>
     <string name="line_width_description">タブレットなどの広い画面で、1行が長くなりすぎないよう本文の幅を制限します。縦向きのスマートフォンでは本文がすでに画面に収まっているため、変化はありません。行間は変わりません。</string>
-    <string name="settings_notes_section">ノートと検索</string>
     <string name="show_note_previews">ノートのプレビューを表示</string>
     <string name="show_note_previews_description">タイトルの下に本文の一部と編集時刻を表示します。オフにすると画面により多くのノートが収まります。</string>
     <string name="reopen_last_note">起動時に最後のノートを開く</string>
@@ -283,11 +299,9 @@
     <string name="view_mode_locked">ノートはプレビューで開きます</string>
     <string name="view_mode_unlocked">ノートは編集で開きます</string>
     <string name="lock_view_mode">表示モードをロック</string>
-    <string name="settings_privacy">プライバシー</string>
     <string name="privacy_no_tracking">アカウント・アナリティクス・広告・リモート設定・独自クラッシュ報告 SDK は一切ありません。</string>
     <string name="privacy_no_internet">MVP では INTERNET 権限を宣言していません。</string>
     <string name="privacy_local_first">ノートはユーザーが明示的に書き出し / 共有しない限り端末外へ出ません。</string>
-    <string name="settings_data">データ</string>
     <string name="export_all_notes">すべてのノートを書き出し…</string>
     <string name="export_tag_notes">タグ別にノートを書き出し…</string>
     <string name="export_all_notes_description">フォルダを選ぶと、Markleaf がすべてのノートを個別の .md ファイルとして保存します。ゴミ箱内のノートは除外されます。</string>
@@ -296,7 +310,6 @@
     </plurals>
 
     <string name="sync_title">マルチデバイス同期 (フォルダミラー)</string>
-    <string name="settings_shortcut_sync">同期</string>
     <string name="settings_search_hint">設定を検索</string>
     <string name="settings_search_no_results">該当する設定がありません</string>
     <string name="sync_explainer">Markleaf 自体はオンラインに出ません。代わりに任意のフォルダを選ぶと、各ノートを `.md` ファイルとしてそこへ保存します。そのフォルダを他のアプリ — Dropbox、Drive、Syncthing、OneDrive、NAS — が同期していれば、ノートも他の端末へ追従します。</string>

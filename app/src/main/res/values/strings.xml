@@ -211,6 +211,23 @@
     <string name="move_to_trash_editor_message">Move this note to trash? You can restore it later from the Trash.</string>
 
     <string name="settings_appearance">Appearance</string>
+    <string name="settings_editor">Editor</string>
+    <string name="settings_notes">Notes</string>
+    <string name="settings_privacy_security">Privacy &amp; security</string>
+    <string name="settings_sync_export">Sync &amp; export</string>
+    <string name="settings_about">About</string>
+    <string name="settings_group_widget">Home screen widget</string>
+    <string name="settings_group_text">Text</string>
+    <string name="settings_group_list">Notes list</string>
+    <string name="settings_group_opening">Opening notes</string>
+    <string name="settings_group_new_notes">New notes</string>
+    <string name="settings_group_lock">Lock</string>
+    <string name="settings_group_screen">Screenshots &amp; shortcuts</string>
+    <string name="settings_group_export">Export</string>
+    <string name="settings_summary_biometric">Biometric lock</string>
+    <string name="settings_summary_screenshots">Screenshots blocked</string>
+    <string name="settings_summary_no_locks">No locks on</string>
+    <string name="settings_summary_not_syncing">Not syncing</string>
     <string name="theme_label">Theme</string>
     <string name="theme_mode_system">System</string>
     <string name="theme_mode_light">Light</string>
@@ -261,7 +278,6 @@
     <string name="line_width_comfortable">Comfortable</string>
     <string name="line_width_wide">Wide</string>
     <string name="line_width_description">Keeps lines from stretching across wide screens, such as a tablet. On a phone held upright the text already fits the screen, so nothing changes there. This doesn\'t change the spacing between lines.</string>
-    <string name="settings_notes_section">Notes &amp; search</string>
     <string name="show_note_previews">Show note previews</string>
     <string name="show_note_previews_description">Show a snippet and edit time under each title. Turn off to fit more notes on screen.</string>
     <string name="reopen_last_note">Reopen last note on launch</string>
@@ -300,11 +316,9 @@
     <string name="view_mode_locked">Notes now open in preview</string>
     <string name="view_mode_unlocked">Notes now open in edit</string>
     <string name="lock_view_mode">Lock view mode</string>
-    <string name="settings_privacy">Privacy</string>
     <string name="privacy_no_tracking">No account, analytics, ads, remote config, or proprietary crash reporting SDK.</string>
     <string name="privacy_no_internet">No INTERNET permission is declared for the MVP.</string>
     <string name="privacy_local_first">Notes leave the device only when you explicitly export or share them.</string>
-    <string name="settings_data">Data</string>
     <string name="export_all_notes">Export all notes…</string>
     <string name="export_tag_notes">Export notes by tag…</string>
     <string name="export_all_notes_description">Pick a folder and Markleaf saves every note as a separate .md file. Trashed notes are skipped.</string>
@@ -314,7 +328,6 @@
     </plurals>
 
     <string name="sync_title">Multi-device sync (folder mirror)</string>
-    <string name="settings_shortcut_sync">Sync</string>
     <string name="settings_search_hint">Search settings</string>
     <string name="settings_search_no_results">No settings match</string>
     <string name="sync_explainer">Markleaf never goes online itself. Instead, you choose a folder and Markleaf saves each note as a `.md` file in it. If that folder is synced by another app — Dropbox, Drive, Syncthing, OneDrive, a NAS — your notes follow your other devices.</string>

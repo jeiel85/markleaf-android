@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
 import androidx.compose.ui.platform.LocalContext
 
-/** The Open source page: the licence and where the code and builds live. */
+/** The Open source group on the About page: the licence and where the code and builds live. */
 @Composable
 internal fun OpenSourceSettings(
     anchors: SectionAnchors

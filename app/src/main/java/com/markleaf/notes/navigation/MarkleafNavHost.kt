@@ -73,7 +73,7 @@ import com.markleaf.notes.feature.notes.NotesListScreen
 import com.markleaf.notes.feature.search.SearchScreen
 import com.markleaf.notes.feature.settings.SettingsItem
 import com.markleaf.notes.feature.settings.SettingsScreen
-import com.markleaf.notes.feature.settings.SettingsShortcut
+import com.markleaf.notes.feature.settings.SettingsCategory
 import com.markleaf.notes.feature.tags.TagRail
 import com.markleaf.notes.feature.tags.TagsScreen
 import com.markleaf.notes.feature.trash.TrashScreen
@@ -669,7 +669,7 @@ fun MarkleafNavHost(
                 onBack = { navController.popBackStack() },
                 onPrivacyClick = { navController.navigate(NavRoutes.PRIVACY) },
                 onSyncCenterClick = { navController.navigate(NavRoutes.SYNC_CENTER) },
-                initialSection = SettingsShortcut.entries.firstOrNull { s -> s.name == section },
+                initialSection = SettingsCategory.entries.firstOrNull { s -> s.name == section },
                 initialItem = SettingsItem.entries.firstOrNull { i -> i.name == item }
             )
         }

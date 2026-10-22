@@ -31,7 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.CoroutineScope
 
 /**
- * The Notes & search page: the list, and how notes open and are titled.
+ * The Notes page: the list, how notes open, and how new notes start.
  *
  * The title rule is changed through [onNoteTitleSourceChange] because the
  * retitle pass it starts is shared with the screen's resume effect (#262):
@@ -49,6 +49,7 @@ internal fun NotesSettings(
     anchors: SectionAnchors
 ) {
     val context = LocalContext.current
+    SettingsGroupHeading(stringResource(R.string.settings_group_list), first = true)
     SettingsSwitchRow(
         title = stringResource(R.string.show_note_previews),
         titleModifier = anchors.item(SettingsItem.NOTE_PREVIEWS),
@@ -62,6 +63,76 @@ internal fun NotesSettings(
         }
     )
     Spacer(Modifier.height(12.dp))
+    Text(
+        text = stringResource(R.string.notes_layout),
+        modifier = anchors.item(SettingsItem.NOTES_LAYOUT),
+        style = MaterialTheme.typography.bodyMedium,
+        fontWeight = FontWeight.Medium,
+        color = MaterialTheme.colorScheme.onBackground
+    )
+    Spacer(Modifier.height(8.dp))
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        NotesLayout.entries.forEach { layout ->
+            val selected = appSettings.notesLayout == layout
+            if (selected) {
+                Button(onClick = {}) {
+                    Text(layout.localizedLabel())
+                }
+            } else {
+                OutlinedButton(
+                    onClick = {
+                        scope.launch {
+                            settingsRepository.setNotesLayout(layout)
+                        }
+                    }
+                ) {
+                    Text(layout.localizedLabel())
+                }
+            }
+        }
+    }
+    Spacer(Modifier.height(6.dp))
+    Text(
+        text = stringResource(R.string.notes_layout_description),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+    Spacer(Modifier.height(12.dp))
+    Text(
+        text = stringResource(R.string.note_title_source),
+        modifier = anchors.item(SettingsItem.NOTE_TITLE_SOURCE),
+        style = MaterialTheme.typography.bodyMedium,
+        fontWeight = FontWeight.Medium,
+        color = MaterialTheme.colorScheme.onBackground
+    )
+    Spacer(Modifier.height(8.dp))
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        NoteTitleSource.entries.forEach { source ->
+            val selected = appSettings.noteTitleSource == source
+            if (selected) {
+                Button(onClick = {}, enabled = !retitleBusy) {
+                    Text(source.localizedLabel())
+                }
+            } else {
+                OutlinedButton(
+                    enabled = !retitleBusy,
+                    onClick = {
+                        onNoteTitleSourceChange(source)
+                    }
+                ) {
+                    Text(source.localizedLabel())
+                }
+            }
+        }
+    }
+    Spacer(Modifier.height(6.dp))
+    Text(
+        text = stringResource(R.string.note_title_source_description),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+    Spacer(Modifier.height(12.dp))
+    SettingsGroupHeading(stringResource(R.string.settings_group_opening), first = false)
     SettingsSwitchRow(
         title = stringResource(R.string.reopen_last_note),
         titleModifier = anchors.item(SettingsItem.REOPEN_LAST_NOTE),
@@ -135,6 +206,7 @@ internal fun NotesSettings(
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
     Spacer(Modifier.height(12.dp))
+    SettingsGroupHeading(stringResource(R.string.settings_group_new_notes), first = false)
     // #481: what the widget's +, the "New note" app shortcut
     // and Android's Notes shortcuts open. Wraps: "Today's note"
     // runs long in several languages.
@@ -169,75 +241,6 @@ internal fun NotesSettings(
     Spacer(Modifier.height(6.dp))
     Text(
         text = stringResource(R.string.new_note_shortcut_description),
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-    Spacer(Modifier.height(12.dp))
-    Text(
-        text = stringResource(R.string.notes_layout),
-        modifier = anchors.item(SettingsItem.NOTES_LAYOUT),
-        style = MaterialTheme.typography.bodyMedium,
-        fontWeight = FontWeight.Medium,
-        color = MaterialTheme.colorScheme.onBackground
-    )
-    Spacer(Modifier.height(8.dp))
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        NotesLayout.entries.forEach { layout ->
-            val selected = appSettings.notesLayout == layout
-            if (selected) {
-                Button(onClick = {}) {
-                    Text(layout.localizedLabel())
-                }
-            } else {
-                OutlinedButton(
-                    onClick = {
-                        scope.launch {
-                            settingsRepository.setNotesLayout(layout)
-                        }
-                    }
-                ) {
-                    Text(layout.localizedLabel())
-                }
-            }
-        }
-    }
-    Spacer(Modifier.height(6.dp))
-    Text(
-        text = stringResource(R.string.notes_layout_description),
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-    Spacer(Modifier.height(12.dp))
-    Text(
-        text = stringResource(R.string.note_title_source),
-        modifier = anchors.item(SettingsItem.NOTE_TITLE_SOURCE),
-        style = MaterialTheme.typography.bodyMedium,
-        fontWeight = FontWeight.Medium,
-        color = MaterialTheme.colorScheme.onBackground
-    )
-    Spacer(Modifier.height(8.dp))
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        NoteTitleSource.entries.forEach { source ->
-            val selected = appSettings.noteTitleSource == source
-            if (selected) {
-                Button(onClick = {}, enabled = !retitleBusy) {
-                    Text(source.localizedLabel())
-                }
-            } else {
-                OutlinedButton(
-                    enabled = !retitleBusy,
-                    onClick = {
-                        onNoteTitleSourceChange(source)
-                    }
-                ) {
-                    Text(source.localizedLabel())
-                }
-            }
-        }
-    }
-    Spacer(Modifier.height(6.dp))
-    Text(
-        text = stringResource(R.string.note_title_source_description),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )

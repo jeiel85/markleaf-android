@@ -6,7 +6,7 @@ import com.markleaf.notes.BuildConfig
 import com.markleaf.notes.R
 import com.markleaf.notes.update.UpdateSurface
 
-/** The App page: version, application id and, in sideload builds, update checks. */
+/** The App group on the About page: version, application id and, in sideload builds, update checks. */
 @Composable
 internal fun AppInfoSettings(
     anchors: SectionAnchors

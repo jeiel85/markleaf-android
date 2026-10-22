@@ -30,17 +30,22 @@ import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
 import kotlin.math.roundToInt
 
-/** The sections of Settings, in list order: one row each, one page each. */
-internal enum class SettingsShortcut(@StringRes val label: Int) {
-    APPEARANCE(R.string.settings_appearance),
-    MARKDOWN(R.string.settings_markdown),
-    NOTES(R.string.settings_notes_section),
-    PRIVACY(R.string.settings_privacy),
-    DATA(R.string.settings_data),
-    // The sync heading is a phrase; a row and an app bar need a word.
-    SYNC(R.string.settings_shortcut_sync),
-    OPEN_SOURCE(R.string.settings_open_source),
-    APP(R.string.settings_app)
+/**
+ * The categories of Settings, in list order: one row each, one page each.
+ *
+ * [groups] are the headings inside the page, in page order. Search reads them
+ * too, so "Lock" finds Privacy & security and "Export" finds Sync & export.
+ */
+internal enum class SettingsCategory(@StringRes val label: Int, @StringRes val groups: List<Int>) {
+    APPEARANCE(R.string.settings_appearance, listOf(R.string.settings_group_widget)),
+    EDITOR(R.string.settings_editor, listOf(R.string.settings_group_text, R.string.settings_markdown)),
+    NOTES(
+        R.string.settings_notes,
+        listOf(R.string.settings_group_list, R.string.settings_group_opening, R.string.settings_group_new_notes)
+    ),
+    PRIVACY(R.string.settings_privacy_security, listOf(R.string.settings_group_lock, R.string.settings_group_screen)),
+    SYNC(R.string.settings_sync_export, listOf(R.string.sync_title, R.string.settings_group_export)),
+    ABOUT(R.string.settings_about, listOf(R.string.settings_app, R.string.settings_open_source))
 }
 
 /**
@@ -122,7 +127,7 @@ internal fun SettingsSearchField(
 internal fun SettingsSearchResults(
     results: List<SettingsSearchEntry>,
     onPick: (SettingsSearchEntry) -> Unit,
-    sectionTitle: @Composable (SettingsShortcut) -> String,
+    sectionTitle: @Composable (SettingsCategory) -> String,
     modifier: Modifier = Modifier
 ) {
     Surface(modifier = modifier, color = MaterialTheme.colorScheme.background) {
@@ -162,10 +167,3 @@ internal fun SettingsSearchResults(
         }
     }
 }
-
-/**
- * The section's full heading — Sync's is a phrase, not the row's word. Search
- * still matches on it, so "folder mirror" finds the Sync page.
- */
-internal fun SettingsShortcut.headingRes(): Int =
-    if (this == SettingsShortcut.SYNC) R.string.sync_title else label

@@ -29,10 +29,10 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.CoroutineScope
 
-/** The Markdown page: what the editor shows and how its text is set. */
+/** The Editor page: how the writing surface sets its text, and what Markdown it shows. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-internal fun MarkdownSettings(
+internal fun EditorSettings(
     appSettings: AppSettings,
     settingsRepository: AppSettingsRepository,
     scope: CoroutineScope,
@@ -40,81 +40,7 @@ internal fun MarkdownSettings(
     onPickCustomFont: () -> Unit
 ) {
     val context = LocalContext.current
-    SettingsSwitchRow(
-        title = stringResource(R.string.show_markdown_syntax),
-        titleModifier = anchors.item(SettingsItem.MARKDOWN_SYNTAX),
-        description = stringResource(R.string.show_markdown_syntax_description),
-        checked = appSettings.markdownSyntaxVisibility == MarkdownSyntaxVisibility.SHOW,
-        onCheckedChange = { checked ->
-            HapticFeedback.light(context)
-            scope.launch {
-                settingsRepository.setMarkdownSyntaxVisibility(
-                    if (checked) MarkdownSyntaxVisibility.SHOW else MarkdownSyntaxVisibility.HIDE
-                )
-            }
-        }
-    )
-    Spacer(Modifier.height(12.dp))
-    SettingsSwitchRow(
-        title = stringResource(R.string.show_formatting_button),
-        titleModifier = anchors.item(SettingsItem.FORMATTING_BUTTON),
-        description = stringResource(R.string.show_formatting_button_description),
-        checked = appSettings.showFormattingButton,
-        onCheckedChange = { checked ->
-            HapticFeedback.light(context)
-            scope.launch {
-                settingsRepository.setShowFormattingButton(checked)
-            }
-        }
-    )
-    Spacer(Modifier.height(12.dp))
-    SnippetButtonsSetting(
-        buttons = appSettings.snippetButtons,
-        titleModifier = anchors.item(SettingsItem.SNIPPET_BUTTONS),
-        onChange = { buttons ->
-            scope.launch { settingsRepository.setSnippetButtons(buttons) }
-        }
-    )
-    Spacer(Modifier.height(12.dp))
-    Text(
-        text = stringResource(R.string.line_width),
-        modifier = anchors.item(SettingsItem.LINE_WIDTH),
-        style = MaterialTheme.typography.bodyMedium,
-        fontWeight = FontWeight.Medium,
-        color = MaterialTheme.colorScheme.onBackground
-    )
-    Spacer(Modifier.height(8.dp))
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        EditorLineWidth.entries.forEach { lineWidth ->
-            val selected = appSettings.lineWidth == lineWidth
-            if (selected) {
-                Button(onClick = {}) {
-                    Text(lineWidth.localizedLabel())
-                }
-            } else {
-                OutlinedButton(
-                    onClick = {
-                        scope.launch {
-                            settingsRepository.setLineWidth(lineWidth)
-                        }
-                    }
-                ) {
-                    Text(lineWidth.localizedLabel())
-                }
-            }
-        }
-    }
-    Spacer(Modifier.height(6.dp))
-    // The cap only binds on a wide layout (the tablet editor
-    // pane, the file viewer); an upright phone is narrower than
-    // every option, so the label alone read as line spacing that
-    // "did nothing" (#465).
-    Text(
-        text = stringResource(R.string.line_width_description),
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-    Spacer(Modifier.height(12.dp))
+    SettingsGroupHeading(stringResource(R.string.settings_group_text), first = true)
     Text(
         text = stringResource(R.string.font_label),
         modifier = anchors.item(SettingsItem.FONT),
@@ -216,5 +142,81 @@ internal fun MarkdownSettings(
         text = stringResource(R.string.font_size_description),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+    Spacer(Modifier.height(12.dp))
+    Text(
+        text = stringResource(R.string.line_width),
+        modifier = anchors.item(SettingsItem.LINE_WIDTH),
+        style = MaterialTheme.typography.bodyMedium,
+        fontWeight = FontWeight.Medium,
+        color = MaterialTheme.colorScheme.onBackground
+    )
+    Spacer(Modifier.height(8.dp))
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        EditorLineWidth.entries.forEach { lineWidth ->
+            val selected = appSettings.lineWidth == lineWidth
+            if (selected) {
+                Button(onClick = {}) {
+                    Text(lineWidth.localizedLabel())
+                }
+            } else {
+                OutlinedButton(
+                    onClick = {
+                        scope.launch {
+                            settingsRepository.setLineWidth(lineWidth)
+                        }
+                    }
+                ) {
+                    Text(lineWidth.localizedLabel())
+                }
+            }
+        }
+    }
+    Spacer(Modifier.height(6.dp))
+    // The cap only binds on a wide layout (the tablet editor
+    // pane, the file viewer); an upright phone is narrower than
+    // every option, so the label alone read as line spacing that
+    // "did nothing" (#465).
+    Text(
+        text = stringResource(R.string.line_width_description),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+    Spacer(Modifier.height(12.dp))
+    SettingsGroupHeading(stringResource(R.string.settings_markdown), first = false)
+    SettingsSwitchRow(
+        title = stringResource(R.string.show_markdown_syntax),
+        titleModifier = anchors.item(SettingsItem.MARKDOWN_SYNTAX),
+        description = stringResource(R.string.show_markdown_syntax_description),
+        checked = appSettings.markdownSyntaxVisibility == MarkdownSyntaxVisibility.SHOW,
+        onCheckedChange = { checked ->
+            HapticFeedback.light(context)
+            scope.launch {
+                settingsRepository.setMarkdownSyntaxVisibility(
+                    if (checked) MarkdownSyntaxVisibility.SHOW else MarkdownSyntaxVisibility.HIDE
+                )
+            }
+        }
+    )
+    Spacer(Modifier.height(12.dp))
+    SettingsSwitchRow(
+        title = stringResource(R.string.show_formatting_button),
+        titleModifier = anchors.item(SettingsItem.FORMATTING_BUTTON),
+        description = stringResource(R.string.show_formatting_button_description),
+        checked = appSettings.showFormattingButton,
+        onCheckedChange = { checked ->
+            HapticFeedback.light(context)
+            scope.launch {
+                settingsRepository.setShowFormattingButton(checked)
+            }
+        }
+    )
+    Spacer(Modifier.height(12.dp))
+    SnippetButtonsSetting(
+        buttons = appSettings.snippetButtons,
+        titleModifier = anchors.item(SettingsItem.SNIPPET_BUTTONS),
+        onChange = { buttons ->
+            scope.launch { settingsRepository.setSnippetButtons(buttons) }
+        }
     )
 }

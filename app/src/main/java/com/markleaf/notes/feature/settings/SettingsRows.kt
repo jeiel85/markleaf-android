@@ -10,6 +10,8 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -47,6 +49,23 @@ internal fun SettingsSwitchRow(
             onCheckedChange = onCheckedChange
         )
     }
+}
+
+/**
+ * A heading over a group of settings on a page; [first] drops the space above
+ * it, for the group that opens the page.
+ */
+@Composable
+internal fun SettingsGroupHeading(text: String, first: Boolean) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.titleSmall,
+        fontWeight = FontWeight.SemiBold,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier
+            .padding(top = if (first) 0.dp else 12.dp, bottom = 8.dp)
+            .semantics { heading() }
+    )
 }
 
 @Composable

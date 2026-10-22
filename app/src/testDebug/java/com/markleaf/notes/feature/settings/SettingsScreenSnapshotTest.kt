@@ -31,7 +31,7 @@ import org.robolectric.annotation.GraphicsMode
  * added below an earlier anchor once went in visually ungated while the
  * golden kept passing (#255).
  *
- * The App page is deliberately left out: it renders `BuildConfig.VERSION_NAME`,
+ * The About page is deliberately left out: it renders `BuildConfig.VERSION_NAME`,
  * so an image of it would break on every release bump. Sync has goldens of its
  * own in [SyncSectionSnapshotTest], because its appearance depends on state
  * this screen cannot be put into from the outside.
@@ -50,25 +50,28 @@ class SettingsScreenSnapshotTest {
     fun appearancePage() = capture("settings_appearance_tablet", page = "Appearance", scrollTo = "Custom")
 
     @Test
-    fun markdownPage() = capture("settings_markdown_tablet", page = "Markdown", scrollTo = "Extra large")
+    fun editorPage() = capture("settings_editor_tablet", page = "Editor", scrollTo = "Add snippet")
 
     /**
      * Anchored on the page's current last control. It was "First line", from
      * the title rule added in #280, until the new-note heading switch (#544)
-     * landed below it.
+     * landed below it; the groups (step 3) moved that switch to the end.
      */
     @Test
-    fun notesAndSearchPage() = capture(
-        "settings_notes_search_tablet",
-        page = "Notes & search",
+    fun notesPage() = capture(
+        "settings_notes_tablet",
+        page = "Notes",
         scrollTo = "Start new notes with a heading"
     )
 
     @Test
-    fun privacyPage() = capture("settings_privacy_tablet", page = "Privacy", scrollTo = "View Privacy Dashboard")
+    fun privacyAndSecurityPage() =
+        capture("settings_privacy_tablet", page = "Privacy & security", scrollTo = "View Privacy Dashboard")
 
+    /** With no folder chosen; the sync block's other states are in [SyncSectionSnapshotTest]. */
     @Test
-    fun dataPage() = capture("settings_data_tablet", page = "Data", scrollTo = "Export notes by tag…")
+    fun syncAndExportPage() =
+        capture("settings_sync_export_tablet", page = "Sync & export", scrollTo = "Export notes by tag…")
 
     /**
      * `performScrollTo` moves a node just far enough to be visible, so the

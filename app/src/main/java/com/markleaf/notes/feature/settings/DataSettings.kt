@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
 
 /**
- * The Data page: exporting notes to a folder.
+ * The export group on the Sync & export page: notes to a folder.
  *
  * The folder pickers stay with the screen: their results arrive after the
  * picker closes, and the tag being exported has to survive an activity

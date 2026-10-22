@@ -89,12 +89,12 @@ class SettingsSearchScreenTest {
     @Test
     fun aResultOpensItsPageWithTheSettingAtTheTopAndFocused() {
         showSettings()
-        val top = pageTop("Notes & search", "Show note previews")
-        search("reopen last note")
+        val top = pageTop("Notes", "Notes list")
+        search("notes list layout")
 
-        pick(REOPEN)
+        pick(LAYOUT)
 
-        val setting = label(REOPEN)
+        val setting = label(LAYOUT)
         setting.assertIsDisplayed()
         setting.assertIsFocused()
         assertEquals(top, setting.top(), 1f)
@@ -124,7 +124,7 @@ class SettingsSearchScreenTest {
 
         // EditableText, not assertTextEquals: Text also holds the placeholder.
         field().assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("")))
-        row("Markdown").assertIsDisplayed()
+        row("Editor").assertIsDisplayed()
     }
 
     @Test
@@ -137,47 +137,60 @@ class SettingsSearchScreenTest {
     }
 
     @Test
-    fun aSectionResultOpensThePageAtItsTitle() {
+    fun aCategoryResultOpensThePageAtItsTitle() {
         showSettings()
         search("privacy")
 
-        pick("Privacy")
+        pick("Privacy & security")
 
-        composeRule.onNode(hasText("Privacy") and isHeading()).assertIsFocused()
+        composeRule.onNode(hasText("Privacy & security") and isHeading()).assertIsFocused()
     }
 
-    /** "Folder mirror" is only in Sync's long heading, which search still reads. */
+    /** A group heading inside a page finds the page: "Lock" is a group on Privacy & security. */
     @Test
-    fun theLongSyncHeadingStillFindsTheSyncPage() {
+    fun aGroupHeadingFindsItsCategory() {
+        showSettings()
+
+        search("lock")
+
+        result("Privacy & security").assertIsDisplayed()
+    }
+
+    /** "Folder mirror" is only in the sync group's heading, which search reads. */
+    @Test
+    fun theSyncGroupHeadingFindsSyncAndExport() {
         showSettings()
 
         search("folder mirror")
 
-        result("Multi-device sync (folder mirror)").assertIsDisplayed()
+        result("Sync & export").assertIsDisplayed()
     }
 
-    /** A result names the page it opens by that page's title, Sync's short word included. */
+    /** A result names the page it opens by that page's title. */
     @Test
     fun aResultNamesItsPageByThePageTitle() {
         showSettings()
 
         search("note metadata")
 
-        composeRule.onNode(hasText("Note metadata") and hasText("Sync")).assertIsDisplayed()
+        composeRule.onNode(hasText("Note metadata") and hasText("Sync & export")).assertIsDisplayed()
     }
 
-    /** Snippet buttons are edited only here, so search is how they're found (#436). */
+    /**
+     * Snippet buttons are edited only here, so search is how they're found
+     * (#436). They are the last setting on the Editor page, so the page stops
+     * at its end rather than putting them at the top.
+     */
     @Test
     fun snippetButtonsAreFoundByName() {
         showSettings()
-        val top = pageTop("Markdown", "Show Markdown syntax")
         search("snippet")
 
         pick("Snippet buttons")
 
         val setting = label("Snippet buttons")
+        setting.assertIsDisplayed()
         setting.assertIsFocused()
-        assertEquals(top, setting.top(), 1f)
     }
 
     @Test
@@ -211,6 +224,6 @@ class SettingsSearchScreenTest {
 
     private companion object {
         const val SCREENSHOTS = "Block screenshots and Recents preview"
-        const val REOPEN = "Reopen last note on launch"
+        const val LAYOUT = "Notes list layout"
     }
 }

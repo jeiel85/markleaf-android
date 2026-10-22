@@ -167,16 +167,19 @@ class UntranslatedStringTest {
                 "matching_notes",
                 "notes_title",
                 "quick_insert_image",
+                "settings_notes",
                 "settings_open_source",
                 "tag_note_count_format[one]",
                 "tag_note_count_format[other]",
                 "version_format",
                 "widget_color_saturation"
             ),
-            // Typography terms kept in their English form.
+            // Typography terms kept in their English form. "Editor" is also the
+            // Spanish word for the Settings category.
             "es" to setOf(
                 "font_sans",
-                "font_serif"
+                "font_serif",
+                "settings_editor"
             ),
             // German keeps these as established loanwords: "Tags", "Checkbox",
             // "App", "Passcode", "Inline". "Version" is also the German word, so
@@ -193,6 +196,11 @@ class UntranslatedStringTest {
                 "locked_passcode_label",
                 "matching_tags",
                 "settings_app",
+                // "Editor", "Export" and "Text" are the German words for the
+                // Settings category and its two group headings.
+                "settings_editor",
+                "settings_group_export",
+                "settings_group_text",
                 "tag_suggestions_title",
                 "tags",
                 // "System" is also the German word for the theme-mode option.
@@ -218,6 +226,10 @@ class UntranslatedStringTest {
                 "font_monospace",
                 "font_sans",
                 "font_serif",
+                // "Editor", "Export" and "Text" are Slovak words too.
+                "settings_editor",
+                "settings_group_export",
+                "settings_group_text",
                 "theme_markleaf_green"
             )
         )

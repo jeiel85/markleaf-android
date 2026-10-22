@@ -1,5 +1,12 @@
 package com.markleaf.notes.feature.settings
 
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,7 +55,8 @@ internal fun SettingsHome(
     results: List<SettingsSearchEntry>,
     onOpenSection: (SettingsCategory) -> Unit,
     onPickResult: (SettingsSearchEntry) -> Unit,
-    summary: @Composable (SettingsCategory) -> String
+    summary: @Composable (SettingsCategory) -> String,
+    selected: SettingsCategory? = null
 ) {
     val keyboard = LocalSoftwareKeyboardController.current
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
@@ -72,6 +80,7 @@ internal fun SettingsHome(
                         SettingsSectionRow(
                             section = section,
                             summary = summary(section),
+                            selected = selected?.let { it == section },
                             onClick = { onOpenSection(section) }
                         )
                     }
@@ -97,12 +106,18 @@ internal fun SettingsHome(
 private fun SettingsSectionRow(
     section: SettingsCategory,
     summary: String,
+    selected: Boolean?,
     onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 56.dp)
+            // Only side by side does a row have a selected state (null
+            // otherwise): the page beside it is the one it opened, and every
+            // row says whether it is that one.
+            .background(if (selected == true) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent)
+            .then(if (selected != null) Modifier.semantics { this.selected = selected } else Modifier)
             .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = 20.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -140,6 +155,10 @@ private fun SettingsSectionRow(
  * Output: the page, with [content] given the anchors its settings mark
  * themselves with. [onLanded] runs once the landing is done.
  *
+ * [title] is drawn at the top of the page, as its heading and [titleFocus]
+ * target, only when the page sits beside the list; on its own the app bar
+ * carries the name.
+ *
  * Why the landing waits for a frame: a setting's position exists only after
  * the page has been laid out, and the title's focus target only after the app
  * bar has. Why it is a flag the screen keeps: a page that comes back from a
@@ -151,6 +170,7 @@ internal fun SettingsPage(
     landingItem: SettingsItem?,
     titleFocus: FocusRequester,
     onLanded: () -> Unit,
+    title: String? = null,
     content: @Composable (SectionAnchors) -> Unit
 ) {
     val scroll = rememberScrollState()
@@ -166,6 +186,18 @@ internal fun SettingsPage(
                 .verticalScroll(scroll)
                 .padding(horizontal = 20.dp, vertical = topGap)
         ) {
+            if (title != null) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier
+                        .padding(bottom = 16.dp)
+                        .semantics { heading() }
+                        .focusRequester(titleFocus)
+                        .focusable()
+                )
+            }
             content(anchors)
         }
     }

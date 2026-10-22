@@ -46,6 +46,11 @@ class SettingsScreenSnapshotTest {
     @Test
     fun sectionListTablet() = capture("settings_home_tablet")
 
+    /** A wide screen: the list beside the Privacy & security page, its row selected. */
+    @Test
+    @Config(sdk = [33], qualifiers = "w1280dp-h800dp-mdpi")
+    fun twoPaneWide() = capture("settings_two_pane_wide", page = "Privacy & security", twoPane = true)
+
     @Test
     fun appearancePage() = capture("settings_appearance_tablet", page = "Appearance", scrollTo = "Custom")
 
@@ -78,7 +83,12 @@ class SettingsScreenSnapshotTest {
      * anchor must be the page's last control: anchoring higher leaves the rest
      * below the fold.
      */
-    private fun capture(name: String, page: String? = null, scrollTo: String? = null) {
+    private fun capture(
+        name: String,
+        page: String? = null,
+        scrollTo: String? = null,
+        twoPane: Boolean = false
+    ) {
         composeRule.setContent {
             MarkleafTheme(dynamicColor = false) {
                 Surface(
@@ -87,7 +97,7 @@ class SettingsScreenSnapshotTest {
                         .testTag("settingsScreenSurface"),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    SettingsScreen(onBack = {})
+                    SettingsScreen(onBack = {}, twoPane = twoPane)
                 }
             }
         }

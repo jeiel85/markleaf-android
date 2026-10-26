@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -24,6 +25,7 @@ import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.repository.LocalNoteRepository
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.InMemoryPreferencesDataStore
+import com.markleaf.notes.data.settings.OpenNotesAt
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.navigation.NavRoutes
 import java.time.Instant
@@ -74,6 +76,24 @@ class EditorOpensFindFromSearchTest {
         // The mode switch the load makes must not close the Find it opened.
         composeRule.onNodeWithText("1/1").assertExists()
         composeRule.onNodeWithText(context.getString(R.string.replace_all_matches)).assertDoesNotExist()
+    }
+
+    @Test
+    fun previewOpensAtTheMatchEvenWhenNotesOpenAtTheBottom() {
+        // #554 review: the "Open notes at" scroll landed after Find's and left
+        // the screen at the bottom while the bar said 1/1.
+        val filler = (1..60).joinToString("\n\n") { "Filler paragraph $it." }
+        val noteId = createNote("# Plums\n\nThe pear is here.\n\n$filler")
+        val settings = AppSettingsRepository(InMemoryPreferencesDataStore())
+        runBlocking {
+            settings.setOpenNotesInPreview(true)
+            settings.setOpenNotesAt(OpenNotesAt.BOTTOM)
+        }
+
+        setEditor(noteId, settings, initialFindQuery = "pear")
+
+        composeRule.onNodeWithText("1/1").assertExists()
+        composeRule.onNodeWithText("The pear is here.").assertIsDisplayed()
     }
 
     @Test

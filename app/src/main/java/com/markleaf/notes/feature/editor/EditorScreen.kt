@@ -928,6 +928,10 @@ fun EditorScreen(
                     findFocusPending = true
                     findQuery = term
                     findIndex = 0
+                    // The match is where this note opens, not "Open notes at":
+                    // that scroll lands a frame later and would cancel Find's
+                    // own scroll to the match (#554 review).
+                    pendingPreviewScroll = null
                 }
                 if (openForAppend) {
                     // The keyboard arrives after the caret is placed, and a text

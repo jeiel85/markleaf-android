@@ -242,7 +242,7 @@
     <string name="show_markdown_syntax">Markdown 構文を表示</string>
     <string name="show_markdown_syntax_description">ライブエディタが入力中に Markdown 記号をハイライトします。</string>
     <string name="indent_paragraphs">新しい段落を字下げ</string>
-    <string name="indent_paragraphs_description">文字のある行で Enter を押すと、次の行が全角スペース2つ（　　）で始まります。中国語の文章の書き方です。字下げだけの行で Enter を押すと字下げが消えます。見出し、リスト、引用、コードには適用されません。</string>
+    <string name="indent_paragraphs_description">文字のある行で Enter を押すと、次の行が全角スペース2つで始まります。中国語の文章の書き方です。字下げだけの行で Enter を押すと字下げが消えます。見出し、リスト、引用、コードには適用されません。</string>
     <string name="show_formatting_button">書式ボタンを表示</string>
     <string name="show_formatting_button_description">キーボード上の行に Aa ボタンを表示します。オフにすると消えますが、元に戻す・やり直すと、テキストを選択したときの太字・斜体・リンク、/ クイック挿入はそのままです。</string>
     <string name="snippet_buttons_label">スニペットボタン</string>

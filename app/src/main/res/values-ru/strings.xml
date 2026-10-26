@@ -268,7 +268,7 @@
     <string name="show_markdown_syntax">Показывать синтаксис Markdown</string>
     <string name="show_markdown_syntax_description">Редактор подсвечивает символы Markdown прямо во время набора.</string>
     <string name="indent_paragraphs">Отступ в новых абзацах</string>
-    <string name="indent_paragraphs_description">Enter в строке с текстом начинает следующую строку с двух полноширинных пробелов (　　), как принято в китайском письме. Enter в строке, где есть только отступ, удаляет его. Заголовки, списки, цитаты и код не затрагиваются.</string>
+    <string name="indent_paragraphs_description">Enter в строке с текстом начинает следующую строку с двух полноширинных пробелов, как принято в китайском письме. Enter в строке, где есть только отступ, удаляет его. Заголовки, списки, цитаты и код не затрагиваются.</string>
     <string name="show_formatting_button">Показывать кнопку форматирования</string>
     <string name="show_formatting_button_description">Кнопка Aa остаётся на панели над клавиатурой. Если выключить, она скрывается; отмена и повтор остаются, жирный, курсив и ссылка по-прежнему появляются при выделении текста, а быстрая вставка через / не меняется.</string>
     <string name="snippet_buttons_label">Кнопки фрагментов</string>

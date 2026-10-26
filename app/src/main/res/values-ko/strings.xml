@@ -242,7 +242,7 @@
     <string name="show_markdown_syntax">Markdown 문법 표시</string>
     <string name="show_markdown_syntax_description">에디터에서 작성하는 동안 Markdown 기호를 색으로 강조합니다.</string>
     <string name="indent_paragraphs">새 문단 들여쓰기</string>
-    <string name="indent_paragraphs_description">글이 있는 줄에서 Enter를 누르면 다음 줄이 전각 공백 두 칸(　　)으로 시작합니다. 중국어 글쓰기 방식입니다. 들여쓰기만 있는 줄에서 Enter를 누르면 들여쓰기가 지워집니다. 제목, 목록, 인용, 코드에는 적용되지 않습니다.</string>
+    <string name="indent_paragraphs_description">글이 있는 줄에서 Enter를 누르면 다음 줄이 전각 공백 두 칸으로 시작합니다. 중국어 글쓰기 방식입니다. 들여쓰기만 있는 줄에서 Enter를 누르면 들여쓰기가 지워집니다. 제목, 목록, 인용, 코드에는 적용되지 않습니다.</string>
     <string name="show_formatting_button">서식 버튼 표시</string>
     <string name="show_formatting_button_description">키보드 위 줄에 Aa 버튼을 둡니다. 끄면 사라지며, 실행 취소·다시 실행과 텍스트를 선택했을 때의 굵게·기울임·링크, / 빠른 삽입은 그대로입니다.</string>
     <string name="snippet_buttons_label">스니펫 버튼</string>

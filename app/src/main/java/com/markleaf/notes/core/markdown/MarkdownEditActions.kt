@@ -473,7 +473,7 @@ object MarkdownEditActions {
     const val PARAGRAPH_INDENT = "\u3000\u3000"
 
     private val headingLine = Regex("""^ {0,3}#{1,6}(\s|$)""")
-    private val fenceLine = Regex("""^ {0,3}(```|~~~)""")
+    private val fenceLine = Regex("""^ {0,3}(`{3,}|~{3,})""")
     private val thematicBreak = Regex("""^ {0,3}([-*_])( *\1){2,} *$""")
 
     private fun paragraphContinuation(text: String, lineStart: Int, line: String): Continuation? {
@@ -486,9 +486,9 @@ object MarkdownEditActions {
      * Whether [line], starting at [lineStart] in [text], is plain paragraph text
      * the next line should be indented after. Not a blank line, a heading, a
      * table row, a thematic break, an indented code line, a code fence or any
-     * line inside a fenced block — the fences above it are counted, since a
-     * line of code looks like prose on its own. Lists and quotes never get here:
-     * their own continuation rules match first.
+     * line inside a fenced block (see [insideFence]), since a line of code looks
+     * like prose on its own. Lists and quotes never get here: their own
+     * continuation rules match first.
      */
     private fun isParagraphLine(text: String, lineStart: Int, line: String): Boolean {
         if (line.isBlank()) return false
@@ -497,8 +497,30 @@ object MarkdownEditActions {
         if (thematicBreak.matches(line)) return false
         if (line.startsWith("    ") || line.startsWith("\t")) return false
         if (fenceLine.containsMatchIn(line)) return false
-        val fencesAbove = text.substring(0, lineStart).lineSequence().count { fenceLine.containsMatchIn(it) }
-        return fencesAbove % 2 == 0
+        return !insideFence(text.substring(0, lineStart))
+    }
+
+    /**
+     * Whether a fenced code block is still open at the end of [before]. Follows
+     * CommonMark: a fence closes only on a run of the same character, at least
+     * as long as the one that opened it, with nothing but spaces after. Counting
+     * fence-like lines instead took the ``` inside a ~~~ block for its end and
+     * indented the code after it (#556 review).
+     */
+    private fun insideFence(before: String): Boolean {
+        var open: String? = null
+        for (line in before.lineSequence()) {
+            val run = fenceLine.find(line)?.groupValues?.get(1) ?: continue
+            val current = open
+            if (current == null) {
+                open = run
+            } else if (run[0] == current[0] && run.length >= current.length &&
+                line.substringAfter(run).isBlank()
+            ) {
+                open = null
+            }
+        }
+        return open != null
     }
 
     private fun continuationFor(line: String): Continuation? {

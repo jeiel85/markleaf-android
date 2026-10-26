@@ -85,6 +85,16 @@ class ParagraphIndentTest {
     @Test
     fun `text after a closed fence is indented again`() {
         assertEquals("```\ncode\n```\nprose\n$ind", enter("```\ncode\n```\nprose").text)
+        // A longer run of the same character closes it too.
+        assertEquals("```\ncode\n````\nprose\n$ind", enter("```\ncode\n````\nprose").text)
+    }
+
+    @Test
+    fun `a fence-like line that cannot close the block is code`() {
+        // #556 review: these were counted as closing fences.
+        assertEquals("~~~\n```\ncode\n", enter("~~~\n```\ncode").text)
+        assertEquals("````\n```\ncode\n", enter("````\n```\ncode").text)
+        assertEquals("```\n``` not a close\ncode\n", enter("```\n``` not a close\ncode").text)
     }
 
     @Test

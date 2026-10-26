@@ -2,7 +2,13 @@ package com.markleaf.notes.navigation
 
 object NavRoutes {
     const val NOTES = "notes"
-    const val EDITOR = "editor/{noteId}"
+    /**
+     * `find` is the search term a note opened from Search starts Find with
+     * (#553). An optional argument rather than a route of its own like
+     * [EDITOR_APPEND]: the card transition compares this route string, and a
+     * note opened from Search is exactly the one that grows out of its row.
+     */
+    const val EDITOR = "editor/{noteId}?find={find}"
     const val EDITOR_NEW = "editor"
 
     /**
@@ -46,9 +52,9 @@ object NavRoutes {
 
     fun editorAppendRoute(noteId: String): String = "editor/$noteId/append"
 
-    fun editorRoute(noteId: String? = null): String {
+    fun editorRoute(noteId: String? = null, find: String = ""): String {
         return if (noteId != null) {
-            "editor/$noteId"
+            if (find.isBlank()) "editor/$noteId" else "editor/$noteId?find=${android.net.Uri.encode(find)}"
         } else {
             EDITOR_NEW
         }

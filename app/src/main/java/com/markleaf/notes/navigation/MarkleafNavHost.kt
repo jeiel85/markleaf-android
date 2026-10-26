@@ -585,8 +585,15 @@ fun MarkleafNavHost(
                 }
             }
         }
-        composable(NavRoutes.EDITOR) {
+        composable(
+            route = NavRoutes.EDITOR,
+            arguments = listOf(navArgument("find") {
+                type = NavType.StringType
+                defaultValue = ""
+            })
+        ) {
             val noteId = it.arguments?.getString("noteId")
+            val find = it.arguments?.getString("find").orEmpty()
             NoteEditorDestination(
                 noteId = noteId,
                 origin = noteOrigin,
@@ -596,7 +603,8 @@ fun MarkleafNavHost(
                     noteId = noteId,
                     onBack = { navController.popBackStack() },
                     onNavigateToNote = { id -> navController.navigate(NavRoutes.editorRoute(id)) },
-                    hostScope = hostScope
+                    hostScope = hostScope,
+                    initialFindQuery = find
                 )
             }
         }
@@ -634,7 +642,9 @@ fun MarkleafNavHost(
                     onBack = { navController.popBackStack() },
                     onNoteClick = { noteId ->
                         noteOrigin = NoteOrigin(noteId, NoteSource.SEARCH)
-                        navController.navigate(NavRoutes.editorRoute(noteId))
+                        navController.navigate(
+                            NavRoutes.editorRoute(noteId, find = viewModel.searchQuery.value)
+                        )
                     }
                 )
             }

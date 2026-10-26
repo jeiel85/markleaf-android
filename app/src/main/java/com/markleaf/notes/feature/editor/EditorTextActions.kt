@@ -290,13 +290,21 @@ internal fun findAllRanges(text: String, query: String): List<IntRange> =
  * the first of its words that is takes over. A query none of whose words
  * appear in the text opens the note as usual rather than on a Find bar that
  * says 0 matches.
+ *
+ * [hasMatch] is the Find the note opens in: the source while editing, the
+ * rendered rows in Preview, where a word only in a link's address is not
+ * there to find (#554 review).
  */
-internal fun initialFindTerm(text: String, searchQuery: String): String? {
+internal fun initialFindTerm(searchQuery: String, hasMatch: (String) -> Boolean): String? {
     val whole = searchQuery.trim()
     if (whole.isEmpty()) return null
-    if (findOccurrences(text, whole).isNotEmpty()) return whole
-    return whole.split(Regex("\\s+")).firstOrNull { findOccurrences(text, it).isNotEmpty() }
+    if (hasMatch(whole)) return whole
+    return whole.split(Regex("\\s+")).firstOrNull(hasMatch)
 }
+
+/** [initialFindTerm] for Find over the source [text], as while editing. */
+internal fun initialFindTerm(text: String, searchQuery: String): String? =
+    initialFindTerm(searchQuery) { findOccurrences(text, it).isNotEmpty() }
 
 internal fun replaceRange(
     state: TextFieldValue,

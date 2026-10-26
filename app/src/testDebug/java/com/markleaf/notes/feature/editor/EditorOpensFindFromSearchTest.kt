@@ -97,6 +97,19 @@ class EditorOpensFindFromSearchTest {
     }
 
     @Test
+    fun previewPicksAWordThatIsOnScreen() {
+        // #554 review: "tart" is only in the link's address, which Preview
+        // doesn't show, so starting Find with it gave 0 matches.
+        val noteId = createNote("# Plums\n\nA [pear](https://example.test/tart) here.")
+        val settings = AppSettingsRepository(InMemoryPreferencesDataStore())
+        runBlocking { settings.setOpenNotesInPreview(true) }
+
+        setEditor(noteId, settings, initialFindQuery = "tart pear")
+
+        composeRule.onNodeWithText("1/1").assertExists()
+    }
+
+    @Test
     fun aQueryTheNoteDoesNotContainOpensNoFind() {
         val noteId = createNote("# Plums\n\nonly plums here")
         val settings = AppSettingsRepository(InMemoryPreferencesDataStore())

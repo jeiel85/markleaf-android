@@ -922,7 +922,15 @@ fun EditorScreen(
                         }
                 }
                 isPreviewMode = !openForAppend && opensInPreview(openInPreview, content)
-                initialFindTerm(content, initialFindQuery)?.let { term ->
+                val findTerm = when {
+                    initialFindQuery.isBlank() -> null
+                    isPreviewMode -> {
+                        val rendered = SimpleMarkdownPreview.parse(content)
+                        initialFindTerm(initialFindQuery) { findInPreview(rendered, it).isNotEmpty() }
+                    }
+                    else -> initialFindTerm(content, initialFindQuery)
+                }
+                findTerm?.let { term ->
                     isFindOpen = true
                     findOpenedInPreview = isPreviewMode
                     findFocusPending = true

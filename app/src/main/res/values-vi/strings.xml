@@ -242,6 +242,8 @@
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Hiện cú pháp Markdown</string>
     <string name="show_markdown_syntax_description">Trình soạn thảo trực tiếp làm nổi bật các ký tự Markdown khi bạn viết.</string>
+    <string name="indent_paragraphs">Thụt lề đoạn mới</string>
+    <string name="indent_paragraphs_description">Nhấn Enter trên một dòng có chữ sẽ bắt đầu dòng tiếp theo bằng hai dấu cách toàn chiều rộng (　　), như cách viết tiếng Trung. Nhấn Enter trên dòng chỉ có phần thụt lề sẽ xóa nó. Tiêu đề, danh sách, trích dẫn và mã không bị ảnh hưởng.</string>
     <string name="show_formatting_button">Hiện nút định dạng</string>
     <string name="show_formatting_button_description">Giữ nút Aa trên hàng phía trên bàn phím. Khi tắt, nút này bị ẩn; hoàn tác và làm lại vẫn còn, đậm, nghiêng và liên kết vẫn xuất hiện khi bạn chọn văn bản, còn chèn nhanh bằng / không thay đổi.</string>
     <string name="snippet_buttons_label">Nút đoạn mẫu</string>

@@ -1747,7 +1747,8 @@ fun EditorScreen(
                                 val result = MarkdownEditActions.applyAutoContinuation(
                                     editorState,
                                     incoming,
-                                    autoContinuationGuard
+                                    autoContinuationGuard,
+                                    indentParagraphs = appSettings.indentParagraphs
                                 )
                                 editorState = result.value
                                 autoContinuationGuard = result

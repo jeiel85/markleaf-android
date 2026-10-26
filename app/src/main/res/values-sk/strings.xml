@@ -247,6 +247,8 @@
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Zobraziť syntax Markdownu</string>
     <string name="show_markdown_syntax_description">Editor v reálnom čase zvýrazňuje znaky Markdownu priamo počas písania.</string>
+    <string name="indent_paragraphs">Odsadiť nové odseky</string>
+    <string name="indent_paragraphs_description">Enter v riadku s textom začne ďalší riadok dvoma medzerami plnej šírky (　　), ako v čínskom písaní. Enter v riadku, ktorý obsahuje iba odsadenie, ho odstráni. Nadpisy, zoznamy, citáty a kód zostávajú bez zmeny.</string>
     <string name="show_formatting_button">Zobraziť tlačidlo formátovania</string>
     <string name="show_formatting_button_description">Tlačidlo Aa ponechajte v riadku nad klávesnicou. Voľba Vypnúť ho skryje; funkcie Späť a Znova zostanú zachované, tučné písmo, kurzíva a odkaz sa naďalej zobrazujú pri výbere textu a rýchle vkladanie znaku / zostáva nezmenené.</string>
     <string name="snippet_buttons_label">Tlačidlá úryvkov</string>

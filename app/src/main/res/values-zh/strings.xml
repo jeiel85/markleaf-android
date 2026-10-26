@@ -247,6 +247,8 @@
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">显示 Markdown 语法</string>
     <string name="show_markdown_syntax_description">实时编辑器会在输入时突出显示 Markdown 标记。</string>
+    <string name="indent_paragraphs">新段落首行缩进</string>
+    <string name="indent_paragraphs_description">在有文字的行按回车，下一行会以两个全角空格（　　）开头，符合中文写作习惯。在只有缩进的行按回车会删除缩进。标题、列表、引用和代码不受影响。</string>
     <string name="show_formatting_button">显示格式按钮</string>
     <string name="show_formatting_button_description">在键盘上方的行中保留 Aa 按钮。关闭后即隐藏；撤销和重做、选中文本时的粗体、斜体和链接以及 / 快速插入均不受影响。</string>
     <string name="snippet_buttons_label">片段按钮</string>

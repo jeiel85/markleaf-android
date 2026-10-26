@@ -70,6 +70,10 @@ data class AppSettings(
     /** Open an empty new note on `# `, so its first line is a heading and
      *  becomes the title. Off by default; existing notes are never changed (#544). */
     val newNotesStartWithHeading: Boolean = false,
+    /** Enter on a line of plain text starts the next line with two full-width
+     *  spaces, the paragraph indent of Chinese prose. Off by default; only new
+     *  lines typed while it is on get the indent (#543). */
+    val indentParagraphs: Boolean = false,
     /** True while a [NoteRetitler] pass for a new title rule is in flight. Set
      *  before the pass starts and cleared when it finishes; a process death
      *  mid-pass leaves it set so the Settings screen can resume the pass rather

@@ -246,6 +246,8 @@
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Markdown-Syntax anzeigen</string>
     <string name="show_markdown_syntax_description">Der Editor hebt Markdown-Zeichen beim Tippen hervor.</string>
+    <string name="indent_paragraphs">Neue Absätze einrücken</string>
+    <string name="indent_paragraphs_description">Enter in einer Textzeile beginnt die nächste Zeile mit zwei vollbreiten Leerzeichen (　　), wie im Chinesischen üblich. Enter in einer Zeile, die nur die Einrückung enthält, entfernt sie. Überschriften, Listen, Zitate und Code bleiben unverändert.</string>
     <string name="show_formatting_button">Formatierungsschaltfläche anzeigen</string>
     <string name="show_formatting_button_description">Behält die Aa-Schaltfläche in der Zeile über der Tastatur. Aus blendet sie aus; Rückgängig und Wiederherstellen bleiben, Fett, Kursiv und Link erscheinen weiterhin, sobald du Text markierst, und das /-Schnelleinfügen bleibt unverändert.</string>
     <string name="snippet_buttons_label">Snippet-Schaltflächen</string>

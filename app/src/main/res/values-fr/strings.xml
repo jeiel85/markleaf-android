@@ -246,6 +246,8 @@
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Afficher la syntaxe Markdown</string>
     <string name="show_markdown_syntax_description">L\'éditeur met en évidence les caractères Markdown pendant que vous écrivez.</string>
+    <string name="indent_paragraphs">Indenter les nouveaux paragraphes</string>
+    <string name="indent_paragraphs_description">Entrée sur une ligne de texte commence la ligne suivante par deux espaces pleine chasse (　　), comme en écriture chinoise. Entrée sur une ligne qui ne contient que le retrait le supprime. Les titres, listes, citations et le code ne sont pas concernés.</string>
     <string name="show_formatting_button">Afficher le bouton de mise en forme</string>
     <string name="show_formatting_button_description">Conserve le bouton Aa sur la ligne au-dessus du clavier. Désactivé, il disparaît ; annuler et rétablir restent, gras, italique et lien apparaissent toujours lorsque vous sélectionnez du texte, et l\'insertion rapide avec / ne change pas.</string>
     <string name="snippet_buttons_label">Boutons d\'extraits</string>

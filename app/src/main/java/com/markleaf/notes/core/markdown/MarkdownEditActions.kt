@@ -420,11 +420,18 @@ object MarkdownEditActions {
      * ever live for one callback at a time), and self-corrects on the very next
      * keystroke, which will not reproduce the same stale pair and so drops the
      * guard normally.
+     *
+     * [indentParagraphs] is the "Indent new paragraphs" setting (#543): Enter on
+     * a line of plain text starts the next line with [PARAGRAPH_INDENT], and
+     * Enter on a line holding only that indent takes it away again, the way an
+     * empty list item ends the list. It is the last rule, so lists and quotes
+     * keep their own; see [isParagraphLine] for what else it leaves alone.
      */
     fun applyAutoContinuation(
         old: TextFieldValue,
         new: TextFieldValue,
-        pendingGuard: AutoContinuationResult?
+        pendingGuard: AutoContinuationResult?,
+        indentParagraphs: Boolean = false
     ): AutoContinuationResult {
         val staleEcho = pendingGuard?.staleEcho
         if (staleEcho != null && old.sameContentAs(pendingGuard.value) && new.sameContentAs(staleEcho)) {
@@ -442,7 +449,9 @@ object MarkdownEditActions {
         val prevLineStart = new.text.lastIndexOf('\n', cursor - 2).let { if (it == -1) 0 else it + 1 }
         val prevLine = new.text.substring(prevLineStart, cursor - 1)
 
-        val continuation = continuationFor(prevLine) ?: return AutoContinuationResult(new, null)
+        val continuation = continuationFor(prevLine)
+            ?: paragraphContinuation(new.text, prevLineStart, prevLine).takeIf { indentParagraphs }
+            ?: return AutoContinuationResult(new, null)
 
         val result = if (continuation.bodyEmpty) {
             // Remove the bare prefix from the previous line, keep the newline.
@@ -459,6 +468,38 @@ object MarkdownEditActions {
     }
 
     private data class Continuation(val nextPrefix: String, val bodyEmpty: Boolean)
+
+    /** Two ideographic spaces (U+3000), the first-line indent of Chinese prose (#543). */
+    const val PARAGRAPH_INDENT = "\u3000\u3000"
+
+    private val headingLine = Regex("""^ {0,3}#{1,6}(\s|$)""")
+    private val fenceLine = Regex("""^ {0,3}(```|~~~)""")
+    private val thematicBreak = Regex("""^ {0,3}([-*_])( *\1){2,} *$""")
+
+    private fun paragraphContinuation(text: String, lineStart: Int, line: String): Continuation? {
+        if (line == PARAGRAPH_INDENT) return Continuation(PARAGRAPH_INDENT, bodyEmpty = true)
+        if (!isParagraphLine(text, lineStart, line)) return null
+        return Continuation(PARAGRAPH_INDENT, bodyEmpty = false)
+    }
+
+    /**
+     * Whether [line], starting at [lineStart] in [text], is plain paragraph text
+     * the next line should be indented after. Not a blank line, a heading, a
+     * table row, a thematic break, an indented code line, a code fence or any
+     * line inside a fenced block — the fences above it are counted, since a
+     * line of code looks like prose on its own. Lists and quotes never get here:
+     * their own continuation rules match first.
+     */
+    private fun isParagraphLine(text: String, lineStart: Int, line: String): Boolean {
+        if (line.isBlank()) return false
+        if (headingLine.containsMatchIn(line)) return false
+        if (line.trimStart().startsWith("|")) return false
+        if (thematicBreak.matches(line)) return false
+        if (line.startsWith("    ") || line.startsWith("\t")) return false
+        if (fenceLine.containsMatchIn(line)) return false
+        val fencesAbove = text.substring(0, lineStart).lineSequence().count { fenceLine.containsMatchIn(it) }
+        return fencesAbove % 2 == 0
+    }
 
     private fun continuationFor(line: String): Continuation? {
         // Checklist: `- [ ] body` / `- [x] body`

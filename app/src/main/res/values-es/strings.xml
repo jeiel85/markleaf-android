@@ -246,6 +246,8 @@
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Mostrar sintaxis Markdown</string>
     <string name="show_markdown_syntax_description">El editor resalta caracteres Markdown mientras escribes.</string>
+    <string name="indent_paragraphs">Sangrar párrafos nuevos</string>
+    <string name="indent_paragraphs_description">Pulsar Intro en una línea de texto empieza la siguiente con dos espacios de ancho completo (　　), como en la escritura china. Pulsar Intro en una línea con solo la sangría la elimina. Los encabezados, listas, citas y código no cambian.</string>
     <string name="show_formatting_button">Mostrar el botón de formato</string>
     <string name="show_formatting_button_description">Mantiene el botón Aa en la fila sobre el teclado. Al desactivarlo se oculta; deshacer y rehacer permanecen, negrita, cursiva y enlace siguen apareciendo al seleccionar texto, y la inserción rápida con / no cambia.</string>
     <string name="snippet_buttons_label">Botones de fragmentos</string>

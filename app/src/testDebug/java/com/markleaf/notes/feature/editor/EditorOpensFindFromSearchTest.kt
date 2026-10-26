@@ -10,6 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -59,7 +60,7 @@ class EditorOpensFindFromSearchTest {
 
         setEditor(noteId, settings, initialFindQuery = "pear")
 
-        composeRule.onNodeWithText("1/3").assertExists()
+        awaitText("1/3")
         composeRule.onNodeWithContentDescription(context.getString(R.string.find_next_match)).performClick()
         composeRule.onNodeWithText("2/3").assertExists()
     }
@@ -74,7 +75,7 @@ class EditorOpensFindFromSearchTest {
         setEditor(noteId, settings, initialFindQuery = "pear")
 
         // The mode switch the load makes must not close the Find it opened.
-        composeRule.onNodeWithText("1/1").assertExists()
+        awaitText("1/1")
         composeRule.onNodeWithText(context.getString(R.string.replace_all_matches)).assertDoesNotExist()
     }
 
@@ -92,7 +93,7 @@ class EditorOpensFindFromSearchTest {
 
         setEditor(noteId, settings, initialFindQuery = "pear")
 
-        composeRule.onNodeWithText("1/1").assertExists()
+        awaitText("1/1")
         composeRule.onNodeWithText("The pear is here.").assertIsDisplayed()
     }
 
@@ -106,7 +107,7 @@ class EditorOpensFindFromSearchTest {
 
         setEditor(noteId, settings, initialFindQuery = "tart pear")
 
-        composeRule.onNodeWithText("1/1").assertExists()
+        awaitText("1/1")
     }
 
     @Test
@@ -115,6 +116,8 @@ class EditorOpensFindFromSearchTest {
         val settings = AppSettingsRepository(InMemoryPreferencesDataStore())
 
         setEditor(noteId, settings, initialFindQuery = "pear")
+        // Loaded, so the missing bar is the answer and not a note still loading.
+        awaitText("only plums here")
 
         composeRule.onNodeWithContentDescription(context.getString(R.string.find_next_match)).assertDoesNotExist()
     }
@@ -147,6 +150,17 @@ class EditorOpensFindFromSearchTest {
         composeRule.waitForIdle()
 
         assertEquals("#pear & plum tart", received)
+    }
+
+    /**
+     * The note loads from Room on another thread, which `waitForIdle` does not
+     * wait for: a larger note was still loading on CI when the counter was
+     * checked. Waits for the text instead of asserting it at once.
+     */
+    private fun awaitText(text: String) {
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            composeRule.onAllNodesWithText(text, substring = true).fetchSemanticsNodes().isNotEmpty()
+        }
     }
 
     private fun setEditor(noteId: String, settings: AppSettingsRepository, initialFindQuery: String) {

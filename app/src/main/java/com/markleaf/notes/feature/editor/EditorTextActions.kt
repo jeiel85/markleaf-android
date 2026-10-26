@@ -281,6 +281,23 @@ internal fun replaceImageAlt(value: TextFieldValue, path: String, newAlt: String
 internal fun findAllRanges(text: String, query: String): List<IntRange> =
     findOccurrences(text, query).map { start -> start until start + query.length }
 
+/**
+ * What Find opens with when a note is opened from a search result (#553), or
+ * null to open the note without Find.
+ *
+ * The search screen matches words separately — `pear tart` finds a note that
+ * has both words anywhere — so the whole query is not always in the note. Then
+ * the first of its words that is takes over. A query none of whose words
+ * appear in the text opens the note as usual rather than on a Find bar that
+ * says 0 matches.
+ */
+internal fun initialFindTerm(text: String, searchQuery: String): String? {
+    val whole = searchQuery.trim()
+    if (whole.isEmpty()) return null
+    if (findOccurrences(text, whole).isNotEmpty()) return whole
+    return whole.split(Regex("\\s+")).firstOrNull { findOccurrences(text, it).isNotEmpty() }
+}
+
 internal fun replaceRange(
     state: TextFieldValue,
     range: IntRange,

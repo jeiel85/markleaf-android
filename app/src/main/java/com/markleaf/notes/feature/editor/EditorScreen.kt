@@ -235,7 +235,11 @@ fun EditorScreen(
     // so it opens in edit mode with the caret at its end and the keyboard up,
     // whatever "Open notes at" and "Open notes in preview" say. Only the first
     // load reads it; a recreation keeps the mode and caret it came back with.
-    openForAppend: Boolean = false
+    openForAppend: Boolean = false,
+    // The search term a note opened from Search starts Find with (#553), as if
+    // the reader had opened Find and typed it. Only the first load reads it,
+    // like the opening mode; see initialFindTerm for what it narrows to.
+    initialFindQuery: String = ""
 ) {
     val context = LocalContext.current
     val db = remember { AppDatabase.getInstance(context) }
@@ -770,8 +774,12 @@ fun EditorScreen(
         if (findIndex >= activeFindMatchCount) findIndex = 0
     }
     // Switching between editing and preview changes what the matches are
-    // counted over, so a find left open would point at the wrong thing.
+    // counted over, so a find left open would point at the wrong thing. A find
+    // already open in the mode now showing stays: that is the one the load
+    // opens for a note tapped in Search (#553), in the same step that sets the
+    // opening mode, and this effect runs after it.
     LaunchedEffect(isPreviewMode) {
+        if (isFindOpen && findOpenedInPreview == isPreviewMode) return@LaunchedEffect
         isFindOpen = false
         findQuery = ""
         replaceQuery = ""
@@ -914,6 +922,13 @@ fun EditorScreen(
                         }
                 }
                 isPreviewMode = !openForAppend && opensInPreview(openInPreview, content)
+                initialFindTerm(content, initialFindQuery)?.let { term ->
+                    isFindOpen = true
+                    findOpenedInPreview = isPreviewMode
+                    findFocusPending = true
+                    findQuery = term
+                    findIndex = 0
+                }
                 if (openForAppend) {
                     // The keyboard arrives after the caret is placed, and a text
                     // field only scrolls to its caret when the caret moves: the

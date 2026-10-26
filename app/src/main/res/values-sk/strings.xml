@@ -51,6 +51,9 @@
     <string name="font_description">Písmo Serif dodáva poznámkam klasický vzhľad pripomínajúci knihu. Kód sa vždy zobrazuje s pevnou šírkou znakov.</string>
     <string name="all_notes">Všetky poznámky</string>
     <string name="no_notes_for_tag">K tejto značke nie sú priradené žiadne poznámky</string>
+    <string name="open_list_on">Otvoriť zoznam na</string>
+    <string name="open_list_on_description">Poznámky, ktoré zoznam zobrazí pri každom otvorení Markleafu. Výber iného štítka počas používania aplikácie toto nastavenie nemení. Ak sa štítok premenuje alebo odstráni, zoznam zobrazí všetky poznámky.</string>
+    <string name="show_all_notes">Zobraziť všetky poznámky</string>
     <string name="image_alt_dialog_title">Upraviť popis obrázku</string>
     <string name="image_alt_dialog_description">Alternatívny text pomáha čítačkám obrazovky a zobrazuje sa v prípade, ak sa obrázok nedá načítať.</string>
     <string name="image_alt_dialog_label">Popis</string>

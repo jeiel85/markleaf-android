@@ -8,11 +8,15 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 <!-- Rename to `## vX.Y.Z - Title - YYYY-MM-DD` in the release commit. The release-note step and the verify scripts read only `## v` headings, so this section is invisible to them until then. -->
 
+### Added
+- **Open the list on a tag.** Settings → Notes → **Open the list on** picks the notes the list shows each time you open Markleaf: All notes (the default), or one tag, such as #journal. If you switch to another tag while using the app, the next time you open Markleaf it starts on your chosen tag again. If that tag is renamed or deleted, the list shows all notes. On a phone, a filtered list shows the tag in a chip under the title; tap its ✕ to see all notes. Thanks to [@PriscillaOvO](https://github.com/PriscillaOvO) for the request. (#545)
+
 ### Changed
 - **Settings is a list of six categories, each with its own page.** Settings used to be one long scroll with a row of shortcuts above it, and on a phone most of those shortcuts were off the edge of the screen. It now opens on a search field and six rows: Appearance, Editor, Notes, Privacy & security, Sync & export, and About. Under each row is a short summary of its current settings, such as your theme or whether a sync folder is set. Tap a row to open its page, where related settings sit together under headings: fonts, text size and line width are now under Editor, and export is on the same page as sync. Press Back to return to the list. Search works as before, and a heading name such as "Lock" also finds its page. Picking a result opens the page that holds the setting, with that setting at the top. On a wide screen, such as a tablet in landscape, the list and the open page show side by side. The prompts that ask you to set a passcode for locked notes now open the passcode setting directly, and Back returns you to where you were. The settings themselves, and where they are stored, are unchanged.
 
 ### Limits
 - After you leave a page, TalkBack starts again from the top of the list, not from the row you opened.
+- On a phone, the only way to filter the list by tag is still **Open the list on**; the Tags screen opens a search, as before. A tag drawer for phones is planned separately (#545).
 
 ## v2.70.0 - Sort by creation date - 2026-10-15
 

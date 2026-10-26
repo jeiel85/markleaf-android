@@ -56,6 +56,9 @@
     <string name="font_description">衬线体让笔记呈现经典的书籍风格。代码始终使用等宽字体。</string>
     <string name="all_notes">全部笔记</string>
     <string name="no_notes_for_tag">没有使用此标签的笔记</string>
+    <string name="open_list_on">列表默认显示</string>
+    <string name="open_list_on_description">每次打开 Markleaf 时列表显示的笔记。使用中切换到其他标签不会改变此设置。如果该标签被重命名或删除，列表将显示全部笔记。</string>
+    <string name="show_all_notes">显示全部笔记</string>
     <string name="image_alt_dialog_title">编辑图片描述</string>
     <string name="image_alt_dialog_description">替代文本可帮助屏幕阅读器识别图片，也会在图片无法加载时显示。</string>
     <string name="image_alt_dialog_label">描述</string>

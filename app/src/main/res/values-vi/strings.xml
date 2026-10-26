@@ -53,6 +53,9 @@
     <string name="font_description">Phông có chân mang lại cảm giác cổ điển như sách in. Mã luôn dùng phông đơn cách.</string>
     <string name="all_notes">Tất cả ghi chú</string>
     <string name="no_notes_for_tag">Không có ghi chú nào gắn thẻ này</string>
+    <string name="open_list_on">Mở danh sách ở</string>
+    <string name="open_list_on_description">Các ghi chú mà danh sách hiển thị mỗi khi bạn mở Markleaf. Chọn thẻ khác trong lúc dùng ứng dụng không làm thay đổi cài đặt này. Nếu thẻ bị đổi tên hoặc bị xóa, danh sách sẽ hiển thị tất cả ghi chú.</string>
+    <string name="show_all_notes">Hiện tất cả ghi chú</string>
     <string name="image_alt_dialog_title">Sửa mô tả hình ảnh</string>
     <string name="image_alt_dialog_description">Văn bản thay thế giúp trình đọc màn hình và sẽ hiển thị khi không tải được hình ảnh.</string>
     <string name="image_alt_dialog_label">Mô tả</string>

@@ -81,6 +81,7 @@ import com.markleaf.notes.feature.sync.SyncCenterScreen
 import com.markleaf.notes.feature.viewer.FileViewerScreen
 import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.repository.LocalNoteRepository
+import com.markleaf.notes.data.repository.LocalTagRepository
 import com.markleaf.notes.core.text.DailyNote
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.NewNoteShortcut
@@ -97,11 +98,13 @@ import com.markleaf.notes.ui.viewmodel.LockedNotesViewModel
 import com.markleaf.notes.ui.viewmodel.NotesViewModel
 import com.markleaf.notes.ui.viewmodel.SearchViewModel
 import com.markleaf.notes.ui.viewmodel.TrashViewModel
+import com.markleaf.notes.ui.viewmodel.startupTag
 import com.markleaf.notes.ui.viewmodel.SyncCenterViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import java.time.Instant
 import java.time.LocalDate
 
@@ -145,6 +148,7 @@ fun MarkleafNavHost(
     // resolveOpenNoteRoute. AppDatabase.getInstance is a singleton, so this
     // shares the instance MainActivity already built the factory from.
     val noteRepository = remember { LocalNoteRepository(AppDatabase.getInstance(context)) }
+    val tagRepository = remember { LocalTagRepository(AppDatabase.getInstance(context)) }
     // Outlives every individual destination, unlike a scope obtained inside a
     // `composable { }` route or inside EditorScreen itself -- see the
     // `hostScope` parameter on EditorScreen (#405) for why that matters.
@@ -306,6 +310,16 @@ fun MarkleafNavHost(
         composable(NavRoutes.NOTES) {
             val viewModel = viewModel<NotesViewModel>(factory = viewModelFactory)
             val coroutineScope = rememberCoroutineScope()
+            // "Open the list on" (#545). Bounded like the editor's settings read:
+            // a DataStore that never answers leaves the list on all notes.
+            LaunchedEffect(viewModel) {
+                viewModel.applyStartupTag {
+                    withTimeoutOrNull(STARTUP_TAG_READ_TIMEOUT_MS) {
+                        val setting = settingsRepository.settings.first().openListOnTag
+                        startupTag(setting, tagRepository.observeVisibleTags().first().map { it.name })
+                    }
+                }
+            }
             // "Open file…" (#326). The picker's read grant lasts as long as this
             // task, which is exactly how long the viewer needs it — nothing is
             // persisted, so the app never accumulates access to files it is no
@@ -436,6 +450,7 @@ fun MarkleafNavHost(
                                 onShowTagRail = if (isTagRailCollapsed) ({ isTagRailCollapsed = false }) else null,
                                 selectedNoteId = selectedNoteId,
                                 selectedTag = selectedTag,
+                                onClearTag = if (isTagRailCollapsed) ({ viewModel.selectTag(null) }) else null,
                                 containerColor = listPaneColor,
                                 contentColor = listPaneContentColor
                             )
@@ -524,6 +539,7 @@ fun MarkleafNavHost(
                 // rows can act as the shared-element source for the card->editor
                 // morph. Phone path only — the tablet branch above opens the editor
                 // in-pane and provides no scope.
+                val phoneSelectedTag by viewModel.selectedTag.collectAsState()
                 CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides this) {
                 NotesListScreen(
                     viewModel = viewModel,
@@ -560,7 +576,11 @@ fun MarkleafNavHost(
                         navController.navigate(NavRoutes.SYNC_CENTER_CONFLICTS)
                     },
                     lockPasscodeSet = appSettings.lockPasscodeSet,
-                    onRequestSetPasscode = { navController.navigate(NavRoutes.SETTINGS_PASSCODE) }
+                    onRequestSetPasscode = { navController.navigate(NavRoutes.SETTINGS_PASSCODE) },
+                    // Phones have no tag rail; the filter is set only by "Open the
+                    // list on" (#545) and is shown and cleared by the chip.
+                    selectedTag = phoneSelectedTag,
+                    onClearTag = { viewModel.selectTag(null) }
                 )
                 }
             }
@@ -849,3 +869,6 @@ private fun CollapsedNoteListRail(
         }
     }
 }
+
+/** How long the list waits for the "Open the list on" setting before showing all notes. */
+private const val STARTUP_TAG_READ_TIMEOUT_MS = 2_000L

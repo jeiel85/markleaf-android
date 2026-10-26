@@ -97,6 +97,7 @@ class AppSettingsRepository internal constructor(
             retitlePending = preferences[RETITLE_PENDING] ?: false,
             searchTitlesOnly = preferences[SEARCH_TITLES_ONLY] ?: false,
             lastOpenedNoteId = preferences[LAST_OPENED_NOTE_ID],
+            openListOnTag = preferences[OPEN_LIST_ON_TAG]?.takeIf { it.isNotBlank() },
             openNotesInPreview = preferences[OPEN_NOTES_IN_PREVIEW] ?: false,
             openNotesAt = preferences[OPEN_NOTES_AT]
                 ?.let { value -> enumValueOrDefault(value, OpenNotesAt.TOP) }
@@ -389,6 +390,16 @@ class AppSettingsRepository internal constructor(
         }
     }
 
+    suspend fun setOpenListOnTag(tag: String?) {
+        persist { preferences ->
+            if (tag.isNullOrBlank()) {
+                preferences.remove(OPEN_LIST_ON_TAG)
+            } else {
+                preferences[OPEN_LIST_ON_TAG] = tag
+            }
+        }
+    }
+
     suspend fun setLastOpenedNoteId(noteId: String?) {
         persist { preferences ->
             if (noteId.isNullOrBlank()) {
@@ -525,6 +536,7 @@ class AppSettingsRepository internal constructor(
         val RETITLE_PENDING = booleanPreferencesKey("retitle_pending")
         val SEARCH_TITLES_ONLY = booleanPreferencesKey("search_titles_only")
         val LAST_OPENED_NOTE_ID = stringPreferencesKey("last_opened_note_id")
+        val OPEN_LIST_ON_TAG = stringPreferencesKey("open_list_on_tag")
         val OPEN_NOTES_IN_PREVIEW = booleanPreferencesKey("open_notes_in_preview")
         val OPEN_NOTES_AT = stringPreferencesKey("open_notes_at")
         val NEW_NOTE_SHORTCUT = stringPreferencesKey("new_note_shortcut")

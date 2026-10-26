@@ -16,6 +16,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -29,6 +32,7 @@ import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material.icons.filled.Inventory2
@@ -46,6 +50,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.InputChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -132,6 +137,11 @@ fun NotesListScreen(
     onShowTagRail: (() -> Unit)? = null,
     selectedNoteId: String? = null,
     selectedTag: String? = null,
+    // Clears [selectedTag] from a chip under the app bar. Passed where nothing
+    // else shows the filter: on phones, which have no tag rail, and on a tablet
+    // whose rail is hidden. A list opened on a tag by "Open the list on" (#545)
+    // would otherwise be filtered with no sign of it and no way back.
+    onClearTag: (() -> Unit)? = null,
     containerColor: Color = MaterialTheme.colorScheme.background,
     contentColor: Color = MaterialTheme.colorScheme.onBackground
 ) {
@@ -164,6 +174,20 @@ fun NotesListScreen(
     // list on phones, where there is no tag rail to set a filter).
     val notes = notesState.value
     val displayed = displayedState.value
+    val listState = rememberLazyListState()
+    val gridState = rememberLazyGridState()
+    // A new tag filter starts at the top. Left alone, the list keeps the row it
+    // had at the top (its key is stable), so clearing #journal with "Older" at
+    // the top left the pinned notes above it, off screen (#545). Saved, so
+    // coming back from a note — which recomposes this from scratch on a phone —
+    // is not a change and keeps where the reader had scrolled.
+    var scrolledForTag by rememberSaveable { mutableStateOf(selectedTag) }
+    LaunchedEffect(selectedTag) {
+        if (selectedTag == scrolledForTag) return@LaunchedEffect
+        scrolledForTag = selectedTag
+        listState.scrollToItem(0)
+        gridState.scrollToItem(0)
+    }
     val sortMode = appSettings.notesSortMode
     val sections = remember(displayed, sortMode) { groupNotesForDisplay(displayed, sortMode) }
 
@@ -356,6 +380,13 @@ fun NotesListScreen(
                 // once the conflict count arrives, after the list has laid out,
                 // and an item inserted above the first visible row is scrolled
                 // out of view by the list keeping that row where it was (#434).
+                if (selectedTag != null && onClearTag != null) {
+                    SelectedTagChip(
+                        tag = selectedTag,
+                        onClear = onClearTag,
+                        modifier = Modifier.padding(horizontal = 12.dp)
+                    )
+                }
                 ConflictCopiesBanner(
                     count = conflictCopyCount,
                     onClick = onConflictCopiesClick,
@@ -501,6 +532,7 @@ fun NotesListScreen(
 
             when (appSettings.notesLayout) {
                 NotesLayout.LIST -> LazyColumn(
+                    state = listState,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
@@ -532,6 +564,7 @@ fun NotesListScreen(
                 }
 
                 NotesLayout.GRID -> LazyVerticalGrid(
+                    state = gridState,
                     // Adaptive, not a fixed column count: this screen is also the
                     // tablet's narrow list pane beside the editor, where a fixed
                     // two columns would leave nothing readable in either.
@@ -960,3 +993,15 @@ private fun formatUpdatedTime(context: Context, instant: Instant): String {
     }
 }
 
+/** The tag the list is filtered to, and the way back to all notes (#545). */
+@Composable
+private fun SelectedTagChip(tag: String, onClear: () -> Unit, modifier: Modifier = Modifier) {
+    val clearLabel = stringResource(R.string.show_all_notes)
+    InputChip(
+        selected = true,
+        onClick = onClear,
+        label = { Text("#$tag") },
+        trailingIcon = { Icon(Icons.Default.Close, contentDescription = clearLabel) },
+        modifier = modifier
+    )
+}

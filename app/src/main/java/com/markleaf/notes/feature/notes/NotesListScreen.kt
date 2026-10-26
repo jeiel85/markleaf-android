@@ -142,13 +142,16 @@ fun NotesListScreen(
     // whose rail is hidden. A list opened on a tag by "Open the list on" (#545)
     // would otherwise be filtered with no sign of it and no way back.
     onClearTag: (() -> Unit)? = null,
+    // Injectable like EditorScreen's (#158): the production DataStore is one
+    // instance per JVM, so a test that needs the grid layout passes its own.
+    settingsRepository: AppSettingsRepository? = null,
     containerColor: Color = MaterialTheme.colorScheme.background,
     contentColor: Color = MaterialTheme.colorScheme.onBackground
 ) {
     val hapticFeedback = LocalHapticFeedback.current
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val settingsRepository = remember { AppSettingsRepository(context.applicationContext) }
+    val settingsRepository = settingsRepository ?: remember { AppSettingsRepository(context.applicationContext) }
     val appSettings by settingsRepository.settings.collectAsState(initial = AppSettings())
     val notesState = remember { mutableStateOf<List<Note>>(emptyList()) }
     val displayedState = remember { mutableStateOf<List<Note>>(emptyList()) }
@@ -185,8 +188,11 @@ fun NotesListScreen(
     LaunchedEffect(selectedTag) {
         if (selectedTag == scrolledForTag) return@LaunchedEffect
         scrolledForTag = selectedTag
-        listState.scrollToItem(0)
-        gridState.scrollToItem(0)
+        // Apart, because a layout that is not on screen waits for its first
+        // layout before it scrolls: in sequence, an unshown list held the
+        // grid's reset back (#555 review).
+        launch { listState.scrollToItem(0) }
+        launch { gridState.scrollToItem(0) }
     }
     val sortMode = appSettings.notesSortMode
     val sections = remember(displayed, sortMode) { groupNotesForDisplay(displayed, sortMode) }

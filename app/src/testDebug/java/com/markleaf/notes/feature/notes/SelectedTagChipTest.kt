@@ -11,6 +11,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.markleaf.notes.R
+import com.markleaf.notes.data.settings.AppSettingsRepository
+import com.markleaf.notes.data.settings.InMemoryPreferencesDataStore
+import com.markleaf.notes.data.settings.NotesLayout
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.domain.repository.NoteRepository
 import com.markleaf.notes.ui.theme.MarkleafTheme
@@ -18,6 +21,7 @@ import com.markleaf.notes.ui.viewmodel.NotesViewModel
 import java.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -73,6 +77,19 @@ class SelectedTagChipTest {
     fun `clearing the filter starts the list at the top`() {
         // Seen on the emulator: the list kept "Older" at the top after the
         // filter was cleared, so the pinned notes above it stayed off screen.
+        clearingTheFilterShowsThePinnedNote(NotesLayout.LIST)
+    }
+
+    @Test
+    fun `clearing the filter starts the grid at the top`() {
+        // #555 review: resetting the list first waited on a list that the grid
+        // layout never lays out, so the grid was never reset.
+        clearingTheFilterShowsThePinnedNote(NotesLayout.GRID)
+    }
+
+    private fun clearingTheFilterShowsThePinnedNote(layout: NotesLayout) {
+        val settings = AppSettingsRepository(InMemoryPreferencesDataStore())
+        runBlocking { settings.setNotesLayout(layout) }
         val many = listOf(note("p", "Pinned guide", "#guide").copy(pinned = true)) +
             (1..12).map { note("n$it", "Filler $it", "#misc") } +
             note("j", "Morning pages", "#journal")
@@ -86,7 +103,8 @@ class SelectedTagChipTest {
                     onNoteClick = {},
                     onFabClick = {},
                     selectedTag = selectedTag,
-                    onClearTag = { viewModel.selectTag(null) }
+                    onClearTag = { viewModel.selectTag(null) },
+                    settingsRepository = settings
                 )
             }
         }

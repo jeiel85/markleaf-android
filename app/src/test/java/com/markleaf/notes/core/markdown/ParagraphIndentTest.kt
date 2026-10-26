@@ -98,6 +98,12 @@ class ParagraphIndentTest {
     }
 
     @Test
+    fun `an indent-only line inside a fence is code and is kept`() {
+        // #556 review: this took the removal path before the fence check.
+        assertEquals("~~~\n$ind\n", enter("~~~\n$ind").text)
+    }
+
+    @Test
     fun `enter in the middle of a line indents the moved text`() {
         val old = TextFieldValue("${ind}ab", TextRange(3))
         val new = TextFieldValue("${ind}a\nb", TextRange(4))

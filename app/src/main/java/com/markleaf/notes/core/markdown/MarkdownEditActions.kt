@@ -450,7 +450,9 @@ object MarkdownEditActions {
         val prevLine = new.text.substring(prevLineStart, cursor - 1)
 
         val continuation = continuationFor(prevLine)
-            ?: paragraphContinuation(new.text, prevLineStart, prevLine).takeIf { indentParagraphs }
+            // Gated before the call: it scans the note for fences, which a user
+            // with the setting off should not pay for on every Enter (#556 review).
+            ?: (if (indentParagraphs) paragraphContinuation(new.text, prevLineStart, prevLine) else null)
             ?: return AutoContinuationResult(new, null)
 
         val result = if (continuation.bodyEmpty) {
@@ -476,28 +478,32 @@ object MarkdownEditActions {
     private val fenceLine = Regex("""^ {0,3}(`{3,}|~{3,})""")
     private val thematicBreak = Regex("""^ {0,3}([-*_])( *\1){2,} *$""")
 
+    /**
+     * The paragraph rule for [line], starting at [lineStart] in [text]. Nothing
+     * inside a fenced block (see [insideFence]) is touched — not even a line
+     * that is exactly the indent, which there is code to keep, not an indent to
+     * take back (#556 review). The fence check runs first for that reason.
+     */
     private fun paragraphContinuation(text: String, lineStart: Int, line: String): Continuation? {
+        if (insideFence(text.substring(0, lineStart))) return null
         if (line == PARAGRAPH_INDENT) return Continuation(PARAGRAPH_INDENT, bodyEmpty = true)
-        if (!isParagraphLine(text, lineStart, line)) return null
+        if (!isParagraphLine(line)) return null
         return Continuation(PARAGRAPH_INDENT, bodyEmpty = false)
     }
 
     /**
-     * Whether [line], starting at [lineStart] in [text], is plain paragraph text
-     * the next line should be indented after. Not a blank line, a heading, a
-     * table row, a thematic break, an indented code line, a code fence or any
-     * line inside a fenced block (see [insideFence]), since a line of code looks
-     * like prose on its own. Lists and quotes never get here: their own
-     * continuation rules match first.
+     * Whether [line], outside any fenced block, is plain paragraph text the
+     * next line should be indented after. Not a blank line, a heading, a table
+     * row, a thematic break, an indented code line or a code fence. Lists and
+     * quotes never get here: their own continuation rules match first.
      */
-    private fun isParagraphLine(text: String, lineStart: Int, line: String): Boolean {
+    private fun isParagraphLine(line: String): Boolean {
         if (line.isBlank()) return false
         if (headingLine.containsMatchIn(line)) return false
         if (line.trimStart().startsWith("|")) return false
         if (thematicBreak.matches(line)) return false
         if (line.startsWith("    ") || line.startsWith("\t")) return false
-        if (fenceLine.containsMatchIn(line)) return false
-        return !insideFence(text.substring(0, lineStart))
+        return !fenceLine.containsMatchIn(line)
     }
 
     /**

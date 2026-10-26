@@ -261,6 +261,8 @@
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Prikaži Markdown sintaksu</string>
     <string name="show_markdown_syntax_description">Uređivač u stvarnom vremenu ističe Markdown znakove kada pišeš.</string>
+    <string name="indent_paragraphs">Uvuci nove odlomke</string>
+    <string name="indent_paragraphs_description">Enter u retku s tekstom započinje sljedeći redak s dva razmaka pune širine, kao u kineskom pisanju. Enter u retku koji sadrži samo uvlaku uklanja je. Naslovi, popisi, citati i kod ostaju nepromijenjeni.</string>
     <string name="show_formatting_button">Prikaži gumb za oblikovanje</string>
     <string name="show_formatting_button_description">Zadržava gumb Aa u retku iznad tipkovnice. Isključeno ga skriva; poništavanje i ponavljanje ostaju, podebljano, kurziv i poveznica i dalje se pojavljuju kad odaberete tekst, a brzo umetanje s / ostaje isto.</string>
     <string name="snippet_buttons_label">Gumbi isječaka</string>

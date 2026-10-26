@@ -200,6 +200,19 @@ internal fun EditorSettings(
     )
     Spacer(Modifier.height(12.dp))
     SettingsSwitchRow(
+        title = stringResource(R.string.indent_paragraphs),
+        titleModifier = anchors.item(SettingsItem.INDENT_PARAGRAPHS),
+        description = stringResource(R.string.indent_paragraphs_description),
+        checked = appSettings.indentParagraphs,
+        onCheckedChange = { checked ->
+            HapticFeedback.light(context)
+            scope.launch {
+                settingsRepository.setIndentParagraphs(checked)
+            }
+        }
+    )
+    Spacer(Modifier.height(12.dp))
+    SettingsSwitchRow(
         title = stringResource(R.string.show_formatting_button),
         titleModifier = anchors.item(SettingsItem.FORMATTING_BUTTON),
         description = stringResource(R.string.show_formatting_button_description),

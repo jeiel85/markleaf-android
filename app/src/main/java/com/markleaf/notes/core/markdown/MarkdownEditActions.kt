@@ -420,11 +420,18 @@ object MarkdownEditActions {
      * ever live for one callback at a time), and self-corrects on the very next
      * keystroke, which will not reproduce the same stale pair and so drops the
      * guard normally.
+     *
+     * [indentParagraphs] is the "Indent new paragraphs" setting (#543): Enter on
+     * a line of plain text starts the next line with [PARAGRAPH_INDENT], and
+     * Enter on a line holding only that indent takes it away again, the way an
+     * empty list item ends the list. It is the last rule, so lists and quotes
+     * keep their own; see [isParagraphLine] for what else it leaves alone.
      */
     fun applyAutoContinuation(
         old: TextFieldValue,
         new: TextFieldValue,
-        pendingGuard: AutoContinuationResult?
+        pendingGuard: AutoContinuationResult?,
+        indentParagraphs: Boolean = false
     ): AutoContinuationResult {
         val staleEcho = pendingGuard?.staleEcho
         if (staleEcho != null && old.sameContentAs(pendingGuard.value) && new.sameContentAs(staleEcho)) {
@@ -442,7 +449,11 @@ object MarkdownEditActions {
         val prevLineStart = new.text.lastIndexOf('\n', cursor - 2).let { if (it == -1) 0 else it + 1 }
         val prevLine = new.text.substring(prevLineStart, cursor - 1)
 
-        val continuation = continuationFor(prevLine) ?: return AutoContinuationResult(new, null)
+        val continuation = continuationFor(prevLine)
+            // Gated before the call: it scans the note for fences, which a user
+            // with the setting off should not pay for on every Enter (#556 review).
+            ?: (if (indentParagraphs) paragraphContinuation(new.text, prevLineStart, prevLine) else null)
+            ?: return AutoContinuationResult(new, null)
 
         val result = if (continuation.bodyEmpty) {
             // Remove the bare prefix from the previous line, keep the newline.
@@ -459,6 +470,45 @@ object MarkdownEditActions {
     }
 
     private data class Continuation(val nextPrefix: String, val bodyEmpty: Boolean)
+
+    /** Two ideographic spaces (U+3000), the first-line indent of Chinese prose (#543). */
+    const val PARAGRAPH_INDENT = "\u3000\u3000"
+
+    private val headingLine = Regex("""^ {0,3}#{1,6}(\s|$)""")
+    private val thematicBreak = Regex("""^ {0,3}([-*_])( *\1){2,} *$""")
+
+    /**
+     * The paragraph rule for [line], starting at [lineStart] in [text]. Nothing
+     * in a fenced block is touched — the fence lines, the code, and even a
+     * line that is exactly the indent, which there is code to keep rather than
+     * an indent to take back. Which lines are code is [FencedCodeBlocks]'s
+     * answer, the one the editor's highlighting already shows; counting fence
+     * lines here instead got a ``` inside a ~~~ block and an inline ```code```
+     * line wrong (#556 review).
+     */
+    private fun paragraphContinuation(text: String, lineStart: Int, line: String): Continuation? {
+        if (FencedCodeBlocks.ranges(text).any { lineStart in it }) return null
+        if (line == PARAGRAPH_INDENT) return Continuation(PARAGRAPH_INDENT, bodyEmpty = true)
+        if (!isParagraphLine(line)) return null
+        return Continuation(PARAGRAPH_INDENT, bodyEmpty = false)
+    }
+
+    /**
+     * Whether [line], outside any fenced block, is plain paragraph text the
+     * next line should be indented after. Not a blank line, a heading, a table
+     * row or a thematic break, and not a line starting with an ASCII space or
+     * tab: that is indented code, or the inside of a list item — including a
+     * code block fenced inside one (`- ```), which [FencedCodeBlocks] does not
+     * look for. Prose this rule is for starts with the indent itself or a
+     * character. Lists and quotes never get here: their own rules match first.
+     */
+    private fun isParagraphLine(line: String): Boolean {
+        if (line.isBlank()) return false
+        if (line[0] == ' ' || line[0] == '\t') return false
+        if (headingLine.containsMatchIn(line)) return false
+        if (line.startsWith("|")) return false
+        return !thematicBreak.matches(line)
+    }
 
     private fun continuationFor(line: String): Continuation? {
         // Checklist: `- [ ] body` / `- [x] body`

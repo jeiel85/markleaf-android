@@ -257,6 +257,8 @@
     <string name="settings_markdown">Markdown</string>
     <string name="show_markdown_syntax">Show Markdown syntax</string>
     <string name="show_markdown_syntax_description">The live editor highlights Markdown characters while you write.</string>
+    <string name="indent_paragraphs">Indent new paragraphs</string>
+    <string name="indent_paragraphs_description">Enter on a line of text starts the next line with two full-width spaces, as in Chinese writing. Enter on a line with only the indent removes it. Headings, lists, quotes and code are left alone.</string>
     <string name="show_formatting_button">Show formatting button</string>
     <string name="show_formatting_button_description">Keep the Aa button on the row above the keyboard. Off hides it; undo and redo stay, bold, italic and link still appear when you select text, and / quick insert is unchanged.</string>
     <string name="snippet_buttons_label">Snippet buttons</string>

@@ -52,6 +52,9 @@
     <string name="font_description">明朝は書籍のような落ち着いた雰囲気になります。コードは常に等幅で表示されます。</string>
     <string name="all_notes">すべてのノート</string>
     <string name="no_notes_for_tag">このタグのノートはありません</string>
+    <string name="open_list_on">リストの表示対象</string>
+    <string name="open_list_on_description">Markleafを開くたびにリストに表示するノートです。アプリの使用中に別のタグを選んでも、この設定は変わりません。タグの名前が変わったり削除されたりした場合は、すべてのノートを表示します。</string>
+    <string name="show_all_notes">すべてのノートを表示</string>
     <string name="image_alt_dialog_title">画像の説明を編集</string>
     <string name="image_alt_dialog_description">代替テキストはスクリーンリーダーや、画像を読み込めない場合に使われます。</string>
     <string name="image_alt_dialog_label">説明</string>

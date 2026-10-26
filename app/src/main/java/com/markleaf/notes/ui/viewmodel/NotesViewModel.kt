@@ -44,6 +44,23 @@ class NotesViewModel(
         _selectedTag.value = tag
     }
 
+    private var startupTagApplied = false
+
+    /**
+     * Filters the list to the "Open the list on" tag (#545), once per list:
+     * this view model lives as long as the list does, so coming back from a
+     * note keeps whatever tag the reader switched to, and only reopening the
+     * app starts on the setting again. [resolve] reads the setting; it runs
+     * again if it is cancelled before it answers (a rotation mid-read), and a
+     * tag the reader picked in the meantime wins over it.
+     */
+    suspend fun applyStartupTag(resolve: suspend () -> String?) {
+        if (startupTagApplied) return
+        val tag = resolve()
+        startupTagApplied = true
+        if (tag != null && _selectedTag.value == null) _selectedTag.value = tag
+    }
+
     /**
      * How many conflict copies are waiting — the Conflict Center's own list,
      * counted. The list screen shows a banner while this is above zero, so a
@@ -143,6 +160,21 @@ class NotesViewModel(
  * index and the rail show. Selecting a parent tag (`#project`) also matches its
  * descendants (`#project/site`), mirroring Bear's nested-tag behaviour.
  */
+/**
+ * The tag the list opens on (#545): the "Open the list on" setting, or null for
+ * all notes when it is unset or no visible tag is it or under it any more — a
+ * tag renamed or deleted since it was picked, or one whose notes are all in
+ * the trash. A parent with only child tags still counts, as on the tag rail.
+ */
+internal fun startupTag(setting: String?, visibleTagNames: List<String>): String? {
+    val needle = setting?.let(TagParser::normalizeTagName)?.takeIf { it.isNotEmpty() } ?: return null
+    val exists = visibleTagNames.any { name ->
+        val normalized = TagParser.normalizeTagName(name)
+        normalized == needle || normalized.startsWith("$needle/")
+    }
+    return needle.takeIf { exists }
+}
+
 internal fun noteMatchesTag(note: Note, tag: String): Boolean {
     val needle = TagParser.normalizeTagName(tag)
     if (needle.isEmpty()) return false

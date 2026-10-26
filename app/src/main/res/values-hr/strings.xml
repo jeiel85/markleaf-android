@@ -60,6 +60,9 @@
     <string name="font_size_description">Skalira tekst uređivača i pregleda. Potvrdni okviri i ciljne površine poveznica rastu zajedno s tekstom.</string>
     <string name="all_notes">Sve bilješke</string>
     <string name="no_notes_for_tag">Nema bilješki s ovom oznakom</string>
+    <string name="open_list_on">Otvori popis na</string>
+    <string name="open_list_on_description">Bilješke koje popis prikazuje svaki put kad otvorite Markleaf. Odabir druge oznake tijekom korištenja aplikacije ne mijenja ovu postavku. Ako se oznaka preimenuje ili izbriše, popis prikazuje sve bilješke.</string>
+    <string name="show_all_notes">Prikaži sve bilješke</string>
     <string name="image_alt_dialog_title">Uredi opis slike</string>
     <string name="image_alt_dialog_description">Alternativni tekst pomaže pri korištenju čitača zaslona i prikazuje se kada se slika ne uspije učitati.</string>
     <string name="image_alt_dialog_label">Opis</string>

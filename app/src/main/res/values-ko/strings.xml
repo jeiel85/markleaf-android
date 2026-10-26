@@ -52,6 +52,9 @@
     <string name="font_description">세리프는 노트에 책 같은 고전적인 느낌을 줍니다. 코드는 항상 고정폭으로 표시됩니다.</string>
     <string name="all_notes">전체 노트</string>
     <string name="no_notes_for_tag">이 태그의 노트가 없습니다</string>
+    <string name="open_list_on">목록 시작 화면</string>
+    <string name="open_list_on_description">Markleaf를 열 때마다 목록에 보여 줄 노트입니다. 앱을 쓰는 동안 다른 태그를 골라도 이 설정은 바뀌지 않습니다. 태그 이름이 바뀌거나 태그가 지워지면 전체 노트를 보여 줍니다.</string>
+    <string name="show_all_notes">전체 노트 보기</string>
     <string name="image_alt_dialog_title">이미지 설명 편집</string>
     <string name="image_alt_dialog_description">대체 텍스트는 스크린 리더 사용자에게 도움이 되고, 이미지가 보이지 않을 때 대신 표시됩니다.</string>
     <string name="image_alt_dialog_label">설명</string>

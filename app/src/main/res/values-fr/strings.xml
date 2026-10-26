@@ -52,6 +52,9 @@
     <string name="font_description">Le serif donne aux notes une allure classique, comme un livre. Le code reste toujours à chasse fixe.</string>
     <string name="all_notes">Toutes les notes</string>
     <string name="no_notes_for_tag">Aucune note avec cette étiquette</string>
+    <string name="open_list_on">Ouvrir la liste sur</string>
+    <string name="open_list_on_description">Les notes affichées par la liste à chaque ouverture de Markleaf. Choisir une autre étiquette pendant l’utilisation ne modifie pas ce réglage. Si l’étiquette est renommée ou supprimée, la liste affiche toutes les notes.</string>
+    <string name="show_all_notes">Afficher toutes les notes</string>
     <string name="image_alt_dialog_title">Modifier la description de l\'image</string>
     <string name="image_alt_dialog_description">Le texte alternatif aide les lecteurs d\'écran et s\'affiche lorsque l\'image ne peut pas être chargée.</string>
     <string name="image_alt_dialog_label">Description</string>

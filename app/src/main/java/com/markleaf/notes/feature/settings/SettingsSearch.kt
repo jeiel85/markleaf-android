@@ -57,6 +57,10 @@ internal enum class SettingsItem(
         SettingsCategory.NOTES, R.string.note_title_source, R.string.note_title_source_description,
         listOf(R.string.note_title_source_first_heading, R.string.note_title_source_first_line)
     ),
+    OPEN_LIST_ON(
+        SettingsCategory.NOTES, R.string.open_list_on, R.string.open_list_on_description,
+        listOf(R.string.all_notes)
+    ),
     REOPEN_LAST_NOTE(SettingsCategory.NOTES, R.string.reopen_last_note, R.string.reopen_last_note_description),
     OPEN_IN_PREVIEW(SettingsCategory.NOTES, R.string.open_notes_in_preview, R.string.open_notes_in_preview_description),
     OPEN_NOTES_AT(

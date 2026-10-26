@@ -178,7 +178,9 @@ class HardcodedStringTest {
             "com/markleaf/notes/core/markdown/preview/MarkdownPreviewList.kt" to
                 "[^\${line.extra}]",
             "com/markleaf/notes/feature/editor/EditorFormattingControls.kt" to "Aa",
-            "com/markleaf/notes/feature/editor/EditorSuggestions.kt" to "#\$tag"
+            "com/markleaf/notes/feature/editor/EditorSuggestions.kt" to "#\$tag",
+            "com/markleaf/notes/feature/notes/NotesListScreen.kt" to "#\$tag",
+            "com/markleaf/notes/feature/settings/OpenListOnSetting.kt" to "#\${option.name}"
         )
     }
 }

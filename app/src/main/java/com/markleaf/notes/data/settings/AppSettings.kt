@@ -83,6 +83,11 @@ data class AppSettings(
      *  [reopenLastNote] is on; stale ids (deleted/trashed notes) are ignored at
      *  launch rather than eagerly cleared. */
     val lastOpenedNoteId: String? = null,
+    /** The tag the notes list is filtered to each time the app opens, as a
+     *  normalized tag name; null means all notes (#545). Only read when the
+     *  list is first shown, so switching tags while using the app leaves it
+     *  alone, and a tag that no longer exists falls back to all notes. */
+    val openListOnTag: String? = null,
     /** Open existing notes in preview mode instead of the edit surface, so
      *  browsing note to note keeps showing the rendered view without toggling
      *  the eye icon each time. Off by default (notes open in edit). Toggled from

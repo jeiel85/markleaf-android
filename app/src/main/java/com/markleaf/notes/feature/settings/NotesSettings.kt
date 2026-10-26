@@ -132,6 +132,13 @@ internal fun NotesSettings(
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
     Spacer(Modifier.height(12.dp))
+    OpenListOnSetting(
+        tag = appSettings.openListOnTag,
+        db = db,
+        onTagChange = { tag -> scope.launch { settingsRepository.setOpenListOnTag(tag) } },
+        titleModifier = anchors.item(SettingsItem.OPEN_LIST_ON)
+    )
+    Spacer(Modifier.height(12.dp))
     SettingsGroupHeading(stringResource(R.string.settings_group_opening), first = false)
     SettingsSwitchRow(
         title = stringResource(R.string.reopen_last_note),

@@ -39,7 +39,7 @@ internal fun settingsSummary(category: SettingsCategory, appSettings: AppSetting
             appSettings.notesLayout.localizedLabel(),
             appSettings.noteTitleSource.localizedLabel(),
             appSettings.openNotesAt.localizedLabel()
-        )
+        ) + listOfNotNull(appSettings.openListOnTag?.let { "#$it" })
         SettingsCategory.PRIVACY -> {
             val context = LocalContext.current
             val biometricAvailable = remember(context) { context.canUseBiometric() }

@@ -475,17 +475,19 @@ object MarkdownEditActions {
     const val PARAGRAPH_INDENT = "\u3000\u3000"
 
     private val headingLine = Regex("""^ {0,3}#{1,6}(\s|$)""")
-    private val fenceLine = Regex("""^ {0,3}(`{3,}|~{3,})""")
     private val thematicBreak = Regex("""^ {0,3}([-*_])( *\1){2,} *$""")
 
     /**
      * The paragraph rule for [line], starting at [lineStart] in [text]. Nothing
-     * inside a fenced block (see [insideFence]) is touched — not even a line
-     * that is exactly the indent, which there is code to keep, not an indent to
-     * take back (#556 review). The fence check runs first for that reason.
+     * in a fenced block is touched — the fence lines, the code, and even a
+     * line that is exactly the indent, which there is code to keep rather than
+     * an indent to take back. Which lines are code is [FencedCodeBlocks]'s
+     * answer, the one the editor's highlighting already shows; counting fence
+     * lines here instead got a ``` inside a ~~~ block and an inline ```code```
+     * line wrong (#556 review).
      */
     private fun paragraphContinuation(text: String, lineStart: Int, line: String): Continuation? {
-        if (insideFence(text.substring(0, lineStart))) return null
+        if (FencedCodeBlocks.ranges(text).any { lineStart in it }) return null
         if (line == PARAGRAPH_INDENT) return Continuation(PARAGRAPH_INDENT, bodyEmpty = true)
         if (!isParagraphLine(line)) return null
         return Continuation(PARAGRAPH_INDENT, bodyEmpty = false)
@@ -494,39 +496,18 @@ object MarkdownEditActions {
     /**
      * Whether [line], outside any fenced block, is plain paragraph text the
      * next line should be indented after. Not a blank line, a heading, a table
-     * row, a thematic break, an indented code line or a code fence. Lists and
-     * quotes never get here: their own continuation rules match first.
+     * row or a thematic break, and not a line starting with an ASCII space or
+     * tab: that is indented code, or the inside of a list item — including a
+     * code block fenced inside one (`- ```), which [FencedCodeBlocks] does not
+     * look for. Prose this rule is for starts with the indent itself or a
+     * character. Lists and quotes never get here: their own rules match first.
      */
     private fun isParagraphLine(line: String): Boolean {
         if (line.isBlank()) return false
+        if (line[0] == ' ' || line[0] == '\t') return false
         if (headingLine.containsMatchIn(line)) return false
-        if (line.trimStart().startsWith("|")) return false
-        if (thematicBreak.matches(line)) return false
-        if (line.startsWith("    ") || line.startsWith("\t")) return false
-        return !fenceLine.containsMatchIn(line)
-    }
-
-    /**
-     * Whether a fenced code block is still open at the end of [before]. Follows
-     * CommonMark: a fence closes only on a run of the same character, at least
-     * as long as the one that opened it, with nothing but spaces after. Counting
-     * fence-like lines instead took the ``` inside a ~~~ block for its end and
-     * indented the code after it (#556 review).
-     */
-    private fun insideFence(before: String): Boolean {
-        var open: String? = null
-        for (line in before.lineSequence()) {
-            val run = fenceLine.find(line)?.groupValues?.get(1) ?: continue
-            val current = open
-            if (current == null) {
-                open = run
-            } else if (run[0] == current[0] && run.length >= current.length &&
-                line.substringAfter(run).isBlank()
-            ) {
-                open = null
-            }
-        }
-        return open != null
+        if (line.startsWith("|")) return false
+        return !thematicBreak.matches(line)
     }
 
     private fun continuationFor(line: String): Continuation? {

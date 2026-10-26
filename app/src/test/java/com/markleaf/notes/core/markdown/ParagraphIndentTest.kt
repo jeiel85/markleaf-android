@@ -98,6 +98,21 @@ class ParagraphIndentTest {
     }
 
     @Test
+    fun `code fenced inside a list item is not indented`() {
+        // #556 review: the `- ` before the fence hid it from the fence scan.
+        assertEquals("- ```\n  code\n", enter("- ```\n  code").text)
+        // Any line starting with an ASCII space is list content or code, not prose.
+        assertEquals("  continued item text\n", enter("  continued item text").text)
+    }
+
+    @Test
+    fun `a line of inline code does not open a fence`() {
+        // #556 review: a backtick fence's info string can't hold a backtick, so
+        // this is inline code, and the prose after it is still indented.
+        assertEquals("```example```\nprose\n$ind", enter("```example```\nprose").text)
+    }
+
+    @Test
     fun `an indent-only line inside a fence is code and is kept`() {
         // #556 review: this took the removal path before the fence check.
         assertEquals("~~~\n$ind\n", enter("~~~\n$ind").text)

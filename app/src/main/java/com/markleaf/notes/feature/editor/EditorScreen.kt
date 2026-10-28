@@ -317,7 +317,8 @@ fun EditorScreen(
                             uri,
                             updatedNote,
                             appSettings.syncFileExtension,
-                            appSettings.mirrorMetadata()
+                            appSettings.mirrorMetadata(),
+                            appSettings.syncKeepFileNames
                         )
                         if (wrote) {
                             val attachments = AttachmentManager.filesForNote(context, id)

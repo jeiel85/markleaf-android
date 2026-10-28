@@ -364,6 +364,8 @@
         <item quantity="other">Zrcaljeno je %1$d bilješki u mapu.</item>
     </plurals>
     <string name="sync_file_format">Format sinkr. datoteke</string>
+    <string name="sync_keep_file_names">Zadrži nazive datoteka</string>
+    <string name="sync_keep_file_names_description">Kad bilješka već ima datoteku, Markleaf je više ne preimenuje kad se naslov promijeni. Naziv koji datoteci date u drugoj aplikaciji ili u ljusci ostaje kakav jest.</string>
     <string name="sync_tidy_filenames">Preimenuj datoteke u naslove bilješki</string>
     <plurals name="sync_tidy_done_format">
         <item quantity="one">Očišćen je %1$d naziv datoteke.</item>

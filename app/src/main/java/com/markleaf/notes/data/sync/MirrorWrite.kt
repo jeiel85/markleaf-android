@@ -34,24 +34,31 @@ internal object MirrorWrite {
      * behaviour lives. A test can hand this a [DocumentFile] over a temp
      * directory and exercise the real matching, adoption and rename paths
      * instead of leaving them to manual device smoke (#222).
+     *
+     * [keepFileName] stops an existing file being renamed after the title
+     * (#429): the name only follows the title when the file is first created,
+     * so a name the user gave it outside Markleaf survives the next save. The
+     * link to the note never depended on the name — the frontmatter id or the
+     * sidecar entry is what finds the file — so only the rename is skipped.
      */
     internal fun writeNoteInto(
         context: Context,
         folder: DocumentFile,
         note: Note,
         extension: SyncFileExtension,
-        metadata: MirrorMetadata = MirrorMetadata.Frontmatter
+        metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
+        keepFileName: Boolean = false
     ): Boolean {
         if (!folder.canWrite()) return false
         if (metadata is MirrorMetadata.Sidecar) {
-            return writeNoteSidecar(context, folder, note, extension, metadata.deviceId)
+            return writeNoteSidecar(context, folder, note, extension, metadata.deviceId, keepFileName)
         }
 
         // Fast path: we remember which document holds this note, its name
-        // already matches the title, and it still carries the note's id. One
-        // read instead of listing the folder and reading the head of every file
-        // in it (#222).
-        MirrorFileLookup.MirrorFileCache.hit(context, folder.uri, note)?.let { cached ->
+        // already matches the title (or is being kept as it is), and it still
+        // carries the note's id. One read instead of listing the folder and
+        // reading the head of every file in it (#222).
+        MirrorFileLookup.MirrorFileCache.hit(context, folder.uri, note, keepFileName)?.let { cached ->
             return writeContents(context, cached.uri, note, cached.extraEntries)
         }
 
@@ -69,7 +76,7 @@ internal object MirrorWrite {
         // already safely persisted under the old name — no data loss.
         if (!writeContents(context, target.uri, note, match?.extraEntries.orEmpty())) return false
 
-        if (existing != null && existing.name != desiredName) {
+        if (!keepFileName && existing != null && existing.name != desiredName) {
             existing.renameTo(desiredName) // best-effort; old name is fine if it fails
         }
         // Remember it under whatever name it ended up with — renameTo updates
@@ -96,7 +103,8 @@ internal object MirrorWrite {
         folder: DocumentFile,
         note: Note,
         extension: SyncFileExtension,
-        deviceId: String
+        deviceId: String,
+        keepFileName: Boolean
     ): Boolean {
         val ownEntries = SidecarStore.ownEntries(context, folder, deviceId)
 
@@ -108,7 +116,7 @@ internal object MirrorWrite {
         // equivalent because it has no header to identify a file by. The index
         // entry is that identity instead, so the cache is verified against it.
         MirrorFileLookup.MirrorFileCache.hitSidecar(
-            context, folder.uri, note, ownEntries[note.id]?.fileName
+            context, folder.uri, note, ownEntries[note.id]?.fileName, keepFileName
         )?.let { cached ->
             val body = note.contentMarkdown
             if (!writeRawContents(context, cached.uri, body)) return false
@@ -149,7 +157,7 @@ internal object MirrorWrite {
         // under the old name, exactly as in the frontmatter path.
         val body = note.contentMarkdown
         if (!writeRawContents(context, target.uri, body)) return false
-        if (existing != null && existing.name != desiredName) {
+        if (!keepFileName && existing != null && existing.name != desiredName) {
             existing.renameTo(desiredName)
         }
 

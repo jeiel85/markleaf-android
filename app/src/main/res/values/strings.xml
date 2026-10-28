@@ -357,6 +357,8 @@
         <item quantity="other">Mirrored %1$d notes to the folder.</item>
     </plurals>
     <string name="sync_file_format">Sync file format</string>
+    <string name="sync_keep_file_names">Keep file names</string>
+    <string name="sync_keep_file_names_description">Once a note has a file, Markleaf won’t rename it when the title changes. A name you give the file in another app or a shell stays as it is.</string>
     <string name="sync_tidy_filenames">Rename files to note titles</string>
     <plurals name="sync_tidy_done_format">
         <item quantity="one">Tidied %1$d filename.</item>

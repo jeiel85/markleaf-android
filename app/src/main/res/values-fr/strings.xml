@@ -346,6 +346,8 @@
         <item quantity="other">%1$d notes mises en miroir dans le dossier.</item>
     </plurals>
     <string name="sync_file_format">Format de fichier de synchronisation</string>
+    <string name="sync_keep_file_names">Conserver les noms de fichier</string>
+    <string name="sync_keep_file_names_description">Une fois le fichier d’une note créé, Markleaf ne le renomme plus quand le titre change. Le nom que vous lui donnez dans une autre app ou un terminal est conservé.</string>
     <string name="sync_tidy_filenames">Renommer les fichiers selon le titre</string>
     <plurals name="sync_tidy_done_format">
         <item quantity="one">%1$d nom de fichier nettoyé.</item>

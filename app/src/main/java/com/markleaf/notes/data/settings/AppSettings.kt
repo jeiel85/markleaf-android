@@ -111,6 +111,13 @@ data class AppSettings(
     /** A sidecar folder conversion was started and has not reported finishing (#262). */
     val sidecarMigrationPending: Boolean = false,
     /**
+     * Leave a mirror file's name alone once it exists, instead of renaming it
+     * to follow the note's title on every save. For people who name their
+     * files themselves — in a shell or another editor — and want that name to
+     * stay. Defaults to false, the original title-follows behaviour (#429).
+     */
+    val syncKeepFileNames: Boolean = false,
+    /**
      * This install's id, used to name the sidecar index it owns so two devices
      * writing the same folder never write the same file. Generated on first use
      * and never sent anywhere — it exists only to keep filenames apart.

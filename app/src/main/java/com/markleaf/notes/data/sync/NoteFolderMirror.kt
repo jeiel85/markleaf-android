@@ -111,17 +111,23 @@ object NoteFolderMirror {
      * and if the title-derived name has drifted we rename the file in place. A
      * brand-new note's file is created with [extension]; an existing file keeps
      * whatever extension it already has (flipping the setting never rewrites old
-     * files' suffixes).
+     * files' suffixes). With [keepFileName] an existing file keeps its name
+     * whatever the title says (#429).
+     *
+     * [keepFileName] has no default on purpose: it comes from a setting, and a
+     * caller that forgot to pass it would quietly rename files the user asked
+     * Markleaf to leave alone.
      */
     fun writeNote(
         context: Context,
         folderUri: Uri,
         note: Note,
         extension: SyncFileExtension = SyncFileExtension.MD,
-        metadata: MirrorMetadata = MirrorMetadata.Frontmatter
+        metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
+        keepFileName: Boolean
     ): Boolean {
         val folder = DocumentFile.fromTreeUri(context, folderUri) ?: return false
-        return MirrorWrite.writeNoteInto(context, folder, note, extension, metadata)
+        return MirrorWrite.writeNoteInto(context, folder, note, extension, metadata, keepFileName)
     }
 
     /** Resolve a relative Markdown link against an actual file in the selected folder. */
@@ -167,8 +173,9 @@ object NoteFolderMirror {
         folder: DocumentFile,
         note: Note,
         extension: SyncFileExtension,
-        metadata: MirrorMetadata = MirrorMetadata.Frontmatter
-    ): Boolean = MirrorWrite.writeNoteInto(context, folder, note, extension, metadata)
+        metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
+        keepFileName: Boolean = false
+    ): Boolean = MirrorWrite.writeNoteInto(context, folder, note, extension, metadata, keepFileName)
 
     /**
      * [writeNote] plus the `lastImportedAt` stamp that records "the folder now
@@ -189,9 +196,10 @@ object NoteFolderMirror {
         note: Note,
         extension: SyncFileExtension,
         metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
+        keepFileName: Boolean,
         onStamped: suspend (Note) -> Unit
     ): Boolean {
-        val wrote = writeNote(context, folderUri, note, extension, metadata)
+        val wrote = writeNote(context, folderUri, note, extension, metadata, keepFileName)
         if (wrote) onStamped(note.copy(lastImportedAt = note.updatedAt))
         return wrote
     }

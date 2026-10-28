@@ -349,6 +349,8 @@
         <item quantity="other">Poznámok bolo synchronizovaných do priečinka: %1$d.</item>
     </plurals>
     <string name="sync_file_format">Formát synchronizačného súboru</string>
+    <string name="sync_keep_file_names">Ponechať názvy súborov</string>
+    <string name="sync_keep_file_names_description">Keď už poznámka má súbor, Markleaf ho pri zmene názvu poznámky nepremenuje. Názov, ktorý súboru dáte v inej aplikácii alebo v termináli, zostane zachovaný.</string>
     <string name="sync_tidy_filenames">Premenovať súbory podľa názvov poznámok</string>
     <plurals name="sync_tidy_done_format">
         <item quantity="one">Upravený %1$d názov súboru.</item>

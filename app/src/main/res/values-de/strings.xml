@@ -346,6 +346,8 @@
         <item quantity="other">%1$d Notizen in den Ordner gespiegelt.</item>
     </plurals>
     <string name="sync_file_format">Dateiformat der Synchronisierung</string>
+    <string name="sync_keep_file_names">Dateinamen beibehalten</string>
+    <string name="sync_keep_file_names_description">Sobald eine Notiz eine Datei hat, benennt Markleaf sie bei einer Titeländerung nicht mehr um. Ein Name, den du der Datei in einer anderen App oder in der Shell gibst, bleibt erhalten.</string>
     <string name="sync_tidy_filenames">Dateien nach Notiztitel benennen</string>
     <plurals name="sync_tidy_done_format">
         <item quantity="one">%1$d Dateiname aufgeräumt.</item>

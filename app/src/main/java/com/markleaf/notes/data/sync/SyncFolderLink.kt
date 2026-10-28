@@ -57,7 +57,8 @@ object SyncFolderLink {
         noteImporter: NoteImporter,
         extension: SyncFileExtension,
         metadata: MirrorMetadata,
-        titleSource: NoteTitleSource
+        titleSource: NoteTitleSource,
+        keepFileNames: Boolean
     ): LinkResult {
         settingsRepository.setSyncFolderUri(folderUri.toString())
 
@@ -89,7 +90,8 @@ object SyncFolderLink {
                 folderUri,
                 note,
                 extension,
-                metadata
+                metadata,
+                keepFileNames
             ) { stamped -> noteRepository.updateNote(stamped) }
             if (wrote) seeded++
         }

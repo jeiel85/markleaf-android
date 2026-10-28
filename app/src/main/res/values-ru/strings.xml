@@ -373,6 +373,8 @@
         <item quantity="other">%1$d заметки отражено в папку.</item>
     </plurals>
     <string name="sync_file_format">Формат файлов синхронизации</string>
+    <string name="sync_keep_file_names">Сохранять имена файлов</string>
+    <string name="sync_keep_file_names_description">Когда у заметки уже есть файл, Markleaf не переименовывает его при смене названия. Имя, которое вы дали файлу в другом приложении или в терминале, сохраняется.</string>
     <string name="sync_tidy_filenames">Переименовать файлы по названиям заметок</string>
     <plurals name="sync_tidy_done_format">
         <item quantity="one">Упорядочено %1$d имя файла.</item>

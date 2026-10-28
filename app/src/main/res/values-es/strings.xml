@@ -346,6 +346,8 @@
         <item quantity="other">%1$d notas reflejadas en la carpeta.</item>
     </plurals>
     <string name="sync_file_format">Formato de archivo de sincronización</string>
+    <string name="sync_keep_file_names">Conservar nombres de archivo</string>
+    <string name="sync_keep_file_names_description">Cuando una nota ya tiene archivo, Markleaf no lo renombra si cambia el título. El nombre que le pongas en otra app o en una terminal se mantiene.</string>
     <string name="sync_tidy_filenames">Renombrar archivos según el título</string>
     <plurals name="sync_tidy_done_format">
         <item quantity="one">%1$d nombre de archivo ordenado.</item>

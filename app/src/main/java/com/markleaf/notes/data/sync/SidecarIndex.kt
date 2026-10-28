@@ -225,6 +225,75 @@ class FileNameIndex internal constructor(
 }
 
 /**
+ * Index entries whose file has left the folder, findable by what that file
+ * last held — how a file renamed outside Markleaf (`mv` in a shell, a desktop
+ * editor, a file manager) is still recognised as the note it was (#429).
+ *
+ * A sidecar file has no header, so its name is the only link to its note, and
+ * a rename cuts it: the renamed file reads as a hand-dropped one and imports as
+ * a second note, and the next save of the original finds nothing under the
+ * indexed name and writes a second file as well. What survives a plain rename
+ * is the content, and [SidecarEntry.contentHash] records exactly that. A file
+ * no entry names, holding precisely what a missing entry's file held, is that
+ * file under a new name.
+ *
+ * What it does **not** catch, and cannot:
+ * - A file renamed *and* edited before the next import. Nothing is left to
+ *   match on, so it imports as a new note — the behaviour before this existed.
+ * - A rename this device's own save gets to first. The save finds nothing
+ *   under the indexed name and writes a fresh file there (it never writes into
+ *   a file it cannot identify), after which the entry is no longer missing and
+ *   the renamed file is, again, a new note.
+ *
+ * Two guards keep a match from being a guess:
+ * - A hash held by more than one missing entry matches none of them. Two notes
+ *   with identical text — two empty templates — give no way to tell which one a
+ *   renamed file was, and picking one could swap them.
+ * - Each entry is claimed at most once, so of two identical files only the
+ *   first walked takes the note over and the second imports as a copy.
+ *
+ * Other devices' entries take part: a note this device has only ever read
+ * has no entry of its own, and leaving those out would fork exactly the notes
+ * that arrived from elsewhere. The claimed entry is recorded in this device's
+ * index only — another device's file is never written — and that device fixes
+ * its own entry when its import sees the same rename.
+ *
+ * "Missing" compares names ignoring case, the same fold [FileNameIndex] uses,
+ * so a case-only rename is left to the lookup that already follows it.
+ */
+internal class RenamedFileMatcher(
+    entries: Collection<SidecarEntry>,
+    fileNames: Collection<String>
+) {
+    private val missingByHash: MutableMap<String, SidecarEntry> = run {
+        val present = fileNames.mapTo(HashSet(fileNames.size)) { it.lowercase() }
+        entries
+            .filter { it.fileName.lowercase() !in present }
+            .groupBy { it.contentHash }
+            .filterValues { it.size == 1 }
+            .mapValuesTo(HashMap()) { it.value.single() }
+    }
+
+    /** True when no entry is missing its file, so no file needs hashing. */
+    val isEmpty: Boolean get() = missingByHash.isEmpty()
+
+    /**
+     * The entry [fileName] was renamed from, now naming [fileName] — or null.
+     *
+     * [contentHash] is [SidecarIndex.hashOf] the file's text with any leftover
+     * header stripped, the same text the import hashes. [headerId] is that
+     * header's `markleaf_id`, if it had one; a file whose header names a
+     * different note is not taken from that note.
+     */
+    fun claim(fileName: String, contentHash: String, headerId: String?): SidecarEntry? {
+        val entry = missingByHash[contentHash] ?: return null
+        if (headerId != null && headerId != entry.noteId) return null
+        missingByHash.remove(contentHash)
+        return entry.copy(fileName = fileName)
+    }
+}
+
+/**
  * One note's bookkeeping: which file holds it, what we last wrote there, and
  * the flags that used to travel in the frontmatter.
  *

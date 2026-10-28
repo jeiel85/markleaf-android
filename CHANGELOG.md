@@ -17,6 +17,9 @@ All notable changes to Markleaf are documented in this file. This English editio
 ### Changed
 - **Settings is a list of six categories, each with its own page.** Settings used to be one long scroll with a row of shortcuts above it, and on a phone most of those shortcuts were off the edge of the screen. It now opens on a search field and six rows: Appearance, Editor, Notes, Privacy & security, Sync & export, and About. Under each row is a short summary of its current settings, such as your theme or whether a sync folder is set. Tap a row to open its page, where related settings sit together under headings: fonts, text size and line width are now under Editor, and export is on the same page as sync. Press Back to return to the list. Search works as before, and a heading name such as "Lock" also finds its page. Picking a result opens the page that holds the setting, with that setting at the top. On a wide screen, such as a tablet in landscape, the list and the open page show side by side. The prompts that ask you to set a passcode for locked notes now open the passcode setting directly, and Back returns you to where you were. The settings themselves, and where they are stored, are unchanged.
 
+### Fixed
+- **A file renamed outside Markleaf no longer becomes a second note when Note metadata is set to Beside the files.** Renaming a note's file in a shell (`mv`), a desktop editor or a file manager used to make the next sync import it as a new note, and the next save of the original wrote its old file back, leaving two notes and two files. Markleaf now recognizes a renamed file by its content and keeps it attached to the same note. (#429)
+
 ### Limits
 - After you leave a page, TalkBack starts again from the top of the list, not from the row you opened.
 - On a phone, the only way to filter the list by tag is still **Open the list on**; the Tags screen opens a search, as before. A tag drawer for phones is planned separately (#545).
@@ -24,7 +27,7 @@ All notable changes to Markleaf are documented in this file. This English editio
 - Markleaf's preview shows each line on its own, but other Markdown apps may join lines that have no blank line between them.
 - Search still lists each note once. Every match inside a note is reached through Find, not shown in the results.
 - Find opened from a search closes when the screen rotates, like Find opened by hand.
-- **Keep file names** doesn't change how a note whose metadata is kept **Beside the files** handles a file renamed outside Markleaf: such a file is still read in as a new note. Renaming is safe when metadata is kept **In the file**, the default.
+- With **Beside the files**, a file renamed outside Markleaf is recognized only if its content is unchanged. A file renamed *and* edited before Markleaf next syncs, or renamed while you are editing that note in Markleaf, still arrives as a separate note. Renaming is always safe when metadata is kept **In the file**, the default. Unless **Keep file names** is on, the next save in Markleaf renames the file back to the note's title.
 
 ## v2.70.0 - Sort by creation date - 2026-10-15
 

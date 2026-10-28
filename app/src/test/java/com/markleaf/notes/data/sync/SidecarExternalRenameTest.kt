@@ -68,9 +68,10 @@ class SidecarExternalRenameTest {
         updatedAt = Instant.ofEpochMilli(2_000)
     )
 
-    private fun save(n: Note, device: String = DEVICE) = NoteFolderMirror.writeNoteInto(
-        context, folder, n, SyncFileExtension.MD, MirrorMetadata.Sidecar(device)
-    )
+    private fun save(n: Note, device: String = DEVICE, keepFileName: Boolean = false) =
+        NoteFolderMirror.writeNoteInto(
+            context, folder, n, SyncFileExtension.MD, MirrorMetadata.Sidecar(device), keepFileName
+        )
 
     private class Imported(val result: NoteFolderMirror.ImportResult, val created: List<Note>)
 
@@ -125,6 +126,25 @@ class SidecarExternalRenameTest {
 
         val again = import(listOf(edited))
         assertEquals(0, again.result.created)
+    }
+
+    @Test
+    fun withFileNamesKeptTheRenamedFileKeepsItsNameThroughTheNextSave() {
+        // The case #429 asked for: a short name given in a shell. The import
+        // has to carry the new name into the index for "keep file names" to
+        // have a file to keep — without it the save finds nothing under the
+        // indexed name and writes the title-named file again.
+        val plan = note()
+        assertTrue(save(plan, keepFileName = true))
+        renameOnlyFile("pl.md")
+
+        assertEquals(0, import(listOf(plan)).result.created)
+        assertTrue(save(plan.copy(contentMarkdown = "# Plan\n\nsecond"), keepFileName = true))
+
+        val file = markdownFiles().single()
+        assertEquals("pl.md", file.name)
+        assertEquals("# Plan\n\nsecond", file.readText())
+        assertEquals("pl.md", indexOf(DEVICE).single().fileName)
     }
 
     @Test

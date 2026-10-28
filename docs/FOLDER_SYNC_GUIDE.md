@@ -108,9 +108,11 @@ under **Settings → Sync & export → Note metadata**:
   to the block are kept.
 - **Beside the files.** The files hold only what you wrote, and the links
   live in hidden `.markleaf-index-…` files in the same folder. Sync those
-  hidden files too; Syncthing does by default. The trade-off: a file renamed
-  outside Markleaf is currently read in as a new note, so in this mode rename
-  files from Markleaf only, or not at all.
+  hidden files too; Syncthing does by default. The trade-off: with no id in
+  the file, a renamed file is matched to its note by its content. A plain
+  rename keeps the same note, but a file renamed *and* edited before
+  Markleaf syncs, or renamed while you are editing that note on the phone,
+  is read in as a new note. Rename, let Markleaf sync, then edit.
 
 If you plan to rename files on the computer, use **In the file**.
 
@@ -120,7 +122,7 @@ If you plan to rename files on the computer, use **In the file**.
 |---|---|
 | Edit a file | The note updates the next time Markleaf syncs |
 | Create a new `.md` file in the folder | It becomes a new note |
-| Rename a file | Header mode: same note, and with **Keep file names** on the name stays. Index mode: read in as a new note |
+| Rename a file | Same note, and with **Keep file names** on the name stays. Index mode only: if you also edited it before Markleaf synced, it arrives as a new note |
 | Delete a file | Nothing; the note stays, and its file is written again on the next edit |
 | Edit a note in Markleaf and the same file on the computer | The phone keeps its version; the other arrives as a copy |
 

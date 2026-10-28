@@ -93,7 +93,7 @@
 - **Pin / archive / trash** — trash asks once more before permanent deletion
 
 ### Sync & Export (No-Cloud principle)
-- **Folder mirror sync** — mirrors each note as a **title-named** `.md` / `.txt` file to a folder you pick via SAF (Drive/Dropbox/Syncthing/OneDrive/NAS, etc.); rename a note and its file follows. Markleaf never syncs anything itself; it is delegated to *whatever external app syncs that folder*
+- **Folder mirror sync** — mirrors each note as a **title-named** `.md` / `.txt` file to a folder you pick via SAF (Drive/Dropbox/Syncthing/OneDrive/NAS, etc.); rename a note and its file follows, or turn on **Keep file names** to keep names you set yourself. Markleaf never syncs anything itself; it is delegated to *whatever external app syncs that folder*. To work on the same files from a computer, see the [folder sync guide](docs/FOLDER_SYNC_GUIDE.md)
 - **Open a `.md` / `.txt` file to read it** — *Open file…* in the ⋮ menu, or a tap in your file manager, opens the file rendered and read-only; nothing joins your notes until you tap *Save as note* (the file name becomes the title when there's no heading). Sharing a file into Markleaf from another app still imports it straight away. Tags in synced-in notes are recognized right away
 - **Export individual / all notes as `.md`**
 - **Send via the system share sheet**

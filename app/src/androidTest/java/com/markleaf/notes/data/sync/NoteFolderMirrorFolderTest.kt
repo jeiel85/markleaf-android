@@ -78,8 +78,13 @@ class NoteFolderMirrorFolderTest {
     private fun seed(name: String, contents: String): File =
         File(dir, name).apply { writeText(contents) }
 
-    private fun write(note: Note, extension: SyncFileExtension = SyncFileExtension.MD) =
-        NoteFolderMirror.writeNoteInto(context, folder, note, extension)
+    private fun write(
+        note: Note,
+        extension: SyncFileExtension = SyncFileExtension.MD,
+        keepFileName: Boolean = false
+    ) = NoteFolderMirror.writeNoteInto(
+        context, folder, note, extension, MirrorMetadata.Frontmatter, keepFileName
+    )
 
     private fun files() = dir.listFiles()?.map { it.name }?.sorted().orEmpty()
 
@@ -107,6 +112,44 @@ class NoteFolderMirrorFolderTest {
         // never see the note vanish and reappear.
         assertEquals(listOf("New Title.md"), files())
         assertTrue(File(dir, "New Title.md").readText().contains("fresh"))
+    }
+
+    // --- keeping file names (#429) -------------------------------------------
+
+    @Test
+    fun aKeptFileNameDoesNotFollowTheTitle() {
+        seed("Old Title.md", "---\nmarkleaf_id: note-1\n---\n\nold")
+
+        assertTrue(write(note(title = "New Title", body = "# New Title\n\nfresh"), keepFileName = true))
+
+        assertEquals(listOf("Old Title.md"), files())
+        assertTrue(File(dir, "Old Title.md").readText().contains("fresh"))
+    }
+
+    /**
+     * The workflow #429 asked for: Markleaf names the file once, the user
+     * renames it in a shell, and every later save — the first one takes the
+     * slow path because the remembered document moved, the next one the
+     * remembered-file fast path — writes into the user's name.
+     */
+    @Test
+    fun aNameGivenOutsideMarkleafSurvivesLaterSaves() {
+        seed("A long first line that became the name.md", "---\nmarkleaf_id: note-1\n---\n\nfirst")
+        val title = "A long first line that became the name"
+        assertTrue(write(note(title = title, body = "$title\n\nsecond"), keepFileName = true))
+
+        assertTrue(
+            File(dir, "A long first line that became the name.md")
+                .renameTo(File(dir, "groceries.md"))
+        )
+
+        assertTrue(write(note(title = title, body = "$title\n\nthird"), keepFileName = true))
+        assertEquals(listOf("groceries.md"), files())
+        assertTrue(File(dir, "groceries.md").readText().contains("third"))
+
+        assertTrue(write(note(title = title, body = "$title\n\nfourth"), keepFileName = true))
+        assertEquals(listOf("groceries.md"), files())
+        assertTrue(File(dir, "groceries.md").readText().contains("fourth"))
     }
 
     // --- #213: a lost id must not fork a new file every save ----------------

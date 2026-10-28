@@ -339,6 +339,8 @@
         <item quantity="other">Đã sao chép %1$d ghi chú vào thư mục.</item>
     </plurals>
     <string name="sync_file_format">Định dạng tệp đồng bộ</string>
+    <string name="sync_keep_file_names">Giữ tên tệp</string>
+    <string name="sync_keep_file_names_description">Khi ghi chú đã có tệp, Markleaf sẽ không đổi tên tệp khi tiêu đề thay đổi. Tên bạn đặt cho tệp trong ứng dụng khác hoặc trong shell sẽ được giữ nguyên.</string>
     <string name="sync_tidy_filenames">Đổi tên tệp theo tiêu đề ghi chú</string>
     <plurals name="sync_tidy_done_format">
         <item quantity="other">Đã chỉnh lại %1$d tên tệp.</item>

@@ -338,6 +338,8 @@
         <item quantity="other">%1$d 件のノートをフォルダへ書き出しました。</item>
     </plurals>
     <string name="sync_file_format">同期ファイル形式</string>
+    <string name="sync_keep_file_names">ファイル名を保持</string>
+    <string name="sync_keep_file_names_description">ノートのファイルが作成された後は、タイトルが変わっても Markleaf はファイル名を変更しません。ほかのアプリやシェルで付けた名前もそのまま残ります。</string>
     <string name="sync_tidy_filenames">ファイル名をノートのタイトルに整える</string>
     <plurals name="sync_tidy_done_format">
         <item quantity="other">ファイル名を %1$d 件整えました。</item>

@@ -363,7 +363,8 @@ private fun LockedNotesList(
                                         uri,
                                         note.copy(locked = false),
                                         appSettings.syncFileExtension,
-                                        appSettings.mirrorMetadata()
+                                        appSettings.mirrorMetadata(),
+                                        appSettings.syncKeepFileNames
                                     ) { stamped -> viewModel.stampMirrored(stamped) }
                                 }
                             }

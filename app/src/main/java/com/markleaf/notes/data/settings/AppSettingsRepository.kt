@@ -110,6 +110,7 @@ class AppSettingsRepository internal constructor(
                 ?.let { value -> enumValueOrDefault(value, SyncMetadataMode.FRONTMATTER) }
                 ?: SyncMetadataMode.FRONTMATTER,
             sidecarMigrationPending = preferences[SIDECAR_MIGRATION_PENDING] ?: false,
+            syncKeepFileNames = preferences[SYNC_KEEP_FILE_NAMES] ?: false,
             syncDeviceId = preferences[SYNC_DEVICE_ID]
         )
     }
@@ -469,6 +470,12 @@ class AppSettingsRepository internal constructor(
         }
     }
 
+    suspend fun setSyncKeepFileNames(keep: Boolean) {
+        persist { preferences ->
+            preferences[SYNC_KEEP_FILE_NAMES] = keep
+        }
+    }
+
     /**
      * This install's device id, generating and persisting one on first call.
      *
@@ -550,6 +557,7 @@ class AppSettingsRepository internal constructor(
         val NEW_NOTE_SHORTCUT = stringPreferencesKey("new_note_shortcut")
         val SYNC_METADATA_MODE = stringPreferencesKey("sync_metadata_mode")
         val SIDECAR_MIGRATION_PENDING = booleanPreferencesKey("sidecar_migration_pending")
+        val SYNC_KEEP_FILE_NAMES = booleanPreferencesKey("sync_keep_file_names")
         val SYNC_DEVICE_ID = stringPreferencesKey("sync_device_id")
     }
 }

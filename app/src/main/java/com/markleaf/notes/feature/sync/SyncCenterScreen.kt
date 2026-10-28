@@ -36,6 +36,7 @@ import com.markleaf.notes.data.sync.NoteImporter
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.data.sync.mirrorMetadata
 import com.markleaf.notes.domain.model.Note
+import com.markleaf.notes.feature.settings.SettingsSwitchRow
 import com.markleaf.notes.ui.component.elapsedTimeLabel
 import com.markleaf.notes.ui.viewmodel.SyncCenterViewModel
 import com.markleaf.notes.util.HapticFeedback
@@ -284,30 +285,45 @@ fun SyncCenterScreen(
                                     }
                                 }
 
-                                OutlinedButton(
-                                    onClick = {
-                                        val uri = appSettings.syncFolderUriOrNull() ?: return@OutlinedButton
-                                        scope.launch {
-                                            val notes = withContext(Dispatchers.IO) {
-                                                noteRepository.observeNotes().first()
-                                            }.filter { !it.trashed }
-                                            val renamed = withContext(Dispatchers.IO) {
-                                                var n = 0
-                                                notes.forEach {
-                                                    if (NoteFolderMirror.renameToTitle(context, uri, it)) n++
+                                SettingsSwitchRow(
+                                    title = stringResource(R.string.sync_keep_file_names),
+                                    description = stringResource(R.string.sync_keep_file_names_description),
+                                    checked = appSettings.syncKeepFileNames,
+                                    onCheckedChange = { keep ->
+                                        HapticFeedback.light(context)
+                                        scope.launch { settingsRepository.setSyncKeepFileNames(keep) }
+                                    }
+                                )
+
+                                // Renaming every file to its title is exactly what
+                                // keeping names asks Markleaf not to do, so the
+                                // button would undo the setting in one tap (#429).
+                                if (!appSettings.syncKeepFileNames) {
+                                    OutlinedButton(
+                                        onClick = {
+                                            val uri = appSettings.syncFolderUriOrNull() ?: return@OutlinedButton
+                                            scope.launch {
+                                                val notes = withContext(Dispatchers.IO) {
+                                                    noteRepository.observeNotes().first()
+                                                }.filter { !it.trashed }
+                                                val renamed = withContext(Dispatchers.IO) {
+                                                    var n = 0
+                                                    notes.forEach {
+                                                        if (NoteFolderMirror.renameToTitle(context, uri, it)) n++
+                                                    }
+                                                    n
                                                 }
-                                                n
+                                                Toast.makeText(
+                                                    context,
+                                                    context.resources.getQuantityString(R.plurals.sync_tidy_done_format, renamed, renamed),
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
                                             }
-                                            Toast.makeText(
-                                                context,
-                                                context.resources.getQuantityString(R.plurals.sync_tidy_done_format, renamed, renamed),
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        }
-                                    },
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Text(stringResource(R.string.sync_tidy_filenames))
+                                        },
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Text(stringResource(R.string.sync_tidy_filenames))
+                                    }
                                 }
 
                                 Row(

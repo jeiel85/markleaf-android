@@ -87,14 +87,18 @@ internal object MirrorFileLookup {
         /**
          * The document for [note] if it is remembered, its name still matches
          * the note's title, and it still carries the note's id — otherwise null,
-         * and the caller falls back to scanning the folder.
+         * and the caller falls back to scanning the folder. With [keepFileName]
+         * the name is not compared: no rename will follow, so a name that
+         * differs from the title is the expected state, not a reason to scan.
          */
-        fun hit(context: Context, folderUri: Uri, note: Note): CachedTarget? {
+        fun hit(context: Context, folderUri: Uri, note: Note, keepFileName: Boolean = false): CachedTarget? {
             if (folder != folderUri) return null
             val entry = entries[note.id] ?: return null
             // A drifted title needs the folder listing anyway, to disambiguate
             // the new name against every other file. Let the slow path have it.
-            if (!MirrorFileNames.isPlainNameFor(entry.name, MirrorFileNames.sanitizeBase(note.title))) {
+            if (!keepFileName &&
+                !MirrorFileNames.isPlainNameFor(entry.name, MirrorFileNames.sanitizeBase(note.title))
+            ) {
                 return null
             }
             val head = peekFrontmatter(context, entry.uri)
@@ -115,18 +119,22 @@ internal object MirrorFileLookup {
          * note (#140).
          *
          * A drifted title also misses on purpose. Renaming needs the folder
-         * listing anyway, to keep the new name clear of every other file.
+         * listing anyway, to keep the new name clear of every other file —
+         * unless [keepFileName] says no rename will happen (#429).
          */
         fun hitSidecar(
             context: Context,
             folderUri: Uri,
             note: Note,
-            indexName: String?
+            indexName: String?,
+            keepFileName: Boolean = false
         ): SidecarTarget? {
             if (folder != folderUri) return null
             val name = indexName ?: return null
             val entry = entries[note.id] ?: return null
-            if (!MirrorFileNames.isPlainNameFor(name, MirrorFileNames.sanitizeBase(note.title))) {
+            if (!keepFileName &&
+                !MirrorFileNames.isPlainNameFor(name, MirrorFileNames.sanitizeBase(note.title))
+            ) {
                 return null
             }
             if (SidecarStore.documentName(context, entry.uri) != name) {

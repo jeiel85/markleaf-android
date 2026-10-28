@@ -58,12 +58,13 @@ class SidecarSaveFastPathTest {
         updatedAt = Instant.ofEpochMilli(2_000)
     )
 
-    private fun save(n: Note) = NoteFolderMirror.writeNoteInto(
+    private fun save(n: Note, keepFileName: Boolean = false) = NoteFolderMirror.writeNoteInto(
         context,
         folder,
         n,
         SyncFileExtension.MD,
-        MirrorMetadata.Sidecar(DEVICE)
+        MirrorMetadata.Sidecar(DEVICE),
+        keepFileName
     )
 
     private fun markdownFiles() = dir.listFiles().orEmpty().filter { it.name.endsWith(".md") }
@@ -126,6 +127,26 @@ class SidecarSaveFastPathTest {
         assertEquals(
             "and the index must name the file that exists",
             files.single().name,
+            ownEntries().single().fileName
+        )
+    }
+
+    /** #429: with names kept, a retitle rewrites the file under the name it has. */
+    @Test
+    fun aKeptFileNameSurvivesARetitle() {
+        assertTrue(save(note(body = "# Plan\n\nfirst"), keepFileName = true))
+        val originalName = markdownFiles().single().name
+
+        assertTrue(save(note(title = "Renamed plan", body = "# Renamed plan\n\nsecond"), keepFileName = true))
+        assertTrue(save(note(title = "Renamed plan", body = "# Renamed plan\n\nthird"), keepFileName = true))
+
+        val files = markdownFiles()
+        assertEquals("a title change must not leave two files behind", 1, files.size)
+        assertEquals("the name must not follow the title", originalName, files.single().name)
+        assertEquals("# Renamed plan\n\nthird", files.single().readText())
+        assertEquals(
+            "and the index must name the file that exists",
+            originalName,
             ownEntries().single().fileName
         )
     }

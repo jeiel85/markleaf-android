@@ -767,6 +767,7 @@ fun MarkleafNavHost(
                                     note = newNote,
                                     extension = settings.syncFileExtension,
                                     metadata = settings.mirrorMetadata(),
+                                    keepFileName = settings.syncKeepFileNames,
                                     onStamped = { stamped -> noteRepository.updateNote(stamped) }
                                 )
                             }

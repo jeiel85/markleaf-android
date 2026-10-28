@@ -222,6 +222,9 @@ internal object MirrorImport {
      * than the file's head, and "has this changed" is a hash comparison rather
      * than a timestamp one. See [MirrorReconcile.sidecarReconcileAction].
      *
+     * A file renamed outside Markleaf is matched back to its note by content
+     * before it can be read as a new one — [RenamedFileMatcher] (#429).
+     *
      * The index is rewritten once at the end rather than per file: an import
      * that touches fifty notes should cost the folder one index write, not
      * fifty, and a sync client watching the folder should see one change.
@@ -262,9 +265,17 @@ internal object MirrorImport {
         // this our copy carries that row for the folder's lifetime — and the
         // same in reverse, leaving both devices holding the other's dead rows
         // (#262).
-        for (id in staleEntryIds(ownEntries.values, byId.keys, files.map { it.name })) {
+        val stale = staleEntryIds(ownEntries.values, byId.keys, files.map { it.name })
+        for (id in stale) {
             ownEntries.remove(id)
         }
+        // Built after the stale rows are known and without them: a dropped row
+        // describes a note that is gone, and a file matching it would bring
+        // that note's id back for what is really a fresh file.
+        val renamed = RenamedFileMatcher(
+            merged.values.filterNot { it.noteId in stale },
+            files.map { it.name }
+        )
 
         for (ref in files) {
             val file = ref.file
@@ -285,7 +296,15 @@ internal object MirrorImport {
             // for this file: an id is a better link than a filename.
             val parsed = SyncFrontmatter.decode(body)
             val text = parsed.body
-            val entry = byFileName[fileName]
+            val hash = SidecarIndex.hashOf(text)
+            // A file no entry names may be one renamed outside Markleaf; see
+            // [RenamedFileMatcher] for when that is decided and when it is not.
+            val moved = if (byFileName[fileName] == null) {
+                renamed.claim(fileName, hash, parsed.markleafId)
+            } else {
+                null
+            }
+            val entry = byFileName[fileName] ?: moved
             // The same live read as the frontmatter pass, for the same reason:
             // the Overwrite below writes `note.copy(...)` back, and a row from
             // the start of the pass would undo a save made since (#434).
@@ -295,7 +314,11 @@ internal object MirrorImport {
                 continue
             }
             val existingNote = (live as LiveNote.Current).note
-            val hash = SidecarIndex.hashOf(text)
+            // Recorded whatever the action below turns out to be. A matched
+            // rename is in sync by construction, so it usually resolves to
+            // Skip, which writes no entry — and an index left naming the old
+            // file is what sends the next save off to create one (#429).
+            if (moved != null) ownEntries[moved.noteId] = moved
             val matchesLastWrite = entry != null && entry.contentHash == hash
 
             try {

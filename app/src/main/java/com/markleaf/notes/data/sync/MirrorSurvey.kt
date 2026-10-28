@@ -65,11 +65,32 @@ internal object MirrorSurvey {
             else -> null
         }
 
+        // The import follows a file renamed outside Markleaf back to its note
+        // by content (#429), so the count has to as well, or a folder that was
+        // only tidied up would be announced as that many new notes.
+        val renamed = when (metadata) {
+            is MirrorMetadata.Sidecar -> RenamedFileMatcher(
+                SidecarStore.load(context, folder, metadata.deviceId).values,
+                files.map { it.name }
+            )
+            else -> null
+        }
+
         var newFiles = 0
         var knownFiles = 0
         for (ref in files) {
             val file = ref.file
             val idFromIndex = byFileName?.get(ref.name)?.noteId
+                ?: renamed?.takeUnless { it.isEmpty }?.let { matcher ->
+                    // Read in full only here — a file the index does not name
+                    // while some entry's file is missing — which is rare.
+                    val raw = runCatching {
+                        context.contentResolver.openInputStream(file.uri)?.use { it.readBytes() }
+                            ?.toString(Charsets.UTF_8)
+                    }.getOrNull() ?: return@let null
+                    val parsed = SyncFrontmatter.decode(raw)
+                    matcher.claim(ref.name, SidecarIndex.hashOf(parsed.body), parsed.markleafId)?.noteId
+                }
             // Even in sidecar mode a file may carry a header — written before
             // the mode was switched, or arriving from a device still writing
             // one — and the import prefers that id when the index has nothing.

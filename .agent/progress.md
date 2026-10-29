@@ -2919,3 +2919,8 @@ Verification:
 
 Selected task: open issue #537 (Newest/Oldest created first in the sort menu). Added CREATED_DESC/CREATED_ASC, 11-locale strings, unit test that edits do not reorder.
 Verification: `testDebugUnitTest` + `lintRelease` locally.
+
+## 2026-10-29 - v2.71.0: settings in six categories, plus the week's requests
+
+Selected task: weekly release of what merged since v2.70.0 (#541, #542, #543, #544, #545, #553, #429 twice, settings restructure). One day late: the 10-28 window was missed, the maintainer allowed a one-off tag.
+Verification: `verify-release-notes.ps1`, `verify-landing-versions.ps1`, `verify-locales.ps1` locally; CI `build` + `instrumented-tests` on the release PR.

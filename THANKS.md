@@ -48,8 +48,8 @@ Listed by first report.
 | [@hawk1335](https://github.com/hawk1335) | [#390](https://github.com/jeiel85/markleaf-android/issues/390) |
 | [@stacsk](https://github.com/stacsk) | [#398](https://github.com/jeiel85/markleaf-android/issues/398), [#403](https://github.com/jeiel85/markleaf-android/issues/403), [#405](https://github.com/jeiel85/markleaf-android/issues/405) |
 | [@Vikranttiw](https://github.com/Vikranttiw) | [#413](https://github.com/jeiel85/markleaf-android/issues/413) |
-| [@Jackson-Nickk](https://github.com/Jackson-Nickk) | [#414](https://github.com/jeiel85/markleaf-android/issues/414) |
-| [@kise82](https://github.com/kise82) | [#423](https://github.com/jeiel85/markleaf-android/issues/423) |
+| [@Jackson-Nickk](https://github.com/Jackson-Nickk) | [#414](https://github.com/jeiel85/markleaf-android/issues/414), [#429](https://github.com/jeiel85/markleaf-android/issues/429) |
+| [@kise82](https://github.com/kise82) | [#423](https://github.com/jeiel85/markleaf-android/issues/423), [#499](https://github.com/jeiel85/markleaf-android/issues/499), [#500](https://github.com/jeiel85/markleaf-android/issues/500) |
 | [@6r4f](https://github.com/6r4f) | [#424](https://github.com/jeiel85/markleaf-android/issues/424) |
 | [@jcesarap](https://github.com/jcesarap) | [#428](https://github.com/jeiel85/markleaf-android/issues/428), [#429](https://github.com/jeiel85/markleaf-android/issues/429) |
 | [@makesthingsxyz](https://github.com/makesthingsxyz) | [#432](https://github.com/jeiel85/markleaf-android/issues/432) |
@@ -58,7 +58,11 @@ Listed by first report.
 | [@Kamul-PL](https://github.com/Kamul-PL) | [#446](https://github.com/jeiel85/markleaf-android/issues/446) |
 | [@Akshaythorat376](https://github.com/Akshaythorat376) | [#447](https://github.com/jeiel85/markleaf-android/issues/447) |
 | [@blend0matik](https://github.com/blend0matik) | [#473](https://github.com/jeiel85/markleaf-android/issues/473) |
-| [@ClockGen](https://github.com/ClockGen) | [#474](https://github.com/jeiel85/markleaf-android/issues/474) |
+| [@ClockGen](https://github.com/ClockGen) | [#474](https://github.com/jeiel85/markleaf-android/issues/474), [#510](https://github.com/jeiel85/markleaf-android/issues/510) |
+| [@PriscillaOvO](https://github.com/PriscillaOvO) | [#537](https://github.com/jeiel85/markleaf-android/issues/537), [#543](https://github.com/jeiel85/markleaf-android/issues/543), [#544](https://github.com/jeiel85/markleaf-android/issues/544), [#545](https://github.com/jeiel85/markleaf-android/issues/545) |
+| [@lyminhtanh](https://github.com/lyminhtanh) | [#540](https://github.com/jeiel85/markleaf-android/issues/540) |
+| [@uszymyszy](https://github.com/uszymyszy) | [#542](https://github.com/jeiel85/markleaf-android/issues/542) |
+| [@dr-donnerknispel](https://github.com/dr-donnerknispel) | [#553](https://github.com/jeiel85/markleaf-android/issues/553) |
 
 Not every request here was accepted — a couple were declined, and saying no to a
 thoughtful suggestion is its own kind of debt. Being told what you want from the
@@ -85,6 +89,7 @@ deciding the clipped leaf was worth a pull request.
 | [@ThatOneCalculator](https://github.com/ThatOneCalculator) | [#318](https://github.com/jeiel85/markleaf-android/pull/318) — launcher icon clipped by the adaptive-icon mask |
 | [@anotherus3r](https://github.com/anotherus3r) | [#329](https://github.com/jeiel85/markleaf-android/pull/329) — Croatian |
 | [@padi-sk](https://github.com/padi-sk) | [#453](https://github.com/jeiel85/markleaf-android/pull/453) — Slovak; [#458](https://github.com/jeiel85/markleaf-android/pull/458) — its native-speaker review |
+| [@LILITHNCL](https://github.com/LILITHNCL) | [#541](https://github.com/jeiel85/markleaf-android/pull/541) — copy button on code blocks |
 
 Reporting something new? [Issues](https://github.com/jeiel85/markleaf-android/issues)
 for bugs, [Discussions](https://github.com/jeiel85/markleaf-android/discussions)

@@ -1,0 +1,1 @@
+Cài đặt giờ gồm sáu mục, mỗi mục có trang riêng. Mới: bắt đầu ghi chú mới bằng tiêu đề, nút sao chép trên khối mã, kết quả tìm kiếm mở ngay chỗ khớp, thẻ để mở danh sách, thụt đầu đoạn mới và “Giữ tên tệp” cho đồng bộ thư mục. Đã sửa: dòng chạm ở phía dưới không còn bị bàn phím che, và tệp đổi tên bên ngoài Markleaf không còn thành ghi chú thứ hai.

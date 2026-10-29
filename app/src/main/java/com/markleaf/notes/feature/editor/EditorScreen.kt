@@ -280,7 +280,11 @@ fun EditorScreen(
     // file name may still follow the title under "Keep file names" (#429, see
     // keepsFileName). Saveable and only ever set, never cleared, by the load:
     // after a rotation the reload sees a note that has been saved, and must not
-    // freeze the name halfway through the first line.
+    // freeze the name halfway through the first line. Coming back to this screen
+    // with Back, from a linked note or another app, is the same visit and keeps
+    // the exemption on purpose; it ends once the screen is closed. Ending it on
+    // ON_STOP instead would also end it when the app is merely backgrounded,
+    // and a pause like that is the half-typed title this is here to avoid.
     var createdThisVisit by rememberSaveable(noteId) { mutableStateOf(false) }
     // The persistence behind the debounce gate: reads the note fresh from the
     // DB so a save never clobbers a newer row, then updates the sync mirror

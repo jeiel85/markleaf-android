@@ -6,6 +6,13 @@ Markleaf의 주요 변경 사항을 기록합니다. 영어판이 기본이며 G
 
 v2.15.3 이전 항목은 이 파일에만 한국어로 보존되어 있습니다.
 
+## Unreleased
+
+<!-- Rename to `## vX.Y.Z - Title - YYYY-MM-DD` in the release commit. The release-note step and the verify scripts read only `## v` headings, so this section is invisible to them until then. -->
+
+### 수정
+- **키보드가 올라올 때 캐럿이 튀지 않습니다.** 누른 줄을 키보드 위로 스크롤하려고 편집기가 캐럿을 한 글자 옮겼다가 되돌리는데, 그 움직임이 보여서 키보드가 열릴 때마다 캐럿이 앞뒤로 튀었습니다. 이제 그 순간에는 캐럿을 숨겨서 줄이 화면 안으로 올라오는 모습만 보입니다. 알려 주신 [@uszymyszy](https://github.com/uszymyszy)님께 감사드립니다. (#542)
+
 ## v2.71.0 - 설정 여섯 카테고리 (Settings in six categories) - 2026-10-29
 
 설정을 여섯 개 카테고리로 다시 정리했고, 지난 2주 동안 받은 요청을 함께 담았습니다. 제목 줄로 시작하는 새 노트, 코드 블록 복사 버튼, 일치하는 곳에서 열리는 검색 결과, 목록을 시작할 태그, 문단 들여쓰기, 직접 정한 대로 남는 파일 이름입니다. 노트 아래쪽 줄을 눌렀을 때 그 줄이 키보드에 가려지던 문제도 고쳤습니다. 새 권한은 없고, 노트 저장 방식도 그대로입니다.

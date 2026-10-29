@@ -4,6 +4,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## Unreleased
+
+<!-- Rename to `## vX.Y.Z - Title - YYYY-MM-DD` in the release commit. The release-note step and the verify scripts read only `## v` headings, so this section is invisible to them until then. -->
+
+### Fixed
+- **The caret no longer jumps when the keyboard comes up.** To scroll a tapped line above the keyboard, the editor moves the caret one character and back, and that move showed: the caret flicked forward and back each time the keyboard opened. It is now hidden for that moment, so only the line moving into view is seen. Thanks to [@uszymyszy](https://github.com/uszymyszy) for spotting it. (#542)
+
 ## v2.71.0 - Settings in six categories - 2026-10-29
 
 Settings is reorganized into six categories, and this release gathers two weeks of requests: new notes that start with a heading, a copy button on code blocks, opening a search result on its match, a tag to open the list on, paragraph indents, and file names that stay as you set them. A line you tap near the bottom of a note no longer hides behind the keyboard. No new permissions; notes are stored exactly as before.

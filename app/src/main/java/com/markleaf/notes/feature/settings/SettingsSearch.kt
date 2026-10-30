@@ -41,6 +41,10 @@ internal enum class SettingsItem(
         SettingsCategory.EDITOR, R.string.font_size_label, R.string.font_size_description,
         listOf(R.string.font_size_small, R.string.font_size_medium, R.string.font_size_large, R.string.font_size_extra_large)
     ),
+    LINE_SPACING(
+        SettingsCategory.EDITOR, R.string.line_spacing_label, R.string.line_spacing_description,
+        listOf(R.string.line_spacing_compact, R.string.line_spacing_normal, R.string.line_spacing_relaxed)
+    ),
     LINE_WIDTH(
         SettingsCategory.EDITOR, R.string.line_width, R.string.line_width_description,
         listOf(R.string.line_width_narrow, R.string.line_width_comfortable, R.string.line_width_wide)

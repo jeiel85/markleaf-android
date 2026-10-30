@@ -164,6 +164,8 @@ class UntranslatedStringTest {
                 "font_serif",
                 "formatting_structure",
                 "image_alt_dialog_label",
+                // "Normal" is the French word for the line-spacing option.
+                "line_spacing_normal",
                 "matching_notes",
                 "notes_title",
                 "quick_insert_image",
@@ -175,10 +177,12 @@ class UntranslatedStringTest {
                 "widget_color_saturation"
             ),
             // Typography terms kept in their English form. "Editor" is also the
-            // Spanish word for the Settings category.
+            // Spanish word for the Settings category, and "Normal" for the
+            // line-spacing option.
             "es" to setOf(
                 "font_sans",
                 "font_serif",
+                "line_spacing_normal",
                 "settings_editor"
             ),
             // German keeps these as established loanwords: "Tags", "Checkbox",
@@ -193,6 +197,8 @@ class UntranslatedStringTest {
                 "font_sans",
                 "font_serif",
                 "formatting_inline",
+                // "Normal" is the German word for the line-spacing option.
+                "line_spacing_normal",
                 "locked_passcode_label",
                 "matching_tags",
                 "settings_app",

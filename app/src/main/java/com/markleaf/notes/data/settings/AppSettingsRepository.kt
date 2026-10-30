@@ -76,6 +76,9 @@ class AppSettingsRepository internal constructor(
             editorFontSize = preferences[EDITOR_FONT_SIZE]
                 ?.let { value -> enumValueOrDefault(value, EditorFontSize.MEDIUM) }
                 ?: EditorFontSize.MEDIUM,
+            editorLineSpacing = preferences[EDITOR_LINE_SPACING]
+                ?.let { value -> enumValueOrDefault(value, EditorLineSpacing.NORMAL) }
+                ?: EditorLineSpacing.NORMAL,
             onboardingCompleted = preferences[ONBOARDING_COMPLETED] ?: false,
             biometricLockEnabled = preferences[BIOMETRIC_LOCK_ENABLED] ?: false,
             lockPasscodeSet = !preferences[LOCK_PASSCODE_HASH].isNullOrBlank(),
@@ -241,6 +244,12 @@ class AppSettingsRepository internal constructor(
     suspend fun setEditorFontSize(size: EditorFontSize) {
         persist { preferences ->
             preferences[EDITOR_FONT_SIZE] = size.name
+        }
+    }
+
+    suspend fun setEditorLineSpacing(spacing: EditorLineSpacing) {
+        persist { preferences ->
+            preferences[EDITOR_LINE_SPACING] = spacing.name
         }
     }
 
@@ -532,6 +541,7 @@ class AppSettingsRepository internal constructor(
         val WIDGET_OPACITY = stringPreferencesKey("widget_opacity")
         val WIDGET_CUSTOM_COLOR = intPreferencesKey("widget_custom_color")
         val EDITOR_FONT_SIZE = stringPreferencesKey("editor_font_size")
+        val EDITOR_LINE_SPACING = stringPreferencesKey("editor_line_spacing")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val BIOMETRIC_LOCK_ENABLED = booleanPreferencesKey("biometric_lock_enabled")
         val LOCK_PASSCODE_HASH = stringPreferencesKey("lock_passcode_hash")

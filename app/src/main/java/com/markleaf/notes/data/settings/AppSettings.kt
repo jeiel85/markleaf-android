@@ -26,6 +26,10 @@ data class AppSettings(
     /** Editor and preview text scale. Defaults to [EditorFontSize.MEDIUM]
      *  (scale 1.0), which renders exactly as before (#346). */
     val editorFontSize: EditorFontSize = EditorFontSize.MEDIUM,
+    /** Space between lines in the editor and preview. Defaults to
+     *  [EditorLineSpacing.NORMAL] (factor 1.0), which renders exactly as
+     *  before (#561). */
+    val editorLineSpacing: EditorLineSpacing = EditorLineSpacing.NORMAL,
     /** The stored font file [EditorFont.CUSTOM] draws with, by its name inside
      *  `CustomFontStore.directory`; null until one is picked (#510). */
     val customFontFile: String? = null,
@@ -296,6 +300,31 @@ enum class EditorFontSize(val scale: Float) {
     LARGE(1.125f),
 
     EXTRA_LARGE(1.25f)
+}
+
+/**
+ * Space between lines in the editor and the Markdown preview (#561).
+ *
+ * Input: the user's pick in Settings → Editor.
+ * Output: [factor], multiplied into the body line height on top of the
+ * [EditorFontSize] scale, so the spacing stays in proportion to the text.
+ *
+ * Requested to fit more of a note on the screen, and because some fonts read
+ * better set tighter or looser. The theme's body line height is 26sp on 16sp
+ * text, about 1.6 times the text size; [COMPACT] sets lines about 1.4 times
+ * apart and [RELAXED] about 2. [COMPACT] stops there rather than lower because
+ * a heading in the editor is a larger span inside the same fixed line height,
+ * so its wrapped lines are the first to crowd together; at this factor they
+ * still clear each other. [NORMAL] is factor 1.0, so existing users and golden
+ * images are unaffected until they opt in.
+ */
+enum class EditorLineSpacing(val factor: Float) {
+    COMPACT(0.85f),
+
+    /** The spacing the app has always rendered — the default. */
+    NORMAL(1.0f),
+
+    RELAXED(1.25f)
 }
 
 enum class MarkdownSyntaxVisibility {

@@ -134,6 +134,11 @@ data class PreviewLine(
      */
     val fontScale: Float = 1f,
     /**
+     * Line-spacing multiplier for this row (#561), stamped beside [fontScale]
+     * and from the same place. Defaults to 1f for the same reason.
+     */
+    val lineSpacing: Float = 1f,
+    /**
      * Only set when [type] is [PreviewLineType.COLLAPSIBLE_SUMMARY]: this
      * section's own identity, assigned in document order by
      * [CommonMarkPreviewAdapter.applyCollapsibleRanges]. What the renderer

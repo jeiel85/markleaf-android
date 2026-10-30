@@ -47,6 +47,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.markleaf.notes.util.AttachmentManager
@@ -103,6 +104,7 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.sp
@@ -184,6 +186,8 @@ private fun listRowSpacing(line: PreviewLine): Dp =
  *   text grows the checkbox glyphs and the link tap targets with it — the
  *   whole point of the setting. At the default 1f the lines list renders
  *   byte-identically to before.
+ * @param lineSpacing multiplier for the body line height (#561), on top of
+ *   [fontScale]. At the default 1f, likewise unchanged.
  */
 @Composable
 fun MarkdownPreviewList(
@@ -196,6 +200,7 @@ fun MarkdownPreviewList(
     onImageLongPress: (path: String, currentAlt: String) -> Unit = { _, _ -> },
     onToggleTask: ((sourceLine: Int) -> Unit)? = null,
     fontScale: Float = 1f,
+    lineSpacing: Float = 1f,
     /**
      * A `<details>` section's [PreviewLine.collapsibleId] is in this set when
      * the user has toggled it *away* from its parsed default (#403) — not the
@@ -222,9 +227,14 @@ fun MarkdownPreviewList(
     // also resize the pieces of this file that are NOT body text (callout
     // labels, code blocks, frontmatter, table cells), which the setting does
     // not promise. PreviewLine is this preview's own model, so the scale can
-    // live there with no public API change.
-    val scaledLines = remember(lines, fontScale) {
-        if (fontScale == 1f) lines else lines.map { it.copy(fontScale = fontScale) }
+    // live there with no public API change. Line spacing (#561) rides along
+    // for the same reasons.
+    val scaledLines = remember(lines, fontScale, lineSpacing) {
+        if (fontScale == 1f && lineSpacing == 1f) {
+            lines
+        } else {
+            lines.map { it.copy(fontScale = fontScale, lineSpacing = lineSpacing) }
+        }
     }
     // Rows inside a currently-collapsed `<details>` section (#403) are left
     // out of the LazyColumn entirely rather than rendered-and-hidden, so a
@@ -847,25 +857,26 @@ private fun PreviewLineContent(
         onToggleTask?.let { handler -> { handler(source) } }
     }
     val scale = line.fontScale
-    val scaled = scale != 1f
+    val spacing = line.lineSpacing
+    val scaled = scale != 1f || spacing != 1f
     when (line.type) {
         PreviewLineType.H1 -> FindableText(
             text = line.text,
-            style = if (scaled) MaterialTheme.typography.headlineMedium.scaledBy(scale)
+            style = if (scaled) MaterialTheme.typography.headlineMedium.scaledBy(scale, spacing)
             else MaterialTheme.typography.headlineMedium,
             color = previewAccent(MaterialTheme.colorScheme.primary),
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 24.dp), bottom = 8.dp)
         )
         PreviewLineType.H2 -> FindableText(
             text = line.text,
-            style = if (scaled) MaterialTheme.typography.headlineSmall.scaledBy(scale)
+            style = if (scaled) MaterialTheme.typography.headlineSmall.scaledBy(scale, spacing)
             else MaterialTheme.typography.headlineSmall,
             color = previewAccent(MaterialTheme.colorScheme.secondary),
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 20.dp), bottom = 6.dp)
         )
         PreviewLineType.H3 -> FindableText(
             text = line.text,
-            style = if (scaled) MaterialTheme.typography.titleLarge.scaledBy(scale)
+            style = if (scaled) MaterialTheme.typography.titleLarge.scaledBy(scale, spacing)
             else MaterialTheme.typography.titleLarge,
             color = previewAccent(MaterialTheme.colorScheme.secondary),
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 16.dp), bottom = 4.dp)
@@ -876,21 +887,21 @@ private fun PreviewLineContent(
         // and six visually distinct heading styles in one note is noise.
         PreviewLineType.H4 -> FindableText(
             text = line.text,
-            style = if (scaled) MaterialTheme.typography.titleMedium.scaledBy(scale)
+            style = if (scaled) MaterialTheme.typography.titleMedium.scaledBy(scale, spacing)
             else MaterialTheme.typography.titleMedium,
             color = previewAccent(MaterialTheme.colorScheme.secondary),
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 12.dp), bottom = 4.dp)
         )
         PreviewLineType.H5 -> FindableText(
             text = line.text,
-            style = if (scaled) MaterialTheme.typography.titleSmall.scaledBy(scale)
+            style = if (scaled) MaterialTheme.typography.titleSmall.scaledBy(scale, spacing)
             else MaterialTheme.typography.titleSmall,
             color = previewAccent(MaterialTheme.colorScheme.onSurfaceVariant),
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 10.dp), bottom = 2.dp)
         )
         PreviewLineType.H6 -> FindableText(
             text = line.text,
-            style = if (scaled) MaterialTheme.typography.labelLarge.scaledBy(scale)
+            style = if (scaled) MaterialTheme.typography.labelLarge.scaledBy(scale, spacing)
             else MaterialTheme.typography.labelLarge,
             color = previewAccent(MaterialTheme.colorScheme.onSurfaceVariant),
             modifier = Modifier.padding(top = headingTop(isFirstBlock, 8.dp), bottom = 2.dp)
@@ -1054,6 +1065,7 @@ internal fun InlineMarkdownText(
     val highlight = LocalPreviewFindHighlight.current
     val annotated = unhighlighted.withFindHighlights(highlight, searchStart = leadingMarker.length)
     val baseStyle = MaterialTheme.typography.bodyLarge
+    val spacingPadding = lineSpacingPadding(line, baseStyle.lineHeight)
     val layout = remember { TextLayoutHolder() }
     // Links are now embedded as LinkAnnotations in `annotated`, so a plain Text
     // handles styling, clicks, and accessibility — no offset-mapped onClick.
@@ -1061,11 +1073,13 @@ internal fun InlineMarkdownText(
     // has to map a touch back to a text offset (#386).
     Text(
         text = annotated,
-        style = (if (line.fontScale == 1f) baseStyle else baseStyle.scaledBy(line.fontScale))
-            .copy(color = color),
+        style = (
+            if (line.fontScale == 1f && line.lineSpacing == 1f) baseStyle
+            else baseStyle.scaledBy(line.fontScale, line.lineSpacing)
+            ).copy(color = color),
         onTextLayout = { layout.value = it },
         modifier = Modifier
-            .padding(vertical = verticalPadding)
+            .padding(vertical = (verticalPadding + spacingPadding).coerceAtLeast(0.dp))
             .linkPressGestures(annotated, layout)
             .revealCurrentFindMatch(unhighlighted.text, highlight, layout, searchStart = leadingMarker.length)
     )
@@ -1073,13 +1087,33 @@ internal fun InlineMarkdownText(
 
 /**
  * Returns this style with its font size and line height multiplied by [scale]
- * (#346). Only called when the row's scale is not 1f, so the default rendering
- * keeps using the theme styles untouched.
+ * (#346), and the line height by [lineSpacing] as well (#561). Only called when
+ * one of them is not 1f, so the default rendering keeps using the theme styles
+ * untouched.
  */
 private fun androidx.compose.ui.text.TextStyle.scaledBy(
-    scale: Float
+    scale: Float,
+    lineSpacing: Float
 ): androidx.compose.ui.text.TextStyle =
-    copy(fontSize = fontSize * scale, lineHeight = lineHeight * scale)
+    copy(fontSize = fontSize * scale, lineHeight = lineHeight * scale * lineSpacing)
+
+/**
+ * The padding a body-text row adds above and below itself for the line-spacing
+ * setting (#561): half of what the setting adds to, or takes from, one line.
+ *
+ * Compose trims a text's line height above its first line and below its last,
+ * so on its own the setting would move the wrapped lines of a paragraph but not
+ * a one-line row — most list items. As padding, the gap between two rows
+ * changes by as much as the gap between two lines, and the preview keeps its
+ * rhythm (#340) at every setting.
+ */
+@Composable
+private fun lineSpacingPadding(line: PreviewLine, lineHeight: TextUnit): Dp {
+    if (line.lineSpacing == 1f) return 0.dp
+    return with(LocalDensity.current) {
+        (lineHeight * line.fontScale * (line.lineSpacing - 1f) / 2f).toDp()
+    }
+}
 
 /**
  * Builds the [AnnotatedString] for a list of [PreviewInlineSegment]s, embedding

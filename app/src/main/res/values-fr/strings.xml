@@ -39,6 +39,11 @@
     <string name="font_size_large">Grande</string>
     <string name="font_size_extra_large">Très grande</string>
     <string name="font_size_description">Met à l\'échelle le texte de l\'éditeur et de l\'aperçu. Les cases à cocher et les zones tactiles des liens grandissent avec.</string>
+    <string name="line_spacing_label">Interligne</string>
+    <string name="line_spacing_compact">Serré</string>
+    <string name="line_spacing_normal">Normal</string>
+    <string name="line_spacing_relaxed">Aéré</string>
+    <string name="line_spacing_description">Espace entre les lignes dans l\'éditeur et l\'aperçu. Serré affiche une plus grande partie de la note à l\'écran.</string>
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>
     <string name="font_monospace">Chasse fixe</string>

@@ -43,6 +43,11 @@
     <string name="font_size_large">大</string>
     <string name="font_size_extra_large">特大</string>
     <string name="font_size_description">调整编辑器和预览的文字大小，复选框和链接的点击区域也会随之变大。</string>
+    <string name="line_spacing_label">行间距</string>
+    <string name="line_spacing_compact">紧凑</string>
+    <string name="line_spacing_normal">标准</string>
+    <string name="line_spacing_relaxed">宽松</string>
+    <string name="line_spacing_description">编辑器和预览中行与行之间的距离。选择紧凑可在一屏内显示更多笔记内容。</string>
     <string name="font_sans">无衬线体</string>
     <string name="font_serif">衬线体</string>
     <string name="font_monospace">等宽体</string>

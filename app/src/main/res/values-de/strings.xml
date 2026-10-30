@@ -39,6 +39,11 @@
     <string name="font_size_large">Groß</string>
     <string name="font_size_extra_large">Sehr groß</string>
     <string name="font_size_description">Skaliert den Text in Editor und Vorschau. Checkboxen und Link-Tippziele wachsen mit.</string>
+    <string name="line_spacing_label">Zeilenabstand</string>
+    <string name="line_spacing_compact">Kompakt</string>
+    <string name="line_spacing_normal">Normal</string>
+    <string name="line_spacing_relaxed">Weit</string>
+    <string name="line_spacing_description">Abstand zwischen den Zeilen in Editor und Vorschau. Mit Kompakt passt mehr von einer Notiz auf den Bildschirm.</string>
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>
     <string name="font_monospace">Festbreite</string>

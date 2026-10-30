@@ -38,6 +38,11 @@
     <string name="font_size_large">Veľká</string>
     <string name="font_size_extra_large">Veľmi veľká</string>
     <string name="font_size_description">Zmení veľkosť textu v editore a v náhľade. Spolu s ním sa zväčšia aj zaškrtávacie políčka a cieľové oblasti odkazov.</string>
+    <string name="line_spacing_label">Riadkovanie</string>
+    <string name="line_spacing_compact">Husté</string>
+    <string name="line_spacing_normal">Normálne</string>
+    <string name="line_spacing_relaxed">Voľné</string>
+    <string name="line_spacing_description">Medzera medzi riadkami v editore a v náhľade. Pri hustom riadkovaní sa na obrazovku zmestí viac z poznámky.</string>
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>
     <string name="font_monospace">Monospace</string>

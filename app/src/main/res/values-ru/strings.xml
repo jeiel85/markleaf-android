@@ -47,6 +47,11 @@
     <string name="font_size_large">Крупный</string>
     <string name="font_size_extra_large">Очень крупный</string>
     <string name="font_size_description">Масштабирует текст в редакторе и предпросмотре. Флажки и области нажатия ссылок увеличиваются вместе с ним.</string>
+    <string name="line_spacing_label">Межстрочный интервал</string>
+    <string name="line_spacing_compact">Компактный</string>
+    <string name="line_spacing_normal">Обычный</string>
+    <string name="line_spacing_relaxed">Свободный</string>
+    <string name="line_spacing_description">Расстояние между строками в редакторе и предпросмотре. В компактном режиме на экране помещается больше текста заметки.</string>
     <string name="font_sans">Без засечек</string>
     <string name="font_serif">С засечками</string>
     <string name="font_monospace">Моноширинный</string>

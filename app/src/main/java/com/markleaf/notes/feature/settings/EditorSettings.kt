@@ -22,6 +22,7 @@ import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.core.font.CustomFontStore
 import com.markleaf.notes.data.settings.EditorFont
 import com.markleaf.notes.data.settings.EditorFontSize
+import com.markleaf.notes.data.settings.EditorLineSpacing
 import com.markleaf.notes.data.settings.EditorLineWidth
 import com.markleaf.notes.data.settings.MarkdownSyntaxVisibility
 import com.markleaf.notes.util.HapticFeedback
@@ -140,6 +141,42 @@ internal fun EditorSettings(
     Spacer(Modifier.height(6.dp))
     Text(
         text = stringResource(R.string.font_size_description),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+    Spacer(Modifier.height(12.dp))
+    Text(
+        text = stringResource(R.string.line_spacing_label),
+        modifier = anchors.item(SettingsItem.LINE_SPACING),
+        style = MaterialTheme.typography.bodyMedium,
+        fontWeight = FontWeight.Medium,
+        color = MaterialTheme.colorScheme.onBackground
+    )
+    Spacer(Modifier.height(8.dp))
+    // Wraps for the same reason as the sizes above (ru "Компактный").
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        EditorLineSpacing.entries.forEach { spacing ->
+            val selected = appSettings.editorLineSpacing == spacing
+            if (selected) {
+                Button(onClick = {}) {
+                    Text(spacing.localizedLabel())
+                }
+            } else {
+                OutlinedButton(
+                    onClick = {
+                        scope.launch {
+                            settingsRepository.setEditorLineSpacing(spacing)
+                        }
+                    }
+                ) {
+                    Text(spacing.localizedLabel())
+                }
+            }
+        }
+    }
+    Spacer(Modifier.height(6.dp))
+    Text(
+        text = stringResource(R.string.line_spacing_description),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )

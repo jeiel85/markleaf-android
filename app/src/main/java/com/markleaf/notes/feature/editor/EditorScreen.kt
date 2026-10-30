@@ -1616,6 +1616,7 @@ fun EditorScreen(
                             // rendered form of the same text, and growing it grows
                             // the checkbox glyphs and link tap targets too.
                             fontScale = appSettings.editorFontSize.scale,
+                            lineSpacing = appSettings.editorLineSpacing.factor,
                             toggledSectionIds = toggledSectionIds,
                             onToggleSection = { id ->
                                 toggledSectionIds = if (id in toggledSectionIds) {
@@ -1751,6 +1752,7 @@ fun EditorScreen(
 
                     val colorScheme = MaterialTheme.colorScheme
                     val editorFontScale = appSettings.editorFontSize.scale
+                    val editorLineSpacing = appSettings.editorLineSpacing.factor
                     val markdownSyntaxVisible =
                         appSettings.markdownSyntaxVisibility == MarkdownSyntaxVisibility.SHOW && !isFocusMode
                     // Stabilise the transformation instance: without `remember` a
@@ -1864,13 +1866,14 @@ fun EditorScreen(
                                         }
                                     }
                                 },
-                            // Body text honours the text-size setting (#346);
-                            // at scale 1f this is the untouched theme style.
+                            // Body text honours the text-size (#346) and line-spacing
+                            // (#561) settings; at 1f each this is the untouched
+                            // theme style.
                             textStyle = run {
                                 val base = MaterialTheme.typography.bodyLarge
-                                (if (editorFontScale == 1f) base else base.copy(
+                                (if (editorFontScale == 1f && editorLineSpacing == 1f) base else base.copy(
                                     fontSize = base.fontSize * editorFontScale,
-                                    lineHeight = base.lineHeight * editorFontScale
+                                    lineHeight = base.lineHeight * editorFontScale * editorLineSpacing
                                 )).copy(color = MaterialTheme.colorScheme.onBackground)
                             },
                             visualTransformation = markdownVisualTransformation,

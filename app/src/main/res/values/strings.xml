@@ -47,6 +47,11 @@
     <string name="font_size_large">Large</string>
     <string name="font_size_extra_large">Extra large</string>
     <string name="font_size_description">Scales the editor and preview text. Checkboxes and link tap targets grow with it.</string>
+    <string name="line_spacing_label">Line spacing</string>
+    <string name="line_spacing_compact">Compact</string>
+    <string name="line_spacing_normal">Normal</string>
+    <string name="line_spacing_relaxed">Relaxed</string>
+    <string name="line_spacing_description">Space between lines in the editor and preview. Compact fits more of a note on the screen.</string>
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>
     <string name="font_monospace">Monospace</string>

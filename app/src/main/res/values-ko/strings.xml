@@ -39,6 +39,11 @@
     <string name="font_size_large">크게</string>
     <string name="font_size_extra_large">아주 크게</string>
     <string name="font_size_description">편집기와 미리보기의 글자 크기를 조절합니다. 체크박스와 링크 터치 영역도 함께 커집니다.</string>
+    <string name="line_spacing_label">줄 간격</string>
+    <string name="line_spacing_compact">좁게</string>
+    <string name="line_spacing_normal">보통</string>
+    <string name="line_spacing_relaxed">넓게</string>
+    <string name="line_spacing_description">편집기와 미리보기에서 줄과 줄 사이의 간격입니다. 좁게 하면 한 화면에 메모가 더 많이 보입니다.</string>
     <string name="font_sans">산세리프</string>
     <string name="font_serif">세리프</string>
     <string name="font_monospace">고정폭</string>

@@ -8,6 +8,7 @@ import com.markleaf.notes.core.text.NoteTitleSource
 import com.markleaf.notes.data.settings.ColorPalette
 import com.markleaf.notes.data.settings.EditorFont
 import com.markleaf.notes.data.settings.EditorFontSize
+import com.markleaf.notes.data.settings.EditorLineSpacing
 import com.markleaf.notes.data.settings.EditorLineWidth
 import com.markleaf.notes.data.settings.NotesLayout
 import com.markleaf.notes.data.settings.NewNoteShortcut
@@ -100,6 +101,15 @@ internal fun EditorFontSize.localizedLabel(): String {
         EditorFontSize.MEDIUM -> stringResource(R.string.font_size_medium)
         EditorFontSize.LARGE -> stringResource(R.string.font_size_large)
         EditorFontSize.EXTRA_LARGE -> stringResource(R.string.font_size_extra_large)
+    }
+}
+
+@Composable
+internal fun EditorLineSpacing.localizedLabel(): String {
+    return when (this) {
+        EditorLineSpacing.COMPACT -> stringResource(R.string.line_spacing_compact)
+        EditorLineSpacing.NORMAL -> stringResource(R.string.line_spacing_normal)
+        EditorLineSpacing.RELAXED -> stringResource(R.string.line_spacing_relaxed)
     }
 }
 

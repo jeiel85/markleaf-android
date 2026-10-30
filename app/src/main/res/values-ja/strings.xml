@@ -39,6 +39,11 @@
     <string name="font_size_large">大</string>
     <string name="font_size_extra_large">特大</string>
     <string name="font_size_description">エディタとプレビューの文字サイズを変更します。チェックボックスやリンクのタップ領域も一緒に大きくなります。</string>
+    <string name="line_spacing_label">行間</string>
+    <string name="line_spacing_compact">狭い</string>
+    <string name="line_spacing_normal">標準</string>
+    <string name="line_spacing_relaxed">広い</string>
+    <string name="line_spacing_description">エディタとプレビューの行と行の間隔です。狭くすると、1画面にメモをより多く表示できます。</string>
     <string name="font_sans">ゴシック</string>
     <string name="font_serif">明朝</string>
     <string name="font_monospace">等幅</string>

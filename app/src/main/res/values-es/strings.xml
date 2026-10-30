@@ -39,6 +39,11 @@
     <string name="font_size_large">Grande</string>
     <string name="font_size_extra_large">Extra grande</string>
     <string name="font_size_description">Escala el texto del editor y la vista previa. Las casillas y las zonas táctiles de los enlaces crecen con él.</string>
+    <string name="line_spacing_label">Interlineado</string>
+    <string name="line_spacing_compact">Compacto</string>
+    <string name="line_spacing_normal">Normal</string>
+    <string name="line_spacing_relaxed">Amplio</string>
+    <string name="line_spacing_description">Espacio entre las líneas del editor y la vista previa. Con Compacto cabe más de una nota en la pantalla.</string>
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>
     <string name="font_monospace">Monoespaciada</string>

@@ -40,6 +40,11 @@
     <string name="font_size_large">Lớn</string>
     <string name="font_size_extra_large">Rất lớn</string>
     <string name="font_size_description">Thay đổi cỡ chữ trong trình soạn thảo và bản xem trước. Ô đánh dấu và vùng chạm của liên kết cũng lớn theo.</string>
+    <string name="line_spacing_label">Giãn dòng</string>
+    <string name="line_spacing_compact">Hẹp</string>
+    <string name="line_spacing_normal">Bình thường</string>
+    <string name="line_spacing_relaxed">Rộng</string>
+    <string name="line_spacing_description">Khoảng cách giữa các dòng trong trình soạn thảo và bản xem trước. Chọn Hẹp để thấy được nhiều nội dung ghi chú hơn trên màn hình.</string>
     <string name="font_sans">Không chân</string>
     <string name="font_serif">Có chân</string>
     <string name="font_monospace">Đơn cách</string>

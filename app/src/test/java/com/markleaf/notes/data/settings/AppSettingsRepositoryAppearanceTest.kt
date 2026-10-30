@@ -3,6 +3,7 @@ package com.markleaf.notes.data.settings
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -13,8 +14,9 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
- * Round-trips the appearance preferences added for #345 (theme mode) and #346
- * (editor font size) through the repository's own transform logic. See
+ * Round-trips the appearance preferences added for #345 (theme mode), #346
+ * (editor font size) and #561 (line spacing) through the repository's own
+ * transform logic. See
  * [AppSettingsRepositoryLockTest] for why the store is injected rather than
  * the production singleton.
  */
@@ -44,6 +46,7 @@ class AppSettingsRepositoryAppearanceTest {
         assertEquals(ThemeMode.SYSTEM, settings.themeMode)
         assertEquals(EditorFontSize.MEDIUM, settings.editorFontSize)
         assertEquals(EditorFont.SANS, settings.editorFont)
+        assertEquals(EditorLineSpacing.NORMAL, settings.editorLineSpacing)
     }
 
     @Test
@@ -62,6 +65,25 @@ class AppSettingsRepositoryAppearanceTest {
 
         repo.setEditorFontSize(EditorFontSize.MEDIUM)
         assertEquals(EditorFontSize.MEDIUM, repo.settings.first().editorFontSize)
+    }
+
+    @Test
+    fun `line spacing round-trips every option`() = runTest {
+        for (spacing in EditorLineSpacing.entries) {
+            repo.setEditorLineSpacing(spacing)
+            assertEquals(spacing, repo.settings.first().editorLineSpacing)
+        }
+    }
+
+    /** A value this build doesn't know — written by a newer one — reads as the default. */
+    @Test
+    fun `an unknown line spacing reads as normal`() = runTest {
+        store.updateData { preferences ->
+            preferences.toMutablePreferences().apply {
+                this[stringPreferencesKey("editor_line_spacing")] = "EXTRA_COMPACT"
+            }
+        }
+        assertEquals(EditorLineSpacing.NORMAL, repo.settings.first().editorLineSpacing)
     }
 
     /** Monospace is a stored choice like serif — #432. */

@@ -58,6 +58,11 @@
     <string name="font_size_large">Velika</string>
     <string name="font_size_extra_large">Vrlo velika</string>
     <string name="font_size_description">Skalira tekst uređivača i pregleda. Potvrdni okviri i ciljne površine poveznica rastu zajedno s tekstom.</string>
+    <string name="line_spacing_label">Prored</string>
+    <string name="line_spacing_compact">Zbijeno</string>
+    <string name="line_spacing_normal">Normalno</string>
+    <string name="line_spacing_relaxed">Prozračno</string>
+    <string name="line_spacing_description">Razmak između redaka u uređivaču i pregledu. Uz Zbijeno na zaslon stane više bilješke.</string>
     <string name="all_notes">Sve bilješke</string>
     <string name="no_notes_for_tag">Nema bilješki s ovom oznakom</string>
     <string name="open_list_on">Otvori popis na</string>

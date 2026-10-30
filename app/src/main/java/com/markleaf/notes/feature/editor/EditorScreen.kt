@@ -58,6 +58,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -518,6 +519,9 @@ fun EditorScreen(
     // Read by the keyboard-follow effect below (#542): only a keyboard raised
     // for the note body should move its caret, not one for find or a dialog.
     var isEditorFocused by remember(noteId) { mutableStateOf(false) }
+    // True for the few frames stepCaretAwayAndBack takes: the caret and its handle
+    // are drawn transparent, so the step a character away and back is not seen.
+    var isCaretStepping by remember(noteId) { mutableStateOf(false) }
     var showInfo by remember(noteId) { mutableStateOf(false) }
     var showOutline by remember(noteId) { mutableStateOf(false) }
     var pendingPreviewScroll by remember(noteId) { mutableStateOf<PreviewScrollRequest?>(null) }
@@ -1036,9 +1040,15 @@ fun EditorScreen(
     // field scroll it into the view as it is now (see nudgeOffset). Does nothing
     // once the note is no longer [text] with the caret at [caret]: a keystroke or
     // a tap since then has put the caret where the user wants it.
+    //
+    // The caret is hidden for the step (isCaretStepping). Drawn, it visibly jumped
+    // a character forward and back each time the keyboard came up (#542 follow-up):
+    // the hide and the move land in the same frame, and so do the move back and
+    // the show, so no frame draws it anywhere but where it was put.
     suspend fun stepCaretAwayAndBack(text: String, caret: TextRange) {
         if (editorState.text != text || editorState.selection != caret) return
         val away = TextRange(nudgeOffset(caret.start, text.length) ?: return)
+        isCaretStepping = true
         editorState = editorState.copy(selection = away)
         try {
             withFrameNanos { }
@@ -1047,6 +1057,7 @@ fun EditorScreen(
             if (editorState.text == text && editorState.selection == away) {
                 editorState = editorState.copy(selection = caret)
             }
+            isCaretStepping = false
         }
     }
 
@@ -1859,7 +1870,10 @@ fun EditorScreen(
                             // while the drag handle beside it was themed, in both
                             // Markleaf Green and Material You (#283). `primary` is what
                             // the Material fields use, so the caret now matches them.
-                            cursorBrush = SolidColor(colorScheme.primary),
+                            // Transparent only while stepCaretAwayAndBack runs.
+                            cursorBrush = SolidColor(
+                                if (isCaretStepping) Color.Transparent else colorScheme.primary
+                            ),
                             decorationBox = { innerTextField ->
                                 Box(modifier = Modifier.fillMaxSize()) {
                                     innerTextField()

@@ -73,9 +73,10 @@ If you name your files yourself, for example short names you manage from a
 shell, turn on **Keep file names** in the Sync Center (Settings → Sync &
 export → Sync Center). Then:
 
-- a new note's file is still named after its title, once, when it is created;
-- after that, Markleaf never renames it. Retitling the note changes the title
-  in the app, not the file name;
+- a new note's file is still named after its title. While you write the note
+  for the first time, the name follows the title as you type it;
+- from the next time you open the note, Markleaf never renames it. Retitling
+  the note changes the title in the app, not the file name;
 - a name you give the file outside Markleaf (`mv "A long first line.md"
   groceries.md`) stays, and Markleaf keeps writing into `groceries.md`;
 - **Rename files to note titles** is hidden, since it would undo every name

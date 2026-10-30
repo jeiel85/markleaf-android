@@ -276,6 +276,16 @@ fun EditorScreen(
     // not a version store (#360).
     val undoHistory = remember(noteId) { EditorUndoHistory() }
     val titleSource = appSettings.noteTitleSource
+    // Whether this visit opened the note the new-note flow had just made, so its
+    // file name may still follow the title under "Keep file names" (#429, see
+    // keepsFileName). Saveable and only ever set, never cleared, by the load:
+    // after a rotation the reload sees a note that has been saved, and must not
+    // freeze the name halfway through the first line. Coming back to this screen
+    // with Back, from a linked note or another app, is the same visit and keeps
+    // the exemption on purpose; it ends once the screen is closed. Ending it on
+    // ON_STOP instead would also end it when the app is merely backgrounded,
+    // and a pause like that is the half-typed title this is here to avoid.
+    var createdThisVisit by rememberSaveable(noteId) { mutableStateOf(false) }
     // The persistence behind the debounce gate: reads the note fresh from the
     // DB so a save never clobbers a newer row, then updates the sync mirror
     // when one is configured (#262).
@@ -319,7 +329,7 @@ fun EditorScreen(
                             updatedNote,
                             appSettings.syncFileExtension,
                             appSettings.mirrorMetadata(),
-                            appSettings.syncKeepFileNames
+                            keepsFileName(appSettings.syncKeepFileNames, createdThisVisit)
                         )
                         if (wrote) {
                             val attachments = AttachmentManager.filesForNote(context, id)
@@ -855,6 +865,7 @@ fun EditorScreen(
             openedContent = loadedNote?.contentMarkdown
             openedUpdatedAt = loadedNote?.updatedAt
             syncedContent = content
+            if (loadedNote != null && isJustCreated(loadedNote)) createdThisVisit = true
             // Where the note opens (#214). Read from the same persisted
             // snapshot as the preview setting above, for the same reason: the
             // collected state starts on the default, so using it here would

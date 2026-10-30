@@ -76,6 +76,19 @@ internal fun isJustCreated(note: Note): Boolean =
         note.createdAt == note.updatedAt
 
 /**
+ * Whether a save from this editor visit leaves the note's file name as it is.
+ *
+ * "Keep file names" names a file after the title once (#429). The file is
+ * created by the first autosave, though, a second after the first keystroke,
+ * so keeping that name froze whatever the first line held at that moment: a
+ * pause after "Gro" left a note titled "Groceries" in `Gro.md`. So the visit
+ * that created the note ([createdThisVisit], see [isJustCreated]) lets the name
+ * follow the title as it is written, and from the next visit on it stays.
+ */
+internal fun keepsFileName(keepFileNames: Boolean, createdThisVisit: Boolean): Boolean =
+    keepFileNames && !createdThisVisit
+
+/**
  * The editor's text as the note it stands for: an untouched seed is the
  * editor's own, not the user's, so it reads as the empty note it was put into.
  * Autosave stores this and the live refresh (#428) weighs it, so the seed is

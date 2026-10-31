@@ -211,6 +211,12 @@
     <string name="delete_forever_title">Delete forever?</string>
     <string name="delete_forever_message">This note will be permanently deleted and cannot be recovered.</string>
     <string name="delete_forever">Delete Forever</string>
+    <string name="empty_trash">Empty trash</string>
+    <string name="empty_trash_title">Empty trash?</string>
+    <plurals name="empty_trash_message">
+        <item quantity="one">%1$d note will be permanently deleted and cannot be recovered.</item>
+        <item quantity="other">All %1$d notes will be permanently deleted and cannot be recovered.</item>
+    </plurals>
     <string name="cancel">Cancel</string>
 
     <string name="move_to_trash">Move to trash</string>

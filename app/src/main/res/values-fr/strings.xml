@@ -200,6 +200,12 @@
     <string name="delete_forever_title">Supprimer définitivement ?</string>
     <string name="delete_forever_message">Cette note sera définitivement supprimée et ne pourra pas être récupérée.</string>
     <string name="delete_forever">Supprimer définitivement</string>
+    <string name="empty_trash">Vider la corbeille</string>
+    <string name="empty_trash_title">Vider la corbeille ?</string>
+    <plurals name="empty_trash_message">
+        <item quantity="one">%1$d note sera définitivement supprimée et ne pourra pas être récupérée.</item>
+        <item quantity="other">Les %1$d notes seront définitivement supprimées et ne pourront pas être récupérées.</item>
+    </plurals>
     <string name="cancel">Annuler</string>
 
     <string name="move_to_trash">Placer dans la corbeille</string>

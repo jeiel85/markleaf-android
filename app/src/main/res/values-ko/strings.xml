@@ -195,6 +195,11 @@
     <string name="delete_forever_title">영구 삭제할까요?</string>
     <string name="delete_forever_message">이 노트는 영구 삭제되며 복구할 수 없습니다.</string>
     <string name="delete_forever">영구 삭제</string>
+    <string name="empty_trash">휴지통 비우기</string>
+    <string name="empty_trash_title">휴지통을 비울까요?</string>
+    <plurals name="empty_trash_message">
+        <item quantity="other">노트 %1$d개가 영구 삭제되며 복구할 수 없습니다.</item>
+    </plurals>
     <string name="cancel">취소</string>
 
     <string name="move_to_trash">휴지통으로 이동</string>

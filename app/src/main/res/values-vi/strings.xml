@@ -196,6 +196,11 @@
     <string name="delete_forever_title">Xóa vĩnh viễn?</string>
     <string name="delete_forever_message">Ghi chú này sẽ bị xóa vĩnh viễn và không thể khôi phục.</string>
     <string name="delete_forever">Xóa vĩnh viễn</string>
+    <string name="empty_trash">Dọn sạch thùng rác</string>
+    <string name="empty_trash_title">Dọn sạch thùng rác?</string>
+    <plurals name="empty_trash_message">
+        <item quantity="other">%1$d ghi chú sẽ bị xóa vĩnh viễn và không thể khôi phục.</item>
+    </plurals>
     <string name="cancel">Hủy</string>
 
     <string name="move_to_trash">Chuyển vào thùng rác</string>

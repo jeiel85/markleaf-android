@@ -10,12 +10,14 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 ### Added
 - **Line spacing.** A new setting under Settings → Editor: Compact, Normal (the default) or Relaxed. It sets how far apart lines sit in the editor and in Preview, together with Text size. Compact puts lines about 1.4 times the text size apart and fits more of a note on the screen; Relaxed puts them about twice the text size apart. In Preview, list items and paragraphs move closer together or further apart along with the lines inside them. Nothing changes until you pick an option. Thanks to [@uszymyszy](https://github.com/uszymyszy) for the request. (#561)
+- **Empty trash.** The Trash screen has an **Empty trash** button at the top. It asks first and says how many notes will go, then permanently deletes every note in the trash, along with their attachments and, if a sync folder is linked, their files there. Thanks to [@stardomains3](https://github.com/stardomains3) for the request. (#566)
 
 ### Fixed
 - **The caret no longer jumps when the keyboard comes up.** To scroll a tapped line above the keyboard, the editor moves the caret one character and back, and that move showed: the caret flicked forward and back each time the keyboard opened. It is now hidden for that moment, so only the line moving into view is seen. Thanks to [@uszymyszy](https://github.com/uszymyszy) for spotting it. (#542)
 - **With Keep file names on, a new note's file is named after the title you finished writing.** The file is created about a second after you start typing, and Markleaf used to keep the name it got at that moment, so a pause after "Gro" left a note titled "Groceries" in `Gro.md`. While you write a new note for the first time, its file name now follows the title. From the next time you open the note, the name stays as it is. (#429)
 
 ### Limits
+- Notes in the trash are still kept until you delete them; there is no automatic deletion after a set time.
 - Line spacing leaves code blocks, tables and the space around headings as they are. Like Text size, it doesn't apply to home-screen widgets or to files opened with Open file….
 
 ## v2.71.0 - Settings in six categories - 2026-10-29

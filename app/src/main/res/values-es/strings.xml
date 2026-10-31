@@ -200,6 +200,12 @@
     <string name="delete_forever_title">¿Eliminar para siempre?</string>
     <string name="delete_forever_message">Esta nota se eliminará permanentemente y no se podrá recuperar.</string>
     <string name="delete_forever">Eliminar para siempre</string>
+    <string name="empty_trash">Vaciar papelera</string>
+    <string name="empty_trash_title">¿Vaciar la papelera?</string>
+    <plurals name="empty_trash_message">
+        <item quantity="one">%1$d nota se eliminará permanentemente y no se podrá recuperar.</item>
+        <item quantity="other">Las %1$d notas se eliminarán permanentemente y no se podrán recuperar.</item>
+    </plurals>
     <string name="cancel">Cancelar</string>
 
     <string name="move_to_trash">Mover a la papelera</string>

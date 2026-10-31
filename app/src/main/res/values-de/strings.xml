@@ -200,6 +200,12 @@
     <string name="delete_forever_title">Endgültig löschen?</string>
     <string name="delete_forever_message">Diese Notiz wird unwiderruflich gelöscht und kann nicht wiederhergestellt werden.</string>
     <string name="delete_forever">Endgültig löschen</string>
+    <string name="empty_trash">Papierkorb leeren</string>
+    <string name="empty_trash_title">Papierkorb leeren?</string>
+    <plurals name="empty_trash_message">
+        <item quantity="one">%1$d Notiz wird unwiderruflich gelöscht und kann nicht wiederhergestellt werden.</item>
+        <item quantity="other">Alle %1$d Notizen werden unwiderruflich gelöscht und können nicht wiederhergestellt werden.</item>
+    </plurals>
     <string name="cancel">Abbrechen</string>
 
     <string name="move_to_trash">In den Papierkorb verschieben</string>

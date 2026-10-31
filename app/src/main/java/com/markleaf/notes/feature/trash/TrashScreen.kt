@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -77,6 +78,33 @@ fun TrashScreen(
 
     var noteToDelete by remember { mutableStateOf<Note?>(null) }
     val showDeleteConfirm = remember { mutableStateOf(false) }
+    // The notes the user saw when they asked to empty the trash. Confirming
+    // deletes exactly these, so a note trashed while the dialog is open is
+    // not deleted without having been on the screen (#566).
+    var notesToEmpty by remember { mutableStateOf<List<Note>?>(null) }
+
+    // Deleting forever drops the Room row; the attachment bytes and the
+    // sync-folder file are cleaned up here, where the context and settings are.
+    fun deleteForever(notes: List<Note>) {
+        notes.forEach { viewModel.deleteForever(it.id) }
+        // Disk cleanup of attachment files (Room CASCADE drops
+        // the attachments table rows but the bytes would linger).
+        scope.launch(Dispatchers.IO) {
+            notes.forEach { AttachmentManager.deleteAllForNote(context, it.id) }
+        }
+        // Mirror DB-side delete to the sync folder if configured.
+        appSettings.syncFolderUriOrNull()?.let { uri ->
+            scope.launch {
+                withContext(Dispatchers.IO) {
+                    notes.forEach {
+                        NoteFolderMirror.deleteNote(
+                            context, uri, it.id, appSettings.mirrorMetadata()
+                        )
+                    }
+                }
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -88,6 +116,13 @@ fun TrashScreen(
                             painter = painterResource(R.drawable.ic_back),
                             contentDescription = stringResource(R.string.back)
                         )
+                    }
+                },
+                actions = {
+                    if (trashedNotes.isNotEmpty()) {
+                        TextButton(onClick = { notesToEmpty = trashedNotes }) {
+                            Text(stringResource(R.string.empty_trash))
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -170,22 +205,7 @@ fun TrashScreen(
                     val note = noteToDelete
                     showDeleteConfirm.value = false
                     if (note != null) {
-                        viewModel.deleteForever(note.id)
-                        // Disk cleanup of attachment files (Room CASCADE drops
-                        // the attachments table rows but the bytes would linger).
-                        scope.launch(Dispatchers.IO) {
-                            AttachmentManager.deleteAllForNote(context, note.id)
-                        }
-                        // Mirror DB-side delete to the sync folder if configured.
-                        appSettings.syncFolderUriOrNull()?.let { uri ->
-                            scope.launch {
-                                withContext(Dispatchers.IO) {
-                                    NoteFolderMirror.deleteNote(
-                                        context, uri, note.id, appSettings.mirrorMetadata()
-                                    )
-                                }
-                            }
-                        }
+                        deleteForever(listOf(note))
                     }
                 }) {
                     Text(stringResource(R.string.delete_forever))
@@ -193,6 +213,29 @@ fun TrashScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirm.value = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    notesToEmpty?.let { notes ->
+        AlertDialog(
+            onDismissRequest = { notesToEmpty = null },
+            title = { Text(stringResource(R.string.empty_trash_title)) },
+            text = {
+                Text(pluralStringResource(R.plurals.empty_trash_message, notes.size, notes.size))
+            },
+            confirmButton = {
+                Button(onClick = {
+                    notesToEmpty = null
+                    deleteForever(notes)
+                }) {
+                    Text(stringResource(R.string.empty_trash))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { notesToEmpty = null }) {
                     Text(stringResource(R.string.cancel))
                 }
             }

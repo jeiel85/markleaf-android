@@ -215,6 +215,13 @@
     <string name="delete_forever_title">Izbrisati zauvijek?</string>
     <string name="delete_forever_message">Ova bilješka bit će izbrisana zauvijek i neće se moći oporaviti.</string>
     <string name="delete_forever">Izbriši zauvijek</string>
+    <string name="empty_trash">Isprazni smeće</string>
+    <string name="empty_trash_title">Isprazniti smeće?</string>
+    <plurals name="empty_trash_message">
+        <item quantity="one">%1$d bilješka bit će izbrisana zauvijek i neće se moći oporaviti.</item>
+        <item quantity="few">%1$d bilješke bit će izbrisane zauvijek i neće se moći oporaviti.</item>
+        <item quantity="other">%1$d bilježaka bit će izbrisano zauvijek i neće se moći oporaviti.</item>
+    </plurals>
     <string name="cancel">Odustani</string>
 
     <string name="move_to_trash">Premjesti u smeće</string>

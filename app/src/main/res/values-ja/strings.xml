@@ -195,6 +195,11 @@
     <string name="delete_forever_title">完全に削除しますか？</string>
     <string name="delete_forever_message">このノートは完全に削除され、復元できません。</string>
     <string name="delete_forever">完全に削除</string>
+    <string name="empty_trash">ゴミ箱を空にする</string>
+    <string name="empty_trash_title">ゴミ箱を空にしますか？</string>
+    <plurals name="empty_trash_message">
+        <item quantity="other">%1$d 件のノートが完全に削除され、復元できません。</item>
+    </plurals>
     <string name="cancel">キャンセル</string>
 
     <string name="move_to_trash">ゴミ箱へ移動</string>

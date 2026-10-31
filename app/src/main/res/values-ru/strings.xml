@@ -221,6 +221,14 @@
     <string name="delete_forever_title">Удалить навсегда?</string>
     <string name="delete_forever_message">Эта заметка будет удалена навсегда, и её нельзя будет восстановить.</string>
     <string name="delete_forever">Удалить навсегда</string>
+    <string name="empty_trash">Очистить корзину</string>
+    <string name="empty_trash_title">Очистить корзину?</string>
+    <plurals name="empty_trash_message">
+        <item quantity="one">%1$d заметка будет удалена навсегда, и её нельзя будет восстановить.</item>
+        <item quantity="few">%1$d заметки будут удалены навсегда, и их нельзя будет восстановить.</item>
+        <item quantity="many">%1$d заметок будут удалены навсегда, и их нельзя будет восстановить.</item>
+        <item quantity="other">%1$d заметки будут удалены навсегда, и их нельзя будет восстановить.</item>
+    </plurals>
     <string name="cancel">Отмена</string>
 
     <string name="move_to_trash">Переместить в корзину</string>

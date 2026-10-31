@@ -204,6 +204,14 @@
     <string name="delete_forever_title">Odstrániť navždy?</string>
     <string name="delete_forever_message">Táto poznámka bude natrvalo vymazaná a nebude ju možné obnoviť.</string>
     <string name="delete_forever">Odstrániť navždy</string>
+    <string name="empty_trash">Vyprázdniť kôš</string>
+    <string name="empty_trash_title">Vyprázdniť kôš?</string>
+    <plurals name="empty_trash_message">
+        <item quantity="one">%1$d poznámka bude natrvalo vymazaná a nebude ju možné obnoviť.</item>
+        <item quantity="few">%1$d poznámky budú natrvalo vymazané a nebude ich možné obnoviť.</item>
+        <item quantity="many">%1$d poznámok bude natrvalo vymazaných a nebude ich možné obnoviť.</item>
+        <item quantity="other">%1$d poznámok bude natrvalo vymazaných a nebude ich možné obnoviť.</item>
+    </plurals>
     <string name="cancel">Zrušiť</string>
     <string name="move_to_trash">Presunúť do koša</string>
     <string name="move_to_trash_title">Presunúť do koša?</string>

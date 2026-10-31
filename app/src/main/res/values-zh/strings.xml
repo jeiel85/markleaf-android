@@ -201,6 +201,11 @@
     <string name="delete_forever_title">永久删除？</string>
     <string name="delete_forever_message">此笔记将被永久删除且无法恢复。</string>
     <string name="delete_forever">永久删除</string>
+    <string name="empty_trash">清空回收站</string>
+    <string name="empty_trash_title">清空回收站？</string>
+    <plurals name="empty_trash_message">
+        <item quantity="other">%1$d 条笔记将被永久删除且无法恢复。</item>
+    </plurals>
     <string name="cancel">取消</string>
 
     <string name="move_to_trash">移至回收站</string>

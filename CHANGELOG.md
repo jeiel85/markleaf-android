@@ -13,6 +13,9 @@ All notable changes to Markleaf are documented in this file. This English editio
 - **Empty trash.** The Trash screen has an **Empty trash** button at the top. It asks first and says how many notes will go, then permanently deletes every note in the trash, along with their attachments and, if a sync folder is linked, their files there. Thanks to [@stardomains3](https://github.com/stardomains3) for the request. (#566)
 - **Delete notes from the trash automatically.** A new setting, Settings → Notes → **Delete from trash after**: Never (the default), 1 day, 7 days or 30 days. A note is deleted forever once it has been in the trash that long, with its attachments and its file in a sync folder. While a period is set, the Trash screen says so above the notes. (#566)
 
+### Changed
+- **Exported PDFs use your font.** Export as PDF… now sets the note in the font chosen under Settings → Editor → Font: Serif, Monospace, or your own font file. Sans prints as before. Code keeps its monospace font. Thanks to [@malekairmaroc7](https://github.com/malekairmaroc7) for the request. (#568)
+
 ### Fixed
 - **The caret no longer jumps when the keyboard comes up.** To scroll a tapped line above the keyboard, the editor moves the caret one character and back, and that move showed: the caret flicked forward and back each time the keyboard opened. It is now hidden for that moment, so only the line moving into view is seen. Thanks to [@uszymyszy](https://github.com/uszymyszy) for spotting it. (#542)
 - **With Keep file names on, a new note's file is named after the title you finished writing.** The file is created about a second after you start typing, and Markleaf used to keep the name it got at that moment, so a pause after "Gro" left a note titled "Groceries" in `Gro.md`. While you write a new note for the first time, its file name now follows the title. From the next time you open the note, the name stays as it is. (#429)

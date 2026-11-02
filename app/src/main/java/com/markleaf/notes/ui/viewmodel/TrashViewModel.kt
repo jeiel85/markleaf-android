@@ -4,9 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.domain.repository.NoteRepository
+import com.markleaf.notes.util.TrashPurge
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.withLock
 
 class TrashViewModel(
     private val noteRepository: NoteRepository
@@ -29,7 +31,11 @@ class TrashViewModel(
 
     fun restoreFromTrash(noteId: String) {
         viewModelScope.launch {
-            noteRepository.restoreFromTrash(noteId)
+            // Waits out the retention sweep's handling of this note, if it is
+            // mid-delete, so the sweep never deletes a note restored under it (#566).
+            TrashPurge.lock.withLock {
+                noteRepository.restoreFromTrash(noteId)
+            }
         }
     }
 

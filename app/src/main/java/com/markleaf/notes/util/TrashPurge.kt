@@ -18,6 +18,8 @@ import java.time.Instant
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 /**
@@ -75,25 +77,45 @@ internal object TrashPurge {
                 ?: return 0
         }
         var purged = 0
-        due.forEach { note ->
-            try {
-                withContext(Dispatchers.IO) {
-                    if (folder != null) {
-                        NoteFolderMirror.deleteNoteIn(context, folder, note.id, settings.mirrorMetadata())
+        due.forEach { snapshot ->
+            // [due] was read before the folder lookup and the notes ahead of
+            // this one, and the Trash screen stays usable meanwhile. Holding
+            // [lock] and reading the row again means a note restored since —
+            // or being restored now — keeps its file, attachments and row
+            // (Codex review of #569).
+            val deleted = lock.withLock {
+                val note = repository.getNote(snapshot.id)
+                    ?.takeIf { expired(listOf(it), settings.trashRetention, now).isNotEmpty() }
+                    ?: return@withLock false
+                try {
+                    withContext(Dispatchers.IO) {
+                        if (folder != null) {
+                            NoteFolderMirror.deleteNoteIn(context, folder, note.id, settings.mirrorMetadata())
+                        }
+                        AttachmentManager.deleteAllForNote(context, note.id)
                     }
-                    AttachmentManager.deleteAllForNote(context, note.id)
+                } catch (cancellation: CancellationException) {
+                    throw cancellation
+                } catch (error: Exception) {
+                    // The row stays, still in the trash, and the next pass tries again.
+                    if (BuildConfig.DEBUG) Log.d("TrashPurge", "cleanup failed for ${note.id}", error)
+                    return@withLock false
                 }
-            } catch (cancellation: CancellationException) {
-                throw cancellation
-            } catch (error: Exception) {
-                // The row stays, still in the trash, and the next pass tries again.
-                if (BuildConfig.DEBUG) Log.d("TrashPurge", "cleanup failed for ${note.id}", error)
-                return@forEach
+                repository.deleteForever(note.id)
+                true
             }
-            repository.deleteForever(note.id)
-            purged++
+            if (deleted) purged++
         }
         if (purged > 0) WidgetRefresh.notesChanged(context)
         return purged
     }
+
+    /**
+     * Held by the sweep for each note it deletes and by
+     * [com.markleaf.notes.ui.viewmodel.TrashViewModel.restoreFromTrash], so a
+     * restore lands either before the sweep re-reads the note (which then
+     * leaves it alone) or after the note is gone — never between the check and
+     * the deletion of its files.
+     */
+    val lock = Mutex()
 }

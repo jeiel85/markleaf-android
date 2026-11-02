@@ -134,6 +134,30 @@ class TrashPurgeTest {
         assertTrue(keptFile.exists())
     }
 
+    /**
+     * Codex review of #569: a note restored after the sweep listed the trash
+     * must keep its row and its attachments — the sweep reads it again before
+     * touching anything.
+     */
+    @Test
+    fun aNoteRestoredAfterTheTrashWasListedIsLeftAlone() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val listed = trashed("restored", now.minus(Duration.ofDays(3)))
+        val keptAttachment = attachment(context, listed.id)
+        val repository = RecordingRepository(
+            trashedNotes = listOf(listed),
+            live = mapOf(listed.id to listed.copy(trashed = false, deletedAt = null))
+        )
+
+        val purged = TrashPurge.purgeExpired(
+            context, repository, AppSettings(trashRetention = TrashRetention.ONE_DAY), now
+        )
+
+        assertEquals(0, purged)
+        assertTrue(repository.deletedForever.isEmpty())
+        assertTrue(keptAttachment.exists())
+    }
+
     private fun attachment(context: Context, noteId: String): File =
         File(File(File(context.filesDir, "attachments"), noteId), "image.png").apply {
             parentFile!!.mkdirs()
@@ -151,11 +175,19 @@ class TrashPurgeTest {
         deletedAt = deletedAt
     )
 
-    private class RecordingRepository(private val trashedNotes: List<Note>) : NoteRepository {
+    /**
+     * [trashedNotes] is what the trash listing returns; [live] is what reading
+     * one note returns, which a test can set apart to stand in for a restore
+     * that landed after the listing was read.
+     */
+    private class RecordingRepository(
+        private val trashedNotes: List<Note>,
+        private val live: Map<String, Note> = trashedNotes.associateBy { it.id }
+    ) : NoteRepository {
         val deletedForever = mutableListOf<String>()
 
         override fun observeNotes(): Flow<List<Note>> = flowOf(emptyList())
-        override suspend fun getNote(noteId: String): Note? = null
+        override suspend fun getNote(noteId: String): Note? = live[noteId]
         override fun observeNote(noteId: String): Flow<Note?> = flowOf(null)
         override suspend fun getAllNotes(): List<Note> = trashedNotes
         override suspend fun createNote(note: Note) = Unit

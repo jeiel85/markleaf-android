@@ -200,6 +200,15 @@
     <plurals name="empty_trash_message">
         <item quantity="other">노트 %1$d개가 영구 삭제되며 복구할 수 없습니다.</item>
     </plurals>
+    <string name="trash_retention">휴지통에서 삭제까지</string>
+    <string name="trash_retention_never">안 함</string>
+    <string name="trash_retention_day">1일</string>
+    <string name="trash_retention_week">7일</string>
+    <string name="trash_retention_month">30일</string>
+    <string name="trash_retention_description">휴지통으로 옮긴 노트는 이 기간이 지나면 첨부 파일, 동기화 폴더의 파일과 함께 영구 삭제됩니다. Markleaf를 열 때 확인합니다.</string>
+    <plurals name="trash_retention_notice">
+        <item quantity="other">여기 있는 노트는 휴지통으로 옮긴 지 %1$d일이 지나면 영구 삭제됩니다.</item>
+    </plurals>
     <string name="cancel">취소</string>
 
     <string name="move_to_trash">휴지통으로 이동</string>

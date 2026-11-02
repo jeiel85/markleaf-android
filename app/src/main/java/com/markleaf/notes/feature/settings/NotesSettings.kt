@@ -23,6 +23,7 @@ import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.settings.NotesLayout
 import com.markleaf.notes.data.settings.NewNoteShortcut
 import com.markleaf.notes.data.settings.OpenNotesAt
+import com.markleaf.notes.data.settings.TrashRetention
 import com.markleaf.notes.util.HapticFeedback
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -263,5 +264,42 @@ internal fun NotesSettings(
                 settingsRepository.setNewNotesStartWithHeading(checked)
             }
         }
+    )
+    Spacer(Modifier.height(12.dp))
+    SettingsGroupHeading(stringResource(R.string.trash), first = false)
+    // #566. Wraps: the day counts run long in Slovak and German.
+    Text(
+        text = stringResource(R.string.trash_retention),
+        modifier = anchors.item(SettingsItem.TRASH_RETENTION),
+        style = MaterialTheme.typography.bodyMedium,
+        fontWeight = FontWeight.Medium,
+        color = MaterialTheme.colorScheme.onBackground
+    )
+    Spacer(Modifier.height(8.dp))
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        TrashRetention.entries.forEach { retention ->
+            if (appSettings.trashRetention == retention) {
+                Button(onClick = {}) {
+                    Text(retention.localizedLabel())
+                }
+            } else {
+                OutlinedButton(
+                    onClick = {
+                        scope.launch { settingsRepository.setTrashRetention(retention) }
+                    }
+                ) {
+                    Text(retention.localizedLabel())
+                }
+            }
+        }
+    }
+    Spacer(Modifier.height(6.dp))
+    Text(
+        text = stringResource(R.string.trash_retention_description),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
     )
 }

@@ -206,6 +206,16 @@
         <item quantity="one">%1$d nota se eliminará permanentemente y no se podrá recuperar.</item>
         <item quantity="other">Las %1$d notas se eliminarán permanentemente y no se podrán recuperar.</item>
     </plurals>
+    <string name="trash_retention">Eliminar de la papelera tras</string>
+    <string name="trash_retention_never">Nunca</string>
+    <string name="trash_retention_day">1 día</string>
+    <string name="trash_retention_week">7 días</string>
+    <string name="trash_retention_month">30 días</string>
+    <string name="trash_retention_description">Las notas de la papelera se eliminan permanentemente pasado este tiempo, junto con sus adjuntos y sus archivos en la carpeta de sincronización. Se comprueba al abrir Markleaf.</string>
+    <plurals name="trash_retention_notice">
+        <item quantity="one">Las notas de aquí se eliminan permanentemente %1$d día después de moverlas a la papelera.</item>
+        <item quantity="other">Las notas de aquí se eliminan permanentemente %1$d días después de moverlas a la papelera.</item>
+    </plurals>
     <string name="cancel">Cancelar</string>
 
     <string name="move_to_trash">Mover a la papelera</string>

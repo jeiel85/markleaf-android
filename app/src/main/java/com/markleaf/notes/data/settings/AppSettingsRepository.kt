@@ -97,6 +97,9 @@ class AppSettingsRepository internal constructor(
                 ?.let { value -> enumValueOrDefault(value, NoteTitleSource.FIRST_HEADING) }
                 ?: NoteTitleSource.FIRST_HEADING,
             newNotesStartWithHeading = preferences[NEW_NOTES_START_WITH_HEADING] ?: false,
+            trashRetention = preferences[TRASH_RETENTION]
+                ?.let { value -> enumValueOrDefault(value, TrashRetention.NEVER) }
+                ?: TrashRetention.NEVER,
             indentParagraphs = preferences[INDENT_PARAGRAPHS] ?: false,
             retitlePending = preferences[RETITLE_PENDING] ?: false,
             searchTitlesOnly = preferences[SEARCH_TITLES_ONLY] ?: false,
@@ -395,6 +398,12 @@ class AppSettingsRepository internal constructor(
         }
     }
 
+    suspend fun setTrashRetention(retention: TrashRetention) {
+        persist { preferences ->
+            preferences[TRASH_RETENTION] = retention.name
+        }
+    }
+
     suspend fun setIndentParagraphs(enabled: Boolean) {
         persist { preferences ->
             preferences[INDENT_PARAGRAPHS] = enabled
@@ -557,6 +566,7 @@ class AppSettingsRepository internal constructor(
         val NOTES_LAYOUT = stringPreferencesKey("notes_layout")
         val NOTE_TITLE_SOURCE = stringPreferencesKey("note_title_source")
         val NEW_NOTES_START_WITH_HEADING = booleanPreferencesKey("new_notes_start_with_heading")
+        val TRASH_RETENTION = stringPreferencesKey("trash_retention")
         val INDENT_PARAGRAPHS = booleanPreferencesKey("indent_paragraphs")
         val RETITLE_PENDING = booleanPreferencesKey("retitle_pending")
         val SEARCH_TITLES_ONLY = booleanPreferencesKey("search_titles_only")

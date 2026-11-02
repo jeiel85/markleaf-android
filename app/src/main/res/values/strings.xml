@@ -217,6 +217,16 @@
         <item quantity="one">%1$d note will be permanently deleted and cannot be recovered.</item>
         <item quantity="other">All %1$d notes will be permanently deleted and cannot be recovered.</item>
     </plurals>
+    <string name="trash_retention">Delete from trash after</string>
+    <string name="trash_retention_never">Never</string>
+    <string name="trash_retention_day">1 day</string>
+    <string name="trash_retention_week">7 days</string>
+    <string name="trash_retention_month">30 days</string>
+    <string name="trash_retention_description">Notes are deleted forever this long after you move them to the trash, along with their attachments and their files in a sync folder. Checked when you open Markleaf.</string>
+    <plurals name="trash_retention_notice">
+        <item quantity="one">Notes here are deleted forever %1$d day after they were moved to the trash.</item>
+        <item quantity="other">Notes here are deleted forever %1$d days after they were moved to the trash.</item>
+    </plurals>
     <string name="cancel">Cancel</string>
 
     <string name="move_to_trash">Move to trash</string>

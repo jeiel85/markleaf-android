@@ -77,6 +77,13 @@ internal enum class SettingsItem(
         listOf(R.string.new_note_shortcut_new, R.string.new_note_shortcut_today)
     ),
     NEW_NOTE_HEADING(SettingsCategory.NOTES, R.string.new_note_heading, R.string.new_note_heading_description),
+    TRASH_RETENTION(
+        SettingsCategory.NOTES, R.string.trash_retention, R.string.trash_retention_description,
+        listOf(
+            R.string.trash_retention_never, R.string.trash_retention_day,
+            R.string.trash_retention_week, R.string.trash_retention_month
+        )
+    ),
     BIOMETRIC_LOCK(SettingsCategory.PRIVACY, R.string.biometric_lock_setting, R.string.biometric_lock_description),
     LOCKED_PASSCODE(
         SettingsCategory.PRIVACY, R.string.locked_passcode_setting_title, R.string.locked_passcode_setting_description

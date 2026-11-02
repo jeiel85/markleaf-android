@@ -201,6 +201,15 @@
     <plurals name="empty_trash_message">
         <item quantity="other">%1$d ghi chú sẽ bị xóa vĩnh viễn và không thể khôi phục.</item>
     </plurals>
+    <string name="trash_retention">Xóa khỏi thùng rác sau</string>
+    <string name="trash_retention_never">Không bao giờ</string>
+    <string name="trash_retention_day">1 ngày</string>
+    <string name="trash_retention_week">7 ngày</string>
+    <string name="trash_retention_month">30 ngày</string>
+    <string name="trash_retention_description">Ghi chú trong thùng rác sẽ bị xóa vĩnh viễn sau khoảng thời gian này, cùng với tệp đính kèm và tệp trong thư mục đồng bộ. Được kiểm tra khi bạn mở Markleaf.</string>
+    <plurals name="trash_retention_notice">
+        <item quantity="other">Ghi chú ở đây sẽ bị xóa vĩnh viễn %1$d ngày sau khi được chuyển vào thùng rác.</item>
+    </plurals>
     <string name="cancel">Hủy</string>
 
     <string name="move_to_trash">Chuyển vào thùng rác</string>

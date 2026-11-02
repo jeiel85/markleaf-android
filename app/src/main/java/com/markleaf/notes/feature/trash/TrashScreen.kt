@@ -148,6 +148,18 @@ fun TrashScreen(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
+                    // With a retention set, say so where the notes wait (#566):
+                    // nothing else on this screen hints they will go by themselves.
+                    appSettings.trashRetention.days?.let { days ->
+                        item(key = "retention-notice") {
+                            Text(
+                                text = pluralStringResource(R.plurals.trash_retention_notice, days, days),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            )
+                        }
+                    }
                     items(trashedNotes, key = { it.id }) { note ->
                         Column(
                             modifier = Modifier

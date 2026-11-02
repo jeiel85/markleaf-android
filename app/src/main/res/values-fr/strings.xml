@@ -206,6 +206,16 @@
         <item quantity="one">%1$d note sera définitivement supprimée et ne pourra pas être récupérée.</item>
         <item quantity="other">Les %1$d notes seront définitivement supprimées et ne pourront pas être récupérées.</item>
     </plurals>
+    <string name="trash_retention">Supprimer de la corbeille après</string>
+    <string name="trash_retention_never">Jamais</string>
+    <string name="trash_retention_day">1 jour</string>
+    <string name="trash_retention_week">7 jours</string>
+    <string name="trash_retention_month">30 jours</string>
+    <string name="trash_retention_description">Les notes de la corbeille sont définitivement supprimées après ce délai, avec leurs pièces jointes et leurs fichiers dans le dossier de synchronisation. Vérifié à l\'ouverture de Markleaf.</string>
+    <plurals name="trash_retention_notice">
+        <item quantity="one">Les notes ici sont définitivement supprimées %1$d jour après leur mise à la corbeille.</item>
+        <item quantity="other">Les notes ici sont définitivement supprimées %1$d jours après leur mise à la corbeille.</item>
+    </plurals>
     <string name="cancel">Annuler</string>
 
     <string name="move_to_trash">Placer dans la corbeille</string>

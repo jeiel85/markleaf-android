@@ -1,6 +1,7 @@
 package com.markleaf.notes.util
 
 import android.content.Context
+import androidx.documentfile.provider.DocumentFile
 import androidx.test.core.app.ApplicationProvider
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.TrashRetention
@@ -15,7 +16,9 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -24,6 +27,9 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
 class TrashPurgeTest {
+
+    @get:Rule
+    val temporaryFolder = TemporaryFolder()
 
     private val now: Instant = Instant.parse("2026-11-02T12:00:00Z")
 
@@ -85,6 +91,47 @@ class TrashPurgeTest {
 
         assertEquals(0, purged)
         assertTrue(repository.deletedForever.isEmpty())
+    }
+
+    /**
+     * Codex review of #569: with the folder out of reach, deleting the row and
+     * leaving the file would let the next reconcile create the note again.
+     * The sweep keeps the note in the trash and tries on a later launch.
+     */
+    @Test
+    fun aLinkedFolderThatCannotBeReachedPostponesTheSweep() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val repository = RecordingRepository(listOf(trashed("due", now.minus(Duration.ofDays(2)))))
+        val settings = AppSettings(
+            trashRetention = TrashRetention.ONE_DAY,
+            syncFolderUri = "content://com.android.externalstorage.documents/tree/primary%3ANotes"
+        )
+
+        val purged = TrashPurge.purgeExpired(context, repository, settings, now, resolveFolder = { null })
+
+        assertEquals(0, purged)
+        assertTrue(repository.deletedForever.isEmpty())
+    }
+
+    @Test
+    fun aDueNotesFileInTheSyncFolderGoesWithIt() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val dir = temporaryFolder.newFolder("notes")
+        val dueFile = File(dir, "Due.md").apply { writeText("---\nmarkleaf_id: due\n---\n# Due\n") }
+        val keptFile = File(dir, "Recent.md").apply { writeText("---\nmarkleaf_id: recent\n---\n# Recent\n") }
+        val repository = RecordingRepository(
+            listOf(trashed("due", now.minus(Duration.ofDays(2))), trashed("recent", now.minus(Duration.ofHours(1))))
+        )
+        val settings = AppSettings(trashRetention = TrashRetention.ONE_DAY, syncFolderUri = "content://unused")
+
+        val purged = TrashPurge.purgeExpired(
+            context, repository, settings, now, resolveFolder = { DocumentFile.fromFile(dir) }
+        )
+
+        assertEquals(1, purged)
+        assertEquals(listOf("due"), repository.deletedForever)
+        assertFalse(dueFile.exists())
+        assertTrue(keptFile.exists())
     }
 
     private fun attachment(context: Context, noteId: String): File =

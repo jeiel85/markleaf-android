@@ -1,7 +1,9 @@
 package com.markleaf.notes.util
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
+import androidx.documentfile.provider.DocumentFile
 import com.markleaf.notes.BuildConfig
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.TrashRetention
@@ -21,9 +23,10 @@ import kotlinx.coroutines.withContext
 /**
  * Deletes notes that have sat in the trash longer than [AppSettings.trashRetention] (#566).
  *
- * Runs when the app comes to the foreground (MainActivity). Each note goes the
- * way the Trash screen's "Delete forever" sends it: the Room row, the
- * attachment bytes, and the file in the sync folder, one after another.
+ * Runs when the app comes to the foreground (MainActivity). Each note loses
+ * what the Trash screen's "Delete forever" removes — its file in the sync
+ * folder, its attachment bytes and its Room row — in that order; see
+ * [purgeExpired] for why the row goes last.
  */
 internal object TrashPurge {
 
@@ -43,37 +46,54 @@ internal object TrashPurge {
         }
     }
 
-    /** Deletes what [expired] returns for the current trash; returns how many notes went. */
+    /**
+     * Deletes what [expired] returns for the current trash; returns how many notes went.
+     *
+     * With a sync folder linked, each note's file goes before its row. A row
+     * deleted first, with its file left behind, would be read back by the next
+     * reconcile as a note it has never seen and created again — active, not in
+     * the trash (Codex review of #569). So the sweep waits, keeping every note
+     * in the trash, while the folder can't be reached or written (a revoked
+     * grant, an unmounted card), and a pass cut short after a file is gone
+     * leaves the row trashed for the next pass to finish.
+     *
+     * [resolveFolder] is the tree lookup, replaceable so a test can hand in a
+     * plain directory.
+     */
     suspend fun purgeExpired(
         context: Context,
         repository: NoteRepository,
         settings: AppSettings,
-        now: Instant = Instant.now()
+        now: Instant = Instant.now(),
+        resolveFolder: (Uri) -> DocumentFile? = { DocumentFile.fromTreeUri(context, it) }
     ): Int {
         if (settings.trashRetention.days == null) return 0
         val due = expired(repository.observeTrashedNotes().first(), settings.trashRetention, now)
         if (due.isEmpty()) return 0
-        val folderUri = settings.syncFolderUriOrNull()
+        val folder = settings.syncFolderUriOrNull()?.let { uri ->
+            withContext(Dispatchers.IO) { resolveFolder(uri)?.takeIf { it.canWrite() } }
+                ?: return 0
+        }
+        var purged = 0
         due.forEach { note ->
-            repository.deleteForever(note.id)
-            // The row is gone either way; leftover bytes or a stale folder file
-            // must not stop the next note, nor crash the app on its way to the
-            // foreground. The folder file is retried by nothing, as with the
-            // Trash screen's own delete.
             try {
                 withContext(Dispatchers.IO) {
-                    AttachmentManager.deleteAllForNote(context, note.id)
-                    if (folderUri != null) {
-                        NoteFolderMirror.deleteNote(context, folderUri, note.id, settings.mirrorMetadata())
+                    if (folder != null) {
+                        NoteFolderMirror.deleteNoteIn(context, folder, note.id, settings.mirrorMetadata())
                     }
+                    AttachmentManager.deleteAllForNote(context, note.id)
                 }
             } catch (cancellation: CancellationException) {
                 throw cancellation
             } catch (error: Exception) {
+                // The row stays, still in the trash, and the next pass tries again.
                 if (BuildConfig.DEBUG) Log.d("TrashPurge", "cleanup failed for ${note.id}", error)
+                return@forEach
             }
+            repository.deleteForever(note.id)
+            purged++
         }
-        WidgetRefresh.notesChanged(context)
-        return due.size
+        if (purged > 0) WidgetRefresh.notesChanged(context)
+        return purged
     }
 }

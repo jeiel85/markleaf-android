@@ -40,6 +40,7 @@ import com.markleaf.notes.ui.theme.MarkleafTheme
 import com.markleaf.notes.ui.theme.rememberBodyFontFamily
 import com.markleaf.notes.ui.viewmodel.MarkleafViewModelFactory
 import com.markleaf.notes.util.ExternalFile
+import com.markleaf.notes.util.TrashPurge
 import com.markleaf.notes.widget.QuickNoteWidget
 import com.markleaf.notes.widget.WidgetPaletteStore
 import com.markleaf.notes.widget.WidgetRefresh
@@ -89,6 +90,11 @@ class MainActivity : FragmentActivity() {
                 if (now - lastReconcileMs < THROTTLE_MS) return@repeatOnLifecycle
                 lastReconcileMs = now
                 val settings = settingsRepository.settings.first()
+                // Notes past the trash retention go first (#566; off by
+                // default). In this coroutine rather than its own so the
+                // reconcile below never runs between a purged row and its
+                // file's removal, when it would read that file as a new note.
+                TrashPurge.purgeExpired(applicationContext, noteRepository, settings)
                 val uri = settings.syncFolderUriOrNull() ?: return@repeatOnLifecycle
                 val notes = withContext(Dispatchers.IO) {
                     // Full set (incl. trashed/archived) so the reconcile can't

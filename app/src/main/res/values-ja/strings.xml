@@ -200,6 +200,15 @@
     <plurals name="empty_trash_message">
         <item quantity="other">%1$d 件のノートが完全に削除され、復元できません。</item>
     </plurals>
+    <string name="trash_retention">ゴミ箱から削除するまで</string>
+    <string name="trash_retention_never">しない</string>
+    <string name="trash_retention_day">1日</string>
+    <string name="trash_retention_week">7日</string>
+    <string name="trash_retention_month">30日</string>
+    <string name="trash_retention_description">ゴミ箱に移したノートは、この期間が過ぎると添付ファイルや同期フォルダ内のファイルとともに完全に削除されます。Markleaf を開いたときに確認します。</string>
+    <plurals name="trash_retention_notice">
+        <item quantity="other">ここにあるノートは、ゴミ箱に移してから %1$d 日後に完全に削除されます。</item>
+    </plurals>
     <string name="cancel">キャンセル</string>
 
     <string name="move_to_trash">ゴミ箱へ移動</string>

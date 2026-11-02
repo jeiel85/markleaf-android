@@ -11,6 +11,7 @@ import com.markleaf.notes.data.settings.EditorFontSize
 import com.markleaf.notes.data.settings.EditorLineSpacing
 import com.markleaf.notes.data.settings.EditorLineWidth
 import com.markleaf.notes.data.settings.NotesLayout
+import com.markleaf.notes.data.settings.TrashRetention
 import com.markleaf.notes.data.settings.NewNoteShortcut
 import com.markleaf.notes.data.settings.OpenNotesAt
 import com.markleaf.notes.data.settings.ThemeMode
@@ -31,6 +32,16 @@ internal fun NewNoteShortcut.localizedLabel(): String {
     return when (this) {
         NewNoteShortcut.NEW_NOTE -> stringResource(R.string.new_note_shortcut_new)
         NewNoteShortcut.TODAYS_NOTE -> stringResource(R.string.new_note_shortcut_today)
+    }
+}
+
+@Composable
+internal fun TrashRetention.localizedLabel(): String {
+    return when (this) {
+        TrashRetention.NEVER -> stringResource(R.string.trash_retention_never)
+        TrashRetention.ONE_DAY -> stringResource(R.string.trash_retention_day)
+        TrashRetention.ONE_WEEK -> stringResource(R.string.trash_retention_week)
+        TrashRetention.ONE_MONTH -> stringResource(R.string.trash_retention_month)
     }
 }
 

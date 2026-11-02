@@ -129,6 +129,22 @@ class AppSettingsRepositoryAppearanceTest {
         assertEquals("Late.ttf", settings.customFontName)
     }
 
+    /** #566: off unless chosen, every option round-trips, and an unknown value reads as off. */
+    @Test
+    fun `trash retention defaults to never and round-trips`() = runTest {
+        assertEquals(TrashRetention.NEVER, repo.settings.first().trashRetention)
+
+        TrashRetention.entries.forEach { retention ->
+            repo.setTrashRetention(retention)
+            assertEquals(retention, repo.settings.first().trashRetention)
+        }
+
+        store.updateData { preferences ->
+            preferences.toMutablePreferences().apply { this[stringPreferencesKey("trash_retention")] = "FOREVER" }
+        }
+        assertEquals(TrashRetention.NEVER, repo.settings.first().trashRetention)
+    }
+
     /** Each preference has its own key — writing one must not disturb the other. */
     @Test
     fun `the two settings are stored independently`() = runTest {

@@ -229,6 +229,18 @@
         <item quantity="many">%1$d заметок будут удалены навсегда, и их нельзя будет восстановить.</item>
         <item quantity="other">%1$d заметки будут удалены навсегда, и их нельзя будет восстановить.</item>
     </plurals>
+    <string name="trash_retention">Удалять из корзины через</string>
+    <string name="trash_retention_never">Никогда</string>
+    <string name="trash_retention_day">1 день</string>
+    <string name="trash_retention_week">7 дней</string>
+    <string name="trash_retention_month">30 дней</string>
+    <string name="trash_retention_description">Заметки в корзине удаляются навсегда по истечении этого срока вместе с вложениями и файлами в папке синхронизации. Проверяется при открытии Markleaf.</string>
+    <plurals name="trash_retention_notice">
+        <item quantity="one">Заметки здесь удаляются навсегда через %1$d день после перемещения в корзину.</item>
+        <item quantity="few">Заметки здесь удаляются навсегда через %1$d дня после перемещения в корзину.</item>
+        <item quantity="many">Заметки здесь удаляются навсегда через %1$d дней после перемещения в корзину.</item>
+        <item quantity="other">Заметки здесь удаляются навсегда через %1$d дня после перемещения в корзину.</item>
+    </plurals>
     <string name="cancel">Отмена</string>
 
     <string name="move_to_trash">Переместить в корзину</string>

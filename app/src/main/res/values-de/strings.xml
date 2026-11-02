@@ -206,6 +206,16 @@
         <item quantity="one">%1$d Notiz wird unwiderruflich gelöscht und kann nicht wiederhergestellt werden.</item>
         <item quantity="other">Alle %1$d Notizen werden unwiderruflich gelöscht und können nicht wiederhergestellt werden.</item>
     </plurals>
+    <string name="trash_retention">Aus dem Papierkorb löschen nach</string>
+    <string name="trash_retention_never">Nie</string>
+    <string name="trash_retention_day">1 Tag</string>
+    <string name="trash_retention_week">7 Tagen</string>
+    <string name="trash_retention_month">30 Tagen</string>
+    <string name="trash_retention_description">Notizen im Papierkorb werden nach dieser Zeit endgültig gelöscht, zusammen mit ihren Anhängen und ihren Dateien im Sync-Ordner. Geprüft wird beim Öffnen von Markleaf.</string>
+    <plurals name="trash_retention_notice">
+        <item quantity="one">Notizen hier werden %1$d Tag nach dem Verschieben in den Papierkorb endgültig gelöscht.</item>
+        <item quantity="other">Notizen hier werden %1$d Tage nach dem Verschieben in den Papierkorb endgültig gelöscht.</item>
+    </plurals>
     <string name="cancel">Abbrechen</string>
 
     <string name="move_to_trash">In den Papierkorb verschieben</string>

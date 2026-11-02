@@ -74,6 +74,10 @@ data class AppSettings(
     /** Open an empty new note on `# `, so its first line is a heading and
      *  becomes the title. Off by default; existing notes are never changed (#544). */
     val newNotesStartWithHeading: Boolean = false,
+    /** How long a note stays in the trash before it is deleted forever.
+     *  [TrashRetention.NEVER] by default: notes stay until the user deletes
+     *  them, as they always have (#566). */
+    val trashRetention: TrashRetention = TrashRetention.NEVER,
     /** Enter on a line of plain text starts the next line with two full-width
      *  spaces, the paragraph indent of Chinese prose. Off by default; only new
      *  lines typed while it is on get the indent (#543). */
@@ -325,6 +329,25 @@ enum class EditorLineSpacing(val factor: Float) {
     NORMAL(1.0f),
 
     RELAXED(1.25f)
+}
+
+/**
+ * How long a note stays in the trash before Markleaf deletes it forever (#566).
+ *
+ * Input: the user's pick in Settings → Notes. Output: [days], or null for
+ * [NEVER]. A note goes once its `deletedAt` is at least [days] old; the sweep
+ * runs when the app comes to the foreground, so on a phone left alone it runs
+ * the next time Markleaf is opened rather than on the hour.
+ *
+ * The periods are the ones the reporter named (a day, a week, a month). The
+ * default is [NEVER] because the sweep deletes notes, with their attachments
+ * and sync-folder files, while the user is doing something else.
+ */
+enum class TrashRetention(val days: Int?) {
+    NEVER(null),
+    ONE_DAY(1),
+    ONE_WEEK(7),
+    ONE_MONTH(30)
 }
 
 enum class MarkdownSyntaxVisibility {

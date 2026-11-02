@@ -41,7 +41,7 @@ internal enum class SettingsCategory(@StringRes val label: Int, @StringRes val g
     EDITOR(R.string.settings_editor, listOf(R.string.settings_group_text, R.string.settings_markdown)),
     NOTES(
         R.string.settings_notes,
-        listOf(R.string.settings_group_list, R.string.settings_group_opening, R.string.settings_group_new_notes)
+        listOf(R.string.settings_group_list, R.string.settings_group_opening, R.string.settings_group_new_notes, R.string.trash)
     ),
     PRIVACY(R.string.settings_privacy_security, listOf(R.string.settings_group_lock, R.string.settings_group_screen)),
     SYNC(R.string.settings_sync_export, listOf(R.string.sync_title, R.string.settings_group_export)),

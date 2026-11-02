@@ -222,6 +222,17 @@
         <item quantity="few">%1$d bilješke bit će izbrisane zauvijek i neće se moći oporaviti.</item>
         <item quantity="other">%1$d bilježaka bit će izbrisano zauvijek i neće se moći oporaviti.</item>
     </plurals>
+    <string name="trash_retention">Izbriši iz smeća nakon</string>
+    <string name="trash_retention_never">Nikad</string>
+    <string name="trash_retention_day">1 dan</string>
+    <string name="trash_retention_week">7 dana</string>
+    <string name="trash_retention_month">30 dana</string>
+    <string name="trash_retention_description">Bilješke u smeću bit će zauvijek izbrisane nakon tog vremena, zajedno s privicima i datotekama u mapi za sinkronizaciju. Provjerava se kad otvorite Markleaf.</string>
+    <plurals name="trash_retention_notice">
+        <item quantity="one">Bilješke ovdje brišu se zauvijek %1$d dan nakon premještanja u smeće.</item>
+        <item quantity="few">Bilješke ovdje brišu se zauvijek %1$d dana nakon premještanja u smeće.</item>
+        <item quantity="other">Bilješke ovdje brišu se zauvijek %1$d dana nakon premještanja u smeće.</item>
+    </plurals>
     <string name="cancel">Odustani</string>
 
     <string name="move_to_trash">Premjesti u smeće</string>

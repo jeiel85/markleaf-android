@@ -212,6 +212,18 @@
         <item quantity="many">%1$d poznámok bude natrvalo vymazaných a nebude ich možné obnoviť.</item>
         <item quantity="other">%1$d poznámok bude natrvalo vymazaných a nebude ich možné obnoviť.</item>
     </plurals>
+    <string name="trash_retention">Odstrániť z koša po</string>
+    <string name="trash_retention_never">Nikdy</string>
+    <string name="trash_retention_day">1 dni</string>
+    <string name="trash_retention_week">7 dňoch</string>
+    <string name="trash_retention_month">30 dňoch</string>
+    <string name="trash_retention_description">Poznámky v koši sa po tomto čase natrvalo vymažú spolu s prílohami a súbormi v synchronizačnom priečinku. Kontroluje sa pri otvorení Markleaf.</string>
+    <plurals name="trash_retention_notice">
+        <item quantity="one">Poznámky tu sa natrvalo vymažú %1$d deň po presunutí do koša.</item>
+        <item quantity="few">Poznámky tu sa natrvalo vymažú %1$d dni po presunutí do koša.</item>
+        <item quantity="many">Poznámky tu sa natrvalo vymažú %1$d dňa po presunutí do koša.</item>
+        <item quantity="other">Poznámky tu sa natrvalo vymažú %1$d dní po presunutí do koša.</item>
+    </plurals>
     <string name="cancel">Zrušiť</string>
     <string name="move_to_trash">Presunúť do koša</string>
     <string name="move_to_trash_title">Presunúť do koša?</string>

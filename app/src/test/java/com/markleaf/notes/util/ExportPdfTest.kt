@@ -1,6 +1,7 @@
 package com.markleaf.notes.util
 
 import com.markleaf.notes.core.text.TitleExtractor
+import com.markleaf.notes.data.settings.EditorFont
 import com.markleaf.notes.domain.model.Note
 import java.time.Instant
 import org.junit.Assert.assertEquals
@@ -220,5 +221,54 @@ class ExportPdfTest {
 
         assertTrue(body, body.contains("<hr"))
         assertTrue(body, body.contains("<p>Below</p>"))
+    }
+
+    private fun bodyFontFamily(html: String): String =
+        Regex("""body \{\s*font-family: ([^;]+);""").find(html)!!.groupValues[1]
+
+    /** #568: the default font prints as it always has. */
+    @Test
+    fun `sans keeps the original font stack`() {
+        val html = ExportPdf.renderDocument(note("# A\n\nText"), "Untitled")
+
+        assertTrue(bodyFontFamily(html).startsWith("-apple-system"))
+        assertFalse(html.contains("@font-face"))
+    }
+
+    /** #568: the PDF is set in the font chosen in Settings, like the editor. */
+    @Test
+    fun `serif and monospace print in the system families`() {
+        val serif = ExportPdf.renderDocument(note("# A"), "Untitled", bodyFont = EditorFont.SERIF)
+        val mono = ExportPdf.renderDocument(note("# A"), "Untitled", bodyFont = EditorFont.MONOSPACE)
+
+        assertEquals("serif", bodyFontFamily(serif))
+        assertEquals("monospace", bodyFontFamily(mono))
+    }
+
+    @Test
+    fun `a custom font is declared and used first, with sans behind it`() {
+        val html = ExportPdf.renderDocument(
+            note("# A"), "Untitled", bodyFont = EditorFont.CUSTOM, hasCustomFont = true
+        )
+
+        assertTrue(html, html.contains("""@font-face { font-family: "Markleaf Custom"; src: url("https://markleaf.invalid/custom-font"); }"""))
+        assertTrue(bodyFontFamily(html).startsWith("\"Markleaf Custom\", -apple-system"))
+    }
+
+    /** With its file gone, Custom draws as sans in the editor; the PDF does the same. */
+    @Test
+    fun `a custom font with no file prints in sans`() {
+        val html = ExportPdf.renderDocument(note("# A"), "Untitled", bodyFont = EditorFont.CUSTOM)
+
+        assertFalse(html.contains("@font-face"))
+        assertTrue(bodyFontFamily(html).startsWith("-apple-system"))
+    }
+
+    /** Code keeps its monospace stack whatever the body font is. */
+    @Test
+    fun `code keeps its own font`() {
+        val html = ExportPdf.renderDocument(note("`x`"), "Untitled", bodyFont = EditorFont.SERIF)
+
+        assertTrue(html.contains("""font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;"""))
     }
 }

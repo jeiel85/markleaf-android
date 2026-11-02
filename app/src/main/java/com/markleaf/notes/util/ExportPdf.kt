@@ -3,9 +3,14 @@ package com.markleaf.notes.util
 import android.content.Context
 import android.print.PrintAttributes
 import android.print.PrintManager
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.markleaf.notes.R
+import com.markleaf.notes.core.font.CustomFontStore
+import com.markleaf.notes.data.settings.AppSettingsRepository
+import com.markleaf.notes.data.settings.EditorFont
 import com.markleaf.notes.core.markdown.CalloutHead
 import com.markleaf.notes.core.markdown.CalloutKind
 import com.markleaf.notes.core.markdown.CommonMarkPreviewAdapter
@@ -14,7 +19,9 @@ import com.markleaf.notes.core.markdown.WikilinkNode
 import com.markleaf.notes.core.markdown.preview.unresolvedImageText
 import com.markleaf.notes.domain.model.Note
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import java.io.File
 import org.commonmark.ext.autolink.AutolinkExtension
 import org.commonmark.node.AbstractVisitor
 import org.commonmark.node.BlockQuote
@@ -81,10 +88,21 @@ object ExportPdf {
 
         val untitled = context.getString(R.string.untitled)
         val title = note.title.ifBlank { untitled }
+        // The PDF is set in the font the note is written in (#568).
+        val settings = AppSettingsRepository(context.applicationContext).settings.first()
+        val customFont = withContext(Dispatchers.IO) {
+            if (settings.editorFont == EditorFont.CUSTOM) {
+                CustomFontStore.file(context, settings.customFontFile)
+            } else {
+                null
+            }
+        }
         val html = withContext(Dispatchers.IO) {
             renderDocument(
                 note,
                 untitled,
+                bodyFont = settings.editorFont,
+                hasCustomFont = customFont != null,
                 calloutLabel = { kind, raw -> calloutLabel(context, kind, raw) },
                 imageSource = PdfImageInliner(context)::dataUri
             )
@@ -101,6 +119,19 @@ object ExportPdf {
         // because the user printed it.
         webView.settings.blockNetworkLoads = true
         webView.webViewClient = object : WebViewClient() {
+            // The custom font is handed over here rather than as a data: URI:
+            // a CJK font runs to 16 MB, which would ride along inside the page
+            // string, and file access would open every app file to the page.
+            // The answer comes from this function, so blockNetworkLoads
+            // still holds — nothing is fetched.
+            override fun shouldInterceptRequest(
+                view: WebView,
+                request: WebResourceRequest
+            ): WebResourceResponse? {
+                if (request.url.toString() != CUSTOM_FONT_URL || customFont == null) return null
+                return fontResponse(customFont)
+            }
+
             override fun onPageFinished(view: WebView, url: String) {
                 val jobName = context.getString(R.string.export_pdf_job_name, title)
                 val adapter = view.createPrintDocumentAdapter(jobName)
@@ -126,6 +157,10 @@ object ExportPdf {
     internal fun renderDocument(
         note: Note,
         untitled: String,
+        bodyFont: EditorFont = EditorFont.SANS,
+        // Whether [CUSTOM_FONT_URL] will answer; without a file, CUSTOM prints
+        // in sans, as the editor draws it.
+        hasCustomFont: Boolean = false,
         // Before imageSource so a trailing lambda still means the image source.
         calloutLabel: (kind: CalloutKind?, raw: String) -> String = { _, raw -> raw },
         imageSource: (destination: String) -> String? = { null }
@@ -138,13 +173,13 @@ object ExportPdf {
         } catch (tooManyCells: IllegalArgumentException) {
             // commonmark 0.30 aborts a table past a million cells; print the
             // note as its text rather than fail the export (D082).
-            return wrapHtml(title, "<pre>${escape(markdown)}</pre>")
+            return wrapHtml(title, "<pre>${escape(markdown)}</pre>", bodyFont, hasCustomFont)
         }
         inlineImages(document, imageSource)
         markCallouts(document, calloutLabel)
         flattenWikilinks(document)
         val bodyHtml = renderer.render(document)
-        return wrapHtml(title, bodyHtml)
+        return wrapHtml(title, bodyHtml, bodyFont, hasCustomFont)
     }
 
     /**
@@ -244,7 +279,45 @@ object ExportPdf {
         }
     }
 
-    private fun wrapHtml(title: String, body: String): String {
+    /**
+     * The `font-family` for the page's text, and the `@font-face` it needs, for
+     * the font chosen in Settings → Editor (#568).
+     *
+     * The built-in choices name the generic families, which WebView resolves to
+     * the same system fonts Compose draws them with. Code keeps its monospace
+     * stack whichever is chosen, as it does in the editor.
+     */
+    internal fun bodyFontCss(font: EditorFont, hasCustomFont: Boolean): Pair<String, String> = when {
+        font == EditorFont.SERIF -> "" to "serif"
+        font == EditorFont.MONOSPACE -> "" to "monospace"
+        font == EditorFont.CUSTOM && hasCustomFont ->
+            "@font-face { font-family: \"$CUSTOM_FONT_FAMILY\"; src: url(\"$CUSTOM_FONT_URL\"); }" to
+                "\"$CUSTOM_FONT_FAMILY\", $SANS_STACK"
+        else -> "" to SANS_STACK
+    }
+
+    /** The custom font file as the answer to [CUSTOM_FONT_URL]. */
+    private fun fontResponse(file: File): WebResourceResponse? = runCatching {
+        WebResourceResponse(
+            "font/${if (file.name.endsWith(".otf", ignoreCase = true)) "otf" else "ttf"}",
+            null,
+            200,
+            "OK",
+            // The page is loaded from a string, so its origin is opaque and a
+            // font load is a cross-origin (CORS) request.
+            mapOf("Access-Control-Allow-Origin" to "*"),
+            file.inputStream()
+        )
+    }.getOrNull()
+
+    /** Answered by the print WebView itself; `.invalid` never resolves anywhere. */
+    private const val CUSTOM_FONT_URL = "https://markleaf.invalid/custom-font"
+    private const val CUSTOM_FONT_FAMILY = "Markleaf Custom"
+    private const val SANS_STACK =
+        "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+
+    private fun wrapHtml(title: String, body: String, font: EditorFont, hasCustomFont: Boolean): String {
+        val (fontFace, fontFamily) = bodyFontCss(font, hasCustomFont)
         // Inline styles only — WebView loads data with no base URL, so external
         // CSS would fail. Keeps the rendered PDF visually consistent with the
         // in-app preview (Markleaf green accent, comfortable line width).
@@ -255,10 +328,10 @@ object ExportPdf {
             <meta charset="UTF-8">
             <title>${escape(title)}</title>
             <style>
+              $fontFace
               @page { margin: 20mm 18mm; }
               body {
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-                  "Helvetica Neue", Arial, sans-serif;
+                font-family: $fontFamily;
                 font-size: 11pt;
                 line-height: 1.6;
                 color: #2c3531;

@@ -273,6 +273,7 @@
     <string name="show_formatting_button_description">Conserve le bouton Aa sur la ligne au-dessus du clavier. Désactivé, il disparaît ; annuler et rétablir restent, gras, italique et lien apparaissent toujours lorsque vous sélectionnez du texte, et l\'insertion rapide avec / ne change pas.</string>
     <string name="snippet_buttons_label">Boutons d\'extraits</string>
     <string name="snippet_buttons_description">Vos propres boutons sur la ligne au-dessus du clavier, après Aa. Chacun insère son Markdown à l\'emplacement du curseur. Aucun tant que vous n\'en ajoutez pas ; jusqu\'à 10.</string>
+    <string name="snippet_buttons_unreadable">Vos extraits enregistrés n\'ont pas pu être lus, ils ne sont donc pas affichés. Ajouter un extrait les remplace.</string>
     <string name="snippet_buttons_add">Ajouter un extrait</string>
     <string name="snippet_buttons_edit">Modifier l\'extrait</string>
     <string name="snippet_buttons_dialog_new">Nouvel extrait</string>

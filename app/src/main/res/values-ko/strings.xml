@@ -266,6 +266,7 @@
     <string name="show_formatting_button_description">키보드 위 줄에 Aa 버튼을 둡니다. 끄면 사라지며, 실행 취소·다시 실행과 텍스트를 선택했을 때의 굵게·기울임·링크, / 빠른 삽입은 그대로입니다.</string>
     <string name="snippet_buttons_label">스니펫 버튼</string>
     <string name="snippet_buttons_description">키보드 위 줄의 Aa 뒤에 놓는 나만의 버튼입니다. 누르면 정해 둔 Markdown을 커서 위치에 넣습니다. 추가하기 전에는 없으며, 최대 10개까지 둘 수 있습니다.</string>
+    <string name="snippet_buttons_unreadable">저장된 스니펫을 읽을 수 없어 표시하지 않습니다. 스니펫을 추가하면 저장된 목록을 대신합니다.</string>
     <string name="snippet_buttons_add">스니펫 추가</string>
     <string name="snippet_buttons_edit">스니펫 편집</string>
     <string name="snippet_buttons_dialog_new">새 스니펫</string>

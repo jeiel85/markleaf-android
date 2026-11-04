@@ -22,10 +22,12 @@ internal object SnippetButtonsCodec {
 
     /**
      * Only [encode] writes this value, so anything unreadable means a damaged
-     * file rather than a format to support. The row then shows no buttons
-     * instead of failing to open the editor, and the next change in Settings
-     * writes a clean list over it. Entries without text are dropped for the
-     * same reason: a button that inserts nothing has no way to have been saved.
+     * file — or a newer version's format after a downgrade — rather than a
+     * format to support. The row then shows no buttons instead of failing to
+     * open the editor, and Settings says so ([isUnreadable]) before the next
+     * change there writes a clean list over it. Entries without text are
+     * dropped for the same reason: a button that inserts nothing has no way
+     * to have been saved.
      */
     fun decode(raw: String?): List<SnippetButton> {
         if (raw.isNullOrBlank()) return emptyList()
@@ -41,6 +43,21 @@ internal object SnippetButtonsCodec {
                 if (text.isEmpty()) null else SnippetButton(label = entry.optString(LABEL), text = text)
             }
             .take(SnippetButton.MAX_COUNT)
+    }
+
+    /**
+     * True when a stored value exists but is not a list [decode] can read, so
+     * the empty row hides snippets the user wrote rather than meaning none
+     * (#262). Dropped entries don't count: the rest of the list still reads.
+     */
+    fun isUnreadable(raw: String?): Boolean {
+        if (raw.isNullOrBlank()) return false
+        return try {
+            JSONArray(raw)
+            false
+        } catch (_: JSONException) {
+            true
+        }
     }
 
     private const val LABEL = "label"

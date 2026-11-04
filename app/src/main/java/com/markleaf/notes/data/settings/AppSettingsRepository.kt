@@ -85,6 +85,7 @@ class AppSettingsRepository internal constructor(
             notesShowPreview = preferences[NOTES_SHOW_PREVIEW] ?: true,
             showFormattingButton = preferences[SHOW_FORMATTING_BUTTON] ?: true,
             snippetButtons = SnippetButtonsCodec.decode(preferences[SNIPPET_BUTTONS]),
+            snippetButtonsUnreadable = SnippetButtonsCodec.isUnreadable(preferences[SNIPPET_BUTTONS]),
             reopenLastNote = preferences[REOPEN_LAST_NOTE] ?: false,
             recentNotesInShortcuts = preferences[RECENT_NOTES_IN_SHORTCUTS] ?: false,
             notesSortMode = preferences[NOTES_SORT_MODE]

@@ -25,6 +25,7 @@ class PdfImageInlinerTest {
 
     private fun inliner(
         budget: Long = PdfImageInliner.DOCUMENT_BUDGET_BYTES,
+        longSide: (File) -> Int = { 100 },
         result: (File) -> PdfImageInliner.EncodedImage? = {
             PdfImageInliner.EncodedImage("image/jpeg", byteArrayOf(9, 9))
         }
@@ -32,7 +33,7 @@ class PdfImageInlinerTest {
         filesDir = temp.root.resolve("files").apply { mkdirs() }
         root = File(filesDir, "attachments").apply { mkdirs() }
         File(root, "n1").mkdirs()
-        return PdfImageInliner(root, filesDir, budget) { transcodes++; result(it) }
+        return PdfImageInliner(root, filesDir, budget, longSide) { transcodes++; result(it) }
     }
 
     @Test
@@ -53,6 +54,28 @@ class PdfImageInlinerTest {
 
         assertEquals("data:image/jpeg;base64,CQk=", inliner.dataUri("attachments/n1/photo.jpg"))
         assertEquals(1, transcodes)
+    }
+
+    /**
+     * A flat image compresses to almost nothing at any size, so bytes alone
+     * would hand the print WebView a 10000 px PNG to allocate (#262).
+     */
+    @Test
+    fun `a small file with huge pixel dimensions is re-encoded instead of inlined raw`() {
+        val inliner = inliner(longSide = { PdfImageInliner.MAX_EDGE_PX + 1 })
+        File(root, "n1/flat.png").writeBytes(byteArrayOf(1, 2, 3))
+
+        assertEquals("data:image/jpeg;base64,CQk=", inliner.dataUri("attachments/n1/flat.png"))
+        assertEquals(1, transcodes)
+    }
+
+    @Test
+    fun `a small file at exactly the edge limit is still inlined raw`() {
+        val inliner = inliner(longSide = { PdfImageInliner.MAX_EDGE_PX })
+        File(root, "n1/a.png").writeBytes(byteArrayOf(1, 2, 3))
+
+        assertEquals("data:image/png;base64,AQID", inliner.dataUri("attachments/n1/a.png"))
+        assertEquals(0, transcodes)
     }
 
     /** Formats the picker accepts but the WebView may not render are decoded too. */

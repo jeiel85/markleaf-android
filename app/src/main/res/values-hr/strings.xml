@@ -290,6 +290,7 @@
     <string name="show_formatting_button_description">Zadržava gumb Aa u retku iznad tipkovnice. Isključeno ga skriva; poništavanje i ponavljanje ostaju, podebljano, kurziv i poveznica i dalje se pojavljuju kad odaberete tekst, a brzo umetanje s / ostaje isto.</string>
     <string name="snippet_buttons_label">Gumbi isječaka</string>
     <string name="snippet_buttons_description">Vlastiti gumbi u retku iznad tipkovnice, nakon Aa. Svaki umeće svoj Markdown na mjesto pokazivača. Nema ih dok ne dodate jedan; najviše 10.</string>
+    <string name="snippet_buttons_unreadable">Spremljeni isječci ne mogu se pročitati pa se ne prikazuju. Dodavanje isječka zamijenit će ih.</string>
     <string name="snippet_buttons_add">Dodaj isječak</string>
     <string name="snippet_buttons_edit">Uredi isječak</string>
     <string name="snippet_buttons_dialog_new">Novi isječak</string>

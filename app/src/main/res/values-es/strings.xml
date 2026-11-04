@@ -273,6 +273,7 @@
     <string name="show_formatting_button_description">Mantiene el botón Aa en la fila sobre el teclado. Al desactivarlo se oculta; deshacer y rehacer permanecen, negrita, cursiva y enlace siguen apareciendo al seleccionar texto, y la inserción rápida con / no cambia.</string>
     <string name="snippet_buttons_label">Botones de fragmentos</string>
     <string name="snippet_buttons_description">Tus propios botones en la fila sobre el teclado, después de Aa. Cada uno inserta su Markdown donde está el cursor. Ninguno hasta que añadas uno; hasta 10.</string>
+    <string name="snippet_buttons_unreadable">No se pudieron leer tus fragmentos guardados, así que no se muestran. Añadir un fragmento los reemplaza.</string>
     <string name="snippet_buttons_add">Añadir fragmento</string>
     <string name="snippet_buttons_edit">Editar fragmento</string>
     <string name="snippet_buttons_dialog_new">Nuevo fragmento</string>

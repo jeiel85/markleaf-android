@@ -2924,3 +2924,8 @@ Verification: `testDebugUnitTest` + `lintRelease` locally.
 
 Selected task: weekly release of what merged since v2.70.0 (#541, #542, #543, #544, #545, #553, #429 twice, settings restructure). One day late: the 10-28 window was missed, the maintainer allowed a one-off tag.
 Verification: `verify-release-notes.ps1`, `verify-landing-versions.ps1`, `verify-locales.ps1` locally; CI `build` + `instrumented-tests` on the release PR.
+
+## 2026-11-04 - v2.72.0: line spacing and Empty trash
+
+Selected task: weekly release of what merged since v2.71.0 (#561 line spacing, #566 Empty trash + trash auto-delete, #568 PDF font, #542 caret, #429 new-note file name, two #262 hardening batches #571/#572).
+Verification: `verify-release-notes.ps1`, `verify-landing-versions.ps1`, `verify-locales.ps1` locally; CI `build` + `instrumented-tests` on the release PR.

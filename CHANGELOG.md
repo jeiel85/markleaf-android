@@ -4,9 +4,9 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
-## Unreleased
+## v2.72.0 - Line spacing and Empty trash - 2026-11-04
 
-<!-- Rename to `## vX.Y.Z - Title - YYYY-MM-DD` in the release commit. The release-note step and the verify scripts read only `## v` headings, so this section is invisible to them until then. -->
+This week's requests: a line spacing setting for the editor and Preview, an Empty trash button, an optional automatic clean-up of the trash, and PDF exports in the font you chose. The caret no longer flicks when the keyboard comes up, a new note's file name now follows the title you finish writing when Keep file names is on, and `#` inside code is no longer read as a tag. No new permissions; notes are stored exactly as before.
 
 ### Added
 - **Line spacing.** A new setting under Settings → Editor: Compact, Normal (the default) or Relaxed. It sets how far apart lines sit in the editor and in Preview, together with Text size. Compact puts lines about 1.4 times the text size apart and fits more of a note on the screen; Relaxed puts them about twice the text size apart. In Preview, list items and paragraphs move closer together or further apart along with the lines inside them. Nothing changes until you pick an option. Thanks to [@uszymyszy](https://github.com/uszymyszy) for the request. (#561)

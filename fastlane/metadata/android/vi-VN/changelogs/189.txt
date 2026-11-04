@@ -1,0 +1,1 @@
+Mới: cài đặt giãn dòng (Hẹp, Bình thường, Rộng) cho trình soạn thảo và Xem trước, nút Dọn sạch thùng rác, tùy chọn tự xóa khỏi thùng rác sau 1, 7 hoặc 30 ngày, và xuất PDF bằng phông chữ đã chọn. Đã sửa: con trỏ không còn nhảy khi bàn phím mở, khi bật Giữ tên tệp thì tên tệp của ghi chú mới theo tiêu đề đã viết xong, và # trong mã không còn là thẻ.

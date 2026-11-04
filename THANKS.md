@@ -61,8 +61,11 @@ Listed by first report.
 | [@ClockGen](https://github.com/ClockGen) | [#474](https://github.com/jeiel85/markleaf-android/issues/474), [#510](https://github.com/jeiel85/markleaf-android/issues/510) |
 | [@PriscillaOvO](https://github.com/PriscillaOvO) | [#537](https://github.com/jeiel85/markleaf-android/issues/537), [#543](https://github.com/jeiel85/markleaf-android/issues/543), [#544](https://github.com/jeiel85/markleaf-android/issues/544), [#545](https://github.com/jeiel85/markleaf-android/issues/545) |
 | [@lyminhtanh](https://github.com/lyminhtanh) | [#540](https://github.com/jeiel85/markleaf-android/issues/540) |
-| [@uszymyszy](https://github.com/uszymyszy) | [#542](https://github.com/jeiel85/markleaf-android/issues/542) |
+| [@uszymyszy](https://github.com/uszymyszy) | [#542](https://github.com/jeiel85/markleaf-android/issues/542), [#561](https://github.com/jeiel85/markleaf-android/issues/561) |
 | [@dr-donnerknispel](https://github.com/dr-donnerknispel) | [#553](https://github.com/jeiel85/markleaf-android/issues/553) |
+| [@gubacsiaronmate](https://github.com/gubacsiaronmate) | [#565](https://github.com/jeiel85/markleaf-android/issues/565) |
+| [@stardomains3](https://github.com/stardomains3) | [#566](https://github.com/jeiel85/markleaf-android/issues/566) |
+| [@malekairmaroc7](https://github.com/malekairmaroc7) | [#568](https://github.com/jeiel85/markleaf-android/issues/568) |
 
 Not every request here was accepted — a couple were declined, and saying no to a
 thoughtful suggestion is its own kind of debt. Being told what you want from the

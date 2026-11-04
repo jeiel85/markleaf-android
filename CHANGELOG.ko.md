@@ -6,9 +6,9 @@ Markleaf의 주요 변경 사항을 기록합니다. 영어판이 기본이며 G
 
 v2.15.3 이전 항목은 이 파일에만 한국어로 보존되어 있습니다.
 
-## Unreleased
+## v2.72.0 - 줄 간격과 휴지통 비우기 (Line spacing and Empty trash) - 2026-11-04
 
-<!-- Rename to `## vX.Y.Z - Title - YYYY-MM-DD` in the release commit. The release-note step and the verify scripts read only `## v` headings, so this section is invisible to them until then. -->
+이번 주 요청을 담았습니다: 편집기와 미리보기의 줄 간격 설정, 휴지통 비우기 버튼, 선택형 휴지통 자동 비우기, 고른 글꼴로 내보내는 PDF. 키보드가 올라올 때 캐럿이 튀지 않고, 파일 이름 유지를 켜 두면 새 노트의 파일 이름이 다 쓴 제목을 따르며, 코드 안의 `#`는 더 이상 태그로 읽히지 않습니다. 새 권한은 없고 노트 저장 방식도 그대로입니다.
 
 ### 추가
 - **줄 간격.** 설정 → 편집기에 새 설정이 생겼습니다: 좁게, 보통(기본값), 넓게. 편집기와 미리보기에서 줄과 줄 사이를 얼마나 띄울지 정하며, 글자 크기와 함께 적용됩니다. 좁게는 줄 사이를 글자 크기의 약 1.4배로 줄여 한 화면에 노트가 더 많이 보이고, 넓게는 약 2배로 넓힙니다. 미리보기에서는 목록 항목과 문단 사이도 그 안의 줄과 함께 좁아지거나 넓어집니다. 직접 고르기 전에는 아무것도 바뀌지 않습니다. 요청해 주신 [@uszymyszy](https://github.com/uszymyszy)님께 감사드립니다. (#561)

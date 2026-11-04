@@ -2,7 +2,7 @@
 .SYNOPSIS
   릴리스 노트 자산(fastlane changelog, CHANGELOG 두 판)의 정합성을 검증한다.
 .DESCRIPTION
-  기대 버전은 `app/build.gradle.kts` 의 versionName / versionCode 다. 검사는 네 가지다.
+  기대 버전은 `app/build.gradle.kts` 의 versionName / versionCode 다. 검사는 다섯 가지다.
 
   1. fastlane changelog 존재 — `$StoreLocales` 의 스토어 로케일 전부에
      `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt` 가 있어야 한다.
@@ -18,6 +18,12 @@
      한국어판은 번역이라, 한쪽에만 있는 버전 섹션은 아무 것도 실패시키지 않은 채
      남는다(#167). 버전 섹션의 순서와 날짜가 두 파일에서 같은지, 그리고 이번 버전
      섹션이 양쪽에 있는지 확인한다. 제목은 번역이므로 비교하지 않는다.
+  5. 태그된 버전의 섹션 보존 — 4번은 두 판을 서로 비교하므로, 같은 섹션이 양쪽에서
+     함께 사라지면 통과한다. v2.63.2 섹션이 두 판 모두에서 v2.63.1 헤딩을 덮어쓴 채
+     통과한 적이 있다(#504 Codex, #262). 그래서 `vX.Y.Z` git 태그마다 두 판에 섹션이
+     있는지 본다. CHANGELOG 의 가장 오래된 섹션보다 앞선 태그(v0.1.0)는 CHANGELOG 가
+     생기기 전 것이라 대상에서 뺀다. 태그를 하나도 못 읽으면 통과시키지 않고 실패한다 —
+     얕은 체크아웃이 태그 없이 받아 와 검사가 조용히 빈 손으로 끝나는 것을 막기 위함이다.
 
   길이는 `writeReleaseArtifacts` 와 같은 방식으로 센다(trim 후 문자 수).
 .EXAMPLE
@@ -204,6 +210,42 @@ if ($readable) {
     foreach ($name in $changelogPaths.Keys) {
         if (@($sections[$name] | Where-Object { $_.Version -eq $ExpectedVersion }).Count -eq 0) {
             Add-Failure "  FAIL  $name 에 이번 버전(v$ExpectedVersion) 섹션이 없습니다."
+        }
+    }
+
+    # ---- 5. 태그된 버전마다 섹션이 남아 있는지 ----
+    Write-Host "`n태그된 버전의 CHANGELOG 섹션"
+    $tagOutput = @(& git -C $RepoRoot tag --list 'v*' 2>$null)
+    if ($LASTEXITCODE -ne 0) {
+        Add-Failure "  FAIL  git 태그를 읽지 못했습니다 (git -C $RepoRoot tag)."
+    } else {
+        $tagged = @(
+            $tagOutput |
+                Where-Object { $_ -match '^v[0-9]+\.[0-9]+\.[0-9]+$' } |
+                ForEach-Object { [version]$_.Substring(1) }
+        )
+        if ($tagged.Count -eq 0) {
+            Add-Failure "  FAIL  vX.Y.Z 태그가 하나도 없습니다 — 체크아웃이 태그를 받아 왔는지 확인하세요 (actions/checkout 의 fetch-tags)."
+        } else {
+            $missingTotal = 0
+            foreach ($name in $changelogPaths.Keys) {
+                $present = @($sections[$name] | ForEach-Object { [version]$_.Version })
+                if ($present.Count -eq 0) { continue }
+                $oldest = ($present | Measure-Object -Minimum).Minimum
+                $missing = @(
+                    $tagged |
+                        Where-Object { $_ -ge $oldest -and $present -notcontains $_ } |
+                        Sort-Object |
+                        ForEach-Object { "v$_" }
+                )
+                if ($missing.Count -gt 0) {
+                    Add-Failure "  FAIL  $name 에서 태그된 버전의 섹션이 사라졌습니다: $($missing -join ', ')"
+                    $missingTotal += $missing.Count
+                }
+            }
+            if ($missingTotal -eq 0) {
+                Write-Host ("  OK    태그 {0}개의 섹션이 두 판에 모두 있습니다." -f $tagged.Count) -ForegroundColor Green
+            }
         }
     }
 }

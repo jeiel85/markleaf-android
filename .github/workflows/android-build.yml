@@ -36,8 +36,13 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
+      # 태그가 있어야 verify-release-notes.ps1 이 태그된 버전마다 CHANGELOG 섹션이
+      # 남아 있는지 볼 수 있다(#262). 얕은 체크아웃은 기본으로 태그를 받지 않고,
+      # 태그가 없으면 그 검사는 통과 대신 실패한다.
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          fetch-tags: true
 
       # 버전 표기·릴리스 노트 검사는 Gradle 앞에 둔다. 초 단위로 끝나고, 릴리스
       # 준비 커밋에서 빠뜨리기 가장 쉬운 것들이라 먼저 실패하는 편이 낫다.

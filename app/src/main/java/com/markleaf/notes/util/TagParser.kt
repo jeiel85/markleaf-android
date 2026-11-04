@@ -1,5 +1,6 @@
 package com.markleaf.notes.util
 
+import com.markleaf.notes.core.markdown.FencedCodeBlocks
 import java.util.regex.Pattern
 
 object TagParser {
@@ -15,10 +16,13 @@ object TagParser {
 
     fun parseTags(content: String): List<String> {
         val tags = LinkedHashSet<String>()
+        val code = codeMask(content)
 
         val matcher = TAG_PATTERN.matcher(content)
         while (matcher.find()) {
             val tag = matcher.group(2) ?: continue
+            // The `#` sits just before the tag body.
+            if (code[matcher.start(2) - 1]) continue
             if (isValidTagName(tag)) {
                 tags.add(tag)
             }
@@ -26,6 +30,31 @@ object TagParser {
 
         return tags.toList()
     }
+
+    /**
+     * Which characters are code: fenced blocks, then inline spans outside them —
+     * the same two scans the editor's highlighter uses to draw code, so
+     * `#include` in a C snippet or a `` `#fff` `` colour is not a tag (#262).
+     * A mask rather than stripping the code out, so the text around a span keeps
+     * the boundaries it had: stripping `` `x` `` from ``a `x`#b`` would leave
+     * `a #b`, a tag that was never there.
+     */
+    private fun codeMask(content: String): BooleanArray {
+        val code = BooleanArray(content.length)
+        if ('`' !in content && '~' !in content) return code
+        for (fence in FencedCodeBlocks.ranges(content)) {
+            java.util.Arrays.fill(code, fence.first, fence.last + 1, true)
+        }
+        INLINE_CODE_REGEX.findAll(content).forEach { span ->
+            if (!code[span.range.first] && !code[span.range.last]) {
+                java.util.Arrays.fill(code, span.range.first, span.range.last + 1, true)
+            }
+        }
+        return code
+    }
+
+    // Matches `MarkdownSyntaxHighlighter.INLINE_CODE_REGEX`: one line, non-empty.
+    private val INLINE_CODE_REGEX = Regex("""`[^`\n]+?`""")
 
     private val SEGMENT_REGEX = Regex("""[\p{L}_][\p{L}\p{N}_-]*""")
 

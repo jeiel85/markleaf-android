@@ -19,10 +19,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 ### Fixed
 - **The caret no longer jumps when the keyboard comes up.** To scroll a tapped line above the keyboard, the editor moves the caret one character and back, and that move showed: the caret flicked forward and back each time the keyboard opened. It is now hidden for that moment, so only the line moving into view is seen. Thanks to [@uszymyszy](https://github.com/uszymyszy) for spotting it. (#542)
 - **With Keep file names on, a new note's file is named after the title you finished writing.** The file is created about a second after you start typing, and Markleaf used to keep the name it got at that moment, so a pause after "Gro" left a note titled "Groceries" in `Gro.md`. While you write a new note for the first time, its file name now follows the title. From the next time you open the note, the name stays as it is. (#429)
+- **`#` inside code is no longer a tag.** A line like `#include <stdio.h>` in a code block, or `` `#fff` `` in inline code, used to add a tag called `include` or `fff` to the note. Code blocks (fenced with ``` or ~~~) and inline code are now skipped when tags are read, as they are when the editor colours code. (#262)
+- **TalkBack reads the widget colour presets as choices.** In Settings → Appearance → Widget color → Custom, each preset swatch was announced only by its hex code. It is now a radio button that says whether it is the current colour, and the current one has a thicker ring on screen too. (#262)
 
 ### Limits
 - Automatic deletion is checked when you open Markleaf or return to it, at most once a minute, not in the background, so a note can stay in the trash past its period until the app is next opened. A note in the trash with no recorded deletion time is never deleted automatically.
 - Line spacing leaves code blocks, tables and the space around headings as they are. Like Text size, it doesn't apply to home-screen widgets or to files opened with Open file….
+- A tag that appeared only inside code leaves a note when that note is next saved or imported. Until then it can still show in the tag list, and picking it lists no notes.
 
 ## v2.71.0 - Settings in six categories - 2026-10-29
 

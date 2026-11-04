@@ -3,7 +3,6 @@ package com.markleaf.notes.feature.settings
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -39,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -170,21 +172,7 @@ private fun WidgetColorPickerDialog(
                     )
                 }
                 Spacer(Modifier.height(12.dp))
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    PRESETS.forEach { preset ->
-                        val label = formatHexColor(preset)
-                        Swatch(
-                            preset,
-                            Modifier
-                                .size(32.dp)
-                                .clickable { setFrom(preset) }
-                                .semantics { contentDescription = label }
-                        )
-                    }
-                }
+                PresetSwatches(selectedColor = color, onPick = ::setFrom)
                 Spacer(Modifier.height(12.dp))
                 LabeledSlider(R.string.widget_color_hue, hue, 0f..360f) { hue = it; onSlider() }
                 LabeledSlider(R.string.widget_color_saturation, saturation, 0f..1f) {
@@ -246,12 +234,48 @@ private fun LabeledSlider(
     Slider(value = value, onValueChange = onValueChange, valueRange = range)
 }
 
+/**
+ * The preset colours as a radio group, so TalkBack says what a swatch does and
+ * which one is the current colour — not just its hex code (#262). A colour
+ * typed in that is no preset leaves none selected.
+ */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun Swatch(color: Int, modifier: Modifier) {
+internal fun PresetSwatches(selectedColor: Int, onPick: (Int) -> Unit) {
+    FlowRow(
+        modifier = Modifier.selectableGroup(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        PRESETS.forEach { preset ->
+            val label = formatHexColor(preset)
+            val selected = preset == selectedColor
+            Swatch(
+                preset,
+                Modifier
+                    .size(32.dp)
+                    .selectable(
+                        selected = selected,
+                        role = Role.RadioButton,
+                        onClick = { onPick(preset) }
+                    )
+                    .semantics { contentDescription = label },
+                selected = selected
+            )
+        }
+    }
+}
+
+@Composable
+private fun Swatch(color: Int, modifier: Modifier, selected: Boolean = false) {
     Box(
         modifier
             .background(Color(color), CircleShape)
-            .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
+            .border(
+                if (selected) 3.dp else 1.dp,
+                if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline,
+                CircleShape
+            )
     )
 }
 

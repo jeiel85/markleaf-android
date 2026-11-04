@@ -176,4 +176,41 @@ class TagParserTest {
         val tags = TagParser.parseTags(content)
         assertEquals(listOf("realTag"), tags)
     }
+
+    @Test
+    fun `parseTags ignores a hash inside a fenced code block`() {
+        val content = "Snippet #c\n\n```c\n#include <stdio.h>\n #define MAX 10\n```\n\n#after"
+        assertEquals(listOf("c", "after"), TagParser.parseTags(content))
+    }
+
+    @Test
+    fun `parseTags ignores a hash inside a tilde fence`() {
+        val content = "~~~\n#notATag\n~~~\n#tag"
+        assertEquals(listOf("tag"), TagParser.parseTags(content))
+    }
+
+    @Test
+    fun `parseTags ignores a hash inside inline code`() {
+        val content = "Set the colour to ` #fff ` or `#header` then #styling"
+        assertEquals(listOf("styling"), TagParser.parseTags(content))
+    }
+
+    @Test
+    fun `parseTags reads tags right after an inline code span`() {
+        // The mask covers only the span, so a tag after it is still found.
+        val content = "Run `make` #build"
+        assertEquals(listOf("build"), TagParser.parseTags(content))
+    }
+
+    @Test
+    fun `parseTags treats an unclosed fence as code to the end, as the preview does`() {
+        val content = "#before\n```\n#inside"
+        assertEquals(listOf("before"), TagParser.parseTags(content))
+    }
+
+    @Test
+    fun `parseTags reads a tag when backticks never pair into a span`() {
+        val content = "A lone ` backtick #tag"
+        assertEquals(listOf("tag"), TagParser.parseTags(content))
+    }
 }

@@ -229,6 +229,26 @@ class TagParserTest {
     }
 
     @Test
+    fun `parseTags pairs backtick runs of the same length`() {
+        // ``a`b`` and `c` are two spans; #work sits between them.
+        val content = "``a`b`` #work `c`"
+        assertEquals(listOf("work"), TagParser.parseTags(content))
+    }
+
+    @Test
+    fun `parseTags masks a tag inside a double-backtick span`() {
+        val content = "``x #inside `y`` #outside"
+        assertEquals(listOf("outside"), TagParser.parseTags(content))
+    }
+
+    @Test
+    fun `parseTags reads a run with no partner as text`() {
+        // `` opens nothing here: no other run of two follows on the line.
+        val content = "``x` #tag"
+        assertEquals(listOf("tag"), TagParser.parseTags(content))
+    }
+
+    @Test
     fun `parseTags reads a tag when backticks never pair into a span`() {
         val content = "A lone ` backtick #tag"
         assertEquals(listOf("tag"), TagParser.parseTags(content))

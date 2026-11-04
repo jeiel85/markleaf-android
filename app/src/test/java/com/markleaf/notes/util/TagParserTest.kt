@@ -176,4 +176,81 @@ class TagParserTest {
         val tags = TagParser.parseTags(content)
         assertEquals(listOf("realTag"), tags)
     }
+
+    @Test
+    fun `parseTags ignores a hash inside a fenced code block`() {
+        val content = "Snippet #c\n\n```c\n#include <stdio.h>\n #define MAX 10\n```\n\n#after"
+        assertEquals(listOf("c", "after"), TagParser.parseTags(content))
+    }
+
+    @Test
+    fun `parseTags ignores a hash inside a tilde fence`() {
+        val content = "~~~\n#notATag\n~~~\n#tag"
+        assertEquals(listOf("tag"), TagParser.parseTags(content))
+    }
+
+    @Test
+    fun `parseTags ignores a hash inside inline code`() {
+        val content = "Set the colour to ` #fff ` or `#header` then #styling"
+        assertEquals(listOf("styling"), TagParser.parseTags(content))
+    }
+
+    @Test
+    fun `parseTags reads tags right after an inline code span`() {
+        // The mask covers only the span, so a tag after it is still found.
+        val content = "Run `make` #build"
+        assertEquals(listOf("build"), TagParser.parseTags(content))
+    }
+
+    @Test
+    fun `parseTags treats an unclosed fence as code to the end, as the preview does`() {
+        val content = "#before\n```\n#inside"
+        assertEquals(listOf("before"), TagParser.parseTags(content))
+    }
+
+    @Test
+    fun `parseTags keeps a tag between escaped backticks, which are text`() {
+        val content = "Literal \\` #work \\` markers"
+        assertEquals(listOf("work"), TagParser.parseTags(content))
+    }
+
+    @Test
+    fun `parseTags treats a backtick after an escaped backslash as code`() {
+        // `\\` is one literal backslash, so the backtick after it opens a span.
+        val content = "C:\\\\ `#notATag` #tag"
+        assertEquals(listOf("tag"), TagParser.parseTags(content))
+    }
+
+    @Test
+    fun `parseTags ends a span at a backtick right after a backslash inside it`() {
+        // Inside code a backslash is literal: `a\` is the whole span.
+        val content = "`a\\` #after"
+        assertEquals(listOf("after"), TagParser.parseTags(content))
+    }
+
+    @Test
+    fun `parseTags pairs backtick runs of the same length`() {
+        // ``a`b`` and `c` are two spans; #work sits between them.
+        val content = "``a`b`` #work `c`"
+        assertEquals(listOf("work"), TagParser.parseTags(content))
+    }
+
+    @Test
+    fun `parseTags masks a tag inside a double-backtick span`() {
+        val content = "``x #inside `y`` #outside"
+        assertEquals(listOf("outside"), TagParser.parseTags(content))
+    }
+
+    @Test
+    fun `parseTags reads a run with no partner as text`() {
+        // `` opens nothing here: no other run of two follows on the line.
+        val content = "``x` #tag"
+        assertEquals(listOf("tag"), TagParser.parseTags(content))
+    }
+
+    @Test
+    fun `parseTags reads a tag when backticks never pair into a span`() {
+        val content = "A lone ` backtick #tag"
+        assertEquals(listOf("tag"), TagParser.parseTags(content))
+    }
 }

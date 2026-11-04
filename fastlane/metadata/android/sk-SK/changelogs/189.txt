@@ -1,0 +1,1 @@
+Nové: nastavenie riadkovania (Husté, Normálne, Voľné) pre editor a náhľad, tlačidlo Vyprázdniť kôš, voliteľné automatické mazanie z koša po 1, 7 alebo 30 dňoch a export do PDF zvoleným písmom. Opravené: kurzor už neposkakuje pri otvorení klávesnice, so zapnutým Ponechať názvy súborov sa názov súboru novej poznámky riadi dopísaným názvom a # v kóde už nie je štítok.

@@ -1,0 +1,1 @@
+Novo: postavka proreda (Zbijeno, Normalno, Prozračno) za uređivač i pregled, gumb „Isprazni smeće”, neobavezno automatsko brisanje iz smeća nakon 1, 7 ili 30 dana te izvoz u PDF odabranim fontom. Ispravljeno: pokazivač više ne skače kad se otvori tipkovnica, uz „Zadrži nazive datoteka” naziv datoteke nove bilješke prati dovršeni naslov, a # unutar koda više nije oznaka.

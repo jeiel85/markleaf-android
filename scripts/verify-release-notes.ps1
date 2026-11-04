@@ -22,8 +22,11 @@
      함께 사라지면 통과한다. v2.63.2 섹션이 두 판 모두에서 v2.63.1 헤딩을 덮어쓴 채
      통과한 적이 있다(#504 Codex, #262). 그래서 `vX.Y.Z` git 태그마다 두 판에 섹션이
      있는지 본다. CHANGELOG 의 가장 오래된 섹션보다 앞선 태그(v0.1.0)는 CHANGELOG 가
-     생기기 전 것이라 대상에서 뺀다. 태그를 하나도 못 읽으면 통과시키지 않고 실패한다 —
-     얕은 체크아웃이 태그 없이 받아 와 검사가 조용히 빈 손으로 끝나는 것을 막기 위함이다.
+     생기기 전 것이라 대상에서 뺀다. 태그는 체크아웃한 커밋에서 도달할 수 있는 것만
+     본다(`--merged HEAD`) — 더 새 태그가 생긴 뒤 옛 리비전을 다시 빌드하면, 그 리비전의
+     CHANGELOG 에는 아직 없는 게 맞는 섹션을 요구하게 되기 때문이다(#571 Codex).
+     태그를 하나도 못 읽으면 통과시키지 않고 실패한다 — 얕은 체크아웃이 태그 없이 받아 와
+     검사가 조용히 빈 손으로 끝나는 것을 막기 위함이다.
 
   길이는 `writeReleaseArtifacts` 와 같은 방식으로 센다(trim 후 문자 수).
 .EXAMPLE
@@ -215,9 +218,9 @@ if ($readable) {
 
     # ---- 5. 태그된 버전마다 섹션이 남아 있는지 ----
     Write-Host "`n태그된 버전의 CHANGELOG 섹션"
-    $tagOutput = @(& git -C $RepoRoot tag --list 'v*' 2>$null)
+    $tagOutput = @(& git -C $RepoRoot tag --list 'v*' --merged HEAD 2>$null)
     if ($LASTEXITCODE -ne 0) {
-        Add-Failure "  FAIL  git 태그를 읽지 못했습니다 (git -C $RepoRoot tag)."
+        Add-Failure "  FAIL  git 태그를 읽지 못했습니다 (git -C $RepoRoot tag --merged HEAD)."
     } else {
         $tagged = @(
             $tagOutput |
@@ -225,7 +228,7 @@ if ($readable) {
                 ForEach-Object { [version]$_.Substring(1) }
         )
         if ($tagged.Count -eq 0) {
-            Add-Failure "  FAIL  vX.Y.Z 태그가 하나도 없습니다 — 체크아웃이 태그를 받아 왔는지 확인하세요 (actions/checkout 의 fetch-tags)."
+            Add-Failure "  FAIL  vX.Y.Z 태그가 하나도 없습니다 — 체크아웃이 전체 이력과 태그를 받아 왔는지 확인하세요 (actions/checkout 의 fetch-depth: 0)."
         } else {
             $missingTotal = 0
             foreach ($name in $changelogPaths.Keys) {

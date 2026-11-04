@@ -266,6 +266,7 @@
     <string name="show_formatting_button_description">キーボード上の行に Aa ボタンを表示します。オフにすると消えますが、元に戻す・やり直すと、テキストを選択したときの太字・斜体・リンク、/ クイック挿入はそのままです。</string>
     <string name="snippet_buttons_label">スニペットボタン</string>
     <string name="snippet_buttons_description">キーボード上の行で Aa の後ろに置く自分用のボタンです。押すと決めておいた Markdown をカーソル位置に入れます。追加するまでは何もありません。最大 10 個まで置けます。</string>
+    <string name="snippet_buttons_unreadable">保存済みのスニペットを読み込めないため表示していません。スニペットを追加すると保存済みの一覧は置き換えられます。</string>
     <string name="snippet_buttons_add">スニペットを追加</string>
     <string name="snippet_buttons_edit">スニペットを編集</string>
     <string name="snippet_buttons_dialog_new">新しいスニペット</string>

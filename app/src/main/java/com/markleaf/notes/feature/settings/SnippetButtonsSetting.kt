@@ -42,8 +42,13 @@ import com.markleaf.notes.data.settings.SnippetProblem
 /**
  * Settings → Markdown → Snippet buttons (#436).
  *
- * Input: the current buttons, in row order. Output: [onChange] with the whole
- * new list after any add, edit, move or delete.
+ * Input: the current buttons, in row order, and whether a stored list exists
+ * that couldn't be read. Output: [onChange] with the whole new list after any
+ * add, edit, move or delete.
+ *
+ * An unreadable list shows as no buttons, and the first change replaces it, so
+ * the screen says that before the user makes one rather than letting their
+ * snippets disappear without a word (#262).
  *
  * Editing lives here rather than on the row itself: a `+` on the row would add
  * chrome for everyone who never uses snippets, and long-press there already
@@ -53,7 +58,8 @@ import com.markleaf.notes.data.settings.SnippetProblem
 internal fun SnippetButtonsSetting(
     buttons: List<SnippetButton>,
     onChange: (List<SnippetButton>) -> Unit,
-    titleModifier: Modifier = Modifier
+    titleModifier: Modifier = Modifier,
+    storedListUnreadable: Boolean = false
 ) {
     // Index being edited; [NEW_SNIPPET] for one being added, null when closed.
     var editing by remember { mutableStateOf<Int?>(null) }
@@ -71,6 +77,14 @@ internal fun SnippetButtonsSetting(
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
+    if (storedListUnreadable) {
+        Spacer(Modifier.height(4.dp))
+        Text(
+            text = stringResource(R.string.snippet_buttons_unreadable),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.error
+        )
+    }
     Spacer(Modifier.height(4.dp))
     buttons.forEachIndexed { index, button ->
         SnippetListRow(

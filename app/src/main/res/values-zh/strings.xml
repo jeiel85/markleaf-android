@@ -272,6 +272,7 @@
     <string name="show_formatting_button_description">在键盘上方的行中保留 Aa 按钮。关闭后即隐藏；撤销和重做、选中文本时的粗体、斜体和链接以及 / 快速插入均不受影响。</string>
     <string name="snippet_buttons_label">片段按钮</string>
     <string name="snippet_buttons_description">键盘上方一行中 Aa 之后的自定义按钮。点按即可在光标处插入预设的 Markdown。添加之前不会出现，最多 10 个。</string>
+    <string name="snippet_buttons_unreadable">无法读取已保存的片段，因此不显示。添加片段会替换已保存的列表。</string>
     <string name="snippet_buttons_add">添加片段</string>
     <string name="snippet_buttons_edit">编辑片段</string>
     <string name="snippet_buttons_dialog_new">新建片段</string>

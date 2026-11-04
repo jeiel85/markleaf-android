@@ -267,6 +267,7 @@
     <string name="show_formatting_button_description">Giữ nút Aa trên hàng phía trên bàn phím. Khi tắt, nút này bị ẩn; hoàn tác và làm lại vẫn còn, đậm, nghiêng và liên kết vẫn xuất hiện khi bạn chọn văn bản, còn chèn nhanh bằng / không thay đổi.</string>
     <string name="snippet_buttons_label">Nút đoạn mẫu</string>
     <string name="snippet_buttons_description">Các nút của riêng bạn trên hàng phía trên bàn phím, sau Aa. Mỗi nút chèn Markdown của nó vào vị trí con trỏ. Không có nút nào cho đến khi bạn thêm; tối đa 10.</string>
+    <string name="snippet_buttons_unreadable">Không đọc được các đoạn mẫu đã lưu nên chúng không được hiển thị. Thêm một đoạn mẫu sẽ thay thế chúng.</string>
     <string name="snippet_buttons_add">Thêm đoạn mẫu</string>
     <string name="snippet_buttons_edit">Sửa đoạn mẫu</string>
     <string name="snippet_buttons_dialog_new">Đoạn mẫu mới</string>

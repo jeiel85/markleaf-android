@@ -86,4 +86,17 @@ class PdfImageDownsampleTest {
 
         assertNull(PdfImageInliner.downsample(file))
     }
+
+    @Test
+    fun `the long side is read from the header`() {
+        assertEquals(3000, PdfImageInliner.readLongSide(write("wide.png", 3000, 10, alpha = false)))
+        assertEquals(2500, PdfImageInliner.readLongSide(write("tall.png", 10, 2500, alpha = false)))
+    }
+
+    @Test
+    fun `a file whose header can't be read has no long side`() {
+        val file = temp.newFile("fake.png").apply { writeText("not an image") }
+
+        assertEquals(0, PdfImageInliner.readLongSide(file))
+    }
 }

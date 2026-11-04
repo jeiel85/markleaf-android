@@ -1,9 +1,12 @@
 package com.markleaf.notes.data.settings
 
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -16,7 +19,8 @@ import org.robolectric.annotation.Config
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [33])
 class SnippetButtonsStorageTest {
-    private val repo = AppSettingsRepository(InMemoryPreferencesDataStore())
+    private val store = InMemoryPreferencesDataStore()
+    private val repo = AppSettingsRepository(store)
 
     @Test
     fun anUntouchedStoreHasNoSnippets() = runTest {
@@ -55,6 +59,32 @@ class SnippetButtonsStorageTest {
     fun aDamagedValueReadsAsNoSnippets() {
         assertEquals(emptyList<SnippetButton>(), SnippetButtonsCodec.decode("[{\"label\":"))
         assertEquals(emptyList<SnippetButton>(), SnippetButtonsCodec.decode("{}"))
+    }
+
+    /**
+     * An empty row from a damaged list is not the same as having no snippets:
+     * Settings has to say so before a change writes over it (#262).
+     */
+    @Test
+    fun aDamagedStoredListIsReportedUntilAChangeReplacesIt() = runTest {
+        store.edit { it[stringPreferencesKey("snippet_buttons")] = "[{\"label\":" }
+
+        val damaged = repo.settings.first()
+        assertTrue(damaged.snippetButtons.isEmpty())
+        assertTrue(damaged.snippetButtonsUnreadable)
+
+        repo.setSnippetButtons(listOf(SnippetButton(label = "", text = "#tag")))
+
+        assertFalse(repo.settings.first().snippetButtonsUnreadable)
+    }
+
+    @Test
+    fun onlyAValueThatIsNotAListIsUnreadable() {
+        assertFalse(SnippetButtonsCodec.isUnreadable(null))
+        assertFalse(SnippetButtonsCodec.isUnreadable(""))
+        assertFalse("dropped entries leave the rest readable", SnippetButtonsCodec.isUnreadable("[7,{}]"))
+        assertTrue(SnippetButtonsCodec.isUnreadable("[{\"label\":"))
+        assertTrue("another version's shape", SnippetButtonsCodec.isUnreadable("{\"buttons\":[]}"))
     }
 
     @Test

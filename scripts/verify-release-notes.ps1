@@ -2,7 +2,7 @@
 .SYNOPSIS
   릴리스 노트 자산(fastlane changelog, CHANGELOG 두 판)의 정합성을 검증한다.
 .DESCRIPTION
-  기대 버전은 `app/build.gradle.kts` 의 versionName / versionCode 다. 검사는 다섯 가지다.
+  기대 버전은 `app/build.gradle.kts` 의 versionName / versionCode 다. 검사는 여섯 가지다.
 
   1. fastlane changelog 존재 — `$StoreLocales` 의 스토어 로케일 전부에
      `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt` 가 있어야 한다.
@@ -27,6 +27,11 @@
      CHANGELOG 에는 아직 없는 게 맞는 섹션을 요구하게 되기 때문이다(#571 Codex).
      태그를 하나도 못 읽으면 통과시키지 않고 실패한다 — 얕은 체크아웃이 태그 없이 받아 와
      검사가 조용히 빈 손으로 끝나는 것을 막기 위함이다.
+  6. HISTORY.md 항목 순서 — 항목(`## YYYY-MM-DD …`)은 새것이 위다. v2.37.3 항목이
+     파일 맨 끝, 로드맵 목록 뒤에 붙은 채 한 릴리스를 그대로 지나갔고(#262), 같은
+     식으로 끝에 쌓인 항목이 2026-09~10월에 여섯 개 더 있었다. 그래서 각 항목의 날짜가
+     바로 위 항목보다 늦지 않은지 본다. 날짜로 시작하지 않는 `## ` 제목도 실패다 —
+     순서를 잴 수 없으니까. 같은 날짜끼리의 순서는 보지 않는다.
 
   길이는 `writeReleaseArtifacts` 와 같은 방식으로 센다(trim 후 문자 수).
 .EXAMPLE
@@ -250,6 +255,37 @@ if ($readable) {
                 Write-Host ("  OK    태그 {0}개의 섹션이 두 판에 모두 있습니다." -f $tagged.Count) -ForegroundColor Green
             }
         }
+    }
+}
+
+# ---- 6. HISTORY.md: 새 항목이 위 ----
+Write-Host "`nHISTORY.md 항목 순서"
+$historyPath = Join-Path $RepoRoot 'HISTORY.md'
+if (-not (Test-Path -LiteralPath $historyPath)) {
+    Add-Failure "  FAIL  HISTORY.md 가 없습니다: $historyPath"
+} else {
+    $headings = @(
+        Get-Content -LiteralPath $historyPath -Encoding utf8 |
+            ForEach-Object -Begin { $n = 0 } -Process { $n++; if ($_ -like '## *') { [pscustomobject]@{ Line = $n; Text = $_ } } }
+    )
+    $problems = @()
+    $previous = $null
+    foreach ($heading in $headings) {
+        if ($heading.Text -notmatch '^## (\d{4}-\d{2}-\d{2})') {
+            $problems += "${historyPath}:$($heading.Line): 날짜로 시작하지 않는 항목 — $($heading.Text)"
+            continue
+        }
+        $date = $Matches[1]
+        if ($null -ne $previous -and [string]::CompareOrdinal($date, $previous.Date) -gt 0) {
+            $problems += "${historyPath}:$($heading.Line): $date 항목이 더 오래된 $($previous.Date) 항목(줄 $($previous.Line)) 아래에 있습니다 — 새 항목은 맨 위에 둡니다."
+        }
+        $previous = [pscustomobject]@{ Date = $date; Line = $heading.Line }
+    }
+    if ($problems.Count -gt 0) {
+        Add-Failure "  FAIL  HISTORY.md 항목 순서가 어긋납니다:"
+        foreach ($item in $problems) { Add-Failure "        $item" }
+    } else {
+        Write-Host ("  OK    항목 {0}개가 새것부터 차례로 있습니다." -f $headings.Count) -ForegroundColor Green
     }
 }
 

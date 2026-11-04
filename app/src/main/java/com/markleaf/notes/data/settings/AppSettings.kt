@@ -55,6 +55,9 @@ data class AppSettings(
     /** The user's own insert buttons on that row, in order. Empty by default,
      *  which leaves the row exactly as it was (#436). */
     val snippetButtons: List<SnippetButton> = emptyList(),
+    /** A stored snippet list exists but couldn't be read, so [snippetButtons]
+     *  is empty for that reason rather than because there are none (#262). */
+    val snippetButtonsUnreadable: Boolean = false,
     /** Reopen the last-edited note on a plain launch instead of landing on the
      *  notes list. Opt-in (#192). */
     val reopenLastNote: Boolean = false,

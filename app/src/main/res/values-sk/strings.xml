@@ -278,6 +278,7 @@
     <string name="show_formatting_button_description">Tlačidlo Aa ponechajte v riadku nad klávesnicou. Voľba Vypnúť ho skryje; funkcie Späť a Znova zostanú zachované, tučné písmo, kurzíva a odkaz sa naďalej zobrazujú pri výbere textu a rýchle vkladanie znaku / zostáva nezmenené.</string>
     <string name="snippet_buttons_label">Tlačidlá úryvkov</string>
     <string name="snippet_buttons_description">Vlastné tlačidlá v riadku nad klávesnicou, za Aa. Každé vloží svoj Markdown na miesto kurzora. Žiadne, kým nejaké nepridáte; najviac 10.</string>
+    <string name="snippet_buttons_unreadable">Uložené úryvky sa nepodarilo prečítať, preto sa nezobrazujú. Pridanie úryvku ich nahradí.</string>
     <string name="snippet_buttons_add">Pridať úryvok</string>
     <string name="snippet_buttons_edit">Upraviť úryvok</string>
     <string name="snippet_buttons_dialog_new">Nový úryvok</string>

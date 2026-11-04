@@ -24,9 +24,12 @@ import java.util.Base64
  * one string: every inlined image stays in it until printing ends, base64 adds
  * a third, and a string holds two bytes per character. Three things keep a
  * note full of camera photos from exhausting the heap:
- * - a small web-safe file (≤ [RAW_MAX_BYTES]) is inlined as it is, anything
- *   larger is decoded at a reduced size (long side ≤ [MAX_EDGE_PX]) and
- *   re-encoded, which a printed page can't tell apart;
+ * - a small web-safe file (≤ [RAW_MAX_BYTES], long side ≤ [MAX_EDGE_PX]) is
+ *   inlined as it is, anything larger is decoded at a reduced size and
+ *   re-encoded, which a printed page can't tell apart. The pixel bound matters
+ *   as much as the byte one: a flat 10000×10000 PNG compresses to a few
+ *   kilobytes and still makes the print WebView allocate a 400 MB bitmap
+ *   (#262);
  * - each file is read and encoded once however often the note shows it;
  * - [budgetBytes] caps the encoded bytes of all occurrences together, and an
  *   image that would go over it prints as text instead — and is not kept:
@@ -43,6 +46,7 @@ internal class PdfImageInliner(
     private val attachmentsRoot: File,
     private val filesDir: File,
     private val budgetBytes: Long = DOCUMENT_BUDGET_BYTES,
+    private val longSide: (File) -> Int = ::readLongSide,
     private val transcode: (File) -> EncodedImage? = ::downsample
 ) {
     constructor(context: Context) : this(File(context.filesDir, "attachments"), context.filesDir)
@@ -87,7 +91,7 @@ internal class PdfImageInliner(
     private fun encode(file: File): EncodedImage? {
         val extension = file.extension.lowercase()
         val webSafeMime = WEB_SAFE_MIME[extension]
-        if (webSafeMime != null && file.length() <= RAW_MAX_BYTES) {
+        if (webSafeMime != null && file.length() <= RAW_MAX_BYTES && longSide(file) <= MAX_EDGE_PX) {
             return runCatching { EncodedImage(webSafeMime, file.readBytes()) }.getOrNull()
         }
         if (webSafeMime == null && extension !in DECODABLE_ONLY) return null
@@ -109,6 +113,18 @@ internal class PdfImageInliner(
 
         /** Stored under these extensions by `AttachmentManager` (the MIME subtype); decoded, never inlined raw. */
         private val DECODABLE_ONLY = setOf("bmp", "heic", "heif", "avif")
+
+        /**
+         * The longer of [file]'s pixel dimensions, read from its header without
+         * decoding it; 0 when the header can't be read, which leaves the file
+         * on the raw path it had before the bound existed — the decoder would
+         * reject it too, and the WebView may still draw it.
+         */
+        fun readLongSide(file: File): Int {
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            BitmapFactory.decodeFile(file.path, bounds)
+            return maxOf(bounds.outWidth, bounds.outHeight, 0)
+        }
 
         /**
          * Decodes [file] at the largest power-of-two reduction that keeps its long

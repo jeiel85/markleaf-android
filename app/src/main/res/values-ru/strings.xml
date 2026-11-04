@@ -298,6 +298,7 @@
     <string name="show_formatting_button_description">Кнопка Aa остаётся на панели над клавиатурой. Если выключить, она скрывается; отмена и повтор остаются, жирный, курсив и ссылка по-прежнему появляются при выделении текста, а быстрая вставка через / не меняется.</string>
     <string name="snippet_buttons_label">Кнопки фрагментов</string>
     <string name="snippet_buttons_description">Ваши собственные кнопки в строке над клавиатурой, после Aa. Каждая вставляет свой Markdown в позицию курсора. Их нет, пока вы не добавите; не больше 10.</string>
+    <string name="snippet_buttons_unreadable">Сохранённые фрагменты не удалось прочитать, поэтому они не показаны. Добавление фрагмента заменит их.</string>
     <string name="snippet_buttons_add">Добавить фрагмент</string>
     <string name="snippet_buttons_edit">Изменить фрагмент</string>
     <string name="snippet_buttons_dialog_new">Новый фрагмент</string>

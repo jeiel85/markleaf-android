@@ -29,6 +29,7 @@ com.markleaf.notes
 다음 규칙은 MVP에서 절대 어기지 않습니다.
 
 - Android `applicationId`는 반드시 `com.markleaf.notes`를 사용한다. 출시되는 모든 빌드(release·benchmark)가 이 id를 그대로 쓴다는 뜻이다. debug 빌드만 `applicationIdSuffix = ".debug"`로 `com.markleaf.notes.debug`가 되며(#319), 이는 설치된 실사용 앱을 지우지 않고 검증하기 위한 것이다 — `defaultConfig.applicationId`는 바뀌지 않는다. 따라서 코드·스크립트는 application id를 문자열로 박지 말고 `BuildConfig.APPLICATION_ID`·`context.packageName`·`${applicationId}`로 파생시킨다.
+  - **예외 — 인텐트 action 이름.** 앱이 스스로 만들어 받는 인텐트의 action(`com.markleaf.notes.ACTION_CREATE_NOTE`, `ACTION_OPEN_NOTE`, `ACTION_SEARCH` …)은 코드 네임스페이스로 고정하고 application id에서 파생시키지 않는다. 컴포넌트를 명시한 인텐트라 action은 앱 안의 라우팅 라벨일 뿐이고, 홈 화면에 고정된 위젯·바로가기가 그 문자열을 저장해 두므로 바꾸면 이미 놓인 것들이 조용히 죽는다. Codex가 #489에서 `ACTION_SEARCH`를 "하드코딩된 application id"로 짚었던 것이 이 경우다(#262).
 - **스토어 배포 산출물**(F-Droid·Play)에는 `android.permission.INTERNET`을 추가하지 않는다.
   속성 게이트 뒤의 사이드로드 전용 빌드만 예외이며, 그 범위는 `docs/AGENT_SPEC.md` §15.9가
   규정한다(D073·D074, 2026-09-13 승인). 노트·태그·첨부·메타데이터가 기기를 떠나지 않는다는
@@ -108,6 +109,21 @@ CI 또는 릴리즈 검증 시에는 APK 산출물 확인을 반드시 포함한
   아티팩트(HTML 리포트 + XML, 7일)가 남는다. Compose 테스트 하나가 잘못 실패하면 같은 JVM의
   뒤 테스트가 전부 60초씩 유휴 타임아웃을 기다려 런이 1시간 넘게 도는 알려진 flake(#262
   `## v2.51.0`)가 있어서다 — 그 런이 빨갛다면 첫 실패의 스택을 아티팩트에서 먼저 볼 것.
+
+### Codex 리뷰가 오지 않을 때
+
+PR마다 `chatgpt-codex-connector[bot]`가 리뷰한다. 지적은 인라인 코멘트(`/pulls/N/comments`)로,
+지적 0건은 PR 👍 reaction으로 온다. 사용량 한도에 걸리면 리뷰 대신 "usage limits" 안내
+**이슈 코멘트**만 남는다 — 그래서 인라인 코멘트가 0건이어도 "지적 없음"이 아닐 수 있다.
+#491~#496, #524, #529가 이렇게 지나갔고, 그때마다 같은 질문이 #262에 쌓였다.
+
+- **한도 안내가 왔으면 대체 리뷰 없이 머지하지 않는다.** `/code-review`(high)나 독립
+  에이전트 리뷰로 대신하고, PR 본문에 그 사실을 남긴다 — 예:
+  `Codex: unavailable (usage limit). Reviewed with /code-review high: 3 findings, all fixed.`
+- **머지 전에 한도가 풀리면 `@codex review`로 다시 요청한다.** 이미 머지했으면 소급해
+  요청하지 않는다 — 대체 리뷰가 그 커밋을 봤다.
+- **Codex는 PR이 열릴 때 리뷰한다.** 그 뒤에 커밋을 더 푸시하면(릴리스 커밋 포함, #531)
+  `@codex review`로 다시 요청한다. 리뷰가 아예 오지 않으면 10~15분 뒤 같은 코멘트로 요청한다.
 
 ### 순수 코드 이동(pure code motion) 리뷰
 

@@ -264,6 +264,7 @@ internal fun EditorSettings(
     Spacer(Modifier.height(12.dp))
     SnippetButtonsSetting(
         buttons = appSettings.snippetButtons,
+        storedListUnreadable = appSettings.snippetButtonsUnreadable,
         titleModifier = anchors.item(SettingsItem.SNIPPET_BUTTONS),
         onChange = { buttons ->
             scope.launch { settingsRepository.setSnippetButtons(buttons) }

@@ -209,6 +209,26 @@ class TagParserTest {
     }
 
     @Test
+    fun `parseTags keeps a tag between escaped backticks, which are text`() {
+        val content = "Literal \\` #work \\` markers"
+        assertEquals(listOf("work"), TagParser.parseTags(content))
+    }
+
+    @Test
+    fun `parseTags treats a backtick after an escaped backslash as code`() {
+        // `\\` is one literal backslash, so the backtick after it opens a span.
+        val content = "C:\\\\ `#notATag` #tag"
+        assertEquals(listOf("tag"), TagParser.parseTags(content))
+    }
+
+    @Test
+    fun `parseTags ends a span at a backtick right after a backslash inside it`() {
+        // Inside code a backslash is literal: `a\` is the whole span.
+        val content = "`a\\` #after"
+        assertEquals(listOf("after"), TagParser.parseTags(content))
+    }
+
+    @Test
     fun `parseTags reads a tag when backticks never pair into a span`() {
         val content = "A lone ` backtick #tag"
         assertEquals(listOf("tag"), TagParser.parseTags(content))

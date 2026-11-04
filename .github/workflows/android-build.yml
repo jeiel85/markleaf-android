@@ -37,12 +37,14 @@ jobs:
 
     steps:
       # 태그가 있어야 verify-release-notes.ps1 이 태그된 버전마다 CHANGELOG 섹션이
-      # 남아 있는지 볼 수 있다(#262). 얕은 체크아웃은 기본으로 태그를 받지 않고,
-      # 태그가 없으면 그 검사는 통과 대신 실패한다.
+      # 남아 있는지 볼 수 있다(#262). 얕은 체크아웃은 받아 온 커밋을 가리키는 태그만
+      # 따라오고 — `fetch-tags: true` 는 `--no-tags` 를 빼 줄 뿐이라 태그가 0개였다
+      # (#571 Codex) — 태그가 없으면 그 검사는 통과 대신 실패한다. 전체 이력은
+      # pack 으로 110 MiB 남짓이다.
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
-          fetch-tags: true
+          fetch-depth: 0
 
       # 버전 표기·릴리스 노트 검사는 Gradle 앞에 둔다. 초 단위로 끝나고, 릴리스
       # 준비 커밋에서 빠뜨리기 가장 쉬운 것들이라 먼저 실패하는 편이 낫다.

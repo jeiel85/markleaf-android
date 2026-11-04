@@ -32,12 +32,16 @@ object TagParser {
     }
 
     /**
-     * Which characters are code: fenced blocks, then inline spans outside them —
-     * the same two scans the editor's highlighter uses to draw code, so
-     * `#include` in a C snippet or a `` `#fff` `` colour is not a tag (#262).
+     * Which characters are code: fenced blocks, then inline spans outside them,
+     * so `#include` in a C snippet or a `` `#fff` `` colour is not a tag (#262).
      * A mask rather than stripping the code out, so the text around a span keeps
      * the boundaries it had: stripping `` `x` `` from ``a `x`#b`` would leave
      * `a #b`, a tag that was never there.
+     *
+     * Fences are found as the editor's highlighter finds them. Inline spans are
+     * the highlighter's too — one backtick each side, one line, not empty —
+     * except that a backslash-escaped backtick is text, as it is in the preview
+     * (CommonMark), so `` \` #work \` `` keeps its tag (#571 review).
      */
     private fun codeMask(content: String): BooleanArray {
         val code = BooleanArray(content.length)
@@ -45,16 +49,28 @@ object TagParser {
         for (fence in FencedCodeBlocks.ranges(content)) {
             java.util.Arrays.fill(code, fence.first, fence.last + 1, true)
         }
-        INLINE_CODE_REGEX.findAll(content).forEach { span ->
-            if (!code[span.range.first] && !code[span.range.last]) {
-                java.util.Arrays.fill(code, span.range.first, span.range.last + 1, true)
+        var i = 0
+        while (i < content.length) {
+            when {
+                code[i] -> i++
+                // An escaped character is text, a backtick included. Inside a
+                // span a backslash is literal, which the jump below respects.
+                content[i] == '\\' -> i += 2
+                content[i] == '`' -> {
+                    val close = content.indexOf('`', i + 1)
+                    val lineEnd = content.indexOf('\n', i + 1).let { if (it < 0) content.length else it }
+                    if (close > i + 1 && close < lineEnd && !code[close]) {
+                        java.util.Arrays.fill(code, i, close + 1, true)
+                        i = close + 1
+                    } else {
+                        i++
+                    }
+                }
+                else -> i++
             }
         }
         return code
     }
-
-    // Matches `MarkdownSyntaxHighlighter.INLINE_CODE_REGEX`: one line, non-empty.
-    private val INLINE_CODE_REGEX = Regex("""`[^`\n]+?`""")
 
     private val SEGMENT_REGEX = Regex("""[\p{L}_][\p{L}\p{N}_-]*""")
 

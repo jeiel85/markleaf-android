@@ -11,6 +11,7 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 ### Changed
 - **With the Monospace font, inline code has a light background.** When the body text is monospace, code no longer stands out by its typeface, only by its colour. Inline code in the editor and Preview now gets the same light background that code blocks have. With the other fonts, nothing changes. (#262)
+- **Undo and Redo can move to the top bar.** If you turned off Show formatting button and have no snippet buttons, the row above the keyboard held only Undo and Redo, and on a small phone it hid two lines of your note. In that setup, Undo and Redo now sit in the top bar, the row is gone until you select text, and Table of contents and Note information move to the ⋮ menu. With the formatting button on, or with snippet buttons, nothing changes. Thanks to @uszymyszy for the idea. (#542)
 
 ### Fixed
 - **The callout button says why it does nothing.** Making a callout from a selection that already has one is refused, because nesting one callout inside another gives broken Markdown. The button used to do nothing visible; it now shows a short message saying the selection already has a callout. (#262)

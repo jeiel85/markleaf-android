@@ -270,8 +270,10 @@ class EditorScreenTest {
 
     /**
      * "Show formatting button" off (#331) takes the standing `Aa` handle away.
-     * It must not take undo with it: the row is the only touch path back, so it
-     * mounts for undo alone once there is a step to go back to (#360).
+     * It must not take undo with it (#360). With no snippet buttons either,
+     * undo would be all the row held, so it lives in the top bar instead and
+     * the row isn't there at all (#542): present from the start, disabled
+     * until there is a step to go back to.
      */
     @Test
     fun editorScreen_undoStaysReachableWithTheFormattingButtonOff() {
@@ -284,8 +286,10 @@ class EditorScreenTest {
             )
             val undoLabel = context.getString(R.string.undo)
 
-            // Nothing typed yet, so there is nothing for the row to offer.
-            composeTestRule.onNodeWithContentDescription(undoLabel).assertDoesNotExist()
+            // Nothing typed yet: the top bar's undo is there but has nothing to undo.
+            composeTestRule.onNodeWithContentDescription(undoLabel)
+                .assertIsDisplayed()
+                .assertIsNotEnabled()
 
             editor.performTextInput("typed by mistake")
 
@@ -293,6 +297,7 @@ class EditorScreenTest {
                 .assertDoesNotExist()
             composeTestRule.onNodeWithContentDescription(undoLabel)
                 .assertIsDisplayed()
+                .assertIsEnabled()
                 .performClick()
 
             composeTestRule.onNodeWithText(context.getString(R.string.editor_empty_title))

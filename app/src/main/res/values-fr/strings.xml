@@ -272,7 +272,7 @@
     <string name="indent_paragraphs">Indenter les nouveaux paragraphes</string>
     <string name="indent_paragraphs_description">Entrée sur une ligne de texte commence la ligne suivante par deux espaces pleine chasse, comme en écriture chinoise. Entrée sur une ligne qui ne contient que le retrait le supprime. Les titres, listes, citations et le code ne sont pas concernés.</string>
     <string name="show_formatting_button">Afficher le bouton de mise en forme</string>
-    <string name="show_formatting_button_description">Conserve le bouton Aa sur la ligne au-dessus du clavier. Désactivé, il disparaît ; annuler et rétablir restent, gras, italique et lien apparaissent toujours lorsque vous sélectionnez du texte, et l\'insertion rapide avec / ne change pas.</string>
+    <string name="show_formatting_button_description">Conserve le bouton Aa sur la ligne au-dessus du clavier. Désactivé, il disparaît ; annuler et rétablir restent, gras, italique et lien apparaissent toujours lorsque vous sélectionnez du texte, et l\'insertion rapide avec / ne change pas. Sans boutons d\'extraits non plus, annuler et rétablir passent dans la barre du haut, et la ligne n\'apparaît que lorsque vous sélectionnez du texte.</string>
     <string name="snippet_buttons_label">Boutons d\'extraits</string>
     <string name="snippet_buttons_description">Vos propres boutons sur la ligne au-dessus du clavier, après Aa. Chacun insère son Markdown à l\'emplacement du curseur. Aucun tant que vous n\'en ajoutez pas ; jusqu\'à 10.</string>
     <string name="snippet_buttons_unreadable">Vos extraits enregistrés n\'ont pas pu être lus, ils ne sont donc pas affichés. Ajouter un extrait les remplace.</string>

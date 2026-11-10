@@ -90,9 +90,11 @@ import com.markleaf.notes.data.settings.SnippetButton
  * rather than two competing for the space above the keyboard.
  *
  * [showFormattingEntry] is what "Show formatting button" turns off (#331). With
- * it off and nothing selected the `Aa` handle goes, but the row can still be
- * mounted for undo alone — an editor that autosaves has to keep a way back
- * reachable.
+ * it off and nothing selected the `Aa` handle goes. An editor that autosaves
+ * has to keep a way back reachable, so undo stays — but when it would be the
+ * only thing on the row (no `Aa`, no snippets), a 48dp strip for two buttons
+ * costs two lines of a small phone's note. Then undo and redo move to the top
+ * bar, in the outline and information slots, and [showUndo] is false (#542).
  *
  * [snippets] are the user's own insert buttons after `Aa` (#436). They show
  * only while nothing is selected — a selection swaps the row for the selection
@@ -105,7 +107,8 @@ internal data class EditorFormattingUiState(
     val canUndo: Boolean = false,
     val canRedo: Boolean = false,
     val showFormattingEntry: Boolean = true,
-    val snippets: List<SnippetButton> = emptyList()
+    val snippets: List<SnippetButton> = emptyList(),
+    val showUndo: Boolean = true
 )
 
 private data class FormattingItem(
@@ -196,7 +199,7 @@ internal fun EditorFormattingControls(
                     // Undo and redo take two of the four slots a 360dp phone
                     // has, so the link shortcut needs more room than before to
                     // avoid pushing "More options" off the edge.
-                    showLink = availableWidth >= 288.dp,
+                    showLink = !state.showUndo || availableWidth >= 288.dp,
                     expanded = state.expanded,
                     enabled = state.enabled,
                     triggerFocusRequester = triggerFocusRequester,
@@ -356,6 +359,7 @@ private fun UndoActions(
     onUndo: () -> Unit,
     onRedo: () -> Unit
 ) {
+    if (!state.showUndo) return
     UndoActionButton(
         icon = Icons.AutoMirrored.Filled.Undo,
         labelRes = R.string.undo,

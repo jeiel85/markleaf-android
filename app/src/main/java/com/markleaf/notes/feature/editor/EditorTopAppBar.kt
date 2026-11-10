@@ -6,7 +6,9 @@ import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Redo
 import androidx.compose.material.icons.automirrored.filled.Toc
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.CenterFocusWeak
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
@@ -52,6 +54,18 @@ private val ViewModeLockedTintOnDark = Color(0xFFF57C00) // 6.36:1 on #191C19
 internal fun viewModeLockedTint(background: Color): Color =
     if (background.luminance() < 0.5f) ViewModeLockedTintOnDark else ViewModeLockedTintOnLight
 
+/**
+ * Undo and redo for the top bar, used when they would be all that is left on
+ * the row above the keyboard (#542). [enabled] is false while the note loads.
+ */
+internal data class TopBarUndo(
+    val canUndo: Boolean,
+    val canRedo: Boolean,
+    val enabled: Boolean,
+    val onUndo: () -> Unit,
+    val onRedo: () -> Unit
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun EditorTopAppBar(
@@ -70,7 +84,10 @@ internal fun EditorTopAppBar(
     moreMenuContent: @Composable ColumnScope.() -> Unit,
     modifier: Modifier = Modifier,
     isViewModeLocked: Boolean = false,
-    onToggleLock: () -> Unit = {}
+    onToggleLock: () -> Unit = {},
+    // Non-null: undo and redo take the outline and information slots, which
+    // the caller then offers in the overflow menu instead.
+    undo: TopBarUndo? = null
 ) {
     TopAppBar(
         title = {
@@ -143,20 +160,37 @@ internal fun EditorTopAppBar(
                         }
                     )
                 }
-                // The outline gets a control of its own rather than living
-                // inside the information sheet: a reader looking for "jump to a
-                // section" was never going to look under "information" (#215).
-                IconButton(onClick = onOpenOutline) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.Toc,
-                        contentDescription = stringResource(R.string.table_of_contents)
-                    )
-                }
-                IconButton(onClick = onOpenInfo) {
-                    Icon(
-                        Icons.Default.Info,
-                        contentDescription = stringResource(R.string.note_information)
-                    )
+                if (undo != null) {
+                    // Same two slots, so the bar keeps its width and the title
+                    // keeps its room on a 4a-sized phone (#542).
+                    IconButton(onClick = undo.onUndo, enabled = undo.enabled && undo.canUndo) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.Undo,
+                            contentDescription = stringResource(R.string.undo)
+                        )
+                    }
+                    IconButton(onClick = undo.onRedo, enabled = undo.enabled && undo.canRedo) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.Redo,
+                            contentDescription = stringResource(R.string.redo)
+                        )
+                    }
+                } else {
+                    // The outline gets a control of its own rather than living
+                    // inside the information sheet: a reader looking for "jump to a
+                    // section" was never going to look under "information" (#215).
+                    IconButton(onClick = onOpenOutline) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.Toc,
+                            contentDescription = stringResource(R.string.table_of_contents)
+                        )
+                    }
+                    IconButton(onClick = onOpenInfo) {
+                        Icon(
+                            Icons.Default.Info,
+                            contentDescription = stringResource(R.string.note_information)
+                        )
+                    }
                 }
                 if (showMore) {
                     Box {

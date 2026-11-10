@@ -177,11 +177,13 @@ object ExportPdf {
             // note as its text rather than fail the export (D082).
             return wrapHtml(title, "<pre>${escape(markdown)}</pre>", bodyFont, hasCustomFont)
         }
+        // First, before any rewrite: the preview names a heading from the text
+        // as written — an image by its alt text, a wikilink brackets included —
+        // and the rewrites below turn a missing image into `![alt](path)` text
+        // and a wikilink into its label.
+        val headingIds = headingAnchors(document)
         inlineImages(document, imageSource)
         markCallouts(document, calloutLabel)
-        // Before the wikilinks flatten: the preview names a heading from the
-        // text as written, brackets included.
-        val headingIds = headingAnchors(document)
         flattenWikilinks(document)
         val bodyHtml = HtmlRenderer.builder()
             .extensions(extensions)

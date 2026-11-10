@@ -303,4 +303,16 @@ class ExportPdfTest {
 
         assertTrue(body, body.contains("<h2 id=\"see-other-note\">See Other note</h2>"))
     }
+
+    // Codex on #576: an image the export cannot inline becomes `![alt](path)`
+    // text, but the preview names the heading from the alt text alone.
+    @Test
+    fun aHeadingWithAMissingImageIsNamedFromTheAltTextAsThePreviewNamesIt() {
+        val body = bodyOf(
+            ExportPdf.renderDocument(note("# See ![chart](missing.png)\n\n[go](#see-chart)"), untitled = "Untitled")
+        )
+
+        assertTrue(body, body.contains("<h1 id=\"see-chart\">"))
+        assertTrue(body, body.contains("![chart](missing.png)"))
+    }
 }

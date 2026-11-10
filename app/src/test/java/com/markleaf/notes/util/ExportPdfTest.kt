@@ -35,14 +35,14 @@ class ExportPdfTest {
         val html = ExportPdf.renderDocument(note("# My Note\n\nHello world"), "Untitled")
         val body = bodyOf(html)
         // commonmark renders the heading once; no extra <h1> is injected on top.
-        assertEquals(1, Regex("<h1>My Note</h1>").findAll(body).count())
+        assertEquals(1, Regex("<h1[^>]*>My Note</h1>").findAll(body).count())
     }
 
     @Test
     fun `plain first line is not forced into a heading`() {
         val html = ExportPdf.renderDocument(note("Shopping list\n\nMilk"), "Untitled")
         val body = bodyOf(html)
-        assertFalse(body.contains("<h1>")) // not promoted to a title
+        assertFalse(body.contains("<h1")) // not promoted to a title
         assertEquals(1, Regex("Shopping list").findAll(body).count())
     }
 
@@ -52,7 +52,7 @@ class ExportPdfTest {
         // The <title> in <head> still labels the print job / tab.
         assertTrue(html.contains("<title>Untitled</title>"))
         // The visible body has no injected heading.
-        assertFalse(bodyOf(html).contains("<h1>"))
+        assertFalse(bodyOf(html).contains("<h1"))
     }
 
     /**
@@ -270,5 +270,37 @@ class ExportPdfTest {
         val html = ExportPdf.renderDocument(note("`x`"), "Untitled", bodyFont = EditorFont.SERIF)
 
         assertTrue(html.contains("""font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;"""))
+    }
+
+    // #262: `[x](#heading)` links resolve in the preview (v2.60.0); the PDF
+    // needs the same ids on its headings for them to go anywhere.
+    @Test
+    fun headingsCarryTheIdsThePreviewResolvesAnchorsBy() {
+        val html = ExportPdf.renderDocument(
+            note("# Plan\n\nSee [setup](#set-up-now).\n\n## Set up `now`!\n\n## Plan\n\n### 한글 제목"),
+            untitled = "Untitled"
+        )
+        val body = bodyOf(html)
+
+        assertTrue(body, body.contains("<h1 id=\"plan\">Plan</h1>"))
+        assertTrue(body, body.contains("<h2 id=\"set-up-now\">"))
+        assertTrue(body, body.contains("<a href=\"#set-up-now\">setup</a>"))
+        // A repeat is numbered, as the preview and GitHub number it.
+        assertTrue(body, body.contains("<h2 id=\"plan-1\">Plan</h2>"))
+        assertTrue(body, body.contains("<h3 id=\"한글-제목\">"))
+    }
+
+    @Test
+    fun aHeadingWithNoNameableTextGetsNoId() {
+        val body = bodyOf(ExportPdf.renderDocument(note("# !!!\n\nbody"), untitled = "Untitled"))
+
+        assertTrue(body, body.contains("<h1>!!!</h1>"))
+    }
+
+    @Test
+    fun aWikilinkHeadingIsNamedFromItsSourceAsThePreviewNamesIt() {
+        val body = bodyOf(ExportPdf.renderDocument(note("## See [[Other note]]"), untitled = "Untitled"))
+
+        assertTrue(body, body.contains("<h2 id=\"see-other-note\">See Other note</h2>"))
     }
 }

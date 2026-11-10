@@ -42,6 +42,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.Typography
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -244,6 +245,12 @@ fun MarkdownPreviewList(
     val visibleIndices = remember(scaledLines, toggledSectionIds) {
         visiblePreviewLineIndices(scaledLines, toggledSectionIds)
     }
+    val defaultSummaryLabel = stringResource(R.string.collapsible_section_default_summary)
+    // Over every section, not just the visible ones: "2 of 3" names a
+    // section's place in the note, which collapsing another must not change.
+    val summaryPositions = remember(scaledLines, defaultSummaryLabel) {
+        collidingSummaryPositions(scaledLines, defaultSummaryLabel)
+    }
     val visibleLines = remember(scaledLines, visibleIndices) {
         visibleIndices.map { scaledLines[it] }
     }
@@ -307,7 +314,8 @@ fun MarkdownPreviewList(
         LocalPreviewSelectionReset provides resetSelection,
         LocalNoteLinkHandler provides onLocalLinkClick,
         LocalAnchorHandler provides onAnchorClick,
-        LocalConsumedFindRevealKey provides consumedFindRevealKey
+        LocalConsumedFindRevealKey provides consumedFindRevealKey,
+        LocalSummaryPositions provides summaryPositions
     ) {
         key(selectionEpoch) {
             // True 1:1 magnification (#423), not the four-step reflow
@@ -978,6 +986,7 @@ private fun PreviewLineContent(
                 CollapsibleSummaryRow(
                     text = line.text.ifEmpty { stringResource(R.string.collapsible_section_default_summary) },
                     expanded = expanded,
+                    position = id?.let { LocalSummaryPositions.current[it] },
                     onClick = { id?.let(onToggleSection) }
                 )
             }
@@ -990,11 +999,24 @@ private fun PreviewLineContent(
 }
 
 @Composable
-private fun CollapsibleSummaryRow(text: String, expanded: Boolean, onClick: () -> Unit) {
+private fun CollapsibleSummaryRow(
+    text: String,
+    expanded: Boolean,
+    position: SummaryPosition?,
+    onClick: () -> Unit
+) {
     // The ▾/▸ glyph is a visual-only cue; without this a screen reader
     // announces "double tap to activate" with no way to tell whether
     // activating it will open or close the section (a Codex review finding).
-    val stateLabel = stringResource(if (expanded) R.string.expanded else R.string.collapsed)
+    val expandedLabel = stringResource(if (expanded) R.string.expanded else R.string.collapsed)
+    // Two sections under the same title (often two with no <summary>, both
+    // "Details") read identically otherwise, so the user can't tell which one
+    // a double tap will open (#262). Sighted users have the layout for that.
+    val stateLabel = if (position == null) {
+        expandedLabel
+    } else {
+        stringResource(R.string.collapsible_section_state_position, expandedLabel, position.index, position.count)
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -1176,7 +1198,8 @@ private fun inlineAnnotatedString(
                 PreviewInlineType.INLINE_CODE -> withStyle(
                     SpanStyle(
                         fontFamily = FontFamily.Monospace,
-                        color = previewAccent(MaterialTheme.colorScheme.tertiary)
+                        color = previewAccent(MaterialTheme.colorScheme.tertiary),
+                        background = inlineCodeBackground(MaterialTheme.typography, MaterialTheme.colorScheme)
                     )
                 ) {
                     append(segment.text)
@@ -1408,6 +1431,48 @@ private fun AnnotatedString.withFindHighlights(
  * signatures that have no other reason to know about selection.
  */
 private val LocalPreviewSelectionReset = compositionLocalOf<() -> Unit> { {} }
+
+/**
+ * Behind inline code: nothing, unless the body font is monospace — then the
+ * face no longer sets code apart and colour alone would (#262). Same wash
+ * as the editor's ([com.markleaf.notes.core.markdown.markdownSyntaxColors]).
+ */
+internal fun inlineCodeBackground(typography: Typography, scheme: ColorScheme): Color =
+    if (typography.bodyLarge.fontFamily == FontFamily.Monospace) {
+        scheme.onSurfaceVariant.copy(alpha = 0.1f)
+    } else {
+        Color.Unspecified
+    }
+
+/** A `<details>` section's place among the sections sharing its title: [index] of [count], 1-based. */
+internal data class SummaryPosition(val index: Int, val count: Int)
+
+private val LocalSummaryPositions = compositionLocalOf<Map<Int, SummaryPosition>> { emptyMap() }
+
+/**
+ * For every `<details>` summary whose title another summary in [lines] shares,
+ * keyed by [PreviewLine.collapsibleId], its position among them in document
+ * order. A summary with a title of its own is absent: it needs no cue.
+ *
+ * Titles are compared as a screen reader would say them — an empty summary
+ * as [defaultLabel], case and surrounding space ignored.
+ */
+internal fun collidingSummaryPositions(
+    lines: List<PreviewLine>,
+    defaultLabel: String
+): Map<Int, SummaryPosition> {
+    val groups = lines
+        .filter { it.type == PreviewLineType.COLLAPSIBLE_SUMMARY && it.collapsibleId != null }
+        .groupBy { it.text.ifEmpty { defaultLabel }.trim().lowercase() }
+    val out = HashMap<Int, SummaryPosition>()
+    for (group in groups.values) {
+        if (group.size < 2) continue
+        group.forEachIndexed { index, line ->
+            out[line.collapsibleId!!] = SummaryPosition(index + 1, group.size)
+        }
+    }
+    return out
+}
 
 /**
  * Holds the latest [TextLayoutResult] for a preview row without making it

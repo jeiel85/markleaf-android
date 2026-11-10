@@ -98,4 +98,22 @@ class EditorFormattingParityTest {
             ?: error("$action does not edit the text")
         return edited.value.text to edited.value.selection.start
     }
+
+    // #262: the panel's callout row declines to nest a callout in a callout,
+    // and says so rather than doing nothing visible.
+    @Test
+    fun theCalloutRowRefusesOutLoudOverASelectionThatHoldsACallout() {
+        val holding = TextFieldValue("intro\n> [!NOTE]\n> body", selection = TextRange(0, 22))
+        assertEquals(
+            EditorFormattingResult.Refused(com.markleaf.notes.R.string.callout_already_in_selection),
+            EditorFormattingAction.CALLOUT.applyTo(holding, today)
+        )
+
+        // A caret inside a callout still inserts a fresh one; only wrapping refuses.
+        val caret = TextFieldValue("> [!NOTE]\n> body", selection = TextRange(14))
+        assertTrue(EditorFormattingAction.CALLOUT.applyTo(caret, today) is EditorFormattingResult.Edited)
+
+        val prose = TextFieldValue("one\ntwo", selection = TextRange(0, 7))
+        assertTrue(EditorFormattingAction.CALLOUT.applyTo(prose, today) is EditorFormattingResult.Edited)
+    }
 }

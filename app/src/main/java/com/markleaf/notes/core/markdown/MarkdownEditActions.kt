@@ -299,6 +299,19 @@ object MarkdownEditActions {
     }
 
     /**
+     * Whether [callout] would refuse [value]: the selection's lines already
+     * hold a callout, and wrapping them would nest one in another. The editor
+     * asks first so the refusal can be said rather than look like a dropped
+     * tap (#262).
+     */
+    fun calloutWouldNest(value: TextFieldValue): Boolean {
+        if (value.selection.collapsed) return false
+        val (blockStart, blockEnd) = selectionLineRange(value)
+        val block = value.text.substring(blockStart, blockEnd)
+        return block.isNotBlank() && calloutHeadPattern.containsMatchIn(block)
+    }
+
+    /**
      * Insert a `> [!NOTE]` callout, or turn the selected lines into one.
      *
      * Input: the field value. Output: with a selection, the selected lines
@@ -318,7 +331,8 @@ object MarkdownEditActions {
         if (!value.selection.collapsed && block.isNotBlank()) {
             // Wrapping a callout in a callout is a mis-tap every time, and the
             // `> > [!NOTE]` it would produce is exactly the broken syntax a
-            // beginner cannot unpick. Leave the text alone instead.
+            // beginner cannot unpick. Leave the text alone instead; the editor
+            // says why through [calloutWouldNest].
             if (calloutHeadPattern.containsMatchIn(block)) return value
             val quoted = block.split("\n").joinToString("\n") { line -> "> $line" }
             val leading = blockLeading(value.text, blockStart)

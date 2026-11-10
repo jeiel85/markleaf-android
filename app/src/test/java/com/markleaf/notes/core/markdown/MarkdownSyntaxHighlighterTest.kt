@@ -151,4 +151,22 @@ class MarkdownSyntaxHighlighterTest {
             markerSpans.size >= 2
         )
     }
+
+    // #262: with Settings -> Editor -> Monospace the body is in code's own face,
+    // so inline code gets the fenced block's wash; otherwise it keeps none.
+    @Test
+    fun highlight_inlineCodeHasABackgroundOnlyWhenTheBodyIsMonospace() {
+        val markdown = "Use `code` here"
+        val scheme = androidx.compose.material3.lightColorScheme()
+
+        fun codeBackground(monospaceBody: Boolean) =
+            MarkdownSyntaxHighlighter.highlight(markdown, markdownSyntaxColors(scheme, monospaceBody))
+                .spanStyles
+                .filter { it.start == markdown.indexOf('`') && it.end == markdown.lastIndexOf('`') + 1 }
+                .map { it.item.background }
+                .single()
+
+        assertEquals(Color.Unspecified, codeBackground(monospaceBody = false))
+        assertEquals(scheme.onSurfaceVariant.copy(alpha = 0.1f), codeBackground(monospaceBody = true))
+    }
 }

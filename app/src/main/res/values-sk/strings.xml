@@ -87,6 +87,7 @@
     <string name="formatting_block_media">Bloky a médiá</string>
     <string name="expanded">Rozbalené</string>
     <string name="collapsed">Zbalené</string>
+    <string name="collapsible_section_state_position">%1$s, %2$d z %3$d</string>
     <string name="italic">Kurzíva</string>
     <string name="strikethrough">Prečiarknutie</string>
     <string name="inline_code">Kód v riadku</string>
@@ -142,6 +143,7 @@
     <string name="callout_important">Dôležité</string>
     <string name="callout_warning">Varovanie</string>
     <string name="callout_caution">Pozor</string>
+    <string name="callout_already_in_selection">Výber už obsahuje zvýraznený blok</string>
     <string name="collapsible_section_default_summary">Skrytý obsah</string>
     <string name="pin">Pripnúť</string>
     <string name="unpin">Odopnúť</string>

@@ -89,6 +89,7 @@
     <string name="formatting_block_media">ブロックとメディア</string>
     <string name="expanded">展開</string>
     <string name="collapsed">折りたたみ</string>
+    <string name="collapsible_section_state_position">%1$s、%3$d 件中 %2$d 件目</string>
     <string name="italic">斜体</string>
     <string name="strikethrough">取り消し線</string>
     <string name="inline_code">インラインコード</string>
@@ -141,6 +142,7 @@
     <string name="callout_important">重要</string>
     <string name="callout_warning">警告</string>
     <string name="callout_caution">注意</string>
+    <string name="callout_already_in_selection">選択範囲にはすでにコールアウトがあります</string>
     <string name="collapsible_section_default_summary">詳細</string>
 
     <string name="pin">ピン留め</string>

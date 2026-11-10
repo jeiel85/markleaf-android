@@ -92,4 +92,56 @@ class VisiblePreviewLinesTest {
             visiblePreviewLines(lines, setOf(outerId)).map { it.text }
         )
     }
+
+    @Test
+    fun `only sections whose titles collide get a position, counted case-insensitively`() {
+        val lines = SimpleMarkdownPreview.parse(
+            """
+            <details>
+            <summary>Notes</summary>
+
+            a
+            </details>
+            <details>
+            <summary></summary>
+
+            b
+            </details>
+            <details>
+            <summary>notes </summary>
+
+            c
+            </details>
+            <details>
+            <summary>Details</summary>
+
+            d
+            </details>
+            """.trimIndent()
+        )
+        val ids = lines.filter { it.type == PreviewLineType.COLLAPSIBLE_SUMMARY }.map { it.collapsibleId!! }
+
+        val positions = collidingSummaryPositions(lines, defaultLabel = "Details")
+
+        assertEquals(
+            mapOf(
+                ids[0] to SummaryPosition(1, 2),
+                ids[2] to SummaryPosition(2, 2),
+                // An empty summary reads as the default label, so it collides
+                // with a section the author titled "Details".
+                ids[1] to SummaryPosition(1, 2),
+                ids[3] to SummaryPosition(2, 2)
+            ),
+            positions
+        )
+    }
+
+    @Test
+    fun `a note whose sections all have their own titles gets no positions`() {
+        val lines = SimpleMarkdownPreview.parse(
+            "<details>\n<summary>One</summary>\n\na\n</details>\n<details>\n<summary>Two</summary>\n\nb\n</details>"
+        )
+
+        assertEquals(emptyMap<Int, SummaryPosition>(), collidingSummaryPositions(lines, defaultLabel = "Details"))
+    }
 }

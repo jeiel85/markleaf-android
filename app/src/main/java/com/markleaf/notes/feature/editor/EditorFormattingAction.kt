@@ -1,5 +1,6 @@
 package com.markleaf.notes.feature.editor
 
+import androidx.annotation.StringRes
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.isCtrlPressed
@@ -7,6 +8,7 @@ import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.text.input.TextFieldValue
+import com.markleaf.notes.R
 import com.markleaf.notes.core.markdown.MarkdownEditActions
 import java.time.LocalDate
 
@@ -33,6 +35,12 @@ internal enum class EditorFormattingAction {
 internal sealed interface EditorFormattingResult {
     data class Edited(val value: TextFieldValue) : EditorFormattingResult
     data object PickImage : EditorFormattingResult
+
+    /**
+     * The action declined on purpose and the text is unchanged; [message]
+     * says why, so a refusal doesn't look like a tap the panel dropped (#262).
+     */
+    data class Refused(@StringRes val message: Int) : EditorFormattingResult
 }
 
 /**
@@ -86,7 +94,11 @@ internal fun EditorFormattingAction.applyTo(
     EditorFormattingAction.QUOTE -> EditorFormattingResult.Edited(MarkdownEditActions.blockquote(value))
     EditorFormattingAction.CODE_BLOCK -> EditorFormattingResult.Edited(MarkdownEditActions.codeBlock(value))
     EditorFormattingAction.TABLE -> EditorFormattingResult.Edited(MarkdownEditActions.table(value))
-    EditorFormattingAction.CALLOUT -> EditorFormattingResult.Edited(MarkdownEditActions.callout(value))
+    EditorFormattingAction.CALLOUT -> if (MarkdownEditActions.calloutWouldNest(value)) {
+        EditorFormattingResult.Refused(R.string.callout_already_in_selection)
+    } else {
+        EditorFormattingResult.Edited(MarkdownEditActions.callout(value))
+    }
     EditorFormattingAction.DIVIDER -> EditorFormattingResult.Edited(MarkdownEditActions.horizontalRule(value))
     EditorFormattingAction.IMAGE -> EditorFormattingResult.PickImage
     EditorFormattingAction.DATE -> EditorFormattingResult.Edited(MarkdownEditActions.date(value, today))

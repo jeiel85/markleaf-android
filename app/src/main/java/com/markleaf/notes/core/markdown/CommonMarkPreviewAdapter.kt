@@ -977,6 +977,14 @@ internal object CommonMarkPreviewAdapter {
         return if (marker.isChecked) TaskState.DONE else TaskState.TODO
     }
 
+    /**
+     * [node]'s flat text as the preview reads it: what the outline lists a
+     * heading by and what a `#fragment` link is matched against. The PDF
+     * export names its headings from this, so a link resolves the same way
+     * on the page as in the app.
+     */
+    internal fun flatText(node: Node): String = collectText(node)
+
     private fun collectText(node: Node): String {
         val sb = StringBuilder()
         node.accept(object : AbstractVisitor() {

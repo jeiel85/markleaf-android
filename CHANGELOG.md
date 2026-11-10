@@ -4,6 +4,18 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## Unreleased
+
+### Added
+- **Links to a heading work in exported PDFs.** A link like `[see Setup](#setup)` jumps to that heading in Preview, and now does the same in a PDF from Export as PDF…. Headings are named the way Preview and GitHub name them, so the same links work in all three. (#262)
+
+### Changed
+- **With the Monospace font, inline code has a light background.** When the body text is monospace, code no longer stands out by its typeface, only by its colour. Inline code in the editor and Preview now gets the same light background that code blocks have. With the other fonts, nothing changes. (#262)
+
+### Fixed
+- **The callout button says why it does nothing.** Making a callout from a selection that already has one is refused, because nesting one callout inside another gives broken Markdown. The button used to do nothing visible; it now shows a short message saying the selection already has a callout. (#262)
+- **TalkBack can tell apart collapsible sections with the same title.** Two `<details>` sections with the same summary, or two with none (both read as "Details"), were announced identically. Each is now also announced by its place among them, for example "Collapsed, 2 of 3". (#262)
+
 ## v2.72.0 - Line spacing and Empty trash - 2026-11-04
 
 This week's requests: a line spacing setting for the editor and Preview, an Empty trash button, an optional automatic clean-up of the trash, and PDF exports in the font you chose. The caret no longer flicks when the keyboard comes up, a new note's file name now follows the title you finish writing when Keep file names is on, and `#` inside code is no longer read as a tag. No new permissions; notes are stored exactly as before.

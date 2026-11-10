@@ -16,6 +16,7 @@ import com.markleaf.notes.core.markdown.CalloutKind
 import com.markleaf.notes.core.markdown.CommonMarkPreviewAdapter
 import com.markleaf.notes.core.markdown.WikilinkExtension
 import com.markleaf.notes.core.markdown.WikilinkNode
+import com.markleaf.notes.core.markdown.preview.headingSlug
 import com.markleaf.notes.core.markdown.preview.unresolvedImageText
 import com.markleaf.notes.domain.model.Note
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +27,7 @@ import org.commonmark.ext.autolink.AutolinkExtension
 import org.commonmark.node.AbstractVisitor
 import org.commonmark.node.BlockQuote
 import org.commonmark.node.CustomNode
+import org.commonmark.node.Heading
 import org.commonmark.node.HtmlBlock
 import org.commonmark.node.Image
 import org.commonmark.node.Text
@@ -35,6 +37,7 @@ import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
 import org.commonmark.ext.gfm.tables.TablesExtension
 import org.commonmark.ext.task.list.items.TaskListItemsExtension
 import org.commonmark.parser.Parser
+import org.commonmark.renderer.html.AttributeProvider
 import org.commonmark.renderer.html.HtmlRenderer
 
 /**
@@ -76,7 +79,6 @@ object ExportPdf {
         .extensions(extensions.filterNot { it is YamlFrontMatterExtension })
         .build()
 
-    private val renderer: HtmlRenderer = HtmlRenderer.builder().extensions(extensions).build()
 
     /**
      * Suspends while the note's images are read and encoded on [Dispatchers.IO];
@@ -175,10 +177,23 @@ object ExportPdf {
             // note as its text rather than fail the export (D082).
             return wrapHtml(title, "<pre>${escape(markdown)}</pre>", bodyFont, hasCustomFont)
         }
+        // First, before any rewrite: the preview names a heading from the text
+        // as written — an image by its alt text, a wikilink brackets included —
+        // and the rewrites below turn a missing image into `![alt](path)` text
+        // and a wikilink into its label.
+        val headingIds = headingAnchors(document)
         inlineImages(document, imageSource)
         markCallouts(document, calloutLabel)
         flattenWikilinks(document)
-        val bodyHtml = renderer.render(document)
+        val bodyHtml = HtmlRenderer.builder()
+            .extensions(extensions)
+            .attributeProviderFactory {
+                AttributeProvider { node, _, attributes ->
+                    if (node is Heading) headingIds[node]?.let { attributes["id"] = it }
+                }
+            }
+            .build()
+            .render(document)
         return wrapHtml(title, bodyHtml, bodyFont, hasCustomFont)
     }
 
@@ -189,8 +204,7 @@ object ExportPdf {
      * The head line is read by [CalloutHead.take], the same code the preview
      * uses, so the two agree on what is a callout and what its title is. The
      * box is a `<div>` around the quote, written as raw HTML blocks beside it,
-     * because the renderer is shared and a per-call attribute would have to
-     * live outside the tree.
+     * because the wrapper and the title are markup the tree has no node for.
      */
     private fun markCallouts(
         document: org.commonmark.node.Node,
@@ -212,6 +226,30 @@ object ExportPdf {
             quote.insertAfter(htmlBlock("</div>"))
             quote.prependChild(htmlBlock("<p class=\"callout-title\">${escape(title)}</p>"))
         }
+    }
+
+    /**
+     * An `id` for each heading, so a `[see below](#setup)` link jumps within
+     * the PDF as it does in the preview (#262).
+     *
+     * Named exactly as the preview finds them ([headingSlug] over the same
+     * flat text, repeats numbered `-1`, `-2`, … in document order), which is
+     * also how GitHub names them. A heading whose name comes out empty gets
+     * no id rather than an empty one.
+     */
+    private fun headingAnchors(document: org.commonmark.node.Node): Map<Heading, String> {
+        val ids = LinkedHashMap<Heading, String>()
+        val seen = HashMap<String, Int>()
+        document.accept(object : AbstractVisitor() {
+            override fun visit(heading: Heading) {
+                val base = headingSlug(CommonMarkPreviewAdapter.flatText(heading))
+                if (base.isEmpty()) return
+                val count = seen[base] ?: 0
+                seen[base] = count + 1
+                ids[heading] = if (count == 0) base else "$base-$count"
+            }
+        })
+        return ids
     }
 
     private fun htmlBlock(html: String) = HtmlBlock().apply { literal = html }

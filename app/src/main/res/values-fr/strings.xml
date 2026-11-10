@@ -89,6 +89,7 @@
     <string name="formatting_block_media">Blocs et médias</string>
     <string name="expanded">Développé</string>
     <string name="collapsed">Réduit</string>
+    <string name="collapsible_section_state_position">%1$s, %2$d sur %3$d</string>
     <string name="italic">Italique</string>
     <string name="strikethrough">Barré</string>
     <string name="inline_code">Code en ligne</string>
@@ -142,6 +143,7 @@
     <string name="callout_important">Important</string>
     <string name="callout_warning">Attention</string>
     <string name="callout_caution">Danger</string>
+    <string name="callout_already_in_selection">La sélection contient déjà un encadré</string>
     <string name="collapsible_section_default_summary">Détails</string>
 
     <string name="pin">Épingler</string>

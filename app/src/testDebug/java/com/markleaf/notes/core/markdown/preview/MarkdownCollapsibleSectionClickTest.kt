@@ -5,7 +5,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
@@ -13,6 +17,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.markleaf.notes.R
 import com.markleaf.notes.core.markdown.SimpleMarkdownPreview
 import com.markleaf.notes.ui.theme.MarkleafTheme
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -97,5 +102,45 @@ class MarkdownCollapsibleSectionClickTest {
 
         val fallback = context.getString(R.string.collapsible_section_default_summary)
         composeRule.onNodeWithText(fallback).assertExists()
+    }
+
+    // #262: two sections both falling back to "Details" read the same to a
+    // screen reader unless the state says which one this is.
+    @Test
+    fun sectionsSharingATitleSayWhichOneThisIs() {
+        val markdown = """
+            <details>
+            <summary></summary>
+
+            first body
+            </details>
+            <details open>
+            <summary></summary>
+
+            second body
+            </details>
+            <details>
+            <summary>Own title</summary>
+
+            third body
+            </details>
+        """.trimIndent()
+        preview(markdown)
+
+        val fallback = context.getString(R.string.collapsible_section_default_summary)
+        val collapsed = context.getString(R.string.collapsed)
+        val expanded = context.getString(R.string.expanded)
+        val states = composeRule.onAllNodesWithText(fallback)
+            .fetchSemanticsNodes()
+            .map { it.config[SemanticsProperties.StateDescription] }
+        assertEquals(
+            listOf(
+                context.getString(R.string.collapsible_section_state_position, collapsed, 1, 2),
+                context.getString(R.string.collapsible_section_state_position, expanded, 2, 2)
+            ),
+            states
+        )
+        composeRule.onNodeWithText("Own title")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, collapsed))
     }
 }

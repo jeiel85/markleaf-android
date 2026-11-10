@@ -33,7 +33,12 @@ data class MarkdownSyntaxColors(
     val code: Color,
     val codeBlock: Color,
     val blockquote: Color,
-    val horizontalRule: Color
+    val horizontalRule: Color,
+    /**
+     * Behind inline code. Unspecified (no background) unless the body is
+     * itself monospace, when the typeface no longer sets code apart (#262).
+     */
+    val inlineCodeBackground: Color = Color.Unspecified
 )
 
 /**
@@ -41,7 +46,12 @@ data class MarkdownSyntaxColors(
  * app theme and Material You alike. The editor and the live-rendering golden
  * test both build it here, so the snapshot pins what the app actually draws.
  */
-fun markdownSyntaxColors(scheme: ColorScheme): MarkdownSyntaxColors = MarkdownSyntaxColors(
+fun markdownSyntaxColors(
+    scheme: ColorScheme,
+    // Settings → Editor → Monospace sets the body in the face code already
+    // uses, leaving colour as code's only cue; a wash restores a second one.
+    monospaceBody: Boolean = false
+): MarkdownSyntaxColors = MarkdownSyntaxColors(
     heading = scheme.primary,
     emphasis = scheme.tertiary,
     link = scheme.primary,
@@ -56,7 +66,9 @@ fun markdownSyntaxColors(scheme: ColorScheme): MarkdownSyntaxColors = MarkdownSy
     // medium-emphasis role recedes the way the fixed grey was trying to,
     // and clears 4.5:1 in both themes (8.94:1 light, 10.14:1 dark).
     blockquote = scheme.onSurfaceVariant,
-    horizontalRule = scheme.onSurfaceVariant
+    horizontalRule = scheme.onSurfaceVariant,
+    // The fenced block's wash, so inline and block code read as one kind.
+    inlineCodeBackground = if (monospaceBody) scheme.onSurfaceVariant.copy(alpha = 0.1f) else Color.Unspecified
 )
 
 /**
@@ -289,6 +301,7 @@ object MarkdownSyntaxHighlighter {
             spans.addStyle(
                 SpanStyle(
                     color = colors.code,
+                    background = colors.inlineCodeBackground,
                     fontFamily = FontFamily.Monospace
                 ),
                 match.range.first,

@@ -74,6 +74,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -721,6 +722,9 @@ fun EditorScreen(
             }
             EditorFormattingResult.PickImage -> {
                 imagePickerLauncher.launch(arrayOf("image/*"))
+            }
+            is EditorFormattingResult.Refused -> {
+                Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -1759,15 +1763,20 @@ fun EditorScreen(
                     // fresh MarkdownSyntaxVisualTransformation is allocated on every
                     // recomposition (i.e. every keystroke), which forces Compose to
                     // re-run the syntax filter over the whole document each time.
-                    // Re-key only when the colours, visibility, or text scale
-                    // actually change.
-                    val markdownVisualTransformation = remember(colorScheme, markdownSyntaxVisible, editorFontScale) {
-                        if (markdownSyntaxVisible) {
-                            MarkdownSyntaxVisualTransformation(markdownSyntaxColors(colorScheme), editorFontScale)
-                        } else {
-                            VisualTransformation.None
+                    // Re-key only when the colours, body face, visibility, or text
+                    // scale actually change.
+                    val monospaceBody = MaterialTheme.typography.bodyLarge.fontFamily == FontFamily.Monospace
+                    val markdownVisualTransformation =
+                        remember(colorScheme, monospaceBody, markdownSyntaxVisible, editorFontScale) {
+                            if (markdownSyntaxVisible) {
+                                MarkdownSyntaxVisualTransformation(
+                                    markdownSyntaxColors(colorScheme, monospaceBody),
+                                    editorFontScale
+                                )
+                            } else {
+                                VisualTransformation.None
+                            }
                         }
-                    }
                     val onQuickInsertPick: (QuickInsertCommand) -> Unit = pick@{ command ->
                         val query = detectQuickInsertQuery(editorState) ?: return@pick
                         HapticFeedback.light(context)

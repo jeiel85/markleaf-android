@@ -265,7 +265,7 @@
     <string name="indent_paragraphs">新しい段落を字下げ</string>
     <string name="indent_paragraphs_description">文字のある行で Enter を押すと、次の行が全角スペース2つで始まります。中国語の文章の書き方です。字下げだけの行で Enter を押すと字下げが消えます。見出し、リスト、引用、コードには適用されません。</string>
     <string name="show_formatting_button">書式ボタンを表示</string>
-    <string name="show_formatting_button_description">キーボード上の行に Aa ボタンを表示します。オフにすると消えますが、元に戻す・やり直すと、テキストを選択したときの太字・斜体・リンク、/ クイック挿入はそのままです。</string>
+    <string name="show_formatting_button_description">キーボード上の行に Aa ボタンを表示します。オフにすると消えますが、元に戻す・やり直すと、テキストを選択したときの太字・斜体・リンク、/ クイック挿入はそのままです。スニペットボタンもない場合は、元に戻す・やり直すが上部バーに移り、テキストを選択するまでこの行は表示されません。</string>
     <string name="snippet_buttons_label">スニペットボタン</string>
     <string name="snippet_buttons_description">キーボード上の行で Aa の後ろに置く自分用のボタンです。押すと決めておいた Markdown をカーソル位置に入れます。追加するまでは何もありません。最大 10 個まで置けます。</string>
     <string name="snippet_buttons_unreadable">保存済みのスニペットを読み込めないため表示していません。スニペットを追加すると保存済みの一覧は置き換えられます。</string>

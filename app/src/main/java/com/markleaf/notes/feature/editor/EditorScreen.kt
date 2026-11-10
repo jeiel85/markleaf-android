@@ -27,7 +27,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Toc
 import androidx.compose.material.icons.filled.CenterFocusStrong
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
@@ -1242,6 +1244,14 @@ fun EditorScreen(
     // added snippets wants the snippets.
     val rowSnippets =
         if (isFormattingPreempted || !editorState.selection.collapsed) emptyList() else appSettings.snippetButtons
+    // With `Aa` off and no snippets, undo and redo would be all the row ever
+    // holds until text is selected — two buttons for a strip that hides two
+    // lines of a Pixel 4a's note (#542). They go to the top bar instead, in
+    // the outline and information slots; those two move to the overflow menu.
+    // Keyed on the settings, not on the keyboard, so the buttons don't jump
+    // between the bars as it opens and closes.
+    val undoInTopBar = !isPreviewMode && !isFocusMode &&
+        !appSettings.showFormattingButton && appSettings.snippetButtons.isEmpty()
     LaunchedEffect(isFormattingPreempted, isFormattingIdle) {
         if (isFormattingPreempted || isFormattingIdle) isFormattingExpanded = false
     }
@@ -1351,6 +1361,17 @@ fun EditorScreen(
                     ).show()
                 },
                 onExitFocusMode = { isFocusMode = false },
+                undo = if (undoInTopBar) {
+                    TopBarUndo(
+                        canUndo = undoHistory.canUndo,
+                        canRedo = undoHistory.canRedo,
+                        enabled = isLoaded,
+                        onUndo = performUndo,
+                        onRedo = performRedo
+                    )
+                } else {
+                    null
+                },
                 onOpenOutline = {
                     overflowExpanded = false
                     showOutline = true
@@ -1362,6 +1383,25 @@ fun EditorScreen(
                 onOpenMore = { overflowExpanded = true },
                 onDismissMore = { overflowExpanded = false },
                 moreMenuContent = {
+                    if (undoInTopBar) {
+                        // Their top-bar slots went to undo and redo (#542).
+                        DropdownMenuItem(
+                            leadingIcon = { Icon(Icons.AutoMirrored.Filled.Toc, contentDescription = null) },
+                            text = { Text(stringResource(R.string.table_of_contents)) },
+                            onClick = {
+                                overflowExpanded = false
+                                showOutline = true
+                            }
+                        )
+                        DropdownMenuItem(
+                            leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) },
+                            text = { Text(stringResource(R.string.note_information)) },
+                            onClick = {
+                                overflowExpanded = false
+                                showInfo = true
+                            }
+                        )
+                    }
                     // Offered in preview too (#417), where it searches the rendered text.
                     DropdownMenuItem(
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
@@ -1989,7 +2029,7 @@ fun EditorScreen(
                     // formatting button off, or with the find bar standing the
                     // formatting controls down, it still mounts once there is a
                     // step to go back to (#360).
-                    val undoAvailable = undoHistory.canUndo || undoHistory.canRedo
+                    val undoAvailable = !undoInTopBar && (undoHistory.canUndo || undoHistory.canRedo)
                     if (
                         !isEditorRowPreempted &&
                         (showsFormattingEntry || showsSelectionActions || undoAvailable || rowSnippets.isNotEmpty())
@@ -2002,7 +2042,8 @@ fun EditorScreen(
                                 canUndo = undoHistory.canUndo,
                                 canRedo = undoHistory.canRedo,
                                 showFormattingEntry = showsFormattingEntry,
-                                snippets = rowSnippets
+                                snippets = rowSnippets,
+                                showUndo = !undoInTopBar
                             ),
                             onExpandedChange = { expanded ->
                                 isFormattingExpanded = expanded

@@ -277,7 +277,7 @@
     <string name="indent_paragraphs">Odsadiť nové odseky</string>
     <string name="indent_paragraphs_description">Enter v riadku s textom začne ďalší riadok dvoma medzerami plnej šírky, ako v čínskom písaní. Enter v riadku, ktorý obsahuje iba odsadenie, ho odstráni. Nadpisy, zoznamy, citáty a kód zostávajú bez zmeny.</string>
     <string name="show_formatting_button">Zobraziť tlačidlo formátovania</string>
-    <string name="show_formatting_button_description">Tlačidlo Aa ponechajte v riadku nad klávesnicou. Voľba Vypnúť ho skryje; funkcie Späť a Znova zostanú zachované, tučné písmo, kurzíva a odkaz sa naďalej zobrazujú pri výbere textu a rýchle vkladanie znaku / zostáva nezmenené.</string>
+    <string name="show_formatting_button_description">Tlačidlo Aa ponechajte v riadku nad klávesnicou. Voľba Vypnúť ho skryje; funkcie Späť a Znova zostanú zachované, tučné písmo, kurzíva a odkaz sa naďalej zobrazujú pri výbere textu a rýchle vkladanie znaku / zostáva nezmenené. Ak nemáte ani tlačidlá úryvkov, funkcie Späť a Znova sa presunú do hornej lišty a riadok sa zobrazí až pri výbere textu.</string>
     <string name="snippet_buttons_label">Tlačidlá úryvkov</string>
     <string name="snippet_buttons_description">Vlastné tlačidlá v riadku nad klávesnicou, za Aa. Každé vloží svoj Markdown na miesto kurzora. Žiadne, kým nejaké nepridáte; najviac 10.</string>
     <string name="snippet_buttons_unreadable">Uložené úryvky sa nepodarilo prečítať, preto sa nezobrazujú. Pridanie úryvku ich nahradí.</string>

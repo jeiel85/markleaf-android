@@ -13,9 +13,20 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Markleaf">
+        <!-- adjustResize is what makes Android 10 and below report the keyboard
+             to the app (#578). Before Android 11 there is no IME inset type:
+             Compose reads the keyboard from the window's content insets, and
+             only adjustResize puts it there and updates them as it opens and
+             closes. Without it the soft input mode was left unspecified, the
+             editor's imePadding() saw no keyboard and drew its toolbar under it,
+             and on some devices (a Huawei on Android 10 in #578) the padding
+             was kept after the keyboard closed, leaving half the screen empty.
+             From Android 11 the keyboard comes as its own inset and the app is
+             edge-to-edge, so this changes nothing there. -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.Markleaf">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

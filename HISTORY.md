@@ -1,3 +1,11 @@
+## 2026-11-13 — The editor asks the keyboard for sentence capitalization (#580, #581)
+
+- **Report.** @gubacsiaronmate (#580): the editor never auto-capitalized, whatever the keyboard's own setting. A second user confirmed it with FUTO Keyboard.
+- **Cause.** The editor's `BasicTextField` set no `keyboardOptions`, and Compose's default `KeyboardCapitalization.None` leaves `TYPE_TEXT_FLAG_CAP_SENTENCES` out of the `EditorInfo`. Keyboards that honour the flag therefore never capitalized here.
+- **Change.** PR #581 by @gubacsiaronmate, merged as `ad3a6352`: `keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)` on the editor's field. Every other option keeps its default. The keyboard's own auto-capitalization setting now decides.
+- **Decision.** Taken as-is rather than behind a Markleaf setting (maintainer, 2026-11-12). It makes the keyboard's setting work instead of adding a behaviour, and someone who doesn't want capitals turns it off in the keyboard. It arrived after the Wednesday freeze, so it ships in the 2026-11-19 release rather than as a same-day hotfix.
+- **Checks.** CI on #581: `build` and `instrumented-tests` were green after the fork run was approved. Codex's one finding was these CHANGELOG and HISTORY entries, added here in a follow-up because the PR's head was the contributor's fork `main`. **Not checked yet:** a device run with Gboard and SwiftKey, including the SwiftKey list-continuation workaround (#447) with capitalization on. Do it before the 2026-11-19 release.
+
 ## 2026-11-12 — Two items off the hardening tracker (#262)
 
 - **Why.** A fourth pass over #262 before the 2026-11-12 weekly release. Two items still listed as open were already done and only need ticking: a note emptied by sync being deleted for good when its editor closes (fixed by #443 on 2026-09-22, `blanknessIsConfirmedElsewhere` in `EditorScreen`), and inline links and code inside a callout keeping their own colours (#473 on 2026-10-01, `LocalPreviewBodyColor` / `previewAccent`). Two were open in the code.

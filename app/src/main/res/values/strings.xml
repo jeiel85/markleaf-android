@@ -122,6 +122,8 @@
     <string name="quick_insert_code_block">Code block</string>
     <string name="quick_insert_divider">Divider</string>
     <string name="quick_insert_table">Table</string>
+    <!-- A new table's header cell, written into the note: "Column 1", "Column 2". -->
+    <string name="table_column_header">Column %1$d</string>
     <string name="quick_insert_callout">Callout</string>
     <string name="quick_insert_wikilink">Link to note</string>
     <string name="quick_insert_image">Image</string>

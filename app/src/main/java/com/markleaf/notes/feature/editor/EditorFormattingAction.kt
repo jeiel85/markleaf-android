@@ -73,11 +73,14 @@ internal fun KeyEvent.toFormattingAction(): EditorFormattingAction? =
 /**
  * [today] is injected rather than read inside so a test can pin the panel's
  * date row and `/date` to the same string; every caller in the app takes the
- * default.
+ * default. [tableHeaders] is injected because it comes from string resources,
+ * which this file has no context to read; the editor passes the app
+ * language's labels.
  */
 internal fun EditorFormattingAction.applyTo(
     value: TextFieldValue,
-    today: LocalDate = LocalDate.now()
+    today: LocalDate = LocalDate.now(),
+    tableHeaders: MarkdownEditActions.TableHeaders = MarkdownEditActions.TableHeaders.ENGLISH
 ): EditorFormattingResult = when (this) {
     EditorFormattingAction.BOLD -> EditorFormattingResult.Edited(MarkdownEditActions.bold(value))
     EditorFormattingAction.ITALIC -> EditorFormattingResult.Edited(MarkdownEditActions.italic(value))
@@ -93,7 +96,7 @@ internal fun EditorFormattingAction.applyTo(
     EditorFormattingAction.CHECKLIST -> EditorFormattingResult.Edited(MarkdownEditActions.checkbox(value))
     EditorFormattingAction.QUOTE -> EditorFormattingResult.Edited(MarkdownEditActions.blockquote(value))
     EditorFormattingAction.CODE_BLOCK -> EditorFormattingResult.Edited(MarkdownEditActions.codeBlock(value))
-    EditorFormattingAction.TABLE -> EditorFormattingResult.Edited(MarkdownEditActions.table(value))
+    EditorFormattingAction.TABLE -> EditorFormattingResult.Edited(MarkdownEditActions.table(value, tableHeaders))
     EditorFormattingAction.CALLOUT -> if (MarkdownEditActions.calloutWouldNest(value)) {
         EditorFormattingResult.Refused(R.string.callout_already_in_selection)
     } else {

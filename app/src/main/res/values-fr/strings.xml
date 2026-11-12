@@ -114,6 +114,7 @@
     <string name="quick_insert_code_block">Bloc de code</string>
     <string name="quick_insert_divider">Séparateur</string>
     <string name="quick_insert_table">Tableau</string>
+    <string name="table_column_header">Colonne %1$d</string>
     <string name="quick_insert_callout">Encadré</string>
     <string name="quick_insert_wikilink">Lien vers une note</string>
     <string name="quick_insert_image">Image</string>

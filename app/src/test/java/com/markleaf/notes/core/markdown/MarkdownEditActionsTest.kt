@@ -354,8 +354,31 @@ class MarkdownEditActionsTest {
             TextFieldValue("", selection = TextRange(0))
         )
 
-        assertEquals(MarkdownEditActions.TABLE_TEMPLATE, result.text)
+        assertEquals(MarkdownEditActions.tableTemplate(), result.text)
         assertEquals(TextRange(MarkdownEditActions.TABLE_CARET_OFFSET), result.selection)
+    }
+
+    // #262: the header cells are text the app writes into the note, so they
+    // come in the app's language; the structure around them does not change.
+    @Test
+    fun table_writesTheGivenHeaderLabelsAndKeepsTheCaretInTheFirstCell() {
+        val result = MarkdownEditActions.table(
+            TextFieldValue("hello", selection = TextRange(5)),
+            MarkdownEditActions.TableHeaders("열 1", "열 2")
+        )
+
+        assertEquals("hello\n\n| 열 1 | 열 2 |\n| --- | --- |\n|  |  |", result.text)
+        assertEquals(TextRange(9), result.selection)
+    }
+
+    @Test
+    fun tableTemplate_keepsALabelHoldingAPipeOrALineBreakInsideItsCell() {
+        val template = MarkdownEditActions.tableTemplate(
+            MarkdownEditActions.TableHeaders("A | B", "one\ntwo")
+        )
+
+        // `\|` is a literal pipe inside a GFM cell; a line break would end the row.
+        assertEquals("| A \\| B | one two |\n| --- | --- |\n|  |  |", template)
     }
 
     @Test

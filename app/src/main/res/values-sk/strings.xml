@@ -112,6 +112,7 @@
     <string name="quick_insert_code_block">Blok kódu</string>
     <string name="quick_insert_divider">Oddeľovač</string>
     <string name="quick_insert_table">Tabuľka</string>
+    <string name="table_column_header">Stĺpec %1$d</string>
     <string name="quick_insert_callout">Zvýraznený blok</string>
     <string name="quick_insert_wikilink">Odkaz na poznámku</string>
     <string name="quick_insert_image">Obrázok</string>

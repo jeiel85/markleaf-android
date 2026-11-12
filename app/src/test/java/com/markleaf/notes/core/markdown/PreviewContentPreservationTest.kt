@@ -174,6 +174,30 @@ class PreviewContentPreservationTest {
         assertEquals(PreviewLineType.BODY, lines.single().type)
     }
 
+    // #262: named entities come from the full HTML5 table, the one commonmark
+    // decodes Markdown text with, not a short list of the commonest names.
+    @Test
+    fun anHtmlBlockDecodesAnyHtml5NamedEntity() {
+        val lines = parse("<div>\n&hearts; &rarr; &euro;5 &frac12; &sup2; &CounterClockwiseContourIntegral;\n</div>")
+
+        assertEquals(listOf("♥ → €5 ½ ² ∳"), lines.map { it.text })
+    }
+
+    @Test
+    fun anHtmlBlockLeavesAnUnknownEntityOrANonCharacterAsWritten() {
+        val lines = parse("<div>\n&notanentity; &#0; &#x110000; &amp;\n</div>")
+
+        assertEquals(listOf("&notanentity; &#0; &#x110000; &"), lines.map { it.text })
+    }
+
+    @Test
+    fun aMarkdownParagraphAndAnHtmlBlockDecodeAnEntityTheSameWay() {
+        val paragraph = parse("&rarr; &frac12;").single().text
+        val html = parse("<div>\n&rarr; &frac12;\n</div>").single().text
+
+        assertEquals(paragraph, html)
+    }
+
     @Test
     fun htmlLineBreaksAndBlockEndsBreakTheText() {
         val lines = parse("<p>first<br>second</p>\n<p>third</p>")

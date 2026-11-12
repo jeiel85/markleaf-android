@@ -1935,3 +1935,30 @@ Implications:
 - Snippets are not offered in the `/` menu or bound to keys. Both are possible later without touching
   the stored format.
 - A damaged stored value reads as no snippets; the next change in Settings writes a clean list.
+
+### D086 - Words The App Writes Into A Note Come In The App's Language
+
+Date: 2026-11-12. Issue: #262 (v2.40.0 entry, the table skeleton).
+
+Decision:
+- Placeholder words that an editor action writes into the note are translated like UI strings. The
+  first case is the table skeleton's header cells: `table_column_header` ("Column %1$d") in all 11
+  languages, passed to `MarkdownEditActions.tableTemplate` as `TableHeaders` by the editor for both the
+  panel row and `/table`.
+- Markdown syntax is not translated: `> [!NOTE]`, `| --- |`, `{|}` and the like stay as they are,
+  because other apps read them.
+- Text already in a note is never rewritten when the app language changes.
+
+Why:
+- The starter notes are already translated per locale, so a note's text is not English by default.
+  The skeleton was the one place a German user tapping a toolbar button got English words in their
+  note.
+- The argument for leaving it literal was that it is note content, not UI chrome. It is content the
+  user did not write, though, and they will overwrite it; English there only makes the first edit
+  longer.
+
+Implications:
+- A note created in one language and edited in another can hold header words from both. That is the
+  same as any text the user typed.
+- A label is escaped for its cell (`|` to `\|`, line breaks to a space), so no translation can break
+  the table.

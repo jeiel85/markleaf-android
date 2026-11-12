@@ -114,6 +114,7 @@
     <string name="quick_insert_code_block">코드 블록</string>
     <string name="quick_insert_divider">구분선</string>
     <string name="quick_insert_table">표</string>
+    <string name="table_column_header">열 %1$d</string>
     <string name="quick_insert_callout">콜아웃</string>
     <string name="quick_insert_wikilink">노트 링크</string>
     <string name="quick_insert_image">이미지</string>

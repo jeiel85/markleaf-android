@@ -17,6 +17,7 @@ import org.commonmark.ext.gfm.tables.TableRow
 import org.commonmark.ext.gfm.tables.TablesExtension
 import org.commonmark.ext.task.list.items.TaskListItemMarker
 import org.commonmark.ext.task.list.items.TaskListItemsExtension
+import org.commonmark.internal.util.Html5Entities
 import org.commonmark.node.AbstractVisitor
 import org.commonmark.node.BlockQuote
 import org.commonmark.node.BulletList
@@ -857,9 +858,16 @@ internal object CommonMarkPreviewAdapter {
     }
 
     /**
-     * The handful of entities hand-written HTML actually uses, plus numeric
-     * references. Not a full HTML5 table: anything unknown is left as written,
-     * which is still readable.
+     * Named entities by the full HTML5 table, plus numeric references. A name
+     * that isn't in the table, or a number that isn't a character, is left as
+     * written, which is still readable.
+     *
+     * The table is commonmark's own, the one it decodes entities in Markdown
+     * text with, so `&hearts;` reads the same in a paragraph and inside a raw
+     * HTML block. It replaced a hand-written list of 14 names, which left
+     * anything else (`&rarr;`, `&euro;`, `&frac12;`) as written (#262).
+     * `Html5Entities` sits in an internal package: a commonmark upgrade that
+     * moves it fails the build here rather than at run time.
      */
     private fun decodeHtmlEntities(text: String): String {
         if ('&' !in text) return text
@@ -869,7 +877,8 @@ internal object CommonMarkPreviewAdapter {
                 body.startsWith("#x", ignoreCase = true) ->
                     body.drop(2).toIntOrNull(16)?.let(::codePointString)
                 body.startsWith("#") -> body.drop(1).toIntOrNull()?.let(::codePointString)
-                else -> NAMED_HTML_ENTITIES[body]
+                // Hands back what it was given when the name is unknown.
+                else -> Html5Entities.entityToString(match.value).takeUnless { it == match.value }
             } ?: match.value
         }
     }
@@ -1183,12 +1192,9 @@ internal object CommonMarkPreviewAdapter {
         """<!--.*?-->|<(script|style)\b[^>]*>.*?</\1\s*>""",
         setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)
     )
-    private val HTML_ENTITY_REGEX = Regex("""&(#[0-9]{1,7}|#[xX][0-9a-fA-F]{1,6}|[a-zA-Z]{2,8});""")
-    private val NAMED_HTML_ENTITIES = mapOf(
-        "amp" to "&", "lt" to "<", "gt" to ">", "quot" to "\"", "apos" to "'", "nbsp" to "\u00A0",
-        "copy" to "\u00A9", "reg" to "\u00AE", "trade" to "\u2122", "mdash" to "\u2014",
-        "ndash" to "\u2013", "hellip" to "\u2026", "middot" to "\u00B7", "times" to "\u00D7"
-    )
+    // HTML5 names start with a letter and run to 31 characters
+    // (`&CounterClockwiseContourIntegral;`); some hold digits (`&frac12;`, `&sup2;`).
+    private val HTML_ENTITY_REGEX = Regex("""&(#[0-9]{1,7}|#[xX][0-9a-fA-F]{1,6}|[a-zA-Z][a-zA-Z0-9]{1,31});""")
     private val HORIZONTAL_SPACE_RUN_REGEX = Regex("""[ \t\u00A0]+""")
 
     /** Sentinel [PreviewLine.extra] marking a `<details open>` section (#403). */

@@ -115,6 +115,7 @@
     <string name="quick_insert_code_block">Khối mã</string>
     <string name="quick_insert_divider">Đường phân cách</string>
     <string name="quick_insert_table">Bảng</string>
+    <string name="table_column_header">Cột %1$d</string>
     <string name="quick_insert_callout">Khung chú thích</string>
     <string name="quick_insert_wikilink">Liên kết đến ghi chú</string>
     <string name="quick_insert_image">Hình ảnh</string>

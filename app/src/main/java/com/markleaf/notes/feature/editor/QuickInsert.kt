@@ -120,13 +120,15 @@ internal fun applyQuickInsertCommand(
     value: TextFieldValue,
     query: QuickInsertQuery,
     command: QuickInsertCommand,
-    today: LocalDate = LocalDate.now()
+    today: LocalDate = LocalDate.now(),
+    // The same labels the panel's table row uses; see EditorFormattingAction.applyTo.
+    tableHeaders: MarkdownEditActions.TableHeaders = MarkdownEditActions.TableHeaders.ENGLISH
 ): TextFieldValue {
     if (query.start !in 0..value.text.length || query.end !in query.start..value.text.length) {
         return value
     }
 
-    val insertion = insertionFor(command, today)
+    val insertion = insertionFor(command, today, tableHeaders)
     val updated = value.text.replaceRange(query.start, query.end, insertion.text)
     return value.copy(
         text = updated,
@@ -144,7 +146,8 @@ private data class QuickInsertion(
 
 private fun insertionFor(
     command: QuickInsertCommand,
-    today: LocalDate
+    today: LocalDate,
+    tableHeaders: MarkdownEditActions.TableHeaders
 ): QuickInsertion = when (command) {
     QuickInsertCommand.HEADING_1 -> QuickInsertion("# ")
     QuickInsertCommand.HEADING_2 -> QuickInsertion("## ")
@@ -158,7 +161,7 @@ private fun insertionFor(
     // Both templates live in MarkdownEditActions, which the formatting panel
     // inserts from too — the same construct behind two doors (#390).
     QuickInsertCommand.TABLE -> QuickInsertion(
-        MarkdownEditActions.TABLE_TEMPLATE,
+        MarkdownEditActions.tableTemplate(tableHeaders),
         caretOffset = MarkdownEditActions.TABLE_CARET_OFFSET
     )
     QuickInsertCommand.CALLOUT -> QuickInsertion(MarkdownEditActions.CALLOUT_TEMPLATE)

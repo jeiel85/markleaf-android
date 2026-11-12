@@ -714,9 +714,17 @@ fun EditorScreen(
     // a panel tap, a selection action, or a hardware-keyboard shortcut. Keeping
     // one handler means haptics, focus restore, and autosave cannot diverge
     // between the touch and keyboard paths.
+    //
+    // A new table's header cells, in the app's language: they are text this
+    // screen writes into the note, like the starter notes (#262). Read here
+    // once for both doors, the panel row and `/table`.
+    val tableHeaders = MarkdownEditActions.TableHeaders(
+        stringResource(R.string.table_column_header, 1),
+        stringResource(R.string.table_column_header, 2)
+    )
     val applyFormattingAction: (EditorFormattingAction) -> Unit = { action ->
         HapticFeedback.light(context)
-        when (val result = action.applyTo(editorState)) {
+        when (val result = action.applyTo(editorState, tableHeaders = tableHeaders)) {
             is EditorFormattingResult.Edited -> {
                 applyEdit(result.value)
                 shouldRequestEditorFocus = true
@@ -1820,7 +1828,7 @@ fun EditorScreen(
                     val onQuickInsertPick: (QuickInsertCommand) -> Unit = pick@{ command ->
                         val query = detectQuickInsertQuery(editorState) ?: return@pick
                         HapticFeedback.light(context)
-                        applyEdit(applyQuickInsertCommand(editorState, query, command))
+                        applyEdit(applyQuickInsertCommand(editorState, query, command, tableHeaders = tableHeaders))
                         quickInsertSelectedIndex = 0
                         shouldRequestEditorFocus = true
                         if (isLoaded) saver.requestSave()

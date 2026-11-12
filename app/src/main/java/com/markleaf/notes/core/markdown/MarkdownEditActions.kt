@@ -6,16 +6,41 @@ import java.time.LocalDate
 
 object MarkdownEditActions {
     /**
-     * The two-column GFM table skeleton, and the caret offset that lands inside
-     * its first header cell (right after `| `).
+     * The words a new table's two header cells start with. The editor passes
+     * the app language's "Column 1" and "Column 2"; this default is the English
+     * the skeleton held before it was translated, and what tests that are not
+     * about the language rely on.
+     *
+     * Translated because it is text the app writes into a note, like the
+     * starter notes, rather than part of the Markdown structure (#262).
+     */
+    data class TableHeaders(val first: String, val second: String) {
+        companion object {
+            val ENGLISH = TableHeaders("Column 1", "Column 2")
+        }
+    }
+
+    /**
+     * The two-column GFM table skeleton with [headers] in its header row.
+     * [TABLE_CARET_OFFSET] lands inside its first header cell (right after `| `).
      *
      * Shared with the `/table` quick-insert command rather than written twice:
      * the panel row and the slash command are two doors onto the same
      * construct, and a user who learns the shape through one and then uses the
      * other must not get a different table.
      */
-    const val TABLE_TEMPLATE = "| Column 1 | Column 2 |\n| --- | --- |\n|  |  |"
+    fun tableTemplate(headers: TableHeaders = TableHeaders.ENGLISH): String =
+        "| ${tableCell(headers.first)} | ${tableCell(headers.second)} |\n| --- | --- |\n|  |  |"
+
     const val TABLE_CARET_OFFSET = 2
+
+    /**
+     * A header label as table cell text: a `|` would end the cell and a line
+     * break would end the row, so a translation holding either can't take the
+     * table apart.
+     */
+    private fun tableCell(label: String): String =
+        label.replace(Regex("""\s*[\r\n]+\s*"""), " ").trim().replace("|", "\\|")
 
     /** The callout head, and the head plus an empty body line for insertion. */
     const val CALLOUT_HEAD = "> [!NOTE]"
@@ -273,9 +298,9 @@ object MarkdownEditActions {
     /**
      * Insert a two-column GFM table below the line the caret is on.
      *
-     * Input: the field value, caret anywhere. Output: the value with
-     * [TABLE_TEMPLATE] inserted as its own block, caret inside the first header
-     * cell so the first thing typed names a column.
+     * Input: the field value, caret anywhere, and the header labels. Output:
+     * the value with [tableTemplate] inserted as its own block, caret inside
+     * the first header cell so the first thing typed names a column.
      *
      * Why its own block, with a blank line: a GFM table cannot interrupt a
      * paragraph, so a skeleton appended straight under a line of prose renders
@@ -286,11 +311,11 @@ object MarkdownEditActions {
      * rather than the caret itself, and the separating newlines are computed
      * from what is actually there.
      */
-    fun table(value: TextFieldValue): TextFieldValue {
+    fun table(value: TextFieldValue, headers: TableHeaders = TableHeaders.ENGLISH): TextFieldValue {
         val at = blockInsertPoint(value)
         val leading = blockLeading(value.text, at)
         val trailing = blockTrailing(value.text, at)
-        val insertion = leading + TABLE_TEMPLATE + trailing
+        val insertion = leading + tableTemplate(headers) + trailing
         val updated = value.text.substring(0, at) + insertion + value.text.substring(at)
         return value.copy(
             text = updated,

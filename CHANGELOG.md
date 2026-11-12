@@ -12,11 +12,13 @@ All notable changes to Markleaf are documented in this file. This English editio
 ### Changed
 - **With the Monospace font, inline code has a light background.** When the body text is monospace, code no longer stands out by its typeface, only by its colour. Inline code in the editor and Preview now gets the same light background that code blocks have. With the other fonts, nothing changes. (#262)
 - **Undo and Redo can move to the top bar.** If you turned off Show formatting button and have no snippet buttons, the row above the keyboard held only Undo and Redo, and on a small phone it hid two lines of your note. In that setup, Undo and Redo now sit in the top bar, the row is gone until you select text, and Table of contents and Note information move to the ⋮ menu. With the formatting button on, or with snippet buttons, nothing changes. Thanks to @uszymyszy for the idea. (#542)
+- **A new table's header cells are in your language.** The table button and `/table` wrote `| Column 1 | Column 2 |` into the note whatever language the app was in. The header cells now use the app's language, for example `| Spalte 1 | Spalte 2 |` in German. Tables already in your notes are not changed. (#262)
 
 ### Fixed
 - **On Android 10 and older, the editor makes room for the keyboard.** The keyboard covered the last lines of a note and the row with Undo, Redo and Aa, and on some phones the editor kept that space after the keyboard closed, so the note filled only the top half of the screen. The editor now shrinks when the keyboard opens and returns to full height when it closes. Android 11 and newer are unchanged. Thanks to [@memesflawless-sudo](https://github.com/memesflawless-sudo) for the report. (#578)
 - **The callout button says why it does nothing.** Making a callout from a selection that already has one is refused, because nesting one callout inside another gives broken Markdown. The button used to do nothing visible; it now shows a short message saying the selection already has a callout. (#262)
 - **TalkBack can tell apart collapsible sections with the same title.** Two `<details>` sections with the same summary, or two with none (both read as "Details"), were announced identically. Each is now also announced by its place among them, for example "Collapsed, 2 of 3". (#262)
+- **HTML in a note shows any named character.** Inside raw HTML, such as a `<div>` block, Preview decoded only about a dozen names like `&amp;` and `&nbsp;`, and showed others like `&rarr;`, `&euro;` or `&frac12;` as typed. It now knows every HTML5 name, the same ones it already decoded in ordinary Markdown text. A name that isn't an HTML5 character still shows as written. (#262)
 
 ## v2.72.0 - Line spacing and Empty trash - 2026-11-04
 

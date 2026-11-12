@@ -132,6 +132,21 @@ class QuickInsertTest {
         assertEquals(slashCallout.selection, panelCallout.selection)
     }
 
+    // #262: translated header labels go through both doors the same way, so
+    // `/table` can't keep the English skeleton the panel row no longer writes.
+    @Test
+    fun bothDoorsWriteTheSameTranslatedTableHeaders() {
+        val headers = MarkdownEditActions.TableHeaders("Spalte 1", "Spalte 2")
+        val slash = TextFieldValue("/", selection = TextRange(1))
+        val query = checkNotNull(detectQuickInsertQuery(slash))
+
+        val slashTable = applyQuickInsertCommand(slash, query, QuickInsertCommand.TABLE, tableHeaders = headers)
+        val panelTable = EditorFormattingAction.TABLE.applyTo(TextFieldValue(""), tableHeaders = headers)
+
+        assertEquals("| Spalte 1 | Spalte 2 |\n| --- | --- |\n|  |  |", slashTable.text)
+        assertEquals(EditorFormattingResult.Edited(slashTable), panelTable)
+    }
+
     private data class Case(
         val command: QuickInsertCommand,
         val text: String,

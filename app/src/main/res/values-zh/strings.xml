@@ -118,6 +118,7 @@
     <string name="quick_insert_code_block">代码块</string>
     <string name="quick_insert_divider">分隔线</string>
     <string name="quick_insert_table">表格</string>
+    <string name="table_column_header">列 %1$d</string>
     <string name="quick_insert_callout">提示块</string>
     <string name="quick_insert_wikilink">链接到笔记</string>
     <string name="quick_insert_image">图片</string>

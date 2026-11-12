@@ -114,6 +114,7 @@
     <string name="quick_insert_code_block">Codeblock</string>
     <string name="quick_insert_divider">Trennlinie</string>
     <string name="quick_insert_table">Tabelle</string>
+    <string name="table_column_header">Spalte %1$d</string>
     <string name="quick_insert_callout">Hinweisblock</string>
     <string name="quick_insert_wikilink">Notiz verlinken</string>
     <string name="quick_insert_image">Bild</string>

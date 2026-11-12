@@ -4,7 +4,9 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
-## Unreleased
+## v2.73.0 - Undo in the top bar and an Android 10 keyboard fix - 2026-11-12
+
+This week: on a small screen with the formatting button off, Undo and Redo can move into the top bar and give back two lines of the note. On Android 10 and older, the editor now makes room for the keyboard and fills the screen again once it closes. Links to headings work in exported PDFs, and a new table's header cells come in your language. Smaller fixes cover inline code under the Monospace font, the callout button, TalkBack on sections with the same title, and named characters in HTML. No new permissions; notes are stored exactly as before.
 
 ### Added
 - **Links to a heading work in exported PDFs.** A link like `[see Setup](#setup)` jumps to that heading in Preview, and now does the same in a PDF from Export as PDF…. Headings are named the way Preview and GitHub name them, so the same links work in all three. (#262)

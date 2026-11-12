@@ -2929,3 +2929,8 @@ Verification: `verify-release-notes.ps1`, `verify-landing-versions.ps1`, `verify
 
 Selected task: weekly release of what merged since v2.71.0 (#561 line spacing, #566 Empty trash + trash auto-delete, #568 PDF font, #542 caret, #429 new-note file name, two #262 hardening batches #571/#572).
 Verification: `verify-release-notes.ps1`, `verify-landing-versions.ps1`, `verify-locales.ps1` locally; CI `build` + `instrumented-tests` on the release PR.
+
+## 2026-11-12 - v2.73.0: undo in the top bar and an Android 10 keyboard fix
+
+Selected task: weekly release of what merged since v2.72.0 (#542/#539 undo and redo in the top bar, #578 adjustResize on Android 10 and below, two #262 hardening batches #576/#582).
+Verification: `verify-release-notes.ps1`, `verify-landing-versions.ps1`, `verify-locales.ps1` locally; CI `build` + `instrumented-tests` on the release PR.

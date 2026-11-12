@@ -66,6 +66,7 @@ Listed by first report.
 | [@gubacsiaronmate](https://github.com/gubacsiaronmate) | [#565](https://github.com/jeiel85/markleaf-android/issues/565) |
 | [@stardomains3](https://github.com/stardomains3) | [#566](https://github.com/jeiel85/markleaf-android/issues/566) |
 | [@malekairmaroc7](https://github.com/malekairmaroc7) | [#568](https://github.com/jeiel85/markleaf-android/issues/568) |
+| [@memesflawless-sudo](https://github.com/memesflawless-sudo) | [#578](https://github.com/jeiel85/markleaf-android/issues/578) |
 
 Not every request here was accepted — a couple were declined, and saying no to a
 thoughtful suggestion is its own kind of debt. Being told what you want from the

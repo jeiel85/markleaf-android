@@ -63,7 +63,7 @@ Listed by first report.
 | [@lyminhtanh](https://github.com/lyminhtanh) | [#540](https://github.com/jeiel85/markleaf-android/issues/540) |
 | [@uszymyszy](https://github.com/uszymyszy) | [#542](https://github.com/jeiel85/markleaf-android/issues/542), [#561](https://github.com/jeiel85/markleaf-android/issues/561) |
 | [@dr-donnerknispel](https://github.com/dr-donnerknispel) | [#553](https://github.com/jeiel85/markleaf-android/issues/553) |
-| [@gubacsiaronmate](https://github.com/gubacsiaronmate) | [#565](https://github.com/jeiel85/markleaf-android/issues/565) |
+| [@gubacsiaronmate](https://github.com/gubacsiaronmate) | [#565](https://github.com/jeiel85/markleaf-android/issues/565), [#580](https://github.com/jeiel85/markleaf-android/issues/580) |
 | [@stardomains3](https://github.com/stardomains3) | [#566](https://github.com/jeiel85/markleaf-android/issues/566) |
 | [@malekairmaroc7](https://github.com/malekairmaroc7) | [#568](https://github.com/jeiel85/markleaf-android/issues/568) |
 | [@memesflawless-sudo](https://github.com/memesflawless-sudo) | [#578](https://github.com/jeiel85/markleaf-android/issues/578) |
@@ -94,6 +94,8 @@ deciding the clipped leaf was worth a pull request.
 | [@anotherus3r](https://github.com/anotherus3r) | [#329](https://github.com/jeiel85/markleaf-android/pull/329) — Croatian |
 | [@padi-sk](https://github.com/padi-sk) | [#453](https://github.com/jeiel85/markleaf-android/pull/453) — Slovak; [#458](https://github.com/jeiel85/markleaf-android/pull/458) — its native-speaker review |
 | [@LILITHNCL](https://github.com/LILITHNCL) | [#541](https://github.com/jeiel85/markleaf-android/pull/541) — copy button on code blocks |
+| [@gubacsiaronmate](https://github.com/gubacsiaronmate) | [#581](https://github.com/jeiel85/markleaf-android/pull/581) — sentence capitalization in the editor |
+| [@good-learner-x](https://github.com/good-learner-x) | [#581](https://github.com/jeiel85/markleaf-android/pull/581) — its review, and confirming [#580](https://github.com/jeiel85/markleaf-android/issues/580) with FUTO Keyboard |
 
 Reporting something new? [Issues](https://github.com/jeiel85/markleaf-android/issues)
 for bugs, [Discussions](https://github.com/jeiel85/markleaf-android/discussions)

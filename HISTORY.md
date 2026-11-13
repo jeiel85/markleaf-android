@@ -4,7 +4,13 @@
 - **Cause.** The editor's `BasicTextField` set no `keyboardOptions`, and Compose's default `KeyboardCapitalization.None` leaves `TYPE_TEXT_FLAG_CAP_SENTENCES` out of the `EditorInfo`. Keyboards that honour the flag therefore never capitalized here.
 - **Change.** PR #581 by @gubacsiaronmate, merged as `ad3a6352`: `keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)` on the editor's field. Every other option keeps its default. The keyboard's own auto-capitalization setting now decides.
 - **Decision.** Taken as-is rather than behind a Markleaf setting (maintainer, 2026-11-12). It makes the keyboard's setting work instead of adding a behaviour, and someone who doesn't want capitals turns it off in the keyboard. It arrived after the Wednesday freeze, so it ships in the 2026-11-19 release rather than as a same-day hotfix.
-- **Checks.** CI on #581: `build` and `instrumented-tests` were green after the fork run was approved. Codex's one finding was these CHANGELOG and HISTORY entries, added here in a follow-up because the PR's head was the contributor's fork `main`. **Not checked yet:** a device run with Gboard and SwiftKey, including the SwiftKey list-continuation workaround (#447) with capitalization on. Do it before the 2026-11-19 release.
+- **Checks.** CI on #581: `build` and `instrumented-tests` were green after the fork run was approved. Codex's one finding was these CHANGELOG and HISTORY entries, added here in a follow-up because the PR's head was the contributor's fork `main`.
+- **Emulator check with Gboard (2026-11-13).** `markleaf-phone-api36` (API 36, stock Gboard), the `markleaf-debug-apk` artifact from main's CI run 43322998027 (`8b0bd0e9`, after the merge). Every key was a tap on Gboard's on-screen keys, not `input text`, so Gboard's own commit path ran. The AVD's hardware keyboard hides Gboard, so `show_ime_with_hard_keyboard` was set to 1 for the run and back to 0 afterwards.
+  - `dumpsys input_method` showed the editor's `inputType=0x2c001`: text, multi-line, auto-correct and `CAP_SENTENCES` (0x4000).
+  - On an empty note Gboard opened with Shift on. Typing lowercase `h i . space o k` gave `Hi. Ok `.
+  - #447 list continuation: `- apple` then Enter, six times in a row. The next line got `- ` all six times. Enter on the empty item ended the list, and `ok` typed on the next line came out as `Ok`.
+  - Gboard does not turn Shift on right after `- `, so list items stay lowercase unless the user capitalizes them. That is Gboard's rule for what counts as a sentence start, not Markleaf's.
+- **Not checked yet:** SwiftKey, including the #447 workaround with capitalization on. The AVD image has no Play Store and no SwiftKey, and a SwiftKey APK from outside the store wasn't used, so this needs a device. Do it before the 2026-11-19 release.
 
 ## 2026-11-12 — Two items off the hardening tracker (#262)
 

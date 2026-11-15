@@ -1106,6 +1106,18 @@ class MarkdownEditActionsTest {
     }
 
     @Test
+    fun moveLines_anEmptyLastSelectedLineMovedToTheBottomStaysThereOnTheWayBack() {
+        // Kept on purpose (Codex on #590): at the end of the text the selection
+        // can't say "and the empty line after a", because an endpoint at column
+        // 0 belongs to the line before it, the rule Tab and Checklist share.
+        // Nothing is lost; the empty line stays at the bottom.
+        val down = MarkdownEditActions.moveLines(TextFieldValue("a\n\nb", selection = TextRange(0, 3)), up = false)!!
+        assertEquals("b\na\n", down.text)
+        val up = MarkdownEditActions.moveLines(down, up = true)!!
+        assertEquals("a\nb\n", up.text)
+    }
+
+    @Test
     fun moveLines_handlesAnEmptyFirstLine() {
         val value = TextFieldValue("\nabc", selection = TextRange(0))
         val result = MarkdownEditActions.moveLines(value, up = false)!!

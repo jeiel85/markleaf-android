@@ -298,20 +298,25 @@ object MarkdownEditActions {
         val text = value.text
         val (blockStart, blockEnd) = selectionLineRange(value)
         val block = text.substring(blockStart, blockEnd)
+        // A note imported from Windows keeps its `\r\n` line breaks. The `\r`
+        // belongs to the break, not to the line, so it stays where the break
+        // is: otherwise moving the first line of `a\r\nb` down gave `b\na\r`,
+        // and a lone `\r` reads as one more line break (Codex on #590).
+        val (blockBody, blockCr) = splitTrailingCr(block)
         val (updated, shift) = if (up) {
             if (blockStart == 0) return null
             // blockStart - 1 is the newline that ends the line above.
             val aboveStart = text.lastIndexOf('\n', blockStart - 2).let { if (it == -1) 0 else it + 1 }
-            val above = text.substring(aboveStart, blockStart - 1)
-            (text.substring(0, aboveStart) + block + "\n" + above + text.substring(blockEnd)) to
-                -(above.length + 1)
+            val (aboveBody, aboveCr) = splitTrailingCr(text.substring(aboveStart, blockStart - 1))
+            (text.substring(0, aboveStart) + blockBody + aboveCr + "\n" + aboveBody + blockCr + text.substring(blockEnd)) to
+                -(aboveBody.length + aboveCr.length + 1)
         } else {
             if (blockEnd == text.length) return null
             // blockEnd is the newline that ends the block.
             val belowEnd = text.indexOf('\n', blockEnd + 1).let { if (it == -1) text.length else it }
-            val below = text.substring(blockEnd + 1, belowEnd)
-            (text.substring(0, blockStart) + below + "\n" + block + text.substring(belowEnd)) to
-                (below.length + 1)
+            val (belowBody, belowCr) = splitTrailingCr(text.substring(blockEnd + 1, belowEnd))
+            (text.substring(0, blockStart) + belowBody + blockCr + "\n" + blockBody + belowCr + text.substring(belowEnd)) to
+                (belowBody.length + blockCr.length + 1)
         }
         // A selection that took the block's own line break ends one past the
         // block. Moved to the bottom, the block has no line break after it,
@@ -324,6 +329,10 @@ object MarkdownEditActions {
             )
         )
     }
+
+    /** A line split into its text and the `\r` of a `\r\n` break after it, if any. */
+    private fun splitTrailingCr(line: String): Pair<String, String> =
+        if (line.endsWith('\r')) line.dropLast(1) to "\r" else line to ""
 
     /** Whether [moveLines] in that direction would change anything. */
     fun canMoveLines(value: TextFieldValue, up: Boolean): Boolean {

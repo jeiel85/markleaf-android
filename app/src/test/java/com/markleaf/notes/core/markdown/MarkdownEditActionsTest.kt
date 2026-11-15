@@ -1118,6 +1118,30 @@ class MarkdownEditActionsTest {
     }
 
     @Test
+    fun moveLines_keepsWindowsLineBreaksWhole() {
+        // Codex on #590: the `\r` of `\r\n` moved with the line, leaving `b\na\r`.
+        val down = MarkdownEditActions.moveLines(TextFieldValue("a\r\nb", selection = TextRange(0)), up = false)!!
+        assertEquals("b\r\na", down.text)
+        assertEquals(TextRange(3), down.selection)
+
+        val up = MarkdownEditActions.moveLines(down, up = true)!!
+        assertEquals("a\r\nb", up.text)
+        assertEquals(TextRange(0), up.selection)
+
+        val middle = MarkdownEditActions.moveLines(TextFieldValue("a\r\nb\r\nc", selection = TextRange(3)), up = false)!!
+        assertEquals("a\r\nc\r\nb", middle.text)
+        assertEquals(TextRange(6), middle.selection)
+        val back = MarkdownEditActions.moveLines(middle, up = true)!!
+        assertEquals("a\r\nb\r\nc", back.text)
+        assertEquals(TextRange(3), back.selection)
+
+        // Every line of a whole note keeps its own `\r\n` slot, so no lone `\r` appears.
+        var value = TextFieldValue("one\r\ntwo\r\nthree\r\n", selection = TextRange(0))
+        repeat(2) { value = MarkdownEditActions.moveLines(value, up = false)!! }
+        assertEquals("two\r\nthree\r\none\r\n", value.text)
+    }
+
+    @Test
     fun moveLines_handlesAnEmptyFirstLine() {
         val value = TextFieldValue("\nabc", selection = TextRange(0))
         val result = MarkdownEditActions.moveLines(value, up = false)!!

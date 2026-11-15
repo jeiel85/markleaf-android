@@ -6,8 +6,15 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 ## Unreleased
 
+### Added
+- **Move a line up or down with one tap.** Turn on Settings → Editor → Show move line buttons, and the row above the keyboard gets ↑ and ↓ beside Undo and Redo. Each tap swaps the line the cursor is on with the line above or below, so tapping ↓ three times moves it three lines down. Select several lines first and they move together. Each tap is its own Undo step. The buttons are off by default, so the row stays as it is unless you turn them on. Thanks to @uszymyszy for the idea. (#588)
+
 ### Fixed
+- **Tab, Shift+Tab, Checklist and Callout no longer close the app at the very start of a note that begins with an empty line.** With the cursor before everything else in such a note, these four worked out the wrong line and the app closed. They now act on that empty first line. (#589)
 - **The editor follows your keyboard's auto-capitalization.** The editor never asked the keyboard to capitalize, so a sentence's first letter stayed lowercase even with auto-capitalization turned on in the keyboard (seen with FUTO Keyboard, among others). The keyboard's own setting now decides: turn auto-capitalization off there if you don't want it in your notes. Thanks to [@gubacsiaronmate](https://github.com/gubacsiaronmate) for the report and the fix. (#580)
+
+### Limits
+- Moving lines doesn't renumber a numbered list: an item keeps its number, as it would after a cut and paste. With the move buttons on, the row that appears when you select text may not fit link, italic and bold on a phone. They give way in that order so More options always fits, and all three are under More options. On a 360 dp phone the row keeps bold. (#588)
 
 ## v2.73.0 - Undo in the top bar and an Android 10 keyboard fix - 2026-11-12
 

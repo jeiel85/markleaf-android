@@ -746,6 +746,15 @@ fun EditorScreen(
         shouldRequestEditorFocus = true
         if (isLoaded) saver.requestSave()
     }
+    // Each tap is its own undo step, like any other button on the row (#588).
+    val moveLine: (Boolean) -> Unit = { up ->
+        MarkdownEditActions.moveLines(editorState, up)?.let { moved ->
+            HapticFeedback.light(context)
+            applyEdit(moved)
+            shouldRequestEditorFocus = true
+            if (isLoaded) saver.requestSave()
+        }
+    }
     val exportSingleLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("text/markdown")
     ) { uri ->
@@ -1254,6 +1263,9 @@ fun EditorScreen(
     // added snippets wants the snippets.
     val rowSnippets =
         if (isFormattingPreempted || !editorState.selection.collapsed) emptyList() else appSettings.snippetButtons
+    // The move buttons (#588) stand down with the formatting controls: with
+    // Find open the selection is the current match, not lines the user chose.
+    val showsMoveLine = appSettings.showMoveLineButtons && !isFormattingPreempted
     // With `Aa` off and no snippets, undo and redo would be all the row ever
     // holds until text is selected — two buttons for a strip that hides two
     // lines of a Pixel 4a's note (#542). They go to the top bar instead, in
@@ -1261,7 +1273,8 @@ fun EditorScreen(
     // Keyed on the settings, not on the keyboard, so the buttons don't jump
     // between the bars as it opens and closes.
     val undoInTopBar = !isPreviewMode && !isFocusMode &&
-        !appSettings.showFormattingButton && appSettings.snippetButtons.isEmpty()
+        !appSettings.showFormattingButton && appSettings.snippetButtons.isEmpty() &&
+        !appSettings.showMoveLineButtons
     LaunchedEffect(isFormattingPreempted, isFormattingIdle) {
         if (isFormattingPreempted || isFormattingIdle) isFormattingExpanded = false
     }
@@ -2045,7 +2058,10 @@ fun EditorScreen(
                     val undoAvailable = !undoInTopBar && (undoHistory.canUndo || undoHistory.canRedo)
                     if (
                         !isEditorRowPreempted &&
-                        (showsFormattingEntry || showsSelectionActions || undoAvailable || rowSnippets.isNotEmpty())
+                        (
+                            showsFormattingEntry || showsSelectionActions || undoAvailable ||
+                                rowSnippets.isNotEmpty() || showsMoveLine
+                            )
                     ) {
                         EditorFormattingControls(
                             state = EditorFormattingUiState(
@@ -2056,7 +2072,12 @@ fun EditorScreen(
                                 canRedo = undoHistory.canRedo,
                                 showFormattingEntry = showsFormattingEntry,
                                 snippets = rowSnippets,
-                                showUndo = !undoInTopBar
+                                showUndo = !undoInTopBar,
+                                showMoveLine = showsMoveLine,
+                                canMoveLineUp = showsMoveLine &&
+                                    MarkdownEditActions.canMoveLines(editorState, up = true),
+                                canMoveLineDown = showsMoveLine &&
+                                    MarkdownEditActions.canMoveLines(editorState, up = false)
                             ),
                             onExpandedChange = { expanded ->
                                 isFormattingExpanded = expanded
@@ -2066,7 +2087,8 @@ fun EditorScreen(
                             backgroundColor = MaterialTheme.colorScheme.background,
                             onUndo = performUndo,
                             onRedo = performRedo,
-                            onSnippet = applySnippet
+                            onSnippet = applySnippet,
+                            onMoveLine = moveLine
                         )
                     }
                 }

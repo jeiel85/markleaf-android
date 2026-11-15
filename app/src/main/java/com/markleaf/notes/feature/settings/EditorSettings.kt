@@ -262,6 +262,19 @@ internal fun EditorSettings(
         }
     )
     Spacer(Modifier.height(12.dp))
+    SettingsSwitchRow(
+        title = stringResource(R.string.show_move_line_buttons),
+        titleModifier = anchors.item(SettingsItem.MOVE_LINE_BUTTONS),
+        description = stringResource(R.string.show_move_line_buttons_description),
+        checked = appSettings.showMoveLineButtons,
+        onCheckedChange = { checked ->
+            HapticFeedback.light(context)
+            scope.launch {
+                settingsRepository.setShowMoveLineButtons(checked)
+            }
+        }
+    )
+    Spacer(Modifier.height(12.dp))
     SnippetButtonsSetting(
         buttons = appSettings.snippetButtons,
         storedListUnreadable = appSettings.snippetButtonsUnreadable,

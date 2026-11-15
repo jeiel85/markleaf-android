@@ -81,6 +81,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
 import com.markleaf.notes.data.settings.SnippetButton
@@ -207,11 +208,15 @@ internal fun EditorFormattingControls(
 
             if (state.selectionActive) {
                 SelectionFormattingActions(
-                    // Undo and redo take two of the four slots a 360dp phone
-                    // has, so the link shortcut needs more room than before to
-                    // avoid pushing "More options" off the edge. The move
-                    // buttons take two more when they are on (#588).
-                    showLink = availableWidth >= 48.dp * selectionRowSlots(state),
+                    // Undo and redo take two of the slots a 360dp phone has,
+                    // and the move buttons two more when they are on (#588),
+                    // so the shortcuts give way before "More options" can be
+                    // pushed off the edge: it holds every one of them.
+                    shortcuts = selectionShortcutCount(
+                        availableWidth = availableWidth,
+                        showUndo = state.showUndo,
+                        showMoveLine = state.showMoveLine
+                    ),
                     expanded = state.expanded,
                     enabled = state.enabled,
                     triggerFocusRequester = triggerFocusRequester,
@@ -389,12 +394,20 @@ private fun UndoActions(
 }
 
 /**
- * How many 48dp buttons the selection row needs with the link shortcut in:
- * bold, italic, link and "More options", plus undo/redo and the move buttons
- * when they are on.
+ * How many of bold, italic and link (in that order) fit on the selection row
+ * beside the buttons that always stay: "More options", plus undo/redo and the
+ * move buttons when they are on. Each button is 48dp.
+ *
+ * With the move buttons on, a 360dp phone's row (about 320dp inside the
+ * editor's padding) has six slots for seven buttons, and "More options" went
+ * off the edge, taking every other formatting action with it (Codex on #590).
+ * The shortcuts are also in the panel, so they are the ones to give way.
  */
-private fun selectionRowSlots(state: EditorFormattingUiState): Int =
-    4 + (if (state.showUndo) 2 else 0) + (if (state.showMoveLine) 2 else 0)
+internal fun selectionShortcutCount(availableWidth: Dp, showUndo: Boolean, showMoveLine: Boolean): Int {
+    val slots = (availableWidth / 48.dp).toInt()
+    val fixed = 1 + (if (showUndo) 2 else 0) + (if (showMoveLine) 2 else 0)
+    return (slots - fixed).coerceIn(0, 3)
+}
 
 /**
  * Move up and move down (#588), right after undo and redo. Like those, both
@@ -444,7 +457,7 @@ private fun UndoActionButton(
 
 @Composable
 private fun SelectionFormattingActions(
-    showLink: Boolean,
+    shortcuts: Int,
     expanded: Boolean,
     enabled: Boolean,
     triggerFocusRequester: FocusRequester,
@@ -461,9 +474,13 @@ private fun SelectionFormattingActions(
         verticalAlignment = Alignment.CenterVertically
     ) {
         undoActions()
-        ContextAction(EditorFormattingAction.BOLD, Icons.Default.FormatBold, R.string.bold, enabled, onAction)
-        ContextAction(EditorFormattingAction.ITALIC, Icons.Default.FormatItalic, R.string.italic, enabled, onAction)
-        if (showLink) {
+        if (shortcuts >= 1) {
+            ContextAction(EditorFormattingAction.BOLD, Icons.Default.FormatBold, R.string.bold, enabled, onAction)
+        }
+        if (shortcuts >= 2) {
+            ContextAction(EditorFormattingAction.ITALIC, Icons.Default.FormatItalic, R.string.italic, enabled, onAction)
+        }
+        if (shortcuts >= 3) {
             ContextAction(EditorFormattingAction.LINK, Icons.Default.Link, R.string.markdown_link, enabled, onAction)
         }
         val moreLabel = stringResource(R.string.more_options)

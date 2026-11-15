@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -17,6 +18,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.markleaf.notes.R
@@ -29,6 +31,7 @@ import java.time.Instant
 import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -139,6 +142,26 @@ class EditorMoveLineButtonsTest {
         val moved = text()
         assertEquals("ilk\n- [ ] e", moved.substring(selection().min, selection().max))
         up().assertIsNotEnabled()
+    }
+
+    @Test
+    fun onA360dpPhoneTheSelectionRowStillShowsMoreOptions() {
+        // Undo, redo, up, down, bold, italic and More are seven 48dp buttons
+        // for a row of about 320dp, and More went off the edge (Codex on
+        // #590). The shortcuts give way instead; More holds them all.
+        show(moveButtons = true)
+        select(TextRange(content.indexOf("milk"), content.indexOf("milk") + 4))
+
+        val more = composeRule.onAllNodesWithContentDescription(context.getString(R.string.more_options))
+        // The top bar's ⋮ and the row's More.
+        more.assertCountEquals(2)
+        // Squeezed, it was laid out narrower than its 48dp, or not at all.
+        val minWidthPx = with(composeRule.density) { 47.dp.toPx() }
+        // The row's is the lower one; the top bar's ⋮ is a narrower icon by design.
+        val rowMore = more.fetchSemanticsNodes().maxBy { it.boundsInRoot.top }
+        assertTrue("More options is squeezed out: ${rowMore.boundsInRoot}", rowMore.boundsInRoot.width >= minWidthPx)
+        up().assertIsDisplayed()
+        down().assertIsDisplayed()
     }
 
     @Test

@@ -14,7 +14,7 @@ All notable changes to Markleaf are documented in this file. This English editio
 - **The editor follows your keyboard's auto-capitalization.** The editor never asked the keyboard to capitalize, so a sentence's first letter stayed lowercase even with auto-capitalization turned on in the keyboard (seen with FUTO Keyboard, among others). The keyboard's own setting now decides: turn auto-capitalization off there if you don't want it in your notes. Thanks to [@gubacsiaronmate](https://github.com/gubacsiaronmate) for the report and the fix. (#580)
 
 ### Limits
-- Moving lines doesn't renumber a numbered list: an item keeps its number, as it would after a cut and paste. With the move buttons on, the row that appears when you select text has room for the link button only on a wide screen, such as a tablet or a phone held sideways; otherwise link is under More options with the other formatting. (#588)
+- Moving lines doesn't renumber a numbered list: an item keeps its number, as it would after a cut and paste. With the move buttons on, the row that appears when you select text may not fit link, italic and bold on a phone. They give way in that order so More options always fits, and all three are under More options. On a 360 dp phone the row keeps bold. (#588)
 
 ## v2.73.0 - Undo in the top bar and an Android 10 keyboard fix - 2026-11-12
 

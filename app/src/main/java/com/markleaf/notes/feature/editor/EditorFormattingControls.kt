@@ -25,6 +25,8 @@ import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.automirrored.filled.Redo
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.AddLink
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.CheckBox
 import androidx.compose.material.icons.filled.Code
@@ -99,6 +101,11 @@ import com.markleaf.notes.data.settings.SnippetButton
  * [snippets] are the user's own insert buttons after `Aa` (#436). They show
  * only while nothing is selected — a selection swaps the row for the selection
  * actions — and the caller passes none while something else owns the row.
+ *
+ * [showMoveLine] puts move-up and move-down beside undo, opted into in the
+ * settings (#588). Unlike the snippets they stay when text is selected, since
+ * moving several lines at once is done by selecting them, and they sit in the
+ * same place on both rows so a run of taps doesn't chase them.
  */
 internal data class EditorFormattingUiState(
     val selectionActive: Boolean = false,
@@ -108,7 +115,10 @@ internal data class EditorFormattingUiState(
     val canRedo: Boolean = false,
     val showFormattingEntry: Boolean = true,
     val snippets: List<SnippetButton> = emptyList(),
-    val showUndo: Boolean = true
+    val showUndo: Boolean = true,
+    val showMoveLine: Boolean = false,
+    val canMoveLineUp: Boolean = false,
+    val canMoveLineDown: Boolean = false
 )
 
 private data class FormattingItem(
@@ -150,7 +160,8 @@ internal fun EditorFormattingControls(
     modifier: Modifier = Modifier,
     onUndo: () -> Unit = {},
     onRedo: () -> Unit = {},
-    onSnippet: (SnippetButton) -> Unit = {}
+    onSnippet: (SnippetButton) -> Unit = {},
+    onMoveLine: (up: Boolean) -> Unit = {}
 ) {
     val triggerFocusRequester = remember { FocusRequester() }
     val firstActionFocusRequester = remember { FocusRequester() }
@@ -198,8 +209,9 @@ internal fun EditorFormattingControls(
                 SelectionFormattingActions(
                     // Undo and redo take two of the four slots a 360dp phone
                     // has, so the link shortcut needs more room than before to
-                    // avoid pushing "More options" off the edge.
-                    showLink = !state.showUndo || availableWidth >= 288.dp,
+                    // avoid pushing "More options" off the edge. The move
+                    // buttons take two more when they are on (#588).
+                    showLink = availableWidth >= 48.dp * selectionRowSlots(state),
                     expanded = state.expanded,
                     enabled = state.enabled,
                     triggerFocusRequester = triggerFocusRequester,
@@ -214,6 +226,7 @@ internal fun EditorFormattingControls(
                     },
                     undoActions = {
                         UndoActions(state = state, onUndo = onUndo, onRedo = onRedo)
+                        MoveLineActions(state = state, onMoveLine = onMoveLine)
                     }
                 )
             } else {
@@ -232,6 +245,7 @@ internal fun EditorFormattingControls(
                     },
                     undoActions = {
                         UndoActions(state = state, onUndo = onUndo, onRedo = onRedo)
+                        MoveLineActions(state = state, onMoveLine = onMoveLine)
                     }
                 )
             }
@@ -371,6 +385,39 @@ private fun UndoActions(
         labelRes = R.string.redo,
         enabled = state.enabled && state.canRedo,
         onClick = onRedo
+    )
+}
+
+/**
+ * How many 48dp buttons the selection row needs with the link shortcut in:
+ * bold, italic, link and "More options", plus undo/redo and the move buttons
+ * when they are on.
+ */
+private fun selectionRowSlots(state: EditorFormattingUiState): Int =
+    4 + (if (state.showUndo) 2 else 0) + (if (state.showMoveLine) 2 else 0)
+
+/**
+ * Move up and move down (#588), right after undo and redo. Like those, both
+ * stay mounted and disable at the top or bottom of the note rather than
+ * vanishing, so the button under the thumb doesn't change between taps.
+ */
+@Composable
+private fun MoveLineActions(
+    state: EditorFormattingUiState,
+    onMoveLine: (up: Boolean) -> Unit
+) {
+    if (!state.showMoveLine) return
+    UndoActionButton(
+        icon = Icons.Filled.ArrowUpward,
+        labelRes = R.string.move_line_up,
+        enabled = state.enabled && state.canMoveLineUp,
+        onClick = { onMoveLine(true) }
+    )
+    UndoActionButton(
+        icon = Icons.Filled.ArrowDownward,
+        labelRes = R.string.move_line_down,
+        enabled = state.enabled && state.canMoveLineDown,
+        onClick = { onMoveLine(false) }
     )
 }
 

@@ -291,6 +291,10 @@
     <string name="indent_paragraphs_description">Enter u retku s tekstom započinje sljedeći redak s dva razmaka pune širine, kao u kineskom pisanju. Enter u retku koji sadrži samo uvlaku uklanja je. Naslovi, popisi, citati i kod ostaju nepromijenjeni.</string>
     <string name="show_formatting_button">Prikaži gumb za oblikovanje</string>
     <string name="show_formatting_button_description">Zadržava gumb Aa u retku iznad tipkovnice. Isključeno ga skriva; poništavanje i ponavljanje ostaju, podebljano, kurziv i poveznica i dalje se pojavljuju kad odaberete tekst, a brzo umetanje s / ostaje isto. Ako nema ni gumba isječaka, poništavanje i ponavljanje prelaze u gornju traku, a redak se pojavljuje tek kad odaberete tekst.</string>
+    <string name="show_move_line_buttons">Prikaži gumbe za pomicanje redaka</string>
+    <string name="show_move_line_buttons_description">Dodaje gumbe gore i dolje u redak iznad tipkovnice. Svaki dodir zamjenjuje redak s pokazivačem, ili sve odabrane retke, s retkom iznad ili ispod. Kad su uključeni, poništavanje i ponavljanje ostaju u tom retku.</string>
+    <string name="move_line_up">Pomakni redak gore</string>
+    <string name="move_line_down">Pomakni redak dolje</string>
     <string name="snippet_buttons_label">Gumbi isječaka</string>
     <string name="snippet_buttons_description">Vlastiti gumbi u retku iznad tipkovnice, nakon Aa. Svaki umeće svoj Markdown na mjesto pokazivača. Nema ih dok ne dodate jedan; najviše 10.</string>
     <string name="snippet_buttons_unreadable">Spremljeni isječci ne mogu se pročitati pa se ne prikazuju. Dodavanje isječka zamijenit će ih.</string>

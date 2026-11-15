@@ -52,6 +52,7 @@ internal enum class SettingsItem(
     MARKDOWN_SYNTAX(SettingsCategory.EDITOR, R.string.show_markdown_syntax, R.string.show_markdown_syntax_description),
     INDENT_PARAGRAPHS(SettingsCategory.EDITOR, R.string.indent_paragraphs, R.string.indent_paragraphs_description),
     FORMATTING_BUTTON(SettingsCategory.EDITOR, R.string.show_formatting_button, R.string.show_formatting_button_description),
+    MOVE_LINE_BUTTONS(SettingsCategory.EDITOR, R.string.show_move_line_buttons, R.string.show_move_line_buttons_description),
     SNIPPET_BUTTONS(SettingsCategory.EDITOR, R.string.snippet_buttons_label, R.string.snippet_buttons_description),
     NOTE_PREVIEWS(SettingsCategory.NOTES, R.string.show_note_previews, R.string.show_note_previews_description),
     NOTES_LAYOUT(

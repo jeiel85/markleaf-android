@@ -52,6 +52,11 @@ data class AppSettings(
      *  that appear *while text is selected* are unaffected, because selecting
      *  is how you ask for them (#331). */
     val showFormattingButton: Boolean = true,
+    /** Up and down buttons on that row that move the caret's line, or the
+     *  selected lines, past the line above or below. Off by default: the row
+     *  costs lines of the note on a small phone, so it grows only for people
+     *  who ask for it (#588). */
+    val showMoveLineButtons: Boolean = false,
     /** The user's own insert buttons on that row, in order. Empty by default,
      *  which leaves the row exactly as it was (#436). */
     val snippetButtons: List<SnippetButton> = emptyList(),

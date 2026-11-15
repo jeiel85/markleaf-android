@@ -84,6 +84,7 @@ class AppSettingsRepository internal constructor(
             lockPasscodeSet = !preferences[LOCK_PASSCODE_HASH].isNullOrBlank(),
             notesShowPreview = preferences[NOTES_SHOW_PREVIEW] ?: true,
             showFormattingButton = preferences[SHOW_FORMATTING_BUTTON] ?: true,
+            showMoveLineButtons = preferences[SHOW_MOVE_LINE_BUTTONS] ?: false,
             snippetButtons = SnippetButtonsCodec.decode(preferences[SNIPPET_BUTTONS]),
             snippetButtonsUnreadable = SnippetButtonsCodec.isUnreadable(preferences[SNIPPET_BUTTONS]),
             reopenLastNote = preferences[REOPEN_LAST_NOTE] ?: false,
@@ -331,6 +332,12 @@ class AppSettingsRepository internal constructor(
         }
     }
 
+    suspend fun setShowMoveLineButtons(show: Boolean) {
+        persist { preferences ->
+            preferences[SHOW_MOVE_LINE_BUTTONS] = show
+        }
+    }
+
     /** Replaces the whole list; an empty one removes the key, back to the default (#436). */
     suspend fun setSnippetButtons(buttons: List<SnippetButton>) {
         persist { preferences ->
@@ -560,6 +567,7 @@ class AppSettingsRepository internal constructor(
         val LOCK_RETRY_AT = longPreferencesKey("lock_retry_at")
         val NOTES_SHOW_PREVIEW = booleanPreferencesKey("notes_show_preview")
         val SHOW_FORMATTING_BUTTON = booleanPreferencesKey("show_formatting_button")
+        val SHOW_MOVE_LINE_BUTTONS = booleanPreferencesKey("show_move_line_buttons")
         val SNIPPET_BUTTONS = stringPreferencesKey("snippet_buttons")
         val REOPEN_LAST_NOTE = booleanPreferencesKey("reopen_last_note")
         val RECENT_NOTES_IN_SHORTCUTS = booleanPreferencesKey("recent_notes_in_shortcuts")

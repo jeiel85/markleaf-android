@@ -989,4 +989,156 @@ class MarkdownEditActionsTest {
         assertEquals("due 2026-09-20", result.text)
         assertEquals(14, result.selection.start)
     }
+
+    // #588: move the caret's line, or the selected lines, past the line above or below.
+
+    @Test
+    fun moveLines_downSwapsTheCaretLineWithTheNextAndKeepsTheCaretInIt() {
+        val value = TextFieldValue("one\ntwo\nthree", selection = TextRange(1))
+        val result = MarkdownEditActions.moveLines(value, up = false)!!
+        assertEquals("two\none\nthree", result.text)
+        assertEquals(TextRange(5), result.selection)
+    }
+
+    @Test
+    fun moveLines_upSwapsTheCaretLineWithThePrevious() {
+        val value = TextFieldValue("one\ntwo\nthree", selection = TextRange(10))
+        val result = MarkdownEditActions.moveLines(value, up = true)!!
+        assertEquals("one\nthree\ntwo", result.text)
+        assertEquals(TextRange(6), result.selection)
+    }
+
+    @Test
+    fun moveLines_threeTapsMoveTheLineThreeLinesDown() {
+        var value = TextFieldValue("- [ ] a\n- [ ] b\n- [ ] c\n- [ ] d", selection = TextRange(0))
+        repeat(3) { value = MarkdownEditActions.moveLines(value, up = false)!! }
+        assertEquals("- [ ] b\n- [ ] c\n- [ ] d\n- [ ] a", value.text)
+        assertEquals(TextRange(24), value.selection)
+    }
+
+    @Test
+    fun moveLines_movesEverySelectedLineAsABlockAndKeepsTheSelection() {
+        val text = "a\nbb\ncc\nd"
+        // From inside "bb" to inside "cc".
+        val value = TextFieldValue(text, selection = TextRange(3, 7))
+        val down = MarkdownEditActions.moveLines(value, up = false)!!
+        assertEquals("a\nd\nbb\ncc", down.text)
+        assertEquals("b\ncc", down.text.substring(down.selection.min, down.selection.max))
+        val up = MarkdownEditActions.moveLines(value, up = true)!!
+        assertEquals("bb\ncc\na\nd", up.text)
+        assertEquals(TextRange(1, 5), up.selection)
+    }
+
+    @Test
+    fun moveLines_keepsABackwardSelectionBackward() {
+        val value = TextFieldValue("x\nhello\ny", selection = TextRange(7, 3))
+        val result = MarkdownEditActions.moveLines(value, up = true)!!
+        assertEquals("hello\nx\ny", result.text)
+        assertEquals(TextRange(5, 1), result.selection)
+    }
+
+    @Test
+    fun moveLines_aSelectionEndingAtTheNextLinesStartDoesNotTakeThatLine() {
+        // "one\n" selected: the endpoint at column 0 of "two" belongs to "one".
+        val value = TextFieldValue("one\ntwo\nthree", selection = TextRange(0, 4))
+        val result = MarkdownEditActions.moveLines(value, up = false)!!
+        assertEquals("two\none\nthree", result.text)
+        assertEquals("one\n", result.text.substring(result.selection.min, result.selection.max))
+    }
+
+    @Test
+    fun moveLines_returnsNullAtTheEdgesOfTheNote() {
+        assertNull(MarkdownEditActions.moveLines(TextFieldValue("one\ntwo", selection = TextRange(2)), up = true))
+        assertNull(MarkdownEditActions.moveLines(TextFieldValue("one\ntwo", selection = TextRange(5)), up = false))
+        assertNull(MarkdownEditActions.moveLines(TextFieldValue("only", selection = TextRange(2)), up = false))
+        assertNull(MarkdownEditActions.moveLines(TextFieldValue("", selection = TextRange(0)), up = true))
+        // Every line selected: nowhere to go either way.
+        val all = TextFieldValue("a\nb", selection = TextRange(0, 3))
+        assertNull(MarkdownEditActions.moveLines(all, up = true))
+        assertNull(MarkdownEditActions.moveLines(all, up = false))
+    }
+
+    @Test
+    fun canMoveLines_agreesWithMoveLines() {
+        val texts = listOf("", "a", "a\nb", "\na", "a\n", "a\n\nb\n", "one\ntwo\nthree")
+        for (text in texts) {
+            for (start in 0..text.length) {
+                for (end in start..text.length) {
+                    for (up in listOf(true, false)) {
+                        val value = TextFieldValue(text, selection = TextRange(start, end))
+                        assertEquals(
+                            "text=${text.replace("\n", "\\n")} sel=$start..$end up=$up",
+                            MarkdownEditActions.moveLines(value, up) != null,
+                            MarkdownEditActions.canMoveLines(value, up)
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun moveLines_downThenUpRestoresTheTextAndSelection() {
+        val texts = listOf("a\nb", "\na", "a\n", "a\n\nb\n", "one\ntwo\nthree")
+        for (text in texts) {
+            for (start in 0..text.length) {
+                for (end in start..text.length) {
+                    val value = TextFieldValue(text, selection = TextRange(start, end))
+                    val down = MarkdownEditActions.moveLines(value, up = false) ?: continue
+                    val back = MarkdownEditActions.moveLines(down, up = true)!!
+                    val label = "text=${text.replace("\n", "\\n")} sel=$start..$end"
+                    assertEquals(label, text, back.text)
+                    // A selection that took the block's line break loses it
+                    // when the block becomes the last line; see the next test.
+                    val tookLineBreak = end > start && text[end - 1] == '\n'
+                    if (!tookLineBreak) assertEquals(label, value.selection, back.selection)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun moveLines_keepsTheSelectionInsideTheTextWhenItsLineBreakIsGone() {
+        // "a\n" selected and moved below the last line: there is no line break after it now.
+        val result = MarkdownEditActions.moveLines(TextFieldValue("a\nb", selection = TextRange(0, 2)), up = false)!!
+        assertEquals("b\na", result.text)
+        assertEquals(TextRange(2, 3), result.selection)
+    }
+
+    @Test
+    fun moveLines_handlesAnEmptyFirstLine() {
+        val value = TextFieldValue("\nabc", selection = TextRange(0))
+        val result = MarkdownEditActions.moveLines(value, up = false)!!
+        assertEquals("abc\n", result.text)
+        assertEquals(TextRange(4), result.selection)
+    }
+
+    // The caret at 0 of a note opening with a blank line used to give a line
+    // range whose start was after its end, and every action built on it threw
+    // on the substring: Tab, Shift+Tab, Checklist and Callout.
+
+    @Test
+    fun indent_onAnEmptyFirstLineIndentsThatLineInsteadOfThrowing() {
+        val result = MarkdownEditActions.indent(TextFieldValue("\nabc", selection = TextRange(0)))
+        assertEquals("  \nabc", result.text)
+    }
+
+    @Test
+    fun outdent_onAnEmptyFirstLineChangesNothingInsteadOfThrowing() {
+        val result = MarkdownEditActions.outdent(TextFieldValue("\n  abc", selection = TextRange(0)))
+        assertEquals("\n  abc", result.text)
+    }
+
+    @Test
+    fun checkbox_onAnEmptyFirstLineAddsTheBoxThereInsteadOfThrowing() {
+        val result = MarkdownEditActions.checkbox(TextFieldValue("\nabc", selection = TextRange(0)))
+        assertEquals("- [ ] \nabc", result.text)
+    }
+
+    @Test
+    fun callout_onAnEmptyFirstLineInsertsACalloutInsteadOfThrowing() {
+        val result = MarkdownEditActions.callout(TextFieldValue("\nabc", selection = TextRange(0)))
+        assertTrue(result.text, result.text.startsWith(MarkdownEditActions.CALLOUT_HEAD))
+        assertTrue(result.text, result.text.endsWith("abc"))
+    }
 }

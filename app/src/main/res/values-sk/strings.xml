@@ -31,6 +31,9 @@
     <string name="note_statistics">Štatistiky</string>
     <string name="note_information_no_headings">Zatiaľ žiadne nadpisy.</string>
     <string name="note_information_no_backlinks">Zatiaľ sem nevedú žiadne odkazy z poznámok.</string>
+    <string name="note_information_dates">Dátumy</string>
+    <string name="note_information_created">Vytvorené: %1$s</string>
+    <string name="note_information_edited">Naposledy upravené: %1$s</string>
     <string name="font_label">Písmo</string>
     <string name="font_size_label">Veľkosť textu</string>
     <string name="font_size_small">Malá</string>

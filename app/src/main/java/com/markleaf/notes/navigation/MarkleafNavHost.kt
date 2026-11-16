@@ -665,6 +665,10 @@ fun MarkleafNavHost(
                     onNoteClick = { noteId ->
                         noteOrigin = NoteOrigin(noteId, NoteSource.ARCHIVE)
                         navController.navigate(NavRoutes.editorRoute(noteId))
+                    },
+                    sortMode = appSettings.archiveSortMode,
+                    onSortModeChange = { mode ->
+                        hostScope.launch { settingsRepository.setArchiveSortMode(mode) }
                     }
                 )
             }

@@ -4,8 +4,11 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.markleaf.notes.domain.model.Note
+import com.markleaf.notes.ui.component.formatNoteDateTime
 import com.markleaf.notes.ui.theme.MarkleafTheme
 import java.time.Instant
 import org.junit.Assert.assertEquals
@@ -54,6 +57,31 @@ class EditorInfoSheetTest {
         composeRule.onNodeWithText("Source note").performClick()
 
         assertEquals("source-note", backlinkId)
+    }
+
+    // #593: the dates the list shows only as "3 days ago", in full, inside the note.
+    @Test
+    fun savedNoteShowsWhenItWasCreatedAndLastEdited() {
+        val created = Instant.parse("2025-04-02T09:30:00Z")
+        val edited = Instant.parse("2026-11-16T14:05:00Z")
+        render(populatedState().copy(createdAt = created, updatedAt = edited))
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        composeRule.onNodeWithText("Dates").assertIsDisplayed()
+        composeRule.onNodeWithText("Created: ${formatNoteDateTime(context, created)}")
+            .assertIsDisplayed()
+        composeRule.onNodeWithText("Last edited: ${formatNoteDateTime(context, edited)}")
+            .assertIsDisplayed()
+    }
+
+    // Until the row has loaded, or for a note with no row, there is no date to show.
+    @Test
+    fun datesAreLeftOutUntilKnown() {
+        render(populatedState())
+
+        composeRule.onNodeWithText("Dates").assertDoesNotExist()
+        composeRule.onNodeWithText("Created:", substring = true).assertDoesNotExist()
+        composeRule.onNodeWithText("Statistics").assertIsDisplayed()
     }
 
     @Test

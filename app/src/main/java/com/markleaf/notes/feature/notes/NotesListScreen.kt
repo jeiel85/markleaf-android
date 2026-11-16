@@ -28,10 +28,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.Label
-import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Archive
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FileOpen
@@ -102,6 +100,8 @@ import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.navigation.NoteSource
 import com.markleaf.notes.navigation.fabSharedBounds
 import com.markleaf.notes.navigation.noteSharedBounds
+import com.markleaf.notes.ui.component.NotesSortMenuButton
+import com.markleaf.notes.ui.component.formatUpdatedTime
 import com.markleaf.notes.ui.component.pressScale
 import com.markleaf.notes.ui.viewmodel.NotesViewModel
 import kotlinx.coroutines.Dispatchers
@@ -109,13 +109,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import android.content.Context
 import androidx.compose.ui.platform.LocalContext
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
-import java.time.Instant
-import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -156,7 +153,6 @@ fun NotesListScreen(
     val notesState = remember { mutableStateOf<List<Note>>(emptyList()) }
     val displayedState = remember { mutableStateOf<List<Note>>(emptyList()) }
     var overflowExpanded by remember { mutableStateOf(false) }
-    var sortMenuExpanded by remember { mutableStateOf(false) }
     var showQuickSwitcher by remember { mutableStateOf(false) }
     // Shown when the user taps "Move to Locked" but hasn't set a passcode yet —
     // locking a note is only meaningful once there's a passcode to gate it (#155).
@@ -275,35 +271,12 @@ fun NotesListScreen(
                                 Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(R.string.collapse_note_list))
                             }
                         }
-                        Box {
-                            IconButton(onClick = { sortMenuExpanded = true }) {
-                                Icon(
-                                    Icons.AutoMirrored.Filled.Sort,
-                                    contentDescription = stringResource(R.string.sort_notes)
-                                )
+                        NotesSortMenuButton(
+                            sortMode = sortMode,
+                            onSortModeChange = { mode ->
+                                scope.launch { settingsRepository.setNotesSortMode(mode) }
                             }
-                            DropdownMenu(
-                                expanded = sortMenuExpanded,
-                                onDismissRequest = { sortMenuExpanded = false }
-                            ) {
-                                NotesSortMode.entries.forEach { mode ->
-                                    DropdownMenuItem(
-                                        leadingIcon = {
-                                            if (mode == sortMode) {
-                                                Icon(Icons.Default.Check, contentDescription = null)
-                                            }
-                                        },
-                                        text = { Text(stringResource(mode.labelResId())) },
-                                        onClick = {
-                                            sortMenuExpanded = false
-                                            scope.launch {
-                                                settingsRepository.setNotesSortMode(mode)
-                                            }
-                                        }
-                                    )
-                                }
-                            }
-                        }
+                        )
                         IconButton(onClick = onSearchClick) {
                             Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
                         }
@@ -909,15 +882,6 @@ private fun NoteContextMenu(
 
 private data class NoteSection(val titleResId: Int?, val notes: List<Note>)
 
-private fun NotesSortMode.labelResId(): Int = when (this) {
-    NotesSortMode.UPDATED_DESC -> R.string.sort_updated_newest
-    NotesSortMode.UPDATED_ASC -> R.string.sort_updated_oldest
-    NotesSortMode.TITLE_ASC -> R.string.sort_title_az
-    NotesSortMode.TITLE_DESC -> R.string.sort_title_za
-    NotesSortMode.CREATED_DESC -> R.string.sort_created_newest
-    NotesSortMode.CREATED_ASC -> R.string.sort_created_oldest
-}
-
 /**
  * Sections for the list under the active sort mode (#191). The default
  * newest-first mode keeps the Today/Yesterday date buckets; every other mode
@@ -974,29 +938,6 @@ private fun groupNotes(notes: List<Note>): List<NoteSection> {
         }
     }
     return sections
-}
-
-private fun formatUpdatedTime(context: Context, instant: Instant): String {
-    val zone = ZoneId.systemDefault()
-    val now = LocalDate.now(zone)
-    val date = instant.atZone(zone).toLocalDate()
-    val time = instant.atZone(zone).toLocalTime()
-
-    val daysFromToday = ChronoUnit.DAYS.between(date, now)
-    val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-
-    return when {
-        daysFromToday <= 0L ->
-            context.getString(R.string.relative_today, time.format(timeFormatter))
-        daysFromToday == 1L ->
-            context.getString(R.string.relative_yesterday, time.format(timeFormatter))
-        daysFromToday in 2..7 ->
-            context.getString(R.string.relative_days_ago, daysFromToday.toInt())
-        else -> {
-            val dateFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
-            date.format(dateFormatter)
-        }
-    }
 }
 
 /** The tag the list is filtered to, and the way back to all notes (#545). */

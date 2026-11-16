@@ -128,6 +128,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.delay
@@ -2123,10 +2124,19 @@ fun EditorScreen(
     }
 
     if (showInfo) {
+        // The saved row, observed while the sheet is up so "Last edited" moves
+        // when an autosave lands under it (#593). The text being typed is ahead
+        // of it by at most the save delay.
+        val infoNoteFlow = remember(noteId) {
+            noteId?.let { repo.observeNote(it) } ?: flowOf(null)
+        }
+        val infoNote by infoNoteFlow.collectAsState(initial = null)
         EditorInfoSheet(
             state = EditorInfoUiState(
                 statsText = editorStatsText,
-                backlinks = backlinks
+                backlinks = backlinks,
+                createdAt = infoNote?.createdAt,
+                updatedAt = infoNote?.updatedAt
             ),
             onBacklinkClick = { id ->
                 showInfo = false

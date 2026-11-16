@@ -92,6 +92,9 @@ class AppSettingsRepository internal constructor(
             notesSortMode = preferences[NOTES_SORT_MODE]
                 ?.let { value -> enumValueOrDefault(value, NotesSortMode.UPDATED_DESC) }
                 ?: NotesSortMode.UPDATED_DESC,
+            archiveSortMode = preferences[ARCHIVE_SORT_MODE]
+                ?.let { value -> enumValueOrDefault(value, NotesSortMode.UPDATED_DESC) }
+                ?: NotesSortMode.UPDATED_DESC,
             notesLayout = preferences[NOTES_LAYOUT]
                 ?.let { value -> enumValueOrDefault(value, NotesLayout.LIST) }
                 ?: NotesLayout.LIST,
@@ -367,6 +370,12 @@ class AppSettingsRepository internal constructor(
         }
     }
 
+    suspend fun setArchiveSortMode(mode: NotesSortMode) {
+        persist { preferences ->
+            preferences[ARCHIVE_SORT_MODE] = mode.name
+        }
+    }
+
     suspend fun setNotesLayout(layout: NotesLayout) {
         persist { preferences ->
             preferences[NOTES_LAYOUT] = layout.name
@@ -572,6 +581,7 @@ class AppSettingsRepository internal constructor(
         val REOPEN_LAST_NOTE = booleanPreferencesKey("reopen_last_note")
         val RECENT_NOTES_IN_SHORTCUTS = booleanPreferencesKey("recent_notes_in_shortcuts")
         val NOTES_SORT_MODE = stringPreferencesKey("notes_sort_mode")
+        val ARCHIVE_SORT_MODE = stringPreferencesKey("archive_sort_mode")
         val NOTES_LAYOUT = stringPreferencesKey("notes_layout")
         val NOTE_TITLE_SOURCE = stringPreferencesKey("note_title_source")
         val NEW_NOTES_START_WITH_HEADING = booleanPreferencesKey("new_notes_start_with_heading")

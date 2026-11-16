@@ -36,6 +36,9 @@
     <string name="note_statistics">统计</string>
     <string name="note_information_no_headings">暂无标题。</string>
     <string name="note_information_no_backlinks">暂无笔记链接到此处。</string>
+    <string name="note_information_dates">日期</string>
+    <string name="note_information_created">创建时间：%1$s</string>
+    <string name="note_information_edited">最后编辑：%1$s</string>
     <string name="font_label">字体</string>
     <string name="font_size_label">文字大小</string>
     <string name="font_size_small">小</string>

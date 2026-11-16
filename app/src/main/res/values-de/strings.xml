@@ -32,6 +32,9 @@
     <string name="note_statistics">Statistik</string>
     <string name="note_information_no_headings">Noch keine Überschriften.</string>
     <string name="note_information_no_backlinks">Noch keine Notiz verweist hierher.</string>
+    <string name="note_information_dates">Datum</string>
+    <string name="note_information_created">Erstellt: %1$s</string>
+    <string name="note_information_edited">Zuletzt bearbeitet: %1$s</string>
     <string name="font_label">Schriftart</string>
     <string name="font_size_label">Schriftgröße</string>
     <string name="font_size_small">Klein</string>

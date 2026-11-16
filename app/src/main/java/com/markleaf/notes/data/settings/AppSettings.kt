@@ -73,6 +73,10 @@ data class AppSettings(
     val recentNotesInShortcuts: Boolean = false,
     /** Sort order of the notes list, driven by the top-bar sort menu (#191). */
     val notesSortMode: NotesSortMode = NotesSortMode.UPDATED_DESC,
+    /** Sort order of the archive, from its own top-bar sort menu (#592). Kept
+     *  apart from [notesSortMode] so sorting one list does not reorder the
+     *  other. The default is the order the archive always had. */
+    val archiveSortMode: NotesSortMode = NotesSortMode.UPDATED_DESC,
     /** How the notes list arranges its rows. Defaults to [NotesLayout.LIST],
      *  the one-column list Markleaf has always shown (#279). */
     val notesLayout: NotesLayout = NotesLayout.LIST,

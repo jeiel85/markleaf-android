@@ -86,4 +86,33 @@ class NotesSortTest {
         val sorted = sortNotesForDisplay(listOf(pinnedA, pinnedB, apple), NotesSortMode.UPDATED_DESC)
         assertEquals(listOf("pb", "pa", "apple"), sorted.map { it.id })
     }
+
+    // The archive sorts by the same modes but shows no pin, so a pin is no head start (#592).
+    @Test
+    fun archiveIgnoresPinsInEveryMode() {
+        val pinnedZebra = note("zebra", "Zebra", updatedAt = 500, pinned = true)
+        val notes = listOf(apple, banana, pinnedZebra, cherry)
+        for (mode in NotesSortMode.entries) {
+            assertEquals(
+                "mode $mode",
+                notes.sortedWith(mode.comparator()).map { it.id },
+                sortArchivedNotes(notes, mode).map { it.id }
+            )
+        }
+        assertEquals(
+            listOf("apple", "banana", "cherry", "zebra"),
+            sortArchivedNotes(notes, NotesSortMode.TITLE_ASC).map { it.id }
+        )
+    }
+
+    // Created order ignores later edits in the archive too (#537, #592).
+    @Test
+    fun archiveCreatedOrderIgnoresLaterEdits() {
+        val old = createdAndEdited("old", created = 1_000, edited = 9_000)
+        val new = createdAndEdited("new", created = 3_000, edited = 4_000)
+        assertEquals(
+            listOf("old", "new"),
+            sortArchivedNotes(listOf(new, old), NotesSortMode.CREATED_ASC).map { it.id }
+        )
+    }
 }

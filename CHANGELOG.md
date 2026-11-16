@@ -8,6 +8,8 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 ### Added
 - **Move a line up or down with one tap.** Turn on Settings → Editor → Show move line buttons, and the row above the keyboard gets ↑ and ↓ beside Undo and Redo. Each tap swaps the line the cursor is on with the line above or below, so tapping ↓ three times moves it three lines down. Select several lines first and they move together. Each tap is its own Undo step. The buttons are off by default, so the row stays as it is unless you turn them on. Thanks to @uszymyszy for the idea. (#588)
+- **Sort the archive.** The archive now has the same sort button as the notes list: newest or oldest edits first, title A to Z or Z to A, newest or oldest created first. It keeps its own choice, so sorting the archive doesn't change the order of your notes list. Each archived note also shows when it was last edited, as in the notes list. Thanks to @travelalpaca for the idea. (#592)
+- **See when a note was created and last edited without leaving it.** Note information now starts with the note's dates, written out in full, for example "Created: Apr 2, 2025, 09:30". The time follows your phone's 12- or 24-hour setting. Thanks to @travelalpaca for the idea. (#593)
 
 ### Fixed
 - **Tab, Shift+Tab, Checklist and Callout no longer close the app at the very start of a note that begins with an empty line.** With the cursor before everything else in such a note, these four worked out the wrong line and the app closed. They now act on that empty first line. (#589)

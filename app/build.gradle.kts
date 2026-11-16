@@ -66,7 +66,7 @@ val sideloadUpdater = providers.gradleProperty("markleaf.updater")
 
 android {
     namespace = "com.markleaf.notes"
-    compileSdk = 35
+    compileSdk = 36
 
     // 게이트는 여기 한 곳뿐이다. 업데이터의 권한도 코드도 이 블록 밖에는 존재하지 않으므로,
     // 스토어 빌드에서 "꺼져 있는" 것이 아니라 **들어가지 않는다**. 런타임 플래그로 끄는 방식은
@@ -505,7 +505,7 @@ dependencies {
     testImplementation("androidx.test:core:1.5.0")
     testImplementation("androidx.test.ext:junit:1.2.1")
     testImplementation("org.mockito:mockito-core:5.7.0")
-    testImplementation("org.robolectric:robolectric:4.14.1")
+    testImplementation("org.robolectric:robolectric:4.16.1")
     testImplementation("androidx.room:room-testing:2.6.1")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
     testImplementation(composeBom)

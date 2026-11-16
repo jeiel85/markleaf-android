@@ -53,7 +53,7 @@ F5
 
 SDK 트랙 (기능과 독립, 단독 PR)
 
-- [ ] S1 AGP 8.13.x / Gradle / Robolectric 4.16+ / `compileSdk = 36` (`docs/TARGET_API_36_EVALUATION.md` PR 1)
+- [x] S1 AGP 8.13.x / Gradle / Robolectric 4.16+ / `compileSdk = 36` (`docs/TARGET_API_36_EVALUATION.md` PR 1)
 - [ ] S2 `targetSdk = 36` + 기기 검증 (같은 문서 PR 2)
 - [ ] S3 Compose BOM 2026.06.01 + Kotlin 2.1.x — AGP 8로 갈 수 있는 마지막 BOM
 - [ ] S4 (Q2 "도입"일 때만) AGP 9.1+ / `compileSdk = 37` / BOM 2026.08+

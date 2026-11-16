@@ -40,6 +40,9 @@
     <string name="note_statistics">Statistika</string>
     <string name="note_information_no_headings">Još nema naslova.</string>
     <string name="note_information_no_backlinks">Nijedna bilješka nije povezana ovamo.</string>
+    <string name="note_information_dates">Datumi</string>
+    <string name="note_information_created">Stvoreno: %1$s</string>
+    <string name="note_information_edited">Zadnja izmjena: %1$s</string>
     <string name="font_label">Font</string>
     <string name="font_sans">Sans</string>
     <string name="font_serif">Serif</string>

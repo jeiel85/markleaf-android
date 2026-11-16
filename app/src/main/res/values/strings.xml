@@ -40,6 +40,9 @@
     <string name="note_statistics">Statistics</string>
     <string name="note_information_no_headings">No headings yet.</string>
     <string name="note_information_no_backlinks">No notes link here yet.</string>
+    <string name="note_information_dates">Dates</string>
+    <string name="note_information_created">Created: %1$s</string>
+    <string name="note_information_edited">Last edited: %1$s</string>
     <string name="font_label">Font</string>
     <string name="font_size_label">Text size</string>
     <string name="font_size_small">Small</string>

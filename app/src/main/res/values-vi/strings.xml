@@ -33,6 +33,9 @@
     <string name="note_statistics">Thống kê</string>
     <string name="note_information_no_headings">Chưa có tiêu đề mục nào.</string>
     <string name="note_information_no_backlinks">Chưa có ghi chú nào liên kết đến đây.</string>
+    <string name="note_information_dates">Ngày</string>
+    <string name="note_information_created">Tạo lúc: %1$s</string>
+    <string name="note_information_edited">Sửa lần cuối: %1$s</string>
     <string name="font_label">Phông chữ</string>
     <string name="font_size_label">Cỡ chữ</string>
     <string name="font_size_small">Nhỏ</string>

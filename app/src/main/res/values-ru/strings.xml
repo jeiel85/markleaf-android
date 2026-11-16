@@ -40,6 +40,9 @@
     <string name="note_statistics">Статистика</string>
     <string name="note_information_no_headings">Заголовков пока нет.</string>
     <string name="note_information_no_backlinks">Сюда пока не ссылается ни одна заметка.</string>
+    <string name="note_information_dates">Даты</string>
+    <string name="note_information_created">Создана: %1$s</string>
+    <string name="note_information_edited">Последнее изменение: %1$s</string>
     <string name="font_label">Шрифт</string>
     <string name="font_size_label">Размер текста</string>
     <string name="font_size_small">Мелкий</string>

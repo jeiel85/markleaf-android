@@ -167,6 +167,8 @@ class UntranslatedStringTest {
                 // "Normal" is the French word for the line-spacing option.
                 "line_spacing_normal",
                 "matching_notes",
+                // "Dates", the heading over a note's created and edited dates (#593).
+                "note_information_dates",
                 "notes_title",
                 "quick_insert_image",
                 "settings_notes",

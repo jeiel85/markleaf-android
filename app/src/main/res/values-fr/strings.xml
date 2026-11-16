@@ -32,6 +32,9 @@
     <string name="note_statistics">Statistiques</string>
     <string name="note_information_no_headings">Aucun titre pour le moment.</string>
     <string name="note_information_no_backlinks">Aucune note ne pointe encore ici.</string>
+    <string name="note_information_dates">Dates</string>
+    <string name="note_information_created">Créée : %1$s</string>
+    <string name="note_information_edited">Dernière modification : %1$s</string>
     <string name="font_label">Police</string>
     <string name="font_size_label">Taille du texte</string>
     <string name="font_size_small">Petite</string>

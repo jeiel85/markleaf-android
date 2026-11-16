@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Unarchive
@@ -36,12 +37,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -49,6 +52,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
+import com.markleaf.notes.data.settings.NotesSortMode
+import com.markleaf.notes.feature.notes.sortArchivedNotes
+import com.markleaf.notes.ui.component.NotesSortMenuButton
+import com.markleaf.notes.ui.component.formatUpdatedTime
 import com.markleaf.notes.ui.component.EmptyState
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.ui.viewmodel.ArchiveViewModel
@@ -61,14 +68,31 @@ import com.markleaf.notes.ui.component.pressScale
 fun ArchiveScreen(
     viewModel: ArchiveViewModel,
     onBack: () -> Unit = {},
-    onNoteClick: (String) -> Unit = {}
+    onNoteClick: (String) -> Unit = {},
+    // The archive's own sort, kept in settings apart from the notes list's
+    // (#592). Passed in rather than read here so the host owns the setting.
+    sortMode: NotesSortMode = NotesSortMode.UPDATED_DESC,
+    onSortModeChange: (NotesSortMode) -> Unit = {}
 ) {
     val notesState = remember { mutableStateOf<List<Note>>(emptyList()) }
     LaunchedEffect(Unit) {
         viewModel.archivedNotes.collect { notesState.value = it }
     }
-    val notes = notesState.value
+    val notes = remember(notesState.value, sortMode) {
+        sortArchivedNotes(notesState.value, sortMode)
+    }
     val haptics = LocalHapticFeedback.current
+    val listState = rememberLazyListState()
+    // A new order starts at the top. Rows are keyed by note id, so left alone
+    // the list would keep whichever note was at the top and follow it to its
+    // new place — sorting A to Z from the top would land at the bottom. Saved,
+    // so coming back from a note is not a change and keeps the scroll.
+    var scrolledForSort by rememberSaveable { mutableStateOf(sortMode) }
+    LaunchedEffect(sortMode) {
+        if (sortMode == scrolledForSort) return@LaunchedEffect
+        scrolledForSort = sortMode
+        listState.scrollToItem(0)
+    }
 
     Scaffold(
         topBar = {
@@ -81,6 +105,12 @@ fun ArchiveScreen(
                             contentDescription = stringResource(R.string.back)
                         )
                     }
+                },
+                actions = {
+                    NotesSortMenuButton(
+                        sortMode = sortMode,
+                        onSortModeChange = onSortModeChange
+                    )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
@@ -102,7 +132,7 @@ fun ArchiveScreen(
                     hint = stringResource(R.string.archive_empty_hint)
                 )
             } else {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
                     items(notes, key = { it.id }) { note ->
                         ArchiveRow(
                             note = note,
@@ -178,6 +208,13 @@ private fun ArchiveRow(
                     overflow = TextOverflow.Ellipsis
                 )
             }
+            // The same date the notes list shows under each row (#592).
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = formatUpdatedTime(LocalContext.current, note.updatedAt),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            )
         }
 
         DropdownMenu(

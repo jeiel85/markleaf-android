@@ -32,6 +32,9 @@
     <string name="note_statistics">統計</string>
     <string name="note_information_no_headings">見出しはまだありません。</string>
     <string name="note_information_no_backlinks">このノートへのリンクはまだありません。</string>
+    <string name="note_information_dates">日付</string>
+    <string name="note_information_created">作成: %1$s</string>
+    <string name="note_information_edited">最終編集: %1$s</string>
     <string name="font_label">フォント</string>
     <string name="font_size_label">文字サイズ</string>
     <string name="font_size_small">小</string>

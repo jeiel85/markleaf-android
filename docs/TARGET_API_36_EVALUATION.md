@@ -19,7 +19,7 @@ Google Play Console이 "앱이 Android 16(API 36) 이상을 타겟팅해야 함 
 - **지원 기기 범위는 바뀌지 않는다.** `targetSdk`/`compileSdk`는 "어느 버전의 동작 규칙을 따르는가"와
   "어느 API로 컴파일하는가"이고, 설치 가능한 최저 버전은 `minSdk = 26`(Android 8.0)이 정한다.
   이 작업에서 `minSdk`는 손대지 않는다.
-- Status: **계획 확정, 미착수.**
+- Status: **PR 1(빌드 도구) 진행 — 2026-11-16.** PR 2(`targetSdk = 36`)는 미착수.
 
 ## 현재 상태 (github/main `dbe7bda`)
 
@@ -30,6 +30,29 @@ Google Play Console이 "앱이 Android 16(API 36) 이상을 타겟팅해야 함 
 | Gradle wrapper | 8.9 |
 | Kotlin | 2.0.21 |
 | Robolectric | 4.14.1 (SDK 35까지 — target 36이면 JVM 테스트 전체 실패) |
+
+## PR 1 결과 (2026-11-16)
+
+Play Console 정책 상태에 같은 요구가 "이 문제가 있는 앱 업데이트가 거부됩니다"(시행일 2026-11-01)로
+다시 떴다. Play 배포 보류는 그대로라 결론은 바뀌지 않았고, 계획대로 PR 1부터 진행했다.
+
+| 항목 | 이전 | 이후 |
+|---|---|---|
+| AGP | 8.7.3 | 8.13.2 (AGP 8 마지막 패치) |
+| Gradle wrapper | 8.9 | 8.14.7 |
+| Robolectric | 4.14.1 | 4.16.1 (SDK 36 지원 시작) |
+| `compileSdk` | 35 | 36 (`app`, `benchmark`) |
+| `targetSdk` / `minSdk` | 35 / 26 | 그대로 |
+
+- Gradle 8.9는 AGP 8.13 플러그인을 해석하지 못한다(플러그인 메타데이터가 더 새 Gradle을 요구) —
+  래퍼를 먼저 올려야 한다.
+- **Robolectric 4.15부터 `MimeTypeMap`이 실제 매핑을 갖는다.** `DocumentFile.fromFile`(RawDocumentFile)
+  은 이름에 확장자를 무조건 덧붙이므로 temp 디렉터리로 SAF 폴더를 흉내 내는 테스트가 `x.md.md`,
+  `.json.json`을 만들어 3개 클래스 4건이 실패했다. 실제 SAF 제공자는 이미 확장자가 붙은
+  이름에 다시 붙이지 않으므로, `ProviderFileNamingMimeTypeMap` shadow로 확장자 조회만 null로 두고
+  `robolectric.properties`로 모든 단위 테스트에 건다(이전 버전에서 우연히 맞던 가정을 명시한 것).
+- `compileSdk 36`에서 위젯의 `setRemoteAdapter`·`notifyAppWidgetViewDataChanged`가 deprecated
+  경고로 나온다(`RemoteCollectionItems`로 대체 권장). 동작 변화는 없고 PR 2의 위젯 확인 때 함께 본다.
 
 ## Plan
 

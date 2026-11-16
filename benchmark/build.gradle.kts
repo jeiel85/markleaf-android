@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.markleaf.notes.benchmark"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 26

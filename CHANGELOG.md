@@ -11,6 +11,9 @@ All notable changes to Markleaf are documented in this file. This English editio
 - **Sort the archive.** The archive now has the same sort button as the notes list: newest or oldest edits first, title A to Z or Z to A, newest or oldest created first. It keeps its own choice, so sorting the archive doesn't change the order of your notes list. Each archived note also shows when it was last edited, as in the notes list. Thanks to @travelalpaca for the idea. (#592)
 - **See when a note was created and last edited without leaving it.** Note information now starts with the note's dates, written out in full, for example "Created: Apr 2, 2025, 09:30". The time follows your phone's 12- or 24-hour setting. Thanks to @travelalpaca for the idea. (#593)
 
+### Changed
+- **Markleaf is now built for Android 16.** It targets API level 36, the level Google Play requires for app updates. It still installs on Android 8.0 and newer, nothing about your notes changes, and no permission is added. (#262)
+
 ### Fixed
 - **Tab, Shift+Tab, Checklist and Callout no longer close the app at the very start of a note that begins with an empty line.** With the cursor before everything else in such a note, these four worked out the wrong line and the app closed. They now act on that empty first line. (#589)
 - **The editor follows your keyboard's auto-capitalization.** The editor never asked the keyboard to capitalize, so a sentence's first letter stayed lowercase even with auto-capitalization turned on in the keyboard (seen with FUTO Keyboard, among others). The keyboard's own setting now decides: turn auto-capitalization off there if you don't want it in your notes. Thanks to [@gubacsiaronmate](https://github.com/gubacsiaronmate) for the report and the fix. (#580)

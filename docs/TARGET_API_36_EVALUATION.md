@@ -19,7 +19,7 @@ Google Play Console이 "앱이 Android 16(API 36) 이상을 타겟팅해야 함 
 - **지원 기기 범위는 바뀌지 않는다.** `targetSdk`/`compileSdk`는 "어느 버전의 동작 규칙을 따르는가"와
   "어느 API로 컴파일하는가"이고, 설치 가능한 최저 버전은 `minSdk = 26`(Android 8.0)이 정한다.
   이 작업에서 `minSdk`는 손대지 않는다.
-- Status: **PR 1(빌드 도구) 진행 — 2026-11-16.** PR 2(`targetSdk = 36`)는 미착수.
+- Status: **PR 1(빌드 도구) 머지 — #591, 2026-11-16. PR 2(`targetSdk = 36`) 진행 — 2026-11-18.**
 
 ## 현재 상태 (github/main `dbe7bda`)
 
@@ -53,6 +53,37 @@ Play Console 정책 상태에 같은 요구가 "이 문제가 있는 앱 업데�
   `robolectric.properties`로 모든 단위 테스트에 건다(이전 버전에서 우연히 맞던 가정을 명시한 것).
 - `compileSdk 36`에서 위젯의 `setRemoteAdapter`·`notifyAppWidgetViewDataChanged`가 deprecated
   경고로 나온다(`RemoteCollectionItems`로 대체 권장). 동작 변화는 없고 PR 2의 위젯 확인 때 함께 본다.
+
+## PR 2 결과 (2026-11-18)
+
+계기: 2026-11-17 v2.73.0(vc190, target 35) 서명 AAB를 Play **비공개 테스트(Alpha)** 에 올려 봤다.
+업로드 단계는 통과했지만 검토 단계에서 "API 수준 36 이상을 타겟팅해야 합니다" 오류로 저장이
+막혔다 — 프로덕션만이 아니라 **테스트 트랙도 같은 요건**이다(내부 테스트는 시도하지 않음).
+그 임시 출시는 Alpha 트랙에 남아 있고, vc190은 Play에서 쓴 번호가 됐다.
+
+- **코드 변경은 `targetSdk` 두 줄**(`app`, `benchmark`). 위 표의 항목을 다시 대조했고, 결함은
+  나오지 않았다. opt-out·`onBackPressed`·`KEYCODE_BACK`·방향/리사이즈 제한·`elegantTextHeight`
+  모두 코드에 없다.
+- **Robolectric 영향 없음.** 기본 SDK가 target을 따르지만 Roborazzi·Compose 스냅샷 테스트는 모두
+  `@Config(sdk = [33])`로 고정돼 있어 골든이 움직이지 않는다.
+- **로컬 게이트(Windows).** `testDebugUnitTest` 1496건 중 3건 실패 — `EditorPreviewFindTest`,
+  `EditorSurvivesRotationTest`. PR 1 때 기록한 그 간헐 실패 두 클래스이고, 둘 다 `sdk = [33]` 고정이라
+  이번 변경과 무관하며 단독 실행 9건은 전부 통과. `lintRelease` 오류 0, `assembleDebug`·
+  `:benchmark:assemble` 통과. debug APK `targetSdkVersion 36`, 권한 변화 없음.
+- **API 36 AVD(`markleaf-phone-api36`, debug 빌드).**
+  - 엣지 투 엣지: 상단 바는 상태 바 아래, 온보딩 시트 버튼은 내비게이션 바 위, 키보드 위 줄은 IME 바로 위.
+  - 예측형 뒤로가기: 키보드 → 서식 패널 → 목록(노트 저장됨) → 홈 순으로 한 단계씩 닫힌다.
+  - 대화면: `wm size 1600x2560` + density 320에서 가로는 3단, 세로는 1단, 레터박스 없음.
+  - 계측 테스트 전체 71건(`SingleNoteWidgetRenderTest` 6건 포함) 통과, skip 0.
+    CI 계측 테스트는 API 30 ATD라 이 확인은 CI가 대신하지 못한다.
+  - 사이드로드 업데이트(D079): `-Pmarkleaf.updater=true`에 versionCode만 임시로 189로 내린 빌드로
+    실제 Release의 `update.json`을 받았다. 배너 → 다운로드 → "출처를 알 수 없는 앱" 권한 안내 →
+    설정에서 허용 → 시스템 설치 앱 확인 → "App installed · Done / Open"까지 끝까지 갔다.
+    받은 APK는 store 패키지라 debug와 별개로 설치됐고, 검증 뒤 둘 다 지웠다.
+  - `logcat -b crash` 0건.
+- **남은 것.** 위젯의 `setRemoteAdapter`·`notifyAppWidgetViewDataChanged` deprecation은 그대로 둔다 —
+  API 36에서 렌더 테스트가 통과하고 동작 변화가 없다. 실기기(S24) 확인은 무선 ADB가 거부(10061)돼
+  하지 못했다.
 
 ## Plan
 

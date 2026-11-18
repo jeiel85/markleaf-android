@@ -100,7 +100,7 @@ android {
     defaultConfig {
         applicationId = "com.markleaf.notes"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 190
         versionName = "2.73.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

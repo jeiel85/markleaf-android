@@ -60,6 +60,37 @@ class LocalNoteRepositoryTest {
     }
 
     @Test
+    fun `a selection's batch calls change exactly the notes they name`() = runTest {
+        // #596: the batch overloads write in one transaction; each must do to
+        // every id what the one-note call does, and leave the rest alone.
+        val now = Instant.ofEpochMilli(1L)
+        listOf("a", "b", "c").forEach {
+            repository.createNote(Note(id = it, title = it, contentMarkdown = it, excerpt = it, createdAt = now, updatedAt = now))
+        }
+
+        repository.setPinned(listOf("a", "b"), true)
+        assertEquals(setOf("a", "b"), repository.observeNotes().first().filter { it.pinned }.map { it.id }.toSet())
+
+        repository.moveToTrash(listOf("a", "c"))
+        val trashed = repository.observeTrashedNotes().first()
+        assertEquals(setOf("a", "c"), trashed.map { it.id }.toSet())
+        // Together, so one deletedAt: the retention sweep treats them alike.
+        assertEquals(1, trashed.map { it.deletedAt }.toSet().size)
+        assertEquals(listOf("b"), repository.observeNotes().first().map { it.id })
+
+        repository.restoreFromTrash(listOf("a", "c"))
+        assertTrue(repository.observeTrashedNotes().first().isEmpty())
+
+        repository.setArchived(listOf("b", "c"), true)
+        assertEquals(setOf("b", "c"), repository.observeArchivedNotes().first().map { it.id }.toSet())
+        repository.setArchived(listOf("b", "c"), false)
+
+        repository.setLocked(listOf("a"), true)
+        assertEquals(listOf("a"), repository.observeLockedNotes().first().map { it.id })
+        assertEquals(setOf("b", "c"), repository.observeNotes().first().map { it.id }.toSet())
+    }
+
+    @Test
     fun `moveToTrash hides note from active list and exposes it in trash`() = runTest {
         val now = Instant.ofEpochMilli(1L)
         val note = Note(

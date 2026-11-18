@@ -235,6 +235,29 @@
         <item quantity="many">%1$d заметок будут удалены навсегда, и их нельзя будет восстановить.</item>
         <item quantity="other">%1$d заметки будут удалены навсегда, и их нельзя будет восстановить.</item>
     </plurals>
+    <!-- Selecting several notes at once (#596). -->
+    <string name="select">Выбрать</string>
+    <string name="select_all">Выбрать все</string>
+    <string name="select_notes">Выбрать заметки</string>
+    <string name="clear_selection">Снять выделение</string>
+    <plurals name="notes_selected">
+        <item quantity="one">Выбрано: %1$d</item>
+        <item quantity="few">Выбрано: %1$d</item>
+        <item quantity="many">Выбрано: %1$d</item>
+        <item quantity="other">Выбрано: %1$d</item>
+    </plurals>
+    <plurals name="notes_moved_to_trash">
+        <item quantity="one">%1$d заметка перемещена в корзину</item>
+        <item quantity="few">%1$d заметки перемещены в корзину</item>
+        <item quantity="many">%1$d заметок перемещены в корзину</item>
+        <item quantity="other">%1$d заметки перемещены в корзину</item>
+    </plurals>
+    <plurals name="delete_notes_forever_message">
+        <item quantity="one">%1$d заметка будет удалена навсегда, и её нельзя будет восстановить.</item>
+        <item quantity="few">%1$d заметки будут удалены навсегда, и их нельзя будет восстановить.</item>
+        <item quantity="many">%1$d заметок будут удалены навсегда, и их нельзя будет восстановить.</item>
+        <item quantity="other">%1$d заметки будут удалены навсегда, и их нельзя будет восстановить.</item>
+    </plurals>
     <string name="trash_retention">Удалять из корзины через</string>
     <string name="trash_retention_never">Никогда</string>
     <string name="trash_retention_day">1 день</string>

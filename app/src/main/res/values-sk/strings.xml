@@ -218,6 +218,29 @@
         <item quantity="many">%1$d poznámok bude natrvalo vymazaných a nebude ich možné obnoviť.</item>
         <item quantity="other">%1$d poznámok bude natrvalo vymazaných a nebude ich možné obnoviť.</item>
     </plurals>
+    <!-- Selecting several notes at once (#596). -->
+    <string name="select">Vybrať</string>
+    <string name="select_all">Vybrať všetko</string>
+    <string name="select_notes">Vybrať poznámky</string>
+    <string name="clear_selection">Zrušiť výber</string>
+    <plurals name="notes_selected">
+        <item quantity="one">Vybrané: %1$d</item>
+        <item quantity="few">Vybrané: %1$d</item>
+        <item quantity="many">Vybrané: %1$d</item>
+        <item quantity="other">Vybrané: %1$d</item>
+    </plurals>
+    <plurals name="notes_moved_to_trash">
+        <item quantity="one">%1$d poznámka presunutá do koša</item>
+        <item quantity="few">%1$d poznámky presunuté do koša</item>
+        <item quantity="many">%1$d poznámok presunutých do koša</item>
+        <item quantity="other">%1$d poznámok presunutých do koša</item>
+    </plurals>
+    <plurals name="delete_notes_forever_message">
+        <item quantity="one">%1$d poznámka bude natrvalo vymazaná a nebude ju možné obnoviť.</item>
+        <item quantity="few">%1$d poznámky budú natrvalo vymazané a nebude ich možné obnoviť.</item>
+        <item quantity="many">%1$d poznámok bude natrvalo vymazaných a nebude ich možné obnoviť.</item>
+        <item quantity="other">%1$d poznámok bude natrvalo vymazaných a nebude ich možné obnoviť.</item>
+    </plurals>
     <string name="trash_retention">Odstrániť z koša po</string>
     <string name="trash_retention_never">Nikdy</string>
     <string name="trash_retention_day">1 dni</string>

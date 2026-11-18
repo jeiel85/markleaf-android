@@ -206,6 +206,20 @@
     <plurals name="empty_trash_message">
         <item quantity="other">노트 %1$d개가 영구 삭제되며 복구할 수 없습니다.</item>
     </plurals>
+    <!-- Selecting several notes at once (#596). -->
+    <string name="select">선택</string>
+    <string name="select_all">모두 선택</string>
+    <string name="select_notes">노트 선택</string>
+    <string name="clear_selection">선택 해제</string>
+    <plurals name="notes_selected">
+        <item quantity="other">%1$d개 선택됨</item>
+    </plurals>
+    <plurals name="notes_moved_to_trash">
+        <item quantity="other">노트 %1$d개를 휴지통으로 옮겼습니다</item>
+    </plurals>
+    <plurals name="delete_notes_forever_message">
+        <item quantity="other">노트 %1$d개가 영구 삭제되며 복구할 수 없습니다.</item>
+    </plurals>
     <string name="trash_retention">휴지통에서 삭제까지</string>
     <string name="trash_retention_never">안 함</string>
     <string name="trash_retention_day">1일</string>

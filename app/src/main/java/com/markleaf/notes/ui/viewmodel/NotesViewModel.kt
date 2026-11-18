@@ -7,6 +7,7 @@ import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.domain.model.Note
 import com.markleaf.notes.domain.repository.NoteRepository
 import com.markleaf.notes.util.TagParser
+import com.markleaf.notes.util.TrashPurge
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.withLock
 import java.time.Instant
 import java.util.UUID
 
@@ -143,6 +145,33 @@ class NotesViewModel(
     fun setLocked(noteId: String, locked: Boolean) {
         viewModelScope.launch {
             noteRepository.setLocked(noteId, locked)
+        }
+    }
+
+    // A selection's actions (#596): the calls above, for several notes at once.
+
+    fun moveToTrash(noteIds: Collection<String>) {
+        viewModelScope.launch { noteRepository.moveToTrash(noteIds) }
+    }
+
+    fun setPinned(noteIds: Collection<String>, pinned: Boolean) {
+        viewModelScope.launch { noteRepository.setPinned(noteIds, pinned) }
+    }
+
+    fun setArchived(noteIds: Collection<String>, archived: Boolean) {
+        viewModelScope.launch { noteRepository.setArchived(noteIds, archived) }
+    }
+
+    fun setLocked(noteIds: Collection<String>, locked: Boolean) {
+        viewModelScope.launch { noteRepository.setLocked(noteIds, locked) }
+    }
+
+    /** Undo for a move to the trash. Under the retention sweep's lock, as the
+     *  Trash screen's Restore is, so the sweep never deletes a note restored
+     *  under it (#566). */
+    fun restoreFromTrash(noteIds: Collection<String>) {
+        viewModelScope.launch {
+            TrashPurge.lock.withLock { noteRepository.restoreFromTrash(noteIds) }
         }
     }
 

@@ -224,6 +224,23 @@
         <item quantity="one">%1$d note will be permanently deleted and cannot be recovered.</item>
         <item quantity="other">All %1$d notes will be permanently deleted and cannot be recovered.</item>
     </plurals>
+    <!-- Selecting several notes at once (#596). -->
+    <string name="select">Select</string>
+    <string name="select_all">Select all</string>
+    <string name="select_notes">Select notes</string>
+    <string name="clear_selection">Clear selection</string>
+    <plurals name="notes_selected">
+        <item quantity="one">%1$d selected</item>
+        <item quantity="other">%1$d selected</item>
+    </plurals>
+    <plurals name="notes_moved_to_trash">
+        <item quantity="one">%1$d note moved to trash</item>
+        <item quantity="other">%1$d notes moved to trash</item>
+    </plurals>
+    <plurals name="delete_notes_forever_message">
+        <item quantity="one">%1$d note will be permanently deleted and cannot be recovered.</item>
+        <item quantity="other">%1$d notes will be permanently deleted and cannot be recovered.</item>
+    </plurals>
     <string name="trash_retention">Delete from trash after</string>
     <string name="trash_retention_never">Never</string>
     <string name="trash_retention_day">1 day</string>

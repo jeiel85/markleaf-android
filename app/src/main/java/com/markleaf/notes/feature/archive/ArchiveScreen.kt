@@ -1,5 +1,6 @@
 package com.markleaf.notes.feature.archive
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.LocalIndication
@@ -19,6 +20,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.SelectAll
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.filled.Unarchive
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material3.DropdownMenu
@@ -28,6 +31,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -37,6 +44,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -48,6 +56,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -55,6 +65,9 @@ import com.markleaf.notes.R
 import com.markleaf.notes.data.settings.NotesSortMode
 import com.markleaf.notes.feature.notes.sortArchivedNotes
 import com.markleaf.notes.ui.component.NotesSortMenuButton
+import com.markleaf.notes.ui.component.SelectionMark
+import com.markleaf.notes.ui.component.SelectionTopAppBar
+import com.markleaf.notes.ui.component.rememberNoteSelection
 import com.markleaf.notes.ui.component.formatUpdatedTime
 import com.markleaf.notes.ui.component.EmptyState
 import com.markleaf.notes.domain.model.Note
@@ -62,6 +75,7 @@ import com.markleaf.notes.ui.viewmodel.ArchiveViewModel
 import com.markleaf.notes.navigation.NoteSource
 import com.markleaf.notes.navigation.noteSharedBounds
 import com.markleaf.notes.ui.component.pressScale
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,9 +108,73 @@ fun ArchiveScreen(
         listState.scrollToItem(0)
     }
 
+    // Several archived notes at once (#596), as in the notes list.
+    val selection = rememberNoteSelection()
+    LaunchedEffect(notes) {
+        if (notes.isNotEmpty()) selection.retain(notes.mapTo(HashSet()) { it.id })
+    }
+    val picked = remember(notes, selection.ids) { selection.of(notes) }
+    BackHandler(enabled = selection.active) { selection.clear() }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val undoLabel = stringResource(R.string.undo)
+
+    // The row's menu and the selection bar both end here, so both offer Undo.
+    fun trashNotes(noteIds: List<String>) {
+        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+        viewModel.moveToTrash(noteIds)
+        val message = context.resources.getQuantityString(
+            R.plurals.notes_moved_to_trash, noteIds.size, noteIds.size
+        )
+        scope.launch {
+            snackbarHostState.currentSnackbarData?.dismiss()
+            val result = snackbarHostState.showSnackbar(
+                message = message,
+                actionLabel = undoLabel,
+                duration = SnackbarDuration.Short
+            )
+            if (result == SnackbarResult.ActionPerformed) viewModel.restoreFromTrash(noteIds)
+        }
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            TopAppBar(
+            if (selection.active) {
+                val pickedIds = picked.map { it.id }
+                SelectionTopAppBar(
+                    count = picked.size,
+                    onClose = { selection.clear() },
+                    actions = {
+                        IconButton(
+                            enabled = picked.size < notes.size,
+                            onClick = { selection.selectAll(notes.map { it.id }) }
+                        ) {
+                            Icon(Icons.Default.SelectAll, contentDescription = stringResource(R.string.select_all))
+                        }
+                        IconButton(
+                            enabled = picked.isNotEmpty(),
+                            onClick = {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                viewModel.unarchive(pickedIds)
+                                selection.clear()
+                            }
+                        ) {
+                            Icon(Icons.Default.Unarchive, contentDescription = stringResource(R.string.unarchive))
+                        }
+                        IconButton(
+                            enabled = picked.isNotEmpty(),
+                            onClick = {
+                                trashNotes(pickedIds)
+                                selection.clear()
+                            }
+                        ) {
+                            Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.move_to_trash))
+                        }
+                    }
+                )
+            } else TopAppBar(
                 title = { Text(stringResource(R.string.archive)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -136,15 +214,15 @@ fun ArchiveScreen(
                     items(notes, key = { it.id }) { note ->
                         ArchiveRow(
                             note = note,
+                            checked = if (selection.active) note.id in selection.ids else null,
+                            onToggle = { selection.toggle(note.id) },
+                            onSelect = { selection.start(note.id) },
                             onClick = { onNoteClick(note.id) },
                             onUnarchive = {
                                 haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                                 viewModel.unarchive(note.id)
                             },
-                            onMoveToTrash = {
-                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                                viewModel.moveToTrash(note.id)
-                            },
+                            onMoveToTrash = { trashNotes(listOf(note.id)) },
                             onLongPress = {
                                 haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                             }
@@ -160,6 +238,10 @@ fun ArchiveScreen(
 @Composable
 private fun ArchiveRow(
     note: Note,
+    // Null outside a selection; otherwise whether this note is picked (#596).
+    checked: Boolean?,
+    onToggle: () -> Unit,
+    onSelect: () -> Unit,
     onClick: () -> Unit,
     onUnarchive: () -> Unit,
     onMoveToTrash: () -> Unit,
@@ -174,22 +256,28 @@ private fun ArchiveRow(
                 .pressScale(interactionSource)
                 .padding(horizontal = 12.dp, vertical = 4.dp)
                 .clip(MaterialTheme.shapes.medium)
-                .background(Color.Transparent)
+                .background(
+                    if (checked == true) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent
+                )
                 .combinedClickable(
                     interactionSource = interactionSource,
                     indication = LocalIndication.current,
-                    onClick = onClick,
+                    onClick = { if (checked != null) onToggle() else onClick() },
                     onLongClick = {
                         onLongPress()
-                        menuExpanded = true
+                        if (checked != null) onToggle() else menuExpanded = true
                     }
                 )
                 .padding(horizontal = 12.dp, vertical = 12.dp)
+                .semantics(mergeDescendants = true) {
+                    if (checked != null) selected = checked
+                }
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                if (checked != null) SelectionMark(checked)
                 Text(
                     text = note.title.ifEmpty { stringResource(R.string.untitled) },
                     style = MaterialTheme.typography.titleMedium,
@@ -221,6 +309,14 @@ private fun ArchiveRow(
             expanded = menuExpanded,
             onDismissRequest = { menuExpanded = false }
         ) {
+            DropdownMenuItem(
+                leadingIcon = { Icon(Icons.Outlined.CheckCircle, contentDescription = null) },
+                text = { Text(stringResource(R.string.select)) },
+                onClick = {
+                    menuExpanded = false
+                    onSelect()
+                }
+            )
             DropdownMenuItem(
                 leadingIcon = { Icon(Icons.Default.Unarchive, contentDescription = null) },
                 text = { Text(stringResource(R.string.unarchive)) },

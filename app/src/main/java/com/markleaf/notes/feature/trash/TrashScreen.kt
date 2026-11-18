@@ -1,5 +1,10 @@
 package com.markleaf.notes.feature.trash
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +18,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.RestoreFromTrash
+import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -40,11 +48,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.semantics.onLongClick
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.markleaf.notes.R
 import com.markleaf.notes.ui.component.EmptyState
+import com.markleaf.notes.ui.component.SelectionMark
+import com.markleaf.notes.ui.component.SelectionTopAppBar
+import com.markleaf.notes.ui.component.rememberNoteSelection
 import com.markleaf.notes.data.settings.AppSettings
 import com.markleaf.notes.data.settings.AppSettingsRepository
 import com.markleaf.notes.data.sync.NoteFolderMirror
@@ -57,7 +72,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun TrashScreen(
     viewModel: TrashViewModel,
@@ -82,6 +97,19 @@ fun TrashScreen(
     // deletes exactly these, so a note trashed while the dialog is open is
     // not deleted without having been on the screen (#566).
     var notesToEmpty by remember { mutableStateOf<List<Note>?>(null) }
+
+    // Several trashed notes at once (#596). A row has no menu here, so a long
+    // press starts the selection directly.
+    val selection = rememberNoteSelection()
+    LaunchedEffect(trashedNotes) {
+        if (trashedNotes.isNotEmpty()) selection.retain(trashedNotes.mapTo(HashSet()) { it.id })
+    }
+    val picked = remember(trashedNotes, selection.ids) { selection.of(trashedNotes) }
+    BackHandler(enabled = selection.active) { selection.clear() }
+    // The picked notes, as they were when Delete forever was tapped: the
+    // dialog deletes exactly what it counted, as Empty trash does (#566).
+    var pickedToDelete by remember { mutableStateOf<List<Note>?>(null) }
+    val selectLabel = stringResource(R.string.select)
 
     // Deleting forever drops the Room row; the attachment bytes and the
     // sync-folder file are cleaned up here, where the context and settings are.
@@ -108,7 +136,35 @@ fun TrashScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            if (selection.active) {
+                SelectionTopAppBar(
+                    count = picked.size,
+                    onClose = { selection.clear() },
+                    actions = {
+                        IconButton(
+                            enabled = picked.size < trashedNotes.size,
+                            onClick = { selection.selectAll(trashedNotes.map { it.id }) }
+                        ) {
+                            Icon(Icons.Default.SelectAll, contentDescription = stringResource(R.string.select_all))
+                        }
+                        IconButton(
+                            enabled = picked.isNotEmpty(),
+                            onClick = {
+                                viewModel.restoreFromTrash(picked.map { it.id })
+                                selection.clear()
+                            }
+                        ) {
+                            Icon(Icons.Default.RestoreFromTrash, contentDescription = stringResource(R.string.restore))
+                        }
+                        IconButton(
+                            enabled = picked.isNotEmpty(),
+                            onClick = { pickedToDelete = picked }
+                        ) {
+                            Icon(Icons.Default.DeleteForever, contentDescription = stringResource(R.string.delete_forever))
+                        }
+                    }
+                )
+            } else TopAppBar(
                 title = { Text(stringResource(R.string.trash)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -161,9 +217,42 @@ fun TrashScreen(
                         }
                     }
                     items(trashedNotes, key = { it.id }) { note ->
+                        val checked = if (selection.active) note.id in selection.ids else null
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .background(
+                                    if (checked == true) {
+                                        MaterialTheme.colorScheme.secondaryContainer
+                                    } else {
+                                        MaterialTheme.colorScheme.background
+                                    }
+                                )
+                                .then(
+                                    if (checked != null) {
+                                        // While selecting the whole row is one
+                                        // target, read with its selected state.
+                                        Modifier.combinedClickable(
+                                            onClick = { selection.toggle(note.id) },
+                                            onLongClick = { selection.toggle(note.id) }
+                                        ).semantics(mergeDescendants = true) { selected = checked }
+                                    } else {
+                                        // Otherwise a tap still does nothing and the
+                                        // row's own buttons stay separate targets, so
+                                        // only a long press is added, with a label for
+                                        // TalkBack's "double-tap and hold".
+                                        Modifier
+                                            .pointerInput(note.id) {
+                                                detectTapGestures(onLongPress = { selection.start(note.id) })
+                                            }
+                                            .semantics {
+                                                onLongClick(label = selectLabel) {
+                                                    selection.start(note.id)
+                                                    true
+                                                }
+                                            }
+                                    }
+                                )
                                 .padding(horizontal = 16.dp, vertical = 12.dp)
                         ) {
                             Row(
@@ -171,6 +260,7 @@ fun TrashScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
+                                if (checked != null) SelectionMark(checked)
                                 Text(
                                     text = if (note.title.isBlank()) stringResource(R.string.untitled_parenthesized) else note.title,
                                     style = MaterialTheme.typography.titleMedium,
@@ -178,7 +268,10 @@ fun TrashScreen(
                                     overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier.weight(1f)
                                 )
-                                Row {
+                                // Hidden while selecting: the bar acts on the picked
+                                // notes, and a row's own Delete beside it would act
+                                // on that row alone.
+                                if (checked == null) Row {
                                     TextButton(onClick = { viewModel.restoreFromTrash(note.id) }) {
                                         Text(stringResource(R.string.restore))
                                     }
@@ -225,6 +318,30 @@ fun TrashScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirm.value = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    pickedToDelete?.let { notes ->
+        AlertDialog(
+            onDismissRequest = { pickedToDelete = null },
+            title = { Text(stringResource(R.string.delete_forever_title)) },
+            text = {
+                Text(pluralStringResource(R.plurals.delete_notes_forever_message, notes.size, notes.size))
+            },
+            confirmButton = {
+                Button(onClick = {
+                    pickedToDelete = null
+                    selection.clear()
+                    deleteForever(notes)
+                }) {
+                    Text(stringResource(R.string.delete_forever))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pickedToDelete = null }) {
                     Text(stringResource(R.string.cancel))
                 }
             }

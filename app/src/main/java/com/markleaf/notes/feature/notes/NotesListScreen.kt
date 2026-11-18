@@ -1,5 +1,6 @@
 package com.markleaf.notes.feature.notes
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,6 +39,8 @@ import androidx.compose.material.icons.filled.KeyboardCommandKey
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material.icons.filled.SelectAll
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material.icons.filled.Search
@@ -55,6 +58,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Button
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -79,6 +86,7 @@ import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.painterResource
@@ -101,6 +109,9 @@ import com.markleaf.notes.navigation.NoteSource
 import com.markleaf.notes.navigation.fabSharedBounds
 import com.markleaf.notes.navigation.noteSharedBounds
 import com.markleaf.notes.ui.component.NotesSortMenuButton
+import com.markleaf.notes.ui.component.SelectionMark
+import com.markleaf.notes.ui.component.SelectionTopAppBar
+import com.markleaf.notes.ui.component.rememberNoteSelection
 import com.markleaf.notes.ui.component.formatUpdatedTime
 import com.markleaf.notes.ui.component.pressScale
 import com.markleaf.notes.ui.viewmodel.NotesViewModel
@@ -193,6 +204,66 @@ fun NotesListScreen(
     val sortMode = appSettings.notesSortMode
     val sections = remember(displayed, sortMode) { groupNotesForDisplay(displayed, sortMode) }
 
+    // Several notes at once (#596). Started from a note's long-press menu or
+    // from the overflow menu; while it is up a tap picks a note instead of
+    // opening it.
+    val selection = rememberNoteSelection()
+    LaunchedEffect(displayed) {
+        // Not while the list is still loading: a selection restored after a
+        // rotation would be emptied before its notes arrive.
+        if (displayed.isNotEmpty()) selection.retain(displayed.mapTo(HashSet()) { it.id })
+    }
+    val picked = remember(displayed, selection.ids) { selection.of(displayed) }
+    BackHandler(enabled = selection.active) { selection.clear() }
+    var selectionMenuExpanded by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val undoLabel = stringResource(R.string.undo)
+
+    // Both layouts, the long-press menu and the selection bar drive these
+    // (#279, #596), so none of them can drift apart - in particular locking,
+    // which has to clean up the mirror file as well.
+    fun trashNotes(noteIds: List<String>) {
+        hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+        viewModel.moveToTrash(noteIds)
+        val message = context.resources.getQuantityString(
+            R.plurals.notes_moved_to_trash, noteIds.size, noteIds.size
+        )
+        scope.launch {
+            // A second move replaces the first one's Undo rather than queueing
+            // behind it, where it would only show once the first had timed out.
+            snackbarHostState.currentSnackbarData?.dismiss()
+            val result = snackbarHostState.showSnackbar(
+                message = message,
+                actionLabel = undoLabel,
+                duration = SnackbarDuration.Short
+            )
+            if (result == SnackbarResult.ActionPerformed) viewModel.restoreFromTrash(noteIds)
+        }
+    }
+
+    /** Moves [notesToLock] into the Locked space; false when there is no passcode yet. */
+    fun lockNotes(notesToLock: List<Note>): Boolean {
+        if (!lockPasscodeSet) {
+            showSetPasscodePrompt = true
+            return false
+        }
+        hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+        viewModel.setLocked(notesToLock.map { it.id }, true)
+        // The export guard only stops *future* saves, so a note mirrored
+        // before it was locked would leave a readable plaintext copy in the
+        // sync folder. Remove it now, or the Locked space's privacy promise is
+        // only skin deep. LockedNotesScreen re-mirrors on unlock (#156).
+        appSettings.syncFolderUriOrNull()?.let { uri ->
+            val metadata = appSettings.mirrorMetadata()
+            scope.launch {
+                withContext(Dispatchers.IO) {
+                    notesToLock.forEach { NoteFolderMirror.deleteNote(context, uri, it.id, metadata) }
+                }
+            }
+        }
+        return true
+    }
+
     if (showQuickSwitcher) {
         QuickSwitcherDialog(
             notes = notes,
@@ -245,7 +316,87 @@ fun NotesListScreen(
         contentColor = contentColor,
         topBar = {
             Column {
-                TopAppBar(
+                if (selection.active) {
+                    val pickedIds = picked.map { it.id }
+                    // Pin when any picked note is unpinned, so a mixed
+                    // selection ends up all pinned; Unpin only when all are.
+                    val pinAll = picked.any { !it.pinned }
+                    SelectionTopAppBar(
+                        count = picked.size,
+                        onClose = { selection.clear() },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = containerColor,
+                            titleContentColor = contentColor,
+                            actionIconContentColor = contentColor,
+                            navigationIconContentColor = contentColor
+                        ),
+                        actions = {
+                            IconButton(
+                                enabled = picked.isNotEmpty(),
+                                onClick = {
+                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                    viewModel.setPinned(pickedIds, pinAll)
+                                    selection.clear()
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = if (pinAll) Icons.Filled.PushPin else Icons.Outlined.PushPin,
+                                    contentDescription = stringResource(if (pinAll) R.string.pin else R.string.unpin)
+                                )
+                            }
+                            IconButton(
+                                enabled = picked.isNotEmpty(),
+                                onClick = {
+                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    viewModel.setArchived(pickedIds, true)
+                                    selection.clear()
+                                }
+                            ) {
+                                Icon(Icons.Default.Archive, contentDescription = stringResource(R.string.archive_action))
+                            }
+                            IconButton(
+                                enabled = picked.isNotEmpty(),
+                                onClick = {
+                                    trashNotes(pickedIds)
+                                    selection.clear()
+                                }
+                            ) {
+                                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.move_to_trash))
+                            }
+                            Box {
+                                IconButton(onClick = { selectionMenuExpanded = true }) {
+                                    Icon(
+                                        Icons.Default.MoreVert,
+                                        contentDescription = stringResource(R.string.more_options)
+                                    )
+                                }
+                                DropdownMenu(
+                                    expanded = selectionMenuExpanded,
+                                    onDismissRequest = { selectionMenuExpanded = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        leadingIcon = { Icon(Icons.Default.SelectAll, contentDescription = null) },
+                                        text = { Text(stringResource(R.string.select_all)) },
+                                        enabled = picked.size < displayed.size,
+                                        onClick = {
+                                            selectionMenuExpanded = false
+                                            selection.selectAll(displayed.map { it.id })
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                                        text = { Text(stringResource(R.string.move_to_locked)) },
+                                        enabled = picked.isNotEmpty(),
+                                        onClick = {
+                                            selectionMenuExpanded = false
+                                            if (lockNotes(picked)) selection.clear()
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    )
+                } else TopAppBar(
                     title = {
                         Text(
                             text = stringResource(R.string.notes_title),
@@ -302,6 +453,16 @@ fun NotesListScreen(
                                         showQuickSwitcher = true
                                     }
                                 )
+                                if (displayed.isNotEmpty()) {
+                                    DropdownMenuItem(
+                                        leadingIcon = { Icon(Icons.Outlined.CheckCircle, contentDescription = null) },
+                                        text = { Text(stringResource(R.string.select_notes)) },
+                                        onClick = {
+                                            overflowExpanded = false
+                                            selection.start()
+                                        }
+                                    )
+                                }
                                 // Reading a file that is not a note (#326). It sits
                                 // above the note destinations because it is the one
                                 // entry here that leaves the note library alone.
@@ -379,8 +540,11 @@ fun NotesListScreen(
                 UpdateSurface.Banner(Modifier.padding(horizontal = 12.dp, vertical = 4.dp))
             }
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
-            FloatingActionButton(
+            // Hidden while selecting: a new note mid-selection would open the
+            // editor over a bar of actions waiting for the picked notes.
+            if (!selection.active) FloatingActionButton(
                 modifier = Modifier.fabSharedBounds(),
                 onClick = {
                     hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -465,9 +629,6 @@ fun NotesListScreen(
                 )
             }
         } else {
-            // Both layouts drive the same actions (#279). Defined once here so
-            // the list and the grid cannot drift apart — in particular the lock
-            // action, which has to clean up the mirror file as well.
             val togglePin: (Note) -> Unit = { note ->
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 viewModel.setPinned(note.id, !note.pinned)
@@ -476,35 +637,8 @@ fun NotesListScreen(
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                 viewModel.setArchived(note.id, true)
             }
-            val lock: (Note) -> Unit = { note ->
-                if (lockPasscodeSet) {
-                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                    viewModel.setLocked(note.id, true)
-                    // The export guard only stops *future* saves, so a note
-                    // mirrored before it was locked would leave a readable
-                    // plaintext copy in the sync folder. Remove it now, or
-                    // the Locked space's privacy promise is only skin deep.
-                    // LockedNotesScreen re-mirrors on unlock (#156).
-                    appSettings.syncFolderUriOrNull()?.let { uri ->
-                        scope.launch {
-                            withContext(Dispatchers.IO) {
-                                NoteFolderMirror.deleteNote(
-                                    context,
-                                    uri,
-                                    note.id,
-                                    appSettings.mirrorMetadata()
-                                )
-                            }
-                        }
-                    }
-                } else {
-                    showSetPasscodePrompt = true
-                }
-            }
-            val moveToTrash: (Note) -> Unit = { note ->
-                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                viewModel.moveToTrash(note.id)
-            }
+            val lock: (Note) -> Unit = { note -> lockNotes(listOf(note)) }
+            val moveToTrash: (Note) -> Unit = { note -> trashNotes(listOf(note.id)) }
             val longPress: () -> Unit = {
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
             }
@@ -529,6 +663,9 @@ fun NotesListScreen(
                             NoteRow(
                                 note = note,
                                 selected = note.id == selectedNoteId,
+                                checked = if (selection.active) note.id in selection.ids else null,
+                                onToggle = { selection.toggle(note.id) },
+                                onSelect = { selection.start(note.id) },
                                 showPreview = appSettings.notesShowPreview,
                                 modifier = Modifier.animateItem(),
                                 onClick = { onNoteClick(note.id) },
@@ -574,6 +711,9 @@ fun NotesListScreen(
                             NoteCard(
                                 note = note,
                                 selected = note.id == selectedNoteId,
+                                checked = if (selection.active) note.id in selection.ids else null,
+                                onToggle = { selection.toggle(note.id) },
+                                onSelect = { selection.start(note.id) },
                                 showPreview = appSettings.notesShowPreview,
                                 modifier = Modifier.animateItem(),
                                 onClick = { onNoteClick(note.id) },
@@ -615,6 +755,10 @@ private fun SectionHeader(
 private fun NoteRow(
     note: Note,
     selected: Boolean,
+    // Null outside a selection; otherwise whether this note is picked (#596).
+    checked: Boolean?,
+    onToggle: () -> Unit,
+    onSelect: () -> Unit,
     showPreview: Boolean,
     onClick: (String) -> Unit,
     onTogglePin: () -> Unit,
@@ -625,10 +769,10 @@ private fun NoteRow(
     modifier: Modifier = Modifier
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
-    val itemBackground = if (selected) {
-        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.36f)
-    } else {
-        Color.Transparent
+    val itemBackground = when {
+        checked == true -> MaterialTheme.colorScheme.secondaryContainer
+        selected -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.36f)
+        else -> Color.Transparent
     }
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -644,19 +788,24 @@ private fun NoteRow(
                 .combinedClickable(
                     interactionSource = interactionSource,
                     indication = LocalIndication.current,
-                    onClick = { onClick(note.id) },
+                    onClick = { if (checked != null) onToggle() else onClick(note.id) },
                     onLongClick = {
                         onLongPress()
-                        menuExpanded = true
+                        // While selecting, a long press picks like a tap does
+                        // rather than opening one note's menu over the bar.
+                        if (checked != null) onToggle() else menuExpanded = true
                     }
                 )
                 .padding(horizontal = 16.dp, vertical = 12.dp)
-                .semantics(mergeDescendants = true) {}
+                .semantics(mergeDescendants = true) {
+                    if (checked != null) this.selected = checked
+                }
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                if (checked != null) SelectionMark(checked)
                 if (note.pinned) {
                     Icon(
                         imageVector = Icons.Filled.PushPin,
@@ -703,6 +852,7 @@ private fun NoteRow(
             note = note,
             expanded = menuExpanded,
             onDismiss = { menuExpanded = false },
+            onSelect = onSelect,
             onTogglePin = onTogglePin,
             onArchive = onArchive,
             onLock = onLock,
@@ -722,6 +872,10 @@ private fun NoteRow(
 private fun NoteCard(
     note: Note,
     selected: Boolean,
+    // Null outside a selection; otherwise whether this note is picked (#596).
+    checked: Boolean?,
+    onToggle: () -> Unit,
+    onSelect: () -> Unit,
     showPreview: Boolean,
     onClick: (String) -> Unit,
     onTogglePin: () -> Unit,
@@ -732,10 +886,10 @@ private fun NoteCard(
     modifier: Modifier = Modifier
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
-    val itemBackground = if (selected) {
-        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.36f)
-    } else {
-        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+    val itemBackground = when {
+        checked == true -> MaterialTheme.colorScheme.secondaryContainer
+        selected -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.36f)
+        else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
     }
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -753,19 +907,24 @@ private fun NoteCard(
                 .combinedClickable(
                     interactionSource = interactionSource,
                     indication = LocalIndication.current,
-                    onClick = { onClick(note.id) },
+                    onClick = { if (checked != null) onToggle() else onClick(note.id) },
                     onLongClick = {
                         onLongPress()
-                        menuExpanded = true
+                        // While selecting, a long press picks like a tap does
+                        // rather than opening one note's menu over the bar.
+                        if (checked != null) onToggle() else menuExpanded = true
                     }
                 )
                 .padding(12.dp)
-                .semantics(mergeDescendants = true) {}
+                .semantics(mergeDescendants = true) {
+                    if (checked != null) this.selected = checked
+                }
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Top
             ) {
+                if (checked != null) SelectionMark(checked, size = 18.dp)
                 if (note.pinned) {
                     Icon(
                         imageVector = Icons.Filled.PushPin,
@@ -812,6 +971,7 @@ private fun NoteCard(
             note = note,
             expanded = menuExpanded,
             onDismiss = { menuExpanded = false },
+            onSelect = onSelect,
             onTogglePin = onTogglePin,
             onArchive = onArchive,
             onLock = onLock,
@@ -826,6 +986,7 @@ private fun NoteContextMenu(
     note: Note,
     expanded: Boolean,
     onDismiss: () -> Unit,
+    onSelect: () -> Unit,
     onTogglePin: () -> Unit,
     onArchive: () -> Unit,
     onLock: () -> Unit,
@@ -835,6 +996,16 @@ private fun NoteContextMenu(
         expanded = expanded,
         onDismissRequest = onDismiss
     ) {
+        // First, because it is the way to every other action here for several
+        // notes at once (#596).
+        DropdownMenuItem(
+            leadingIcon = { Icon(Icons.Outlined.CheckCircle, contentDescription = null) },
+            text = { Text(stringResource(R.string.select)) },
+            onClick = {
+                onDismiss()
+                onSelect()
+            }
+        )
         DropdownMenuItem(
             leadingIcon = {
                 Icon(

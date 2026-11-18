@@ -39,6 +39,15 @@ class TrashViewModel(
         }
     }
 
+    /** Restore for a selection (#596), under the same lock as one note. */
+    fun restoreFromTrash(noteIds: Collection<String>) {
+        viewModelScope.launch {
+            TrashPurge.lock.withLock {
+                noteRepository.restoreFromTrash(noteIds)
+            }
+        }
+    }
+
     fun deleteForever(noteId: String) {
         viewModelScope.launch {
             noteRepository.deleteForever(noteId)

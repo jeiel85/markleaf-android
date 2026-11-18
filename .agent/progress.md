@@ -2934,3 +2934,8 @@ Verification: `verify-release-notes.ps1`, `verify-landing-versions.ps1`, `verify
 
 Selected task: weekly release of what merged since v2.72.0 (#542/#539 undo and redo in the top bar, #578 adjustResize on Android 10 and below, two #262 hardening batches #576/#582).
 Verification: `verify-release-notes.ps1`, `verify-landing-versions.ps1`, `verify-locales.ps1` locally; CI `build` + `instrumented-tests` on the release PR.
+
+## 2026-11-19 - v2.74.0: select several notes at once
+
+Selected task: weekly release of what merged since v2.73.0 (#596 note selection with Undo, #588 move line buttons, #592 archive sort, #593 dates in Note information, #580/#581 auto-capitalization, #589 crash fix, target API 36).
+Verification: `verify-release-notes.ps1`, `verify-landing-versions.ps1`, `verify-locales.ps1` locally; CI `build` + `instrumented-tests` on the release PR.

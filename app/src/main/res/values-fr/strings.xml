@@ -212,6 +212,23 @@
         <item quantity="one">%1$d note sera définitivement supprimée et ne pourra pas être récupérée.</item>
         <item quantity="other">Les %1$d notes seront définitivement supprimées et ne pourront pas être récupérées.</item>
     </plurals>
+    <!-- Selecting several notes at once (#596). -->
+    <string name="select">Sélectionner</string>
+    <string name="select_all">Tout sélectionner</string>
+    <string name="select_notes">Sélectionner des notes</string>
+    <string name="clear_selection">Effacer la sélection</string>
+    <plurals name="notes_selected">
+        <item quantity="one">%1$d sélectionnée</item>
+        <item quantity="other">%1$d sélectionnées</item>
+    </plurals>
+    <plurals name="notes_moved_to_trash">
+        <item quantity="one">%1$d note placée dans la corbeille</item>
+        <item quantity="other">%1$d notes placées dans la corbeille</item>
+    </plurals>
+    <plurals name="delete_notes_forever_message">
+        <item quantity="one">%1$d note sera définitivement supprimée et ne pourra pas être récupérée.</item>
+        <item quantity="other">%1$d notes seront définitivement supprimées et ne pourront pas être récupérées.</item>
+    </plurals>
     <string name="trash_retention">Supprimer de la corbeille après</string>
     <string name="trash_retention_never">Jamais</string>
     <string name="trash_retention_day">1 jour</string>

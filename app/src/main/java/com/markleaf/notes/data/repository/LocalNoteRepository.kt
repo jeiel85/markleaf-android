@@ -1,5 +1,6 @@
 package com.markleaf.notes.data.repository
 
+import androidx.room.withTransaction
 import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.local.entity.toEntity
 import com.markleaf.notes.data.local.entity.toDomain
@@ -45,6 +46,28 @@ class LocalNoteRepository(
 
     override suspend fun moveToTrash(noteId: String) {
         database.noteDao().moveToTrash(noteId, System.currentTimeMillis())
+    }
+
+    override suspend fun moveToTrash(noteIds: Collection<String>) {
+        // One timestamp for the batch: they went to the trash together.
+        val now = System.currentTimeMillis()
+        database.withTransaction { noteIds.forEach { database.noteDao().moveToTrash(it, now) } }
+    }
+
+    override suspend fun setPinned(noteIds: Collection<String>, pinned: Boolean) {
+        database.withTransaction { noteIds.forEach { database.noteDao().setPinned(it, pinned) } }
+    }
+
+    override suspend fun setArchived(noteIds: Collection<String>, archived: Boolean) {
+        database.withTransaction { noteIds.forEach { database.noteDao().setArchived(it, archived) } }
+    }
+
+    override suspend fun setLocked(noteIds: Collection<String>, locked: Boolean) {
+        database.withTransaction { noteIds.forEach { database.noteDao().setLocked(it, locked) } }
+    }
+
+    override suspend fun restoreFromTrash(noteIds: Collection<String>) {
+        database.withTransaction { noteIds.forEach { database.noteDao().restoreFromTrash(it) } }
     }
 
     override suspend fun setPinned(noteId: String, pinned: Boolean) {

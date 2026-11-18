@@ -207,6 +207,20 @@
     <plurals name="empty_trash_message">
         <item quantity="other">%1$d ghi chú sẽ bị xóa vĩnh viễn và không thể khôi phục.</item>
     </plurals>
+    <!-- Selecting several notes at once (#596). -->
+    <string name="select">Chọn</string>
+    <string name="select_all">Chọn tất cả</string>
+    <string name="select_notes">Chọn ghi chú</string>
+    <string name="clear_selection">Bỏ chọn</string>
+    <plurals name="notes_selected">
+        <item quantity="other">Đã chọn %1$d</item>
+    </plurals>
+    <plurals name="notes_moved_to_trash">
+        <item quantity="other">Đã chuyển %1$d ghi chú vào thùng rác</item>
+    </plurals>
+    <plurals name="delete_notes_forever_message">
+        <item quantity="other">%1$d ghi chú sẽ bị xóa vĩnh viễn và không thể khôi phục.</item>
+    </plurals>
     <string name="trash_retention">Xóa khỏi thùng rác sau</string>
     <string name="trash_retention_never">Không bao giờ</string>
     <string name="trash_retention_day">1 ngày</string>

@@ -38,4 +38,17 @@ interface NoteRepository {
     fun searchNotes(query: String): Flow<List<Note>>
     suspend fun reorderNotes(notes: List<Note>)
     fun observeConflictNotes(): Flow<List<Note>>
+
+    // Several notes at once, for a selection (#596). Each does what the
+    // one-note call does to every id, and the defaults are exactly that. The
+    // Room repository overrides them to write in one transaction, so the list
+    // redraws once rather than once per note.
+    suspend fun moveToTrash(noteIds: Collection<String>) = noteIds.forEach { moveToTrash(it) }
+    suspend fun setPinned(noteIds: Collection<String>, pinned: Boolean) =
+        noteIds.forEach { setPinned(it, pinned) }
+    suspend fun setArchived(noteIds: Collection<String>, archived: Boolean) =
+        noteIds.forEach { setArchived(it, archived) }
+    suspend fun setLocked(noteIds: Collection<String>, locked: Boolean) =
+        noteIds.forEach { setLocked(it, locked) }
+    suspend fun restoreFromTrash(noteIds: Collection<String>) = noteIds.forEach { restoreFromTrash(it) }
 }

@@ -212,6 +212,20 @@
     <plurals name="empty_trash_message">
         <item quantity="other">%1$d 条笔记将被永久删除且无法恢复。</item>
     </plurals>
+    <!-- Selecting several notes at once (#596). -->
+    <string name="select">选择</string>
+    <string name="select_all">全选</string>
+    <string name="select_notes">选择笔记</string>
+    <string name="clear_selection">取消选择</string>
+    <plurals name="notes_selected">
+        <item quantity="other">已选择 %1$d 项</item>
+    </plurals>
+    <plurals name="notes_moved_to_trash">
+        <item quantity="other">已将 %1$d 条笔记移至回收站</item>
+    </plurals>
+    <plurals name="delete_notes_forever_message">
+        <item quantity="other">%1$d 条笔记将被永久删除且无法恢复。</item>
+    </plurals>
     <string name="trash_retention">回收站保留时间</string>
     <string name="trash_retention_never">永不</string>
     <string name="trash_retention_day">1 天</string>

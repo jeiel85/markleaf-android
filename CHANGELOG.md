@@ -4,7 +4,9 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
-## Unreleased
+## v2.74.0 - Select several notes at once - 2026-11-19
+
+This week: pick several notes and pin, archive, move to the trash, restore or delete them together, and get Undo after moving notes to the trash. Buttons on the row above the keyboard can move a line up or down, the archive can be sorted, and Note information shows when a note was created and last edited. The editor now follows your keyboard's auto-capitalization, a crash at the start of a note beginning with an empty line is fixed, and Markleaf targets Android 16. No new permissions; notes are stored exactly as before.
 
 ### Added
 - **Move a line up or down with one tap.** Turn on Settings → Editor → Show move line buttons, and the row above the keyboard gets ↑ and ↓ beside Undo and Redo. Each tap swaps the line the cursor is on with the line above or below, so tapping ↓ three times moves it three lines down. Select several lines first and they move together. Each tap is its own Undo step. The buttons are off by default, so the row stays as it is unless you turn them on. Thanks to @uszymyszy for the idea. (#588)

@@ -479,6 +479,70 @@ class MarkdownEditActionsTest {
         assertTrue(result.text.endsWith("\n\nafter"))
     }
 
+    // A caret inside a construct a blank line would cut in two (#262, v2.73.0).
+
+    private val existingTable = "| A | B |\n| --- | --- |\n| 1 | 2 |"
+
+    @Test
+    fun table_withTheCaretInATablesHeaderGoesBelowThatTable() {
+        val text = "intro\n\n$existingTable\n\noutro"
+        val result = MarkdownEditActions.table(
+            TextFieldValue(text, selection = TextRange(text.indexOf("| A") + 2))
+        )
+
+        // Before, the skeleton landed between `| A | B |` and `| --- | --- |`.
+        assertTrue(result.text, result.text.startsWith("intro\n\n$existingTable\n\n| Column 1 |"))
+        assertTrue(result.text, result.text.endsWith("|  |  |\n\noutro"))
+    }
+
+    @Test
+    fun table_withTheCaretInATableWithoutOuterPipesGoesBelowIt() {
+        val text = "A | B\n--- | ---\n1 | 2"
+        val result = MarkdownEditActions.table(TextFieldValue(text, selection = TextRange(1)))
+
+        assertTrue(result.text, result.text.startsWith("$text\n\n| Column 1 |"))
+    }
+
+    @Test
+    fun table_withTheCaretInAQuoteGoesBelowTheWholeQuote() {
+        val text = "> one\n> two\n\nafter"
+        val result = MarkdownEditActions.table(TextFieldValue(text, selection = TextRange(2)))
+
+        assertTrue(result.text, result.text.startsWith("> one\n> two\n\n| Column 1 |"))
+        assertTrue(result.text, result.text.endsWith("|  |  |\n\nafter"))
+    }
+
+    @Test
+    fun table_withTheCaretInsideACodeFenceGoesBelowTheClosingFence() {
+        // The blank line inside the fence is not the end of the block.
+        val text = "```\nfirst\n\nsecond\n```\nafter"
+        val result = MarkdownEditActions.table(TextFieldValue(text, selection = TextRange(6)))
+
+        assertTrue(result.text, result.text.startsWith("```\nfirst\n\nsecond\n```\n\n| Column 1 |"))
+        assertTrue(result.text, result.text.endsWith("|  |  |\n\nafter"))
+    }
+
+    @Test
+    fun table_inProseStillGoesBelowTheCaretsLine() {
+        // A note written with single line breaks is one paragraph to Markdown;
+        // the table stays where the user tapped rather than at its end.
+        val result = MarkdownEditActions.table(
+            TextFieldValue("one\ntwo\nthree", selection = TextRange(1))
+        )
+
+        assertTrue(result.text, result.text.startsWith("one\n\n| Column 1 |"))
+        assertTrue(result.text, result.text.endsWith("|  |  |\n\ntwo\nthree"))
+    }
+
+    @Test
+    fun callout_withTheCaretInATableGoesBelowThatTable() {
+        val result = MarkdownEditActions.callout(
+            TextFieldValue(existingTable, selection = TextRange(2))
+        )
+
+        assertEquals("$existingTable\n\n> [!NOTE]\n> ", result.text)
+    }
+
     @Test
     fun callout_stopsAtAnExclusiveEndpointOnTheNextLine() {
         // `one\n` selected: `two` was never in the selection and must not be

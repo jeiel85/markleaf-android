@@ -53,4 +53,11 @@ class TrashViewModel(
             noteRepository.deleteForever(noteId)
         }
     }
+
+    /** Delete forever for a selection or Empty trash (#596), in one transaction. */
+    fun deleteForever(noteIds: Collection<String>) {
+        viewModelScope.launch {
+            noteRepository.deleteForever(noteIds)
+        }
+    }
 }

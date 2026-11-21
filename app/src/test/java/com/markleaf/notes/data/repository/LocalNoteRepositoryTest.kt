@@ -149,6 +149,23 @@ class LocalNoteRepositoryTest {
     }
 
     @Test
+    fun `deleteForever on a selection removes exactly those notes`() = runTest {
+        val now = Instant.ofEpochMilli(1L)
+        fun note(id: String) = Note(
+            id = id, title = id, contentMarkdown = id, excerpt = id,
+            createdAt = now, updatedAt = now
+        )
+        listOf("a", "b", "c").forEach { repository.createNote(note(it)) }
+        repository.moveToTrash(listOf("a", "b", "c"))
+
+        repository.deleteForever(listOf("a", "c"))
+
+        assertNull(repository.getNote("a"))
+        assertNull(repository.getNote("c"))
+        assertEquals(listOf("b"), repository.observeTrashedNotes().first().map { it.id })
+    }
+
+    @Test
     fun `getAllNotes returns active, archived and trashed so sync can match hidden notes`() = runTest {
         val now = Instant.ofEpochMilli(1L)
         fun note(id: String) = Note(

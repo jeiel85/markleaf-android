@@ -70,6 +70,12 @@ class LocalNoteRepository(
         database.withTransaction { noteIds.forEach { database.noteDao().restoreFromTrash(it) } }
     }
 
+    // All or none: a death partway through a batch used to leave some of the
+    // picked notes deleted and the rest still in the trash (#262, v2.74.0).
+    override suspend fun deleteForever(noteIds: Collection<String>) {
+        database.withTransaction { noteIds.forEach { database.noteDao().deleteForever(it) } }
+    }
+
     override suspend fun setPinned(noteId: String, pinned: Boolean) {
         database.noteDao().setPinned(noteId, pinned)
     }

@@ -154,6 +154,20 @@ class NotesViewModel(
         viewModelScope.launch { noteRepository.moveToTrash(noteIds) }
     }
 
+    /** The Undo for the last move to the trash, kept across navigation (#262). */
+    val trashUndo = PendingTrashUndo()
+
+    /** Moves [noteIds] to the trash and offers to undo it. */
+    fun moveToTrashWithUndo(noteIds: List<String>) {
+        moveToTrash(noteIds)
+        trashUndo.offer(noteIds)
+    }
+
+    /** The snackbar for [move] finished; [undo] when its action was tapped. */
+    fun settleTrashUndo(move: PendingTrashUndo.Move, undo: Boolean) {
+        if (trashUndo.settle(move) && undo) restoreFromTrash(move.noteIds)
+    }
+
     fun setPinned(noteIds: Collection<String>, pinned: Boolean) {
         viewModelScope.launch { noteRepository.setPinned(noteIds, pinned) }
     }

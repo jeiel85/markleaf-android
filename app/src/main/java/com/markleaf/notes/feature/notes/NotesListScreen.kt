@@ -224,21 +224,23 @@ fun NotesListScreen(
     // which has to clean up the mirror file as well.
     fun trashNotes(noteIds: List<String>) {
         hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-        viewModel.moveToTrash(noteIds)
-        val message = context.resources.getQuantityString(
-            R.plurals.notes_moved_to_trash, noteIds.size, noteIds.size
+        viewModel.moveToTrashWithUndo(noteIds)
+    }
+    // The Undo lives in the view model, so leaving for a note or Settings
+    // before the snackbar times out shows it again on the way back (#262).
+    // A second move replaces the first one's Undo rather than queueing behind
+    // it: the key changes, and cancelling the old effect takes its snackbar down.
+    val pendingTrashUndo by viewModel.trashUndo.move.collectAsState()
+    LaunchedEffect(pendingTrashUndo) {
+        val move = pendingTrashUndo ?: return@LaunchedEffect
+        val result = snackbarHostState.showSnackbar(
+            message = context.resources.getQuantityString(
+                R.plurals.notes_moved_to_trash, move.noteIds.size, move.noteIds.size
+            ),
+            actionLabel = undoLabel,
+            duration = SnackbarDuration.Short
         )
-        scope.launch {
-            // A second move replaces the first one's Undo rather than queueing
-            // behind it, where it would only show once the first had timed out.
-            snackbarHostState.currentSnackbarData?.dismiss()
-            val result = snackbarHostState.showSnackbar(
-                message = message,
-                actionLabel = undoLabel,
-                duration = SnackbarDuration.Short
-            )
-            if (result == SnackbarResult.ActionPerformed) viewModel.restoreFromTrash(noteIds)
-        }
+        viewModel.settleTrashUndo(move, undo = result == SnackbarResult.ActionPerformed)
     }
 
     /** Moves [notesToLock] into the Locked space; false when there is no passcode yet. */

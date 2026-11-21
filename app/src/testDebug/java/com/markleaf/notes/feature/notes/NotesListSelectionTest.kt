@@ -1,6 +1,10 @@
 package com.markleaf.notes.feature.notes
 
 import androidx.activity.ComponentActivity
+import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -154,6 +158,56 @@ class NotesListSelectionTest {
         composeRule.onNodeWithText(str(R.string.move_to_trash)).performClick()
         waitForText(plural(R.plurals.notes_moved_to_trash, 1))
         assertEquals(setOf("a"), repository.trashedIds())
+    }
+
+    @Test
+    fun `Undo is still offered after leaving the list before the snackbar timed out`() {
+        // The snackbar ran on the list's composition, so opening a note within
+        // its few seconds cancelled it for good (#262, v2.74.0). The list's view
+        // model outlives the visit, as its back stack entry does.
+        val repository = FakeNoteRepository(listOf(note("a", "Alpha"), note("b", "Bravo")))
+        val viewModel = NotesViewModel(repository)
+        var onList by mutableStateOf(true)
+        composeRule.setContent {
+            MarkleafTheme(dynamicColor = false) {
+                if (onList) {
+                    NotesListScreen(viewModel = viewModel, onNoteClick = {}, onFabClick = {}, lockPasscodeSet = true)
+                } else {
+                    Text("Somewhere else")
+                }
+            }
+        }
+        waitForText("Alpha")
+
+        composeRule.onNodeWithText("Alpha").performTouchInput { longClick() }
+        composeRule.onNodeWithText(str(R.string.move_to_trash)).performClick()
+        waitForText(plural(R.plurals.notes_moved_to_trash, 1))
+
+        composeRule.runOnIdle { onList = false }
+        waitForText("Somewhere else")
+        composeRule.runOnIdle { onList = true }
+
+        waitForText(plural(R.plurals.notes_moved_to_trash, 1))
+        composeRule.onNodeWithText(str(R.string.undo)).performClick()
+        composeRule.waitUntil(5_000) { repository.trashedIds().isEmpty() }
+    }
+
+    @Test
+    fun `a newer move replaces the pending Undo rather than queueing behind it`() {
+        val repository = FakeNoteRepository(listOf(note("a", "Alpha"), note("b", "Bravo"), note("c", "Charlie")))
+        show(repository)
+
+        composeRule.onNodeWithText("Alpha").performTouchInput { longClick() }
+        composeRule.onNodeWithText(str(R.string.move_to_trash)).performClick()
+        waitForText(plural(R.plurals.notes_moved_to_trash, 1))
+        startSelectionOn("Bravo")
+        composeRule.onNodeWithText("Charlie").performClick()
+        composeRule.onNodeWithContentDescription(str(R.string.move_to_trash)).performClick()
+        waitForText(plural(R.plurals.notes_moved_to_trash, 2))
+
+        // Undo now answers for the second move only.
+        composeRule.onNodeWithText(str(R.string.undo)).performClick()
+        composeRule.waitUntil(5_000) { repository.trashedIds() == setOf("a") }
     }
 
     private fun show(

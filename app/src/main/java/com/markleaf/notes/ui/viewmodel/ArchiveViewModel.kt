@@ -47,6 +47,20 @@ class ArchiveViewModel(
         viewModelScope.launch { noteRepository.moveToTrash(noteIds) }
     }
 
+    /** The Undo for the last move to the trash, kept across navigation (#262). */
+    val trashUndo = PendingTrashUndo()
+
+    /** Moves [noteIds] to the trash and offers to undo it. */
+    fun moveToTrashWithUndo(noteIds: List<String>) {
+        moveToTrash(noteIds)
+        trashUndo.offer(noteIds)
+    }
+
+    /** The snackbar for [move] finished; [undo] when its action was tapped. */
+    fun settleTrashUndo(move: PendingTrashUndo.Move, undo: Boolean) {
+        if (trashUndo.settle(move) && undo) restoreFromTrash(move.noteIds)
+    }
+
     /** Undo for a move to the trash, under the retention sweep's lock (#566). */
     fun restoreFromTrash(noteIds: Collection<String>) {
         viewModelScope.launch {

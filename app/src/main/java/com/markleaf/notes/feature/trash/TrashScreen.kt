@@ -114,7 +114,7 @@ fun TrashScreen(
     // Deleting forever drops the Room row; the attachment bytes and the
     // sync-folder file are cleaned up here, where the context and settings are.
     fun deleteForever(notes: List<Note>) {
-        notes.forEach { viewModel.deleteForever(it.id) }
+        viewModel.deleteForever(notes.map { it.id })
         // Disk cleanup of attachment files (Room CASCADE drops
         // the attachments table rows but the bytes would linger).
         scope.launch(Dispatchers.IO) {

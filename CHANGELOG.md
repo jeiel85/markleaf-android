@@ -4,6 +4,14 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## Unreleased
+
+### Fixed
+- **Undo after moving notes to the trash is still there when you come back.** Opening a note or Settings within the few seconds the Undo bar shows used to drop it for good. The notes list and the archive now show it again when you return, until it has run its course or you move other notes to the trash. (#262)
+- **The notes list writes the time in your phone's 12- or 24-hour style.** A note edited today showed "Today 15:02" in the list but "3:02 PM" in Note information. Both now follow the phone's clock setting. (#262)
+- **Adding a table or a callout with the cursor inside a table no longer splits that table.** With the cursor in a table's header row, the new block landed between the header and its `| --- |` row, and neither table showed as before. Inside a table, a quote or a code block, the new block now goes below that whole block. In ordinary text it still goes right below the line you're on. (#262)
+- **Deleting several notes forever from the trash happens all at once.** Before, each note was deleted on its own, so if the app was closed partway, some of the picked notes were gone and the rest were still in the trash. (#262)
+
 ## v2.74.0 - Select several notes at once - 2026-11-19
 
 This week: pick several notes and pin, archive, move to the trash, restore or delete them together, and get Undo after moving notes to the trash. Buttons on the row above the keyboard can move a line up or down, the archive can be sorted, and Note information shows when a note was created and last edited. The editor now follows your keyboard's auto-capitalization, a crash at the start of a note beginning with an empty line is fixed, and Markleaf targets Android 16. No new permissions; notes are stored exactly as before.

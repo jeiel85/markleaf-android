@@ -51,4 +51,5 @@ interface NoteRepository {
     suspend fun setLocked(noteIds: Collection<String>, locked: Boolean) =
         noteIds.forEach { setLocked(it, locked) }
     suspend fun restoreFromTrash(noteIds: Collection<String>) = noteIds.forEach { restoreFromTrash(it) }
+    suspend fun deleteForever(noteIds: Collection<String>) = noteIds.forEach { deleteForever(it) }
 }

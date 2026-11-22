@@ -736,8 +736,18 @@ object MarkdownEditActions {
      * is not the construct the button promises. Insert where the indentation
      * starts instead, and it ends up harmlessly after the block. Found by the
      * Codex review on #390.
+     *
+     * The other exception is a line inside a construct that a blank line would
+     * cut in two: a table, a blockquote or callout, a fenced code block. With
+     * the caret in a table's header row, inserting after that line put the new
+     * skeleton between the header and its `| --- |` row, and neither table
+     * rendered as before (#262, v2.73.0). There the insertion moves to the end
+     * of the construct. Prose keeps the line rule on purpose: a note written
+     * with single line breaks is one long paragraph to Markdown, and moving the
+     * table to its end could put it a screen away from where the user tapped.
      */
     private fun blockInsertPoint(value: TextFieldValue): Int {
+        val text = value.text
         val end = selectionLineRange(value).second
         // `end == 0` means the caret is on an empty first line of a note that
         // opens with a newline. Deriving lineStart from `end - 1` there lands
@@ -745,10 +755,46 @@ object MarkdownEditActions {
         val lineStart = if (end == 0) {
             0
         } else {
-            value.text.lastIndexOf('\n', end - 1).let { if (it == -1) 0 else it + 1 }
+            text.lastIndexOf('\n', end - 1).let { if (it == -1) 0 else it + 1 }
         }
-        return if (value.text.substring(lineStart, end).isBlank()) lineStart else end
+        if (text.substring(lineStart, end).isBlank()) return lineStart
+        return endOfEnclosingConstruct(text, lineStart, end)
     }
+
+    /**
+     * Where the table, quote or code fence holding the line [lineStart] until
+     * [lineEnd] ends, or [lineEnd] itself when the line is prose.
+     */
+    private fun endOfEnclosingConstruct(text: String, lineStart: Int, lineEnd: Int): Int {
+        // A fence holds blank lines of its own, so it ends at its closing fence
+        // (or at the end of the note when nothing closes it), not at a blank line.
+        FencedCodeBlocks.ranges(text).firstOrNull { lineStart in it }?.let { return it.last + 1 }
+
+        // The run of non-blank lines around the caret's line: one block to Markdown.
+        var runStart = lineStart
+        while (runStart > 0) {
+            val previousStart = text.lastIndexOf('\n', runStart - 2).let { if (it == -1) 0 else it + 1 }
+            if (text.substring(previousStart, runStart - 1).isBlank()) break
+            runStart = previousStart
+        }
+        var runEnd = lineEnd
+        while (runEnd < text.length) {
+            val nextEnd = text.indexOf('\n', runEnd + 1).let { if (it == -1) text.length else it }
+            if (text.substring(runEnd + 1, nextEnd).isBlank()) break
+            runEnd = nextEnd
+        }
+        val run = text.substring(runStart, runEnd)
+        val isQuote = quoteLine.containsMatchIn(text.substring(lineStart, lineEnd))
+        // A table cannot interrupt a paragraph, so a run holding a delimiter
+        // row is a table from its first line — a plain line under the rows is
+        // read as one more row, which is why the whole run counts.
+        // The pipe check keeps a setext underline or a `---` rule out of it.
+        val isTable = run.lineSequence().any { '|' in it && tableDelimiterRow.matches(it) }
+        return if (isQuote || isTable) runEnd else lineEnd
+    }
+
+    private val quoteLine = Regex("""^ {0,3}>""")
+    private val tableDelimiterRow = Regex("""^ {0,3}\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$""")
 
     /**
      * Newlines needed before [at] so a block starting there begins a new block.

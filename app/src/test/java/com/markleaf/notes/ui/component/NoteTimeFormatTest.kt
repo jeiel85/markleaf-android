@@ -14,7 +14,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-/** The full date and time in the "Note information" sheet (#593). */
+/** The full date and time in the "Note information" sheet (#593), and the list's short form. */
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [33])
 class NoteTimeFormatTest {
@@ -72,6 +72,55 @@ class NoteTimeFormatTest {
         assertFalse(utc, utc.contains("23:05"))
     }
 
+    // The list's short form (#262, v2.74.0): it wrote "15:02" on a 12-hour
+    // device while Note information wrote "3:02 PM" for the same moment.
+
+    private val todayInUtc = afternoon.atZone(ZoneOffset.UTC).toLocalDate()
+
+    @Test
+    fun theListsTimeTodayFollowsATwelveHourClock() {
+        useClock("12")
+        val text = formatUpdatedTime(contextIn(Locale.US), afternoon, ZoneOffset.UTC, todayInUtc)
+
+        assertTrue(text, text.contains("2:05"))
+        assertTrue(text, text.contains("PM"))
+        assertFalse(text, text.contains("14:05"))
+    }
+
+    @Test
+    fun theListsTimeTodayFollowsATwentyFourHourClock() {
+        useClock("24")
+        val text = formatUpdatedTime(contextIn(Locale.US), afternoon, ZoneOffset.UTC, todayInUtc)
+
+        assertTrue(text, text.contains("14:05"))
+        assertFalse(text, text.contains("PM"))
+    }
+
+    @Test
+    fun theListsTimeYesterdayFollowsTheClockToo() {
+        useClock("12")
+        val text = formatUpdatedTime(
+            contextIn(Locale.US), afternoon, ZoneOffset.UTC, todayInUtc.plusDays(1)
+        )
+
+        assertTrue(text, text.contains("2:05"))
+        assertTrue(text, text.contains("PM"))
+    }
+
+    @Test
+    fun theListAndNoteInformationAgreeOnTheTime() {
+        for (clock in listOf("12", "24")) {
+            useClock(clock)
+            val context = contextIn(Locale.US)
+            val list = formatUpdatedTime(context, afternoon, ZoneOffset.UTC, todayInUtc)
+            val sheet = formatNoteDateTime(context, afternoon, ZoneOffset.UTC)
+            val time = if (clock == "12") "2:05" else "14:05"
+
+            assertTrue("$clock: $list", list.contains(time))
+            assertTrue("$clock: $sheet", sheet.contains(time))
+        }
+    }
+
     /**
      * Every language the app ships in, both clocks: the pattern comes from ICU
      * for each locale, and one that the formatter could not read would throw
@@ -85,6 +134,10 @@ class NoteTimeFormatTest {
             for (tag in tags) {
                 val text = formatNoteDateTime(contextIn(Locale.forLanguageTag(tag)), afternoon, ZoneOffset.UTC)
                 assertTrue("$tag/$clock: $text", text.contains("2026"))
+                val list = formatUpdatedTime(
+                    contextIn(Locale.forLanguageTag(tag)), afternoon, ZoneOffset.UTC, todayInUtc
+                )
+                assertTrue("$tag/$clock: $list", list.contains("05"))
             }
         }
     }

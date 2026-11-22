@@ -41,10 +41,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -75,7 +75,6 @@ import com.markleaf.notes.ui.viewmodel.ArchiveViewModel
 import com.markleaf.notes.navigation.NoteSource
 import com.markleaf.notes.navigation.noteSharedBounds
 import com.markleaf.notes.ui.component.pressScale
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -116,26 +115,27 @@ fun ArchiveScreen(
     val picked = remember(notes, selection.ids) { selection.of(notes) }
     BackHandler(enabled = selection.active) { selection.clear() }
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val undoLabel = stringResource(R.string.undo)
 
     // The row's menu and the selection bar both end here, so both offer Undo.
     fun trashNotes(noteIds: List<String>) {
         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-        viewModel.moveToTrash(noteIds)
-        val message = context.resources.getQuantityString(
-            R.plurals.notes_moved_to_trash, noteIds.size, noteIds.size
+        viewModel.moveToTrashWithUndo(noteIds)
+    }
+    // Held by the view model so it survives leaving the screen, as in the
+    // notes list (#262).
+    val pendingTrashUndo by viewModel.trashUndo.move.collectAsState()
+    LaunchedEffect(pendingTrashUndo) {
+        val move = pendingTrashUndo ?: return@LaunchedEffect
+        val result = snackbarHostState.showSnackbar(
+            message = context.resources.getQuantityString(
+                R.plurals.notes_moved_to_trash, move.noteIds.size, move.noteIds.size
+            ),
+            actionLabel = undoLabel,
+            duration = SnackbarDuration.Short
         )
-        scope.launch {
-            snackbarHostState.currentSnackbarData?.dismiss()
-            val result = snackbarHostState.showSnackbar(
-                message = message,
-                actionLabel = undoLabel,
-                duration = SnackbarDuration.Short
-            )
-            if (result == SnackbarResult.ActionPerformed) viewModel.restoreFromTrash(noteIds)
-        }
+        viewModel.settleTrashUndo(move, undo = result == SnackbarResult.ActionPerformed)
     }
 
     Scaffold(

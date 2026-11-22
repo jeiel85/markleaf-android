@@ -328,7 +328,12 @@ jobs:
           test -n "$sdkmanager" || { echo "sdkmanager not found under $ANDROID_HOME/cmdline-tools"; exit 1; }
           yes | "$sdkmanager" --licenses > /dev/null
 
+      # 정상 런은 3~4.5분이다(2026-11-15~19 녹색 런 15개). #597 런 44331961431 에서는
+      # 44/71 에서 멈춘 채 잡 타임아웃(40분)까지 37분을 기다렸다가 취소됐고, 재실행은
+      # 통과했다(#262 v2.74.0). 스텝에 따로 상한을 두어 멈춤이 15분 안에 끝나게 하고,
+      # 아래 리포트 업로드(if: always())가 멈춘 지점을 남기게 한다.
       - name: Run instrumented tests on a managed device
+        timeout-minutes: 15
         run: ./gradlew :app:ciAtdApi30DebugAndroidTest
 
       - name: Upload instrumented test report

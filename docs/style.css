@@ -152,6 +152,11 @@ nav .nav-links {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     inset-inline-end: 0;
     list-style: none;
+    /* Sticky header: on a short screen the list scrolls itself (landing.css). */
+    max-height: calc(100vh - 5rem);
+    max-height: calc(100dvh - 5rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     padding: 0.5rem;
     position: absolute;
     top: calc(100% + 0.5rem);

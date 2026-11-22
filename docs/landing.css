@@ -331,6 +331,13 @@ li {
     inset-inline-end: 0;
     list-style: none;
     margin: 0;
+    /* The header is sticky, so scrolling the page never brings a cut-off
+       option into reach: on a short landscape phone the list scrolls itself.
+       5rem covers the header row above the panel. */
+    max-height: calc(100vh - 5rem);
+    max-height: calc(100dvh - 5rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     padding: var(--space-2);
     position: absolute;
     top: calc(100% + var(--space-2));

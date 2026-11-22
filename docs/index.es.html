@@ -42,6 +42,7 @@
     <meta name="twitter:image" content="https://jeiel85.github.io/markleaf-android/assets/markleaf-feature-graphic-1024x500.png">
     <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
     <link rel="stylesheet" href="landing.css">
+    <script src="lang-menu.js" defer></script>
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -71,27 +72,28 @@
                 <img src="assets/logo.svg" width="512" height="512" alt="">
                 <span>Markleaf</span>
             </a>
-            <div class="nav-cluster">
-                <ul class="nav-links">
-                    <li><a href="#features">Funciones</a></li>
-                    <li><a href="#privacy">Privacidad</a></li>
-                    <li><a href="#download">Descargar</a></li>
-                    <li><a href="https://github.com/jeiel85/markleaf-android">GitHub</a></li>
+            <ul class="nav-links">
+                <li><a href="#features">Funciones</a></li>
+                <li><a href="#privacy">Privacidad</a></li>
+                <li><a href="#download">Descargar</a></li>
+                <li><a href="https://github.com/jeiel85/markleaf-android">GitHub</a></li>
+            </ul>
+            <details class="lang-menu">
+                <summary aria-label="Idioma: Español"><svg class="lang-menu-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9M12 3c-2.5 2.6-3.8 5.6-3.8 9s1.3 6.4 3.8 9"/></svg><span>Español</span></summary>
+                <ul class="lang-menu-list">
+                    <li><a href="index.html" hreflang="en" lang="en">English</a></li>
+                    <li><a href="index.ko.html" hreflang="ko" lang="ko">한국어</a></li>
+                    <li><a href="index.ja.html" hreflang="ja" lang="ja">日本語</a></li>
+                    <li><a href="index.zh.html" hreflang="zh-Hans" lang="zh-Hans">简体中文</a></li>
+                    <li><a href="index.de.html" hreflang="de" lang="de">Deutsch</a></li>
+                    <li><a href="index.es.html" hreflang="es" lang="es" aria-current="page">Español</a></li>
+                    <li><a href="index.fr.html" hreflang="fr" lang="fr">Français</a></li>
+                    <li><a href="index.hr.html" hreflang="hr" lang="hr">Hrvatski</a></li>
+                    <li><a href="index.ru.html" hreflang="ru" lang="ru">Русский</a></li>
+                    <li><a href="index.vi.html" hreflang="vi" lang="vi">Tiếng Việt</a></li>
+                    <li><a href="index.sk.html" hreflang="sk" lang="sk">Slovenčina</a></li>
                 </ul>
-                <div class="lang-switch" aria-label="Idioma">
-                    <a href="index.html" hreflang="en" aria-label="English">EN</a>
-                    <a href="index.ko.html" hreflang="ko" aria-label="한국어">KO</a>
-                    <a href="index.ja.html" hreflang="ja" aria-label="日本語">JA</a>
-                    <a href="index.zh.html" hreflang="zh-Hans" aria-label="简体中文">ZH</a>
-                    <a href="index.de.html" hreflang="de" aria-label="Deutsch">DE</a>
-                    <a href="index.es.html" hreflang="es" aria-current="page">ES</a>
-                    <a href="index.fr.html" hreflang="fr" aria-label="Français">FR</a>
-                    <a href="index.hr.html" hreflang="hr" aria-label="Hrvatski">HR</a>
-                    <a href="index.ru.html" hreflang="ru" aria-label="Русский">RU</a>
-                    <a href="index.vi.html" hreflang="vi" aria-label="Tiếng Việt">VI</a>
-                    <a href="index.sk.html" hreflang="sk" aria-label="Slovenčina">SK</a>
-                </div>
-            </div>
+            </details>
         </nav>
     </header>
 
@@ -114,14 +116,14 @@
 
                 <figure class="hero-product">
                     <div class="product-frame">
-                        <img src="assets/markleaf-editor-1280.webp" srcset="assets/markleaf-editor-720.webp 720w, assets/markleaf-editor-1280.webp 1280w" sizes="(max-width: 48rem) calc(100vw - 2rem), (max-width: 80rem) 47vw, 37.5rem" width="1280" height="800" alt="Captura real de Markleaf con la lista de notas y el editor Markdown uno junto al otro" fetchpriority="high" decoding="async">
+                        <img src="assets/markleaf-editor-1280.webp" srcset="assets/markleaf-editor-720.webp 720w, assets/markleaf-editor-1280.webp 1280w" sizes="(max-width: 48rem) calc(100vw - 2rem), (max-width: 80rem) 47vw, 37.5rem" width="1280" height="800" alt="Captura real de Markleaf con la barra de etiquetas, la lista de notas y el editor Markdown uno junto al otro" fetchpriority="high" decoding="async">
                     </div>
                     <div class="file-receipt" role="note" aria-label="Prueba de archivo Markdown local">
                         <span class="file-receipt-label">LOCAL FILE</span>
                         <strong>mi-nota.md</strong>
                         <code>plain text · portable</code>
                     </div>
-                    <figcaption>Captura real de Markleaf v2.23.0</figcaption>
+                    <figcaption>Captura real de Markleaf v2.74.0</figcaption>
                 </figure>
             </div>
         </section>
@@ -143,6 +145,11 @@
                     <strong>.md</strong>
                     <span>Exportación y espejo de carpeta</span>
                 </article>
+                <article class="proof-item">
+                    <p>Idiomas</p>
+                    <strong>11</strong>
+                    <span>En la app y en esta página</span>
+                </article>
             </div>
         </section>
 
@@ -161,7 +168,7 @@
                         <p>Tu Markdown original permanece intacto mientras los encabezados y el énfasis se muestran con claridad a medida que editas. Un pequeño botón <code>Aa</code>, acciones contextuales de selección y el comando <code>/</code> al inicio de una línea añaden formato sin saturar la pantalla.</p>
                         <ul class="feature-points">
                             <li>Live Markdown con vista previa CommonMark/GFM</li>
-                            <li>13 acciones de formato y atajos de teclado externo</li>
+                            <li>Barra de formato, tus propios botones de fragmentos y atajos de teclado</li>
                             <li>Inserción rápida de tablas, callouts y wikilinks</li>
                         </ul>
                     </div>
@@ -179,11 +186,11 @@
                         <ul class="feature-points">
                             <li>Etiquetas anidadas y exploración de notas por etiqueta</li>
                             <li>Wikilinks y backlinks</li>
-                            <li>Fijar, archivar y recuperar de la papelera</li>
+                            <li>Selecciona varias notas para fijarlas, archivarlas o llevarlas a la papelera de una vez</li>
                         </ul>
                     </div>
                     <figure class="story-visual">
-                        <img src="assets/markleaf-tags-1280.webp" srcset="assets/markleaf-tags-720.webp 720w, assets/markleaf-tags-1280.webp 1280w" sizes="(max-width: 48rem) calc(100vw - 4rem), 45vw" width="1280" height="800" alt="Pantalla de etiquetas de Markleaf con varias etiquetas y el número de notas de cada una" loading="lazy" decoding="async">
+                        <img src="assets/markleaf-tags-1280.webp" srcset="assets/markleaf-tags-720.webp 720w, assets/markleaf-tags-1280.webp 1280w" sizes="(max-width: 48rem) calc(100vw - 4rem), 45vw" width="1280" height="800" alt="Markleaf con la etiqueta #project elegida en la barra de etiquetas, sus notas en la lista y una de ellas abierta en la vista previa" loading="lazy" decoding="async">
                         <figcaption>La estructura de tus ideas empieza en las etiquetas del texto.</figcaption>
                     </figure>
                 </article>
@@ -196,7 +203,7 @@
                         <ul class="feature-points">
                             <li>Exportación Markdown individual o de todas las notas</li>
                             <li>Reflejo en una carpeta que elijas</li>
-                            <li>PDF y la hoja de compartir de Android</li>
+                            <li>Exportación a PDF con imágenes, más la hoja de compartir de Android</li>
                         </ul>
                     </div>
                     <figure class="ownership-demo">
@@ -253,6 +260,50 @@ markleaf_id: 7f3c…
             </div>
         </section>
 
+        <section id="more" class="section more-section" aria-labelledby="more-title">
+            <div class="container">
+                <header class="section-intro">
+                    <p class="kicker">También en la app</p>
+                    <h2 id="more-title">Pequeñas cosas,<br>añadidas semana a semana.</h2>
+                    <p>Muchas empezaron como una petición en Issues o Discussions. Sale una versión nueva casi cada semana.</p>
+                </header>
+                <ul class="more-grid">
+                    <li>
+                        <h3>Widgets en la pantalla de inicio</h3>
+                        <p>Tus notas recientes o una sola nota, en el color que elijas y dejando ver el fondo de pantalla tanto como quieras.</p>
+                    </li>
+                    <li>
+                        <h3>La nota de hoy</h3>
+                        <p>Haz que los accesos directos de nota nueva abran la nota del día, titulada con la fecha y lista para una línea más.</p>
+                    </li>
+                    <li>
+                        <h3>Notas bloqueadas</h3>
+                        <p>Guarda algunas notas tras un código, bloquea toda la app y mantén las notas fuera de las capturas de pantalla y de la vista de apps recientes.</p>
+                    </li>
+                    <li>
+                        <h3>Tabletas y plegables</h3>
+                        <p>Barra de etiquetas, lista de notas y editor lado a lado, y la nota abierta sigue abierta al girar el dispositivo.</p>
+                    </li>
+                    <li>
+                        <h3>Tu propio estilo</h3>
+                        <p>Verde Markleaf o Material You, modo oscuro, interlineado y una fuente .ttf u .otf propia.</p>
+                    </li>
+                    <li>
+                        <h3>Imágenes</h3>
+                        <p>Adjunta imágenes con texto alternativo. Se quedan en el almacenamiento de la app y van también al PDF.</p>
+                    </li>
+                    <li>
+                        <h3>Lee cualquier archivo Markdown</h3>
+                        <p>Abre un archivo .md o .txt para leerlo renderizado. Solo se suma a tus notas si lo guardas.</p>
+                    </li>
+                    <li>
+                        <h3>Una papelera indulgente</h3>
+                        <p>Deshaz justo después de mover notas a la papelera, restáuralas más tarde o deja que la papelera se vacíe sola tras el plazo que elijas.</p>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
         <section id="privacy" class="privacy-section" aria-labelledby="privacy-title">
             <div class="container privacy-grid">
                 <div class="privacy-copy">
@@ -260,6 +311,7 @@ markleaf_id: 7f3c…
                     <h2 id="privacy-title">No enviar nada<br>es la protección más clara.</h2>
                     <p>Las versiones de F-Droid y Google Play no declaran ningún permiso de internet. Las notas, etiquetas, adjuntos y ajustes permanecen en el almacenamiento privado de la app hasta que decidas moverlos tú mismo, y ninguna versión los envía a ninguna parte.</p>
                     <code class="permission-proof">F-Droid / Google Play: android.permission.INTERNET = false</code>
+                    <p class="privacy-note">La única excepción es el APK <code>-sideload</code> de GitHub Releases: puede buscar actualizaciones, pero solo si lo activas, y tampoco envía datos de tus notas.</p>
                     <a class="text-link" href="privacy.es.html">Leer la política de privacidad completa</a>
                 </div>
 
@@ -299,9 +351,9 @@ markleaf_id: 7f3c…
 
                 <div class="download-layout">
                     <article class="recommended-channel">
-                        <p class="channel-status">Recomendado · Última versión</p>
+                        <p class="channel-status">Recomendado · Actualizaciones automáticas</p>
                         <h3>F-Droid</h3>
-                        <p>Revisa la compilación y la vía de actualización en el repositorio de código abierto, y luego instala.</p>
+                        <p>F-Droid compila Markleaf a partir de su código público y lo mantiene actualizado. Las versiones nuevas suelen llegar unos días después que a GitHub.</p>
                         <a class="action action-light" href="https://f-droid.org/packages/com.markleaf.notes/">Ver Markleaf en F-Droid</a>
                         <code>com.markleaf.notes</code>
                     </article>
@@ -310,14 +362,14 @@ markleaf_id: 7f3c…
                         <a class="channel-row" role="listitem" href="https://github.com/jeiel85/markleaf-android/releases/latest">
                             <span>
                                 <strong>GitHub Releases</strong>
-                                <small>Último APK y notas de la versión</small>
+                                <small>La versión más nueva el mismo día · dos APK, uno con búsqueda de actualizaciones opcional</small>
                             </span>
-                            <em>Disponible</em>
+                            <em>Más reciente</em>
                         </a>
                         <a class="channel-row channel-paused" role="listitem" href="https://play.google.com/store/apps/details?id=com.markleaf.notes">
                             <span>
                                 <strong>Google Play</strong>
-                                <small>Consulta la página de la tienda</small>
+                                <small>Se queda en una versión anterior por ahora</small>
                             </span>
                             <em>Actualizaciones en pausa</em>
                         </a>
@@ -339,6 +391,8 @@ markleaf_id: 7f3c…
             <p><strong>Markleaf</strong><br>Notas Markdown de Android que se quedan en tu dispositivo.</p>
             <nav class="footer-links" aria-label="Enlaces legales y de código fuente">
                 <a href="https://github.com/jeiel85/markleaf-android">GitHub</a>
+                <a href="https://github.com/jeiel85/markleaf-android/discussions">Discussions</a>
+                <a href="https://github.com/jeiel85/markleaf-android/blob/main/CHANGELOG.md">Registro de cambios</a>
                 <a href="privacy.es.html">Privacy</a>
                 <a href="https://github.com/jeiel85/markleaf-android/blob/main/LICENSE">Apache-2.0</a>
             </nav>

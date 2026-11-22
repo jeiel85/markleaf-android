@@ -89,40 +89,102 @@ nav a:focus-visible,
     color: var(--leaf);
 }
 
-.nav-cluster {
-    align-items: center;
-    display: flex;
-    gap: 1.4rem;
+nav .nav-links {
+    margin-inline-start: auto;
 }
 
-.lang-switch {
-    align-items: center;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.3rem;
+/* Language menu — same component as landing.css; see the note there. */
+.lang-menu {
+    margin-inline-start: 1.4rem;
+    position: relative;
 }
 
-.lang-switch a {
+.lang-menu > summary {
     align-items: center;
     border: 1px solid var(--line);
     border-radius: 6px;
-    color: var(--muted);
+    color: var(--leaf-dark);
+    cursor: pointer;
     display: inline-flex;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 700;
-    justify-content: center;
+    gap: 0.5rem;
+    list-style: none;
     min-height: 40px;
-    min-width: 40px;
-    padding: 0 0.5rem;
-    text-decoration: none;
+    padding: 0 0.75rem;
+    white-space: nowrap;
 }
 
-.lang-switch a:hover,
-.lang-switch a:focus-visible,
-.lang-switch a[aria-current="page"] {
+.lang-menu > summary::-webkit-details-marker {
+    display: none;
+}
+
+.lang-menu > summary::after {
+    border-bottom: 2px solid currentColor;
+    border-right: 2px solid currentColor;
+    content: "";
+    height: 0.4rem;
+    transform: translateY(-2px) rotate(45deg);
+    width: 0.4rem;
+}
+
+.lang-menu[open] > summary::after {
+    transform: translateY(2px) rotate(-135deg);
+}
+
+.lang-menu > summary:hover,
+.lang-menu[open] > summary {
     background: var(--mist);
     border-color: var(--leaf);
+}
+
+.lang-menu-icon {
+    flex-shrink: 0;
+}
+
+.lang-menu-list {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: 0 12px 28px rgba(22, 64, 42, 0.14);
+    display: grid;
+    gap: 0.25rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    inset-inline-end: 0;
+    list-style: none;
+    padding: 0.5rem;
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    width: min(20rem, calc(100vw - 2rem));
+    z-index: 20;
+}
+
+.lang-menu-list a {
+    align-items: center;
+    border-radius: 6px;
+    display: flex;
+    font-size: 0.85rem;
+    font-weight: 600;
+    gap: 0.5rem;
+    min-height: 40px;
+    padding: 0 0.75rem;
+}
+
+.lang-menu-list a:hover,
+.lang-menu-list a:focus-visible {
+    background: var(--mist);
     color: var(--leaf-dark);
+}
+
+.lang-menu-list a[aria-current="page"] {
+    background: var(--mist);
+    color: var(--leaf-dark);
+    font-weight: 800;
+}
+
+.lang-menu-list a[aria-current="page"]::after {
+    content: "✓";
+    margin-inline-start: auto;
 }
 
 .hero {
@@ -368,22 +430,24 @@ footer a {
 }
 
 @media (max-width: 920px) {
+    /* Two rows: logo and language button, then the links. */
     nav {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 0.8rem;
+        display: grid;
+        gap: 0.8rem 0.75rem;
+        grid-template-columns: minmax(0, 1fr) auto;
     }
 
-    nav ul {
+    nav .nav-links {
         flex-wrap: wrap;
         gap: 0.85rem 1rem;
+        grid-column: 1 / -1;
+        grid-row: 2;
+        margin-inline-start: 0;
     }
 
-    .nav-cluster {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 0.8rem;
-        width: 100%;
+    .lang-menu {
+        justify-self: end;
+        margin-inline-start: 0;
     }
 
     .hero {

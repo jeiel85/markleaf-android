@@ -207,11 +207,10 @@ li {
     align-items: center;
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
     margin-inline: auto;
     max-width: var(--container);
     padding: var(--space-3) var(--space-6);
-    row-gap: var(--space-2);
 }
 
 .brand {
@@ -243,6 +242,7 @@ li {
     flex-wrap: wrap;
     gap: var(--space-2);
     list-style: none;
+    margin-inline-start: auto;
     padding: 0;
 }
 
@@ -265,49 +265,110 @@ li {
     color: var(--color-primary-ink);
 }
 
-.nav-cluster {
-    align-items: center;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-4);
+/* Language menu: one button naming the current language, opening a list of all
+   eleven by their own names. It is a <details>, so it works without script;
+   lang-menu.js only adds Escape and click-outside. Eleven inline buttons used
+   to wrap into two rows of the sticky header on a phone (#262). */
+.lang-menu {
+    position: relative;
 }
 
-.lang-switch {
+.lang-menu > summary {
     align-items: center;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-1);
-}
-
-.lang-switch a {
-    align-items: center;
+    border: 0.0625rem solid var(--color-line);
     border-radius: var(--radius-small);
-    color: var(--color-muted);
+    color: var(--color-primary-ink);
+    cursor: pointer;
     display: inline-flex;
-    font-family: var(--font-mono);
     font-size: var(--text-caption);
     font-weight: 700;
-    justify-content: center;
-    letter-spacing: 0.02em;
+    gap: var(--space-2);
+    list-style: none;
     min-height: 2.75rem;
-    min-width: 2.75rem;
-    padding-inline: var(--space-2);
-    text-decoration: none;
-    transition: background-color var(--transition-interactive), color var(--transition-interactive);
+    padding-inline: var(--space-3);
+    transition: background-color var(--transition-interactive), border-color var(--transition-interactive);
+    white-space: nowrap;
 }
 
-.lang-switch a:hover {
+.lang-menu > summary::-webkit-details-marker {
+    display: none;
+}
+
+/* A down-pointing chevron. Physical borders on purpose: "down" does not
+   depend on reading direction. */
+.lang-menu > summary::after {
+    border-bottom: 0.125rem solid currentColor;
+    border-right: 0.125rem solid currentColor;
+    content: "";
+    height: 0.4rem;
+    transform: translateY(-0.125rem) rotate(45deg);
+    transition: transform var(--transition-interactive);
+    width: 0.4rem;
+}
+
+.lang-menu[open] > summary::after {
+    transform: translateY(0.125rem) rotate(-135deg);
+}
+
+.lang-menu > summary:hover,
+.lang-menu[open] > summary {
     background: var(--color-primary-soft);
-    color: var(--color-primary-ink);
+    border-color: var(--color-primary);
 }
 
-.lang-switch a[aria-current="page"] {
+.lang-menu-icon {
+    flex-shrink: 0;
+}
+
+.lang-menu-list {
+    background: var(--color-surface);
+    border: 0.0625rem solid var(--color-line);
+    border-radius: var(--radius-medium);
+    box-shadow: 0 var(--space-4) var(--space-8) var(--color-shadow-soft);
+    display: grid;
+    gap: var(--space-1);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    inset-inline-end: 0;
+    list-style: none;
+    margin: 0;
+    padding: var(--space-2);
+    position: absolute;
+    top: calc(100% + var(--space-2));
+    width: min(20rem, calc(100vw - 2 * var(--space-4)));
+    z-index: 30;
+}
+
+.lang-menu-list a {
+    align-items: center;
+    border-radius: var(--radius-small);
+    color: var(--color-ink);
+    display: flex;
+    font-size: var(--text-caption);
+    font-weight: 600;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    padding-inline: var(--space-3);
+    text-decoration: none;
+    transition: background-color var(--transition-interactive);
+}
+
+.lang-menu-list a:hover {
+    background: var(--color-surface-soft);
+}
+
+.lang-menu-list a[aria-current="page"] {
     background: var(--color-primary-soft);
     color: var(--color-primary-ink);
     font-weight: 750;
 }
 
+.lang-menu-list a[aria-current="page"]::after {
+    content: "✓";
+    margin-inline-start: auto;
+}
+
 #features,
+#more,
 #privacy,
 #download {
     scroll-margin-top: 5rem;
@@ -486,7 +547,7 @@ li {
 
 .trust-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .proof-item {
@@ -658,6 +719,44 @@ li {
     padding: var(--space-4) var(--space-8);
 }
 
+.more-section {
+    background: var(--color-surface);
+    border-top: 0.0625rem solid var(--color-line);
+}
+
+.more-section .section-intro {
+    margin-bottom: var(--space-12);
+}
+
+.more-grid {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    list-style: none;
+    padding: 0;
+}
+
+.more-grid li {
+    background: var(--color-canvas);
+    border: 0.0625rem solid var(--color-line);
+    border-radius: var(--radius-medium);
+    border-top: var(--space-1) solid var(--color-primary);
+    padding: var(--space-6);
+}
+
+.more-grid h3 {
+    font-size: 1.125rem;
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+}
+
+.more-grid p {
+    color: var(--color-muted);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    margin-top: var(--space-2);
+}
+
 .privacy-section {
     background: var(--color-primary-soft);
     padding-block: clamp(5rem, 10vw, 9rem);
@@ -689,6 +788,16 @@ li {
     margin-top: var(--space-8);
     overflow-wrap: anywhere;
     padding: var(--space-4);
+}
+
+.privacy-copy > p.privacy-note {
+    font-size: var(--text-caption);
+    margin-top: var(--space-4);
+}
+
+.privacy-note code {
+    color: var(--color-primary-ink);
+    font-weight: 700;
 }
 
 .text-link {
@@ -941,28 +1050,48 @@ li {
     .privacy-copy {
         max-width: 48rem;
     }
+
+    .trust-grid,
+    .more-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .proof-item + .proof-item {
+        border-inline-start: 0;
+    }
+
+    .proof-item:nth-child(even) {
+        border-inline-start: 0.0625rem solid var(--color-white-line);
+    }
+
+    .proof-item:nth-child(n + 3) {
+        border-top: 0.0625rem solid var(--color-white-line);
+    }
 }
 
 @media (max-width: 48rem) {
+    /* Two rows: logo and language button, then the section links. */
     .site-nav {
-        align-items: stretch;
-        flex-direction: column;
+        column-gap: var(--space-3);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
         padding-block: var(--space-2);
+        row-gap: 0;
     }
 
     .brand {
-        align-self: flex-start;
+        justify-self: start;
     }
 
-    .nav-cluster {
-        align-items: stretch;
-        flex-direction: column;
-        gap: var(--space-2);
-        width: 100%;
+    .lang-menu {
+        justify-self: end;
     }
 
     .nav-links {
+        grid-column: 1 / -1;
+        grid-row: 2;
         justify-content: space-between;
+        margin-inline-start: 0;
         width: 100%;
     }
 
@@ -971,9 +1100,14 @@ li {
     }
 
     #features,
+    #more,
     #privacy,
     #download {
         scroll-margin-top: 7rem;
+    }
+
+    .more-grid {
+        grid-template-columns: 1fr;
     }
 
     .hero-grid,

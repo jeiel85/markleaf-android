@@ -83,6 +83,16 @@ the landing page screenshots, in 720px and 1280px variants. The version they
 show is carried in each page's `<figcaption>`, which
 `verify-landing-versions.ps1` requires to agree across all the languages.
 
+Recorded on **v2.74.0** (the release store APK, English, the six starter notes
+on a fresh install). The earlier set was from v2.23.0 and showed a two-pane
+layout without the tag rail. To reshoot the same way on the phone AVD:
+`adb shell wm size 2560x1600` and `wm density 320` give a 1280×800 dp landscape
+window, which takes the three-pane layout; System UI demo mode
+(`sysui_demo_allowed`, then the `com.android.systemui.demo` broadcasts) keeps
+the status bar clean. Capture with `screencap` at 2560×1600 and scale to
+1280×800 and 720×450 WebP (quality ~82). Undo `wm size`/`wm density` with
+`reset` afterwards. The shots are English on every language's page.
+
 ### `markleaf-preview-720.webp` / `markleaf-preview-1280.webp` — kept deliberately
 
 **Nothing in this repository references these two.** They are kept anyway, and

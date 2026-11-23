@@ -63,6 +63,7 @@ internal fun NotesSettings(
             }
         }
     )
+    Spacer(Modifier.height(12.dp))
     SettingsSwitchRow(
         title = stringResource(R.string.show_section_headings),
         titleModifier = anchors.item(SettingsItem.SECTION_HEADINGS),

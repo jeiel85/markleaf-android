@@ -6,7 +6,11 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 ## Unreleased
 
+### Added
+- **A notes list without section headings.** Turn off Settings → Notes → Show section headings, and the list no longer splits into Pinned, Today, Yesterday, Past 7 days and Older: it's one continuous list in the order you sorted it. Pinned notes still come first and keep their pin. The headings are on by default, so the list looks as it always has unless you turn them off. Thanks to @bigasooo for the idea. (#600)
+
 ### Fixed
+- **A wikilink opens its note even when the capitals differ.** Tapping `[[project brief]]` created a new, empty "project brief" note next to "Project Brief", although Linked from already counted the link as pointing to "Project Brief". It now opens that note. A title that matches exactly still comes first, and a link to a locked note still only says where the note is. (#602)
 - **Undo after moving notes to the trash is still there when you come back.** Opening a note or Settings within the few seconds the Undo bar shows used to drop it for good. The notes list and the archive now show it again when you return, until it has run its course or you move other notes to the trash. (#262)
 - **The notes list writes the time in your phone's 12- or 24-hour style.** A note edited today showed "Today 15:02" in the list but "3:02 PM" in Note information. Both now follow the phone's clock setting. (#262)
 - **Adding a table or a callout with the cursor inside a table no longer splits that table.** With the cursor in a table's header row, the new block landed between the header and its `| --- |` row, and neither table showed as before. Inside a table, a quote or a code block, the new block now goes below that whole block. In ordinary text it still goes right below the line you're on. (#262)

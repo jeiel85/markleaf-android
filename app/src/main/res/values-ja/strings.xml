@@ -313,6 +313,8 @@
     <string name="line_width_description">タブレットなどの広い画面で、1行が長くなりすぎないよう本文の幅を制限します。縦向きのスマートフォンでは本文がすでに画面に収まっているため、変化はありません。行間は変わりません。</string>
     <string name="show_note_previews">ノートのプレビューを表示</string>
     <string name="show_note_previews_description">タイトルの下に本文の一部と編集時刻を表示します。オフにすると画面により多くのノートが収まります。</string>
+    <string name="show_section_headings">セクション見出しを表示</string>
+    <string name="show_section_headings_description">ノートをピン留め・今日・昨日・過去 7 日間・それ以前に分けて表示します。オフにすると一続きの一覧になり、ピン留めしたノートはピンの印とともに先頭に残ります。</string>
     <string name="reopen_last_note">起動時に最後のノートを開く</string>
     <string name="reopen_last_note_description">起動時にノート一覧ではなく、最後に編集したノートから始めます。</string>
     <string name="recent_notes_in_shortcuts">アプリのショートカットに最近のノートを表示</string>

@@ -111,6 +111,7 @@ import com.markleaf.notes.data.settings.SnippetButton
 import com.markleaf.notes.data.sync.LocalNoteLinkResult
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.localNoteLinkVerdict
+import com.markleaf.notes.data.sync.wikilinkTitleMatch
 import com.markleaf.notes.data.sync.resolveLocalNoteLink
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.data.sync.mirrorMetadata
@@ -1644,6 +1645,20 @@ fun EditorScreen(
                                     } else if (localName != null) {
                                         Toast.makeText(context, R.string.quick_switcher_no_results, Toast.LENGTH_SHORT).show()
                                     } else {
+                                        // No exact title: compare the way backlinks do, so
+                                        // `[[project brief]]` opens "Project Brief" — the note
+                                        // already listing this one under Linked from — rather
+                                        // than creating a second note beside it (#602).
+                                        val match = wikilinkTitleMatch(title, db.noteDao().getLinkableNoteTitles())
+                                        if (match != null) {
+                                            if (match.locked) {
+                                                Toast.makeText(context, R.string.wikilink_target_locked, Toast.LENGTH_SHORT).show()
+                                            } else {
+                                                onNavigateToNote(match.id)
+                                            }
+                                            return@launch
+                                        }
+
                                         val seed = "# $title\n\n"
                                         val newNote = com.markleaf.notes.domain.model.Note(
                                             id = java.util.UUID.randomUUID().toString(),

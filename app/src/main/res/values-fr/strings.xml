@@ -323,6 +323,8 @@
     <string name="line_width_description">Évite que les lignes s\'étirent sur les écrans larges, comme une tablette. Sur un téléphone tenu à la verticale, le texte tient déjà dans l\'écran : rien ne change. L\'interligne n\'est pas modifié.</string>
     <string name="show_note_previews">Afficher l\'aperçu des notes</string>
     <string name="show_note_previews_description">Affiche un extrait et l\'heure de modification sous chaque titre. Désactivez pour afficher plus de notes à l\'écran.</string>
+    <string name="show_section_headings">Afficher les titres de section</string>
+    <string name="show_section_headings_description">Regroupe les notes sous Épinglées, Aujourd\'hui, Hier, 7 derniers jours et Plus anciennes. Désactivez pour une liste continue ; les notes épinglées restent en haut avec leur épingle.</string>
     <string name="reopen_last_note">Rouvrir la dernière note au démarrage</string>
     <string name="reopen_last_note_description">Démarre dans la dernière note modifiée plutôt que dans la liste des notes.</string>
     <string name="recent_notes_in_shortcuts">Notes récentes dans les raccourcis de l\'appli</string>

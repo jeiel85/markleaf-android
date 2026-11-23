@@ -8,6 +8,14 @@ import androidx.room.Update
 import com.markleaf.notes.data.local.entity.NoteEntity
 import kotlinx.coroutines.flow.Flow
 
+/** Just enough of a note to match a wikilink's title against (#602). */
+data class NoteTitleRow(
+    val id: String,
+    val title: String,
+    val locked: Boolean,
+    val updatedAt: Long
+)
+
 @Dao
 interface NoteDao {
     @Query("SELECT * FROM notes WHERE trashed = 0 AND archived = 0 AND locked = 0 ORDER BY pinned DESC, sortOrder ASC, updatedAt DESC")
@@ -53,6 +61,16 @@ interface NoteDao {
         "SELECT COUNT(*) FROM notes WHERE title = :title AND trashed = 0 AND archived = 0 AND locked = 1"
     )
     suspend fun countLockedNotesWithTitle(title: String): Int
+
+    /**
+     * Titles of every note a wikilink may name — active and locked, not trashed
+     * or archived. Asked only after the exact-title lookups above miss, so a
+     * link whose capitals differ from the title still finds its note instead of
+     * creating a second one (#602). SQLite's own case folding is ASCII-only,
+     * which is why the matching happens in Kotlin rather than here.
+     */
+    @Query("SELECT id, title, locked, updatedAt FROM notes WHERE trashed = 0 AND archived = 0")
+    suspend fun getLinkableNoteTitles(): List<NoteTitleRow>
 
     /**
      * Every note regardless of state — active, archived, or trashed. The folder

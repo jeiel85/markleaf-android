@@ -335,6 +335,8 @@
     <string name="line_width_description">Keeps lines from stretching across wide screens, such as a tablet. On a phone held upright the text already fits the screen, so nothing changes there. This doesn\'t change the spacing between lines.</string>
     <string name="show_note_previews">Show note previews</string>
     <string name="show_note_previews_description">Show a snippet and edit time under each title. Turn off to fit more notes on screen.</string>
+    <string name="show_section_headings">Show section headings</string>
+    <string name="show_section_headings_description">Group notes under Pinned, Today, Yesterday, Past 7 days and Older. Turn off for one continuous list; pinned notes stay on top with their pin.</string>
     <string name="reopen_last_note">Reopen last note on launch</string>
     <string name="reopen_last_note_description">Start in the note you last edited instead of the notes list.</string>
     <string name="recent_notes_in_shortcuts">Recent notes in app shortcuts</string>

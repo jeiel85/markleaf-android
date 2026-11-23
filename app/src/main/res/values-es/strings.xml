@@ -323,6 +323,8 @@
     <string name="line_width_description">Evita que las líneas se estiren en pantallas anchas, como una tableta. En un teléfono en vertical el texto ya cabe en la pantalla, así que ahí no cambia nada. No cambia el interlineado.</string>
     <string name="show_note_previews">Mostrar vista previa de las notas</string>
     <string name="show_note_previews_description">Muestra un fragmento y la hora de edición bajo cada título. Desactívalo para ver más notas en pantalla.</string>
+    <string name="show_section_headings">Mostrar encabezados de sección</string>
+    <string name="show_section_headings_description">Agrupa las notas en Fijadas, Hoy, Ayer, Últimos 7 días y Anteriores. Desactívalo para ver una sola lista continua; las notas fijadas siguen arriba con su chincheta.</string>
     <string name="reopen_last_note">Reabrir la última nota al iniciar</string>
     <string name="reopen_last_note_description">Empieza en la nota que editaste por última vez en lugar de la lista de notas.</string>
     <string name="recent_notes_in_shortcuts">Notas recientes en los accesos directos</string>

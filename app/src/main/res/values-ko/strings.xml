@@ -313,6 +313,8 @@
     <string name="line_width_description">태블릿처럼 넓은 화면에서 한 줄이 너무 길어지지 않도록 본문 폭을 제한합니다. 세로로 든 휴대폰에서는 본문이 이미 화면에 맞으므로 달라지지 않습니다. 줄 간격은 바꾸지 않습니다.</string>
     <string name="show_note_previews">노트 미리보기 표시</string>
     <string name="show_note_previews_description">제목 아래에 본문 일부와 수정 시각을 표시합니다. 끄면 화면에 더 많은 노트가 보입니다.</string>
+    <string name="show_section_headings">구간 제목 표시</string>
+    <string name="show_section_headings_description">노트를 고정됨, 오늘, 어제, 지난 7일, 이전으로 나눠 보여 줍니다. 끄면 하나로 이어진 목록이 되고, 고정한 노트는 핀 표시와 함께 맨 위에 남습니다.</string>
     <string name="reopen_last_note">시작 시 마지막 노트 열기</string>
     <string name="reopen_last_note_description">앱을 열 때 노트 목록 대신 마지막으로 편집한 노트에서 시작합니다.</string>
     <string name="recent_notes_in_shortcuts">앱 바로가기에 최근 노트 표시</string>

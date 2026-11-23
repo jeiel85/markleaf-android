@@ -55,6 +55,7 @@ internal enum class SettingsItem(
     MOVE_LINE_BUTTONS(SettingsCategory.EDITOR, R.string.show_move_line_buttons, R.string.show_move_line_buttons_description),
     SNIPPET_BUTTONS(SettingsCategory.EDITOR, R.string.snippet_buttons_label, R.string.snippet_buttons_description),
     NOTE_PREVIEWS(SettingsCategory.NOTES, R.string.show_note_previews, R.string.show_note_previews_description),
+    SECTION_HEADINGS(SettingsCategory.NOTES, R.string.show_section_headings, R.string.show_section_headings_description),
     NOTES_LAYOUT(
         SettingsCategory.NOTES, R.string.notes_layout, R.string.notes_layout_description,
         listOf(R.string.notes_layout_list, R.string.notes_layout_grid)

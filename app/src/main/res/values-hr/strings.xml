@@ -343,6 +343,8 @@
     <string name="line_width_description">Sprječava da se retci razvuku preko širokih zaslona, poput tableta. Na uspravno držanom telefonu tekst već stane na zaslon, pa se tamo ništa ne mijenja. Ne mijenja razmak između redaka.</string>
     <string name="show_note_previews">Prikaži pretpregled bilješke</string>
     <string name="show_note_previews_description">Prikaži isječak i vrijeme uređivanja ispod svakog naslova bilješke. Isključite ovo da bi se prikazalo više bilješki na zaslonu.</string>
+    <string name="show_section_headings">Prikaži naslove odjeljaka</string>
+    <string name="show_section_headings_description">Grupira bilješke pod Prikvačeno, Danas, Jučer, Prošlih 7 dana i Starije. Isključite za jedan neprekinuti popis; prikvačene bilješke ostaju na vrhu sa svojom pribadačom.</string>
     <string name="reopen_last_note">Ponovno otvori posljednju bilješku pri pokretanju</string>
     <string name="reopen_last_note_description">Pokretanje s posljednjom uređivanom bilješkom umjesto popisa bilješki.</string>
     <string name="recent_notes_in_shortcuts">Nedavne bilješke u prečacima aplikacije</string>

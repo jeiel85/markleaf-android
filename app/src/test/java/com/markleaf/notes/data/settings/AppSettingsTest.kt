@@ -24,6 +24,7 @@ class AppSettingsTest {
         val settings = AppSettings()
 
         assertTrue(settings.notesShowPreview)
+        assertTrue(settings.notesSectionHeadings)
         assertFalse(settings.reopenLastNote)
         assertEquals(NotesSortMode.UPDATED_DESC, settings.notesSortMode)
         assertFalse(settings.searchTitlesOnly)

@@ -64,6 +64,19 @@ internal fun NotesSettings(
         }
     )
     Spacer(Modifier.height(12.dp))
+    SettingsSwitchRow(
+        title = stringResource(R.string.show_section_headings),
+        titleModifier = anchors.item(SettingsItem.SECTION_HEADINGS),
+        description = stringResource(R.string.show_section_headings_description),
+        checked = appSettings.notesSectionHeadings,
+        onCheckedChange = { checked ->
+            HapticFeedback.light(context)
+            scope.launch {
+                settingsRepository.setNotesSectionHeadings(checked)
+            }
+        }
+    )
+    Spacer(Modifier.height(12.dp))
     Text(
         text = stringResource(R.string.notes_layout),
         modifier = anchors.item(SettingsItem.NOTES_LAYOUT),

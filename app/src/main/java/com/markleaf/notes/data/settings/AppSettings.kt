@@ -46,6 +46,10 @@ data class AppSettings(
      *  and search results. Off collapses rows to title-only so more notes fit
      *  on screen (#188). */
     val notesShowPreview: Boolean = true,
+    /** Split the notes list under Pinned / Today / Yesterday / Past 7 days /
+     *  Older headings. Off shows one continuous list in the chosen order, with
+     *  pinned notes still first and marked by their pin (#600). */
+    val notesSectionHeadings: Boolean = true,
     /** Keep the standing `Aa` formatting button on the row above the keyboard
      *  while editing. Off removes that row for people who format by typing
      *  Markdown, for whom it is chrome that never pays for itself; the actions

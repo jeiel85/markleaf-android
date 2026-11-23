@@ -323,6 +323,8 @@
     <string name="line_width_description">Verhindert, dass Zeilen auf breiten Bildschirmen wie Tablets zu lang werden. Auf einem hochkant gehaltenen Smartphone passt der Text schon auf den Bildschirm, dort ändert sich nichts. Der Zeilenabstand bleibt gleich.</string>
     <string name="show_note_previews">Notizvorschau anzeigen</string>
     <string name="show_note_previews_description">Zeigt unter jedem Titel einen Ausschnitt und die Bearbeitungszeit. Ausschalten, um mehr Notizen auf dem Bildschirm zu sehen.</string>
+    <string name="show_section_headings">Abschnittsüberschriften anzeigen</string>
+    <string name="show_section_headings_description">Gruppiert Notizen unter Angeheftet, Heute, Gestern, Letzte 7 Tage und Älter. Ausschalten für eine durchgehende Liste; angeheftete Notizen bleiben mit ihrer Nadel oben.</string>
     <string name="reopen_last_note">Letzte Notiz beim Start öffnen</string>
     <string name="reopen_last_note_description">Beim Start direkt in der zuletzt bearbeiteten Notiz beginnen statt in der Notizenliste.</string>
     <string name="recent_notes_in_shortcuts">Letzte Notizen in App-Verknüpfungen</string>

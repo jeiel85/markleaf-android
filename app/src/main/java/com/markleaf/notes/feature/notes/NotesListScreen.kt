@@ -202,7 +202,10 @@ fun NotesListScreen(
         launch { gridState.scrollToItem(0) }
     }
     val sortMode = appSettings.notesSortMode
-    val sections = remember(displayed, sortMode) { groupNotesForDisplay(displayed, sortMode) }
+    val sectionHeadings = appSettings.notesSectionHeadings
+    val sections = remember(displayed, sortMode, sectionHeadings) {
+        groupNotesForDisplay(displayed, sortMode, sectionHeadings)
+    }
 
     // Several notes at once (#596). Started from a note's long-press menu or
     // from the overflow menu; while it is up a tap picks a note instead of
@@ -1053,7 +1056,7 @@ private fun NoteContextMenu(
     }
 }
 
-private data class NoteSection(val titleResId: Int?, val notes: List<Note>)
+internal data class NoteSection(val titleResId: Int?, val notes: List<Note>)
 
 /**
  * Sections for the list under the active sort mode (#191). The default
@@ -1061,10 +1064,19 @@ private data class NoteSection(val titleResId: Int?, val notes: List<Note>)
  * renders a Pinned section (pinning outranks any sort) followed by one flat,
  * header-less section in the chosen order — date buckets would be misleading
  * when the list isn't date-ordered.
+ *
+ * With [headings] off there is a single header-less section in every mode
+ * (#600): pinned notes still lead, and each one carries its own pin icon, so
+ * nothing the headings said is lost.
  */
-private fun groupNotesForDisplay(notes: List<Note>, mode: NotesSortMode): List<NoteSection> {
-    if (mode == NotesSortMode.UPDATED_DESC) return groupNotes(notes)
+internal fun groupNotesForDisplay(
+    notes: List<Note>,
+    mode: NotesSortMode,
+    headings: Boolean = true
+): List<NoteSection> {
     if (notes.isEmpty()) return emptyList()
+    if (!headings) return listOf(NoteSection(null, sortNotesForDisplay(notes, mode)))
+    if (mode == NotesSortMode.UPDATED_DESC) return groupNotes(notes)
 
     val sorted = sortNotesForDisplay(notes, mode)
     val pinned = sorted.filter { it.pinned }

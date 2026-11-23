@@ -83,6 +83,7 @@ class AppSettingsRepository internal constructor(
             biometricLockEnabled = preferences[BIOMETRIC_LOCK_ENABLED] ?: false,
             lockPasscodeSet = !preferences[LOCK_PASSCODE_HASH].isNullOrBlank(),
             notesShowPreview = preferences[NOTES_SHOW_PREVIEW] ?: true,
+            notesSectionHeadings = preferences[NOTES_SECTION_HEADINGS] ?: true,
             showFormattingButton = preferences[SHOW_FORMATTING_BUTTON] ?: true,
             showMoveLineButtons = preferences[SHOW_MOVE_LINE_BUTTONS] ?: false,
             snippetButtons = SnippetButtonsCodec.decode(preferences[SNIPPET_BUTTONS]),
@@ -326,6 +327,12 @@ class AppSettingsRepository internal constructor(
     suspend fun setNotesShowPreview(show: Boolean) {
         persist { preferences ->
             preferences[NOTES_SHOW_PREVIEW] = show
+        }
+    }
+
+    suspend fun setNotesSectionHeadings(show: Boolean) {
+        persist { preferences ->
+            preferences[NOTES_SECTION_HEADINGS] = show
         }
     }
 
@@ -575,6 +582,7 @@ class AppSettingsRepository internal constructor(
         val LOCK_FAILED_ATTEMPTS = intPreferencesKey("lock_failed_attempts")
         val LOCK_RETRY_AT = longPreferencesKey("lock_retry_at")
         val NOTES_SHOW_PREVIEW = booleanPreferencesKey("notes_show_preview")
+        val NOTES_SECTION_HEADINGS = booleanPreferencesKey("notes_section_headings")
         val SHOW_FORMATTING_BUTTON = booleanPreferencesKey("show_formatting_button")
         val SHOW_MOVE_LINE_BUTTONS = booleanPreferencesKey("show_move_line_buttons")
         val SNIPPET_BUTTONS = stringPreferencesKey("snippet_buttons")

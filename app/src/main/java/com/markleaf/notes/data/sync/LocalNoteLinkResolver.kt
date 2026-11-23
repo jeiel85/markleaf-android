@@ -2,7 +2,9 @@ package com.markleaf.notes.data.sync
 
 import android.content.Context
 import com.markleaf.notes.data.local.AppDatabase
+import com.markleaf.notes.data.local.dao.NoteTitleRow
 import com.markleaf.notes.data.local.entity.NoteEntity
+import com.markleaf.notes.util.WikilinkExtractor
 import com.markleaf.notes.data.settings.AppSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -45,4 +47,21 @@ internal fun localNoteLinkVerdict(target: NoteEntity?): LocalNoteLinkResult = wh
     target == null || target.trashed || target.archived -> LocalNoteLinkResult.NotFound
     target.locked -> LocalNoteLinkResult.Locked
     else -> LocalNoteLinkResult.Open(target.id)
+}
+
+/**
+ * The note a `[[title]]` wikilink names when no title matches it exactly:
+ * the same comparison backlinks use ([WikilinkExtractor.normalize] — trimmed,
+ * case-insensitive), so a link the "Linked from" list already counts also
+ * opens that note instead of creating a second one (#602). An unlocked note
+ * beats a locked one, then the most recently edited wins; null when nothing
+ * matches.
+ */
+internal fun wikilinkTitleMatch(title: String, rows: List<NoteTitleRow>): NoteTitleRow? {
+    val wanted = WikilinkExtractor.normalize(title)
+    if (wanted.isEmpty()) return null
+    return rows
+        .filter { WikilinkExtractor.normalize(it.title) == wanted }
+        .sortedWith(compareBy<NoteTitleRow> { it.locked }.thenByDescending { it.updatedAt })
+        .firstOrNull()
 }

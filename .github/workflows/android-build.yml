@@ -447,16 +447,14 @@ jobs:
           ORG_GRADLE_PROJECT_markleaf.requireReleaseSigning: "true"
         run: ./gradlew :app:assembleRelease
 
-      # The AAB exists for exactly one consumer, Play Console, and Play updates
-      # are on hold (README, all eight languages). Building it anyway costs a
-      # couple of minutes per tag and produces a file nobody can take: an .aab
-      # cannot be sideloaded, and D062 already keeps it off the Release for that
-      # reason.
+      # The AAB exists for exactly one consumer, Play Console. An .aab cannot be
+      # sideloaded, and D062 keeps it off the Release for that reason.
       #
-      # Gated rather than deleted, on the #211/#212 precedent D067 cites: a
-      # deleted mechanism cannot be turned back on by someone who does not know
-      # it existed, and Play is paused rather than abandoned. Set the repository
-      # variable MARKLEAF_PLAY_AAB to 'true' and the three AAB steps come back.
+      # Gated rather than deleted, on the #211/#212 precedent D067 cites. The
+      # repository variable MARKLEAF_PLAY_AAB was unset while Play was on hold
+      # (D072) and is 'true' since 2026-11-26: each release goes to the Alpha
+      # track from the markleaf-release-aab artifact (D087, docs/RELEASE.md
+      # "Google Play — Alpha only"). Unset it again if Play uploads stop.
       - name: Build Play Console AAB
         if: vars.MARKLEAF_PLAY_AAB == 'true'
         env:

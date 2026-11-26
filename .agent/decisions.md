@@ -1962,3 +1962,36 @@ Implications:
   same as any text the user typed.
 - A label is escaped for its cell (`|` to `\|`, line breaks to a space), so no translation can break
   the table.
+
+### D087 - Play Uploads Resume On The Alpha Track Only, From The Tag Run's AAB
+
+Date: 2026-11-26. Maintainer decision in chat. Supersedes the "Play is on hold" part of D072; the
+rest of D072 (no local step before a tag, mapping as a Release asset) stands.
+
+Decision:
+- Every release is uploaded to Google Play's **Alpha** (closed testing) track. Production is not
+  touched: it stays blocked until the solo-developer business-registration requirement is resolved.
+- The repository variable `MARKLEAF_PLAY_AAB` is `true`, so the tag run builds the signed AAB and
+  keeps it as the `markleaf-release-aab` artifact (14 days). The upload takes that artifact.
+- The upload goes through the Play Developer API with the maintainer's global `play-publish` skill
+  (service account, `-DryRun` first). The Play Console UI is only for what the API cannot do.
+- The local `D:\Build` export (`exportReleaseToBuildDrive`, `verify-release-export.ps1`) is **not**
+  revived. It was the step D072 removed because people forgot it; the tag run already produces the
+  same AAB with the same key.
+- README and landing keep saying Play updates are paused. For the public listing that is still true.
+
+Why:
+- The block that made Play pointless to feed was target API 36, and it is gone: v2.74.0 (vc191)
+  targets 36. Production remains blocked for a non-technical reason, but closed testers can get
+  current builds.
+- The store build already has what Play requires: no `INTERNET`, no self-update code (D073·D074).
+- Building the AAB in CI and uploading by API removes every manual hand-off except one command.
+
+Implications:
+- Release flow step 4 in `AGENTS.md` and `docs/RELEASE.md` "Google Play — Alpha only" describe the
+  upload. If the AAB artifact expires before an upload, rebuild locally from the tag's commit with the
+  `MARKLEAF_RELEASE_*` env vars (the key backup is on the maintainer's drive).
+- The Play upload key is the same certificate as the GitHub/F-Droid release key. That predates the
+  maintainer's later "one key per channel" rule and stays: Play already knows this key, and resetting
+  an upload key is a separate, Play-side decision.
+- If uploads stop again, unset `MARKLEAF_PLAY_AAB` and say so here.

@@ -87,7 +87,9 @@ CI 또는 릴리즈 검증 시에는 APK 산출물 확인을 반드시 포함한
 - **태그 전 로컬 검증은 없다(D072).** `verify-release-export.ps1`은 `D:\Build`를 보는
   스크립트인데 그 export가 릴리스 경로에서 빠졌다. 릴리스 자산은 태그 런이 만들어
   GitHub Release에 붙이므로, 확인할 곳은 Release 페이지다 — APK와 mapping 두 개.
-  Play가 재개되면 `MARKLEAF_PLAY_AAB`와 함께 이 검증도 되살린다.
+  Play Alpha 업로드를 재개한 뒤에도(D087) 이 로컬 검증은 되살리지 않는다. AAB는 태그 런이
+  만들어 `markleaf-release-aab` 아티팩트로 남기고, CI의 `Verify Play Console AAB exists`와
+  `play-publish -DryRun`의 서명 지문 확인이 그 자리를 맡는다.
 - **GitLab 쪽 검증은 해당 없음이다 — GitLab은 아무것도 발행·미러하지 않는다(D067·D068).**
   `GITLAB_RELEASE_MIRROR`와 `GITLAB_REF_MIRROR` 둘 다 미설정이라 릴리스 발행 스텝 2개와
   `mirror-push`·`mirror-check`가 전부 skip 된다. GitLab `main`은 v2.32.4 시점에 얼어
@@ -144,10 +146,11 @@ Android 프로젝트가 아직 초기화되지 않았다면 먼저 표준 Kotlin
 
 ## Release Artifact Export
 
-> **이 절차는 Play 업로드가 보류된 동안 릴리스 경로에서 빠져 있다(D072).** 태그 런이
-> APK와 mapping을 만들어 GitHub Release에 붙이므로 태그 전에 할 로컬 작업은 없다.
-> 아래 내용은 Play 업로드가 재개될 때 되살리기 위해 그대로 둔다 — 그때는
-> `MARKLEAF_PLAY_AAB` 저장소 변수를 `true`로 두면 CI가 서명 AAB도 다시 만든다.
+> **이 절차는 릴리스 경로에서 빠져 있다(D072).** 태그 런이 APK와 mapping을 만들어
+> GitHub Release에 붙이므로 태그 전에 할 로컬 작업은 없다. 2026-11-26 Play Alpha 업로드를
+> 재개할 때도(D087) 이 로컬 export는 되살리지 않았다 — `MARKLEAF_PLAY_AAB=true`라 태그 런이
+> 서명 AAB도 만들고, 업로드는 [GitHub 이슈 대응](#github-이슈-대응) 4단계대로 그 아티팩트를
+> 받아 한다. 아래 내용은 기록으로 남겨 둔다.
 
 사용자가 "새 버전 만들기"를 요청하면 버전 bump, changelog, fastlane changelog, 검증, commit/tag 작업과 함께 실제 산출물 디렉터리인 `D:\Build`에 Play Console 제출용 파일을 내보낸다. 바탕화면의 `Build`는 이 디렉터리를 가리키는 바로가기일 뿐이며, 릴리스 task는 바로가기를 경유하지 않는다. 이 dump는 전용 Gradle task로 자동화되어 있다:
 
@@ -253,10 +256,23 @@ GitLab CI용 산출물은 `-Pmarkleaf.releaseExportDir=<dir>`와 함께
    `build` 워크플로가 `scripts/verify-release-notes.ps1`과 `scripts/verify-landing-versions.ps1`로
    검사한다. 기준은 `app/build.gradle.kts`의 versionName/versionCode이므로, bump만 하고 나머지를
    빠뜨리면 태그를 밀기 전에 PR 단계에서 실패한다(#167).
-4. **Play Store — 현재 해당 없음(D072).** Play 업데이트가 보류 중이라 서명 AAB를 만들지
-   않으므로 핸드오프할 산출물이 없다. 재개하면 `MARKLEAF_PLAY_AAB` 저장소 변수를 `true`로
-   두고 [Release Artifact Export](#release-artifact-export)의 절차를 되살린다 — 업로드는
-   그때도 메인테이너가 수동으로 한다.
+4. **Play Store — Alpha(비공개 테스트)에만 올린다(D087).** 프로덕션은 1인 개발자의 사업자
+   등록 요건이 풀리기 전까지 막혀 있어 공개 사용자는 여전히 옛 버전을 받는다(README의
+   "updates paused" 표기는 그래서 사실이고 고치지 않는다). 태그 런이 녹색이면:
+
+   ```powershell
+   gh run download <태그 런 ID> -n markleaf-release-aab -D <scratchpad>\aab
+   pwsh ~/.claude/skills/play-publish/play-publish.ps1 -PackageName com.markleaf.notes -ShowTracks
+   pwsh ~/.claude/skills/play-publish/play-publish.ps1 -PackageName com.markleaf.notes -Track alpha `
+       -AabPath <scratchpad>\aab\app-release.aab -VersionName <x.y.z> -ExpectedVersionCode <vc> `
+       -NotesKoFile fastlane\metadata\android\ko-KR\changelogs\<vc>.txt `
+       -NotesEnFile fastlane\metadata\android\en-US\changelogs\<vc>.txt -DryRun
+   ```
+
+   DryRun이 통과하면 `-DryRun`을 빼고 올린 뒤 `-ShowTracks`로 Alpha에 새 versionCode가
+   들어갔는지 본다. 아티팩트는 14일 뒤 사라지므로 그 주 안에 올린다. 업로드는 서비스 계정
+   API로 하고 Play Console 화면은 쓰지 않는다. 프로덕션(`-Track production`)에는 올리지
+   않는다 — 사업자 요건이 풀리면 이 단계를 다시 쓴다.
 5. **Discussions 공지.** 태그 런의 `release` 잡이 녹색이고 Release 자산(APK·mapping)을
    눈으로 확인한 뒤, Discussions → **Announcements**에 릴리스 공지를 올린다. 그 카테고리는
    환영글 #206이 스스로 "releases and important notices (maintainer posts)"로 정의해 둔 자리다.

@@ -335,11 +335,13 @@ A failure that survives a cold boot is real. One that does not is the emulator.
 
 ## Release Export — Local Gate, Not CI
 
-> **Out of the release path since D072.** Play uploads are on hold, so the AAB
-> is not built and the mapping ships as a GitHub Release asset instead. There is
-> nothing to run before pushing a tag, and nothing below is a gate today. It is
-> kept for the day Play resumes: set the repository variable `MARKLEAF_PLAY_AAB`
-> to `true` and this section applies again as written.
+> **Out of the release path since D072, and it stayed out when Play resumed
+> (D087).** The mapping ships as a GitHub Release asset, and since 2026-11-26
+> `MARKLEAF_PLAY_AAB` is `true`, so the tag run also builds the signed AAB and
+> keeps it as the `markleaf-release-aab` artifact. The Alpha upload takes that
+> artifact (see "Google Play — Alpha only" below). There is nothing to run
+> before pushing a tag, and nothing below is a gate today; it is kept as a
+> record.
 
 **CI cannot check this.** `D:\Build` is a local path on the maintainer's
 machine, so no pipeline can confirm the export ran. Run it, then verify it,
@@ -390,11 +392,10 @@ native rather than heap, and it is not always enough — v2.32.6 crashed at both
 `2048m` and `1536m` with roughly 1.7 GB free. Close what you can and retry
 first; the rest of this section is for when that does not work.
 
-> Also out of the release path since D072, and doubly so: with
-> `MARKLEAF_PLAY_AAB` unset there is no `markleaf-release-aab` artifact to
-> download, and the mapping no longer needs recovering from a workflow artifact
-> because it is attached to the Release itself. What remains below applies only
-> once the AAB build is switched back on.
+> Also out of the release path since D072: the mapping no longer needs
+> recovering from a workflow artifact because it is attached to the Release
+> itself, and the AAB goes to Play straight from the `markleaf-release-aab`
+> artifact (D087) rather than through `D:\Build`. Kept as a record.
 
 **The tag job has already built the same two artifacts.** `release` runs
 `:app:exportReleaseArtifacts` on the tagged commit with the CI signing secrets,
@@ -654,12 +655,35 @@ copies already exist") stopped being true, and the decision was reversed rather
 than left to rot. `markleaf-release-mapping` is still uploaded as a 30-day
 workflow artifact, now for convenience rather than as the only GitHub-side copy.
 
-The signed AAB is **not built at all** while Play updates are on hold. Its three
-steps — build, verify, artifact upload — are gated behind the repository
-variable `MARKLEAF_PLAY_AAB`, which is unset. Setting it to `true` brings them
-back; nothing was deleted, on the same precedent D067 cites for the GitLab
-mirror. An `.aab` cannot be sideloaded, so it was never a Release asset anyway
-(D062).
+The signed AAB's three steps — build, verify, artifact upload — are gated
+behind the repository variable `MARKLEAF_PLAY_AAB`. It was unset while Play
+updates were on hold (D072) and has been `true` since 2026-11-26, when uploads
+to the Alpha track resumed (D087). An `.aab` cannot be sideloaded, so it is
+still not a Release asset (D062); it lives for 14 days as the
+`markleaf-release-aab` workflow artifact.
+
+### Google Play — Alpha only
+
+Production on Play stays blocked until the solo-developer business-registration
+requirement is resolved, so the public Play listing keeps serving an old
+version and the README's "updates paused" badge stays true. Each release goes
+to the **Alpha** (closed testing) track instead, through the Play Developer API
+with the maintainer's global `play-publish` skill — not through the Play Console
+UI:
+
+1. Wait for the tag run to go green, then download its AAB:
+   `gh run download <run id> -n markleaf-release-aab -D <dir>`.
+2. `play-publish.ps1 -PackageName com.markleaf.notes -ShowTracks` to see the
+   current Alpha release.
+3. Run the upload with `-Track alpha -AabPath <dir>\app-release.aab
+   -VersionName <x.y.z> -ExpectedVersionCode <vc>` and the ko-KR and en-US
+   fastlane changelogs for that versionCode as `-NotesKoFile`/`-NotesEnFile`,
+   first with `-DryRun` (checks the bundle, its signing certificate and the
+   note lengths without calling Play), then without it.
+4. `-ShowTracks` again to confirm the new versionCode is on Alpha.
+
+The artifact expires after 14 days, so upload within the release week. Never
+pass `-Track production` while the block stands.
 
 The release job fails before publishing if the keystore secret is missing, if
 either APK's certificate SHA-256 digest differs from the fixed production

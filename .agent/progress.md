@@ -2939,3 +2939,8 @@ Verification: `verify-release-notes.ps1`, `verify-landing-versions.ps1`, `verify
 
 Selected task: weekly release of what merged since v2.73.0 (#596 note selection with Undo, #588 move line buttons, #592 archive sort, #593 dates in Note information, #580/#581 auto-capitalization, #589 crash fix, target API 36).
 Verification: `verify-release-notes.ps1`, `verify-landing-versions.ps1`, `verify-locales.ps1` locally; CI `build` + `instrumented-tests` on the release PR.
+
+## 2026-11-26 - v2.75.0: a notes list without section headings
+
+Selected task: weekly release of what merged since v2.74.0 (#600 section headings toggle, #602 case-insensitive wikilink taps, #262 hardening batch #601; #603 landing/privacy page refresh).
+Verification: `verify-release-notes.ps1`, `verify-landing-versions.ps1`, `verify-locales.ps1` locally; CI `build` + `instrumented-tests` on the release PR.

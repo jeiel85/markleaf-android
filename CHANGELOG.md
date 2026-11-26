@@ -4,7 +4,9 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
-## Unreleased
+## v2.75.0 - A notes list without section headings - 2026-11-26
+
+This week: the notes list can drop its Pinned, Today, Yesterday and older headings and show one continuous list, and a wikilink opens its note even when the capitals differ. Undo after moving notes to the trash survives a quick visit to a note or Settings, the list writes times in your phone's 12- or 24-hour style, adding a table or callout inside a table no longer splits it, and deleting several notes forever from the trash happens all at once. No new permissions; notes are stored exactly as before.
 
 ### Added
 - **A notes list without section headings.** Turn off Settings → Notes → Show section headings, and the list no longer splits into Pinned, Today, Yesterday, Past 7 days and Older: it's one continuous list in the order you sorted it. Pinned notes still come first and keep their pin. The headings are on by default, so the list looks as it always has unless you turn them off. Thanks to @bigasooo for the idea. (#600)

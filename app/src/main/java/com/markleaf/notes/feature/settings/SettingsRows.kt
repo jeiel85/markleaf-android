@@ -21,7 +21,8 @@ internal fun SettingsSwitchRow(
     description: String?,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    titleModifier: Modifier = Modifier
+    titleModifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -46,7 +47,8 @@ internal fun SettingsSwitchRow(
         }
         Switch(
             checked = checked,
-            onCheckedChange = onCheckedChange
+            onCheckedChange = onCheckedChange,
+            enabled = enabled
         )
     }
 }

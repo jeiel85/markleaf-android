@@ -245,7 +245,7 @@ internal fun SettingsScreen(
 
     // The title rule is chosen on the Notes page, but its pass shares
     // `retitleBusy` with the resume effect above, so it starts here.
-    val changeNoteTitleSource: (NoteTitleSource) -> Unit = { source ->
+    val applyNoteTitleSource: (NoteTitleSource) -> Unit = { source ->
         retitleBusy = true
         scope.launch {
             // Stored titles are derived once, at save
@@ -268,15 +268,20 @@ internal fun SettingsScreen(
                 ) {
                     NoteRetitler.retitleAll(noteRepository, source)
                 }
-                Toast.makeText(
-                    context,
-                    context.resources.getQuantityString(
-                        R.plurals.note_title_retitled_format,
-                        changed,
-                        changed
-                    ),
-                    Toast.LENGTH_SHORT
-                ).show()
+                // Switching to File name keeps every title as the
+                // note's name, so "0 notes retitled" would only
+                // read as the switch not working (D088).
+                if (!source.isNamedByHand) {
+                    Toast.makeText(
+                        context,
+                        context.resources.getQuantityString(
+                            R.plurals.note_title_retitled_format,
+                            changed,
+                            changed
+                        ),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             } finally {
                 // Order matters, and it is the same
                 // order the resume effect uses: the
@@ -290,6 +295,36 @@ internal fun SettingsScreen(
                 retitleBusy = false
             }
         }
+    }
+
+    // Leaving File name retitles every note from its text, and a name given to
+    // a note outside a synced folder exists nowhere else — so that one switch
+    // asks first (D088). The others change nothing that cannot be switched back.
+    var pendingTitleSource by rememberSaveable { mutableStateOf<NoteTitleSource?>(null) }
+    val changeNoteTitleSource: (NoteTitleSource) -> Unit = { source ->
+        if (appSettings.noteTitleSource.isNamedByHand && !source.isNamedByHand) {
+            pendingTitleSource = source
+        } else {
+            applyNoteTitleSource(source)
+        }
+    }
+    pendingTitleSource?.let { source ->
+        AlertDialog(
+            onDismissRequest = { pendingTitleSource = null },
+            title = { Text(stringResource(R.string.note_title_leave_file_name_title)) },
+            text = { Text(stringResource(R.string.note_title_leave_file_name_message)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    pendingTitleSource = null
+                    applyNoteTitleSource(source)
+                }) { Text(stringResource(R.string.note_title_leave_file_name_confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingTitleSource = null }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 
     // Which page is open: null is the list of sections. Saveable, so a

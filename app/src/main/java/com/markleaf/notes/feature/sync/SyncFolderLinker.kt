@@ -66,7 +66,7 @@ fun rememberSyncFolderLinker(
                     extension = appSettings.syncFileExtension,
                     metadata = appSettings.mirrorMetadata(),
                     titleSource = appSettings.noteTitleSource,
-                    keepFileNames = appSettings.syncKeepFileNames
+                    keepFileNames = appSettings.keepsFileNames
                 )
             }
             val imported = result.imported

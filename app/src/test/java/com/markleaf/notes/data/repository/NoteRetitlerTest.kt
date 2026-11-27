@@ -154,4 +154,15 @@ class NoteRetitlerTest {
 
         assertEquals("Details", repository.getNote("1")!!.title)
     }
+
+    /** Switching to File name keeps every title as the name the note starts with (D088). */
+    @Test
+    fun `switching to file name keeps every title`() = runTest {
+        repository.createNote(note("1", "groceries", "# Shopping on Saturday\nmilk", excerpt = "milk"))
+
+        val changed = NoteRetitler.retitleAll(repository, NoteTitleSource.FILE_NAME)
+
+        assertEquals(0, changed)
+        assertEquals("groceries", repository.getNote("1")!!.title)
+    }
 }

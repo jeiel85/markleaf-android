@@ -67,6 +67,7 @@ internal fun NoteTitleSource.localizedLabel(): String {
     return when (this) {
         NoteTitleSource.FIRST_HEADING -> stringResource(R.string.note_title_source_first_heading)
         NoteTitleSource.FIRST_LINE -> stringResource(R.string.note_title_source_first_line)
+        NoteTitleSource.FILE_NAME -> stringResource(R.string.note_title_source_file_name)
     }
 }
 

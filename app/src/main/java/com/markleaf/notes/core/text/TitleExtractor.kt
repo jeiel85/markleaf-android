@@ -22,7 +22,38 @@ enum class NoteTitleSource {
      * when that line happens to be a heading. Predictable at the price of
      * ignoring a heading further down.
      */
-    FIRST_LINE
+    FIRST_LINE,
+
+    /**
+     * The note's name, set by hand and also its file name in a synced folder
+     * (#429, #611, D088). The body is never read for it, except to give a new
+     * note a first name until it is named (see [NoteTitles]); that first name is
+     * taken as [FIRST_HEADING] would and made safe as a file name.
+     */
+    FILE_NAME;
+
+    /** Whether the stored title is the note's own name rather than derived from its body. */
+    val isNamedByHand: Boolean get() = this == FILE_NAME
+}
+
+/**
+ * Which title a save should store (D088). Under the derived rules that is
+ * always the body's; under [NoteTitleSource.FILE_NAME] it is the stored name,
+ * except while [followsBody] — a new note being written for the first time and
+ * not yet named — or when there is no name yet at all.
+ */
+object NoteTitles {
+    fun forSave(
+        storedTitle: String,
+        content: String,
+        source: NoteTitleSource,
+        followsBody: Boolean
+    ): String =
+        if (!source.isNamedByHand || followsBody || storedTitle.isBlank()) {
+            TitleExtractor.extractTitle(content, source)
+        } else {
+            storedTitle
+        }
 }
 
 object TitleExtractor {
@@ -39,7 +70,7 @@ object TitleExtractor {
      * repeats the line already shown as the note title — under either [source].
      */
     private fun titleLineIndex(lines: List<String>, source: NoteTitleSource): Int {
-        if (source == NoteTitleSource.FIRST_HEADING) {
+        if (source != NoteTitleSource.FIRST_LINE) {
             // A `# comment` inside a fenced block is code, not a heading — the
             // preview draws it as code, so it must not name the note either.
             val fenced = fencedLines(lines)
@@ -88,11 +119,14 @@ object TitleExtractor {
         if (index < 0) return "Untitled"
 
         val line = lines[index].trim()
-        return if (isHeadingLine(line)) {
+        val title = if (isHeadingLine(line)) {
             line.replace(HEADING_MARKER, "").trim().take(80).ifEmpty { "Untitled" }
         } else {
             line.take(80)
         }
+        // Under File name this becomes a file name as it is, so it has to be one
+        // already — or the folder hands back a different name on the next import.
+        return if (source.isNamedByHand) NoteNames.clean(title).ifEmpty { "Untitled" } else title
     }
 
     /**
@@ -108,7 +142,9 @@ object TitleExtractor {
         if (content.isBlank()) return ""
 
         val lines = content.lines()
-        val titleIndex = titleLineIndex(lines, source)
+        // Under File name the title is not a line of the body, so no line is
+        // skipped: the first line is the start of what the person wrote.
+        val titleIndex = if (source.isNamedByHand) -1 else titleLineIndex(lines, source)
         val bodyLines = if (titleIndex >= 0) {
             lines.filterIndexed { index, _ -> index != titleIndex }
         } else {

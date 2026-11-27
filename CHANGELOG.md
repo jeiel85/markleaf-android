@@ -4,6 +4,11 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## Unreleased
+
+### Added
+- **Name notes yourself, and use the file name as the title.** Settings → Notes → Note title has a third choice, **File name**. Each note then gets a name field above its text, and the name shows at the top of Preview too. The name is not taken from the note's first line. In a synced folder that name is the file's name: rename the note and its file is renamed, rename the file on your computer and the note takes the new name, and a file you add is titled by its name, as Obsidian does. Characters a file name can't hold are left out as you type, and two notes can't share a name. A note you start on the phone keeps its first line as a name until you give it one. First heading stays the default, and switching back from File name retitles every note from its text, so the app asks before it does. Thanks to @ajmhp and @Jackson-Nickk for asking. (#429, #611)
+
 ## v2.75.0 - A notes list without section headings - 2026-11-26
 
 This week: the notes list can drop its Pinned, Today, Yesterday and older headings and show one continuous list, and a wikilink opens its note even when the capitals differ. Undo after moving notes to the trash survives a quick visit to a note or Settings, the list writes times in your phone's 12- or 24-hour style, adding a table or callout inside a table no longer splits it, and deleting several notes forever from the trash happens all at once. No new permissions; notes are stored exactly as before.

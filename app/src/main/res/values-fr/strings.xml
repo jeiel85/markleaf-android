@@ -350,6 +350,15 @@
     <string name="note_title_source_first_heading">Premier titre</string>
     <string name="note_title_source_first_line">Première ligne</string>
     <string name="note_title_source_description">La ligne dont provient le titre affiché dans la liste. « Premier titre » prend le premier titre Markdown où qu\'il soit dans la note ; « Première ligne » prend toujours la première ligne que vous avez écrite. Ce changement retitre vos notes existantes ; les noms de fichiers du dossier synchronisé suivent via « Renommer les fichiers selon le titre » dans le Centre de synchronisation.</string>
+    <string name="note_title_source_file_name">Nom de fichier</string>
+    <string name="note_title_source_file_name_description">Avec « Nom de fichier », vous nommez vous-même chaque note, au-dessus de son texte. Dans un dossier synchronisé, ce nom est celui du fichier, et renommer le fichier sur votre ordinateur renomme la note.</string>
+    <string name="note_name_hint">Nom</string>
+    <string name="note_name_taken">Une autre note porte déjà ce nom.</string>
+    <string name="note_name_reserved">Ce nom ne peut pas servir de nom de fichier.</string>
+    <string name="sync_keep_file_names_locked">Toujours activé tant que le titre de la note est « Nom de fichier » : un fichier n’est renommé que lorsque vous renommez sa note.</string>
+    <string name="note_title_leave_file_name_title">Ne plus utiliser les noms donnés aux notes ?</string>
+    <string name="note_title_leave_file_name_message">Toutes les notes reprendront leur titre dans leur texte. Les noms donnés aux notes qui ne sont pas dans un dossier synchronisé seront perdus. Les fichiers ne gardent leur nom que si Conserver les noms de fichier est activé dans le Centre de synchronisation.</string>
+    <string name="note_title_leave_file_name_confirm">Changer</string>
     <string name="new_note_heading">Commencer les nouvelles notes par un titre</string>
     <string name="new_note_heading_description">Les nouvelles notes commencent par « # », la première ligne devient donc un titre et le titre de la note. Les notes existantes ne sont pas modifiées.</string>
     <plurals name="note_title_retitled_format">

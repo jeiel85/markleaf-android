@@ -1962,3 +1962,40 @@ Implications:
   same as any text the user typed.
 - A label is escaped for its cell (`|` to `\|`, line breaks to a space), so no translation can break
   the table.
+
+### D088 - "File Name" Is A Third Title Rule Under Which The Stored Title Is Never Re-derived
+
+Date: 2026-11-27. Requests: #429, Discussion #611. (D087 was taken by the withdrawn PR #607.)
+
+Decision:
+- `NoteTitleSource.FILE_NAME` joins First heading / First line. Under it the stored `title` is the
+  note's name: saves, imports of an edited body and the retitle pass leave it alone, and it is
+  changed only by renaming the note (a name field at the top of the editor) or by renaming its file
+  in the synced folder.
+- The file name still comes from the title (`sanitizeBase(title)`); the direction is not reversed.
+  On import a file's name (without extension) becomes the title of a new note, and a name that no
+  longer matches the title of an existing note replaces it — so a rename on the computer reaches the
+  app, matched by `markleaf_id` or the sidecar entry as before.
+- Ordinary saves never rename the file in this mode (Keep file names is forced on). Only an in-app
+  rename does, and a new note's file follows its first line while it is first written and has not
+  been named — the same exemption as #562.
+- No database column and no frontmatter key. The mode is a preference; the name lives in the
+  existing `title` column and, for a synced note, in the file name.
+- A name typed in the app is held to file-name rules (no `\ / : * ? " < > |`, no trailing dot or
+  space, no reserved device name, at most 120 characters) and must not match another note's name
+  ignoring case. Otherwise the folder would hand back a different name than the one typed.
+- The default stays First heading. Nothing changes for anyone who does not pick the new rule.
+
+Why:
+- A per-note "named by hand" flag would survive switching rules back, but it is a Room migration
+  and a new field on every note-creation path, for a choice both requesters want globally.
+- Writing the title into frontmatter would be a second copy of the name to keep in step with the
+  file name, and a format change other apps would see.
+
+Implications:
+- Switching from File name to another rule re-derives every title from the body, so names given to
+  notes that are not in a synced folder are lost; the settings page warns before switching.
+- Renaming a note does not rewrite `[[old name]]` links pointing at it, as editing a heading does
+  not today.
+- A name that collides with another file in the folder still gets ` (2)` from `uniqueName`, and
+  that suffixed name then becomes the title on import.

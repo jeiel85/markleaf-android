@@ -147,7 +147,17 @@ data class AppSettings(
      * and never sent anywhere — it exists only to keep filenames apart.
      */
     val syncDeviceId: String? = null
-)
+) {
+    /**
+     * Whether a save leaves an existing mirror file's name alone: the Keep file
+     * names switch, or always under the File name title rule (D088). There the
+     * file name *is* the note's name, so the only rename is the one the person
+     * asks for — an ordinary save that renamed the file would undo a rename
+     * made on the computer before the folder was read back.
+     */
+    val keepsFileNames: Boolean
+        get() = syncKeepFileNames || noteTitleSource.isNamedByHand
+}
 
 /**
  * Where Markleaf keeps the link between a note and its mirror file (#216).

@@ -56,6 +56,7 @@ import com.markleaf.notes.util.WikilinkExtractor
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.isSpecified
 import androidx.compose.material3.MaterialTheme
@@ -1111,7 +1112,7 @@ internal fun InlineMarkdownText(
         ).copy(color = color)
     val annotated = unhighlighted
         .withFindHighlights(highlight, searchStart = leadingMarker.length)
-        .withHangingIndent(leadingMarker.length, hangingIndentFor(leadingMarker, textStyle), itemBreaks)
+        .withHangingIndent(leadingMarker.length, hangingIndentFor(leadingMarker, textStyle), itemBreaks, textStyle.lineHeightStyle)
     val spacingPadding = lineSpacingPadding(line, baseStyle.lineHeight)
     val layout = remember { TextLayoutHolder() }
     // Links are now embedded as LinkAnnotations in `annotated`, so a plain Text
@@ -1159,20 +1160,49 @@ private fun hangingIndentFor(marker: String, style: androidx.compose.ui.text.Tex
  * indent on their first line as well, so the item's text stays in one column.
  * The boundary itself is the line break, which is why the character there
  * must not be a newline: a newline at a boundary adds an empty line.
+ *
+ * Compose trims line-height padding at the top and bottom of every paragraph
+ * ([lineHeightStyle]'s trim). Inside one item that would pull the lines on
+ * either side of a break closer than the item's other lines, so only the row's
+ * outer edges keep the trim; the boundaries inside it get none.
  */
 internal fun AnnotatedString.withHangingIndent(
     markerLength: Int,
     indent: TextUnit,
-    breaks: List<Int> = emptyList()
+    breaks: List<Int> = emptyList(),
+    lineHeightStyle: LineHeightStyle? = null
 ): AnnotatedString {
     if (markerLength == 0 || !indent.isSpecified || length <= markerLength) return this
+    val ends = breaks.map { it + 1 }.filter { it in 1 until length }.distinct().sorted() + length
+    if (ends.size == 1) {
+        return buildAnnotatedString {
+            append(this@withHangingIndent)
+            addStyle(ParagraphStyle(textIndent = TextIndent(firstLine = 0.sp, restLine = indent)), 0, length)
+        }
+    }
+    val base = lineHeightStyle ?: LineHeightStyle.Default
+    val trimsTop = base.trim == LineHeightStyle.Trim.Both || base.trim == LineHeightStyle.Trim.FirstLineTop
+    val trimsBottom = base.trim == LineHeightStyle.Trim.Both || base.trim == LineHeightStyle.Trim.LastLineBottom
     return buildAnnotatedString {
         append(this@withHangingIndent)
         var start = 0
-        for (end in breaks.map { it + 1 }.filter { it in 1 until length } + length) {
-            if (end <= start) continue
-            val first = if (start == 0) 0.sp else indent
-            addStyle(ParagraphStyle(textIndent = TextIndent(firstLine = first, restLine = indent)), start, end)
+        ends.forEachIndexed { i, end ->
+            val top = i == 0 && trimsTop
+            val bottom = i == ends.lastIndex && trimsBottom
+            val trim = when {
+                top && bottom -> LineHeightStyle.Trim.Both
+                top -> LineHeightStyle.Trim.FirstLineTop
+                bottom -> LineHeightStyle.Trim.LastLineBottom
+                else -> LineHeightStyle.Trim.None
+            }
+            addStyle(
+                ParagraphStyle(
+                    textIndent = TextIndent(firstLine = if (i == 0) 0.sp else indent, restLine = indent),
+                    lineHeightStyle = LineHeightStyle(alignment = base.alignment, trim = trim)
+                ),
+                start,
+                end
+            )
             start = end
         }
     }

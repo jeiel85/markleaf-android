@@ -1080,6 +1080,13 @@ internal fun InlineMarkdownText(
     // silently drop content.
     val segments = line.segments.ifEmpty {
         listOf(PreviewInlineSegment(line.text, PreviewInlineType.TEXT))
+    }.let { segments ->
+        // In a list row a break inside the item is a line separator, not a new
+        // paragraph: a new paragraph's first line would start under the bullet
+        // again, past the hanging indent (#606). Same length, so every offset
+        // into the text — find, links, the marker — stays where it was.
+        if (leadingMarker.isEmpty()) segments
+        else segments.map { if ('\n' in it.text) it.copy(text = it.text.replace('\n', LINE_SEPARATOR)) else it }
     }
     val unhighlighted = inlineAnnotatedString(
         segments = segments,
@@ -1140,22 +1147,21 @@ private fun hangingIndentFor(marker: String, style: androidx.compose.ui.text.Tex
  * Indents every line of this row but its first by [indent], the width of the
  * leading marker that takes up the first [markerLength] characters (#606).
  *
- * A hard line break inside the item starts a new paragraph, and a paragraph's
- * first line takes `TextIndent.firstLine` — so everything after the first break
- * gets the indent on its first line as well, keeping the item's text in one
- * column.
+ * One paragraph style for the whole row: a break inside the item arrives here
+ * as [LINE_SEPARATOR], which wraps without starting a new paragraph, so the
+ * lines after it take the indent too. Splitting the row into paragraph styles
+ * at a newline instead left an empty line at every split.
  */
 internal fun AnnotatedString.withHangingIndent(markerLength: Int, indent: TextUnit): AnnotatedString {
     if (markerLength == 0 || !indent.isSpecified || length <= markerLength) return this
-    val firstBreak = text.indexOf('\n').let { if (it < 0) length else it + 1 }
     return buildAnnotatedString {
         append(this@withHangingIndent)
-        addStyle(ParagraphStyle(textIndent = TextIndent(firstLine = 0.sp, restLine = indent)), 0, firstBreak)
-        if (firstBreak < length) {
-            addStyle(ParagraphStyle(textIndent = TextIndent(firstLine = indent, restLine = indent)), firstBreak, length)
-        }
+        addStyle(ParagraphStyle(textIndent = TextIndent(firstLine = 0.sp, restLine = indent)), 0, length)
     }
 }
+
+/** U+2028: a line break that does not end the paragraph. */
+internal const val LINE_SEPARATOR = '\u2028'
 
 /**
  * Returns this style with its font size and line height multiplied by [scale]

@@ -25,16 +25,12 @@ class ListHangingIndentTest {
     }
 
     @Test
-    fun linesAfterABreakInTheItemLineUpWithItsText() {
-        val row = AnnotatedString("• first\nsecond").withHangingIndent(2, 9.sp)
+    fun aBreakInsideTheItemStaysInOneParagraph() {
+        // The row arrives with its break as a line separator (see InlineMarkdownText);
+        // a second paragraph style would add an empty line at the split.
+        val row = AnnotatedString("• first${LINE_SEPARATOR}second").withHangingIndent(2, 9.sp)
 
-        assertEquals(
-            listOf(
-                Triple(0, 8, TextIndent(firstLine = 0.sp, restLine = 9.sp)),
-                Triple(8, row.length, TextIndent(firstLine = 9.sp, restLine = 9.sp))
-            ),
-            indents(row)
-        )
+        assertEquals(listOf(Triple(0, row.length, TextIndent(firstLine = 0.sp, restLine = 9.sp))), indents(row))
     }
 
     @Test

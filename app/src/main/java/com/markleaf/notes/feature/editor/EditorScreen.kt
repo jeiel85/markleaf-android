@@ -420,7 +420,14 @@ fun EditorScreen(
         val id = noteId ?: return null
         val name = NoteNames.clean(typed)
         val current = repo.getNote(id) ?: return null
-        if (name.isEmpty() || name == current.title) return null
+        if (name.isEmpty()) return null
+        if (name == current.title) {
+            // Committing the name the note already has still names it: from
+            // here on it stops following the first line.
+            namedThisVisit = true
+            storedName = name
+            return null
+        }
         val others = repo.getAllNotes().filter { it.id != id }.map { it.title }
         NoteNames.problemWith(name, others)?.let { return it }
         val renamed = current.copy(title = name, updatedAt = Instant.now())
@@ -2025,11 +2032,16 @@ fun EditorScreen(
                                 if (draft != null) {
                                     coroutineScope.launch {
                                         val problem = renameNote(draft)
-                                        nameProblem = problem
-                                        // Refused names stay in the field to be fixed;
-                                        // the name the folder kept is shown as it is.
-                                        if (problem == null || problem == NoteNames.Problem.FOLDER_KEPT_ANOTHER) {
-                                            nameDraft = null
+                                        // A slow folder write can finish after the field
+                                        // was edited again; that newer text is not this
+                                        // rename's to clear or judge.
+                                        if (nameDraft == draft) {
+                                            nameProblem = problem
+                                            // Refused names stay in the field to be fixed;
+                                            // the name the folder kept is shown as it is.
+                                            if (problem == null || problem == NoteNames.Problem.FOLDER_KEPT_ANOTHER) {
+                                                nameDraft = null
+                                            }
                                         }
                                     }
                                 }

@@ -59,6 +59,31 @@ class ObsidianSyntaxTest {
     }
 
     @Test
+    fun escapedEqualsSignsStayLiteral() {
+        val segs = segments("""keep \=\=this\=\= as typed""")
+
+        assertTrue(segs.none { it.type == PreviewInlineType.HIGHLIGHT })
+        assertEquals("keep ==this== as typed", segs.joinToString("") { it.text })
+    }
+
+    @Test
+    fun emphasisInsideAHighlightKeepsItsText() {
+        assertEquals("a bold b", allText("==a **bold** b=="))
+    }
+
+    @Test
+    fun manyUnmatchedOpenersParseQuickly() {
+        val text = "==a ".repeat(24_000)
+        val started = System.nanoTime()
+        parse(text)
+        MarkdownSyntaxHighlighter.highlight(text, colors)
+        val millis = (System.nanoTime() - started) / 1_000_000
+
+        // Quadratic scanning took ~12 s here (Codex on #612); linear is well under one.
+        assertTrue("took $millis ms", millis < 3_000)
+    }
+
+    @Test
     fun aHighlightInAHeadingKeepsItsWords() {
         assertEquals("Plan for today", parse("# Plan ==for== today").single().text)
     }
@@ -75,6 +100,23 @@ class ObsidianSyntaxTest {
         val lines = parse("Before\n\n%%\nhidden line one\nhidden line two\n%%\n\nAfter")
 
         assertEquals(listOf("Before", "After"), lines.map { it.text })
+    }
+
+    @Test
+    fun escapedPercentSignsStayLiteral() {
+        assertEquals("%%literal%%", allText("""\%\%literal\%\%"""))
+        assertEquals("a %%b%% c", allText("""a \%\%b\%\% c"""))
+    }
+
+    @Test
+    fun manyCommentsParseQuickly() {
+        val text = "%%a%% b ".repeat(20_000) + "%% open"
+        val started = System.nanoTime()
+        parse(text)
+        MarkdownSyntaxHighlighter.highlight(text, colors)
+        val millis = (System.nanoTime() - started) / 1_000_000
+
+        assertTrue("took $millis ms", millis < 3_000)
     }
 
     @Test

@@ -465,7 +465,10 @@ object MarkdownSyntaxHighlighter {
     private val HORIZONTAL_RULE_REGEX = Regex("""(?m)^(\*\*\*|---|___)\s*$""")
     private val INLINE_CODE_REGEX = Regex("""`[^`\n]+?`""")
     private val STRIKETHROUGH_REGEX = Regex("""~~[^~\n]+?~~""")
-    private val HIGHLIGHT_REGEX = Regex("""==(?=[^\s=])[^\n]*?[^\s=]==""")
+    // No `=` inside, as `~~…~~` has no `~`: each attempt stops at the next `=`,
+    // so a line of unmatched `==` stays linear instead of rescanning to its end
+    // from every opener (Codex on #612).
+    private val HIGHLIGHT_REGEX = Regex("""==[^\s=][^=\n]*==""")
     private val COMMENT_REGEX = Regex("""%%[\s\S]*?%%""")
     private val BOLD_REGEX = Regex("""\*\*[^*\n]+?\*\*""")
     private val BOLD_ITALIC_REGEX = Regex("""\*\*\*[^*\n]+?\*\*\*""")

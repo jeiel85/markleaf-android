@@ -1075,8 +1075,8 @@ internal object CommonMarkPreviewAdapter {
             is HtmlInline -> if (HTML_BR_TAG_REGEX.matches(child.literal.trim())) {
                 out += PreviewInlineSegment("\n", default)
             }
-            // Highlighted text keeps only its highlight: the node holds plain
-            // text (see ObsidianInline.kt), so there is no emphasis inside to lose.
+            // The segment model holds one style per run, so emphasis inside a
+            // highlight (`==**a**==`) shows as emphasis, the rest highlighted.
             is HighlightNode -> appendInlineSegments(child, out, PreviewInlineType.HIGHLIGHT)
             is StrongEmphasis -> appendInlineSegments(child, out, mergeBold(default))
             is Emphasis -> appendInlineSegments(child, out, mergeItalic(default))

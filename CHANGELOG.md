@@ -7,7 +7,7 @@ All notable changes to Markleaf are documented in this file. This English editio
 ## Unreleased
 
 ### Added
-- **Highlights and hidden comments, as in Obsidian.** `==text==` now shows as highlighted text in the preview, and the editor marks it the same way. `%%comment%%` is hidden in the preview, inside a line or as a paragraph of its own over several lines; the editor shows it greyed out. A comment with a blank line inside it isn't hidden yet. Thanks to @iJahangard for the suggestion. (#608)
+- **Highlights and hidden comments, as in Obsidian.** `==text==` now shows as highlighted text in the preview, and the editor marks it the same way. `%%comment%%` is hidden in the preview, inside a line or as a paragraph of its own over several lines; the editor shows it greyed out, and PDF export leaves it out too. A backslash keeps them literal (`\=\=`, `\%\%`). A comment with a blank line inside it isn't hidden yet. Thanks to @iJahangard for the suggestion. (#608)
 - **Wikilinks to a heading.** `[[Note#Heading]]` and `[[Note#^block-id]]` open "Note" instead of creating a new note with the whole link as its title, and count as a link to "Note" under Linked from. `[[#Heading]]` scrolls to that heading in the same note. A note whose title itself contains `#` still opens as before. Opening another note doesn't yet scroll to the heading. (#608)
 
 ### Fixed

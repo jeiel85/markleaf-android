@@ -87,11 +87,14 @@ class EditorNameFieldRenamesNoteTest {
         }
         composeRule.waitForIdle()
 
-        // `/` cannot be in a file name, so it never reaches the name.
-        composeRule.onNodeWithTag(NOTE_NAME_FIELD_TAG).performTextInput("grocer/ies")
+        // `/` cannot be in a file name, so it never reaches the name. A name no
+        // other test uses: the database is shared across test classes, and a
+        // duplicate (ignoring case) is refused, so "groceries" collided with
+        // the "Groceries" notes other editor tests leave behind.
+        composeRule.onNodeWithTag(NOTE_NAME_FIELD_TAG).performTextInput("name field/test")
         composeRule.onNodeWithTag(NOTE_NAME_FIELD_TAG).performImeAction()
         composeRule.waitUntil(timeoutMillis = 5_000) {
-            runBlocking { repo.getNote(noteId) }?.title == "groceries"
+            runBlocking { repo.getNote(noteId) }?.title == "name fieldtest"
         }
 
         showEditor = false
@@ -103,7 +106,7 @@ class EditorNameFieldRenamesNoteTest {
 
         assertEquals(
             "a named note is a note, even with nothing in it",
-            "groceries",
+            "name fieldtest",
             runBlocking { repo.getNote(noteId) }?.title
         )
     }

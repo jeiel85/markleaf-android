@@ -102,5 +102,9 @@ class FileNameTitleRuleTest {
         assertNull(NoteNames.nameTheFolderKept("groceries", "groceries.md"))
         assertNull(NoteNames.nameTheFolderKept("v1.2 notes", "v1.2 notes.txt"))
         assertEquals("shopping", NoteNames.nameTheFolderKept("groceries", "shopping.md"))
+        // As the import sees it: capitals alone are not another name, and a
+        // name the folder holds is made safe before it becomes the note's.
+        assertNull(NoteNames.nameTheFolderKept("groceries", "Groceries.md"))
+        assertEquals("a b", NoteNames.nameTheFolderKept("groceries", "a:b.md"))
     }
 }

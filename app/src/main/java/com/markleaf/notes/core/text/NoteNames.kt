@@ -79,14 +79,14 @@ object NoteNames {
     fun fromFileName(fileName: String): String = fileName.substringBeforeLast('.', fileName)
 
     /**
-     * The name the sync folder kept when a rename to [wanted] did not take —
-     * its file still called what it was, because the provider refused the
-     * rename, or given a " (2)" because a file that is not a note held the
-     * name — or null when the file is called [wanted]. The note then takes the
-     * file's name: stamped as in sync under [wanted], the next import would
-     * read the old name as a rename made in the folder and quietly undo this
-     * one (D088).
+     * The name the sync folder kept when the note's file is not called
+     * [wanted] — the provider refused a rename, a file that is not a note held
+     * the name and the note's got a " (2)", or the file was renamed in the
+     * folder — or null when it is called [wanted] (capitals aside, as the
+     * import sees it). The note then takes the file's name: stamped as in sync
+     * under [wanted], the next import would read the file's name as a rename
+     * made in the folder and quietly undo the note's (D088).
      */
     fun nameTheFolderKept(wanted: String, fileName: String): String? =
-        fromFileName(fileName).takeIf { it != wanted }
+        clean(fromFileName(fileName)).takeIf { it.isNotEmpty() && !it.equals(wanted, ignoreCase = true) }
 }

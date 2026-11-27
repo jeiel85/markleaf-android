@@ -344,6 +344,15 @@ fun EditorScreen(
                 // space is meant to stay on-device, and the mirror writes plain
                 // text (#155). Removing the lock re-includes it on the next save.
                 if (!updatedNote.locked) {
+                    val namedByHand = appSettings.noteTitleSource.isNamedByHand
+                    // Under File name a save keeps the file's name — except when
+                    // the note's last write never reached the folder, which may
+                    // have been a rename (an unwritable folder, a dropped grant):
+                    // that one is redone here, or the old name would be stamped
+                    // as in sync and the next import would undo it (D088).
+                    val lastWriteMissedFolder = currentNote.lastImportedAt
+                        ?.isBefore(currentNote.updatedAt) ?: true
+                    var fileName: String? = null
                     val ok = withContext(Dispatchers.IO) {
                         val wrote = NoteFolderMirror.writeNote(
                             context,
@@ -351,8 +360,9 @@ fun EditorScreen(
                             updatedNote,
                             appSettings.syncFileExtension,
                             appSettings.mirrorMetadata(),
-                            keepsFileName(appSettings.keepsFileNames, nameFollowsBody())
-                        )
+                            keepsFileName(appSettings.keepsFileNames, nameFollowsBody()) &&
+                                !(namedByHand && lastWriteMissedFolder)
+                        ) { fileName = it }
                         if (wrote) {
                             val attachments = AttachmentManager.filesForNote(context, id)
                             if (attachments.isNotEmpty()) {
@@ -365,7 +375,16 @@ fun EditorScreen(
                         // Stamp the synced snapshot so the next reconcile
                         // can distinguish "remote echo" from "remote edit
                         // by another device since this snapshot."
-                        repo.updateNote(updatedNote.copy(lastImportedAt = updatedNote.updatedAt))
+                        // Under File name the note is called what its file is.
+                        val kept = if (namedByHand) {
+                            fileName?.let { NoteNames.nameTheFolderKept(updatedNote.title, it) }
+                        } else null
+                        repo.updateNote(
+                            updatedNote.copy(
+                                title = kept ?: updatedNote.title,
+                                lastImportedAt = updatedNote.updatedAt
+                            )
+                        )
                     }
                 }
             }
@@ -417,7 +436,19 @@ fun EditorScreen(
             }
             if (ok) {
                 val kept = fileName?.let { NoteNames.nameTheFolderKept(name, it) }
-                repo.updateNote(renamed.copy(title = kept ?: name, lastImportedAt = renamed.updatedAt))
+                // Re-read: an autosave may have stored newer text while the file
+                // was written, and writing `renamed` back would undo it. Only the
+                // name moves, and the note is stamped in sync only if nothing
+                // was saved since — otherwise that save's own write stamps it.
+                val fresh = repo.getNote(id) ?: return null
+                repo.updateNote(
+                    fresh.copy(
+                        title = kept ?: name,
+                        lastImportedAt = if (fresh.updatedAt == renamed.updatedAt) {
+                            renamed.updatedAt
+                        } else fresh.lastImportedAt
+                    )
+                )
                 if (kept != null) {
                     storedName = kept
                     WidgetRefresh.notesChanged(context)

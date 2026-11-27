@@ -120,6 +120,17 @@ class ObsidianSyntaxTest {
     }
 
     @Test
+    fun aParagraphOfManyCommentsIsDroppedQuickly() {
+        val text = "Before\n\n" + "%%a%% ".repeat(24_000) + "\n\nAfter"
+        val started = System.nanoTime()
+        val lines = parse(text)
+        val millis = (System.nanoTime() - started) / 1_000_000
+
+        assertEquals(listOf("Before", "After"), lines.map { it.text })
+        assertTrue("took $millis ms", millis < 3_000)
+    }
+
+    @Test
     fun aCommentInsideCodeIsShown() {
         assertTrue(allText("`%%shown%%`").contains("%%shown%%"))
     }

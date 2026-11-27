@@ -100,11 +100,15 @@ private object CommentRemover : PostProcessor {
                 if (customNode is CommentNode) comments += customNode else visitChildren(customNode)
             }
         })
+        // Each paragraph is checked once, after all its comments are gone:
+        // checking after every removal rescanned the blank text each one left
+        // behind, quadratic for a paragraph of many comments (Codex on #612).
+        val touched = LinkedHashSet<Paragraph>()
         for (comment in comments) {
-            val parent = comment.parent
+            (comment.parent as? Paragraph)?.let(touched::add)
             comment.unlink()
-            if (parent is Paragraph && parent.isBlank()) parent.unlink()
         }
+        for (paragraph in touched) if (paragraph.isBlank()) paragraph.unlink()
         return node
     }
 

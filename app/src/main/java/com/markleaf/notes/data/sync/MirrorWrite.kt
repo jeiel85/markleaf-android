@@ -66,7 +66,14 @@ internal object MirrorWrite {
         // reading the head of every file in it (#222).
         MirrorFileLookup.MirrorFileCache.hit(context, folder.uri, note, keepFileName)?.let { cached ->
             if (!writeContents(context, cached.uri, note, cached.extraEntries)) return false
-            onFileName(cached.name)
+            // The cache checks the id, not the name, and a provider may keep a
+            // document's uri through a rename made in the folder — so the name
+            // it remembers can be stale. Ask the document (D088).
+            val actual = SidecarStore.documentName(context, cached.uri) ?: cached.name
+            if (actual != cached.name) {
+                MirrorFileLookup.MirrorFileCache.remember(folder.uri, note.id, cached.uri, actual)
+            }
+            onFileName(actual)
             return true
         }
 

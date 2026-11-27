@@ -126,6 +126,8 @@ import com.markleaf.notes.util.LocalMarkdownLink
 import com.markleaf.notes.util.ExportPdf
 import com.markleaf.notes.util.ShareNoteUtil
 import com.markleaf.notes.widget.WidgetRefresh
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -302,6 +304,11 @@ fun EditorScreen(
     // the first line, even on the visit that created the note.
     var storedName by rememberSaveable(noteId) { mutableStateOf("") }
     var namedThisVisit by rememberSaveable(noteId) { mutableStateOf(false) }
+    // Renaming and the body's autosave each read the row and write it back
+    // whole, so one running in the other's suspension (a slow SAF write, a
+    // duplicate-name check) would write back a stale copy — the rename undoing
+    // keystrokes just saved, or a save undoing the rename. One at a time (D088).
+    val renameOrSaveLock = remember(noteId) { Mutex() }
     // A function, not a value: the debounced saver and the leave handler below
     // keep the lambdas of the composition that made them, and a captured value
     // would stay what it was before the load set createdThisVisit.
@@ -309,7 +316,7 @@ fun EditorScreen(
     // The persistence behind the debounce gate: reads the note fresh from the
     // DB so a save never clobbers a newer row, then updates the sync mirror
     // when one is configured (#262).
-    suspend fun autosave(content: String) {
+    suspend fun autosave(content: String) { renameOrSaveLock.withLock {
         val id = noteId ?: return
         val currentNote = repo.getNote(id)
         if (currentNote != null) {
@@ -400,7 +407,7 @@ fun EditorScreen(
             // loses the same race (#262).
             if (saveTime != null) WidgetRefresh.notesChanged(context)
         }
-    }
+    } }
     // The name being typed into the name field (D088), or null when the field is
     // not being edited. Held here rather than in the field so leaving the screen
     // mid-name still commits it (see the DisposableEffect below).
@@ -409,7 +416,7 @@ fun EditorScreen(
     // Renames the note under the File name rule — the one write in that mode
     // that renames its file. Returns why the name was refused, or null when it
     // was taken (or there was nothing to change).
-    suspend fun renameNote(typed: String): NoteNames.Problem? {
+    suspend fun renameNote(typed: String): NoteNames.Problem? { renameOrSaveLock.withLock {
         val id = noteId ?: return null
         val name = NoteNames.clean(typed)
         val current = repo.getNote(id) ?: return null
@@ -458,7 +465,7 @@ fun EditorScreen(
         }
         WidgetRefresh.notesChanged(context)
         return null
-    }
+    } }
     // Debounced autosave gate: every edit and formatting action bumps it, and
     // it coalesces a burst into one save of the latest text (#262). The save
     // body lives in [autosave] so the timing/ordering contract is testable.

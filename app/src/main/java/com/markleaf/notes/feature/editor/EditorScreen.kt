@@ -114,6 +114,7 @@ import com.markleaf.notes.data.sync.LocalNoteLinkResult
 import com.markleaf.notes.data.sync.NoteFolderMirror
 import com.markleaf.notes.data.sync.localNoteLinkVerdict
 import com.markleaf.notes.data.sync.wikilinkTitleMatch
+import com.markleaf.notes.data.sync.wikilinkNoteTarget
 import com.markleaf.notes.data.sync.resolveLocalNoteLink
 import com.markleaf.notes.data.sync.syncFolderUriOrNull
 import com.markleaf.notes.data.sync.mirrorMetadata
@@ -1698,8 +1699,17 @@ fun EditorScreen(
                                         if (isLoaded) saver.requestSave()
                                     }
                             },
-                            onWikilinkClick = { title ->
+                            onWikilinkClick = { linkTarget ->
                                 coroutineScope.launch {
+                                    // `[[Note#Heading]]` opens "Note" (#608) — unless a note
+                                    // is titled with the `#` in it ("C# basics"), which the
+                                    // whole target still reaches first.
+                                    val title = wikilinkNoteTarget(linkTarget) { candidate ->
+                                        db.noteDao().getNoteByTitle(candidate) != null ||
+                                            db.noteDao().countLockedNotesWithTitle(candidate) > 0 ||
+                                            wikilinkTitleMatch(candidate, db.noteDao().getLinkableNoteTitles()) != null
+                                    }
+                                    if (title.isEmpty()) return@launch
                                     val localName = LocalMarkdownLink.fileName(title)
                                     val mirroredId = if (localName != null) {
                                         appSettings.syncFolderUriOrNull()?.let { uri ->

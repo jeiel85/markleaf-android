@@ -315,4 +315,15 @@ class ExportPdfTest {
         assertTrue(body, body.contains("<h1 id=\"see-chart\">"))
         assertTrue(body, body.contains("![chart](missing.png)"))
     }
+
+    @Test
+    fun `obsidian comments stay out of the pdf and highlights print as mark`() {
+        val body = bodyOf(
+            ExportPdf.renderDocument(note("# Plan\n\nPublic ==key== text %%private note%% end"), "Untitled")
+        )
+
+        assertTrue(body, body.contains("<mark>key</mark>"))
+        assertFalse(body, body.contains("private note"))
+        assertFalse(body, body.contains("%%"))
+    }
 }

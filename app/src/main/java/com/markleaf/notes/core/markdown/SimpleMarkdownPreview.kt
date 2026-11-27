@@ -63,6 +63,8 @@ enum class PreviewInlineType {
     ITALIC,
     BOLD_ITALIC,
     STRIKETHROUGH,
+    /** `==text==`, the Obsidian highlight (#608). */
+    HIGHLIGHT,
     INLINE_CODE,
     FOOTNOTE_REF,
     WIKILINK,

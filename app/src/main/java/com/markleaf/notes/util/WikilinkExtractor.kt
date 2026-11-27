@@ -11,10 +11,36 @@ package com.markleaf.notes.util
 object WikilinkExtractor {
     internal val WIKILINK_REGEX = Regex("""\[\[([^\[\]\n]+?)]]""")
 
-    /** Sequence of every wikilink target in source order, including duplicates. */
+    /**
+     * Every wikilink target in source order, including duplicates.
+     *
+     * A target with a heading or block part (`[[Note#Heading]]`,
+     * `[[Note#^id]]`, the Obsidian form, #608) also yields the note's own
+     * title, so the link counts as a backlink to "Note". The whole target is
+     * kept as well: a title may itself contain `#` ("C# basics"), and links to
+     * it must not stop counting.
+     */
     fun extract(content: String): List<String> {
-        return WIKILINK_REGEX.findAll(content).map { target(it.groupValues[1]) }.filter { it.isNotEmpty() }.toList()
+        return WIKILINK_REGEX.findAll(content)
+            .map { target(it.groupValues[1]) }
+            .flatMap { target ->
+                val note = noteTitle(target)
+                if (note.isNotEmpty() && note != target) sequenceOf(target, note) else sequenceOf(target)
+            }
+            .filter { it.isNotEmpty() }
+            .toList()
     }
+
+    /**
+     * The note a target names once its `#Heading` / `#^block` part is dropped:
+     * `Note#Heading` → `Note`, `#Heading` → "" (a heading in the same note).
+     * Callers try the whole target first, since a title may contain `#`.
+     */
+    fun noteTitle(target: String): String = target.substringBefore('#').trim()
+
+    /** The heading part of `Note#Heading` / `#Heading`, or null without one. */
+    fun heading(target: String): String? =
+        target.substringAfter('#', "").trim().takeIf { it.isNotEmpty() && !it.startsWith('^') }
 
     /** True when [text] contains at least one well-formed wikilink. */
     fun hasAny(text: String): Boolean = WIKILINK_REGEX.containsMatchIn(text)

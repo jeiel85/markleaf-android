@@ -74,6 +74,7 @@ internal object WidgetInlineSpans {
         // line-local regex pass — so they cannot reach here, but the `when`
         // stays exhaustive rather than assuming that never changes.
         PreviewInlineType.TEXT,
+        PreviewInlineType.HIGHLIGHT,
         PreviewInlineType.FOOTNOTE_REF,
         PreviewInlineType.WIKILINK,
         PreviewInlineType.LINK -> null

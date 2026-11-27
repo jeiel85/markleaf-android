@@ -14,6 +14,7 @@ import com.markleaf.notes.data.settings.EditorFont
 import com.markleaf.notes.core.markdown.CalloutHead
 import com.markleaf.notes.core.markdown.CalloutKind
 import com.markleaf.notes.core.markdown.CommonMarkPreviewAdapter
+import com.markleaf.notes.core.markdown.ObsidianInlineExtension
 import com.markleaf.notes.core.markdown.WikilinkExtension
 import com.markleaf.notes.core.markdown.WikilinkNode
 import com.markleaf.notes.core.markdown.preview.headingSlug
@@ -60,6 +61,9 @@ object ExportPdf {
         // Ahead of autolinks, as in the preview: an address inside `[[…]]`
         // belongs to the wikilink.
         WikilinkExtension,
+        // `==highlight==` prints as <mark>, `%%comment%%` not at all, as in
+        // the preview (#608).
+        ObsidianInlineExtension,
         // Bare URLs print as links, as the preview shows them (D082).
         AutolinkExtension.create()
     )

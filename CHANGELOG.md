@@ -8,6 +8,11 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 ### Added
 - **Name notes yourself, and use the file name as the title.** Settings → Notes → Note title has a third choice, **File name**. Each note then gets a name field above its text, and the name shows at the top of Preview too. The name is not taken from the note's first line. In a synced folder that name is the file's name: rename the note and its file is renamed, rename the file on your computer and the note takes the new name, and a file you add is titled by its name, as Obsidian does. Characters a file name can't hold are left out as you type, and two notes can't share a name. A note you start on the phone keeps its first line as a name until you give it one. First heading stays the default, and switching back from File name retitles every note from its text, so the app asks before it does. Thanks to @ajmhp and @Jackson-Nickk for asking. (#429, #611)
+- **Highlights and hidden comments, as in Obsidian.** `==text==` now shows as highlighted text in the preview, and the editor marks it the same way. `%%comment%%` is hidden in the preview, inside a line or as a paragraph of its own over several lines; the editor shows it greyed out, and PDF export leaves it out too. A backslash keeps them literal (`\=\=`, `\%\%`). A comment with a blank line inside it isn't hidden yet. Thanks to @iJahangard for the suggestion. (#608)
+- **Wikilinks to a heading.** `[[Note#Heading]]` and `[[Note#^block-id]]` open "Note" instead of creating a new note with the whole link as its title, and count as a link to "Note" under Linked from. `[[#Heading]]` scrolls to that heading in the same note. A note whose title itself contains `#` still opens as before. Opening another note doesn't yet scroll to the heading. (#608)
+
+### Fixed
+- **Wrapped list items line up with their text.** In the preview, the second line of a long bullet, numbered or checklist item started under the bullet. It now starts under the item's first letter. Thanks to @mscheidemann for the report. (#606)
 
 ## v2.75.0 - A notes list without section headings - 2026-11-26
 

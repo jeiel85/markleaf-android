@@ -65,3 +65,16 @@ internal fun wikilinkTitleMatch(title: String, rows: List<NoteTitleRow>): NoteTi
         .sortedWith(compareBy<NoteTitleRow> { it.locked }.thenByDescending { it.updatedAt })
         .firstOrNull()
 }
+
+/**
+ * The title a tapped wikilink [target] should open (#608). A target that
+ * names an existing note as written is used as is — a title may contain `#`
+ * ("C# basics"). Otherwise a `#Heading` / `#^block` part is dropped, so
+ * `[[Note#Heading]]` opens "Note" instead of creating a note called
+ * "Note#Heading". Empty when nothing is left (`[[#Heading]]` with no note);
+ * the preview handles that form itself by scrolling to the heading.
+ */
+internal suspend fun wikilinkNoteTarget(target: String, exists: suspend (String) -> Boolean): String {
+    if ('#' !in target || exists(target)) return target
+    return WikilinkExtractor.noteTitle(target)
+}

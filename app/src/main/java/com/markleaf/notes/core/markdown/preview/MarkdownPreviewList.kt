@@ -46,13 +46,20 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.markleaf.notes.util.AttachmentManager
+import com.markleaf.notes.util.WikilinkExtractor
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.ParagraphStyle
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.TextIndent
+import androidx.compose.ui.unit.isSpecified
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -342,6 +349,15 @@ fun MarkdownPreviewList(
                         onTranslationXChange = { zoomTranslationX = it }
                     )
             ) {
+            // Copying a selection gives back the newlines that list rows draw
+            // as ITEM_BREAK (see withHangingIndent). The code and link copy
+            // buttons inside copy source text and keep the real clipboard.
+            val sourceClipboard = LocalClipboardManager.current
+            val selectionClipboard = remember(sourceClipboard) { ItemBreakRestoringClipboard(sourceClipboard) }
+            CompositionLocalProvider(
+                LocalClipboardManager provides selectionClipboard,
+                LocalSourceClipboard provides sourceClipboard
+            ) {
             SelectionContainer(
                 modifier = Modifier
                     .fillMaxSize()
@@ -408,6 +424,7 @@ fun MarkdownPreviewList(
                         }
                     }
                 }
+            }
             }
             }
         }
@@ -1076,8 +1093,22 @@ internal fun InlineMarkdownText(
     val segments = line.segments.ifEmpty {
         listOf(PreviewInlineSegment(line.text, PreviewInlineType.TEXT))
     }
+    // Where a break inside a list item falls, counted in the row's text (marker
+    // included). Those breaks become paragraph boundaries in withHangingIndent,
+    // and the newline itself a zero-width space: a newline at a boundary would
+    // draw an empty line there (#606). Same length, so every offset into the
+    // text — find, links, the marker — stays where it was.
+    val itemBreaks = if (leadingMarker.isEmpty()) emptyList() else buildList {
+        var offset = leadingMarker.length
+        for (segment in segments) {
+            segment.text.forEachIndexed { i, c -> if (c == '\n') add(offset + i) }
+            offset += segment.text.length
+        }
+    }
+    val rowSegments = if (itemBreaks.isEmpty()) segments
+    else segments.map { if ('\n' in it.text) it.copy(text = it.text.replace('\n', ITEM_BREAK)) else it }
     val unhighlighted = inlineAnnotatedString(
-        segments = segments,
+        segments = rowSegments,
         leadingMarker = leadingMarker,
         onWikilinkClick = onWikilinkClick,
         onFootnoteRefClick = onFootnoteRefClick,
@@ -1085,8 +1116,14 @@ internal fun InlineMarkdownText(
         fontScale = line.fontScale
     )
     val highlight = LocalPreviewFindHighlight.current
-    val annotated = unhighlighted.withFindHighlights(highlight, searchStart = leadingMarker.length)
     val baseStyle = MaterialTheme.typography.bodyLarge
+    val textStyle = (
+        if (line.fontScale == 1f && line.lineSpacing == 1f) baseStyle
+        else baseStyle.scaledBy(line.fontScale, line.lineSpacing)
+        ).copy(color = color)
+    val annotated = unhighlighted
+        .withFindHighlights(highlight, searchStart = leadingMarker.length)
+        .withHangingIndent(leadingMarker.length, hangingIndentFor(leadingMarker, textStyle), itemBreaks, textStyle.lineHeightStyle)
     val spacingPadding = lineSpacingPadding(line, baseStyle.lineHeight)
     val layout = remember { TextLayoutHolder() }
     // Links are now embedded as LinkAnnotations in `annotated`, so a plain Text
@@ -1095,10 +1132,7 @@ internal fun InlineMarkdownText(
     // has to map a touch back to a text offset (#386).
     Text(
         text = annotated,
-        style = (
-            if (line.fontScale == 1f && line.lineSpacing == 1f) baseStyle
-            else baseStyle.scaledBy(line.fontScale, line.lineSpacing)
-            ).copy(color = color),
+        style = textStyle,
         onTextLayout = { layout.value = it },
         modifier = Modifier
             .padding(vertical = (verticalPadding + spacingPadding).coerceAtLeast(0.dp))
@@ -1106,6 +1140,106 @@ internal fun InlineMarkdownText(
             .revealCurrentFindMatch(unhighlighted.text, highlight, layout, searchStart = leadingMarker.length)
     )
 }
+
+/**
+ * How far a list row's wrapped lines start from its left edge: the width of
+ * [marker] (`• `, `3. `, `☐ ` …) in [style], so they line up under the first
+ * letter of the item rather than under the bullet (#606). Unspecified for a
+ * row without a marker.
+ *
+ * Measured as the offset of a character placed after the marker, not as the
+ * marker's own width, so the trailing space is counted the way the row itself
+ * lays it out.
+ */
+@Composable
+private fun hangingIndentFor(marker: String, style: androidx.compose.ui.text.TextStyle): TextUnit {
+    if (marker.isEmpty()) return TextUnit.Unspecified
+    val measurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    return remember(measurer, density, marker, style) {
+        val result = measurer.measure(marker + "x", style)
+        with(density) { result.getHorizontalPosition(marker.length, usePrimaryDirection = true).toSp() }
+    }
+}
+
+/**
+ * Indents every line of this row but its first by [indent], the width of the
+ * leading marker that takes up the first [markerLength] characters (#606).
+ *
+ * [breaks] are the offsets of breaks inside the item (each now an [ITEM_BREAK]).
+ * Each starts a new paragraph right after it, and those paragraphs take the
+ * indent on their first line as well, so the item's text stays in one column.
+ * The boundary itself is the line break, which is why the character there
+ * must not be a newline: a newline at a boundary adds an empty line.
+ *
+ * Compose trims line-height padding at the top and bottom of every paragraph
+ * ([lineHeightStyle]'s trim). Inside one item that would pull the lines on
+ * either side of a break closer than the item's other lines, so only the row's
+ * outer edges keep the trim; the boundaries inside it get none.
+ */
+internal fun AnnotatedString.withHangingIndent(
+    markerLength: Int,
+    indent: TextUnit,
+    breaks: List<Int> = emptyList(),
+    lineHeightStyle: LineHeightStyle? = null
+): AnnotatedString {
+    if (markerLength == 0 || !indent.isSpecified || length <= markerLength) return this
+    val ends = breaks.map { it + 1 }.filter { it in 1 until length }.distinct().sorted() + length
+    if (ends.size == 1) {
+        return buildAnnotatedString {
+            append(this@withHangingIndent)
+            addStyle(ParagraphStyle(textIndent = TextIndent(firstLine = 0.sp, restLine = indent)), 0, length)
+        }
+    }
+    val base = lineHeightStyle ?: LineHeightStyle.Default
+    val trimsTop = base.trim == LineHeightStyle.Trim.Both || base.trim == LineHeightStyle.Trim.FirstLineTop
+    val trimsBottom = base.trim == LineHeightStyle.Trim.Both || base.trim == LineHeightStyle.Trim.LastLineBottom
+    return buildAnnotatedString {
+        append(this@withHangingIndent)
+        var start = 0
+        ends.forEachIndexed { i, end ->
+            val top = i == 0 && trimsTop
+            val bottom = i == ends.lastIndex && trimsBottom
+            val trim = when {
+                top && bottom -> LineHeightStyle.Trim.Both
+                top -> LineHeightStyle.Trim.FirstLineTop
+                bottom -> LineHeightStyle.Trim.LastLineBottom
+                else -> LineHeightStyle.Trim.None
+            }
+            addStyle(
+                ParagraphStyle(
+                    textIndent = TextIndent(firstLine = if (i == 0) 0.sp else indent, restLine = indent),
+                    lineHeightStyle = LineHeightStyle(alignment = base.alignment, trim = trim)
+                ),
+                start,
+                end
+            )
+            start = end
+        }
+    }
+}
+
+/** The clipboard outside the preview's selection wrapper, for copies of source text. */
+private val LocalSourceClipboard = compositionLocalOf<ClipboardManager?> { null }
+
+/**
+ * Hands a copied selection to [delegate] with each [ITEM_BREAK] turned back
+ * into the newline it stands for, so a list item copied from the preview
+ * pastes on the lines it showed (Codex on #612). A zero-width space the note
+ * itself contained becomes a newline too; that trade is accepted, as such a
+ * character is rare and invisible either way.
+ */
+internal class ItemBreakRestoringClipboard(private val delegate: ClipboardManager) : ClipboardManager by delegate {
+    override fun setText(annotatedString: AnnotatedString) {
+        delegate.setText(
+            if (ITEM_BREAK in annotatedString.text) AnnotatedString(annotatedString.text.replace(ITEM_BREAK, '\n'))
+            else annotatedString
+        )
+    }
+}
+
+/** What a break inside a list item becomes: a zero-width space, see [withHangingIndent]. */
+internal const val ITEM_BREAK = '\u200B'
 
 /**
  * Returns this style with its font size and line height multiplied by [scale]
@@ -1195,6 +1329,17 @@ private fun inlineAnnotatedString(
                 ) {
                     append(segment.text)
                 }
+                // `==text==` (#608): a marker-pen band behind the words. The
+                // container/on-container pair keeps the text readable on it in
+                // both themes and under Material You.
+                PreviewInlineType.HIGHLIGHT -> withStyle(
+                    SpanStyle(
+                        background = MaterialTheme.colorScheme.tertiaryContainer,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                ) {
+                    append(segment.text)
+                }
                 PreviewInlineType.INLINE_CODE -> withStyle(
                     SpanStyle(
                         fontFamily = FontFamily.Monospace,
@@ -1236,7 +1381,17 @@ private fun inlineAnnotatedString(
                                     textDecoration = TextDecoration.Underline
                                 )
                             ),
-                            linkInteractionListener = { onWikilinkClick(target) }
+                            linkInteractionListener = {
+                                // `[[#Heading]]` names a heading in this note (#608):
+                                // scroll to it like `[text](#heading)` does, rather
+                                // than create a note called "#Heading".
+                                val heading = WikilinkExtractor.heading(target)
+                                if (target.trimStart().startsWith('#') && heading != null && onAnchorClick != null) {
+                                    onAnchorClick(headingSlug(heading))
+                                } else {
+                                    onWikilinkClick(target)
+                                }
+                            }
                         )
                     ) {
                         append(segment.text)
@@ -1513,7 +1668,7 @@ private fun Modifier.linkPressGestures(
     if (annotated.getStringAnnotations(LINK_HREF_TAG, 0, annotated.length).isEmpty()) {
         return this
     }
-    val clipboard = LocalClipboardManager.current
+    val clipboard = LocalSourceClipboard.current ?: LocalClipboardManager.current
     val context = LocalContext.current
     val copiedMessage = stringResource(R.string.preview_link_address_copied)
     val onAddressCopied = LocalPreviewSelectionReset.current
@@ -2098,7 +2253,7 @@ private fun FootnoteDefRow(line: PreviewLine) {
 @Composable
 private fun MarkdownCodeBlock(text: String, language: String?) {
     val scheme = MaterialTheme.colorScheme
-    val clipboard = LocalClipboardManager.current
+    val clipboard = LocalSourceClipboard.current ?: LocalClipboardManager.current
     val context = LocalContext.current
     val copiedMessage = stringResource(R.string.preview_code_copied)
     val copyLabel = stringResource(R.string.copy_code_block)

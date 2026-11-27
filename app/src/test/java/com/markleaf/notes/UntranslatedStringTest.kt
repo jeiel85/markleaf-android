@@ -203,6 +203,9 @@ class UntranslatedStringTest {
                 "line_spacing_normal",
                 "locked_passcode_label",
                 "matching_tags",
+                // "Name", the placeholder in the note-name field (#611), is the
+                // German word too.
+                "note_name_hint",
                 "settings_app",
                 // "Editor", "Export" and "Text" are the German words for the
                 // Settings category and its two group headings.

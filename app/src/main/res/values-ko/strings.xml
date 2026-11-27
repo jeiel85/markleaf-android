@@ -340,6 +340,16 @@
     <string name="note_title_source_first_heading">첫 제목 줄</string>
     <string name="note_title_source_first_line">첫 줄</string>
     <string name="note_title_source_description">목록에 보이는 노트 제목을 어느 줄에서 가져올지 정합니다. \'첫 제목 줄\'은 노트 어디에 있든 첫 Markdown 제목을 쓰고, \'첫 줄\'은 언제나 맨 처음 쓴 줄을 씁니다. 바꾸면 기존 노트의 제목이 다시 계산되며, 동기화 폴더의 파일명은 동기화 센터의 \'파일명을 노트 제목으로 정리\'로 맞출 수 있습니다.</string>
+    <string name="note_title_source_file_name">파일 이름</string>
+    <string name="note_title_source_file_name_description">“파일 이름”을 고르면 노트마다 본문 위에서 이름을 직접 정합니다. 동기화 폴더에서는 그 이름이 파일 이름이 되고, 컴퓨터에서 파일 이름을 바꾸면 노트 이름도 바뀝니다.</string>
+    <string name="note_name_hint">이름</string>
+    <string name="note_name_taken">같은 이름의 노트가 이미 있습니다.</string>
+    <string name="note_name_reserved">파일 이름으로 쓸 수 없는 이름입니다.</string>
+    <string name="note_name_folder_kept_another">동기화 폴더가 파일을 다른 이름으로 두어서, 노트도 그 이름을 씁니다.</string>
+    <string name="sync_keep_file_names_locked">노트 제목이 “파일 이름”이면 항상 켜져 있습니다. 노트 이름을 바꿀 때만 파일 이름이 바뀝니다.</string>
+    <string name="note_title_leave_file_name_title">직접 정한 노트 이름을 그만 쓸까요?</string>
+    <string name="note_title_leave_file_name_message">모든 노트의 제목을 다시 본문에서 가져옵니다. 동기화 폴더에 없는 노트에 붙인 이름은 사라집니다. 파일 이름은 동기화 센터에서 파일 이름 유지가 켜져 있을 때만 남습니다.</string>
+    <string name="note_title_leave_file_name_confirm">바꾸기</string>
     <string name="new_note_heading">새 노트를 제목 줄로 시작</string>
     <string name="new_note_heading_description">새 노트가 “# ”로 시작해서, 처음 쓰는 줄이 제목 줄이 되고 노트 제목으로 쓰입니다. 기존 노트는 바뀌지 않습니다.</string>
     <plurals name="note_title_retitled_format">

@@ -22,6 +22,11 @@ import com.markleaf.notes.domain.repository.NoteRepository
  *    list renders as "Untitled". Deriving would write the literal word instead.
  *  - Conflict copies, whose title carries the "conflict copy" suffix that makes
  *    them findable; re-deriving from the body would erase it.
+ *  - Anything at all under [NoteTitleSource.FILE_NAME]: there a title is the
+ *    note's name, not something the body yields, so switching *to* it keeps
+ *    every title as the name the note starts with (D088). Switching away from it
+ *    is an ordinary pass under the new rule, and the settings page warns first
+ *    that names given by hand go with it.
  *
  * Mirror filenames follow the title, but only when a note is next written.
  * *Sync Center → Tidy filenames* is the existing one-pass way to catch the
@@ -31,6 +36,7 @@ object NoteRetitler {
 
     /** Retitle every stored note under [source]; returns how many changed. */
     suspend fun retitleAll(repository: NoteRepository, source: NoteTitleSource): Int {
+        if (source.isNamedByHand) return 0
         var changed = 0
         for (note in repository.getAllNotes()) {
             if (note.contentMarkdown.isBlank() || note.isConflictCopy) continue

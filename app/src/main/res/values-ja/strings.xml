@@ -340,6 +340,16 @@
     <string name="note_title_source_first_heading">最初の見出し</string>
     <string name="note_title_source_first_line">最初の行</string>
     <string name="note_title_source_description">一覧に表示するタイトルをノートのどの行から取るかを決めます。「最初の見出し」はノート内のどこにあっても最初の Markdown 見出しを使い、「最初の行」は常に書き始めた行を使います。変更すると既存ノートのタイトルが付け直され、同期フォルダのファイル名は同期センターの「ファイル名をノートのタイトルに整える」で揃えられます。</string>
+    <string name="note_title_source_file_name">ファイル名</string>
+    <string name="note_title_source_file_name_description">「ファイル名」を選ぶと、ノートごとに本文の上で名前を自分で付けます。同期フォルダではその名前がファイル名になり、パソコンでファイル名を変えるとノートの名前も変わります。</string>
+    <string name="note_name_hint">名前</string>
+    <string name="note_name_taken">同じ名前のノートがすでにあります。</string>
+    <string name="note_name_reserved">この名前はファイル名に使えません。</string>
+    <string name="note_name_folder_kept_another">同期フォルダがファイルを別の名前のままにしたため、ノートもその名前になりました。</string>
+    <string name="sync_keep_file_names_locked">ノートのタイトルが「ファイル名」の間は常にオンです。ファイル名が変わるのはノートの名前を変えたときだけです。</string>
+    <string name="note_title_leave_file_name_title">自分で付けたノート名をやめますか？</string>
+    <string name="note_title_leave_file_name_message">すべてのノートのタイトルを本文から付け直します。同期フォルダにないノートに付けた名前は失われます。ファイル名が残るのは、同期センターでファイル名を保持がオンのときだけです。</string>
+    <string name="note_title_leave_file_name_confirm">切り替える</string>
     <string name="new_note_heading">新しいノートを見出しで始める</string>
     <string name="new_note_heading_description">新しいノートが「# 」で始まり、最初に書いた行が見出しになってノートのタイトルになります。既存のノートは変更されません。</string>
     <plurals name="note_title_retitled_format">

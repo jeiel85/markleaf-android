@@ -84,6 +84,26 @@ export → Sync Center). Then:
 
 If your Markleaf doesn't show **Keep file names** yet, update the app.
 
+### Naming notes yourself
+
+If you would rather give every note a short name of your own than let its
+first line name it, set **Settings → Notes → Note title** to **File name**:
+
+- each note has a name field above its text, in Edit, and the name at the top
+  of Preview. Renaming the note there renames its file;
+- the name is the file name, so it can't hold `\ / : * ? " < > |` (they are
+  left out as you type), and two notes can't share a name;
+- rename the file on the computer (`mv groceries.md shopping.md`) and the note
+  is called "shopping" in Markleaf after the next sync;
+- a file you add to the folder is titled by its name, not its first line;
+- a new note you start on the phone takes its first line as a name until you
+  give it one;
+- saving a note never renames its file, so **Keep file names** shows as on.
+
+Switching **Note title** back to First heading or First line retitles every
+note from its text again; names you gave notes that aren't in the folder are
+lost, which is why the app asks first.
+
 ## 5. Header or no header
 
 Markleaf has to know which file belongs to which note. There are two ways,
@@ -123,7 +143,7 @@ If you plan to rename files on the computer, use **In the file**.
 |---|---|
 | Edit a file | The note updates the next time Markleaf syncs |
 | Create a new `.md` file in the folder | It becomes a new note |
-| Rename a file | Same note, and with **Keep file names** on the name stays. Index mode only: if you also edited it before Markleaf synced, it arrives as a new note |
+| Rename a file | Same note, and with **Keep file names** on the name stays. With Note title set to **File name**, the note takes the new name. Index mode only: if you also edited it before Markleaf synced, it arrives as a new note |
 | Delete a file | Nothing; the note stays, and its file is written again on the next edit |
 | Edit a note in Markleaf and the same file on the computer | The phone keeps its version; the other arrives as a copy |
 

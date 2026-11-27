@@ -3,6 +3,7 @@ package com.markleaf.notes.data.sync
 import android.content.Context
 import androidx.documentfile.provider.DocumentFile
 import com.markleaf.notes.R
+import com.markleaf.notes.core.text.NoteNames
 import com.markleaf.notes.core.text.NoteTitleSource
 import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.domain.model.Note
@@ -53,6 +54,47 @@ internal object MirrorImport {
      * snapshot's stale row back over the newer one (#434). Null falls back to
      * [existing], which is what the tests that build a folder by hand want.
      */
+    /**
+     * The title a file brings in: under [NoteTitleSource.FILE_NAME] its name
+     * without the extension — `Frankenstein.md` is "Frankenstein" whatever its
+     * first line says — and otherwise the one its body yields (D088).
+     */
+    internal fun importedTitle(fileName: String?, body: String, titleSource: NoteTitleSource): String {
+        if (!titleSource.isNamedByHand) return TitleExtractor.extractTitle(body, titleSource)
+        return NoteNames.clean(NoteNames.fromFileName(fileName.orEmpty()))
+            .ifEmpty { TitleExtractor.extractTitle(body, titleSource) }
+    }
+
+    /**
+     * Under File name, give [note] its file's name when the two differ — the
+     * file was renamed outside Markleaf, on a computer or in another app, and
+     * its body did not change, so nothing else would bring the rename in (D088).
+     *
+     * Only the title moves: `updatedAt` stays, so the note does not jump to the
+     * top of the list and the next save is not read as an edit. Case alone is
+     * not a rename — a case-insensitive filesystem may report either. Conflict
+     * copies keep the suffix that makes them findable.
+     *
+     * And only for a note whose last write reached the folder
+     * (`lastImportedAt` caught up with `updatedAt`). A rename made in the app
+     * whose file write failed — folder unavailable, rename refused — leaves the
+     * old name on disk; taking that name back would undo the person's rename.
+     */
+    private suspend fun adoptRenamedFile(
+        note: Note?,
+        fileName: String?,
+        titleSource: NoteTitleSource,
+        applyUpdate: suspend (Note) -> Unit
+    ): Boolean {
+        if (note == null || !titleSource.isNamedByHand || note.isConflictCopy) return false
+        val synced = note.lastImportedAt?.let { !it.isBefore(note.updatedAt) } ?: false
+        if (!synced) return false
+        val name = NoteNames.clean(NoteNames.fromFileName(fileName.orEmpty()))
+        if (name.isEmpty() || name.equals(note.title, ignoreCase = true)) return false
+        applyUpdate(note.copy(title = name))
+        return true
+    }
+
     internal suspend fun importChangesFrom(
         context: Context,
         folder: DocumentFile,
@@ -125,13 +167,15 @@ internal object MirrorImport {
                     // reversible; only permanent delete removes it). Re-importing
                     // it would resurrect the deleted note (#148), so skip it.
                     NoteFolderMirror.Reconcile.SkipTrashed -> skipped++
-                    // File isn't strictly newer than the DB note — nothing to do.
-                    NoteFolderMirror.Reconcile.Skip -> skipped++
+                    // File isn't strictly newer than the DB note — nothing to do,
+                    // unless the file was renamed and its name is the note's (D088).
+                    NoteFolderMirror.Reconcile.Skip ->
+                        if (adoptRenamedFile(existingNote, file.name, titleSource, applyUpdate)) updated++ else skipped++
                     NoteFolderMirror.Reconcile.Create -> {
                         val now = Instant.now()
                         val newNote = Note(
                             id = parsed.markleafId ?: UUID.randomUUID().toString(),
-                            title = TitleExtractor.extractTitle(parsed.body, titleSource),
+                            title = importedTitle(file.name, parsed.body, titleSource),
                             contentMarkdown = parsed.body,
                             excerpt = TitleExtractor.generateExcerpt(parsed.body, titleSource),
                             createdAt = parsed.createdAt ?: now,
@@ -159,7 +203,7 @@ internal object MirrorImport {
                         // Both sides moved since the last sync. Keep the local
                         // note's content untouched and bring the remote in as a
                         // separate note so the user can compare and merge by hand.
-                        val baseTitle = TitleExtractor.extractTitle(parsed.body, titleSource)
+                        val baseTitle = importedTitle(file.name, parsed.body, titleSource)
                         val suffix = conflictSuffix(context, Instant.now())
                         val duplicate = Note(
                             id = UUID.randomUUID().toString(),
@@ -187,7 +231,7 @@ internal object MirrorImport {
                     NoteFolderMirror.Reconcile.Overwrite -> {
                         val note = existingNote!!
                         val merged = note.copy(
-                            title = TitleExtractor.extractTitle(parsed.body, titleSource),
+                            title = importedTitle(file.name, parsed.body, titleSource),
                             contentMarkdown = parsed.body,
                             excerpt = TitleExtractor.generateExcerpt(parsed.body, titleSource),
                             updatedAt = fileTs,
@@ -324,7 +368,8 @@ internal object MirrorImport {
             try {
                 when (MirrorReconcile.sidecarReconcileAction(existingNote, matchesLastWrite)) {
                     NoteFolderMirror.Reconcile.SkipTrashed -> skipped++
-                    NoteFolderMirror.Reconcile.Skip -> skipped++
+                    NoteFolderMirror.Reconcile.Skip ->
+                        if (adoptRenamedFile(existingNote, fileName, titleSource, applyUpdate)) updated++ else skipped++
                     NoteFolderMirror.Reconcile.Create -> {
                         val now = Instant.now()
                         // An entry with no note behind it means the note was
@@ -345,7 +390,7 @@ internal object MirrorImport {
                                 // identities across devices.
                                 ?: parsed.markleafId
                                 ?: UUID.randomUUID().toString(),
-                            title = TitleExtractor.extractTitle(text, titleSource),
+                            title = importedTitle(fileName, text, titleSource),
                             contentMarkdown = text,
                             excerpt = TitleExtractor.generateExcerpt(text, titleSource),
                             createdAt = createdAt,
@@ -371,7 +416,7 @@ internal object MirrorImport {
                     }
                     NoteFolderMirror.Reconcile.Conflict -> {
                         val note = existingNote!!
-                        val baseTitle = TitleExtractor.extractTitle(text, titleSource)
+                        val baseTitle = importedTitle(fileName, text, titleSource)
                         val duplicate = Note(
                             id = UUID.randomUUID().toString(),
                             title = "$baseTitle ${conflictSuffix(context, Instant.now())}",
@@ -404,7 +449,7 @@ internal object MirrorImport {
                         val now = Instant.now()
                         applyUpdate(
                             note.copy(
-                                title = TitleExtractor.extractTitle(text, titleSource),
+                                title = importedTitle(fileName, text, titleSource),
                                 contentMarkdown = text,
                                 excerpt = TitleExtractor.generateExcerpt(text, titleSource),
                                 updatedAt = now,

@@ -361,6 +361,16 @@
     <string name="note_title_source_first_heading">Prvý nadpis</string>
     <string name="note_title_source_first_line">Prvý riadok</string>
     <string name="note_title_source_description">Určuje, ktorý riadok poznámky sa použije ako jej názov v zozname. Možnosť Prvý nadpis vezme prvý nadpis Markdown kdekoľvek v poznámke; možnosť Prvý riadok vždy použije prvý riadok, ktorý ste napísali. Zmena tohto nastavenia premenuje vaše existujúce poznámky – v centre synchronizácie možnosť Premenovať súbory podľa názvov poznámok aktualizuje aj názvy synchronizovaných súborov.</string>
+    <string name="note_title_source_file_name">Názov súboru</string>
+    <string name="note_title_source_file_name_description">S voľbou „Názov súboru“ dávate každej poznámke meno sami, nad jej textom. V synchronizovanom priečinku je toto meno názvom súboru a ak súbor na počítači premenujete, premenuje sa aj poznámka.</string>
+    <string name="note_name_hint">Meno</string>
+    <string name="note_name_taken">Iná poznámka už má toto meno.</string>
+    <string name="note_name_reserved">Toto meno sa nedá použiť ako názov súboru.</string>
+    <string name="note_name_folder_kept_another">Synchronizovaný priečinok ponechal súbor pod iným menom, preto poznámka teraz používa toto meno.</string>
+    <string name="sync_keep_file_names_locked">Vždy zapnuté, kým je názov poznámky „Názov súboru“: súbor sa premenuje, len keď premenujete jeho poznámku.</string>
+    <string name="note_title_leave_file_name_title">Prestať používať mená, ktoré ste dali poznámkam?</string>
+    <string name="note_title_leave_file_name_message">Všetky poznámky znova dostanú názov zo svojho textu. Mená, ktoré ste dali poznámkam mimo synchronizovaného priečinka, sa stratia. Súbory si ponechajú názvy, len ak je v Centre synchronizácie zapnuté Ponechať názvy súborov.</string>
+    <string name="note_title_leave_file_name_confirm">Prepnúť</string>
     <string name="new_note_heading">Začínať nové poznámky nadpisom</string>
     <string name="new_note_heading_description">Nové poznámky začínajú „# “, takže prvý riadok, ktorý napíšete, je nadpis a stane sa názvom poznámky. Existujúce poznámky sa nemenia.</string>
     <plurals name="note_title_retitled_format">

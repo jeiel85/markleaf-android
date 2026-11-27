@@ -120,7 +120,11 @@ internal fun NotesSettings(
         color = MaterialTheme.colorScheme.onBackground
     )
     Spacer(Modifier.height(8.dp))
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    // Three choices no longer fit one row on a phone in every language.
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
         NoteTitleSource.entries.forEach { source ->
             val selected = appSettings.noteTitleSource == source
             if (selected) {
@@ -142,6 +146,12 @@ internal fun NotesSettings(
     Spacer(Modifier.height(6.dp))
     Text(
         text = stringResource(R.string.note_title_source_description),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+    Spacer(Modifier.height(4.dp))
+    Text(
+        text = stringResource(R.string.note_title_source_file_name_description),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )

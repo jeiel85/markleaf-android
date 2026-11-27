@@ -97,6 +97,8 @@ import com.markleaf.notes.core.markdown.preview.extractHeadings
 import com.markleaf.notes.core.markdown.preview.findInPreview
 import com.markleaf.notes.core.markdown.preview.visiblePreviewLineIndices
 import com.markleaf.notes.core.markdown.preview.visiblePreviewLines
+import com.markleaf.notes.core.text.NoteNames
+import com.markleaf.notes.core.text.NoteTitles
 import com.markleaf.notes.core.text.TitleExtractor
 import com.markleaf.notes.data.local.AppDatabase
 import com.markleaf.notes.data.local.entity.NoteViewStateEntity
@@ -124,6 +126,8 @@ import com.markleaf.notes.util.LocalMarkdownLink
 import com.markleaf.notes.util.ExportPdf
 import com.markleaf.notes.util.ShareNoteUtil
 import com.markleaf.notes.widget.WidgetRefresh
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -294,10 +298,25 @@ fun EditorScreen(
     // ON_STOP instead would also end it when the app is merely backgrounded,
     // and a pause like that is the half-typed title this is here to avoid.
     var createdThisVisit by rememberSaveable(noteId) { mutableStateOf(false) }
+    // Under the File name title rule (D088): the note's stored name, kept in step
+    // with the row so a rename that arrived from the folder shows here, and
+    // whether it was named on this visit — from then on the name stops following
+    // the first line, even on the visit that created the note.
+    var storedName by rememberSaveable(noteId) { mutableStateOf("") }
+    var namedThisVisit by rememberSaveable(noteId) { mutableStateOf(false) }
+    // Renaming and the body's autosave each read the row and write it back
+    // whole, so one running in the other's suspension (a slow SAF write, a
+    // duplicate-name check) would write back a stale copy — the rename undoing
+    // keystrokes just saved, or a save undoing the rename. One at a time (D088).
+    val renameOrSaveLock = remember(noteId) { Mutex() }
+    // A function, not a value: the debounced saver and the leave handler below
+    // keep the lambdas of the composition that made them, and a captured value
+    // would stay what it was before the load set createdThisVisit.
+    fun nameFollowsBody() = createdThisVisit && !namedThisVisit
     // The persistence behind the debounce gate: reads the note fresh from the
     // DB so a save never clobbers a newer row, then updates the sync mirror
     // when one is configured (#262).
-    suspend fun autosave(content: String) {
+    suspend fun autosave(content: String) { renameOrSaveLock.withLock {
         val id = noteId ?: return
         val currentNote = repo.getNote(id)
         if (currentNote != null) {
@@ -310,7 +329,9 @@ fun EditorScreen(
                 )) return
             val updatedNote = if (saveTime != null) {
                 currentNote.copy(
-                    title = TitleExtractor.extractTitle(content, appSettings.noteTitleSource),
+                    title = NoteTitles.forSave(
+                        currentNote.title, content, appSettings.noteTitleSource, nameFollowsBody()
+                    ),
                     contentMarkdown = content,
                     excerpt = TitleExtractor.generateExcerpt(content, appSettings.noteTitleSource),
                     updatedAt = saveTime
@@ -330,6 +351,15 @@ fun EditorScreen(
                 // space is meant to stay on-device, and the mirror writes plain
                 // text (#155). Removing the lock re-includes it on the next save.
                 if (!updatedNote.locked) {
+                    val namedByHand = appSettings.noteTitleSource.isNamedByHand
+                    // Under File name a save keeps the file's name — except when
+                    // the note's last write never reached the folder, which may
+                    // have been a rename (an unwritable folder, a dropped grant):
+                    // that one is redone here, or the old name would be stamped
+                    // as in sync and the next import would undo it (D088).
+                    val lastWriteMissedFolder = currentNote.lastImportedAt
+                        ?.isBefore(currentNote.updatedAt) ?: true
+                    var fileName: String? = null
                     val ok = withContext(Dispatchers.IO) {
                         val wrote = NoteFolderMirror.writeNote(
                             context,
@@ -337,8 +367,9 @@ fun EditorScreen(
                             updatedNote,
                             appSettings.syncFileExtension,
                             appSettings.mirrorMetadata(),
-                            keepsFileName(appSettings.syncKeepFileNames, createdThisVisit)
-                        )
+                            keepsFileName(appSettings.keepsFileNames, nameFollowsBody()) &&
+                                !(namedByHand && lastWriteMissedFolder)
+                        ) { fileName = it }
                         if (wrote) {
                             val attachments = AttachmentManager.filesForNote(context, id)
                             if (attachments.isNotEmpty()) {
@@ -351,7 +382,16 @@ fun EditorScreen(
                         // Stamp the synced snapshot so the next reconcile
                         // can distinguish "remote echo" from "remote edit
                         // by another device since this snapshot."
-                        repo.updateNote(updatedNote.copy(lastImportedAt = updatedNote.updatedAt))
+                        // Under File name the note is called what its file is.
+                        val kept = if (namedByHand) {
+                            fileName?.let { NoteNames.nameTheFolderKept(updatedNote.title, it) }
+                        } else null
+                        repo.updateNote(
+                            updatedNote.copy(
+                                title = kept ?: updatedNote.title,
+                                lastImportedAt = updatedNote.updatedAt
+                            )
+                        )
                     }
                 }
             }
@@ -367,7 +407,72 @@ fun EditorScreen(
             // loses the same race (#262).
             if (saveTime != null) WidgetRefresh.notesChanged(context)
         }
-    }
+    } }
+    // The name being typed into the name field (D088), or null when the field is
+    // not being edited. Held here rather than in the field so leaving the screen
+    // mid-name still commits it (see the DisposableEffect below).
+    var nameDraft by rememberSaveable(noteId) { mutableStateOf<String?>(null) }
+    var nameProblem by remember(noteId) { mutableStateOf<NoteNames.Problem?>(null) }
+    // Renames the note under the File name rule — the one write in that mode
+    // that renames its file. Returns why the name was refused, or null when it
+    // was taken (or there was nothing to change).
+    suspend fun renameNote(typed: String): NoteNames.Problem? { renameOrSaveLock.withLock {
+        val id = noteId ?: return null
+        val name = NoteNames.clean(typed)
+        val current = repo.getNote(id) ?: return null
+        if (name.isEmpty()) return null
+        if (name == current.title) {
+            // Committing the name the note already has still names it: from
+            // here on it stops following the first line.
+            namedThisVisit = true
+            storedName = name
+            return null
+        }
+        val others = repo.getAllNotes().filter { it.id != id }.map { it.title }
+        NoteNames.problemWith(name, others)?.let { return it }
+        val renamed = current.copy(title = name, updatedAt = Instant.now())
+        repo.updateNote(renamed)
+        namedThisVisit = true
+        storedName = name
+        val syncUri = appSettings.syncFolderUriOrNull()
+        // A locked note never reaches the folder (#155), so it has no file to rename.
+        if (syncUri != null && !renamed.locked) {
+            var fileName: String? = null
+            val ok = withContext(Dispatchers.IO) {
+                NoteFolderMirror.writeNote(
+                    context,
+                    syncUri,
+                    renamed,
+                    appSettings.syncFileExtension,
+                    appSettings.mirrorMetadata(),
+                    keepFileName = false
+                ) { fileName = it }
+            }
+            if (ok) {
+                val kept = fileName?.let { NoteNames.nameTheFolderKept(name, it) }
+                // Re-read: an autosave may have stored newer text while the file
+                // was written, and writing `renamed` back would undo it. Only the
+                // name moves, and the note is stamped in sync only if nothing
+                // was saved since — otherwise that save's own write stamps it.
+                val fresh = repo.getNote(id) ?: return null
+                repo.updateNote(
+                    fresh.copy(
+                        title = kept ?: name,
+                        lastImportedAt = if (fresh.updatedAt == renamed.updatedAt) {
+                            renamed.updatedAt
+                        } else fresh.lastImportedAt
+                    )
+                )
+                if (kept != null) {
+                    storedName = kept
+                    WidgetRefresh.notesChanged(context)
+                    return NoteNames.Problem.FOLDER_KEPT_ANOTHER
+                }
+            }
+        }
+        WidgetRefresh.notesChanged(context)
+        return null
+    } }
     // Debounced autosave gate: every edit and formatting action bumps it, and
     // it coalesces a burst into one save of the latest text (#262). The save
     // body lives in [autosave] so the timing/ordering contract is testable.
@@ -408,7 +513,28 @@ fun EditorScreen(
     DisposableEffect(noteId) {
         onDispose {
             val id = noteId
-            if (id != null && isLoaded && isEmptyNoteText(editorState.text, seededThisVisit)) {
+            // A name still being typed is committed on the way out, like the body.
+            val pendingName = nameDraft?.let(NoteNames::clean)?.takeIf { it.isNotEmpty() }
+            if (id != null && isLoaded && pendingName != null) {
+                hostScope.launch {
+                    try {
+                        renameNote(pendingName)
+                    } catch (cancellation: CancellationException) {
+                        throw cancellation
+                    } catch (error: Exception) {
+                        Log.w("EditorScreen", "rename on leave failed", error)
+                    }
+                }
+            }
+            // A note given a name is kept even with nothing in it: under File
+            // name an empty file with a name is a note (D088). Named on this
+            // visit, or on an earlier one — then the stored name is no longer
+            // following the body, and is not the "Untitled" an empty body gives.
+            val namedBefore = appSettings.noteTitleSource.isNamedByHand && !nameFollowsBody() &&
+                storedName.isNotBlank() &&
+                storedName != TitleExtractor.extractTitle("", appSettings.noteTitleSource)
+            val named = namedThisVisit || pendingName != null || namedBefore
+            if (id != null && isLoaded && !named && isEmptyNoteText(editorState.text, seededThisVisit)) {
                 hostScope.launch {
                     // Best-effort cleanup: a failure here (a revoked SAF grant
                     // on the sync folder, a disk error) must not crash the
@@ -603,8 +729,11 @@ fun EditorScreen(
     val tocHeadings = remember(visibleLines) { extractHeadings(visibleLines) }
     // Which line becomes the title is a user setting (#280); it keys every
     // derivation below so flipping it re-titles the open note straight away.
-    val currentTitle = remember(editorState.text, noteId, titleSource) {
-        if (noteId == null) "" else TitleExtractor.extractTitle(editorState.text, titleSource)
+    // Under File name it is the stored name instead, except while a new note's
+    // name still follows its first line (D088).
+    val followsBodyNow = nameFollowsBody()
+    val currentTitle = remember(editorState.text, noteId, titleSource, storedName, followsBodyNow) {
+        if (noteId == null) "" else NoteTitles.forSave(storedName, editorState.text, titleSource, followsBodyNow)
     }
     val backlinksFlow = remember(currentTitle, noteId) {
         linkRepo.observeBacklinks(currentTitle, noteId.orEmpty())
@@ -894,6 +1023,7 @@ fun EditorScreen(
             openedUpdatedAt = loadedNote?.updatedAt
             syncedContent = content
             if (loadedNote != null && isJustCreated(loadedNote)) createdThisVisit = true
+            storedName = loadedNote?.title.orEmpty()
             // Where the note opens (#214). Read from the same persisted
             // snapshot as the preview setting above, for the same reason: the
             // collected state starts on the default, so using it here would
@@ -1019,6 +1149,9 @@ fun EditorScreen(
     LaunchedEffect(noteId, isLoaded) {
         if (noteId == null || !isLoaded) return@LaunchedEffect
         repo.observeNote(noteId).distinctUntilChanged().collect { row ->
+            // The name moves on its own row field: a rename made on the computer
+            // arrives here without the body changing (D088).
+            if (row != null) storedName = row.title
             val incoming = editorLiveRefreshText(
                 storedText(editorState.text, seededThisVisit),
                 syncedContent,
@@ -1464,7 +1597,7 @@ fun EditorScreen(
                                 coroutineScope.launch {
                                     val current = repo.getNote(noteId) ?: return@launch
                                     val live = current.copy(
-                                        title = TitleExtractor.extractTitle(editorState.text, titleSource),
+                                        title = currentTitle,
                                         contentMarkdown = editorState.text,
                                         excerpt = TitleExtractor.generateExcerpt(editorState.text, titleSource)
                                     )
@@ -1479,7 +1612,7 @@ fun EditorScreen(
                                 coroutineScope.launch {
                                     val current = repo.getNote(noteId) ?: return@launch
                                     val live = current.copy(
-                                        title = TitleExtractor.extractTitle(editorState.text, titleSource),
+                                        title = currentTitle,
                                         contentMarkdown = editorState.text,
                                         excerpt = TitleExtractor.generateExcerpt(editorState.text, titleSource)
                                     )
@@ -1495,7 +1628,7 @@ fun EditorScreen(
                                 coroutineScope.launch {
                                     val current = repo.getNote(noteId) ?: return@launch
                                     val live = current.copy(
-                                        title = TitleExtractor.extractTitle(editorState.text, titleSource),
+                                        title = currentTitle,
                                         contentMarkdown = editorState.text,
                                         excerpt = TitleExtractor.generateExcerpt(editorState.text, titleSource)
                                     )
@@ -1578,6 +1711,12 @@ fun EditorScreen(
                             },
                             modifier = Modifier.padding(horizontal = 20.dp).padding(top = 12.dp),
                             showReplace = false
+                        )
+                    }
+                    if (titleSource.isNamedByHand && noteId != null) {
+                        NoteNameHeader(
+                            name = currentTitle,
+                            modifier = Modifier.padding(horizontal = 20.dp).padding(top = 12.dp)
                         )
                     }
                     Box(
@@ -1876,6 +2015,40 @@ fun EditorScreen(
                         if (command == QuickInsertCommand.IMAGE) {
                             imagePickerLauncher.launch(arrayOf("image/*"))
                         }
+                    }
+                    if (titleSource.isNamedByHand && noteId != null && !isFocusMode) {
+                        NoteNameField(
+                            // A note with no name and no text has nothing to
+                            // show but the hint — "Untitled" is a fallback for
+                            // the list, not text to type after.
+                            value = nameDraft
+                                ?: if (storedName.isBlank() && editorState.text.isBlank()) "" else currentTitle,
+                            onValueChange = { typed ->
+                                nameDraft = typed
+                                nameProblem = null
+                            },
+                            onCommit = {
+                                val draft = nameDraft
+                                if (draft != null) {
+                                    coroutineScope.launch {
+                                        val problem = renameNote(draft)
+                                        // A slow folder write can finish after the field
+                                        // was edited again; that newer text is not this
+                                        // rename's to clear or judge.
+                                        if (nameDraft == draft) {
+                                            nameProblem = problem
+                                            // Refused names stay in the field to be fixed;
+                                            // the name the folder kept is shown as it is.
+                                            if (problem == null || problem == NoteNames.Problem.FOLDER_KEPT_ANOTHER) {
+                                                nameDraft = null
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            problem = nameProblem,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
                     }
                     Box(
                         Modifier

@@ -350,6 +350,16 @@
     <string name="note_title_source_first_heading">Primer encabezado</string>
     <string name="note_title_source_first_line">Primera línea</string>
     <string name="note_title_source_description">De qué línea sale el título que ves en la lista. «Primer encabezado» toma el primer encabezado Markdown esté donde esté en la nota; «Primera línea» toma siempre la primera línea que escribiste. Al cambiarlo se retitulan tus notas actuales; los nombres de archivo de la carpeta sincronizada se ajustan con «Renombrar archivos según el título» en el Centro de sincronización.</string>
+    <string name="note_title_source_file_name">Nombre de archivo</string>
+    <string name="note_title_source_file_name_description">Con «Nombre de archivo», tú das nombre a cada nota, encima de su texto. En una carpeta sincronizada, ese nombre es el del archivo, y si cambias el nombre del archivo en tu ordenador, cambia el de la nota.</string>
+    <string name="note_name_hint">Nombre</string>
+    <string name="note_name_taken">Ya hay otra nota con este nombre.</string>
+    <string name="note_name_reserved">Este nombre no se puede usar como nombre de archivo.</string>
+    <string name="note_name_folder_kept_another">La carpeta sincronizada mantuvo el archivo con otro nombre, así que la nota ahora usa ese nombre.</string>
+    <string name="sync_keep_file_names_locked">Siempre activado mientras el título de la nota sea «Nombre de archivo»: un archivo solo cambia de nombre cuando cambias el de su nota.</string>
+    <string name="note_title_leave_file_name_title">¿Dejar de usar los nombres que diste a las notas?</string>
+    <string name="note_title_leave_file_name_message">Todas las notas volverán a tomar el título de su texto. Se perderán los nombres que diste a notas que no están en una carpeta sincronizada. Los archivos conservan su nombre solo si Conservar nombres de archivo está activado en el Centro de sincronización.</string>
+    <string name="note_title_leave_file_name_confirm">Cambiar</string>
     <string name="new_note_heading">Empezar las notas nuevas con un encabezado</string>
     <string name="new_note_heading_description">Las notas nuevas empiezan con «# », así la primera línea que escribes es un encabezado y pasa a ser el título de la nota. Las notas existentes no cambian.</string>
     <plurals name="note_title_retitled_format">

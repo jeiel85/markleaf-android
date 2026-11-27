@@ -287,8 +287,16 @@ fun SyncCenterScreen(
 
                                 SettingsSwitchRow(
                                     title = stringResource(R.string.sync_keep_file_names),
-                                    description = stringResource(R.string.sync_keep_file_names_description),
-                                    checked = appSettings.syncKeepFileNames,
+                                    // Under the File name title rule a save never
+                                    // renames a file anyway (D088), so the switch
+                                    // shows on and locked, saying why.
+                                    description = if (appSettings.noteTitleSource.isNamedByHand) {
+                                        stringResource(R.string.sync_keep_file_names_locked)
+                                    } else {
+                                        stringResource(R.string.sync_keep_file_names_description)
+                                    },
+                                    checked = appSettings.keepsFileNames,
+                                    enabled = !appSettings.noteTitleSource.isNamedByHand,
                                     onCheckedChange = { keep ->
                                         HapticFeedback.light(context)
                                         scope.launch { settingsRepository.setSyncKeepFileNames(keep) }
@@ -298,7 +306,7 @@ fun SyncCenterScreen(
                                 // Renaming every file to its title is exactly what
                                 // keeping names asks Markleaf not to do, so the
                                 // button would undo the setting in one tap (#429).
-                                if (!appSettings.syncKeepFileNames) {
+                                if (!appSettings.keepsFileNames) {
                                     OutlinedButton(
                                         onClick = {
                                             val uri = appSettings.syncFolderUriOrNull() ?: return@OutlinedButton

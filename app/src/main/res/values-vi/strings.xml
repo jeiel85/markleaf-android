@@ -341,6 +341,16 @@
     <string name="note_title_source_first_heading">Tiêu đề mục đầu tiên</string>
     <string name="note_title_source_first_line">Dòng đầu tiên</string>
     <string name="note_title_source_description">Dòng nào trong ghi chú trở thành tiêu đề trong danh sách. “Tiêu đề mục đầu tiên” lấy tiêu đề Markdown đầu tiên ở bất kỳ đâu trong ghi chú; “Dòng đầu tiên” luôn lấy dòng đầu tiên bạn viết. Thay đổi tùy chọn này sẽ đặt lại tiêu đề cho các ghi chú hiện có — trong Trung tâm đồng bộ, “Đổi tên tệp theo tiêu đề ghi chú” sẽ cập nhật tên các tệp đã đồng bộ theo.</string>
+    <string name="note_title_source_file_name">Tên tệp</string>
+    <string name="note_title_source_file_name_description">Với “Tên tệp”, bạn tự đặt tên cho từng ghi chú, ở phía trên nội dung. Trong thư mục đồng bộ, tên đó là tên tệp, và đổi tên tệp trên máy tính sẽ đổi tên ghi chú.</string>
+    <string name="note_name_hint">Tên</string>
+    <string name="note_name_taken">Đã có ghi chú khác mang tên này.</string>
+    <string name="note_name_reserved">Không thể dùng tên này làm tên tệp.</string>
+    <string name="note_name_folder_kept_another">Thư mục đồng bộ giữ tệp dưới một tên khác, nên ghi chú giờ dùng tên đó.</string>
+    <string name="sync_keep_file_names_locked">Luôn bật khi Tiêu đề ghi chú là “Tên tệp”: tệp chỉ được đổi tên khi bạn đổi tên ghi chú của nó.</string>
+    <string name="note_title_leave_file_name_title">Ngừng dùng tên bạn đã đặt cho ghi chú?</string>
+    <string name="note_title_leave_file_name_message">Mọi ghi chú sẽ lại lấy tiêu đề từ nội dung. Tên bạn đặt cho các ghi chú không nằm trong thư mục đồng bộ sẽ mất. Tệp chỉ giữ tên nếu Giữ tên tệp đang bật trong Trung tâm đồng bộ.</string>
+    <string name="note_title_leave_file_name_confirm">Chuyển</string>
     <string name="new_note_heading">Bắt đầu ghi chú mới bằng tiêu đề mục</string>
     <string name="new_note_heading_description">Ghi chú mới bắt đầu bằng “# ”, nên dòng đầu tiên bạn viết là tiêu đề mục và trở thành tiêu đề ghi chú. Ghi chú hiện có không bị thay đổi.</string>
     <plurals name="note_title_retitled_format">

@@ -40,6 +40,11 @@ internal object MirrorWrite {
      * so a name the user gave it outside Markleaf survives the next save. The
      * link to the note never depended on the name — the frontmatter id or the
      * sidecar entry is what finds the file — so only the rename is skipped.
+     *
+     * [onFileName] hears the name the file holds after a successful write. A
+     * rename is best-effort — a provider may accept the bytes and refuse the
+     * rename — so a caller that needs the file to carry the title (the File
+     * name rule's rename, D088) checks it here instead of trusting the result.
      */
     internal fun writeNoteInto(
         context: Context,
@@ -47,11 +52,12 @@ internal object MirrorWrite {
         note: Note,
         extension: SyncFileExtension,
         metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
-        keepFileName: Boolean = false
+        keepFileName: Boolean = false,
+        onFileName: (String) -> Unit = {}
     ): Boolean {
         if (!folder.canWrite()) return false
         if (metadata is MirrorMetadata.Sidecar) {
-            return writeNoteSidecar(context, folder, note, extension, metadata.deviceId, keepFileName)
+            return writeNoteSidecar(context, folder, note, extension, metadata.deviceId, keepFileName, onFileName)
         }
 
         // Fast path: we remember which document holds this note, its name
@@ -59,7 +65,16 @@ internal object MirrorWrite {
         // carries the note's id. One read instead of listing the folder and
         // reading the head of every file in it (#222).
         MirrorFileLookup.MirrorFileCache.hit(context, folder.uri, note, keepFileName)?.let { cached ->
-            return writeContents(context, cached.uri, note, cached.extraEntries)
+            if (!writeContents(context, cached.uri, note, cached.extraEntries)) return false
+            // The cache checks the id, not the name, and a provider may keep a
+            // document's uri through a rename made in the folder — so the name
+            // it remembers can be stale. Ask the document (D088).
+            val actual = SidecarStore.documentName(context, cached.uri) ?: cached.name
+            if (actual != cached.name) {
+                MirrorFileLookup.MirrorFileCache.remember(folder.uri, note.id, cached.uri, actual)
+            }
+            onFileName(actual)
+            return true
         }
 
         val mirrorFiles = folder.listFiles().filter { MirrorFileLookup.isMirrorEntry(it) }
@@ -83,6 +98,7 @@ internal object MirrorWrite {
         // the DocumentFile's uri in place, so this is the post-rename identity.
         target.name?.let {
             MirrorFileLookup.MirrorFileCache.remember(folder.uri, note.id, target.uri, it)
+            onFileName(it)
         }
         return true
     }
@@ -104,7 +120,8 @@ internal object MirrorWrite {
         note: Note,
         extension: SyncFileExtension,
         deviceId: String,
-        keepFileName: Boolean
+        keepFileName: Boolean,
+        onFileName: (String) -> Unit
     ): Boolean {
         val ownEntries = SidecarStore.ownEntries(context, folder, deviceId)
 
@@ -129,6 +146,7 @@ internal object MirrorWrite {
                 archived = note.archived
             )
             SidecarStore.write(context, folder, deviceId, ownEntries.values)
+            onFileName(cached.name)
             return true
         }
 
@@ -173,6 +191,7 @@ internal object MirrorWrite {
         // Remembered so the next save of this note takes the fast path above.
         MirrorFileLookup.MirrorFileCache.remember(folder.uri, note.id, target.uri, finalName)
         SidecarStore.write(context, folder, deviceId, ownEntries.values)
+        onFileName(finalName)
         return true
     }
 

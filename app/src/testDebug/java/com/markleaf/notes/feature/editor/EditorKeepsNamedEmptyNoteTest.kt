@@ -52,11 +52,14 @@ class EditorKeepsNamedEmptyNoteTest {
         val noteId = UUID.randomUUID().toString()
         runBlocking {
             // What the visit that named it left behind: the name, no text, and
-            // the rename's edit time after the creation time.
+            // the rename's edit time after the creation time. Not "groceries":
+            // the database is shared across test classes, and a note left
+            // under that name makes EditorNameFieldRenamesNoteTest's rename a
+            // duplicate.
             repo.createNote(
                 Note(
                     id = noteId,
-                    title = "groceries",
+                    title = "packing list",
                     contentMarkdown = "",
                     excerpt = "",
                     createdAt = Instant.ofEpochMilli(1_000),
@@ -95,7 +98,7 @@ class EditorKeepsNamedEmptyNoteTest {
 
         assertEquals(
             "a note named earlier is a note, even with nothing in it",
-            "groceries",
+            "packing list",
             runBlocking { repo.getNote(noteId) }?.title
         )
     }

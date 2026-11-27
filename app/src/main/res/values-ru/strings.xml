@@ -386,6 +386,7 @@
     <string name="note_name_hint">Имя</string>
     <string name="note_name_taken">Другая заметка уже называется так.</string>
     <string name="note_name_reserved">Это имя нельзя использовать как имя файла.</string>
+    <string name="note_name_folder_kept_another">Папка синхронизации оставила файлу другое имя, поэтому заметка теперь называется так же.</string>
     <string name="sync_keep_file_names_locked">Всегда включено, пока название заметки — «Имя файла»: файл переименовывается, только когда вы переименовываете заметку.</string>
     <string name="note_title_leave_file_name_title">Перестать использовать имена, данные заметкам?</string>
     <string name="note_title_leave_file_name_message">Все заметки снова получат название из своего текста. Имена, которые вы дали заметкам вне синхронизируемой папки, пропадут. Файлы сохранят имена, только если в Центре синхронизации включено «Сохранять имена файлов».</string>

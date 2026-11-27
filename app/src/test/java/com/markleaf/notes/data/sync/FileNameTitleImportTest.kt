@@ -161,4 +161,43 @@ class FileNameTitleImportTest {
         assertTrue(imported.updated.isEmpty())
         assertEquals(1, imported.result.skipped)
     }
+
+    /** The name a rename's write reports, for the editor to check it took (D088). */
+    private fun renameInApp(n: Note, metadata: MirrorMetadata = MirrorMetadata.Frontmatter): String? {
+        var reported: String? = null
+        assertTrue(
+            NoteFolderMirror.writeNoteInto(
+                context, folder, n, SyncFileExtension.MD, metadata, keepFileName = false
+            ) { reported = it }
+        )
+        return reported
+    }
+
+    @Test
+    fun aRenameReportsTheNameTheFileNowHas() {
+        save(note())
+        assertEquals("shopping.md", renameInApp(note(title = "shopping")))
+        assertTrue(File(dir, "shopping.md").exists())
+    }
+
+    @Test
+    fun aRenameReportsTheNameTheFileNowHasInSidecarMode() {
+        val sidecar = MirrorMetadata.Sidecar("device-a")
+        save(note(), sidecar)
+        assertEquals("shopping.md", renameInApp(note(title = "shopping"), sidecar))
+    }
+
+    /**
+     * A file that is not a note already holds the name, so the folder gives the
+     * note's file a " (2)": the report says so, and the editor takes that name
+     * rather than stamping the note in sync under one its file does not have.
+     */
+    @Test
+    fun aRenameTheFolderCouldNotTakeReportsTheNameItKept() {
+        save(note())
+        File(dir, "shopping.md").writeText("someone else's file")
+        val reported = renameInApp(note(title = "shopping"))
+        assertEquals("shopping (2).md", reported)
+        assertEquals("shopping (2)", com.markleaf.notes.core.text.NoteNames.nameTheFolderKept("shopping", reported!!))
+    }
 }

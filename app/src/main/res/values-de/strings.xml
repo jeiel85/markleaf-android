@@ -355,6 +355,7 @@
     <string name="note_name_hint">Name</string>
     <string name="note_name_taken">Eine andere Notiz hat schon diesen Namen.</string>
     <string name="note_name_reserved">Dieser Name kann nicht als Dateiname verwendet werden.</string>
+    <string name="note_name_folder_kept_another">Der Sync-Ordner hat die Datei unter einem anderen Namen behalten, daher trägt die Notiz jetzt diesen Namen.</string>
     <string name="sync_keep_file_names_locked">Immer an, solange der Notiztitel „Dateiname“ ist: Eine Datei wird nur umbenannt, wenn du ihre Notiz umbenennst.</string>
     <string name="note_title_leave_file_name_title">Selbst vergebene Namen nicht mehr verwenden?</string>
     <string name="note_title_leave_file_name_message">Alle Notizen bekommen ihren Titel wieder aus ihrem Text. Namen, die du Notizen außerhalb eines synchronisierten Ordners gegeben hast, gehen verloren. Dateien behalten ihre Namen nur, wenn „Dateinamen beibehalten“ im Sync-Center an ist.</string>

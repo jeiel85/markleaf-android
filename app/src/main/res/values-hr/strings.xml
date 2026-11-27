@@ -375,6 +375,7 @@
     <string name="note_name_hint">Ime</string>
     <string name="note_name_taken">Druga bilješka već ima to ime.</string>
     <string name="note_name_reserved">To se ime ne može koristiti kao naziv datoteke.</string>
+    <string name="note_name_folder_kept_another">Sinkronizirana mapa zadržala je datoteku pod drugim imenom, pa bilješka sada koristi to ime.</string>
     <string name="sync_keep_file_names_locked">Uvijek uključeno dok je naslov bilješke „Naziv datoteke”: datoteka se preimenuje samo kad preimenujete njezinu bilješku.</string>
     <string name="note_title_leave_file_name_title">Prestati koristiti imena koja ste dali bilješkama?</string>
     <string name="note_title_leave_file_name_message">Sve će bilješke ponovno dobiti naslov iz svojeg teksta. Imena koja ste dali bilješkama izvan sinkronizirane mape bit će izgubljena. Datoteke zadržavaju nazive samo ako je u Centru sinkronizacije uključeno Zadrži nazive datoteka.</string>

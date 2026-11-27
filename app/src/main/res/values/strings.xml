@@ -367,6 +367,7 @@
     <string name="note_name_hint">Name</string>
     <string name="note_name_taken">Another note already has this name.</string>
     <string name="note_name_reserved">This name can’t be used as a file name.</string>
+    <string name="note_name_folder_kept_another">The sync folder kept this file under another name, so the note now uses that name.</string>
     <string name="sync_keep_file_names_locked">Always on while Note title is “File name”: a file is renamed only when you rename its note.</string>
     <string name="note_title_leave_file_name_title">Stop using names you gave notes?</string>
     <string name="note_title_leave_file_name_message">Every note will be titled from its text again. Names you gave notes that aren’t in a synced folder will be lost. Files keep their names only if Keep file names is on in Sync Center.</string>

@@ -124,10 +124,11 @@ object NoteFolderMirror {
         note: Note,
         extension: SyncFileExtension = SyncFileExtension.MD,
         metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
-        keepFileName: Boolean
+        keepFileName: Boolean,
+        onFileName: (String) -> Unit = {}
     ): Boolean {
         val folder = DocumentFile.fromTreeUri(context, folderUri) ?: return false
-        return MirrorWrite.writeNoteInto(context, folder, note, extension, metadata, keepFileName)
+        return MirrorWrite.writeNoteInto(context, folder, note, extension, metadata, keepFileName, onFileName)
     }
 
     /** Resolve a relative Markdown link against an actual file in the selected folder. */
@@ -174,8 +175,9 @@ object NoteFolderMirror {
         note: Note,
         extension: SyncFileExtension,
         metadata: MirrorMetadata = MirrorMetadata.Frontmatter,
-        keepFileName: Boolean = false
-    ): Boolean = MirrorWrite.writeNoteInto(context, folder, note, extension, metadata, keepFileName)
+        keepFileName: Boolean = false,
+        onFileName: (String) -> Unit = {}
+    ): Boolean = MirrorWrite.writeNoteInto(context, folder, note, extension, metadata, keepFileName, onFileName)
 
     /**
      * [writeNote] plus the `lastImportedAt` stamp that records "the folder now

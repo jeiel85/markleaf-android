@@ -301,7 +301,10 @@ fun EditorScreen(
     // the first line, even on the visit that created the note.
     var storedName by rememberSaveable(noteId) { mutableStateOf("") }
     var namedThisVisit by rememberSaveable(noteId) { mutableStateOf(false) }
-    val nameFollowsBody = createdThisVisit && !namedThisVisit
+    // A function, not a value: the debounced saver and the leave handler below
+    // keep the lambdas of the composition that made them, and a captured value
+    // would stay what it was before the load set createdThisVisit.
+    fun nameFollowsBody() = createdThisVisit && !namedThisVisit
     // The persistence behind the debounce gate: reads the note fresh from the
     // DB so a save never clobbers a newer row, then updates the sync mirror
     // when one is configured (#262).
@@ -319,7 +322,7 @@ fun EditorScreen(
             val updatedNote = if (saveTime != null) {
                 currentNote.copy(
                     title = NoteTitles.forSave(
-                        currentNote.title, content, appSettings.noteTitleSource, nameFollowsBody
+                        currentNote.title, content, appSettings.noteTitleSource, nameFollowsBody()
                     ),
                     contentMarkdown = content,
                     excerpt = TitleExtractor.generateExcerpt(content, appSettings.noteTitleSource),
@@ -347,7 +350,7 @@ fun EditorScreen(
                             updatedNote,
                             appSettings.syncFileExtension,
                             appSettings.mirrorMetadata(),
-                            keepsFileName(appSettings.keepsFileNames, nameFollowsBody)
+                            keepsFileName(appSettings.keepsFileNames, nameFollowsBody())
                         )
                         if (wrote) {
                             val attachments = AttachmentManager.filesForNote(context, id)
@@ -400,6 +403,7 @@ fun EditorScreen(
         val syncUri = appSettings.syncFolderUriOrNull()
         // A locked note never reaches the folder (#155), so it has no file to rename.
         if (syncUri != null && !renamed.locked) {
+            var fileName: String? = null
             val ok = withContext(Dispatchers.IO) {
                 NoteFolderMirror.writeNote(
                     context,
@@ -408,9 +412,17 @@ fun EditorScreen(
                     appSettings.syncFileExtension,
                     appSettings.mirrorMetadata(),
                     keepFileName = false
-                )
+                ) { fileName = it }
             }
-            if (ok) repo.updateNote(renamed.copy(lastImportedAt = renamed.updatedAt))
+            if (ok) {
+                val kept = fileName?.let { NoteNames.nameTheFolderKept(name, it) }
+                repo.updateNote(renamed.copy(title = kept ?: name, lastImportedAt = renamed.updatedAt))
+                if (kept != null) {
+                    storedName = kept
+                    WidgetRefresh.notesChanged(context)
+                    return NoteNames.Problem.FOLDER_KEPT_ANOTHER
+                }
+            }
         }
         WidgetRefresh.notesChanged(context)
         return null
@@ -469,8 +481,13 @@ fun EditorScreen(
                 }
             }
             // A note given a name is kept even with nothing in it: under File
-            // name an empty file with a name is a note (D088).
-            val named = namedThisVisit || pendingName != null
+            // name an empty file with a name is a note (D088). Named on this
+            // visit, or on an earlier one — then the stored name is no longer
+            // following the body, and is not the "Untitled" an empty body gives.
+            val namedBefore = appSettings.noteTitleSource.isNamedByHand && !nameFollowsBody() &&
+                storedName.isNotBlank() &&
+                storedName != TitleExtractor.extractTitle("", appSettings.noteTitleSource)
+            val named = namedThisVisit || pendingName != null || namedBefore
             if (id != null && isLoaded && !named && isEmptyNoteText(editorState.text, seededThisVisit)) {
                 hostScope.launch {
                     // Best-effort cleanup: a failure here (a revoked SAF grant
@@ -668,8 +685,9 @@ fun EditorScreen(
     // derivation below so flipping it re-titles the open note straight away.
     // Under File name it is the stored name instead, except while a new note's
     // name still follows its first line (D088).
-    val currentTitle = remember(editorState.text, noteId, titleSource, storedName, nameFollowsBody) {
-        if (noteId == null) "" else NoteTitles.forSave(storedName, editorState.text, titleSource, nameFollowsBody)
+    val followsBodyNow = nameFollowsBody()
+    val currentTitle = remember(editorState.text, noteId, titleSource, storedName, followsBodyNow) {
+        if (noteId == null) "" else NoteTitles.forSave(storedName, editorState.text, titleSource, followsBodyNow)
     }
     val backlinksFlow = remember(currentTitle, noteId) {
         linkRepo.observeBacklinks(currentTitle, noteId.orEmpty())
@@ -1960,8 +1978,11 @@ fun EditorScreen(
                                     coroutineScope.launch {
                                         val problem = renameNote(draft)
                                         nameProblem = problem
-                                        // Refused names stay in the field to be fixed.
-                                        if (problem == null) nameDraft = null
+                                        // Refused names stay in the field to be fixed;
+                                        // the name the folder kept is shown as it is.
+                                        if (problem == null || problem == NoteNames.Problem.FOLDER_KEPT_ANOTHER) {
+                                            nameDraft = null
+                                        }
                                     }
                                 }
                             },

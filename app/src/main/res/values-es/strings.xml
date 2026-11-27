@@ -355,6 +355,7 @@
     <string name="note_name_hint">Nombre</string>
     <string name="note_name_taken">Ya hay otra nota con este nombre.</string>
     <string name="note_name_reserved">Este nombre no se puede usar como nombre de archivo.</string>
+    <string name="note_name_folder_kept_another">La carpeta sincronizada mantuvo el archivo con otro nombre, así que la nota ahora usa ese nombre.</string>
     <string name="sync_keep_file_names_locked">Siempre activado mientras el título de la nota sea «Nombre de archivo»: un archivo solo cambia de nombre cuando cambias el de su nota.</string>
     <string name="note_title_leave_file_name_title">¿Dejar de usar los nombres que diste a las notas?</string>
     <string name="note_title_leave_file_name_message">Todas las notas volverán a tomar el título de su texto. Se perderán los nombres que diste a notas que no están en una carpeta sincronizada. Los archivos conservan su nombre solo si Conservar nombres de archivo está activado en el Centro de sincronización.</string>

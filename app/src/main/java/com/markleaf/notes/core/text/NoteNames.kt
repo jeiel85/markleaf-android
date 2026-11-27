@@ -29,8 +29,12 @@ object NoteNames {
         for (i in 1..9) { add("COM$i"); add("LPT$i") }
     }
 
-    /** Why a typed name cannot be used. */
-    enum class Problem { RESERVED, TAKEN }
+    /**
+     * Why a typed name cannot be used: reserved, taken by another note, or —
+     * [FOLDER_KEPT_ANOTHER] — accepted here but not by the sync folder, which
+     * kept the file under another name (see [nameTheFolderKept]).
+     */
+    enum class Problem { RESERVED, TAKEN, FOLDER_KEPT_ANOTHER }
 
     /**
      * [raw] made safe as a file name base: illegal characters become spaces,
@@ -73,4 +77,16 @@ object NoteNames {
 
     /** A file name without its extension — `Frankenstein.md` → `Frankenstein`. */
     fun fromFileName(fileName: String): String = fileName.substringBeforeLast('.', fileName)
+
+    /**
+     * The name the sync folder kept when a rename to [wanted] did not take —
+     * its file still called what it was, because the provider refused the
+     * rename, or given a " (2)" because a file that is not a note held the
+     * name — or null when the file is called [wanted]. The note then takes the
+     * file's name: stamped as in sync under [wanted], the next import would
+     * read the old name as a rename made in the folder and quietly undo this
+     * one (D088).
+     */
+    fun nameTheFolderKept(wanted: String, fileName: String): String? =
+        fromFileName(fileName).takeIf { it != wanted }
 }

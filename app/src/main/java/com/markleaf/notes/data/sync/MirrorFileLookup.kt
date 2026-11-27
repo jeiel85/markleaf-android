@@ -47,7 +47,7 @@ internal object MirrorFileLookup {
     internal class MirrorMatch(val file: DocumentFile, val extraEntries: List<String>)
 
     /** A cached document that has been re-verified as this note's. */
-    internal class CachedTarget(val uri: Uri, val extraEntries: List<String>)
+    internal class CachedTarget(val uri: Uri, val name: String, val extraEntries: List<String>)
 
     /** A remembered sidecar file, with the name its index entry must keep. */
     internal class SidecarTarget(val uri: Uri, val name: String)
@@ -106,7 +106,7 @@ internal object MirrorFileLookup {
                 entries.remove(note.id)
                 return null
             }
-            return CachedTarget(entry.uri, head.extraEntries)
+            return CachedTarget(entry.uri, entry.name, head.extraEntries)
         }
 
         /**

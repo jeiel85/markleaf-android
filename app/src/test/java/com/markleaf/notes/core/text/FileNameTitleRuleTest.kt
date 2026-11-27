@@ -96,4 +96,11 @@ class FileNameTitleRuleTest {
         assertFalse(AppSettings().keepsFileNames)
         assertTrue(AppSettings(syncKeepFileNames = true).keepsFileNames)
     }
+
+    @Test
+    fun `a file called the wanted name means the folder took it`() {
+        assertNull(NoteNames.nameTheFolderKept("groceries", "groceries.md"))
+        assertNull(NoteNames.nameTheFolderKept("v1.2 notes", "v1.2 notes.txt"))
+        assertEquals("shopping", NoteNames.nameTheFolderKept("groceries", "shopping.md"))
+    }
 }

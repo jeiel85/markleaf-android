@@ -351,6 +351,7 @@
     <string name="note_name_hint">名称</string>
     <string name="note_name_taken">已有笔记使用这个名称。</string>
     <string name="note_name_reserved">这个名称不能用作文件名。</string>
+    <string name="note_name_folder_kept_another">同步文件夹保留了这个文件的其他名称，因此笔记现在使用该名称。</string>
     <string name="sync_keep_file_names_locked">笔记标题为“文件名”时始终开启：只有在你重命名笔记时才会重命名文件。</string>
     <string name="note_title_leave_file_name_title">不再使用你为笔记起的名字？</string>
     <string name="note_title_leave_file_name_message">所有笔记将重新从正文生成标题。不在同步文件夹中的笔记，你起的名字会丢失。只有在同步中心开启保留文件名时，文件才会保留原名。</string>

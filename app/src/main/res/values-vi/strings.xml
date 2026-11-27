@@ -346,6 +346,7 @@
     <string name="note_name_hint">Tên</string>
     <string name="note_name_taken">Đã có ghi chú khác mang tên này.</string>
     <string name="note_name_reserved">Không thể dùng tên này làm tên tệp.</string>
+    <string name="note_name_folder_kept_another">Thư mục đồng bộ giữ tệp dưới một tên khác, nên ghi chú giờ dùng tên đó.</string>
     <string name="sync_keep_file_names_locked">Luôn bật khi Tiêu đề ghi chú là “Tên tệp”: tệp chỉ được đổi tên khi bạn đổi tên ghi chú của nó.</string>
     <string name="note_title_leave_file_name_title">Ngừng dùng tên bạn đã đặt cho ghi chú?</string>
     <string name="note_title_leave_file_name_message">Mọi ghi chú sẽ lại lấy tiêu đề từ nội dung. Tên bạn đặt cho các ghi chú không nằm trong thư mục đồng bộ sẽ mất. Tệp chỉ giữ tên nếu Giữ tên tệp đang bật trong Trung tâm đồng bộ.</string>

@@ -355,6 +355,7 @@
     <string name="note_name_hint">Nom</string>
     <string name="note_name_taken">Une autre note porte déjà ce nom.</string>
     <string name="note_name_reserved">Ce nom ne peut pas servir de nom de fichier.</string>
+    <string name="note_name_folder_kept_another">Le dossier synchronisé a gardé le fichier sous un autre nom ; la note porte donc désormais ce nom.</string>
     <string name="sync_keep_file_names_locked">Toujours activé tant que le titre de la note est « Nom de fichier » : un fichier n’est renommé que lorsque vous renommez sa note.</string>
     <string name="note_title_leave_file_name_title">Ne plus utiliser les noms donnés aux notes ?</string>
     <string name="note_title_leave_file_name_message">Toutes les notes reprendront leur titre dans leur texte. Les noms donnés aux notes qui ne sont pas dans un dossier synchronisé seront perdus. Les fichiers ne gardent leur nom que si Conserver les noms de fichier est activé dans le Centre de synchronisation.</string>

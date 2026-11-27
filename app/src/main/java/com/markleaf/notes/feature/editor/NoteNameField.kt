@@ -79,6 +79,7 @@ internal fun NoteNameField(
                 text = when (problem) {
                     NoteNames.Problem.TAKEN -> stringResource(R.string.note_name_taken)
                     NoteNames.Problem.RESERVED -> stringResource(R.string.note_name_reserved)
+                    NoteNames.Problem.FOLDER_KEPT_ANOTHER -> stringResource(R.string.note_name_folder_kept_another)
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.error,

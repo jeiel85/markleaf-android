@@ -366,6 +366,7 @@
     <string name="note_name_hint">Meno</string>
     <string name="note_name_taken">Iná poznámka už má toto meno.</string>
     <string name="note_name_reserved">Toto meno sa nedá použiť ako názov súboru.</string>
+    <string name="note_name_folder_kept_another">Synchronizovaný priečinok ponechal súbor pod iným menom, preto poznámka teraz používa toto meno.</string>
     <string name="sync_keep_file_names_locked">Vždy zapnuté, kým je názov poznámky „Názov súboru“: súbor sa premenuje, len keď premenujete jeho poznámku.</string>
     <string name="note_title_leave_file_name_title">Prestať používať mená, ktoré ste dali poznámkam?</string>
     <string name="note_title_leave_file_name_message">Všetky poznámky znova dostanú názov zo svojho textu. Mená, ktoré ste dali poznámkam mimo synchronizovaného priečinka, sa stratia. Súbory si ponechajú názvy, len ak je v Centre synchronizácie zapnuté Ponechať názvy súborov.</string>

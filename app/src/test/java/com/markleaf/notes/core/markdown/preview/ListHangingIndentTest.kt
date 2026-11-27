@@ -47,4 +47,17 @@ class ListHangingIndentTest {
         assertSame(text, text.withHangingIndent(0, 9.sp))
         assertSame(text, text.withHangingIndent(2, TextUnit.Unspecified))
     }
+
+    @Test
+    fun copyingAListItemGivesBackItsNewlines() {
+        var copied: AnnotatedString? = null
+        val clipboard = ItemBreakRestoringClipboard(object : androidx.compose.ui.platform.ClipboardManager {
+            override fun getText(): AnnotatedString? = copied
+            override fun setText(annotatedString: AnnotatedString) { copied = annotatedString }
+        })
+
+        clipboard.setText(AnnotatedString("• first${ITEM_BREAK}second"))
+
+        assertEquals("• first\nsecond", copied?.text)
+    }
 }

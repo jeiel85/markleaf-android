@@ -46,6 +46,7 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -348,6 +349,15 @@ fun MarkdownPreviewList(
                         onTranslationXChange = { zoomTranslationX = it }
                     )
             ) {
+            // Copying a selection gives back the newlines that list rows draw
+            // as ITEM_BREAK (see withHangingIndent). The code and link copy
+            // buttons inside copy source text and keep the real clipboard.
+            val sourceClipboard = LocalClipboardManager.current
+            val selectionClipboard = remember(sourceClipboard) { ItemBreakRestoringClipboard(sourceClipboard) }
+            CompositionLocalProvider(
+                LocalClipboardManager provides selectionClipboard,
+                LocalSourceClipboard provides sourceClipboard
+            ) {
             SelectionContainer(
                 modifier = Modifier
                     .fillMaxSize()
@@ -414,6 +424,7 @@ fun MarkdownPreviewList(
                         }
                     }
                 }
+            }
             }
             }
         }
@@ -1208,6 +1219,25 @@ internal fun AnnotatedString.withHangingIndent(
     }
 }
 
+/** The clipboard outside the preview's selection wrapper, for copies of source text. */
+private val LocalSourceClipboard = compositionLocalOf<ClipboardManager?> { null }
+
+/**
+ * Hands a copied selection to [delegate] with each [ITEM_BREAK] turned back
+ * into the newline it stands for, so a list item copied from the preview
+ * pastes on the lines it showed (Codex on #612). A zero-width space the note
+ * itself contained becomes a newline too; that trade is accepted, as such a
+ * character is rare and invisible either way.
+ */
+internal class ItemBreakRestoringClipboard(private val delegate: ClipboardManager) : ClipboardManager by delegate {
+    override fun setText(annotatedString: AnnotatedString) {
+        delegate.setText(
+            if (ITEM_BREAK in annotatedString.text) AnnotatedString(annotatedString.text.replace(ITEM_BREAK, '\n'))
+            else annotatedString
+        )
+    }
+}
+
 /** What a break inside a list item becomes: a zero-width space, see [withHangingIndent]. */
 internal const val ITEM_BREAK = '\u200B'
 
@@ -1638,7 +1668,7 @@ private fun Modifier.linkPressGestures(
     if (annotated.getStringAnnotations(LINK_HREF_TAG, 0, annotated.length).isEmpty()) {
         return this
     }
-    val clipboard = LocalClipboardManager.current
+    val clipboard = LocalSourceClipboard.current ?: LocalClipboardManager.current
     val context = LocalContext.current
     val copiedMessage = stringResource(R.string.preview_link_address_copied)
     val onAddressCopied = LocalPreviewSelectionReset.current
@@ -2223,7 +2253,7 @@ private fun FootnoteDefRow(line: PreviewLine) {
 @Composable
 private fun MarkdownCodeBlock(text: String, language: String?) {
     val scheme = MaterialTheme.colorScheme
-    val clipboard = LocalClipboardManager.current
+    val clipboard = LocalSourceClipboard.current ?: LocalClipboardManager.current
     val context = LocalContext.current
     val copiedMessage = stringResource(R.string.preview_code_copied)
     val copyLabel = stringResource(R.string.copy_code_block)

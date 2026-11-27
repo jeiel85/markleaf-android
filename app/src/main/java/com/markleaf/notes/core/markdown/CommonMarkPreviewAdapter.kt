@@ -125,6 +125,8 @@ internal object CommonMarkPreviewAdapter {
                 // Before autolinks: post-processors run in the order added,
                 // and an address inside `[[…]]` is part of the wikilink.
                 WikilinkExtension,
+                // `==highlight==` and `%%comment%%` (#608); see ObsidianInline.kt.
+                ObsidianInlineExtension,
                 // Bare `https://…`, `www.…` and email addresses become links,
                 // as they do on GitHub (D082). Code spans and existing links
                 // are left alone by the extension.
@@ -1073,6 +1075,9 @@ internal object CommonMarkPreviewAdapter {
             is HtmlInline -> if (HTML_BR_TAG_REGEX.matches(child.literal.trim())) {
                 out += PreviewInlineSegment("\n", default)
             }
+            // Highlighted text keeps only its highlight: the node holds plain
+            // text (see ObsidianInline.kt), so there is no emphasis inside to lose.
+            is HighlightNode -> appendInlineSegments(child, out, PreviewInlineType.HIGHLIGHT)
             is StrongEmphasis -> appendInlineSegments(child, out, mergeBold(default))
             is Emphasis -> appendInlineSegments(child, out, mergeItalic(default))
             is Strikethrough -> appendInlineSegments(child, out, PreviewInlineType.STRIKETHROUGH)

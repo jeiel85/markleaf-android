@@ -38,7 +38,9 @@ data class MarkdownSyntaxColors(
      * Behind inline code. Unspecified (no background) unless the body is
      * itself monospace, when the typeface no longer sets code apart (#262).
      */
-    val inlineCodeBackground: Color = Color.Unspecified
+    val inlineCodeBackground: Color = Color.Unspecified,
+    /** Behind `==highlighted==` text (#608). */
+    val highlightBackground: Color = Color.Unspecified
 )
 
 /**
@@ -68,7 +70,9 @@ fun markdownSyntaxColors(
     blockquote = scheme.onSurfaceVariant,
     horizontalRule = scheme.onSurfaceVariant,
     // The fenced block's wash, so inline and block code read as one kind.
-    inlineCodeBackground = if (monospaceBody) scheme.onSurfaceVariant.copy(alpha = 0.1f) else Color.Unspecified
+    inlineCodeBackground = if (monospaceBody) scheme.onSurfaceVariant.copy(alpha = 0.1f) else Color.Unspecified,
+    // The preview's highlight band, so `==text==` looks the same in both.
+    highlightBackground = scheme.tertiaryContainer
 )
 
 /**
@@ -324,6 +328,22 @@ object MarkdownSyntaxHighlighter {
             muteMarker(spans, colors, match.range.last - 1, 2)
         }
 
+        // `==text==` and `%%comment%%` (#608): the preview draws the first as
+        // a highlight and hides the second, so the editor shows the band and
+        // greys the comment the way it greys other syntax.
+        HIGHLIGHT_REGEX.findAll(text).filterNot { it.inCode() }.forEach { match ->
+            spans.addStyle(
+                SpanStyle(background = colors.highlightBackground),
+                match.range.first,
+                match.range.last + 1
+            )
+            muteMarker(spans, colors, match.range.first, 2)
+            muteMarker(spans, colors, match.range.last - 1, 2)
+        }
+        COMMENT_REGEX.findAll(text).filterNot { it.inCode() }.forEach { match ->
+            spans.addStyle(SpanStyle(color = colors.syntax), match.range.first, match.range.last + 1)
+        }
+
         BOLD_ITALIC_REGEX.findAll(text).filterNot { it.inCode() }.forEach { match ->
             spans.addStyle(
                 SpanStyle(color = colors.emphasis, fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic),
@@ -445,6 +465,8 @@ object MarkdownSyntaxHighlighter {
     private val HORIZONTAL_RULE_REGEX = Regex("""(?m)^(\*\*\*|---|___)\s*$""")
     private val INLINE_CODE_REGEX = Regex("""`[^`\n]+?`""")
     private val STRIKETHROUGH_REGEX = Regex("""~~[^~\n]+?~~""")
+    private val HIGHLIGHT_REGEX = Regex("""==(?=[^\s=])[^\n]*?[^\s=]==""")
+    private val COMMENT_REGEX = Regex("""%%[\s\S]*?%%""")
     private val BOLD_REGEX = Regex("""\*\*[^*\n]+?\*\*""")
     private val BOLD_ITALIC_REGEX = Regex("""\*\*\*[^*\n]+?\*\*\*""")
     private val BOLD_UNDERSCORE_REGEX = Regex("""(?<!\w)__[^_\n]+?__(?!\w)""")

@@ -4,6 +4,15 @@ All notable changes to Markleaf are documented in this file. This English editio
 
 > 💬 **Questions or feedback?** Start a thread in [GitHub Discussions](https://github.com/jeiel85/markleaf-android/discussions). Bug reports still belong in [Issues](https://github.com/jeiel85/markleaf-android/issues).
 
+## Unreleased
+
+### Added
+- **Highlights and hidden comments, as in Obsidian.** `==text==` now shows as highlighted text in the preview, and the editor marks it the same way. `%%comment%%` is hidden in the preview, inside a line or as a paragraph of its own over several lines; the editor shows it greyed out. A comment with a blank line inside it isn't hidden yet. Thanks to @iJahangard for the suggestion. (#608)
+- **Wikilinks to a heading.** `[[Note#Heading]]` and `[[Note#^block-id]]` open "Note" instead of creating a new note with the whole link as its title, and count as a link to "Note" under Linked from. `[[#Heading]]` scrolls to that heading in the same note. A note whose title itself contains `#` still opens as before. Opening another note doesn't yet scroll to the heading. (#608)
+
+### Fixed
+- **Wrapped list items line up with their text.** In the preview, the second line of a long bullet, numbered or checklist item started under the bullet. It now starts under the item's first letter. Thanks to @mscheidemann for the report. (#606)
+
 ## v2.75.0 - A notes list without section headings - 2026-11-26
 
 This week: the notes list can drop its Pinned, Today, Yesterday and older headings and show one continuous list, and a wikilink opens its note even when the capitals differ. Undo after moving notes to the trash survives a quick visit to a note or Settings, the list writes times in your phone's 12- or 24-hour style, adding a table or callout inside a table no longer splits it, and deleting several notes forever from the trash happens all at once. No new permissions; notes are stored exactly as before.
